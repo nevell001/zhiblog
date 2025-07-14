@@ -1,0 +1,36 @@
+
+# 后端构建产物
+*.log
+*.class
+*.jar
+*.war
+
+# 构建产物与依赖
+node_modules/
+dist/
+build/
+
+
+
+# Cypress自动生成文件（如果你用在前端）
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# IDE及系统文件
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# 其它配置文件
+.env
+.npmrc
+.prettierignore
+.cursor
+dump.rdb
+*.rdb
