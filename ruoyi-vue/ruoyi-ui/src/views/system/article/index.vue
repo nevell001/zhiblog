@@ -1,18 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="作者ID" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入作者ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="标题" prop="title">
+      <el-form-item label="文章标题" prop="title">
         <el-input
           v-model="queryParams.title"
-          placeholder="请输入标题"
+          placeholder="请输入文章标题"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -25,10 +17,42 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="作者ID" prop="authorId">
+        <el-input
+          v-model="queryParams.authorId"
+          placeholder="请输入作者ID"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="是否置顶 0否 1是" prop="isTop">
+        <el-input
+          v-model="queryParams.isTop"
+          placeholder="请输入是否置顶 0否 1是"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="是否推荐 0否 1是" prop="isRecommend">
+        <el-input
+          v-model="queryParams.isRecommend"
+          placeholder="请输入是否推荐 0否 1是"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
       <el-form-item label="浏览量" prop="viewCount">
         <el-input
           v-model="queryParams.viewCount"
           placeholder="请输入浏览量"
+          clearable
+          @keyup.enter.native="handleQuery"
+        />
+      </el-form-item>
+      <el-form-item label="评论数" prop="commentCount">
+        <el-input
+          v-model="queryParams.commentCount"
+          placeholder="请输入评论数"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -87,13 +111,22 @@
 
     <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文章ID" align="center" prop="id" />
-      <el-table-column label="作者ID" align="center" prop="userId" />
-      <el-table-column label="标题" align="center" prop="title" />
+      <el-table-column label="主键" align="center" prop="id" />
+      <el-table-column label="文章标题" align="center" prop="title" />
+      <el-table-column label="摘要" align="center" prop="summary" />
       <el-table-column label="内容" align="center" prop="content" />
-      <el-table-column label="状态" align="center" prop="status" />
+      <el-table-column label="封面图片" align="center" prop="coverImage" width="100">
+        <template slot-scope="scope">
+          <image-preview :src="scope.row.coverImage" :width="50" :height="50"/>
+        </template>
+      </el-table-column>
       <el-table-column label="分类ID" align="center" prop="categoryId" />
+      <el-table-column label="作者ID" align="center" prop="authorId" />
+      <el-table-column label="状态 0草稿 1发布" align="center" prop="status" />
+      <el-table-column label="是否置顶 0否 1是" align="center" prop="isTop" />
+      <el-table-column label="是否推荐 0否 1是" align="center" prop="isRecommend" />
       <el-table-column label="浏览量" align="center" prop="viewCount" />
+      <el-table-column label="评论数" align="center" prop="commentCount" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
           <el-button
@@ -125,20 +158,38 @@
     <!-- 添加或修改文章对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="作者ID" prop="userId">
-          <el-input v-model="form.userId" placeholder="请输入作者ID" />
+        <el-form-item label="文章标题" prop="title">
+          <el-input v-model="form.title" placeholder="请输入文章标题" />
         </el-form-item>
-        <el-form-item label="标题" prop="title">
-          <el-input v-model="form.title" placeholder="请输入标题" />
+        <el-form-item label="摘要" prop="summary">
+          <el-input v-model="form.summary" type="textarea" placeholder="请输入内容" />
         </el-form-item>
         <el-form-item label="内容">
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
+        <el-form-item label="封面图片" prop="coverImage">
+          <image-upload v-model="form.coverImage"/>
+        </el-form-item>
         <el-form-item label="分类ID" prop="categoryId">
           <el-input v-model="form.categoryId" placeholder="请输入分类ID" />
         </el-form-item>
+        <el-form-item label="作者ID" prop="authorId">
+          <el-input v-model="form.authorId" placeholder="请输入作者ID" />
+        </el-form-item>
+        <el-form-item label="是否置顶 0否 1是" prop="isTop">
+          <el-input v-model="form.isTop" placeholder="请输入是否置顶 0否 1是" />
+        </el-form-item>
+        <el-form-item label="是否推荐 0否 1是" prop="isRecommend">
+          <el-input v-model="form.isRecommend" placeholder="请输入是否推荐 0否 1是" />
+        </el-form-item>
         <el-form-item label="浏览量" prop="viewCount">
           <el-input v-model="form.viewCount" placeholder="请输入浏览量" />
+        </el-form-item>
+        <el-form-item label="评论数" prop="commentCount">
+          <el-input v-model="form.commentCount" placeholder="请输入评论数" />
+        </el-form-item>
+        <el-form-item label="删除标志 0正常 1删除" prop="delFlag">
+          <el-input v-model="form.delFlag" placeholder="请输入删除标志 0正常 1删除" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -178,22 +229,24 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        userId: null,
         title: null,
+        summary: null,
         content: null,
-        status: null,
+        coverImage: null,
         categoryId: null,
+        authorId: null,
+        status: null,
+        isTop: null,
+        isRecommend: null,
         viewCount: null,
+        commentCount: null,
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        userId: [
-          { required: true, message: "作者ID不能为空", trigger: "blur" }
-        ],
         title: [
-          { required: true, message: "标题不能为空", trigger: "blur" }
+          { required: true, message: "文章标题不能为空", trigger: "blur" }
         ],
         content: [
           { required: true, message: "内容不能为空", trigger: "blur" }
@@ -223,14 +276,20 @@ export default {
     reset() {
       this.form = {
         id: null,
-        userId: null,
         title: null,
+        summary: null,
         content: null,
-        status: null,
+        coverImage: null,
         categoryId: null,
+        authorId: null,
+        status: null,
+        isTop: null,
+        isRecommend: null,
         viewCount: null,
+        commentCount: null,
         createTime: null,
-        updateTime: null
+        updateTime: null,
+        delFlag: null
       }
       this.resetForm("form")
     },
