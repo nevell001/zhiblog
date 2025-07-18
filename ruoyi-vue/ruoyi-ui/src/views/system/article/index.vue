@@ -9,18 +9,20 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="分类ID" prop="categoryId">
-        <el-input
-          v-model="queryParams.categoryId"
-          placeholder="请输入分类ID"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="分类" prop="categoryId">
+        <el-select v-model="queryParams.categoryId" placeholder="请选择分类" filterable clearable>
+          <el-option
+            v-for="item in categoryOptions"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="作者ID" prop="authorId">
+      <el-form-item label="作者" prop="authorId">
         <el-input
           v-model="queryParams.authorId"
-          placeholder="请输入作者ID"
+          placeholder="请输入作者"
           clearable
           @keyup.enter.native="handleQuery"
         />
@@ -123,10 +125,22 @@
       <el-table-column label="文章标题" align="center" prop="title" />
       <el-table-column label="摘要" align="center" prop="summary" />
       <el-table-column label="封面图片" align="center" prop="coverUrl" />
-      <el-table-column label="分类ID" align="center" prop="categoryId" />
+      <el-table-column label="分类" align="center" prop="categoryId">
+        <template slot-scope="scope">
+          <span>{{ getCategoryName(scope.row.categoryId) }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="作者ID" align="center" prop="authorId" />
-      <el-table-column label="是否置顶 0否 1是" align="center" prop="isTop" />
-      <el-table-column label="是否推荐 0否 1是" align="center" prop="isRecommend" />
+      <el-table-column label="是否置顶" align="center" prop="isTop">
+        <template slot-scope="scope">
+          <span>{{ scope.row.isTop === 1 ? '是' : '否' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="是否推荐" align="center" prop="isRecommend">
+        <template slot-scope="scope">
+          <span>{{ scope.row.isRecommend === 1 ? '是' : '否' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="状态 0草稿 1发布" align="center" prop="status" />
       <el-table-column label="浏览量" align="center" prop="viewCount" />
       <el-table-column label="点赞数" align="center" prop="likeCount" />
@@ -174,20 +188,30 @@
         <el-form-item label="封面图片" prop="coverUrl">
           <el-input v-model="form.coverUrl" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="分类ID" prop="categoryId">
-          <el-input v-model="form.categoryId" placeholder="请输入分类ID" />
+        <el-form-item label="分类" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="请选择分类" filterable>
+            <el-option
+              v-for="item in categoryOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
         <el-form-item label="作者ID" prop="authorId">
           <el-input v-model="form.authorId" placeholder="请输入作者ID" />
         </el-form-item>
-        <el-form-item label="是否置顶 0否 1是" prop="isTop">
-          <el-input v-model="form.isTop" placeholder="请输入是否置顶 0否 1是" />
+        <el-form-item label="是否置顶" prop="isTop">
+          <el-select v-model="form.isTop" placeholder="请选择">
+            <el-option label="否" :value="0" />
+            <el-option label="是" :value="1" />
+          </el-select>
         </el-form-item>
-        <el-form-item label="是否推荐 0否 1是" prop="isRecommend">
-          <el-input v-model="form.isRecommend" placeholder="请输入是否推荐 0否 1是" />
-        </el-form-item>
-        <el-form-item label="删除标志 0正常 1删除" prop="delFlag">
-          <el-input v-model="form.delFlag" placeholder="请输入删除标志 0正常 1删除" />
+        <el-form-item label="是否推荐" prop="isRecommend">
+          <el-select v-model="form.isRecommend" placeholder="请选择">
+            <el-option label="否" :value="0" />
+            <el-option label="是" :value="1" />
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -201,6 +225,7 @@
 <script>
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/system/article"
 import Editor from '@/components/Editor'
+import { listCategory } from "@/api/system/category"
 
 export default {
   name: "Article",
@@ -252,11 +277,13 @@ export default {
         content: [
           { required: true, message: "文章内容不能为空", trigger: "blur" }
         ],
-      }
+      },
+      categoryOptions: [],
     }
   },
   created() {
     this.getList()
+    this.loadCategoryOptions()
   },
   methods: {
     /** 查询博客文章列表 */
@@ -362,7 +389,16 @@ export default {
       this.download('system/article/export', {
         ...this.queryParams
       }, `article_${new Date().getTime()}.xlsx`)
-    }
+    },
+    loadCategoryOptions() {
+      listCategory().then(res => {
+        this.categoryOptions = res.rows || []
+      })
+    },
+    getCategoryName(id) {
+      const item = this.categoryOptions.find(c => c.id === id)
+      return item ? item.name : ''
+    },
   }
 }
 </script>

@@ -85,8 +85,23 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     public int updateBlogArticle(BlogArticle blogArticle)
     {
+        // 标题去除前后空格并统一小写
+        String title = blogArticle.getTitle().trim().toLowerCase();
+        // 校验除自己外是否有同名文章
+        BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
+        if (exist != null && !exist.getId().equals(blogArticle.getId())) {
+            throw new RuntimeException("标题不符合要求，请重试");
+        }
+        blogArticle.setTitle(title);
         blogArticle.setUpdateTime(DateUtils.getNowDate());
-        return blogArticleMapper.updateBlogArticle(blogArticle);
+        try {
+            return blogArticleMapper.updateBlogArticle(blogArticle);
+        } catch (Exception e) {
+            if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
+                throw new RuntimeException("标题不符合要求，请重试");
+            }
+            throw e;
+        }
     }
 
     /**
@@ -111,5 +126,10 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public int deleteBlogArticleById(Long id)
     {
         return blogArticleMapper.deleteBlogArticleById(id);
+    }
+
+    @Override
+    public void addViewCount(Long id) {
+        blogArticleMapper.addViewCount(id);
     }
 }

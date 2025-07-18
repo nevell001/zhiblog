@@ -106,4 +106,13 @@ public class BlogArticleController extends BaseController
     {
         return toAjax(blogArticleService.deleteBlogArticleByIds(ids));
     }
+
+    /**
+     * 文章浏览量+1
+     */
+    @PostMapping("/view/{id}")
+    public AjaxResult addView(@PathVariable Long id) {
+        blogArticleService.addViewCount(id);
+        return AjaxResult.success();
+    }
 }

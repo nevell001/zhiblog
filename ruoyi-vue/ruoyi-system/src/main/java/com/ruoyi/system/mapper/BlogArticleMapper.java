@@ -65,4 +65,10 @@ public interface BlogArticleMapper
      * @return 博客文章
      */
     public BlogArticle selectBlogArticleByTitle(String title);
+
+    /**
+     * 文章浏览量+1
+     * @param id 文章ID
+     */
+    void addViewCount(Long id);
 }

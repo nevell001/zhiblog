@@ -58,4 +58,10 @@ public interface IBlogArticleService
      * @return 结果
      */
     public int deleteBlogArticleById(Long id);
+
+    /**
+     * 文章浏览量+1
+     * @param id 文章ID
+     */
+    void addViewCount(Long id);
 }

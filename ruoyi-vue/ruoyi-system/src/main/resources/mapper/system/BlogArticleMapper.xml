@@ -83,6 +83,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
+    <update id="addViewCount" parameterType="Long">
+        update blog_article set view_count = view_count + 1 where id = #{id}
+    </update>
+
     <delete id="deleteBlogArticleById" parameterType="Long">
         delete from blog_article where id = #{id}
     </delete>
