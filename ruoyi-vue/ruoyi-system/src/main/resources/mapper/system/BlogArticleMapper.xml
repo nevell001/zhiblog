@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.BlogArticleMapper">
+    
+    <resultMap type="BlogArticle" id="BlogArticleResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="summary"    column="summary"    />
+        <result property="content"    column="content"    />
+        <result property="coverUrl"    column="cover_url"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="authorId"    column="author_id"    />
+        <result property="isTop"    column="is_top"    />
+        <result property="isRecommend"    column="is_recommend"    />
+        <result property="status"    column="status"    />
+        <result property="viewCount"    column="view_count"    />
+        <result property="likeCount"    column="like_count"    />
+        <result property="commentCount"    column="comment_count"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectBlogArticleVo">
+        select id, title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag from blog_article
+    </sql>
+
+    <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
+        <include refid="selectBlogArticleVo"/>
+        <where>  
+            <if test="title != null  and title != ''"> and title = #{title}</if>
+            <if test="summary != null  and summary != ''"> and summary = #{summary}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="coverUrl != null  and coverUrl != ''"> and cover_url = #{coverUrl}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="authorId != null "> and author_id = #{authorId}</if>
+            <if test="isTop != null "> and is_top = #{isTop}</if>
+            <if test="isRecommend != null "> and is_recommend = #{isRecommend}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="viewCount != null "> and view_count = #{viewCount}</if>
+            <if test="likeCount != null "> and like_count = #{likeCount}</if>
+            <if test="commentCount != null "> and comment_count = #{commentCount}</if>
+        </where>
+    </select>
+    
+    <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
+        <include refid="selectBlogArticleVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
+        select * from blog_article where title = #{title} limit 1
+    </select>
+
+    <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
+        insert into blog_article
+        (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        values
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
+    </insert>
+
+    <update id="updateBlogArticle" parameterType="BlogArticle">
+        update blog_article
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="content != null and content != ''">content = #{content},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+            <if test="likeCount != null">like_count = #{likeCount},</if>
+            <if test="commentCount != null">comment_count = #{commentCount},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBlogArticleById" parameterType="Long">
+        delete from blog_article where id = #{id}
+    </delete>
+
+    <delete id="deleteBlogArticleByIds" parameterType="String">
+        delete from blog_article where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

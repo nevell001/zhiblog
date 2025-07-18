@@ -3,6 +3,7 @@
 *.class
 *.jar
 *.war
+logs/
 
 # 构建产物与依赖
 node_modules/
