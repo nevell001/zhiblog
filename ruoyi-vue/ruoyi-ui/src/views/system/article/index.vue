@@ -19,9 +19,9 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="作者" prop="authorId">
+      <el-form-item label="作者" prop="author">
         <el-input
-          v-model="queryParams.authorId"
+          v-model="queryParams.author"
           placeholder="请输入作者"
           clearable
           @keyup.enter.native="handleQuery"
@@ -130,7 +130,7 @@
           <span>{{ getCategoryName(scope.row.categoryId) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="作者ID" align="center" prop="authorId" />
+      <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="是否置顶" align="center" prop="isTop">
         <template slot-scope="scope">
           <span>{{ scope.row.isTop === 1 ? '是' : '否' }}</span>
@@ -174,7 +174,7 @@
     />
 
     <!-- 添加或修改博客文章对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="800px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="文章标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入文章标题" />
@@ -182,11 +182,23 @@
         <el-form-item label="摘要" prop="summary">
           <el-input v-model="form.summary" type="textarea" placeholder="请输入内容" />
         </el-form-item>
-        <el-form-item label="文章内容">
-          <editor v-model="form.content" :min-height="192"/>
+        <el-form-item label="文章内容" prop="content">
+          <editor v-model="form.content" :min-height="400"/>
         </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
-          <el-input v-model="form.coverUrl" type="textarea" placeholder="请输入内容" />
+          <file-upload
+            v-model="form.coverUrl"
+            :limit="1"
+            :file-size="2"
+            :file-type="['jpg','jpeg','png']"
+            :is-show-tip="true"
+            action="/common/upload"
+            @on-success="handleCoverUploadSuccess"
+          />
+          <div v-if="form.coverUrl" style="margin-top:10px;">
+            <img :src="$store.state.settings.apiBaseUrl + form.coverUrl" alt="封面图片" style="max-width: 200px; max-height: 120px; border:1px solid #eee;" />
+            <el-link type="danger" @click="form.coverUrl=''">删除</el-link>
+          </div>
         </el-form-item>
         <el-form-item label="分类" prop="categoryId">
           <el-select v-model="form.categoryId" placeholder="请选择分类" filterable>
@@ -198,8 +210,8 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="作者ID" prop="authorId">
-          <el-input v-model="form.authorId" placeholder="请输入作者ID" />
+        <el-form-item label="作者" prop="author">
+          <el-input v-model="form.author" placeholder="请输入作者" />
         </el-form-item>
         <el-form-item label="是否置顶" prop="isTop">
           <el-select v-model="form.isTop" placeholder="请选择">
@@ -226,10 +238,11 @@
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/system/article"
 import Editor from '@/components/Editor'
 import { listCategory } from "@/api/system/category"
+import FileUpload from '@/components/FileUpload'
 
 export default {
   name: "Article",
-  components: { Editor },
+  components: { Editor, FileUpload },
   data() {
     return {
       // 遮罩层
@@ -259,7 +272,7 @@ export default {
         content: null,
         coverUrl: null,
         categoryId: null,
-        authorId: null,
+        author: null,
         isTop: null,
         isRecommend: null,
         status: null,
@@ -275,7 +288,8 @@ export default {
           { required: true, message: "文章标题不能为空", trigger: "blur" }
         ],
         content: [
-          { required: true, message: "文章内容不能为空", trigger: "blur" }
+          { required: true, message: "文章内容不能为空", trigger: "blur" },
+          { min: 10, message: "内容不能少于10个字", trigger: "blur" }
         ],
       },
       categoryOptions: [],
@@ -309,7 +323,7 @@ export default {
         content: null,
         coverUrl: null,
         categoryId: null,
-        authorId: null,
+        author: null,
         isTop: null,
         isRecommend: null,
         status: null,
@@ -343,6 +357,7 @@ export default {
       this.reset()
       this.open = true
       this.title = "添加博客文章"
+      this.form.author = this.$store.state.user.nickName
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -352,6 +367,7 @@ export default {
         this.form = response.data
         this.open = true
         this.title = "修改博客文章"
+        this.form.author = this.$store.state.user.nickName
       })
     },
     /** 提交按钮 */
@@ -398,6 +414,14 @@ export default {
     getCategoryName(id) {
       const item = this.categoryOptions.find(c => c.id === id)
       return item ? item.name : ''
+    },
+    handleCoverUploadSuccess(res, file) {
+      if(res.code === 200) {
+        this.form.coverUrl = res.fileName;
+        this.$message.success('封面图片上传成功');
+      } else {
+        this.$message.error(res.msg || '封面图片上传失败');
+      }
     },
   }
 }

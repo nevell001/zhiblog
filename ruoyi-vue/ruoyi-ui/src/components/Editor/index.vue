@@ -72,18 +72,12 @@ export default {
         bounds: document.body,
         debug: "warn",
         modules: {
-          // 工具栏配置
           toolbar: [
-            ["bold", "italic", "underline", "strike"],       // 加粗 斜体 下划线 删除线
-            ["blockquote", "code-block"],                    // 引用  代码块
-            [{ list: "ordered" }, { list: "bullet" }],       // 有序、无序列表
-            [{ indent: "-1" }, { indent: "+1" }],            // 缩进
-            [{ size: ["small", false, "large", "huge"] }],   // 字体大小
-            [{ header: [1, 2, 3, 4, 5, 6, false] }],         // 标题
-            [{ color: [] }, { background: [] }],             // 字体颜色、字体背景颜色
-            [{ align: [] }],                                 // 对齐方式
-            ["clean"],                                       // 清除文本格式
-            ["link", "image", "video"]                       // 链接、图片、视频
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image'],
+            ['clean']
           ],
         },
         placeholder: "请输入内容",
@@ -159,6 +153,7 @@ export default {
     },
     // 上传前校检格式和大小
     handleBeforeUpload(file) {
+      this.$loading({ lock: true, text: '图片上传中...' });
       const type = ["image/jpeg", "image/jpg", "image/png", "image/svg"]
       const isJPG = type.includes(file.type)
       // 检验文件格式
@@ -177,6 +172,7 @@ export default {
       return true
     },
     handleUploadSuccess(res, file) {
+      this.$loading().close();
       // 如果上传成功
       if (res.code == 200) {
         // 获取富文本组件实例
@@ -192,21 +188,33 @@ export default {
       }
     },
     handleUploadError() {
+      this.$loading().close();
       this.$message.error("图片插入失败")
     },
     // 复制粘贴图片处理
     handlePasteCapture(e) {
-      const clipboard = e.clipboardData || window.clipboardData
+      const clipboard = e.clipboardData || window.clipboardData;
       if (clipboard && clipboard.items) {
         for (let i = 0; i < clipboard.items.length; i++) {
-          const item = clipboard.items[i]
+          const item = clipboard.items[i];
           if (item.type.indexOf('image') !== -1) {
-            e.preventDefault()
-            const file = item.getAsFile()
-            this.insertImage(file)
+            e.preventDefault();
+            const file = item.getAsFile();
+            this.insertImage(file);
           }
         }
       }
+      // 只保留纯文本和基础格式
+      setTimeout(() => {
+        if (this.Quill) {
+          const html = this.Quill.root.innerHTML;
+          this.Quill.root.innerHTML = html.replace(/<[^>]+>/g, function(tag) {
+            // 允许的标签
+            if (/^<(p|br|b|i|u|ul|ol|li|a|img|h[1-3])\b/i.test(tag)) return tag;
+            return '';
+          });
+        }
+      }, 0);
     },
     insertImage(file) {
       const formData = new FormData()

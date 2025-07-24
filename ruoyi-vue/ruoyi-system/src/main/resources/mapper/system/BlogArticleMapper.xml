@@ -11,7 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="content"    column="content"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
-        <result property="authorId"    column="author_id"    />
+        <result property="author"    column="author"    />
         <result property="isTop"    column="is_top"    />
         <result property="isRecommend"    column="is_recommend"    />
         <result property="status"    column="status"    />
@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogArticleVo">
-        select id, title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag from blog_article
+        select id, title, summary, content, cover_url, category_id, author, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag from blog_article
     </sql>
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
@@ -35,7 +35,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="content != null  and content != ''"> and content = #{content}</if>
             <if test="coverUrl != null  and coverUrl != ''"> and cover_url = #{coverUrl}</if>
             <if test="categoryId != null "> and category_id = #{categoryId}</if>
-            <if test="authorId != null "> and author_id = #{authorId}</if>
+            <if test="author != null "> and author = #{author}</if>
             <if test="isTop != null "> and is_top = #{isTop}</if>
             <if test="isRecommend != null "> and is_recommend = #{isRecommend}</if>
             <if test="status != null "> and status = #{status}</if>
@@ -56,9 +56,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, cover_url, category_id, author, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{author}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
     </insert>
 
     <update id="updateBlogArticle" parameterType="BlogArticle">
@@ -69,7 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
-            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="author != null">author = #{author},</if>
             <if test="isTop != null">is_top = #{isTop},</if>
             <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
             <if test="status != null">status = #{status},</if>
