@@ -27,21 +27,17 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="是否置顶 0否 1是" prop="isTop">
-        <el-input
-          v-model="queryParams.isTop"
-          placeholder="请输入是否置顶 0否 1是"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="是否置顶" prop="isTop">
+        <el-select v-model="queryParams.isTop" placeholder="请选择是否置顶" clearable>
+          <el-option label="是" value="1" />
+          <el-option label="否" value="0" />
+        </el-select>
       </el-form-item>
-      <el-form-item label="是否推荐 0否 1是" prop="isRecommend">
-        <el-input
-          v-model="queryParams.isRecommend"
-          placeholder="请输入是否推荐 0否 1是"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+      <el-form-item label="是否推荐" prop="isRecommend">
+        <el-select v-model="queryParams.isRecommend" placeholder="请选择是否推荐" clearable>
+          <el-option label="是" value="1" />
+          <el-option label="否" value="0" />
+        </el-select>
       </el-form-item>
       <el-form-item label="浏览量" prop="viewCount">
         <el-input
@@ -192,12 +188,15 @@
             :file-size="2"
             :file-type="['jpg','jpeg','png']"
             :is-show-tip="true"
+            :show-file-list="false"
             action="/common/upload"
             @on-success="handleCoverUploadSuccess"
           />
-          <div v-if="form.coverUrl" style="margin-top:10px;">
-            <img :src="$store.state.settings.apiBaseUrl + form.coverUrl" alt="封面图片" style="max-width: 200px; max-height: 120px; border:1px solid #eee;" />
-            <el-link type="danger" @click="form.coverUrl=''">删除</el-link>
+          <div v-if="form.coverUrl" style="margin-top:10px; padding:10px; border:1px solid #e0e0e0; display:inline-block; background:#f9f9f9;">
+            <img :src="getCoverUrl()" alt="封面图片" style="max-width: 300px; max-height: 200px;" />
+            <div style="margin-top:8px; text-align:right;">
+              <el-link type="danger" @click="form.coverUrl=''">删除封面</el-link>
+            </div>
           </div>
         </el-form-item>
         <el-form-item label="分类" prop="categoryId">
@@ -324,8 +323,8 @@ export default {
         coverUrl: null,
         categoryId: null,
         author: null,
-        isTop: null,
-        isRecommend: null,
+        isTop: 0,
+        isRecommend: 0,
         status: null,
         viewCount: null,
         likeCount: null,
@@ -414,6 +413,14 @@ export default {
     getCategoryName(id) {
       const item = this.categoryOptions.find(c => c.id === id)
       return item ? item.name : ''
+    },
+    getCoverUrl() {
+      if (!this.form.coverUrl) return '';
+      // 检查是否为完整URL
+      if (this.form.coverUrl.startsWith('http://') || this.form.coverUrl.startsWith('https://')) {
+        return this.form.coverUrl;
+      }
+      return this.$store.state.settings.apiBaseUrl + this.form.coverUrl;
     },
     handleCoverUploadSuccess(res, file) {
       if(res.code === 200) {
