@@ -1,0 +1,16 @@
+// 环境配置
+export const env = {
+  // 页面标题
+  VITE_APP_TITLE: '若依管理系统',
+  
+  // 开发环境配置
+  VITE_APP_ENV: 'development',
+  
+  // 若依管理系统/开发环境
+  VITE_APP_BASE_API: '/dev-api',
+  
+  // 路由懒加载
+  VITE_CLI_BABEL_TRANSPILE_MODULES: true
+}
+
+export default env

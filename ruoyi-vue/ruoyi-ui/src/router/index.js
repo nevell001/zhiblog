@@ -1,7 +1,4 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-
-Vue.use(Router)
+import { createRouter, createWebHistory } from 'vue-router'
 
 /* Layout */
 import Layout from '@/layout'
@@ -74,6 +71,10 @@ export const constantRoutes = [
       }
     ]
   },
+  // 兼容历史菜单直达路径（不在侧边栏显示，只做跳转）
+  { path: '/article', component: Layout, redirect: '/blog/article', hidden: true },
+  { path: '/category', component: Layout, redirect: '/blog/category', hidden: true },
+  { path: '/tag', component: Layout, redirect: '/blog/tag', hidden: true },
   {
     path: '/user',
     component: Layout,
@@ -92,6 +93,34 @@ export const constantRoutes = [
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
+  // 博客管理路由（动态菜单）
+  {
+    path: '/blog',
+    component: Layout,
+    redirect: '/blog/article',
+    name: 'Blog',
+    meta: { title: '博客管理', icon: 'documentation' },
+    children: [
+      {
+        path: 'article',
+        component: () => import('@/views/blog/article/index'),
+        name: 'Article',
+        meta: { title: '文章管理', icon: 'edit' }
+      },
+      {
+        path: 'category',
+        component: () => import('@/views/blog/category/index'),
+        name: 'Category',
+        meta: { title: '分类管理', icon: 'list' }
+      },
+      {
+        path: 'tag',
+        component: () => import('@/views/blog/tag/index'),
+        name: 'Tag',
+        meta: { title: '标签管理', icon: 'tag' }
+      }
+    ]
+  },
   {
     path: '/system/user-auth',
     component: Layout,
@@ -164,20 +193,10 @@ export const dynamicRoutes = [
   }
 ]
 
-// 防止连续点击多次路由报错
-let routerPush = Router.prototype.push
-let routerReplace = Router.prototype.replace
-// push
-Router.prototype.push = function push(location) {
-  return routerPush.call(this, location).catch(err => err)
-}
-// replace
-Router.prototype.replace = function push(location) {
-  return routerReplace.call(this, location).catch(err => err)
-}
-
-export default new Router({
-  mode: 'history', // 去掉url中的#
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [...constantRoutes, ...dynamicRoutes],
+  scrollBehavior: () => ({ top: 0 })
 })
+
+export default router
