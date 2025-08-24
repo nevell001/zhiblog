@@ -38,7 +38,7 @@
 
 ## 技术选型
 - **后端**：Spring Boot（基于 RuoYi 框架）、MyBatis-Plus、MySQL
-- **前端**：Vue2、ElementUI（基于 RuoYi-UI，可自定义前台页面）
+- **前端**：Vue3、Element Plus Vite	（基于 RuoYi-UI，可自定义前台页面）
 - **安全**：JWT/Session、Spring Security
 - **富文本/Markdown 编辑器**：vditor、editor.md 等
 - **评论防刷**：验证码、敏感词过滤
