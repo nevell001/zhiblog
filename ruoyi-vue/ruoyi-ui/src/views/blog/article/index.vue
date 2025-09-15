@@ -295,18 +295,59 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["articleRef"].validate(valid => {
     if (valid) {
-      if (form.value.id != null) {
-        updateArticle(form.value).then(response => {
-          proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
+      try {
+        // 创建一个新的对象用于提交
+        const apiData = {};
+        
+        // 复制所有字段
+        Object.keys(form.value).forEach(key => {
+          if (form.value[key] !== null && form.value[key] !== undefined) {
+            apiData[key] = form.value[key];
+          }
         });
-      } else {
-        addArticle(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
+        
+        // 特殊处理content字段
+        if (form.value.content) {
+          let contentStr = form.value.content;
+          if (typeof contentStr !== 'string') {
+            contentStr = JSON.stringify(contentStr);
+          }
+          
+          // 将HTML内容转换为纯文本
+          const tempDiv = document.createElement('div');
+          tempDiv.innerHTML = contentStr;
+          
+          // 保留原始HTML内容
+          apiData.content = contentStr;
+        } else {
+          apiData.content = '';
+        }
+        
+        console.log("提交的表单数据:", apiData);
+        
+        // 使用现有的API函数而不是直接使用axios
+        if (form.value.id != null) {
+          updateArticle(apiData).then(response => {
+            proxy.$modal.msgSuccess("修改成功");
+            open.value = false;
+            getList();
+          }).catch(error => {
+            console.error("更新文章失败:", error);
+            proxy.$modal.msgError("更新失败: " + (error.message || "未知错误"));
+          });
+        } else {
+          addArticle(apiData).then(response => {
+            proxy.$modal.msgSuccess("新增成功");
+            open.value = false;
+            getList();
+          }).catch(error => {
+            console.error("添加文章失败:", error);
+            proxy.$modal.msgError("添加失败: " + (error.message || "未知错误"));
+          });
+        }
+      } catch (e) {
+        console.error("提交表单时出错:", e);
+        proxy.$modal.msgError("提交失败: " + e.message);
       }
     }
   });

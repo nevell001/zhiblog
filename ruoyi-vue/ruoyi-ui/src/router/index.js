@@ -118,6 +118,12 @@ export const dynamicRoutes = [
         component: () => import('@/views/blog/tag/index'),
         name: 'Tag',
         meta: { title: '标签管理', icon: 'tag' }
+      },
+      {
+        path: 'comment',
+        component: () => import('@/views/blog/comment/index'),
+        name: 'Comment',
+        meta: { title: '评论管理', icon: 'message' }
       }
     ]
   },

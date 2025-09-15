@@ -20,14 +20,11 @@ import com.ruoyi.system.domain.BlogComment;
 import com.ruoyi.system.service.IBlogCommentService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 博客评论Controller
  * 
  * @author nevell
- * @date 2025-07-28
  */
 @RestController
 @RequestMapping("/system/comment")
@@ -35,8 +32,6 @@ public class BlogCommentController extends BaseController
 {
     @Autowired
     private IBlogCommentService blogCommentService;
-
-    private static final Logger log = LoggerFactory.getLogger(BlogCommentController.class);
 
     /**
      * 查询博客评论列表
@@ -75,18 +70,17 @@ public class BlogCommentController extends BaseController
 
     /**
      * 新增博客评论
-     * 允许匿名评论，故不添加@PreAuthorize注解
      */
+    @PreAuthorize("@ss.hasPermi('system:comment:add')")
     @Log(title = "博客评论", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogComment blogComment)
     {
-        // 匿名评论处理逻辑可在service层实现
         return toAjax(blogCommentService.insertBlogComment(blogComment));
     }
 
     /**
-     * 修改博客评论（主要用于审核状态更新）
+     * 修改博客评论
      */
     @PreAuthorize("@ss.hasPermi('system:comment:edit')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)

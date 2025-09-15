@@ -65,8 +65,8 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         }
         blogArticle.setTitle(title);
         blogArticle.setCreateTime(DateUtils.getNowDate());
-        // 新增/编辑时自动赋值作者
-        blogArticle.setAuthor(com.ruoyi.common.utils.SecurityUtils.getLoginUser().getUser().getNickName());
+        // 新增时自动设置作者ID
+        blogArticle.setAuthorId(com.ruoyi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
         try {
             return blogArticleMapper.insertBlogArticle(blogArticle);
         } catch (Exception e) {

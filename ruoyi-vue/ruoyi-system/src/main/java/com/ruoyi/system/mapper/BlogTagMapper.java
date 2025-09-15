@@ -1,16 +1,16 @@
-package com.ruoyi.system.service;
+package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogTag;
-import com.ruoyi.common.core.service.BaseService;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
- * 博客标签Service接口
+ * 博客标签Mapper接口
  * 
  * @author nevell
  * @date 2025-09-08
  */
-public interface IBlogTagService extends BaseService<BlogTag>
+public interface BlogTagMapper extends BaseMapper<BlogTag>
 {
     /**
      * 查询博客标签列表
@@ -39,7 +39,7 @@ public interface IBlogTagService extends BaseService<BlogTag>
      * 新增博客标签
      * 
      * @param blogTag 博客标签
-     * @return 结果
+     * @return 影响行数
      */
     public int insertBlogTag(BlogTag blogTag);
 
@@ -47,7 +47,7 @@ public interface IBlogTagService extends BaseService<BlogTag>
      * 修改博客标签
      * 
      * @param blogTag 博客标签
-     * @return 结果
+     * @return 影响行数
      */
     public int updateBlogTag(BlogTag blogTag);
 
@@ -70,10 +70,10 @@ public interface IBlogTagService extends BaseService<BlogTag>
     /**
      * 校验标签名称是否唯一
      * 
-     * @param blogTag 标签信息
-     * @return 结果
+     * @param tagName 标签名称
+     * @return 标签信息
      */
-    public boolean checkTagNameUnique(BlogTag blogTag);
+    public BlogTag checkTagNameUnique(String tagName);
     
     /**
      * 检查标签是否已被文章使用
@@ -81,5 +81,5 @@ public interface IBlogTagService extends BaseService<BlogTag>
      * @param tagId 标签ID
      * @return 结果
      */
-    public boolean checkTagExistArticle(Long tagId);
+    public int checkTagExistArticle(Long tagId);
 }

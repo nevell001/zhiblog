@@ -1,25 +1,22 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
-import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.utils.poi.ExcelUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.system.mapper.BlogTagMapper;
+import com.ruoyi.common.core.service.BaseServiceImpl;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogTag;
+import com.ruoyi.system.mapper.BlogTagMapper;
 import com.ruoyi.system.service.IBlogTagService;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 /**
  * 博客标签Service业务层处理
  * 
- * @author ruoyi
- * @date 2025-06-01
+ * @author nevell
+ * @date 2025-09-08
  */
 @Service
-public class BlogTagServiceImpl extends ServiceImpl<BlogTagMapper, BlogTag> implements IBlogTagService
+public class BlogTagServiceImpl extends BaseServiceImpl<BlogTagMapper, BlogTag> implements IBlogTagService
 {
     @Autowired
     private BlogTagMapper blogTagMapper;
@@ -37,24 +34,21 @@ public class BlogTagServiceImpl extends ServiceImpl<BlogTagMapper, BlogTag> impl
     }
 
     /**
-     * 导出博客标签列表
+     * 查询所有标签列表
      * 
-     * @param blogTag 博客标签
-     * @return 结果
+     * @return 标签列表
      */
     @Override
-    public AjaxResult exportBlogTag(BlogTag blogTag)
+    public List<BlogTag> selectAllTagList()
     {
-        List<BlogTag> list = blogTagMapper.selectBlogTagList(blogTag);
-        ExcelUtil<BlogTag> util = new ExcelUtil<BlogTag>(BlogTag.class);
-        return util.exportExcel(list, "博客标签数据");
+        return blogTagMapper.selectAllTagList();
     }
 
     /**
-     * 获取博客标签详细信息
+     * 通过ID查询单条数据
      * 
-     * @param tagId 博客标签ID
-     * @return 博客标签
+     * @param tagId 标签ID
+     * @return 实例对象
      */
     @Override
     public BlogTag selectBlogTagById(Long tagId)
@@ -71,7 +65,6 @@ public class BlogTagServiceImpl extends ServiceImpl<BlogTagMapper, BlogTag> impl
     @Override
     public int insertBlogTag(BlogTag blogTag)
     {
-        blogTag.setCreateTime(DateUtils.getNowDate());
         blogTag.setCreateBy(SecurityUtils.getUsername());
         return blogTagMapper.insertBlogTag(blogTag);
     }
@@ -85,28 +78,15 @@ public class BlogTagServiceImpl extends ServiceImpl<BlogTagMapper, BlogTag> impl
     @Override
     public int updateBlogTag(BlogTag blogTag)
     {
-        blogTag.setUpdateTime(DateUtils.getNowDate());
         blogTag.setUpdateBy(SecurityUtils.getUsername());
         return blogTagMapper.updateBlogTag(blogTag);
     }
 
     /**
-     * 批量删除博客标签
+     * 通过主键删除数据
      * 
-     * @param tagIds 需要删除的博客标签ID
-     * @return 结果
-     */
-    @Override
-    public int deleteBlogTagByIds(Long[] tagIds)
-    {
-        return blogTagMapper.deleteBlogTagByIds(tagIds);
-    }
-
-    /**
-     * 删除博客标签信息
-     * 
-     * @param tagId 博客标签ID
-     * @return 结果
+     * @param tagId 标签ID
+     * @return 影响行数
      */
     @Override
     public int deleteBlogTagById(Long tagId)
@@ -115,31 +95,45 @@ public class BlogTagServiceImpl extends ServiceImpl<BlogTagMapper, BlogTag> impl
     }
 
     /**
-     * 获取所有标签列表
+     * 批量删除博客标签
      * 
-     * @return 标签列表
+     * @param tagIds 需要删除的数据ID
+     * @return 影响行数
      */
     @Override
-    public List<BlogTag> getAllTagList()
+    public int deleteBlogTagByIds(Long[] tagIds)
     {
-        return blogTagMapper.selectAllTagList();
+        return blogTagMapper.deleteBlogTagByIds(tagIds);
     }
 
     /**
-     * 验证标签名称是否唯一
+     * 校验标签名称是否唯一
      * 
      * @param blogTag 标签信息
      * @return 结果
      */
     @Override
-    public String checkTagNameUnique(BlogTag blogTag)
+    public boolean checkTagNameUnique(BlogTag blogTag)
     {
         Long tagId = blogTag.getTagId() == null ? -1L : blogTag.getTagId();
         BlogTag info = blogTagMapper.checkTagNameUnique(blogTag.getTagName());
         if (info != null && info.getTagId().longValue() != tagId.longValue())
         {
-            return "1";
+            return false;
         }
-        return "0";
+        return true;
+    }
+    
+    /**
+     * 检查标签是否已被文章使用
+     * 
+     * @param tagId 标签ID
+     * @return 结果
+     */
+    @Override
+    public boolean checkTagExistArticle(Long tagId)
+    {
+        int count = blogTagMapper.checkTagExistArticle(tagId);
+        return count > 0;
     }
 }

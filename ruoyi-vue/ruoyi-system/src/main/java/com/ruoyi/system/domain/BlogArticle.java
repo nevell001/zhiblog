@@ -38,9 +38,12 @@ public class BlogArticle extends BaseEntity
     @Excel(name = "分类ID")
     private Long categoryId;
 
-    /** 作者 */
-    @Excel(name = "作者")
-    private String author;
+    /** 作者ID */
+    @Excel(name = "作者ID")
+    private Long authorId;
+
+    /** 作者姓名（非数据库字段，用于显示） */
+    private String authorName;
 
     /** 是否置顶 0否 1是 */
     @Excel(name = "是否置顶 0否 1是")
@@ -129,14 +132,24 @@ public class BlogArticle extends BaseEntity
         return categoryId;
     }
 
-    public void setAuthor(String author) 
+    public void setAuthorId(Long authorId) 
     {
-        this.author = author;
+        this.authorId = authorId;
     }
 
-    public String getAuthor() 
+    public Long getAuthorId() 
     {
-        return author;
+        return authorId;
+    }
+
+    public void setAuthorName(String authorName) 
+    {
+        this.authorName = authorName;
+    }
+
+    public String getAuthorName() 
+    {
+        return authorName;
     }
 
     public void setIsTop(Long isTop) 
@@ -218,7 +231,8 @@ public class BlogArticle extends BaseEntity
             .append("content", getContent())
             .append("coverUrl", getCoverUrl())
             .append("categoryId", getCategoryId())
-            .append("author", getAuthor())
+            .append("authorId", getAuthorId())
+            .append("authorName", getAuthorName())
             .append("isTop", getIsTop())
             .append("isRecommend", getIsRecommend())
             .append("status", getStatus())

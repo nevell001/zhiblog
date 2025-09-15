@@ -81,7 +81,7 @@ public class BlogArticleController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody BlogArticle blogArticle)
     {
-        log.info("前端传入author: {}", blogArticle.getAuthor());
+        log.info("前端传入authorId: {}", blogArticle.getAuthorId());
         return toAjax(blogArticleService.insertBlogArticle(blogArticle));
     }
 
