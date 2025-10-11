@@ -3,7 +3,6 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.core.service.BaseServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogSetting;
 import com.ruoyi.system.mapper.BlogSettingMapper;
@@ -16,7 +15,7 @@ import com.ruoyi.system.service.IBlogSettingService;
  * @date 2025-09-08
  */
 @Service
-public class BlogSettingServiceImpl extends BaseServiceImpl<BlogSettingMapper, BlogSetting> implements IBblogSettingService
+public class BlogSettingServiceImpl implements IBlogSettingService
 {
     @Autowired
     private BlogSettingMapper blogSettingMapper;

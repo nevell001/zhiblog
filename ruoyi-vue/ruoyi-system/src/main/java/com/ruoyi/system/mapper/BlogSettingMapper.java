@@ -2,7 +2,6 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogSetting;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 博客设置Mapper接口
@@ -10,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author nevell
  * @date 2025-09-08
  */
-public interface BlogSettingMapper extends BaseMapper<BlogSetting>
+public interface BlogSettingMapper 
 {
     /**
      * 查询博客设置列表

@@ -2,6 +2,11 @@ import { createApp } from 'vue'
 
 import Cookies from 'js-cookie'
 
+// 导入 highlight.js 用于 Quill 编辑器
+import hljs from 'highlight.js'
+import 'highlight.js/styles/github.css'
+window.hljs = hljs
+
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'

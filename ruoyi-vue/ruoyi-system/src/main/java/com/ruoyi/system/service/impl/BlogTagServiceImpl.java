@@ -3,7 +3,6 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.core.service.BaseServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogTag;
 import com.ruoyi.system.mapper.BlogTagMapper;
@@ -16,7 +15,7 @@ import com.ruoyi.system.service.IBlogTagService;
  * @date 2025-09-08
  */
 @Service
-public class BlogTagServiceImpl extends BaseServiceImpl<BlogTagMapper, BlogTag> implements IBlogTagService
+public class BlogTagServiceImpl implements IBlogTagService
 {
     @Autowired
     private BlogTagMapper blogTagMapper;

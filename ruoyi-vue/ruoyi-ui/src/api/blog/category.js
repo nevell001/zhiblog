@@ -42,3 +42,21 @@ export function delCategory(id) {
     method: 'delete'
   })
 }
+
+// 前台专用接口
+// 获取分类列表（前台用）
+export function getCategoryList(query) {
+  return request({
+    url: '/blog/category/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 获取分类详情（前台用）
+export function getCategoryDetail(id) {
+  return request({
+    url: '/blog/category/' + id,
+    method: 'get'
+  })
+}

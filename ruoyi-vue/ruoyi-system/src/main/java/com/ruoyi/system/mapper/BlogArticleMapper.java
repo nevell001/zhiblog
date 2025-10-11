@@ -71,4 +71,11 @@ public interface BlogArticleMapper
      * @param id 文章ID
      */
     void addViewCount(Long id);
+
+    /**
+     * 根据标签ID查询文章列表
+     * @param tagId 标签ID
+     * @return 文章列表
+     */
+    List<BlogArticle> selectArticlesByTagId(Long tagId);
 }

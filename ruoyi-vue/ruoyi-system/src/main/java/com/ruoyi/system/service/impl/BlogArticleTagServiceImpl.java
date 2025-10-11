@@ -3,7 +3,6 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.core.service.BaseServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogArticleTag;
 import com.ruoyi.system.mapper.BlogArticleTagMapper;
@@ -16,7 +15,7 @@ import com.ruoyi.system.service.IBlogArticleTagService;
  * @date 2025-09-08
  */
 @Service
-public class BlogArticleTagServiceImpl extends BaseServiceImpl<BlogArticleTagMapper, BlogArticleTag> implements IBlogArticleTagService
+public class BlogArticleTagServiceImpl  implements IBlogArticleTagService
 {
     @Autowired
     private BlogArticleTagMapper blogArticleTagMapper;
@@ -127,5 +126,17 @@ public class BlogArticleTagServiceImpl extends BaseServiceImpl<BlogArticleTagMap
     public int deleteByArticleId(Long articleId)
     {
         return blogArticleTagMapper.deleteByArticleId(articleId);
+    }
+
+    /**
+     * 通过ID查询文章标签关联
+     * 
+     * @param id 主键ID
+     * @return 文章标签关联
+     */
+    @Override
+    public BlogArticleTag selectBlogArticleTagById(Long id)
+    {
+        return blogArticleTagMapper.selectBlogArticleTagById(id);
     }
 }

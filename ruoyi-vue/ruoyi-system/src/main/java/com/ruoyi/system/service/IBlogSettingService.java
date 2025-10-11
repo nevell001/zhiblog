@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogSetting;
-import com.ruoyi.common.core.service.BaseService;
 
 /**
  * 博客设置Service接口
@@ -10,7 +9,7 @@ import com.ruoyi.common.core.service.BaseService;
  * @author nevell
  * @date 2025-09-08
  */
-public interface IBlogSettingService extends BaseService<BlogSetting>
+public interface IBlogSettingService
 {
     /**
      * 查询博客设置列表
@@ -42,7 +41,7 @@ public interface IBlogSettingService extends BaseService<BlogSetting>
      * @param blogSetting 博客设置
      * @return 结果
      */
-    public int insertBlogSetting(BblogSetting blogSetting);
+    public int insertBlogSetting(BlogSetting blogSetting);
 
     /**
      * 修改博客设置

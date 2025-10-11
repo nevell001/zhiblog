@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogArticleTag;
-import com.ruoyi.common.core.service.BaseService;
 
 /**
  * 文章标签关联Service接口
@@ -10,7 +9,7 @@ import com.ruoyi.common.core.service.BaseService;
  * @author nevell
  * @date 2025-09-08
  */
-public interface IBlogArticleTagService extends BaseService<BlogArticleTag>
+public interface IBlogArticleTagService 
 {
     /**
      * 查询文章标签关联列表
@@ -83,4 +82,12 @@ public interface IBlogArticleTagService extends BaseService<BlogArticleTag>
      * @return 影响行数
      */
     public int deleteByArticleId(Long articleId);
+
+    /**
+     * 通过ID查询文章标签关联
+     * 
+     * @param id 主键ID
+     * @return 文章标签关联
+     */
+    public BlogArticleTag selectBlogArticleTagById(Long id);
 }

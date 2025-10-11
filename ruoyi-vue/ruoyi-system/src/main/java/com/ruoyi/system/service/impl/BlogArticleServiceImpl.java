@@ -133,4 +133,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public void addViewCount(Long id) {
         blogArticleMapper.addViewCount(id);
     }
+
+    @Override
+    public List<BlogArticle> selectArticlesByTagId(Long tagId) {
+        return blogArticleMapper.selectArticlesByTagId(tagId);
+    }
 }

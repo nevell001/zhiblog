@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogTag;
-import com.ruoyi.common.core.service.BaseService;
 
 /**
  * 博客标签Service接口
@@ -10,7 +9,7 @@ import com.ruoyi.common.core.service.BaseService;
  * @author nevell
  * @date 2025-09-08
  */
-public interface IBlogTagService extends BaseService<BlogTag>
+public interface IBlogTagService
 {
     /**
      * 查询博客标签列表

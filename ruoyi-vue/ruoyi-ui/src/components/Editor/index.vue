@@ -78,20 +78,42 @@ const options = ref({
   debug: "warn",
   modules: {
     // 工具栏配置
-    toolbar: [
-      ["bold", "italic", "underline", "strike"],      // 加粗 斜体 下划线 删除线
-      ["blockquote", "code-block"],                   // 引用  代码块
-      [{ list: "ordered" }, { list: "bullet" }],      // 有序、无序列表
-      [{ indent: "-1" }, { indent: "+1" }],           // 缩进
-      [{ size: ["small", false, "large", "huge"] }],  // 字体大小
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],        // 标题
-      [{ color: [] }, { background: [] }],            // 字体颜色、字体背景颜色
-      [{ align: [] }],                                // 对齐方式
-      ["clean"],                                      // 清除文本格式
-      ["link", "image", "video"]                      // 链接、图片、视频
-    ],
+    toolbar: {
+      container: [
+        [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],  // 字体和大小
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],                       // 标题
+        ['bold', 'italic', 'underline', 'strike'],                       // 加粗 斜体 下划线 删除线
+        [{ 'color': [] }, { 'background': [] }],                         // 字体颜色、背景色
+        [{ 'script': 'sub'}, { 'script': 'super' }],                      // 上标/下标
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],                     // 有序、无序列表
+        [{ 'indent': '-1'}, { 'indent': '+1' }],                         // 缩进
+        [{ 'direction': 'rtl' }],                                         // 文本方向
+        [{ 'align': [] }],                                                // 对齐方式
+        ['blockquote', 'code-block'],                                    // 引用、代码块
+        ['link', 'image', 'video'],                                       // 链接、图片、视频
+        [{ 'table': true }],                                              // 表格
+        ['clean']                                                        // 清除格式
+      ],
+      handlers: {
+        'image': function() {
+          // 图片上传处理
+          proxy.$refs.uploadRef.click()
+        },
+        'video': function() {
+          // 视频上传处理
+          const url = prompt('请输入视频URL:')
+          if (url) {
+            const quill = quillEditorRef.value.getQuill()
+            const range = quill.getSelection()
+            quill.insertEmbed(range.index, 'video', url)
+          }
+        }
+      }
+    },
+    syntax: false,
+    table: true    // 启用表格功能
   },
-  placeholder: "请输入内容",
+  placeholder: "请输入内容...",
   readOnly: props.readOnly
 })
 
@@ -131,13 +153,19 @@ onMounted(() => {
 
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
-  const type = ["image/jpeg", "image/jpg", "image/png", "image/svg"]
-  const isJPG = type.includes(file.type)
-  //检验文件格式
-  if (!isJPG) {
-    proxy.$modal.msgError(`图片格式错误!`)
+  // 支持的文件类型
+  const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
+  const videoTypes = ["video/mp4", "video/webm", "video/ogg"]
+  
+  const isImage = imageTypes.includes(file.type)
+  const isVideo = videoTypes.includes(file.type)
+  
+  // 检验文件格式
+  if (!isImage && !isVideo) {
+    proxy.$modal.msgError(`文件格式不支持! 支持格式: JPG, PNG, GIF, WebP, SVG, MP4, WebM, OGG`)
     return false
   }
+  
   // 校检文件大小
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize
@@ -146,6 +174,7 @@ function handleBeforeUpload(file) {
       return false
     }
   }
+  
   return true
 }
 
@@ -157,12 +186,21 @@ function handleUploadSuccess(res, file) {
     let quill = toRaw(quillEditorRef.value).getQuill()
     // 获取光标位置
     let length = quill.selection.savedRange.index
-    // 插入图片，res.url为服务器返回的图片链接地址
-    quill.insertEmbed(length, "image", import.meta.env.VITE_APP_BASE_API + res.fileName)
+    
+    // 判断文件类型
+    const fileType = file.type
+    if (fileType.startsWith('image/')) {
+      // 插入图片
+      quill.insertEmbed(length, "image", import.meta.env.VITE_APP_BASE_API + res.fileName)
+    } else if (fileType.startsWith('video/')) {
+      // 插入视频
+      quill.insertEmbed(length, "video", import.meta.env.VITE_APP_BASE_API + res.fileName)
+    }
+    
     // 调整光标到最后
     quill.setSelection(length + 1)
   } else {
-    proxy.$modal.msgError("图片插入失败")
+    proxy.$modal.msgError("文件插入失败")
   }
 }
 
@@ -195,17 +233,38 @@ function insertImage(file) {
 }
 </script>
 
-<style>
+<style scoped>
 .editor-img-uploader {
   display: none;
 }
-.editor, .ql-toolbar {
-  white-space: pre-wrap !important;
-  line-height: normal !important;
+.editor {
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.editor:hover {
+  border-color: #c0c4cc;
+}
+.editor:focus-within {
+  border-color: #409eff;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+}
+.ql-toolbar {
+  border-bottom: 1px solid #dcdfe6 !important;
+  background-color: #f8f9fa !important;
+}
+.ql-container {
+  border: none !important;
+  font-size: 14px;
+  line-height: 1.6;
 }
 .quill-img {
   display: none;
 }
+</style>
+
+<style>
+/* 全局样式 */
 .ql-snow .ql-tooltip[data-mode="link"]::before {
   content: "请输入链接地址:";
 }
@@ -217,6 +276,8 @@ function insertImage(file) {
 .ql-snow .ql-tooltip[data-mode="video"]::before {
   content: "请输入视频地址:";
 }
+
+/* 字体大小选择器 */
 .ql-snow .ql-picker.ql-size .ql-picker-label::before,
 .ql-snow .ql-picker.ql-size .ql-picker-item::before {
   content: "14px";
@@ -233,6 +294,8 @@ function insertImage(file) {
 .ql-snow .ql-picker.ql-size .ql-picker-item[data-value="huge"]::before {
   content: "32px";
 }
+
+/* 标题选择器 */
 .ql-snow .ql-picker.ql-header .ql-picker-label::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item::before {
   content: "文本";
@@ -261,6 +324,8 @@ function insertImage(file) {
 .ql-snow .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
   content: "标题6";
 }
+
+/* 字体选择器 */
 .ql-snow .ql-picker.ql-font .ql-picker-label::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item::before {
   content: "标准字体";
@@ -272,5 +337,69 @@ function insertImage(file) {
 .ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
   content: "等宽字体";
+}
+
+/* 代码块样式 */
+.ql-syntax {
+  background-color: #f6f8fa !important;
+  border-radius: 4px;
+  padding: 12px !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* 表格样式 */
+.ql-editor table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+.ql-editor table td, .ql-editor table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+.ql-editor table th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+}
+
+/* 引用样式 */
+.ql-editor blockquote {
+  border-left: 4px solid #ddd;
+  margin: 16px 0;
+  padding-left: 16px;
+  color: #666;
+  font-style: italic;
+}
+
+/* 图片样式 */
+.ql-editor img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 视频样式 */
+.ql-editor iframe {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+/* 工具栏按钮悬停效果 */
+.ql-snow .ql-toolbar .ql-formats button:hover {
+  background-color: #e8f4ff !important;
+  border-radius: 3px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .ql-toolbar .ql-formats {
+    margin-bottom: 5px;
+  }
+  .ql-toolbar .ql-formats button {
+    margin: 2px;
+  }
 }
 </style>

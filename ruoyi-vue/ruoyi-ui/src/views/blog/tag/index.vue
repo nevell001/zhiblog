@@ -1,230 +1,245 @@
 <template>
-  <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="标签名称" prop="name">
-        <el-input
-          v-model="queryParams.name"
-          placeholder="请输入标签名称"
-          clearable
-          @keyup.enter="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
-      </el-form-item>
-    </el-form>
+  <div class="tag-page">
+    <div class="page-header">
+      <h1 class="page-title">标签: {{ tagName }}</h1>
+      <p class="page-description">共 {{ total }} 篇文章</p>
+    </div>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-          v-hasPermi="['system:tag:add']"
-        >新增</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:tag:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:tag:remove']"
-        >删除</el-button>
-      </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="tagList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="标签ID" align="center" prop="id" />
-      <el-table-column label="标签名称" align="center" prop="name" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
-        <template #default="scope">
-          <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-        <template #default="scope">
-          <el-button
-            type="text"
-            icon="Edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:tag:edit']"
-          >修改</el-button>
-          <el-button
-            type="text"
-            icon="Delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:tag:remove']"
-          >删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    
-    <pagination
-      v-show="total>0"
-      :total="total"
-      v-model:page="queryParams.pageNum"
-      v-model:limit="queryParams.pageSize"
-      @pagination="getList"
-    />
-
-    <!-- 添加或修改博客标签对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="tagRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="标签名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入标签名称" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+    <div class="article-list">
+      <div v-for="article in articleList" :key="article.id" class="article-item">
+        <div class="article-cover" v-if="article.coverUrl">
+          <img :src="article.coverUrl" :alt="article.title" />
         </div>
-      </template>
-    </el-dialog>
+        <div class="article-content">
+          <h2 class="article-title">
+            <router-link :to="`/blog/article/${article.id}`">{{ article.title }}</router-link>
+          </h2>
+          <div class="article-meta">
+            <span class="meta-item">
+              <i class="el-icon-date"></i>
+              {{ formatDate(article.createTime) }}
+            </span>
+            <span class="meta-item">
+              <i class="el-icon-view"></i>
+              {{ article.viewCount || 0 }} 阅读
+            </span>
+          </div>
+          <p class="article-summary">{{ article.summary || article.content.substring(0, 150) + '...' }}</p>
+          <div class="article-footer">
+            <router-link :to="`/blog/article/${article.id}`" class="read-more">
+              阅读全文 <i class="el-icon-arrow-right"></i>
+            </router-link>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 分页 -->
+    <div class="pagination-container" v-if="total > queryParams.pageSize">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="total"
+        :page-size="queryParams.pageSize"
+        :current-page="queryParams.pageNum"
+        @current-change="handlePageChange"
+      />
+    </div>
   </div>
 </template>
 
-<script setup name="Tag">
-import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
-import { listTag, getTag, delTag, addTag, updateTag } from "@/api/blog/tag";
+<script setup>
+import { ref, reactive, onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { getArticleList } from '@/api/blog/article'
+import { getTagDetail } from '@/api/blog/tag'
 
-const { proxy } = getCurrentInstance();
+const route = useRoute()
+const tagId = route.params.id
 
-const tagList = ref([]);
-const open = ref(false);
-const loading = ref(true);
-const showSearch = ref(true);
-const ids = ref([]);
-const single = ref(true);
-const multiple = ref(true);
-const total = ref(0);
-const title = ref("");
+// 响应式数据
+const articleList = ref([])
+const tagDetail = ref({})
+const total = ref(0)
 
-const data = reactive({
-  form: {},
-  queryParams: {
-    pageNum: 1,
-    pageSize: 10,
-    name: null
-  },
-  rules: {
-    name: [
-      { required: true, message: "标签名称不能为空", trigger: "blur" }
-    ]
+// 查询参数
+const queryParams = reactive({
+  pageNum: 1,
+  pageSize: 10,
+  tagId: tagId,
+  status: 1
+})
+
+// 计算属性
+const tagName = computed(() => tagDetail.value.name || '未知标签')
+
+// 获取文章列表
+const loadArticleList = async () => {
+  try {
+    const response = await getArticleList(queryParams)
+    articleList.value = response.rows || []
+    total.value = response.total || 0
+  } catch (error) {
+    console.error('获取文章列表失败:', error)
   }
-});
-
-const { queryParams, form, rules } = toRefs(data);
-
-/** 查询博客标签列表 */
-function getList() {
-  loading.value = true;
-  listTag(queryParams.value).then(response => {
-    tagList.value = response.rows;
-    total.value = response.total;
-    loading.value = false;
-  });
 }
 
-// 取消按钮
-function cancel() {
-  open.value = false;
-  reset();
+// 获取标签详情
+const loadTagDetail = async () => {
+  try {
+    const response = await getTagDetail(tagId)
+    tagDetail.value = response.data || {}
+  } catch (error) {
+    console.error('获取标签详情失败:', error)
+  }
 }
 
-// 表单重置
-function reset() {
-  form.value = {
-    id: null,
-    name: null
-  };
-  proxy.resetForm("tagRef");
+// 分页处理
+const handlePageChange = (page) => {
+  queryParams.pageNum = page
+  loadArticleList()
 }
 
-/** 搜索按钮操作 */
-function handleQuery() {
-  queryParams.value.pageNum = 1;
-  getList();
+// 日期格式化
+const formatDate = (dateString) => {
+  if (!dateString) return ''
+  const date = new Date(dateString)
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  })
 }
 
-/** 重置按钮操作 */
-function resetQuery() {
-  proxy.resetForm("queryRef");
-  handleQuery();
-}
-
-// 多选框选中数据
-function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.id);
-  single.value = selection.length != 1;
-  multiple.value = !selection.length;
-}
-
-/** 新增按钮操作 */
-function handleAdd() {
-  reset();
-  open.value = true;
-  title.value = "添加博客标签";
-}
-
-/** 修改按钮操作 */
-function handleUpdate(row) {
-  reset();
-  const id = row.id || ids.value;
-  getTag(id).then(response => {
-    form.value = response.data;
-    open.value = true;
-    title.value = "修改博客标签";
-  });
-}
-
-/** 提交按钮 */
-function submitForm() {
-  proxy.$refs["tagRef"].validate(valid => {
-    if (valid) {
-      if (form.value.id != null) {
-        updateTag(form.value).then(response => {
-          proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          getList();
-        });
-      } else {
-        addTag(form.value).then(response => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          getList();
-        });
-      }
-    }
-  });
-}
-
-/** 删除按钮操作 */
-function handleDelete(row) {
-  const tagIds = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除博客标签编号为"' + tagIds + '"的数据项？').then(function() {
-    return delTag(tagIds);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
-}
-
-getList();
+// 组件挂载时加载数据
+onMounted(() => {
+  loadTagDetail()
+  loadArticleList()
+})
 </script>
+
+<style scoped>
+.tag-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.page-title {
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.page-description {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.article-list {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.article-item {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.article-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.article-cover {
+  height: 200px;
+  overflow: hidden;
+}
+
+.article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.article-content {
+  padding: 25px;
+}
+
+.article-title {
+  margin: 0 0 15px 0;
+  font-size: 1.5rem;
+}
+
+.article-title a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.article-title a:hover {
+  color: #409eff;
+}
+
+.article-meta {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.article-summary {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.article-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.read-more {
+  color: #409eff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.read-more:hover {
+  color: #337ecc;
+}
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+  .tag-page {
+    padding: 20px 15px;
+  }
+  
+  .article-meta {
+    flex-direction: column;
+    gap: 5px;
+  }
+}
+</style>

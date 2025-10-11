@@ -3,6 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 /* Layout */
 import Layout from '@/layout'
 
+// 博客前台路由
+import blogRoutes from './blog'
+
 /**
  * Note: 路由配置项
  *
@@ -201,7 +204,7 @@ export const dynamicRoutes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...constantRoutes, ...dynamicRoutes],
+  routes: [...blogRoutes, ...constantRoutes, ...dynamicRoutes],
   scrollBehavior: () => ({ top: 0 })
 })
 

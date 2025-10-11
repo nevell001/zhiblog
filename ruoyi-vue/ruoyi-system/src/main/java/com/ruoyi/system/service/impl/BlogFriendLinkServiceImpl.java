@@ -3,7 +3,6 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.core.service.BaseServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogFriendLink;
 import com.ruoyi.system.mapper.BlogFriendLinkMapper;
@@ -16,7 +15,7 @@ import com.ruoyi.system.service.IBlogFriendLinkService;
  * @date 2025-09-08
  */
 @Service
-public class BlogFriendLinkServiceImpl extends BaseServiceImpl<BlogFriendLinkMapper, BlogFriendLink> implements IBlogFriendLinkService
+public class BlogFriendLinkServiceImpl  implements IBlogFriendLinkService
 {
     @Autowired
     private BlogFriendLinkMapper blogFriendLinkMapper;

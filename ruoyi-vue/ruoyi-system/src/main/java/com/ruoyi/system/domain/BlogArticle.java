@@ -42,6 +42,10 @@ public class BlogArticle extends BaseEntity
     @Excel(name = "作者ID")
     private Long authorId;
 
+    /** 作者姓名 */
+    @Excel(name = "作者姓名")
+    private String author;
+
     /** 作者姓名（非数据库字段，用于显示） */
     private String authorName;
 
@@ -142,6 +146,16 @@ public class BlogArticle extends BaseEntity
         return authorId;
     }
 
+    public void setAuthor(String author) 
+    {
+        this.author = author;
+    }
+
+    public String getAuthor() 
+    {
+        return author;
+    }
+
     public void setAuthorName(String authorName) 
     {
         this.authorName = authorName;
@@ -232,6 +246,7 @@ public class BlogArticle extends BaseEntity
             .append("coverUrl", getCoverUrl())
             .append("categoryId", getCategoryId())
             .append("authorId", getAuthorId())
+            .append("author", getAuthor())
             .append("authorName", getAuthorName())
             .append("isTop", getIsTop())
             .append("isRecommend", getIsRecommend())

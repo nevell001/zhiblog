@@ -2,7 +2,6 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogFriendLink;
-import com.ruoyi.common.core.service.BaseService;
 
 /**
  * 友情链接Service接口
@@ -10,7 +9,7 @@ import com.ruoyi.common.core.service.BaseService;
  * @author nevell
  * @date 2025-09-08
  */
-public interface IBlogFriendLinkService extends BaseService<BlogFriendLink>
+public interface IBlogFriendLinkService 
 {
     /**
      * 查询友情链接列表

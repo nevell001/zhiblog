@@ -67,3 +67,12 @@ export function updateSettingValueByKey(key, value) {
     data: { value: value }
   })
 }
+
+// 前台专用接口
+// 获取博客设置（前台用）
+export function getBlogSettings() {
+  return request({
+    url: '/blog/setting',
+    method: 'get'
+  })
+}

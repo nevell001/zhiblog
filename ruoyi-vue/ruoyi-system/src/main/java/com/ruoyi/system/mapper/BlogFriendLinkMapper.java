@@ -2,7 +2,6 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogFriendLink;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 友情链接Mapper接口
@@ -10,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author nevell
  * @date 2025-09-08
  */
-public interface BlogFriendLinkMapper extends BaseMapper<BlogFriendLink>
+public interface BlogFriendLinkMapper 
 {
     /**
      * 查询友情链接列表

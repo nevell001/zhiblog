@@ -11,8 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="content"    column="content"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
-        <result property="authorId"    column="author_id"    />
-        <result property="authorName"    column="author_name"    />
+        <result property="author"    column="author"    />
         <result property="isTop"    column="is_top"    />
         <result property="isRecommend"    column="is_recommend"    />
         <result property="status"    column="status"    />
@@ -25,28 +24,27 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogArticleVo">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id, 
-               u.nick_name as author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author, 
+               ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag 
         from blog_article ba
-        left join sys_user u on ba.author_id = u.user_id
     </sql>
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
         <include refid="selectBlogArticleVo"/>
         <where>  
-            <if test="title != null  and title != ''"> and title = #{title}</if>
-            <if test="summary != null  and summary != ''"> and summary = #{summary}</if>
-            <if test="content != null  and content != ''"> and content = #{content}</if>
-            <if test="coverUrl != null  and coverUrl != ''"> and cover_url = #{coverUrl}</if>
-            <if test="categoryId != null "> and category_id = #{categoryId}</if>
-            <if test="authorId != null "> and author_id = #{authorId}</if>
-            <if test="isTop != null "> and is_top = #{isTop}</if>
-            <if test="isRecommend != null "> and is_recommend = #{isRecommend}</if>
-            <if test="status != null "> and status = #{status}</if>
-            <if test="viewCount != null "> and view_count = #{viewCount}</if>
-            <if test="likeCount != null "> and like_count = #{likeCount}</if>
-            <if test="commentCount != null "> and comment_count = #{commentCount}</if>
+            <if test="title != null  and title != ''"> and ba.title = #{title}</if>
+            <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
+            <if test="content != null  and content != ''"> and ba.content = #{content}</if>
+            <if test="coverUrl != null  and coverUrl != ''"> and ba.cover_url = #{coverUrl}</if>
+            <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
+            <if test="authorId != null "> and ba.author_id = #{authorId}</if>
+            <if test="isTop != null "> and ba.is_top = #{isTop}</if>
+            <if test="isRecommend != null "> and ba.is_recommend = #{isRecommend}</if>
+            <if test="status != null "> and ba.status = #{status}</if>
+            <if test="viewCount != null "> and ba.view_count = #{viewCount}</if>
+            <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
+            <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
         </where>
     </select>
     
@@ -56,19 +54,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id, 
-               u.nick_name as author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author, 
+               ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag 
         from blog_article ba
-        left join sys_user u on ba.author_id = u.user_id
         where ba.title = #{title} limit 1
     </select>
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, cover_url, category_id, author, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{author}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
     </insert>
 
     <update id="updateBlogArticle" parameterType="BlogArticle">
@@ -79,7 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
-            <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="author != null and author != ''">author = #{author},</if>
             <if test="isTop != null">is_top = #{isTop},</if>
             <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
             <if test="status != null">status = #{status},</if>
@@ -96,6 +93,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="addViewCount" parameterType="Long">
         update blog_article set view_count = view_count + 1 where id = #{id}
     </update>
+
+    <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">
+        <include refid="selectBlogArticleVo"/>
+        inner join blog_article_tag bat on ba.id = bat.article_id
+        where bat.tag_id = #{tagId} and ba.status = 1
+    </select>
 
     <delete id="deleteBlogArticleById" parameterType="Long">
         delete from blog_article where id = #{id}

@@ -86,13 +86,15 @@
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
-            type="text"
+            link
+            type="primary"
             icon="Edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:article:edit']"
           >修改</el-button>
           <el-button
-            type="text"
+            link
+            type="primary"
             icon="Delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['system:article:remove']"
@@ -164,6 +166,12 @@
             <el-radio :label="0">草稿</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="作者" prop="author" v-if="form.id">
+          <el-input v-model="form.author" placeholder="请输入作者" readonly />
+        </el-form-item>
+        <el-form-item label="作者" prop="author" v-else>
+          <el-input v-model="form.author" placeholder="自动填充为当前用户" readonly />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -177,10 +185,12 @@
 
 <script setup name="Article">
 import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
+import useUserStore from '@/store/modules/user'
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/blog/article";
 import { listCategory } from "@/api/blog/category";
 
 const { proxy } = getCurrentInstance();
+const userStore = useUserStore();
 const { sys_normal_dict } = proxy.useDict("sys_normal_dict");
 
 const articleList = ref([]);
@@ -209,7 +219,8 @@ const data = reactive({
     ],
     content: [
       { required: true, message: "文章内容不能为空", trigger: "blur" }
-    ]
+    ],
+
   }
 });
 
@@ -247,6 +258,7 @@ function reset() {
     content: null,
     coverUrl: null,
     categoryId: null,
+    author: userStore.name || 'admin',
     isTop: 0,
     isRecommend: 0,
     status: 1
@@ -306,21 +318,16 @@ function submitForm() {
           }
         });
         
-        // 特殊处理content字段
+        // 简化content字段处理
         if (form.value.content) {
-          let contentStr = form.value.content;
-          if (typeof contentStr !== 'string') {
-            contentStr = JSON.stringify(contentStr);
-          }
-          
-          // 将HTML内容转换为纯文本
-          const tempDiv = document.createElement('div');
-          tempDiv.innerHTML = contentStr;
-          
-          // 保留原始HTML内容
-          apiData.content = contentStr;
+          apiData.content = form.value.content;
         } else {
           apiData.content = '';
+        }
+        
+        // 自动填充作者信息（当前登录用户）
+        if (!apiData.author) {
+          apiData.author = proxy.$store.getters.name || 'admin';
         }
         
         console.log("提交的表单数据:", apiData);
@@ -333,7 +340,16 @@ function submitForm() {
             getList();
           }).catch(error => {
             console.error("更新文章失败:", error);
-            proxy.$modal.msgError("更新失败: " + (error.message || "未知错误"));
+            // 如果是401错误，可能是token过期，提示重新登录
+            if (error.code === 401) {
+              proxy.$modal.msgError("登录已过期，请重新登录");
+              // 清除token并跳转到登录页
+              proxy.$store.dispatch('LogOut').then(() => {
+                location.href = '/index';
+              });
+            } else {
+              proxy.$modal.msgError("更新失败: " + (error.message || "未知错误"));
+            }
           });
         } else {
           addArticle(apiData).then(response => {
@@ -342,7 +358,16 @@ function submitForm() {
             getList();
           }).catch(error => {
             console.error("添加文章失败:", error);
-            proxy.$modal.msgError("添加失败: " + (error.message || "未知错误"));
+            // 如果是401错误，可能是token过期，提示重新登录
+            if (error.code === 401) {
+              proxy.$modal.msgError("登录已过期，请重新登录");
+              // 清除token并跳转到登录页
+              proxy.$store.dispatch('LogOut').then(() => {
+                location.href = '/index';
+              });
+            } else {
+              proxy.$modal.msgError("添加失败: " + (error.message || "未知错误"));
+            }
           });
         }
       } catch (e) {

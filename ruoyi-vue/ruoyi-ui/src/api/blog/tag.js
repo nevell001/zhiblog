@@ -42,3 +42,21 @@ export function delTag(id) {
     method: 'delete'
   })
 }
+
+// 前台专用接口
+// 获取标签列表（前台用）
+export function getTagList(query) {
+  return request({
+    url: '/blog/tag/list',
+    method: 'get',
+    params: query
+  })
+}
+
+// 获取标签详情（前台用）
+export function getTagDetail(id) {
+  return request({
+    url: '/blog/tag/' + id,
+    method: 'get'
+  })
+}

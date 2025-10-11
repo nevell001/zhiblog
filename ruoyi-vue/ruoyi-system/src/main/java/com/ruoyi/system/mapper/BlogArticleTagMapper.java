@@ -2,7 +2,6 @@ package com.ruoyi.system.mapper;
 
 import java.util.List;
 import com.ruoyi.system.domain.BlogArticleTag;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
  * 文章标签关联Mapper接口
@@ -10,7 +9,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author nevell
  * @date 2025-09-08
  */
-public interface BlogArticleTagMapper extends BaseMapper<BlogArticleTag>
+public interface BlogArticleTagMapper 
 {
     /**
      * 查询文章标签关联列表
