@@ -1,6 +1,8 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Param;
 import com.ruoyi.system.domain.BlogArticle;
 
 /**
@@ -78,4 +80,32 @@ public interface BlogArticleMapper
      * @return 文章列表
      */
     List<BlogArticle> selectArticlesByTagId(Long tagId);
+
+    /**
+     * 搜索文章（根据标题和内容搜索）
+     * @param keyword 搜索关键词
+     * @param blogArticle 查询条件
+     * @return 文章列表
+     */
+    List<BlogArticle> searchArticles(@Param("keyword") String keyword, @Param("blogArticle") BlogArticle blogArticle);
+
+    /**
+     * 获取文章归档（按年月分组）
+     * @return 归档列表
+     */
+    List<Map<String, Object>> getArticleArchive();
+
+    /**
+     * 获取上一篇文章
+     * @param id 当前文章ID
+     * @return 上一篇文章
+     */
+    BlogArticle getPrevArticle(Long id);
+
+    /**
+     * 获取下一篇文章
+     * @param id 当前文章ID
+     * @return 下一篇文章
+     */
+    BlogArticle getNextArticle(Long id);
 }

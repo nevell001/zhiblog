@@ -8,6 +8,20 @@
       <div class="header-content">
         <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
         <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
+        
+        <!-- 搜索框 -->
+        <div class="search-container">
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索文章..."
+            class="search-input"
+            @keyup.enter="handleSearch"
+          >
+            <template #append>
+              <el-button icon="Search" @click="handleSearch" />
+            </template>
+          </el-input>
+        </div>
       </div>
     </div>
 
@@ -85,6 +99,22 @@
           </ul>
         </div>
 
+        <!-- 标签云 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">标签云</h3>
+          <div class="tag-cloud">
+            <router-link 
+              v-for="tag in tagCloud" 
+              :key="tag.id" 
+              :to="`/blog/tag/${tag.id}`"
+              class="tag-item"
+              :style="{ fontSize: getTagFontSize(tag.article_count) + 'px' }"
+            >
+              {{ tag.name }}
+            </router-link>
+          </div>
+        </div>
+
         <!-- 热门文章 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">热门文章</h3>
@@ -96,6 +126,19 @@
             </li>
           </ul>
         </div>
+
+        <!-- 文章归档 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">文章归档</h3>
+          <ul class="archive-list">
+            <li v-for="archive in archiveList" :key="archive.archive_date" class="archive-item">
+              <router-link to="/blog/archive" class="archive-link">
+                <span class="archive-date">{{ formatArchiveDate(archive.archive_date) }}</span>
+                <span class="archive-count">({{ archive.article_count }})</span>
+              </router-link>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -103,9 +146,10 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getArticleList, getHotArticles } from '@/api/blog/article'
+import { getArticleList, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings } from '@/api/blog/setting'
+import { getTagCloud } from '@/api/blog/tag'
 import BlogNav from '@/components/BlogNav.vue'
 
 // 响应式数据
@@ -114,6 +158,9 @@ const categoryList = ref([])
 const hotArticles = ref([])
 const blogSettings = ref({})
 const total = ref(0)
+const searchKeyword = ref('')
+const tagCloud = ref([])
+const archiveList = ref([])
 
 // 查询参数
 const queryParams = reactive({
@@ -125,7 +172,17 @@ const queryParams = reactive({
 // 获取文章列表
 const loadArticleList = async () => {
   try {
-    const response = await getArticleList(queryParams)
+    let response;
+    if (searchKeyword.value) {
+      // 如果有搜索关键词，则执行搜索
+      response = await searchArticles(searchKeyword.value, queryParams)
+    } else {
+      // 否则获取所有文章
+      response = await getArticleList(queryParams)
+    }
+    
+    console.log('文章列表响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", total: 0, rows: [...]}
     articleList.value = response.rows || []
     total.value = response.total || 0
   } catch (error) {
@@ -137,7 +194,9 @@ const loadArticleList = async () => {
 const loadCategoryList = async () => {
   try {
     const response = await getCategoryList({})
-    categoryList.value = response.rows || []
+    console.log('分类列表响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
+    categoryList.value = response.data || response.rows || []
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -146,8 +205,11 @@ const loadCategoryList = async () => {
 // 获取热门文章
 const loadHotArticles = async () => {
   try {
-    const response = await getHotArticles({ limit: 5 })
-    hotArticles.value = response.data || []
+    // 获取前5个热门文章
+    const response = await getHotArticles({ pageNum: 1, pageSize: 5 })
+    console.log('热门文章响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", total: 0, rows: [...]}
+    hotArticles.value = response.rows || []
   } catch (error) {
     console.error('获取热门文章失败:', error)
   }
@@ -157,10 +219,50 @@ const loadHotArticles = async () => {
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettings()
+    console.log('博客设置响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", data: {...}}
     blogSettings.value = response.data || {}
   } catch (error) {
     console.error('获取博客设置失败:', error)
   }
+}
+
+// 获取标签云
+const loadTagCloud = async () => {
+  try {
+    const response = await getTagCloud()
+    console.log('标签云响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
+    tagCloud.value = response.data || []
+  } catch (error) {
+    console.error('获取标签云失败:', error)
+  }
+}
+
+// 获取文章归档
+const loadArchiveData = async () => {
+  try {
+    const response = await getArticleArchive()
+    console.log('归档数据响应:', response)
+    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
+    archiveList.value = (response.data || []).slice(0, 10) // 只显示前10个归档
+  } catch (error) {
+    console.error('获取归档数据失败:', error)
+  }
+}
+
+// 搜索处理
+const handleSearch = () => {
+  // 重置页码为第一页
+  queryParams.pageNum = 1
+  loadArticleList()
+}
+
+// 清除搜索
+const clearSearch = () => {
+  searchKeyword.value = ''
+  queryParams.pageNum = 1
+  loadArticleList()
 }
 
 // 分页处理
@@ -180,12 +282,31 @@ const formatDate = (dateString) => {
   })
 }
 
+// 格式化归档日期
+const formatArchiveDate = (dateString) => {
+  if (!dateString) return ''
+  const [year, month] = dateString.split('-')
+  const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
+                     '七月', '八月', '九月', '十月', '十一月', '十二月']
+  return `${year}年 ${monthNames[parseInt(month) - 1]}`
+}
+
+// 根据文章数量计算标签字体大小
+const getTagFontSize = (count) => {
+  if (count >= 10) return 18
+  if (count >= 5) return 16
+  if (count >= 2) return 14
+  return 12
+}
+
 // 组件挂载时加载数据
 onMounted(() => {
   loadArticleList()
   loadCategoryList()
   loadHotArticles()
   loadBlogSettings()
+  loadTagCloud()
+  loadArchiveData()
 })
 </script>
 
@@ -217,7 +338,16 @@ onMounted(() => {
 .blog-description {
   font-size: 1.2rem;
   opacity: 0.9;
-  margin: 0;
+  margin: 0 0 20px 0;
+}
+
+.search-container {
+  max-width: 500px;
+  margin: 20px auto 0;
+}
+
+.search-input {
+  width: 100%;
 }
 
 .blog-main {
@@ -382,6 +512,27 @@ onMounted(() => {
   font-size: 0.9rem;
 }
 
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 15px 0;
+}
+
+.tag-item {
+  color: #409eff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 5px 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.tag-item:hover {
+  color: #337ecc;
+  background: #e6f7ff;
+}
+
 .hot-article-list {
   list-style: none;
   padding: 0;
@@ -410,6 +561,35 @@ onMounted(() => {
 
 .hot-article-link:hover {
   color: #409eff;
+}
+
+.archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.archive-item {
+  margin-bottom: 10px;
+}
+
+.archive-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.archive-link:hover {
+  color: #409eff;
+}
+
+.archive-count {
+  color: #999;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.BlogTag;
 
 /**
@@ -65,6 +66,13 @@ public interface IBlogTagService
      * @return 影响行数
      */
     public int deleteBlogTagByIds(Long[] tagIds);
+
+    /**
+     * 获取标签云（包含文章数量）
+     * 
+     * @return 标签云列表
+     */
+    public List<Map<String, Object>> getTagCloud();
 
     /**
      * 校验标签名称是否唯一

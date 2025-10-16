@@ -51,11 +51,11 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getArticleList } from '@/api/blog/article'
+import { getArticlesByCategory } from '@/api/blog/article'
 import { getCategoryDetail } from '@/api/blog/category'
 
 const route = useRoute()
-const categoryId = route.params.id
+const categoryId = ref(route.params.id || '')
 
 // 响应式数据
 const articleList = ref([])
@@ -66,7 +66,6 @@ const total = ref(0)
 const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
-  categoryId: categoryId,
   status: 1
 })
 
@@ -76,7 +75,12 @@ const categoryName = computed(() => categoryDetail.value.name || '未知分类')
 // 获取文章列表
 const loadArticleList = async () => {
   try {
-    const response = await getArticleList(queryParams)
+    if (!categoryId.value) {
+      console.error('分类ID为空')
+      return
+    }
+    
+    const response = await getArticlesByCategory(categoryId.value, queryParams)
     articleList.value = response.rows || []
     total.value = response.total || 0
   } catch (error) {
@@ -87,7 +91,11 @@ const loadArticleList = async () => {
 // 获取分类详情
 const loadCategoryDetail = async () => {
   try {
-    const response = await getCategoryDetail(categoryId)
+    if (!categoryId.value) {
+      console.error('分类ID为空')
+      return
+    }
+    const response = await getCategoryDetail(categoryId.value)
     categoryDetail.value = response.data || {}
   } catch (error) {
     console.error('获取分类详情失败:', error)
@@ -113,8 +121,12 @@ const formatDate = (dateString) => {
 
 // 组件挂载时加载数据
 onMounted(() => {
-  loadCategoryDetail()
-  loadArticleList()
+  if (categoryId.value) {
+    loadCategoryDetail()
+    loadArticleList()
+  } else {
+    console.error('路由参数中缺少分类ID')
+  }
 })
 </script>
 

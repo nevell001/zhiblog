@@ -308,29 +308,47 @@ function submitForm() {
   proxy.$refs["articleRef"].validate(valid => {
     if (valid) {
       try {
-        // 创建一个新的对象用于提交
-        const apiData = {};
+        // 创建一个完整的数据对象，包含所有必需的字段
+        const apiData = {
+          title: form.value.title || '',
+          summary: form.value.summary || '',
+          content: form.value.content ? 
+            form.value.content
+              .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 移除控制字符
+              .replace(/[\t\n\r]/g, ' ') // 将制表符、换行符替换为空格
+              .replace(/\s+/g, ' ') // 将多个空格合并为一个
+              .replace(/"/g, '\\"') // 转义双引号
+              .replace(/'/g, "\\'") // 转义单引号
+              .trim() : '',
+          coverUrl: form.value.coverUrl || '',
+          categoryId: form.value.categoryId ? Number(form.value.categoryId) : null,
+          authorId: 1, // 默认作者ID，需要根据实际情况设置
+          author: form.value.author || proxy.$store.getters.name || 'admin',
+          isTop: form.value.isTop ? 1 : 0,
+          isRecommend: form.value.isRecommend ? 1 : 0,
+          status: form.value.status ? 1 : 0,
+          viewCount: 0,
+          likeCount: 0,
+          commentCount: 0
+        };
         
-        // 复制所有字段
-        Object.keys(form.value).forEach(key => {
-          if (form.value[key] !== null && form.value[key] !== undefined) {
-            apiData[key] = form.value[key];
-          }
-        });
+        // 确保数据类型与后端实体类匹配（Long类型）
+        if (apiData.isTop !== null) apiData.isTop = Number(apiData.isTop);
+        if (apiData.isRecommend !== null) apiData.isRecommend = Number(apiData.isRecommend);
+        if (apiData.status !== null) apiData.status = Number(apiData.status);
+        if (apiData.viewCount !== null) apiData.viewCount = Number(apiData.viewCount);
+        if (apiData.likeCount !== null) apiData.likeCount = Number(apiData.likeCount);
+        if (apiData.commentCount !== null) apiData.commentCount = Number(apiData.commentCount);
         
-        // 简化content字段处理
-        if (form.value.content) {
-          apiData.content = form.value.content;
-        } else {
-          apiData.content = '';
-        }
+        // 调试：检查JSON字符串
+        const jsonString = JSON.stringify(apiData);
+        console.log("JSON字符串长度:", jsonString.length);
+        console.log("JSON字符串预览:", jsonString.substring(0, 100) + "...");
+        console.log("第2360-2370个字符:", jsonString.substring(2355, 2375));
         
-        // 自动填充作者信息（当前登录用户）
-        if (!apiData.author) {
-          apiData.author = proxy.$store.getters.name || 'admin';
-        }
-        
-        console.log("提交的表单数据:", apiData);
+        console.log("提交的表单数据:", JSON.stringify(apiData, null, 2));
+        console.log("JSON字符串长度:", JSON.stringify(apiData).length);
+        console.log("清理后的内容长度:", apiData.content.length);
         
         // 使用现有的API函数而不是直接使用axios
         if (form.value.id != null) {

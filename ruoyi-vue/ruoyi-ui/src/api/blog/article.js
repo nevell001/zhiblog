@@ -52,7 +52,7 @@ export function addViewCount(id) {
 }
 
 // 前台专用接口
-// 获取文章列表（前台用，包含分类和标签信息）
+// 获取文章列表（前台用，包含分类和标签信息，支持分页）
 export function getArticleList(query) {
   return request({
     url: '/blog/article/list',
@@ -61,15 +61,25 @@ export function getArticleList(query) {
   })
 }
 
-// 获取文章详情（前台用，包含完整内容）
-export function getArticleDetail(id) {
+// 根据分类获取文章列表（前台用，支持分页）
+export function getArticlesByCategory(categoryId, query) {
   return request({
-    url: '/blog/article/' + id,
-    method: 'get'
+    url: '/blog/article/category/' + categoryId,
+    method: 'get',
+    params: query
   })
 }
 
-// 获取热门文章
+// 根据标签获取文章列表（前台用，支持分页）
+export function getArticlesByTag(tagId, query) {
+  return request({
+    url: '/blog/article/tag/' + tagId,
+    method: 'get',
+    params: query
+  })
+}
+
+// 获取热门文章（支持分页）
 export function getHotArticles(query) {
   return request({
     url: '/blog/article/hot',
@@ -78,10 +88,35 @@ export function getHotArticles(query) {
   })
 }
 
+// 获取文章详情（前台用，包含完整内容和上下篇文章信息）
+export function getArticleDetail(id) {
+  return request({
+    url: '/blog/article/' + id,
+    method: 'get'
+  })
+}
+
 // 更新文章浏览量
 export function updateArticleViewCount(id) {
   return request({
     url: '/blog/article/view/' + id,
-    method: 'post'
+    method: 'get'
+  })
+}
+
+// 获取文章归档
+export function getArticleArchive() {
+  return request({
+    url: '/blog/article-archive',
+    method: 'get'
+  })
+}
+
+// 搜索文章（支持分页）
+export function searchArticles(keyword, query) {
+  return request({
+    url: '/blog/article/search',
+    method: 'get',
+    params: { ...query, keyword: keyword }
   })
 }

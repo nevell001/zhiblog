@@ -82,6 +82,23 @@ public class BlogArticleController extends BaseController
     public AjaxResult add(@RequestBody BlogArticle blogArticle)
     {
         log.info("前端传入authorId: {}", blogArticle.getAuthorId());
+        log.info("前端传入title: {}", blogArticle.getTitle());
+        log.info("前端传入content长度: {}", blogArticle.getContent() != null ? blogArticle.getContent().length() : 0);
+        
+        // 设置默认值
+        if (blogArticle.getViewCount() == null) {
+            blogArticle.setViewCount(0L);
+        }
+        if (blogArticle.getLikeCount() == null) {
+            blogArticle.setLikeCount(0L);
+        }
+        if (blogArticle.getCommentCount() == null) {
+            blogArticle.setCommentCount(0L);
+        }
+        if (blogArticle.getDelFlag() == null) {
+            blogArticle.setDelFlag(0L);
+        }
+        
         return toAjax(blogArticleService.insertBlogArticle(blogArticle));
     }
 

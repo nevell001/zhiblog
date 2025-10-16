@@ -5,23 +5,21 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.system.mapper.BlogTagMapper">
     
     <resultMap type="BlogTag" id="BlogTagResult">
-        <result property="tagId"    column="tag_id"    />
-        <result property="tagName"    column="tag_name"    />
-        <result property="createBy"    column="create_by"    />
+        <result property="tagId"    column="id"    />
+        <result property="tagName"    column="name"    />
         <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
     <sql id="selectBlogTagVo">
-        select tag_id, tag_name, create_by, create_time, update_by, update_time, del_flag from blog_tag
+        select id, name, create_time, update_time, del_flag from blog_tag
     </sql>
 
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
         <where>  
-            <if test="tagName != null  and tagName != ''"> and tag_name like concat('%', #{tagName}, '%')</if>
+            <if test="tagName != null  and tagName != ''"> and name like concat('%', #{tagName}, '%')</if>
             and del_flag = '0'
         </where>
     </select>
@@ -33,33 +31,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <select id="selectBlogTagById" parameterType="Long" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where tag_id = #{tagId} and del_flag = '0'
+        where id = #{tagId} and del_flag = '0'
     </select>
     
     <select id="checkTagNameUnique" parameterType="String" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where tag_name = #{tagName} and del_flag = '0' limit 1
+        where name = #{tagName} and del_flag = '0' limit 1
     </select>
     
     <select id="checkTagExistArticle" parameterType="Long" resultType="Integer">
         select count(1) from blog_article_tag where tag_id = #{tagId}
     </select>
 
+    <select id="getTagCloud" resultType="map">
+        SELECT 
+            bt.id,
+            bt.name,
+            COUNT(bat.article_id) as article_count
+        FROM blog_tag bt
+        LEFT JOIN blog_article_tag bat ON bt.id = bat.tag_id
+        LEFT JOIN blog_article ba ON bat.article_id = ba.id AND ba.status = 1 AND ba.del_flag = 0
+        WHERE bt.del_flag = '0'
+        GROUP BY bt.id, bt.name
+        ORDER BY article_count DESC, bt.create_time DESC
+    </select>
+
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="tagId">
         insert into blog_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="tagName != null and tagName != ''">tag_name,</if>
-            <if test="createBy != null">create_by,</if>
+            <if test="tagName != null and tagName != ''">name,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="delFlag != null">del_flag,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="tagName != null and tagName != ''">#{tagName},</if>
-            <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="delFlag != null">#{delFlag},</if>
          </trim>
@@ -68,19 +75,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateBlogTag" parameterType="BlogTag">
         update blog_tag
         <trim prefix="SET" suffixOverrides=",">
-            <if test="tagName != null and tagName != ''">tag_name = #{tagName},</if>
-            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="tagName != null and tagName != ''">name = #{tagName},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
-        where tag_id = #{tagId}
+        where id = #{tagId}
     </update>
 
     <delete id="deleteBlogTagById" parameterType="Long">
-        update blog_tag set del_flag = '1' where tag_id = #{tagId}
+        update blog_tag set del_flag = '1' where id = #{tagId}
     </delete>
 
     <delete id="deleteBlogTagByIds" parameterType="String">
-        update blog_tag set del_flag = '1' where tag_id in 
+        update blog_tag set del_flag = '1' where id in 
         <foreach item="tagId" collection="array" open="(" separator="," close=")">
             #{tagId}
         </foreach>

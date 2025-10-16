@@ -1,7 +1,7 @@
 // 博客前台路由配置
 export const blogRoutes = [
   {
-    path: '/blog',
+    path: '/index',
     component: () => import('@/views/blog/index'),
     name: 'BlogHome',
     meta: { title: '博客首页' }
@@ -23,6 +23,12 @@ export const blogRoutes = [
     component: () => import('@/views/blog/tag/index'),
     name: 'BlogTag',
     meta: { title: '标签文章' }
+  },
+  {
+    path: '/blog/archive',
+    component: () => import('@/views/blog/archive/index'),
+    name: 'BlogArchive',
+    meta: { title: '文章归档' }
   },
   {
     path: '/blog/simple',

@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -105,12 +106,11 @@ public class BlogTagServiceImpl implements IBlogTagService
         return blogTagMapper.deleteBlogTagByIds(tagIds);
     }
 
-    /**
-     * 校验标签名称是否唯一
-     * 
-     * @param blogTag 标签信息
-     * @return 结果
-     */
+    @Override
+    public List<Map<String, Object>> getTagCloud() {
+        return blogTagMapper.getTagCloud();
+    }
+
     @Override
     public boolean checkTagNameUnique(BlogTag blogTag)
     {

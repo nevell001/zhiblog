@@ -77,3 +77,33 @@
 ---
 
 如需详细开发计划或任务分解，请联系项目维护者。 
+
+## 数据库配置
+- **数据库版本**: MySQL 8.4
+- **默认端口**: 3306
+- **默认用户名**: root
+- **默认密码**: root
+- **数据库名**: newblog
+- **表前缀**: blog_
+
+## 当前系统状态
+✅ **数据库表已创建**: 7个博客相关表
+- blog_article (文章表)
+- blog_category (分类表) 
+- blog_tag (标签表)
+- blog_article_tag (文章标签关联表)
+- blog_comment (评论表)
+- blog_friend_link (友情链接表)
+- blog_setting (系统设置表)
+
+✅ **示例数据已导入**: 包含3篇文章、4个分类、10个标签、4个友情链接
+
+✅ **服务已启动**:
+- 后端服务: http://localhost:8080
+- 前端服务: http://localhost:3000
+
+## 访问方式
+1. 打开浏览器访问博客首页: http://localhost:3000/index
+2. 打开浏览器访问博客后台管理: http://localhost:3000/admin
+3. 使用默认账号登录: admin/admin123
+4. 进入博客管理后台查看功能

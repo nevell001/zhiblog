@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.ruoyi.system.domain.BlogTag;
 
 /**
@@ -81,4 +82,10 @@ public interface BlogTagMapper
      * @return 结果
      */
     public int checkTagExistArticle(Long tagId);
+
+    /**
+     * 获取标签云（包含文章数量）
+     * @return 标签云列表
+     */
+    List<Map<String, Object>> getTagCloud();
 }

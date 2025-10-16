@@ -1,6 +1,8 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -135,7 +137,27 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     @Override
+    public BlogArticle getPrevArticle(Long id) {
+        return blogArticleMapper.getPrevArticle(id);
+    }
+
+    @Override
+    public BlogArticle getNextArticle(Long id) {
+        return blogArticleMapper.getNextArticle(id);
+    }
+
+    @Override
+    public List<Map<String, Object>> getArticleArchive() {
+        return blogArticleMapper.getArticleArchive();
+    }
+
+    @Override
     public List<BlogArticle> selectArticlesByTagId(Long tagId) {
         return blogArticleMapper.selectArticlesByTagId(tagId);
+    }
+
+    @Override
+    public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
+        return blogArticleMapper.searchArticles(keyword, blogArticle);
     }
 }

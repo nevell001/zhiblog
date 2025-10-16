@@ -6,85 +6,74 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="BlogSetting" id="BlogSettingResult">
         <result property="id"    column="id"    />
-        <result property="settingKey"    column="setting_key"    />
-        <result property="settingValue"    column="setting_value"    />
+        <result property="settingKey"    column="config_key"    />
+        <result property="settingValue"    column="config_value"    />
         <result property="description"    column="description"    />
-        <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
-        <result property="updateBy"    column="update_by"    />
         <result property="updateTime"    column="update_time"    />
-        <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
     <sql id="selectBlogSettingVo">
-        select id, setting_key, setting_value, description, create_by, create_time, update_by, update_time, del_flag from blog_setting
+        select id, config_key, config_value, description, create_time, update_time from blog_setting
     </sql>
 
     <select id="selectBlogSettingList" parameterType="BlogSetting" resultMap="BlogSettingResult">
         <include refid="selectBlogSettingVo"/>
         <where>  
-            <if test="settingKey != null  and settingKey != ''"> and setting_key like concat('%', #{settingKey}, '%')</if>
-            <if test="settingValue != null  and settingValue != ''"> and setting_value like concat('%', #{settingValue}, '%')</if>
-            and del_flag = '0'
+            <if test="settingKey != null  and settingKey != ''"> and config_key like concat('%', #{settingKey}, '%')</if>
+            <if test="settingValue != null  and settingValue != ''"> and config_value like concat('%', #{settingValue}, '%')</if>
         </where>
     </select>
     
     <select id="selectSettingValueByKey" parameterType="String" resultType="String">
-        select setting_value from blog_setting where setting_key = #{settingKey} and del_flag = '0'
+        select config_value from blog_setting where config_key = #{settingKey}
     </select>
     
     <select id="selectBlogSettingById" parameterType="Long" resultMap="BlogSettingResult">
         <include refid="selectBlogSettingVo"/>
-        where id = #{id} and del_flag = '0'
+        where id = #{id}
     </select>
 
     <insert id="insertBlogSetting" parameterType="BlogSetting" useGeneratedKeys="true" keyProperty="id">
         insert into blog_setting
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="settingKey != null and settingKey != ''">setting_key,</if>
-            <if test="settingValue != null and settingValue != ''">setting_value,</if>
+            <if test="settingKey != null and settingKey != ''">config_key,</if>
+            <if test="settingValue != null and settingValue != ''">config_value,</if>
             <if test="description != null">description,</if>
-            <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="updateBy != null">update_by,</if>
             <if test="updateTime != null">update_time,</if>
-            <if test="delFlag != null">del_flag,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="settingKey != null and settingKey != ''">#{settingKey},</if>
             <if test="settingValue != null and settingValue != ''">#{settingValue},</if>
             <if test="description != null">#{description},</if>
-            <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="updateBy != null">#{updateBy},</if>
             <if test="updateTime != null">#{updateTime},</if>
-            <if test="delFlag != null">#{delFlag},</if>
          </trim>
     </insert>
 
     <update id="updateBlogSetting" parameterType="BlogSetting">
         update blog_setting
         <trim prefix="SET" suffixOverrides=",">
-            <if test="settingKey != null and settingKey != ''">setting_key = #{settingKey},</if>
-            <if test="settingValue != null and settingValue != ''">setting_value = #{settingValue},</if>
+            <if test="settingKey != null and settingKey != ''">config_key = #{settingKey},</if>
+            <if test="settingValue != null and settingValue != ''">config_value = #{settingValue},</if>
             <if test="description != null">description = #{description},</if>
-            <if test="updateBy != null">update_by = #{updateBy},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
     </update>
     
     <update id="updateSettingValueByKey">
-        update blog_setting set setting_value = #{settingValue}, update_time = sysdate()
-        where setting_key = #{settingKey} and del_flag = '0'
+        update blog_setting set config_value = #{settingValue}, update_time = sysdate()
+        where config_key = #{settingKey}
     </update>
 
     <delete id="deleteBlogSettingById" parameterType="Long">
-        update blog_setting set del_flag = '1' where id = #{id}
+        delete from blog_setting where id = #{id}
     </delete>
 
     <delete id="deleteBlogSettingByIds" parameterType="String">
-        update blog_setting set del_flag = '1' where id in 
+        delete from blog_setting where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

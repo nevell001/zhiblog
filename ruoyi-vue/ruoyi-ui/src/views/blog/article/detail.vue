@@ -110,7 +110,16 @@ const commentContent = ref('')
 const loadArticleDetail = async () => {
   try {
     const response = await getArticleDetail(articleId)
-    article.value = response.data || {}
+    const data = response.data || {}
+    
+    // 设置文章数据
+    article.value = data.article || {}
+    
+    // 设置上下篇文章数据
+    if (data.extraInfo) {
+      prevArticle.value = data.extraInfo.prevArticle || null
+      nextArticle.value = data.extraInfo.nextArticle || null
+    }
     
     // 更新阅读量
     await updateArticleViewCount(articleId)

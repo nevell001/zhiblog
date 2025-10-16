@@ -60,3 +60,11 @@ export function getTagDetail(id) {
     method: 'get'
   })
 }
+
+// 获取标签云
+export function getTagCloud() {
+  return request({
+    url: '/blog/tag/cloud',
+    method: 'get'
+  })
+}

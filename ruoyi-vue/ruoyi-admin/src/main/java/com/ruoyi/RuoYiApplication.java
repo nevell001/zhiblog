@@ -11,7 +11,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author ruoyi
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
-@ComponentScan(basePackages = {"com.ruoyi"})
+@ComponentScan(basePackages = {"com.ruoyi", "com.ruoyi.system.controller"})
 public class RuoYiApplication
 {
     public static void main(String[] args)

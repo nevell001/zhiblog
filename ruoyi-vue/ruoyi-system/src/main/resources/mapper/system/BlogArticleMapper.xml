@@ -11,7 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="content"    column="content"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
-        <result property="author"    column="author"    />
+        <result property="authorId"    column="author_id"    />
         <result property="isTop"    column="is_top"    />
         <result property="isRecommend"    column="is_recommend"    />
         <result property="status"    column="status"    />
@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogArticleVo">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author, 
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id, 
                ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag 
         from blog_article ba
@@ -54,7 +54,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author, 
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id, 
                ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag 
         from blog_article ba
@@ -63,9 +63,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, cover_url, category_id, author, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{author}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, #{delFlag})
     </insert>
 
     <update id="updateBlogArticle" parameterType="BlogArticle">
@@ -76,7 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="content != null and content != ''">content = #{content},</if>
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
-            <if test="author != null and author != ''">author = #{author},</if>
+            <if test="authorId != null">author_id = #{authorId},</if>
             <if test="isTop != null">is_top = #{isTop},</if>
             <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
             <if test="status != null">status = #{status},</if>
@@ -97,7 +97,49 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">
         <include refid="selectBlogArticleVo"/>
         inner join blog_article_tag bat on ba.id = bat.article_id
-        where bat.tag_id = #{tagId} and ba.status = 1
+        where bat.tag_id = #{tagId} and ba.status = 1 and ba.del_flag = 0
+    </select>
+
+    <select id="searchArticles" resultMap="BlogArticleResult">
+        <include refid="selectBlogArticleVo"/>
+        <where>
+            ba.status = 1 and ba.del_flag = 0
+            <if test="keyword != null and keyword != ''">
+                and (ba.title like concat('%', #{keyword}, '%') or ba.content like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="blogArticle.categoryId != null">
+                and ba.category_id = #{blogArticle.categoryId}
+            </if>
+            <if test="blogArticle.isTop != null">
+                and ba.is_top = #{blogArticle.isTop}
+            </if>
+            <if test="blogArticle.isRecommend != null">
+                and ba.is_recommend = #{blogArticle.isRecommend}
+            </if>
+        </where>
+        order by ba.create_time desc
+    </select>
+
+    <select id="getArticleArchive" resultType="map">
+        SELECT 
+            DATE_FORMAT(create_time, '%Y-%m') as archive_date,
+            COUNT(*) as article_count
+        FROM blog_article 
+        WHERE status = 1 AND del_flag = 0
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m')
+        ORDER BY archive_date DESC
+    </select>
+
+    <select id="getPrevArticle" resultMap="BlogArticleResult" parameterType="Long">
+        SELECT id, title FROM blog_article 
+        WHERE id &lt; #{id} AND status = 1 AND del_flag = 0 
+        ORDER BY id DESC LIMIT 1
+    </select>
+
+    <select id="getNextArticle" resultMap="BlogArticleResult" parameterType="Long">
+        SELECT id, title FROM blog_article 
+        WHERE id &gt; #{id} AND status = 1 AND del_flag = 0 
+        ORDER BY id ASC LIMIT 1
     </select>
 
     <delete id="deleteBlogArticleById" parameterType="Long">

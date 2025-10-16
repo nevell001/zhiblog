@@ -51,7 +51,7 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getArticleList } from '@/api/blog/article'
+import { getArticlesByTag } from '@/api/blog/article'
 import { getTagDetail } from '@/api/blog/tag'
 
 const route = useRoute()
@@ -66,7 +66,6 @@ const total = ref(0)
 const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
-  tagId: tagId,
   status: 1
 })
 
@@ -76,7 +75,12 @@ const tagName = computed(() => tagDetail.value.name || '未知标签')
 // 获取文章列表
 const loadArticleList = async () => {
   try {
-    const response = await getArticleList(queryParams)
+    if (!tagId) {
+      console.error('标签ID为空')
+      return
+    }
+    
+    const response = await getArticlesByTag(tagId, queryParams)
     articleList.value = response.rows || []
     total.value = response.total || 0
   } catch (error) {
@@ -87,6 +91,11 @@ const loadArticleList = async () => {
 // 获取标签详情
 const loadTagDetail = async () => {
   try {
+    if (!tagId) {
+      console.error('标签ID为空')
+      return
+    }
+    
     const response = await getTagDetail(tagId)
     tagDetail.value = response.data || {}
   } catch (error) {
@@ -113,8 +122,12 @@ const formatDate = (dateString) => {
 
 // 组件挂载时加载数据
 onMounted(() => {
-  loadTagDetail()
-  loadArticleList()
+  if (tagId) {
+    loadTagDetail()
+    loadArticleList()
+  } else {
+    console.error('路由参数中缺少标签ID')
+  }
 })
 </script>
 

@@ -1,8 +1,8 @@
 <template>
   <div class="blog-nav">
-    <router-link to="/blog" class="nav-item">博客首页</router-link>
+    <router-link to="/index" class="nav-item">博客首页</router-link>
     <router-link to="/blog/simple" class="nav-item">简洁版</router-link>
-    <router-link to="/login" class="nav-item">后台管理</router-link>
+    <router-link to="/admin" class="nav-item">后台管理</router-link>
   </div>
 </template>
 
