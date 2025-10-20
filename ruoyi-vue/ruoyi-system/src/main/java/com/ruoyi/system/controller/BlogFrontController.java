@@ -30,6 +30,27 @@ import com.ruoyi.system.service.IBlogSettingService;
 import com.ruoyi.system.service.IBlogTagService;
 
 /**
+ * 上下篇文章信息DTO
+ */
+class ArticleNavigationDTO {
+    private Long id;
+    private String title;
+    
+    public ArticleNavigationDTO() {}
+    
+    public ArticleNavigationDTO(Long id, String title) {
+        this.id = id;
+        this.title = title;
+    }
+    
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+}
+
+/**
  * 博客前台控制器
  * 
  * @author nevell
@@ -99,15 +120,81 @@ public class BlogFrontController extends BaseController
     public AjaxResult getArticle(@PathVariable("id") Long id)
     {
         BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
-        if (blogArticle == null || !Long.valueOf(1L).equals(blogArticle.getStatus()) || 
-            blogArticle.getDelFlag() == null || blogArticle.getDelFlag() != 0L) {
-            return error("文章不存在或未发布");
+        if (blogArticle == null) {
+            return error("文章不存在");
         }
         
-        // 获取上一篇和下一篇文章
+        // 确保所有字段都有值，避免null
+        if (blogArticle.getStatus() == null) {
+            blogArticle.setStatus(0L); // 默认草稿状态
+        }
+        // 使用安全的null检查方式
+        Long status = blogArticle.getStatus();
+        if (status == null || !Long.valueOf(1L).equals(status)) {
+            return error("文章未发布");
+        }
+        
+        // 使用安全的null检查方式，避免直接调用getDelFlag().longValue()
+        Long delFlag = blogArticle.getDelFlag();
+        if (delFlag == null) {
+            blogArticle.setDelFlag(0L); // 使用默认值
+            delFlag = 0L;
+        }
+        // 然后安全地检查delFlag的值
+        if (!Long.valueOf(0L).equals(delFlag)) {
+            return error("文章已删除");
+        }
+        
+        // 确保其他字段都有默认值
+        if (blogArticle.getViewCount() == null) blogArticle.setViewCount(0L);
+        if (blogArticle.getLikeCount() == null) blogArticle.setLikeCount(0L);
+        if (blogArticle.getCommentCount() == null) blogArticle.setCommentCount(0L);
+        if (blogArticle.getIsTop() == null) blogArticle.setIsTop(0L);
+        if (blogArticle.getIsRecommend() == null) blogArticle.setIsRecommend(0L);
+        
+        // 获取上一篇和下一篇文章，使用专门的DTO对象
         Map<String, Object> extraInfo = new HashMap<>();
-        extraInfo.put("prevArticle", blogArticleService.getPrevArticle(id));
-        extraInfo.put("nextArticle", blogArticleService.getNextArticle(id));
+        
+        BlogArticle prevArticle = blogArticleService.getPrevArticle(id);
+        BlogArticle nextArticle = blogArticleService.getNextArticle(id);
+        
+        // 确保prevArticle和nextArticle的delFlag字段有默认值
+        // 在调用getDelFlag()之前先检查对象是否为null并设置默认值
+        if (prevArticle != null) {
+            Long prevDelFlag = prevArticle.getDelFlag();
+            if (prevDelFlag == null) {
+                prevArticle.setDelFlag(0L);
+                prevDelFlag = 0L;
+            }
+        }
+        if (nextArticle != null) {
+            Long nextDelFlag = nextArticle.getDelFlag();
+            if (nextDelFlag == null) {
+                nextArticle.setDelFlag(0L);
+                nextDelFlag = 0L;
+            }
+        }
+        
+        // 使用DTO对象避免序列化问题，添加更严格的null检查
+        if (prevArticle != null && prevArticle.getId() != null) {
+            ArticleNavigationDTO prevArticleDTO = new ArticleNavigationDTO(
+                prevArticle.getId(), 
+                prevArticle.getTitle() != null ? prevArticle.getTitle() : "上一篇"
+            );
+            extraInfo.put("prevArticle", prevArticleDTO);
+        } else {
+            extraInfo.put("prevArticle", null);
+        }
+        
+        if (nextArticle != null && nextArticle.getId() != null) {
+            ArticleNavigationDTO nextArticleDTO = new ArticleNavigationDTO(
+                nextArticle.getId(), 
+                nextArticle.getTitle() != null ? nextArticle.getTitle() : "下一篇"
+            );
+            extraInfo.put("nextArticle", nextArticleDTO);
+        } else {
+            extraInfo.put("nextArticle", null);
+        }
         
         Map<String, Object> result = new HashMap<>();
         result.put("article", blogArticle);

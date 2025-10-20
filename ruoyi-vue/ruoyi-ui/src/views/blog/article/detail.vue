@@ -112,13 +112,43 @@ const loadArticleDetail = async () => {
     const response = await getArticleDetail(articleId)
     const data = response.data || {}
     
-    // 设置文章数据
-    article.value = data.article || {}
+    // 设置文章数据，确保所有字段都有默认值
+    const articleData = data.article || {}
+    article.value = {
+      id: articleData.id || 0,
+      title: articleData.title || '',
+      summary: articleData.summary || '',
+      content: articleData.content || '',
+      coverUrl: articleData.coverUrl || '',
+      categoryId: articleData.categoryId || 0,
+      authorId: articleData.authorId || 0,
+      author: articleData.author || '',
+      authorName: articleData.authorName || '',
+      isTop: articleData.isTop || 0,
+      isRecommend: articleData.isRecommend || 0,
+      status: articleData.status || 0,
+      viewCount: articleData.viewCount || 0,
+      likeCount: articleData.likeCount || 0,
+      commentCount: articleData.commentCount || 0,
+      createTime: articleData.createTime || '',
+      updateTime: articleData.updateTime || '',
+      delFlag: articleData.delFlag || 0
+    }
     
-    // 设置上下篇文章数据
+    // 设置上下篇文章数据，确保字段安全访问
     if (data.extraInfo) {
-      prevArticle.value = data.extraInfo.prevArticle || null
-      nextArticle.value = data.extraInfo.nextArticle || null
+      const prev = data.extraInfo.prevArticle
+      const next = data.extraInfo.nextArticle
+      
+      prevArticle.value = prev ? {
+        id: prev.id || 0,
+        title: prev.title || '上一篇'
+      } : null
+      
+      nextArticle.value = next ? {
+        id: next.id || 0,
+        title: next.title || '下一篇'
+      } : null
     }
     
     // 更新阅读量

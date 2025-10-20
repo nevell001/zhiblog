@@ -90,7 +90,7 @@ const options = ref({
         [{ 'direction': 'rtl' }],                                         // 文本方向
         [{ 'align': [] }],                                                // 对齐方式
         ['blockquote', 'code-block'],                                    // 引用、代码块
-        ['link', 'image', 'video'],                                       // 链接、图片、视频
+        ['link', 'image', 'video', 'file'],                              // 链接、图片、视频、文件
         [{ 'table': true }],                                              // 表格
         ['clean']                                                        // 清除格式
       ],
@@ -99,21 +99,101 @@ const options = ref({
           // 图片上传处理
           proxy.$refs.uploadRef.click()
         },
+        'link': function(value) {
+          // 增强链接功能
+          const quill = quillEditorRef.value.getQuill()
+          if (value) {
+            let href = prompt('请输入链接URL:')
+            if (href) {
+              // 检查是否选中了文本
+              const range = quill.getSelection()
+              if (range && range.length > 0) {
+                // 如果选中了文本，则添加链接到选中文本
+                quill.format('link', href)
+              } else {
+                // 如果没有选中文本，则插入链接
+                const text = prompt('请输入链接文本:', href)
+                if (text) {
+                  quill.insertText(range.index, text, 'link', href)
+                  quill.setSelection(range.index + text.length)
+                }
+              }
+            }
+          } else {
+            quill.format('link', false)
+          }
+        },
         'video': function() {
-          // 视频上传处理
-          const url = prompt('请输入视频URL:')
-          if (url) {
-            const quill = quillEditorRef.value.getQuill()
-            const range = quill.getSelection()
-            quill.insertEmbed(range.index, 'video', url)
+          // 增强视频功能
+          const quill = quillEditorRef.value.getQuill()
+          const range = quill.getSelection()
+          
+          // 提供选项：上传本地视频或插入在线视频
+          const choice = prompt('请选择视频插入方式:\n1. 上传本地视频\n2. 插入在线视频\n请输入1或2:', '2')
+          
+          if (choice === '1') {
+            // 上传本地视频
+            proxy.$refs.uploadRef.click()
+          } else if (choice === '2') {
+            // 插入在线视频
+            const url = prompt('请输入视频URL (支持YouTube、Bilibili等平台):')
+            if (url) {
+              // 检查是否为YouTube或Bilibili链接，生成嵌入代码
+              let embedUrl = url
+              if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                // YouTube链接处理
+                const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)
+                if (videoId && videoId[1]) {
+                  embedUrl = `https://www.youtube.com/embed/${videoId[1]}`
+                }
+              } else if (url.includes('bilibili.com')) {
+                // Bilibili链接处理
+                const videoId = url.match(/bilibili\.com\/video\/([a-zA-Z0-9]+)/)
+                if (videoId && videoId[1]) {
+                  embedUrl = `https://player.bilibili.com/player.html?bvid=${videoId[1]}`
+                }
+              }
+              
+              quill.insertEmbed(range.index, 'video', embedUrl)
+              quill.setSelection(range.index + 1)
+            }
+          }
+        },
+        'file': function() {
+          // 文件链接插入功能
+          const quill = quillEditorRef.value.getQuill()
+          const range = quill.getSelection()
+          
+          const choice = prompt('请选择文件插入方式:\n1. 上传本地文件\n2. 插入文件链接\n请输入1或2:', '1')
+          
+          if (choice === '1') {
+            // 上传本地文件
+            proxy.$refs.uploadRef.click()
+          } else if (choice === '2') {
+            // 插入文件链接
+            const url = prompt('请输入文件链接URL:')
+            if (url) {
+              const fileName = prompt('请输入文件显示名称:', '下载文件')
+              if (fileName) {
+                // 插入文件链接
+                quill.insertText(range.index, fileName, 'link', url)
+                quill.setSelection(range.index + fileName.length)
+              }
+            }
           }
         }
       }
     },
     syntax: false,
-    table: true    // 启用表格功能
+    table: true,    // 启用表格功能
+    clipboard: {
+      // 增强粘贴功能
+      matchers: [
+        ['img', handleImagePaste]
+      ]
+    }
   },
-  placeholder: "请输入内容...",
+  placeholder: "请输入内容...支持插入超链接、图片、视频和文件链接",
   readOnly: props.readOnly
 })
 
@@ -151,18 +231,40 @@ onMounted(() => {
   }
 })
 
+// 图片粘贴处理函数
+function handleImagePaste(node, delta) {
+  // 处理粘贴的图片
+  return delta
+}
+
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
   // 支持的文件类型
   const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
-  const videoTypes = ["video/mp4", "video/webm", "video/ogg"]
+  const videoTypes = ["video/mp4", "video/webm", "video/ogg", "video/quicktime"]
+  const fileTypes = [
+    "application/pdf", 
+    "application/msword", 
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "text/plain",
+    "application/zip",
+    "application/x-rar-compressed"
+  ]
   
   const isImage = imageTypes.includes(file.type)
   const isVideo = videoTypes.includes(file.type)
+  const isFile = fileTypes.includes(file.type) || file.type.startsWith('application/')
   
   // 检验文件格式
-  if (!isImage && !isVideo) {
-    proxy.$modal.msgError(`文件格式不支持! 支持格式: JPG, PNG, GIF, WebP, SVG, MP4, WebM, OGG`)
+  if (!isImage && !isVideo && !isFile) {
+    proxy.$modal.msgError(`文件格式不支持! 支持格式: 
+图片: JPG, PNG, GIF, WebP, SVG
+视频: MP4, WebM, OGG, MOV
+文档: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, RAR`)
     return false
   }
   

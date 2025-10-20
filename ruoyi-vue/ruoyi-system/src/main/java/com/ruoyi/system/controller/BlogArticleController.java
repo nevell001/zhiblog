@@ -110,6 +110,10 @@ public class BlogArticleController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody BlogArticle blogArticle)
     {
+        // 设置默认值
+        if (blogArticle.getDelFlag() == null) {
+            blogArticle.setDelFlag(0L);
+        }
         return toAjax(blogArticleService.updateBlogArticle(blogArticle));
     }
 

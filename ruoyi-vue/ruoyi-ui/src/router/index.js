@@ -31,6 +31,11 @@ import blogRoutes from './blog'
 // 公共路由
 export const constantRoutes = [
   {
+    path: '/',
+    redirect: '/index',
+    hidden: true
+  },
+  {
     path: '/redirect',
     component: Layout,
     hidden: true,

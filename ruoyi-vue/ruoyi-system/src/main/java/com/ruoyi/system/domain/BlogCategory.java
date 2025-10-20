@@ -27,7 +27,7 @@ public class BlogCategory extends BaseEntity
     private Long sort;
 
     /** 删除标志 0正常 1删除 */
-    private Long delFlag;
+    private Long delFlag = 0L;
 
     public void setId(Long id) 
     {

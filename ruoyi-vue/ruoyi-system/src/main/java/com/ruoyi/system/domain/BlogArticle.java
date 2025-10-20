@@ -74,7 +74,7 @@ public class BlogArticle extends BaseEntity
     private Long commentCount;
 
     /** 删除标志 0正常 1删除 */
-    private Long delFlag;
+    private Long delFlag = 0L;
 
     public void setId(Long id) 
     {

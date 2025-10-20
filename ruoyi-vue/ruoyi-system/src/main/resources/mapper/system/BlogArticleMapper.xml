@@ -23,6 +23,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
+    <resultMap type="BlogArticle" id="SimpleBlogArticleResult">
+        <result property="id"    column="id"    />
+        <result property="title"    column="title"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
     <sql id="selectBlogArticleVo">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id, 
                ba.is_top, ba.is_recommend, ba.status, ba.view_count, 
@@ -130,14 +136,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY archive_date DESC
     </select>
 
-    <select id="getPrevArticle" resultMap="BlogArticleResult" parameterType="Long">
-        SELECT id, title FROM blog_article 
+    <select id="getPrevArticle" resultMap="SimpleBlogArticleResult" parameterType="Long">
+        SELECT id, title, del_flag FROM blog_article 
         WHERE id &lt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id DESC LIMIT 1
     </select>
 
-    <select id="getNextArticle" resultMap="BlogArticleResult" parameterType="Long">
-        SELECT id, title FROM blog_article 
+    <select id="getNextArticle" resultMap="SimpleBlogArticleResult" parameterType="Long">
+        SELECT id, title, del_flag FROM blog_article 
         WHERE id &gt; #{id} AND status = 1 AND del_flag = 0 
         ORDER BY id ASC LIMIT 1
     </select>
