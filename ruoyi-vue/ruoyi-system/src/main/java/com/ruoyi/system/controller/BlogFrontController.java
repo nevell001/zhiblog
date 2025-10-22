@@ -164,14 +164,12 @@ public class BlogFrontController extends BaseController
             Long prevDelFlag = prevArticle.getDelFlag();
             if (prevDelFlag == null) {
                 prevArticle.setDelFlag(0L);
-                prevDelFlag = 0L;
             }
         }
         if (nextArticle != null) {
             Long nextDelFlag = nextArticle.getDelFlag();
             if (nextDelFlag == null) {
                 nextArticle.setDelFlag(0L);
-                nextDelFlag = 0L;
             }
         }
         
@@ -362,7 +360,15 @@ public class BlogFrontController extends BaseController
         }
         
         BlogCategory category = blogCategoryService.selectBlogCategoryById(id);
-        if (category == null || !Long.valueOf(0L).equals(category.getDelFlag())) {
+        if (category == null) {
+            return error("分类不存在或已删除");
+        }
+        // 安全检查delFlag，避免null值
+        Long categoryDelFlag = category.getDelFlag();
+        if (categoryDelFlag == null) {
+            categoryDelFlag = 0L;
+        }
+        if (!Long.valueOf(0L).equals(categoryDelFlag)) {
             return error("分类不存在或已删除");
         }
         return success(category);

@@ -2,6 +2,9 @@ package com.ruoyi.system.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -11,6 +14,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author nevell
  * @date 2025-07-18
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BlogArticle extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -74,7 +78,8 @@ public class BlogArticle extends BaseEntity
     private Long commentCount;
 
     /** 删除标志 0正常 1删除 */
-    private Long delFlag = 0L;
+    @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+    private Long delFlag;
 
     public void setId(Long id) 
     {
@@ -231,8 +236,13 @@ public class BlogArticle extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    @JsonGetter("delFlag")
     public Long getDelFlag() 
     {
+        if (delFlag == null) {
+            // 如果字段为null，设置默认值并返回
+            this.delFlag = 0L;
+        }
         return delFlag;
     }
 

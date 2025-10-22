@@ -40,6 +40,17 @@ public class SameUrlDataInterceptor extends RepeatSubmitInterceptor
     @Override
     public boolean isRepeatSubmit(HttpServletRequest request, RepeatSubmit annotation)
     {
+        // 对于包含HTML内容的请求，跳过重复提交检查
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.contains("application/json")) {
+            // 检查请求URL是否为文章相关操作
+            String url = request.getRequestURI();
+            if (url != null && (url.contains("/system/article") || url.contains("/blog/article"))) {
+                // 对于文章操作，直接跳过重复提交检查，避免读取请求体干扰Jackson解析
+                return false;
+            }
+        }
+        
         String nowParams = "";
         if (request instanceof RepeatedlyRequestWrapper)
         {

@@ -37,17 +37,29 @@ service.interceptors.request.use(config => {
     config.url = url
   }
   if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
+    // 对于包含HTML内容的请求，完全跳过重复提交检查的所有相关操作
+    const isHtmlContent = config.data && typeof config.data === 'object' && 
+                         config.data.content && config.data.content.includes('<');
+    
+    if (isHtmlContent) {
+      // 对于HTML内容，直接跳过整个重复提交检查逻辑
+      return config
+    }
+    
+    // 对于非HTML内容，进行完整的重复提交检查
     const requestObj = {
       url: config.url,
       data: typeof config.data === 'object' ? JSON.stringify(config.data) : config.data,
       time: new Date().getTime()
     }
+    
     const requestSize = Object.keys(JSON.stringify(requestObj)).length // 请求数据大小
     const limitSize = 5 * 1024 * 1024 // 限制存放数据5M
     if (requestSize >= limitSize) {
       console.warn(`[${config.url}]: ` + '请求数据大小超出允许的5M限制，无法进行防重复提交验证。')
       return config
     }
+    
     const sessionObj = cache.session.getJSON('sessionObj')
     if (sessionObj === undefined || sessionObj === null || sessionObj === '') {
       cache.session.setJSON('sessionObj', requestObj)

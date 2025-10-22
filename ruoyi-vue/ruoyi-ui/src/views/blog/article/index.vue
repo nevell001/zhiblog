@@ -309,46 +309,52 @@ function submitForm() {
     if (valid) {
       try {
         // 创建一个完整的数据对象，包含所有必需的字段
-        const apiData = {
-          title: form.value.title || '',
-          summary: form.value.summary || '',
-          content: form.value.content ? 
-            form.value.content
-              .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // 移除控制字符
-              .replace(/[\t\n\r]/g, ' ') // 将制表符、换行符替换为空格
-              .replace(/\s+/g, ' ') // 将多个空格合并为一个
-              .replace(/"/g, '\\"') // 转义双引号
-              .replace(/'/g, "\\'") // 转义单引号
-              .trim() : '',
-          coverUrl: form.value.coverUrl || '',
-          categoryId: form.value.categoryId ? Number(form.value.categoryId) : null,
-          authorId: 1, // 默认作者ID，需要根据实际情况设置
-          author: form.value.author || proxy.$store.getters.name || 'admin',
-          isTop: form.value.isTop ? 1 : 0,
-          isRecommend: form.value.isRecommend ? 1 : 0,
-          status: form.value.status ? 1 : 0,
-          viewCount: 0,
-          likeCount: 0,
-          commentCount: 0
-        };
+        // 直接使用form.value，避免手动构建可能引入JSON格式错误
+        const apiData = { ...form.value };
         
-        // 确保数据类型与后端实体类匹配（Long类型）
-        if (apiData.isTop !== null) apiData.isTop = Number(apiData.isTop);
-        if (apiData.isRecommend !== null) apiData.isRecommend = Number(apiData.isRecommend);
-        if (apiData.status !== null) apiData.status = Number(apiData.status);
-        if (apiData.viewCount !== null) apiData.viewCount = Number(apiData.viewCount);
-        if (apiData.likeCount !== null) apiData.likeCount = Number(apiData.likeCount);
-        if (apiData.commentCount !== null) apiData.commentCount = Number(apiData.commentCount);
+        // 确保所有必需的字段都有值
+        apiData.title = apiData.title || '';
+        apiData.summary = apiData.summary || '';
         
-        // 调试：检查JSON字符串
-        const jsonString = JSON.stringify(apiData);
-        console.log("JSON字符串长度:", jsonString.length);
-        console.log("JSON字符串预览:", jsonString.substring(0, 100) + "...");
-        console.log("第2360-2370个字符:", jsonString.substring(2355, 2375));
+        // 对content字段进行JSON安全处理，确保HTML标签不会破坏JSON格式
+        if (apiData.content) {
+          // 直接使用原始内容，让axios自动处理JSON序列化
+          // 不需要手动转义，axios会自动处理
+        } else {
+          apiData.content = '';
+        }
         
-        console.log("提交的表单数据:", JSON.stringify(apiData, null, 2));
-        console.log("JSON字符串长度:", JSON.stringify(apiData).length);
-        console.log("清理后的内容长度:", apiData.content.length);
+        apiData.coverUrl = apiData.coverUrl || '';
+        
+        // 设置默认值，确保数据类型正确
+        apiData.authorId = 1; // 默认作者ID
+        apiData.author = apiData.author || proxy.$store.getters.name || 'admin';
+        apiData.isTop = apiData.isTop ? 1 : 0;
+        apiData.isRecommend = apiData.isRecommend ? 1 : 0;
+        apiData.status = apiData.status ? 1 : 0;
+        apiData.viewCount = 0;
+        apiData.likeCount = 0;
+        apiData.commentCount = 0;
+        
+        // 确保所有数值字段都是Number类型，避免JSON序列化问题
+        apiData.authorId = Number(apiData.authorId);
+        apiData.isTop = Number(apiData.isTop);
+        apiData.isRecommend = Number(apiData.isRecommend);
+        apiData.status = Number(apiData.status);
+        apiData.viewCount = Number(apiData.viewCount);
+        apiData.likeCount = Number(apiData.likeCount);
+        apiData.commentCount = Number(apiData.commentCount);
+        
+        // 确保数值类型正确
+        if (apiData.categoryId !== null && apiData.categoryId !== undefined) {
+          apiData.categoryId = Number(apiData.categoryId);
+        }
+        
+        // 移除可能引起JSON解析问题的字段
+        delete apiData.id; // 新增时不需要id
+        delete apiData.createTime;
+        delete apiData.updateTime;
+        delete apiData.delFlag;
         
         // 使用现有的API函数而不是直接使用axios
         if (form.value.id != null) {

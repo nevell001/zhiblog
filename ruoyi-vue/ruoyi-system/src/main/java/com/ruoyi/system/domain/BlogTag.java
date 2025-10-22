@@ -2,6 +2,8 @@ package com.ruoyi.system.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -23,6 +25,7 @@ public class BlogTag extends BaseEntity
     private String tagName;
 
     /** 删除标志（0代表存在 1代表删除） */
+    @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
     private String delFlag;
 
     public void setTagId(Long tagId) 
@@ -50,8 +53,13 @@ public class BlogTag extends BaseEntity
         this.delFlag = delFlag;
     }
 
+    @JsonGetter("delFlag")
     public String getDelFlag() 
     {
+        if (delFlag == null) {
+            // 如果字段为null，设置默认值并返回
+            this.delFlag = "0";
+        }
         return delFlag;
     }
 

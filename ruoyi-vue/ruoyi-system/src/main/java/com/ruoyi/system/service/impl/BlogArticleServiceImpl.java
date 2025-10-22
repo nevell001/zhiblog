@@ -69,6 +69,10 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         blogArticle.setCreateTime(DateUtils.getNowDate());
         // 新增时自动设置作者ID
         blogArticle.setAuthorId(com.ruoyi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
+        // 确保delFlag有默认值
+        if (blogArticle.getDelFlag() == null) {
+            blogArticle.setDelFlag(0L);
+        }
         try {
             return blogArticleMapper.insertBlogArticle(blogArticle);
         } catch (Exception e) {
@@ -97,6 +101,10 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         }
         blogArticle.setTitle(title);
         blogArticle.setUpdateTime(DateUtils.getNowDate());
+        // 确保delFlag有默认值
+        if (blogArticle.getDelFlag() == null) {
+            blogArticle.setDelFlag(0L);
+        }
         try {
             return blogArticleMapper.updateBlogArticle(blogArticle);
         } catch (Exception e) {
