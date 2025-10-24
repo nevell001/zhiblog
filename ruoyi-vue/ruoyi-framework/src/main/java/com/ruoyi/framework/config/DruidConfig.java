@@ -21,7 +21,6 @@ import com.alibaba.druid.spring.boot.autoconfigure.properties.DruidStatPropertie
 import com.alibaba.druid.util.Utils;
 import com.ruoyi.common.enums.DataSourceType;
 import com.ruoyi.common.utils.spring.SpringUtils;
-import com.ruoyi.framework.config.properties.DruidProperties;
 import com.ruoyi.framework.datasource.DynamicDataSource;
 
 /**
@@ -34,19 +33,17 @@ public class DruidConfig
 {
     @Bean
     @ConfigurationProperties("spring.datasource.druid.master")
-    public DataSource masterDataSource(DruidProperties druidProperties)
+    public DataSource masterDataSource()
     {
-        DruidDataSource dataSource = DruidDataSourceBuilder.create().build();
-        return druidProperties.dataSource(dataSource);
+        return DruidDataSourceBuilder.create().build();
     }
 
     @Bean
     @ConfigurationProperties("spring.datasource.druid.slave")
     @ConditionalOnProperty(prefix = "spring.datasource.druid.slave", name = "enabled", havingValue = "true")
-    public DataSource slaveDataSource(DruidProperties druidProperties)
+    public DataSource slaveDataSource()
     {
-        DruidDataSource dataSource = DruidDataSourceBuilder.create().build();
-        return druidProperties.dataSource(dataSource);
+        return DruidDataSourceBuilder.create().build();
     }
 
     @Bean(name = "dynamicDataSource")

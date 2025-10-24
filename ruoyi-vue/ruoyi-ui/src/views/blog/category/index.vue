@@ -24,7 +24,7 @@
               {{ article.viewCount || 0 }} 阅读
             </span>
           </div>
-          <p class="article-summary">{{ article.summary || article.content.substring(0, 150) + '...' }}</p>
+          <p class="article-summary">{{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}</p>
           <div class="article-footer">
             <router-link :to="`/blog/article/${article.id}`" class="read-more">
               阅读全文 <i class="el-icon-arrow-right"></i>
@@ -117,6 +117,12 @@ const formatDate = (dateString) => {
     month: '2-digit',
     day: '2-digit'
   })
+}
+
+// 去除HTML标签
+const stripHtmlTags = (html) => {
+  if (!html) return ''
+  return html.replace(/<[^>]*>/g, '')
 }
 
 // 组件挂载时加载数据

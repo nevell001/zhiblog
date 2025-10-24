@@ -32,6 +32,15 @@ public class RepeatableFilter implements Filter
         if (request instanceof HttpServletRequest
                 && StringUtils.startsWithIgnoreCase(request.getContentType(), MediaType.APPLICATION_JSON_VALUE))
         {
+            HttpServletRequest httpRequest = (HttpServletRequest) request;
+            String requestURI = httpRequest.getRequestURI();
+            
+            // 对于文章相关的请求，不创建RepeatedlyRequestWrapper，避免干扰Jackson解析
+            if (requestURI != null && (requestURI.contains("/system/article") || requestURI.contains("/blog/article"))) {
+                chain.doFilter(request, response);
+                return;
+            }
+            
             requestWrapper = new RepeatedlyRequestWrapper((HttpServletRequest) request, response);
         }
         if (null == requestWrapper)

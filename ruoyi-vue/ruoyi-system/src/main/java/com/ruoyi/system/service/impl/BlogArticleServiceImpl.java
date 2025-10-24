@@ -59,8 +59,8 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         if (blogArticle.getContent() == null || blogArticle.getContent().trim().isEmpty()) {
             throw new RuntimeException("文章内容不能为空，请填写内容后再发布！");
         }
-        // 标题去除前后空格并统一小写
-        String title = blogArticle.getTitle().trim().toLowerCase();
+        // 标题去除前后空格
+        String title = blogArticle.getTitle().trim();
         BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
         if (exist != null) {
             throw new RuntimeException("文章标题已存在，请更换标题！");
@@ -92,12 +92,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     public int updateBlogArticle(BlogArticle blogArticle)
     {
-        // 标题去除前后空格并统一小写
-        String title = blogArticle.getTitle().trim().toLowerCase();
-        // 校验除自己外是否有同名文章
+        // 标题去除前后空格
+        String title = blogArticle.getTitle().trim();
+        // 校验除自己外是否有同名文章（保持原大小写）
         BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
         if (exist != null && !exist.getId().equals(blogArticle.getId())) {
-            throw new RuntimeException("标题不符合要求，请重试");
+            throw new RuntimeException("文章标题已存在，请更换标题！");
         }
         blogArticle.setTitle(title);
         blogArticle.setUpdateTime(DateUtils.getNowDate());
@@ -109,7 +109,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             return blogArticleMapper.updateBlogArticle(blogArticle);
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
-                throw new RuntimeException("标题不符合要求，请重试");
+                throw new RuntimeException("文章标题已存在，请更换标题！");
             }
             throw e;
         }

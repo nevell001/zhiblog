@@ -328,7 +328,7 @@ function submitForm() {
         
         // 设置默认值，确保数据类型正确
         apiData.authorId = 1; // 默认作者ID
-        apiData.author = apiData.author || proxy.$store.getters.name || 'admin';
+        apiData.author = apiData.author || userStore.name || 'admin';
         apiData.isTop = apiData.isTop ? 1 : 0;
         apiData.isRecommend = apiData.isRecommend ? 1 : 0;
         apiData.status = apiData.status ? 1 : 0;
@@ -372,7 +372,9 @@ function submitForm() {
                 location.href = '/index';
               });
             } else {
-              proxy.$modal.msgError("更新失败: " + (error.message || "未知错误"));
+              // 显示后端返回的具体错误信息
+              const errorMsg = error.response?.data?.msg || error.message || "未知错误";
+              proxy.$modal.msgError("更新失败: " + errorMsg);
             }
           });
         } else {
@@ -390,7 +392,9 @@ function submitForm() {
                 location.href = '/index';
               });
             } else {
-              proxy.$modal.msgError("添加失败: " + (error.message || "未知错误"));
+              // 显示后端返回的具体错误信息
+              const errorMsg = error.response?.data?.msg || error.message || "未知错误";
+              proxy.$modal.msgError("添加失败: " + errorMsg);
             }
           });
         }

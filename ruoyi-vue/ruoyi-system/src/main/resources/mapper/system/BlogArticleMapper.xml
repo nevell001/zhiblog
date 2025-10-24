@@ -52,6 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
         </where>
+        order by ba.create_time desc
     </select>
     
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
@@ -108,6 +109,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectBlogArticleVo"/>
         inner join blog_article_tag bat on ba.id = bat.article_id
         where bat.tag_id = #{tagId} and ba.status = 1 and ba.del_flag = 0
+        order by ba.create_time desc
     </select>
 
     <select id="searchArticles" resultMap="BlogArticleResult">

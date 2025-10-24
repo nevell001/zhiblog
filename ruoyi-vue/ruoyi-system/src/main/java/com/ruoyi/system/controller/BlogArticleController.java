@@ -77,7 +77,7 @@ public class BlogArticleController extends BaseController
      * 新增博客文章
      */
     @PreAuthorize("@ss.hasPermi('system:article:add')")
-    @Log(title = "博客文章", businessType = BusinessType.INSERT)
+    @Log(title = "博客文章", businessType = BusinessType.INSERT, isSaveRequestData = false)
     @PostMapping
     public AjaxResult add(@RequestBody BlogArticle blogArticle)
     {
@@ -106,7 +106,7 @@ public class BlogArticleController extends BaseController
      * 修改博客文章
      */
     @PreAuthorize("@ss.hasPermi('system:article:edit')")
-    @Log(title = "博客文章", businessType = BusinessType.UPDATE)
+    @Log(title = "博客文章", businessType = BusinessType.UPDATE, isSaveRequestData = false)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogArticle blogArticle)
     {

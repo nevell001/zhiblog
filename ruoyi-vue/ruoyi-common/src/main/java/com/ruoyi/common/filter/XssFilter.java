@@ -46,6 +46,14 @@ public class XssFilter implements Filter
     {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
+        
+        // 对于文章相关的请求，跳过XSS过滤，避免干扰Jackson解析
+        String requestURI = req.getRequestURI();
+        if (requestURI != null && (requestURI.contains("/system/article") || requestURI.contains("/blog/article"))) {
+            chain.doFilter(request, response);
+            return;
+        }
+        
         if (handleExcludeURL(req, resp))
         {
             chain.doFilter(request, response);
