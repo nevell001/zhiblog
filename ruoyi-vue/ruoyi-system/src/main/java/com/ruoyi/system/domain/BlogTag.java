@@ -28,6 +28,10 @@ public class BlogTag extends BaseEntity
     @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
     private String delFlag;
 
+    /** 关联文章数 */
+    @Excel(name = "关联文章数")
+    private Integer articleCount;
+
     public void setTagId(Long tagId) 
     {
         this.tagId = tagId;
@@ -63,11 +67,22 @@ public class BlogTag extends BaseEntity
         return delFlag;
     }
 
+    public void setArticleCount(Integer articleCount) 
+    {
+        this.articleCount = articleCount;
+    }
+
+    public Integer getArticleCount() 
+    {
+        return articleCount;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("tagId", getTagId())
             .append("tagName", getTagName())
+            .append("articleCount", getArticleCount())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

@@ -1,220 +1,232 @@
 <template>
-  <div class="tag-page">
-    <div class="page-header">
-      <h1 class="page-title">标签: {{ tagName }}</h1>
-      <p class="page-description">共 {{ total }} 篇文章</p>
+  <div class="blog-container">
+    <!-- 页面头部 -->
+    <div class="blog-header">
+      <h1 class="blog-title">标签：{{ tagName }}</h1>
+      <p class="blog-subtitle">共 {{ articleList.length }} 篇文章</p>
     </div>
 
-    <div class="article-list">
+    <!-- 文章列表 -->
+    <div v-loading="loading" class="article-list">
       <div v-for="article in articleList" :key="article.id" class="article-item">
-        <div class="article-cover" v-if="article.coverUrl">
-          <img :src="article.coverUrl" :alt="article.title" />
-        </div>
         <div class="article-content">
           <h2 class="article-title">
-            <router-link :to="`/blog/article/${article.id}`">{{ article.title }}</router-link>
+            <router-link :to="`/blog/article/${article.id}`" class="article-link">
+              {{ article.title }}
+            </router-link>
           </h2>
+          <p class="article-summary">{{ article.summary }}</p>
           <div class="article-meta">
             <span class="meta-item">
               <i class="el-icon-date"></i>
-              {{ formatDate(article.createTime) }}
+              {{ parseTime(article.createTime, '{y}-{m}-{d}') }}
             </span>
             <span class="meta-item">
               <i class="el-icon-view"></i>
-              {{ article.viewCount || 0 }} 阅读
+              {{ article.viewCount }} 阅读
+            </span>
+            <span class="meta-item">
+              <i class="el-icon-chat-dot-round"></i>
+              {{ article.commentCount }} 评论
+            </span>
+            <span class="meta-item">
+              <i class="el-icon-star-off"></i>
+              {{ article.likeCount }} 点赞
             </span>
           </div>
-          <p class="article-summary">{{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}</p>
-          <div class="article-footer">
-            <router-link :to="`/blog/article/${article.id}`" class="read-more">
-              阅读全文 <i class="el-icon-arrow-right"></i>
-            </router-link>
-          </div>
         </div>
+        <div v-if="article.coverUrl" class="article-cover">
+          <img :src="article.coverUrl" :alt="article.title" />
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <div v-if="articleList.length === 0" class="empty-state">
+        <i class="el-icon-document"></i>
+        <p>该标签下暂无文章</p>
       </div>
     </div>
 
     <!-- 分页 -->
-    <div class="pagination-container" v-if="total > queryParams.pageSize">
+    <div v-if="total > 0" class="pagination-container">
       <el-pagination
-        background
-        layout="prev, pager, next"
+        v-model:current-page="queryParams.pageNum"
+        v-model:page-size="queryParams.pageSize"
         :total="total"
-        :page-size="queryParams.pageSize"
-        :current-page="queryParams.pageNum"
-        @current-change="handlePageChange"
+        :page-sizes="[10, 20, 30, 50]"
+        layout="total, sizes, prev, pager, next, jumper"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
       />
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+<script setup name="BlogTag">
+import { ref, reactive, onMounted, getCurrentInstance, watch, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
-import { getArticlesByTag } from '@/api/blog/article'
-import { getTagDetail } from '@/api/blog/tag'
+import { getTagDetail } from "@/api/blog/tag";
+import { getArticlesByTag } from "@/api/blog/article";
 
-const route = useRoute()
-const tagId = route.params.id
+const { proxy } = getCurrentInstance();
+const route = useRoute();
 
-// 响应式数据
-const articleList = ref([])
-const tagDetail = ref({})
-const total = ref(0)
+const tagName = ref('');
+const articleList = ref([]);
+const loading = ref(true);
+const total = ref(0);
 
-// 查询参数
-const queryParams = reactive({
-  pageNum: 1,
-  pageSize: 10,
-  status: 1
-})
-
-// 计算属性
-const tagName = computed(() => tagDetail.value.name || '未知标签')
-
-// 获取文章列表
-const loadArticleList = async () => {
-  try {
-    if (!tagId) {
-      console.error('标签ID为空')
-      return
-    }
-    
-    const response = await getArticlesByTag(tagId, queryParams)
-    articleList.value = response.rows || []
-    total.value = response.total || 0
-  } catch (error) {
-    console.error('获取文章列表失败:', error)
+const data = reactive({
+  queryParams: {
+    pageNum: 1,
+    pageSize: 10,
+    tagId: null
   }
-}
+});
 
-// 获取标签详情
-const loadTagDetail = async () => {
-  try {
-    if (!tagId) {
-      console.error('标签ID为空')
-      return
+const { queryParams } = toRefs(data);
+
+/** 获取标签详情 */
+function getTagInfo() {
+  const tagId = route.params.id;
+  if (!tagId) return;
+  
+  getTagDetail(tagId).then(response => {
+    if (response.data) {
+      tagName.value = response.data.tagName;
+      document.title = `标签：${response.data.tagName} - 博客`;
     }
-    
-    const response = await getTagDetail(tagId)
-    tagDetail.value = response.data || {}
-  } catch (error) {
-    console.error('获取标签详情失败:', error)
-  }
+  }).catch(() => {
+    tagName.value = '未知标签';
+  });
 }
 
-// 分页处理
-const handlePageChange = (page) => {
-  queryParams.pageNum = page
-  loadArticleList()
+/** 获取标签下的文章列表 */
+function getArticleList() {
+  loading.value = true;
+  const tagId = route.params.id;
+  if (!tagId) return;
+  
+  getArticlesByTag(tagId, queryParams.value).then(response => {
+    articleList.value = response.rows || [];
+    total.value = response.total || 0;
+    loading.value = false;
+  }).catch(() => {
+    loading.value = false;
+  });
 }
 
-// 日期格式化
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  })
+/** 页面大小改变 */
+function handleSizeChange(val) {
+  queryParams.value.pageSize = val;
+  queryParams.value.pageNum = 1;
+  getArticleList();
 }
 
-// 去除HTML标签
-const stripHtmlTags = (html) => {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, '')
+/** 当前页改变 */
+function handleCurrentChange(val) {
+  queryParams.value.pageNum = val;
+  getArticleList();
 }
 
-// 组件挂载时加载数据
 onMounted(() => {
-  if (tagId) {
-    loadTagDetail()
-    loadArticleList()
-  } else {
-    console.error('路由参数中缺少标签ID')
+  getTagInfo();
+  getArticleList();
+});
+
+// 监听路由变化
+watch(() => route.params.id, (newId) => {
+  if (newId) {
+    queryParams.value.pageNum = 1;
+    getTagInfo();
+    getArticleList();
   }
-})
+});
 </script>
 
 <style scoped>
-.tag-page {
-  max-width: 800px;
+.blog-container {
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 20px;
 }
 
-.page-header {
+.blog-header {
   text-align: center;
   margin-bottom: 40px;
+  padding: 40px 0;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.page-title {
-  font-size: 2rem;
+.blog-title {
+  font-size: 2.5rem;
   color: #333;
   margin-bottom: 10px;
+  font-weight: 600;
 }
 
-.page-description {
-  color: #666;
+.blog-subtitle {
   font-size: 1.1rem;
+  color: #666;
+  margin: 0;
 }
 
 .article-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
+  margin-bottom: 40px;
 }
 
 .article-item {
-  background: white;
+  display: flex;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
 }
 
 .article-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-}
-
-.article-cover {
-  height: 200px;
-  overflow: hidden;
-}
-
-.article-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  box-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.15);
 }
 
 .article-content {
-  padding: 25px;
+  flex: 1;
+  margin-right: 20px;
 }
 
 .article-title {
   margin: 0 0 15px 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  line-height: 1.4;
 }
 
-.article-title a {
+.article-link {
   color: #333;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-.article-title a:hover {
+.article-link:hover {
   color: #409eff;
+}
+
+.article-summary {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 15px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .article-meta {
   display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  margin-bottom: 15px;
   font-size: 0.9rem;
-  color: #666;
+  color: #999;
 }
 
 .meta-item {
@@ -223,26 +235,35 @@ onMounted(() => {
   gap: 5px;
 }
 
-.article-summary {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 15px;
+.article-cover {
+  width: 200px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.article-footer {
-  display: flex;
-  justify-content: flex-end;
+.article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.read-more {
-  color: #409eff;
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
 }
 
-.read-more:hover {
-  color: #337ecc;
+.empty-state i {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  margin: 0;
 }
 
 .pagination-container {
@@ -252,13 +273,26 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
-  .tag-page {
-    padding: 20px 15px;
+  .blog-container {
+    padding: 10px;
+  }
+  
+  .article-item {
+    flex-direction: column;
+  }
+  
+  .article-content {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+  
+  .article-cover {
+    width: 100%;
+    height: 200px;
   }
   
   .article-meta {
-    flex-direction: column;
-    gap: 5px;
+    gap: 10px;
   }
 }
 </style>

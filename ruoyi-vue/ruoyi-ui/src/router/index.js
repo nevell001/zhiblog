@@ -118,25 +118,29 @@ export const dynamicRoutes = [
         path: 'article',
         component: () => import('@/views/blog/article/index'),
         name: 'Article',
-        meta: { title: '文章管理', icon: 'edit' }
+        meta: { title: '文章管理', icon: 'edit' },
+        permissions: ['blog:article:list']
       },
       {
         path: 'category',
         component: () => import('@/views/blog/category/index'),
         name: 'Category',
-        meta: { title: '分类管理', icon: 'list' }
+        meta: { title: '分类管理', icon: 'list' },
+        permissions: ['blog:category:list']
       },
       {
         path: 'tag',
-        component: () => import('@/views/blog/tag/index'),
+        component: () => import('@/views/system/tag/index'),
         name: 'Tag',
-        meta: { title: '标签管理', icon: 'tag' }
+        meta: { title: '标签管理', icon: 'tag' },
+        permissions: ['system:tag:list']
       },
       {
         path: 'comment',
         component: () => import('@/views/blog/comment/index'),
         name: 'Comment',
-        meta: { title: '评论管理', icon: 'message' }
+        meta: { title: '评论管理', icon: 'message' },
+        permissions: ['blog:comment:list']
       }
     ]
   },

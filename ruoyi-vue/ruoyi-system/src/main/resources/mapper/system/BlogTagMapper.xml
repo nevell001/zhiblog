@@ -7,36 +7,51 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <resultMap type="BlogTag" id="BlogTagResult">
         <result property="tagId"    column="id"    />
         <result property="tagName"    column="name"    />
+        <result property="articleCount"    column="article_count"    />
         <result property="createTime"    column="create_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="delFlag"    column="del_flag"    />
     </resultMap>
 
     <sql id="selectBlogTagVo">
-        select id, name, create_time, update_time, del_flag from blog_tag
+        select 
+            bt.id, 
+            bt.name, 
+            bt.create_time, 
+            bt.update_time, 
+            bt.del_flag,
+            COUNT(bat.article_id) as article_count
+        from blog_tag bt
+        left join blog_article_tag bat on bt.id = bat.tag_id
+        left join blog_article ba on bat.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
     </sql>
 
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
         <where>  
-            <if test="tagName != null  and tagName != ''"> and name like concat('%', #{tagName}, '%')</if>
-            and del_flag = '0'
+            <if test="tagName != null  and tagName != ''"> and bt.name like concat('%', #{tagName}, '%')</if>
+            and bt.del_flag = '0'
         </where>
+        group by bt.id, bt.name, bt.create_time, bt.update_time, bt.del_flag
     </select>
     
     <select id="selectAllTagList" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where del_flag = '0'
+        where bt.del_flag = '0'
+        group by bt.id, bt.name, bt.create_time, bt.update_time, bt.del_flag
     </select>
     
     <select id="selectBlogTagById" parameterType="Long" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where id = #{tagId} and del_flag = '0'
+        where bt.id = #{tagId} and bt.del_flag = '0'
+        group by bt.id, bt.name, bt.create_time, bt.update_time, bt.del_flag
     </select>
     
     <select id="checkTagNameUnique" parameterType="String" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where name = #{tagName} and del_flag = '0' limit 1
+        where bt.name = #{tagName} and bt.del_flag = '0'
+        group by bt.id, bt.name, bt.create_time, bt.update_time, bt.del_flag
+        limit 1
     </select>
     
     <select id="checkTagExistArticle" parameterType="Long" resultType="Integer">
