@@ -106,44 +106,6 @@ export const constantRoutes = [
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
-  // 博客管理路由（动态菜单）
-  {
-    path: '/blog',
-    component: Layout,
-    redirect: '/blog/article',
-    name: 'Blog',
-    meta: { title: '博客管理', icon: 'documentation' },
-    children: [
-      {
-        path: 'article',
-        component: () => import('@/views/blog/article/index'),
-        name: 'Article',
-        meta: { title: '文章管理', icon: 'edit' },
-        permissions: ['blog:article:list']
-      },
-      {
-        path: 'category',
-        component: () => import('@/views/blog/category/index'),
-        name: 'Category',
-        meta: { title: '分类管理', icon: 'list' },
-        permissions: ['blog:category:list']
-      },
-      {
-        path: 'tag',
-        component: () => import('@/views/system/tag/index'),
-        name: 'Tag',
-        meta: { title: '标签管理', icon: 'tag' },
-        permissions: ['system:tag:list']
-      },
-      {
-        path: 'comment',
-        component: () => import('@/views/blog/comment/index'),
-        name: 'Comment',
-        meta: { title: '评论管理', icon: 'message' },
-        permissions: ['blog:comment:list']
-      }
-    ]
-  },
   {
     path: '/system/user-auth',
     component: Layout,

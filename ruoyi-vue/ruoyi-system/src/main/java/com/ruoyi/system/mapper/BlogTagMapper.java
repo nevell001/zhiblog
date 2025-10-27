@@ -88,4 +88,11 @@ public interface BlogTagMapper
      * @return 标签云列表
      */
     List<Map<String, Object>> getTagCloud();
+
+    /**
+     * 根据文章ID查询标签列表
+     * @param articleId 文章ID
+     * @return 标签列表
+     */
+    List<BlogTag> selectTagsByArticleId(Long articleId);
 }

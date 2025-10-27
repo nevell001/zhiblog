@@ -108,7 +108,11 @@
               :key="tag.id" 
               :to="`/blog/tag/${tag.id}`"
               class="tag-item"
-              :style="{ fontSize: getTagFontSize(tag.article_count) + 'px' }"
+              :style="{ 
+                fontSize: getTagFontSize(tag.article_count) + 'px',
+                backgroundColor: tag.color || '#409EFF',
+                color: 'white'
+              }"
             >
               {{ tag.name }}
             </router-link>

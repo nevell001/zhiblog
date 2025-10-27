@@ -72,9 +72,25 @@
       <el-table-column label="作者" align="center" prop="author" />
       <el-table-column label="状态" align="center" prop="status">
         <template #default="scope">
-          <el-tag :type="scope.row.status === '1' ? 'success' : 'info'">
-            {{ scope.row.status === '1' ? '发布' : '草稿' }}
+          <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
+            {{ scope.row.status === 1 ? '发布' : '草稿' }}
           </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column label="标签" align="center" prop="tags" width="200">
+        <template #default="scope">
+          <div v-if="scope.row.tags && scope.row.tags.length > 0">
+            <el-tag 
+              v-for="tag in scope.row.tags" 
+              :key="tag.tagId" 
+              :color="tag.color || '#409EFF'" 
+              style="margin: 2px;"
+            >
+              <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
+              {{ tag.tagName }}
+            </el-tag>
+          </div>
+          <span v-else style="color: #909399;">无标签</span>
         </template>
       </el-table-column>
       <el-table-column label="浏览量" align="center" prop="viewCount" />
@@ -141,6 +157,12 @@
         </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
           <image-upload v-model="form.coverUrl"/>
+          <div v-if="form.coverUrl" style="margin-top: 10px;">
+            <img :src="getCoverUrl(form.coverUrl)" style="max-width: 200px; max-height: 150px; border: 1px solid #e0e0e0; border-radius: 4px;" />
+            <div style="margin-top: 8px;">
+              <el-button type="danger" size="small" @click="form.coverUrl = ''">删除封面</el-button>
+            </div>
+          </div>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -166,6 +188,23 @@
             <el-radio :label="0">草稿</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="标签" prop="tagIds">
+          <el-select v-model="form.tagIds" multiple placeholder="请选择标签" style="width: 100%;">
+            <el-option
+              v-for="tag in tagOptions"
+              :key="tag.tagId"
+              :label="tag.tagName"
+              :value="tag.tagId"
+            >
+              <div style="display: flex; align-items: center;">
+                <el-tag :style="{ backgroundColor: tag.color || '#409EFF', color: 'white', border: 'none' }" style="margin-right: 8px;">
+                  <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
+                </el-tag>
+                {{ tag.tagName }}
+              </div>
+            </el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="作者" prop="author" v-if="form.id">
           <el-input v-model="form.author" placeholder="请输入作者" readonly />
         </el-form-item>
@@ -188,6 +227,7 @@ import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
 import useUserStore from '@/store/modules/user'
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/blog/article";
 import { listCategory } from "@/api/blog/category";
+import { listTag } from "@/api/blog/tag";
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
@@ -203,6 +243,7 @@ const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
 const categoryOptions = ref([]);
+const tagOptions = ref([]);
 
 const data = reactive({
   form: {},
@@ -243,6 +284,16 @@ function getCategoryList() {
   });
 }
 
+/** 查询标签列表 */
+function getTagList() {
+  listTag().then(response => {
+    console.log('标签选项数据:', response.rows); // 调试信息
+    tagOptions.value = response.rows;
+  }).catch(error => {
+    console.error('获取标签列表失败:', error);
+  });
+}
+
 // 取消按钮
 function cancel() {
   open.value = false;
@@ -261,7 +312,8 @@ function reset() {
     author: userStore.name || 'admin',
     isTop: 0,
     isRecommend: 0,
-    status: 1
+    status: 1,
+    tagIds: []
   };
   proxy.resetForm("articleRef");
 }
@@ -298,6 +350,12 @@ function handleUpdate(row) {
   const id = row.id || ids.value;
   getArticle(id).then(response => {
     form.value = response.data;
+    // 确保tagIds是数组类型
+    if (form.value.tagIds && !Array.isArray(form.value.tagIds)) {
+      form.value.tagIds = [form.value.tagIds];
+    } else if (!form.value.tagIds) {
+      form.value.tagIds = [];
+    }
     open.value = true;
     title.value = "修改博客文章";
   });
@@ -351,7 +409,10 @@ function submitForm() {
         }
         
         // 移除可能引起JSON解析问题的字段
-        delete apiData.id; // 新增时不需要id
+        // 修改时需要保留id字段，新增时不需要id
+        if (form.value.id == null) {
+          delete apiData.id; // 新增时不需要id
+        }
         delete apiData.createTime;
         delete apiData.updateTime;
         delete apiData.delFlag;
@@ -417,6 +478,19 @@ function handleDelete(row) {
   }).catch(() => {});
 }
 
+/** 获取封面图片URL */
+function getCoverUrl(coverUrl) {
+  if (!coverUrl) return '';
+  // 检查是否为完整URL
+  if (coverUrl.startsWith('http://') || coverUrl.startsWith('https://')) {
+    return coverUrl;
+  }
+  // 如果是相对路径，添加基础URL
+  const baseUrl = import.meta.env.VITE_APP_BASE_API || '';
+  return baseUrl + coverUrl;
+}
+
 getList();
 getCategoryList();
+getTagList();
 </script>

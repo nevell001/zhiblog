@@ -25,12 +25,23 @@ public class BlogTag extends BaseEntity
     private String tagName;
 
     /** 删除标志（0代表存在 1代表删除） */
-    @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
-    private String delFlag;
+    private Integer delFlag;
 
     /** 关联文章数 */
     @Excel(name = "关联文章数")
     private Integer articleCount;
+
+    /** 标签描述 */
+    @Excel(name = "标签描述")
+    private String description;
+
+    /** 标签颜色 */
+    @Excel(name = "标签颜色")
+    private String color;
+
+    /** 标签图标 */
+    @Excel(name = "标签图标")
+    private String icon;
 
     public void setTagId(Long tagId) 
     {
@@ -52,17 +63,16 @@ public class BlogTag extends BaseEntity
         return tagName;
     }
 
-    public void setDelFlag(String delFlag) 
+    public void setDelFlag(Integer delFlag) 
     {
         this.delFlag = delFlag;
     }
 
-    @JsonGetter("delFlag")
-    public String getDelFlag() 
+    public Integer getDelFlag() 
     {
         if (delFlag == null) {
             // 如果字段为null，设置默认值并返回
-            this.delFlag = "0";
+            this.delFlag = 0;
         }
         return delFlag;
     }
@@ -77,12 +87,45 @@ public class BlogTag extends BaseEntity
         return articleCount;
     }
 
+    public void setDescription(String description) 
+    {
+        this.description = description;
+    }
+
+    public String getDescription() 
+    {
+        return description;
+    }
+
+    public void setColor(String color) 
+    {
+        this.color = color;
+    }
+
+    public String getColor() 
+    {
+        return color;
+    }
+
+    public void setIcon(String icon) 
+    {
+        this.icon = icon;
+    }
+
+    public String getIcon() 
+    {
+        return icon;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("tagId", getTagId())
             .append("tagName", getTagName())
             .append("articleCount", getArticleCount())
+            .append("description", getDescription())
+            .append("color", getColor())
+            .append("icon", getIcon())
             .append("createBy", getCreateBy())
             .append("createTime", getCreateTime())
             .append("updateBy", getUpdateBy())

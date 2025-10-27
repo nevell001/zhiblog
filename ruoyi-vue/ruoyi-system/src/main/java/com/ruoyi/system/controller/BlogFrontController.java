@@ -382,7 +382,7 @@ public class BlogFrontController extends BaseController
     public AjaxResult tagList()
     {
         BlogTag blogTag = new BlogTag();
-        blogTag.setDelFlag("0"); // 只查询未删除的标签
+        blogTag.setDelFlag(0); // 只查询未删除的标签
         List<BlogTag> list = blogTagService.selectBlogTagList(blogTag);
         return success(list);
     }

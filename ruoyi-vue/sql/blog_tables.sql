@@ -38,6 +38,9 @@ DROP TABLE IF EXISTS `blog_tag`;
 CREATE TABLE `blog_tag` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(64) NOT NULL COMMENT '标签名称',
+  `description` varchar(255) DEFAULT NULL COMMENT '标签描述',
+  `color` varchar(20) DEFAULT '#409EFF' COMMENT '标签颜色',
+  `icon` varchar(100) DEFAULT NULL COMMENT '标签图标',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint DEFAULT '0' COMMENT '删除标志 0正常 1删除',

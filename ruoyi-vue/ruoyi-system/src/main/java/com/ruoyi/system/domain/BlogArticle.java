@@ -1,5 +1,6 @@
 package com.ruoyi.system.domain;
 
+import java.util.List;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.fasterxml.jackson.annotation.JsonGetter;
@@ -76,6 +77,12 @@ public class BlogArticle extends BaseEntity
     /** 评论数 */
     @Excel(name = "评论数")
     private Long commentCount;
+
+    /** 标签ID列表（用于前端显示和编辑） */
+    private List<Long> tagIds;
+
+    /** 标签列表（用于返回给前端） */
+    private List<BlogTag> tags;
 
     /** 删除标志 0正常 1删除 */
     @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
@@ -231,6 +238,26 @@ public class BlogArticle extends BaseEntity
         return commentCount;
     }
 
+    public void setTagIds(List<Long> tagIds) 
+    {
+        this.tagIds = tagIds;
+    }
+
+    public List<Long> getTagIds() 
+    {
+        return tagIds;
+    }
+
+    public void setTags(List<BlogTag> tags) 
+    {
+        this.tags = tags;
+    }
+
+    public List<BlogTag> getTags() 
+    {
+        return tags;
+    }
+
     public void setDelFlag(Long delFlag) 
     {
         this.delFlag = delFlag;
@@ -264,6 +291,8 @@ public class BlogArticle extends BaseEntity
             .append("viewCount", getViewCount())
             .append("likeCount", getLikeCount())
             .append("commentCount", getCommentCount())
+            .append("tagIds", getTagIds())
+            .append("tags", getTags())
             .append("createTime", getCreateTime())
             .append("updateTime", getUpdateTime())
             .append("delFlag", getDelFlag())

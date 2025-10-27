@@ -9,6 +9,15 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
+      <el-form-item label="最小文章数" prop="articleCount">
+        <el-input
+          v-model="queryParams.articleCount"
+          placeholder="最小文章数"
+          clearable
+          @keyup.enter="handleQuery"
+          style="width: 120px;"
+        />
+      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -45,16 +54,53 @@
           v-hasPermi="['system:tag:remove']"
         >删除</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="DataAnalysis"
+          @click="handleStatistics"
+          v-hasPermi="['system:tag:list']"
+        >统计</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="info"
+          plain
+          icon="Download"
+          @click="handleExport"
+          v-hasPermi="['system:tag:export']"
+        >导出</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="success"
+          plain
+          icon="Upload"
+          @click="handleImport"
+          v-hasPermi="['system:tag:import']"
+        >导入</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="tagList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="标签ID" align="center" prop="tagId" />
-      <el-table-column label="标签名称" align="center" prop="tagName" :show-overflow-tooltip="true" />
+      <el-table-column label="标签名称" align="center" prop="tagName" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <div style="display: flex; align-items: center;">
+            <el-tag :style="{ backgroundColor: scope.row.color || '#409EFF', color: 'white', border: 'none' }" style="margin-right: 8px;">
+              <i v-if="scope.row.icon" :class="scope.row.icon" style="margin-right: 4px;"></i>
+            </el-tag>
+            {{ scope.row.tagName }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column label="标签描述" align="center" prop="description" :show-overflow-tooltip="true" />
       <el-table-column label="关联文章数" align="center" prop="articleCount">
         <template #default="scope">
-          <el-tag>{{ scope.row.articleCount || 0 }}</el-tag>
+          <el-tag type="success">{{ scope.row.articleCount || 0 }}</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -91,10 +137,20 @@
     />
 
     <!-- 添加或修改博客标签对话框 -->
-    <el-dialog :title="title" v-model="open" width="500px" append-to-body>
-      <el-form ref="tagRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
+      <el-form ref="tagRef" :model="form" :rules="rules" label-width="100px">
         <el-form-item label="标签名称" prop="tagName">
           <el-input v-model="form.tagName" placeholder="请输入标签名称" />
+        </el-form-item>
+        <el-form-item label="标签描述" prop="description">
+          <el-input v-model="form.description" type="textarea" placeholder="请输入标签描述" :rows="3" />
+        </el-form-item>
+        <el-form-item label="标签颜色" prop="color">
+          <el-color-picker v-model="form.color" show-alpha :predefine="predefineColors" />
+          <el-input v-model="form.color" placeholder="请输入颜色值" style="width: 200px; margin-left: 10px;" />
+        </el-form-item>
+        <el-form-item label="标签图标" prop="icon">
+          <el-input v-model="form.icon" placeholder="请输入图标类名（如：el-icon-star）" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -128,24 +184,46 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    tagName: null
+    tagName: null,
+    articleCount: null
   },
   rules: {
     tagName: [
       { required: true, message: "标签名称不能为空", trigger: "blur" },
       { min: 1, max: 20, message: "标签名称长度必须介于 1 和 20 之间", trigger: "blur" }
+    ],
+    description: [
+      { max: 255, message: "标签描述长度不能超过 255 个字符", trigger: "blur" }
+    ],
+    color: [
+      { pattern: /^(#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})|rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)|rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|1|0\.\d+)\s*\)|hsl\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*\)|hsla\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*,\s*(0|1|0\.\d+)\s*\))$/, message: "颜色格式不正确", trigger: "blur" }
     ]
-  }
+  },
+  predefineColors: [
+    '#409EFF', '#67C23A', '#E6A23C', '#F56C6C', '#909399',
+    '#ff4500', '#ff8c00', '#ffd700', '#90ee90', '#00ced1',
+    '#1e90ff', '#c71585', 'rgba(255, 69, 0, 0.68)',
+    'rgb(255, 120, 0)', 'hsv(51, 100, 98)', 'hsva(120, 40, 94, 0.5)',
+    'hsl(181, 100%, 37%)', 'hsla(209, 100%, 56%, 0.73)'
+  ]
 });
 
-const { queryParams, form, rules } = toRefs(data);
+const { queryParams, form, rules, predefineColors } = toRefs(data);
 
 /** 查询博客标签列表 */
 function getList() {
   loading.value = true;
   listTag(queryParams.value).then(response => {
+    console.log('标签列表数据:', response.rows); // 调试信息
+    // 检查每个标签的颜色数据
+    response.rows.forEach((tag, index) => {
+      console.log(`标签${index}:`, tag.tagName, '颜色:', tag.color, '图标:', tag.icon);
+    });
     tagList.value = response.rows;
     total.value = response.total;
+    loading.value = false;
+  }).catch(error => {
+    console.error('获取标签列表失败:', error);
     loading.value = false;
   });
 }
@@ -160,7 +238,10 @@ function cancel() {
 function reset() {
   form.value = {
     tagId: null,
-    tagName: null
+    tagName: null,
+    description: null,
+    color: '#409EFF',
+    icon: null
   };
   proxy.resetForm("tagRef");
 }
@@ -173,6 +254,7 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
+  queryParams.value.articleCount = null;
   proxy.resetForm("queryRef");
   handleQuery();
 }
@@ -232,6 +314,23 @@ function handleDelete(row) {
     getList();
     proxy.$modal.msgSuccess("删除成功");
   }).catch(() => {});
+}
+
+/** 统计按钮操作 */
+function handleStatistics() {
+  proxy.$modal.msgInfo("标签统计功能开发中...");
+}
+
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download('system/tag/export', {
+    ...queryParams.value
+  }, `tag_${new Date().getTime()}.xlsx`)
+}
+
+/** 导入按钮操作 */
+function handleImport() {
+  proxy.$modal.msgInfo("标签导入功能开发中...");
 }
 
 getList();
