@@ -41,6 +41,9 @@ public class BlogCategoryController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(BlogCategory blogCategory)
     {
+        if (blogCategory.getDelFlag() == null) {
+            blogCategory.setDelFlag(0L);
+        }
         startPage();
         List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
         return getDataTable(list);
@@ -54,6 +57,9 @@ public class BlogCategoryController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogCategory blogCategory)
     {
+        if (blogCategory.getDelFlag() == null) {
+            blogCategory.setDelFlag(0L);
+        }
         List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
         ExcelUtil<BlogCategory> util = new ExcelUtil<BlogCategory>(BlogCategory.class);
         util.exportExcel(response, list, "文章分类数据");

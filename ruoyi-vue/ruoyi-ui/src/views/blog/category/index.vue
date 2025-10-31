@@ -50,11 +50,12 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { getArticlesByCategory } from '@/api/blog/article'
 import { getCategoryDetail } from '@/api/blog/category'
 
 const route = useRoute()
+const router = useRouter()
 const categoryId = ref(route.params.id || '')
 
 // 响应式数据
@@ -131,7 +132,8 @@ onMounted(() => {
     loadCategoryDetail()
     loadArticleList()
   } else {
-    console.error('路由参数中缺少分类ID')
+    // 无ID时友好跳转到首页，避免路由告警
+    router.replace('/index')
   }
 })
 </script>

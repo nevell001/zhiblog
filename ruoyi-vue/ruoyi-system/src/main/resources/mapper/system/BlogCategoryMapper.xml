@@ -22,6 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="sort != null "> and sort = #{sort}</if>
+            <if test="delFlag != null "> and del_flag = #{delFlag}</if>
         </where>
     </select>
     
@@ -60,14 +61,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <delete id="deleteBlogCategoryById" parameterType="Long">
-        delete from blog_category where id = #{id}
-    </delete>
+    <update id="deleteBlogCategoryById" parameterType="Long">
+        update blog_category set del_flag = 1, update_time = now() where id = #{id}
+    </update>
 
-    <delete id="deleteBlogCategoryByIds" parameterType="String">
-        delete from blog_category where id in 
+    <update id="deleteBlogCategoryByIds" parameterType="String">
+        update blog_category set del_flag = 1, update_time = now() where id in 
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </delete>
+    </update>
+
+    <select id="countByName" parameterType="BlogCategory" resultType="int">
+        select count(1) from blog_category where name = #{name} and del_flag = 0
+        <if test="id != null"> and id != #{id}</if>
+    </select>
 </mapper>

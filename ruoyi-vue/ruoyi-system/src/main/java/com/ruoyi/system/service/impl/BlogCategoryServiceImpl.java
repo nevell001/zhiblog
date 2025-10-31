@@ -5,8 +5,10 @@ import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.BlogCategoryMapper;
+import com.ruoyi.system.mapper.BlogArticleMapper;
 import com.ruoyi.system.domain.BlogCategory;
 import com.ruoyi.system.service.IBlogCategoryService;
+import com.ruoyi.common.exception.ServiceException;
 
 /**
  * 文章分类Service业务层处理
@@ -19,6 +21,9 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
 {
     @Autowired
     private BlogCategoryMapper blogCategoryMapper;
+
+    @Autowired
+    private BlogArticleMapper blogArticleMapper;
 
     /**
      * 查询文章分类
@@ -41,6 +46,9 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     @Override
     public List<BlogCategory> selectBlogCategoryList(BlogCategory blogCategory)
     {
+        if (blogCategory.getDelFlag() == null) {
+            blogCategory.setDelFlag(0L);
+        }
         return blogCategoryMapper.selectBlogCategoryList(blogCategory);
     }
 
@@ -53,6 +61,10 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     @Override
     public int insertBlogCategory(BlogCategory blogCategory)
     {
+        // 重名校验（仅未删除）
+        if (blogCategory.getName() != null && blogCategoryMapper.countByName(blogCategory) > 0) {
+            throw new ServiceException("分类名称已存在");
+        }
         blogCategory.setCreateTime(DateUtils.getNowDate());
         return blogCategoryMapper.insertBlogCategory(blogCategory);
     }
@@ -66,6 +78,10 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     @Override
     public int updateBlogCategory(BlogCategory blogCategory)
     {
+        // 重名校验（更新需要排除自身）
+        if (blogCategory.getName() != null && blogCategoryMapper.countByName(blogCategory) > 0) {
+            throw new ServiceException("分类名称已存在");
+        }
         blogCategory.setUpdateTime(DateUtils.getNowDate());
         return blogCategoryMapper.updateBlogCategory(blogCategory);
     }
@@ -79,6 +95,11 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     @Override
     public int deleteBlogCategoryByIds(Long[] ids)
     {
+        // 被引用校验
+        int refCount = blogArticleMapper.countByCategoryIds(ids);
+        if (refCount > 0) {
+            throw new ServiceException("存在文章引用该分类，无法删除，请先迁移或删除相关文章");
+        }
         return blogCategoryMapper.deleteBlogCategoryByIds(ids);
     }
 
@@ -91,6 +112,10 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     @Override
     public int deleteBlogCategoryById(Long id)
     {
+        int refCount = blogArticleMapper.countByCategoryIds(new Long[]{ id });
+        if (refCount > 0) {
+            throw new ServiceException("存在文章引用该分类，无法删除，请先迁移或删除相关文章");
+        }
         return blogCategoryMapper.deleteBlogCategoryById(id);
     }
 }

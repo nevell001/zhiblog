@@ -85,9 +85,10 @@ export const constantRoutes = [
     ]
   },
   // 兼容历史菜单直达路径（不在侧边栏显示，只做跳转）
-  { path: '/article', component: Layout, redirect: '/blog/article', hidden: true },
-  { path: '/category', component: Layout, redirect: '/blog/category', hidden: true },
-  { path: '/tag', component: Layout, redirect: '/blog/tag', hidden: true },
+  // 历史直达路径修正到可落地的页面，避免缺少路由参数导致告警
+  { path: '/article', component: Layout, redirect: '/index', hidden: true },
+  { path: '/category', component: Layout, redirect: '/index', hidden: true },
+  { path: '/tag', component: Layout, redirect: '/index', hidden: true },
   {
     path: '/user',
     component: Layout,

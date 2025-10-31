@@ -58,4 +58,11 @@ public interface BlogCategoryMapper
      * @return 结果
      */
     public int deleteBlogCategoryByIds(Long[] ids);
+
+    /**
+     * 统计同名未删除分类数量（用于重名校验）
+     * @param blogCategory 分类实体，需包含 name，可选 id（更新时排除自身）
+     * @return 数量
+     */
+    public int countByName(BlogCategory blogCategory);
 }

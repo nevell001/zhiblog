@@ -108,4 +108,11 @@ public interface BlogArticleMapper
      * @return 下一篇文章
      */
     BlogArticle getNextArticle(Long id);
+
+    /**
+     * 统计分类被文章引用数量（仅统计未删除文章）
+     * @param ids 分类ID集合
+     * @return 被引用的文章数量
+     */
+    int countByCategoryIds(Long[] ids);
 }
