@@ -1,0 +1,6 @@
+FROM maven:3.8.8-eclipse-temurin-17
+
+# 安装 netcat 用于等待 MySQL
+RUN apt-get update && apt-get install -y netcat
+
+WORKDIR /app/ruoyi-admin

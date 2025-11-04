@@ -1,0 +1,68 @@
+services:
+  ruoyi-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile-admin
+    container_name: ruoyi-admin
+    working_dir: /app/ruoyi-admin
+    volumes:
+      - ./:/app                # 挂载整个 ruoyi-vue 项目
+      - ~/.m2:/root/.m2        # Maven 本地缓存
+    command: sh -c "until nc -z mysql 3306; do echo 'waiting mysql...'; sleep 2; done && mvn spring-boot:run"
+    ports:
+      - "8080:8080"            # 后端端口
+    depends_on:
+      - mysql
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/newblog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    networks:
+      - dev_network
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: newblog
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d   # 初始化SQL脚本
+    networks:
+      - dev_network
+
+  redis:
+    image: redis:6.2
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - dev_network
+
+  ruoyi-ui:
+    image: node:20
+    container_name: ruoyi-ui
+    working_dir: /app
+    volumes:
+      - ./ruoyi-ui:/app
+      - /app/node_modules  #避免宿主机 node_modules 覆盖容器内的
+    command: sh -c "npm install && npm run dev"
+    ports:
+      - "3000:3000"                # 前端端口
+    networks:
+      - dev_network
+
+networks:
+  dev_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
