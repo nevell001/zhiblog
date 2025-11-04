@@ -69,6 +69,7 @@ import { getCodeImg } from "@/api/login"
 import Cookies from "js-cookie"
 import { encrypt, decrypt } from "@/utils/jsencrypt"
 import useUserStore from '@/store/modules/user'
+import { ElMessage } from 'element-plus'
 
 const title = import.meta.env.VITE_APP_TITLE
 const userStore = useUserStore()
@@ -142,9 +143,13 @@ function getCode() {
   getCodeImg().then(res => {
     captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
     if (captchaEnabled.value) {
-      codeUrl.value = "data:image/gif;base64," + res.img
+      // 后端返回的是 jpg 格式，使用 image/jpeg
+      codeUrl.value = "data:image/jpeg;base64," + res.img
       loginForm.value.uuid = res.uuid
     }
+  }).catch(error => {
+    console.error('获取验证码失败:', error)
+    ElMessage.error('获取验证码失败，请刷新页面重试')
   })
 }
 

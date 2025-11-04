@@ -90,9 +90,15 @@
       <el-table-column label="标签名称" align="center" prop="tagName" :show-overflow-tooltip="true">
         <template #default="scope">
           <div style="display: flex; align-items: center;">
-            <el-tag :style="{ backgroundColor: scope.row.color || '#409EFF', color: 'white', border: 'none' }" style="margin-right: 8px;">
-              <i v-if="scope.row.icon" :class="scope.row.icon" style="margin-right: 4px;"></i>
-            </el-tag>
+            <span 
+              class="tag-color-badge"
+              :style="{ 
+                backgroundColor: scope.row.color || '#409EFF', 
+                color: 'white'
+              }"
+            >
+              <i v-if="scope.row.icon" :class="scope.row.icon"></i>
+            </span>
             {{ scope.row.tagName }}
           </div>
         </template>
@@ -313,7 +319,12 @@ function handleDelete(row) {
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  }).catch(error => {
+    // 显示后端返回的错误信息（如"标签已关联文章"）
+    if (error && error.response && error.response.data && error.response.data.msg) {
+      proxy.$modal.msgError(error.response.data.msg);
+    }
+  });
 }
 
 /** 统计按钮操作 */
@@ -335,3 +346,20 @@ function handleImport() {
 
 getList();
 </script>
+
+<style scoped>
+.tag-color-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 8px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.tag-color-badge i {
+  font-size: 12px;
+}
+</style>

@@ -20,13 +20,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         select 
             bt.id, 
             bt.name as tag_name, 
-            bt.description,
-            bt.color,
-            bt.icon,
-            bt.create_time, 
-            bt.update_time, 
-            bt.del_flag,
-            COUNT(bat.article_id) as article_count
+            MAX(bt.description) as description,
+            MAX(bt.color) as color,
+            MAX(bt.icon) as icon,
+            MAX(bt.create_time) as create_time, 
+            MAX(bt.update_time) as update_time, 
+            MAX(bt.del_flag) as del_flag,
+            COUNT(DISTINCT bat.article_id) as article_count
         from blog_tag bt
         left join blog_article_tag bat on bt.id = bat.tag_id
         left join blog_article ba on bat.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
@@ -39,12 +39,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             and bt.del_flag = 0
         </where>
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
+        order by bt.create_time desc
     </select>
     
     <select id="selectAllTagList" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
         where bt.del_flag = 0
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
+        order by bt.create_time desc
     </select>
     
     <select id="selectBlogTagById" parameterType="Long" resultMap="BlogTagResult">
