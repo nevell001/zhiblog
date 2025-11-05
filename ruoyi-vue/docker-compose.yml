@@ -48,7 +48,7 @@ services:
       - dev_network
 
   ruoyi-ui:
-    image: node:20
+    image: node:22
     container_name: ruoyi-ui
     working_dir: /app
     volumes:
