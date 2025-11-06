@@ -1,3 +1,6 @@
+cd /home/nevell/code/newblog/ruoyi-vue
+docker compose down
+docker compose up --build
 -- 清理冗余菜单数据脚本
 -- 删除乱码和重复的菜单项
 
