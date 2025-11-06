@@ -6,9 +6,8 @@ ruoyi:
   version: 3.9.0
   # 版权年份
   copyrightYear: 2025
-  # 文件路径 示例（ Windows配置D:/ruoyi/uploadPath，Linux配置 /home/ruoyi/uploadPath）
-  # 警告：这是一个硬编码的本地路径，部署时需要修改为服务器上的实际路径。
-  profile: /home/nevell/code/newblog/ruoyi-vue/ruoyi-admin/uploadPath
+  # 文件路径 - Docker容器内路径
+  profile: /app/ruoyi-admin/uploadPath
   # 获取ip地址开关
   addressEnabled: false
   # 验证码类型 math 数字计算 char 字符验证
