@@ -8,7 +8,7 @@ services:
     volumes:
       - ./:/app                # 挂载整个 ruoyi-vue 项目
       - ~/.m2:/root/.m2        # Maven 本地缓存
-    command: sh -c "until nc -z mysql 3306; do echo 'waiting mysql...'; sleep 2; done && mvn spring-boot:run"
+    command: sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && mvn spring-boot:run"
     ports:
       - "8080:8080"            # 后端端口
     depends_on:
@@ -23,7 +23,7 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
     networks:
-      - dev_network
+      - ruoyi-network
 
   mysql:
     image: mysql:8.4
@@ -42,7 +42,7 @@ services:
       - ./sql:/docker-entrypoint-initdb.d   # 初始化SQL脚本
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     networks:
-      - dev_network
+      - ruoyi-network
 
   redis:
     image: redis:6.2
@@ -51,29 +51,32 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - dev_network
+      - ruoyi-network
 
   ruoyi-ui:
-    image: node:22
+    build:
+      context: ./ruoyi-ui
+      dockerfile: Dockerfile
     container_name: ruoyi-ui
     working_dir: /app
     volumes:
       - ./ruoyi-ui:/app
       - /app/node_modules
-    command: sh -c "npm install && npm run dev"
     ports:
       - "3000:3000"
     depends_on:
+      - mysql
+      - redis
       - ruoyi-admin
     environment:
       - DOCKER=true  # 标记当前在 Docker 环境
       - LANG=C.UTF-8
-      - LC_ALL=C.UTF-8
+      - VITE_API_BASE_URL=http://ruoyi-admin:8080
     networks:
-      - dev_network
-networks:
-  dev_network:
-    driver: bridge
-
+      - ruoyi-network
 volumes:
   mysql_data:
+
+networks:
+  ruoyi-network:
+    driver: bridge

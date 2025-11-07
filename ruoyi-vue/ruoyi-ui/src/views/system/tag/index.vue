@@ -93,7 +93,7 @@
             <span 
               class="tag-color-badge"
               :style="{ 
-                backgroundColor: scope.row.color || '#409EFF', 
+                backgroundColor: normalizeColor(scope.row.color), 
                 color: 'white'
               }"
             >
@@ -184,6 +184,19 @@ const single = ref(true);
 const multiple = ref(true);
 const total = ref(0);
 const title = ref("");
+
+// 确保颜色值格式正确
+const normalizeColor = (color) => {
+  if (!color) return '#409EFF'; // 默认颜色
+  
+  // 确保颜色值以#开头
+  if (color.startsWith('#')) {
+    return color;
+  }
+  
+  // 如果颜色值不以#开头，添加#
+  return '#' + color;
+};
 
 const data = reactive({
   form: {},
@@ -349,17 +362,11 @@ getList();
 
 <style scoped>
 .tag-color-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
   width: 20px;
   height: 20px;
-  border-radius: 4px;
+  border-radius: 50%;
   margin-right: 8px;
   vertical-align: middle;
-  flex-shrink: 0;
-}
-.tag-color-badge i {
-  font-size: 12px;
 }
 </style>

@@ -87,8 +87,35 @@ export const constantRoutes = [
   // 兼容历史菜单直达路径（不在侧边栏显示，只做跳转）
   // 历史直达路径修正到可落地的页面，避免缺少路由参数导致告警
   { path: '/article', component: Layout, redirect: '/index', hidden: true },
-  { path: '/category', component: Layout, redirect: '/index', hidden: true },
-  { path: '/tag', component: Layout, redirect: '/index', hidden: true },
+  { path: '/tag', component: Layout, redirect: '/system/tag/index', hidden: true },
+  { path: '/blog/category', component: Layout, redirect: '/system/category/index', hidden: true },
+  { path: '/category', component: Layout, redirect: '/system/category/index', hidden: true },
+  {
+    path: '/system/category',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/system/category/index'),
+        name: 'Category',
+        meta: { title: '分类管理', icon: 'category' }
+      }
+    ]
+  },
+  {
+    path: '/system/tag',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/system/tag/index'),
+        name: 'Tag',
+        meta: { title: '标签管理', icon: 'tag' }
+      }
+    ]
+  },
   {
     path: '/user',
     component: Layout,
@@ -181,7 +208,7 @@ export const dynamicRoutes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...blogRoutes, ...constantRoutes, ...dynamicRoutes],
+  routes: [...constantRoutes, ...blogRoutes, ...dynamicRoutes],
   scrollBehavior: () => ({ top: 0 })
 })
 

@@ -1,6 +1,6 @@
 FROM maven:3.8.8-eclipse-temurin-17
 
-# 安装 netcat 用于等待 MySQL
-RUN apt-get update && apt-get install -y netcat
-
 WORKDIR /app/ruoyi-admin
+
+# 启动命令 - 使用简单的循环等待MySQL
+CMD sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && mvn spring-boot:run"

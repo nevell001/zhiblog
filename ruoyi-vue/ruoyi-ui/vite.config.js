@@ -6,11 +6,9 @@ import createVitePlugins from './vite/plugins'
 // 通过环境变量 DOCKER 来控制（docker-compose.yml 中设置）
 const inDocker = process.env.DOCKER === 'true'
 
-// 如果在容器内 → 用 Docker 网络的服务名访问后端
+// 如果在容器内 → 用容器间网络访问后端
 // 如果在本机开发 → 用 localhost 访问后端
-const baseUrl = inDocker
-  ? 'http://ruoyi-admin:8080'
-  : 'http://localhost:8080'
+const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -43,26 +41,23 @@ export default defineConfig(({ mode, command }) => {
       }
     },
     server: {
+      host: '0.0.0.0', // 绑定到所有网络接口
       port: 3000,
-      host: true, // 等价于 '0.0.0.0'，容器内可被外部访问
-      open: '/index',
+      open: false, // 不自动打开浏览器，在容器中会导致错误
       proxy: {
         // 接口代理 - RuoYi 默认 API 前缀
         '/dev-api': {
           target: baseUrl,
           changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/dev-api/, ''),
-          configure: (proxy, options) => {
-            proxy.on('proxyRes', (proxyRes, req, res) => {
-              // 只在JSON响应中设置字符编码，避免覆盖其他类型的响应
-              if (proxyRes.headers['content-type'] && proxyRes.headers['content-type'].includes('application/json')) {
-                proxyRes.headers['content-type'] = 'application/json;charset=utf-8'
-              }
-            })
-          }
+          rewrite: (path) => path.replace(/^\/dev-api/, '')
         },
-        // Springdoc API 文档接口代理
-        '^/v3/api-docs/(.*)': {
+        // 代理系统管理接口
+        '/system': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        // 代理博客前台接口
+        '/blog': {
           target: baseUrl,
           changeOrigin: true
         }
