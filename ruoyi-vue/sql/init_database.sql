@@ -163,8 +163,20 @@ CREATE TABLE sys_role_menu (
 
 -- ========== 导入Quartz定时任务表结构 ==========
 
--- 1、存储每一个已配置的 jobDetail 的详细信息
+-- 按照正确的顺序删除表（先删除有外键约束的表）
+DROP TABLE IF EXISTS QRTZ_SIMPROP_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_SIMPLE_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_CRON_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_BLOB_TRIGGERS;
+DROP TABLE IF EXISTS QRTZ_TRIGGERS;
 DROP TABLE IF EXISTS QRTZ_JOB_DETAILS;
+DROP TABLE IF EXISTS QRTZ_CALENDARS;
+DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;
+DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;
+DROP TABLE IF EXISTS QRTZ_LOCKS;
+
+-- 1、存储每一个已配置的 jobDetail 的详细信息
 CREATE TABLE QRTZ_JOB_DETAILS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     job_name             VARCHAR(200)    NOT NULL            COMMENT '任务名称',
@@ -513,7 +525,7 @@ INSERT INTO `blog_friend_link` (`name`, `url`, `description`, `status`) VALUES
 
 -- 博客管理主菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2000, '博客管理', 0, 10, 'blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '博客管理目录');
+VALUES (2000, '博客管理', 0, 10, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '博客管理目录');
 
 -- 文章管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -525,7 +537,7 @@ VALUES (2002, '分类管理', 2000, 2, 'category', 'blog/category/index', '', ''
 
 -- 标签管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2003, '标签管理', 2000, 3, 'tag', 'system/tag/index', '', '', 1, 0, 'C', '0', '0', 'system:tag:list', 'tag', 'admin', NOW(), '', NULL, '标签管理菜单');
+VALUES (2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tag', 'admin', NOW(), '', NULL, '标签管理菜单');
 
 -- 评论管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -561,11 +573,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 标签管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(20030, '标签查询', 2003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:tag:query', '#', 'admin', NOW(), '', NULL, ''),
-(20031, '标签新增', 2003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:tag:add', '#', 'admin', NOW(), '', NULL, ''),
-(20032, '标签修改', 2003, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:tag:edit', '#', 'admin', NOW(), '', NULL, ''),
-(20033, '标签删除', 2003, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'system:tag:remove', '#', 'admin', NOW(), '', NULL, ''),
-(20034, '标签导出', 2003, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'system:tag:export', '#', 'admin', NOW(), '', NULL, '');
+(20030, '标签查询', 2003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:query', '#', 'admin', NOW(), '', NULL, ''),
+(20031, '标签新增', 2003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:add', '#', 'admin', NOW(), '', NULL, ''),
+(20032, '标签修改', 2003, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20033, '标签删除', 2003, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20034, '标签导出', 2003, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 评论管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -601,22 +613,6 @@ SELECT '若依系统基础表数量：' AS info, COUNT(*) as count FROM informat
 SELECT '博客系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'blog_%';
 SELECT 'Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'QRTZ_%';
 SELECT '博客管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '博客管理' OR parent_id = 2000;
-  `content` longtext NOT NULL COMMENT '文章内容',
-  `cover_url` varchar(512) DEFAULT NULL COMMENT '封面图片',
-  `category_id` bigint DEFAULT NULL COMMENT '分类ID',
-  `author_id` bigint NOT NULL COMMENT '作者ID（关联sys_user）',
-  `is_top` tinyint DEFAULT '0' COMMENT '是否置顶 0否 1是',
-  `is_recommend` tinyint DEFAULT '0' COMMENT '是否推荐 0否 1是',
-  `status` tinyint DEFAULT '1' COMMENT '状态 0草稿 1发布',
-  `view_count` int DEFAULT '0' COMMENT '浏览量',
-  `like_count` int DEFAULT '0' COMMENT '点赞数',
-  `comment_count` int DEFAULT '0' COMMENT '评论数',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `del_flag` tinyint DEFAULT '0' COMMENT '删除标志 0正常 1删除',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_title` (`title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
 
 -- 博客分类表
 DROP TABLE IF EXISTS `blog_category`;
@@ -748,7 +744,7 @@ INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `category_id`,
 
 -- 创建博客管理主菜单（如果不存在）
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-VALUES (2000, '博客管理', 0, 10, 'blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '博客管理目录');
+VALUES (2000, '博客管理', 0, 10, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '博客管理目录');
 
 -- 创建博客管理子菜单
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)

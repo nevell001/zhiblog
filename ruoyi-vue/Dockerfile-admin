@@ -1,6 +1,20 @@
-FROM maven:3.8.8-eclipse-temurin-17
+FROM maven:3.8.8-eclipse-temurin-17 AS builder
 
-WORKDIR /app/ruoyi-admin
+WORKDIR /app
+COPY . .
+
+# 编译项目
+RUN mvn clean package -DskipTests
+
+FROM eclipse-temurin:17-jre
+
+WORKDIR /app
+
+# 复制编译好的JAR包
+COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
+
+# 设置时区
+ENV TZ=Asia/Shanghai
 
 # 启动命令 - 使用简单的循环等待MySQL
-CMD sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && mvn spring-boot:run"
+CMD sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && java -jar /app/ruoyi-admin.jar"

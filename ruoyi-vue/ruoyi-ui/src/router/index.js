@@ -5,6 +5,8 @@ import Layout from '@/layout'
 
 // 博客前台路由
 import blogRoutes from './blog'
+// 后台管理路由
+import adminRoutes from './admin'
 
 /**
  * Note: 路由配置项
@@ -72,51 +74,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/admin',
-    component: Layout,
-    redirect: '/admin/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        component: () => import('@/views/index'),
-        name: 'AdminDashboard',
-        meta: { title: '后台首页', icon: 'dashboard', affix: true }
-      }
-    ]
-  },
-  // 兼容历史菜单直达路径（不在侧边栏显示，只做跳转）
-  // 历史直达路径修正到可落地的页面，避免缺少路由参数导致告警
-  { path: '/article', component: Layout, redirect: '/index', hidden: true },
-  { path: '/tag', component: Layout, redirect: '/system/tag/index', hidden: true },
-  { path: '/blog/category', component: Layout, redirect: '/system/category/index', hidden: true },
-  { path: '/category', component: Layout, redirect: '/system/category/index', hidden: true },
-  {
-    path: '/system/category',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/system/category/index'),
-        name: 'Category',
-        meta: { title: '分类管理', icon: 'category' }
-      }
-    ]
-  },
-  {
-    path: '/system/tag',
-    component: Layout,
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/system/tag/index'),
-        name: 'Tag',
-        meta: { title: '标签管理', icon: 'tag' }
-      }
-    ]
-  },
-  {
     path: '/user',
     component: Layout,
     hidden: true,
@@ -124,7 +81,7 @@ export const constantRoutes = [
     children: [
       {
         path: 'profile',
-        component: () => import('@/views/system/user/profile/index'),
+        component: () => import('@/views/admin/system/user/user/profile/index'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
       }
@@ -135,72 +92,72 @@ export const constantRoutes = [
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [
   {
-    path: '/system/user-auth',
+    path: '/admin/system/user-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:user:edit'],
     children: [
       {
         path: 'role/:userId(\\d+)',
-        component: () => import('@/views/system/user/authRole'),
+        component: () => import('@/views/admin/system/user/user/authRole'),
         name: 'AuthRole',
-        meta: { title: '分配角色', activeMenu: '/system/user' }
+        meta: { title: '分配角色', activeMenu: '/admin/system/user' }
       }
     ]
   },
   {
-    path: '/system/role-auth',
+    path: '/admin/system/role-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:role:edit'],
     children: [
       {
         path: 'user/:roleId(\\d+)',
-        component: () => import('@/views/system/role/authUser'),
+        component: () => import('@/views/admin/system/role/role/authUser'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/admin/system/role' }
       }
     ]
   },
   {
-    path: '/system/dict-data',
+    path: '/admin/system/dict-data',
     component: Layout,
     hidden: true,
     permissions: ['system:dict:list'],
     children: [
       {
         path: 'index/:dictId(\\d+)',
-        component: () => import('@/views/system/dict/data'),
+        component: () => import('@/views/admin/system/dict/dict/data'),
         name: 'Data',
-        meta: { title: '字典数据', activeMenu: '/system/dict' }
+        meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
       }
     ]
   },
   {
-    path: '/monitor/job-log',
+    path: '/admin/monitor/job-log',
     component: Layout,
     hidden: true,
     permissions: ['monitor:job:list'],
     children: [
       {
         path: 'index/:jobId(\\d+)',
-        component: () => import('@/views/monitor/job/log'),
+        component: () => import('@/views/admin/monitor/job/log'),
         name: 'JobLog',
-        meta: { title: '调度日志', activeMenu: '/monitor/job' }
+        meta: { title: '调度日志', activeMenu: '/admin/monitor/job' }
       }
     ]
   },
   {
-    path: '/tool/gen-edit',
+    path: '/admin/tool/gen-edit',
     component: Layout,
     hidden: true,
     permissions: ['tool:gen:edit'],
     children: [
       {
         path: 'index/:tableId(\\d+)',
-        component: () => import('@/views/tool/gen/editTable'),
+        component: () => import('@/views/admin/tool/gen/editTable'),
         name: 'GenEdit',
-        meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
+        meta: { title: '修改生成配置', activeMenu: '/admin/tool/gen' }
       }
     ]
   }
@@ -208,7 +165,7 @@ export const dynamicRoutes = [
 
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...constantRoutes, ...blogRoutes, ...dynamicRoutes],
+  routes: [...constantRoutes, ...blogRoutes, ...adminRoutes, ...dynamicRoutes],
   scrollBehavior: () => ({ top: 0 })
 })
 

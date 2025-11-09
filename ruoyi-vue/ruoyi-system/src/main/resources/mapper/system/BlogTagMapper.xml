@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd"\>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.BlogTagMapper">
     
     <resultMap type="BlogTag" id="BlogTagResult">
@@ -34,8 +32,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        <where>  
-            <if test="tagName != null  and tagName != "> and bt.name like concat(%, #{tagName}, %)</if>
+        <where>
+            <if test="tagName != null and !tagName.isEmpty()"> and bt.name like concat('%', #{tagName}, '%')</if>
             and bt.del_flag = 0
         </where>
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
@@ -98,14 +96,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="tagId">
         insert into blog_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="tagName != null and tagName != ">name,</if>
+            <if test="tagName != null and !tagName.isEmpty()">name,</if>
             <if test="description != null">description,</if>
             <if test="color != null">color,</if>
             <if test="icon != null">icon,</if>
             <if test="delFlag != null">del_flag,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="tagName != null and tagName != ">#{tagName},</if>
+            <if test="tagName != null and !tagName.isEmpty()">#{tagName},</if>
             <if test="description != null">#{description},</if>
             <if test="color != null">#{color},</if>
             <if test="icon != null">#{icon},</if>
@@ -116,7 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateBlogTag" parameterType="BlogTag">
         update blog_tag
         <trim prefix="SET" suffixOverrides=",">
-            <if test="tagName != null and tagName != ">name = #{tagName},</if>
+            <if test="tagName != null and !tagName.isEmpty()">name = #{tagName},</if>
             <if test="description != null">description = #{description},</if>
             <if test="color != null">color = #{color},</if>
             <if test="icon != null">icon = #{icon},</if>

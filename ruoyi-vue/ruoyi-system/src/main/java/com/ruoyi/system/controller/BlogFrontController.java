@@ -60,8 +60,9 @@ class ArticleNavigationDTO {
 @RequestMapping("/blog")
 public class BlogFrontController extends BaseController
 {
+
     public BlogFrontController() {
-        System.out.println("BlogFrontController constructor called");
+        System.out.println("BlogFrontController initialized");
     }
     
     @Autowired
@@ -218,13 +219,14 @@ public class BlogFrontController extends BaseController
     /**
      * 获取文章列表（前台用，支持分页）
      */
+    @Anonymous
     @GetMapping("/article/list")
     public TableDataInfo articleList(BlogArticle blogArticle)
     {
         // 设置查询条件
         blogArticle.setStatus(1L); // 只查询已发布的文章
         blogArticle.setDelFlag(0L); // 只查询未删除的文章
-        
+
         startPage(); // 启用分页
         List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
         return getDataTable(list);

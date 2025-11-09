@@ -35,6 +35,12 @@ export const blogRoutes = [
     component: () => import('@/views/blog/simple'),
     name: 'BlogSimple',
     meta: { title: '简洁版博客' }
+  },
+  {
+    path: '/about',
+    component: () => import('@/views/blog/about'),
+    name: 'About',
+    meta: { title: '关于我们' }
   }
 ]
 

@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.BlogArticleMapper">
     
     <resultMap type="BlogArticle" id="BlogArticleResult">
@@ -43,8 +41,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
-        <include refid="selectBlogArticleVo"/>
-        <where>  
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+               ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+               bc.name as category_name,
+               GROUP_CONCAT(DISTINCT bt.id) as tag_ids,
+               GROUP_CONCAT(DISTINCT bt.name) as tag_names
+        from blog_article ba
+        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        left join blog_article_tag bat on ba.id = bat.article_id
+        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
+        <where>
             <if test="title != null  and title != ''"> and ba.title = #{title}</if>
             <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
             <if test="content != null  and content != ''"> and ba.content = #{content}</if>
@@ -58,12 +65,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
         </where>
+        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+                 ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag
         order by ba.create_time desc
     </select>
     
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
         <include refid="selectBlogArticleVo"/>
-        where id = #{id}
+        where ba.id = #{id}
     </select>
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">

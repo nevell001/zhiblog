@@ -175,19 +175,19 @@ public class SysMenuServiceImpl implements ISysMenuService
             router.setQuery(menu.getQuery());
             router.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache()), menu.getPath()));
             List<SysMenu> cMenus = menu.getChildren();
-            if (StringUtils.isNotEmpty(cMenus) && RouterUtil.isMenuFrame(menu))
+            if (StringUtils.isNotEmpty(cMenus) && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
             }
-            else if (menu.getParentId() == 0 && RouterUtil.isMenuFrame(menu))
+            else if (menu.getParentId() == 0 && isMenuFrame(menu))
             {
                 // 如果是博客管理或分类管理菜单且为目录类型，则设置重定向
                 if ("博客管理".equals(menu.getMenuName())) {
-                    router.setRedirect("/blog/article");
+                    router.setRedirect("/admin/blog/article");
                 } else if ("分类管理".equals(menu.getMenuName())) {
-                    router.setRedirect("/blog/category");
+                    router.setRedirect("/admin/blog/category");
                 } else {
                     router.setMeta(null);
                     List<RouterVo> childrenList = new ArrayList<RouterVo>();
@@ -201,13 +201,13 @@ public class SysMenuServiceImpl implements ISysMenuService
                     router.setChildren(childrenList);
                 }
             }
-            else if (StringUtils.isNotEmpty(cMenus) && MenuType.M.getValue().equals(menu.getMenuType()))
+            else if (StringUtils.isNotEmpty(cMenus) && UserConstants.TYPE_MENU.equals(menu.getMenuType()))
             {
                 router.setAlwaysShow(true);
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
             }
-            else if (StringUtils.isNotEmpty(cMenus) && menu.getParentId() != 0 && RouterUtil.isMenuFrame(menu))
+            else if (StringUtils.isNotEmpty(cMenus) && menu.getParentId() != 0 && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
                 router.setRedirect("noRedirect");

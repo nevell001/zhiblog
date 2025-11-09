@@ -21,7 +21,7 @@ import com.ruoyi.system.service.IBlogTagService;
  * @date 2025-10-24
  */
 @RestController
-@RequestMapping("/blog/tag")
+@RequestMapping("/blog/tags")
 public class BlogTagFrontController extends BaseController
 {
     @Autowired

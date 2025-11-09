@@ -4,11 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile-admin
     container_name: ruoyi-admin
-    working_dir: /app/ruoyi-admin
-    volumes:
-      - ./:/app                # 挂载整个 ruoyi-vue 项目
-      - ~/.m2:/root/.m2        # Maven 本地缓存
-    command: sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && mvn spring-boot:run"
+    working_dir: /app
+    command: sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && java -jar /app/ruoyi-admin.jar"
     ports:
       - "8080:8080"            # 后端端口
     depends_on:
