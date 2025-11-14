@@ -47,7 +47,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     public List<BlogCategory> selectBlogCategoryList(BlogCategory blogCategory)
     {
         if (blogCategory.getDelFlag() == null) {
-            blogCategory.setDelFlag(0L);
+            blogCategory.setDelFlag("0");
         }
         return blogCategoryMapper.selectBlogCategoryList(blogCategory);
     }

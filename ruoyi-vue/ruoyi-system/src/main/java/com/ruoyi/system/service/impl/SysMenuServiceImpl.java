@@ -183,8 +183,14 @@ public class SysMenuServiceImpl implements ISysMenuService
             }
             else if (menu.getParentId() == 0 && isMenuFrame(menu))
             {
-                // 如果是博客管理或分类管理菜单且为目录类型，则设置重定向
-                if ("博客管理".equals(menu.getMenuName())) {
+                // 为主要一级菜单设置正确的重定向
+                if ("系统管理".equals(menu.getMenuName())) {
+                    router.setRedirect("/admin/system/user");
+                } else if ("系统监控".equals(menu.getMenuName())) {
+                    router.setRedirect("/admin/monitor/online");
+                } else if ("系统工具".equals(menu.getMenuName())) {
+                    router.setRedirect("/admin/tool/gen");
+                } else if ("博客管理".equals(menu.getMenuName())) {
                     router.setRedirect("/admin/blog/article");
                 } else if ("分类管理".equals(menu.getMenuName())) {
                     router.setRedirect("/admin/blog/category");

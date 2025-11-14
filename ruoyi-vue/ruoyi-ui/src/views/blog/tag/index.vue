@@ -247,6 +247,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
 import { getArticlesByTag, getTagDetail } from '@/api/blog/tag'

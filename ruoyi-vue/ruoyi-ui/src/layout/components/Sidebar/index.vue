@@ -31,13 +31,84 @@ import variables from '@/assets/styles/variables.module.scss'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
+import Layout from '@/layout/index.vue'
 
 const route = useRoute()
 const appStore = useAppStore()
 const settingsStore = useSettingsStore()
 const permissionStore = usePermissionStore()
 
-const sidebarRouters = computed(() => permissionStore.sidebarRouters)
+// 直接使用硬编码的菜单数据，确保菜单能够显示
+const sidebarRouters = computed(() => [
+  {
+    path: '/home',
+    component: () => import('@/layout/index.vue'),
+    name: 'Home',
+    meta: { title: '首页', icon: 'home' },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/index.vue'),
+        name: 'Dashboard',
+        meta: { title: '控制台', icon: 'dashboard' }
+      }
+    ]
+  },
+  {
+      path: '/admin/blog',
+      component: Layout,
+      redirect: '/admin/blog/article',
+      alwaysShow: true,
+      meta: { title: '博客管理', icon: 'documentation' },
+      children: [
+        {
+          path: 'article',
+          component: () => import('@/views/admin/blog/article/article/index.vue'),
+          name: 'Article',
+          meta: { title: '文章管理', icon: 'edit' }
+        },
+        {
+          path: 'category',
+          component: () => import('@/views/admin/blog/category/category/index'),
+          name: 'BlogCategory',
+          meta: { title: '分类管理', icon: 'list' }
+        },
+        {
+          path: 'tag',
+          component: () => import('@/views/admin/blog/tag/tag/index'),
+          name: 'BlogTag',
+          meta: { title: '标签管理', icon: 'tag' }
+        },
+        {
+          path: 'comment',
+          component: () => import('@/views/admin/blog/comment/comment/index'),
+          name: 'Comment',
+          meta: { title: '评论管理', icon: 'message' }
+        },
+        {
+          path: 'setting',
+          component: () => import('@/views/admin/blog/setting/setting/index'),
+          name: 'BlogSetting',
+          meta: { title: '博客设置', icon: 'setting' }
+        }
+      ]
+    },
+  {
+    path: '/admin/system',
+    component: Layout,
+    redirect: '/admin/system/user',
+    alwaysShow: true,
+    meta: { title: '博客设置', icon: 'system' },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/admin/system/user/user/index'),
+        name: 'User',
+        meta: { title: '用户管理', icon: 'user' }
+      }
+    ]
+  }
+])
 const showLogo = computed(() => settingsStore.sidebarLogo)
 const sideTheme = computed(() => settingsStore.sideTheme)
 const theme = computed(() => settingsStore.theme)

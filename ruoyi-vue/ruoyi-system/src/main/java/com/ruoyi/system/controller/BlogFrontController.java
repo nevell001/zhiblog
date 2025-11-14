@@ -86,12 +86,24 @@ public class BlogFrontController extends BaseController
     @GetMapping("/setting")
     public AjaxResult getBlogSettings()
     {
+        // 创建一个Map来存储所有设置项，键为settingKey，值为settingValue
+        Map<String, String> settingsMap = new HashMap<>();
+        
+        // 查询所有设置项
         BlogSetting blogSetting = new BlogSetting();
+        blogSetting.setDelFlag("0"); // 只查询未删除的设置
         List<BlogSetting> list = blogSettingService.selectBlogSettingList(blogSetting);
+        
         if (list != null && !list.isEmpty()) {
-            return success(list.get(0));
+            // 将所有设置项转换为Map格式
+            for (BlogSetting setting : list) {
+                if (setting.getSettingKey() != null) {
+                    settingsMap.put(setting.getSettingKey(), setting.getSettingValue());
+                }
+            }
         }
-        return success(new BlogSetting());
+        
+        return success(settingsMap);
     }
 
     /**
@@ -117,6 +129,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取文章详情（前台用）
      */
+    @Anonymous
     @GetMapping("/article/{id}")
     public AjaxResult getArticle(@PathVariable("id") Long id)
     {
@@ -339,7 +352,7 @@ public class BlogFrontController extends BaseController
     public AjaxResult categoryList()
     {
         BlogCategory blogCategory = new BlogCategory();
-        blogCategory.setDelFlag(0L); // 只查询未删除的分类
+        blogCategory.setDelFlag("0"); // 只查询未删除的分类
         List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
         return success(list);
     }
@@ -366,11 +379,11 @@ public class BlogFrontController extends BaseController
             return error("分类不存在或已删除");
         }
         // 安全检查delFlag，避免null值
-        Long categoryDelFlag = category.getDelFlag();
+        String categoryDelFlag = category.getDelFlag();
         if (categoryDelFlag == null) {
-            categoryDelFlag = 0L;
+            categoryDelFlag = "0";
         }
-        if (!Long.valueOf(0L).equals(categoryDelFlag)) {
+        if (!"0".equals(categoryDelFlag)) {
             return error("分类不存在或已删除");
         }
         return success(category);

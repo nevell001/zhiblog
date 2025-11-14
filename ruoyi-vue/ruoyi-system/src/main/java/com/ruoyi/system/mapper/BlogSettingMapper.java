@@ -1,6 +1,7 @@
 package com.ruoyi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.ruoyi.system.domain.BlogSetting;
 
 /**
@@ -53,12 +54,12 @@ public interface BlogSettingMapper
 
     /**
      * 通过设置键修改设置值
-     * 
+     *
      * @param settingKey 设置键
      * @param settingValue 设置值
      * @return 影响行数
      */
-    public int updateSettingValueByKey(String settingKey, String settingValue);
+    public int updateSettingValueByKey(@Param("settingKey") String settingKey, @Param("settingValue") String settingValue);
 
     /**
      * 通过主键删除数据

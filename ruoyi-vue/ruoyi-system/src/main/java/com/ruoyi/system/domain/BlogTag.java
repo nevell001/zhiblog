@@ -18,11 +18,11 @@ public class BlogTag extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 标签ID */
-    private Long tagId;
+    private Long id;
 
     /** 标签名称 */
     @Excel(name = "标签名称")
-    private String tagName;
+    private String name;
 
     /** 删除标志（0代表存在 1代表删除） */
     private Integer delFlag;
@@ -43,24 +43,45 @@ public class BlogTag extends BaseEntity
     @Excel(name = "标签图标")
     private String icon;
 
-    public void setTagId(Long tagId) 
+    public void setId(Long id)
     {
-        this.tagId = tagId;
+        this.id = id;
     }
 
-    public Long getTagId() 
+    public Long getId()
     {
-        return tagId;
+        return id;
     }
 
-    public void setTagName(String tagName) 
+    public void setName(String name)
     {
-        this.tagName = tagName;
+        this.name = name;
     }
 
-    public String getTagName() 
+    public String getName()
     {
-        return tagName;
+        return name;
+    }
+
+    // 兼容性方法，保持向后兼容
+    public void setTagId(Long tagId)
+    {
+        this.id = tagId;
+    }
+
+    public Long getTagId()
+    {
+        return id;
+    }
+
+    public void setTagName(String tagName)
+    {
+        this.name = tagName;
+    }
+
+    public String getTagName()
+    {
+        return name;
     }
 
     public void setDelFlag(Integer delFlag) 
@@ -120,8 +141,8 @@ public class BlogTag extends BaseEntity
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("tagId", getTagId())
-            .append("tagName", getTagName())
+            .append("id", getId())
+            .append("name", getName())
             .append("articleCount", getArticleCount())
             .append("description", getDescription())
             .append("color", getColor())

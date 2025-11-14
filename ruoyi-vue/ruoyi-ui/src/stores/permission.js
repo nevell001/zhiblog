@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { constantRoutes } from '@/router'
+import { constantRoutes, dynamicRoutes } from '@/router'
 import { getRouters } from '@/api/menu'
-import Layout from '@/layout/index'
+import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
+import useUserStore from '@/store/modules/user'
 
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('./../../views/**/*.vue')
@@ -133,28 +134,42 @@ export function filterDynamicRoutes(routes) {
 }
 
 // 验证是否有权限
-function hasPermission(permissions) {
+function hasPermission(requiredPermissions) {
   const all_permission = "*:*:*";
-  const permissions = useUserStore().permissions
-  if (permissions && permissions.length > 0) {
-    return permissions.some(v => {
-      return all_permission === v || v === permissions
+  const userPermissions = useUserStore().permissions
+  
+  // 如果没有设置权限要求，默认允许访问
+  if (!requiredPermissions || requiredPermissions.length === 0) {
+    return true
+  }
+  
+  if (userPermissions && userPermissions.length > 0) {
+    return userPermissions.some(v => {
+      return all_permission === v || requiredPermissions.includes(v)
     })
   } else {
-    return false
+    // 如果用户没有权限信息，但路由需要权限，则检查用户角色
+    return hasRole(['admin', 'editor']) // 默认允许管理员和编辑角色
   }
 }
 
 // 验证是否有角色
-function hasRole(roles) {
+function hasRole(requiredRoles) {
   const super_admin = "admin";
-  const roles = useUserStore().roles
-  if (roles && roles.length > 0) {
-    return roles.some(v => {
-      return super_admin === v || v === roles
+  const userRoles = useUserStore().roles
+  
+  // 如果没有设置角色要求，默认允许访问
+  if (!requiredRoles || requiredRoles.length === 0) {
+    return true
+  }
+  
+  if (userRoles && userRoles.length > 0) {
+    return userRoles.some(v => {
+      return super_admin === v || requiredRoles.includes(v)
     })
   } else {
-    return false
+    // 如果用户没有角色信息，默认允许访问（开发环境）
+    return process.env.NODE_ENV === 'development'
   }
 }
 

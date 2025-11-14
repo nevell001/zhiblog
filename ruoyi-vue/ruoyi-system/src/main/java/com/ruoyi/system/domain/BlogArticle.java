@@ -133,7 +133,18 @@ public class BlogArticle extends BaseEntity
         this.coverUrl = coverUrl;
     }
 
-    public String getCoverUrl() 
+    public String getCoverUrl()
+    {
+        return coverUrl;
+    }
+
+    // 兼容性方法，支持 coverImage 字段名
+    public void setCoverImage(String coverImage)
+    {
+        this.coverUrl = coverImage;
+    }
+
+    public String getCoverImage()
     {
         return coverUrl;
     }

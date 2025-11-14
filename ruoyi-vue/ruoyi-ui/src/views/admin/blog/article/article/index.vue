@@ -38,7 +38,6 @@
           plain
           icon="Plus"
           @click="handleAdd"
-          v-hasPermi="['system:article:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -48,7 +47,6 @@
           icon="Edit"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['system:article:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -58,7 +56,6 @@
           icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['system:article:remove']"
         >删除</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -80,14 +77,14 @@
       <el-table-column label="标签" align="center" prop="tags" width="200">
         <template #default="scope">
           <div v-if="scope.row.tags && scope.row.tags.length > 0">
-            <el-tag 
-              v-for="tag in scope.row.tags" 
-              :key="tag.tagId" 
-              :color="tag.color || '#409EFF'" 
+            <el-tag
+              v-for="tag in scope.row.tags"
+              :key="tag.id || tag.tagId"
+              :color="tag.color || '#409EFF'"
               style="margin: 2px;"
             >
               <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
-              {{ tag.tagName }}
+              {{ tag.name || tag.tagName }}
             </el-tag>
           </div>
           <span v-else style="color: #909399;">无标签</span>
@@ -106,14 +103,14 @@
             type="primary"
             icon="Edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:article:edit']"
+            v-hasPermi="['blog:article:edit']"
           >修改</el-button>
           <el-button
             link
             type="primary"
             icon="Delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['system:article:remove']"
+            v-hasPermi="['blog:article:remove']"
           >删除</el-button>
         </template>
       </el-table-column>
@@ -188,22 +185,13 @@
             <el-radio :label="0">草稿</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="标签" prop="tagIds">
-          <el-select v-model="form.tagIds" multiple placeholder="请选择标签" style="width: 100%;">
-            <el-option
-              v-for="tag in tagOptions"
-              :key="tag.tagId"
-              :label="tag.tagName"
-              :value="tag.tagId"
-            >
-              <div style="display: flex; align-items: center;">
-                <el-tag :style="{ backgroundColor: tag.color || '#409EFF', color: 'white', border: 'none' }" style="margin-right: 8px;">
-                  <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
-                </el-tag>
-                {{ tag.tagName }}
-              </div>
-            </el-option>
-          </el-select>
+        <el-form-item label="标签分类" prop="tagIds">
+          <TagCategorySelector
+            v-model:selectedTags="form.tagIds"
+            v-model:selectedCategory="form.categoryId"
+            :show-category="false"
+            placeholder="选择或创建标签"
+          />
         </el-form-item>
         <el-form-item label="作者" prop="author" v-if="form.id">
           <el-input v-model="form.author" placeholder="请输入作者" readonly />
@@ -223,15 +211,17 @@
 </template>
 
 <script setup name="Article">
-import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
+import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
 import useUserStore from '@/store/modules/user'
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/blog/article";
 import { listCategory } from "@/api/blog/category";
 import { listTag } from "@/api/blog/tag";
+import ImageUpload from "@/components/ImageUpload";
+import TagCategorySelector from "@/components/TagCategorySelector.vue";
+import { parseTime } from "@/utils/ruoyi";
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
-const { sys_normal_dict } = proxy.useDict("sys_normal_dict");
 
 const articleList = ref([]);
 const open = ref(false);
@@ -260,8 +250,7 @@ const data = reactive({
     ],
     content: [
       { required: true, message: "文章内容不能为空", trigger: "blur" }
-    ],
-
+    ]
   }
 });
 
@@ -419,7 +408,7 @@ function submitForm() {
         
         // 使用现有的API函数而不是直接使用axios
         if (form.value.id != null) {
-          updateArticle(apiData).then(response => {
+          updateArticle(apiData).then(() => {
             proxy.$modal.msgSuccess("修改成功");
             open.value = false;
             getList();
@@ -439,7 +428,7 @@ function submitForm() {
             }
           });
         } else {
-          addArticle(apiData).then(response => {
+          addArticle(apiData).then(() => {
             proxy.$modal.msgSuccess("新增成功");
             open.value = false;
             getList();
@@ -490,7 +479,10 @@ function getCoverUrl(coverUrl) {
   return baseUrl + coverUrl;
 }
 
-getList();
-getCategoryList();
-getTagList();
+// 页面加载时初始化数据
+onMounted(() => {
+  getList();
+  getCategoryList();
+  getTagList();
+});
 </script>

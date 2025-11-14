@@ -68,3 +68,12 @@ export function getTagCloud() {
     method: 'get'
   })
 }
+
+// 根据标签获取文章列表
+export function getArticlesByTag(tagId, query) {
+  return request({
+    url: '/blog/tag/articles/' + tagId,
+    method: 'get',
+    params: query
+  })
+}

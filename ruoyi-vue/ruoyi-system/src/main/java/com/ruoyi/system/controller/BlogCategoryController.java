@@ -42,7 +42,7 @@ public class BlogCategoryController extends BaseController
     public TableDataInfo list(BlogCategory blogCategory)
     {
         if (blogCategory.getDelFlag() == null) {
-            blogCategory.setDelFlag(0L);
+            blogCategory.setDelFlag("0");
         }
         startPage();
         List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
@@ -58,7 +58,7 @@ public class BlogCategoryController extends BaseController
     public void export(HttpServletResponse response, BlogCategory blogCategory)
     {
         if (blogCategory.getDelFlag() == null) {
-            blogCategory.setDelFlag(0L);
+            blogCategory.setDelFlag("0");
         }
         List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
         ExcelUtil<BlogCategory> util = new ExcelUtil<BlogCategory>(BlogCategory.class);

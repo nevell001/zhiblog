@@ -1,6 +1,8 @@
 package com.ruoyi.system.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,23 +13,26 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.system.domain.BlogArticle;
+import com.ruoyi.system.domain.BlogCategory;
+import com.ruoyi.system.domain.BlogTag;
 import com.ruoyi.system.service.IBlogArticleService;
+import com.ruoyi.system.service.IBlogCategoryService;
+import com.ruoyi.system.service.IBlogTagService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * 博客文章Controller
+ * 文章管理Controller
  * 
  * @author nevell
- * @date 2025-07-18
+ * @date 2025-11-14
  */
 @RestController
 @RequestMapping("/system/article")
@@ -36,10 +41,14 @@ public class BlogArticleController extends BaseController
     @Autowired
     private IBlogArticleService blogArticleService;
 
-    private static final Logger log = LoggerFactory.getLogger(BlogArticleController.class);
+    @Autowired
+    private IBlogCategoryService blogCategoryService;
+
+    @Autowired
+    private IBlogTagService blogTagService;
 
     /**
-     * 查询博客文章列表
+     * 查询文章列表
      */
     @PreAuthorize("@ss.hasPermi('system:article:list')")
     @GetMapping("/list")
@@ -51,89 +60,242 @@ public class BlogArticleController extends BaseController
     }
 
     /**
-     * 导出博客文章列表
+     * 导出文章列表
      */
     @PreAuthorize("@ss.hasPermi('system:article:export')")
-    @Log(title = "博客文章", businessType = BusinessType.EXPORT)
+    @Log(title = "文章管理", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogArticle blogArticle)
     {
         List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
         ExcelUtil<BlogArticle> util = new ExcelUtil<BlogArticle>(BlogArticle.class);
-        util.exportExcel(response, list, "博客文章数据");
+        util.exportExcel(response, list, "文章数据");
     }
 
     /**
-     * 获取博客文章详细信息
+     * 获取文章详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:article:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(blogArticleService.selectBlogArticleById(id));
+        BlogArticle article = blogArticleService.selectBlogArticleById(id);
+        if (article == null) {
+            return error("文章不存在");
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("article", article);
+
+        // 获取文章关联的标签
+        List<BlogTag> tags = blogTagService.selectTagsByArticleId(id);
+        result.put("tags", tags);
+
+        // 获取分类信息
+        if (article.getCategoryId() != null) {
+            BlogCategory category = blogCategoryService.selectBlogCategoryById(article.getCategoryId());
+            result.put("category", category);
+        }
+
+        return success(result);
     }
 
     /**
-     * 新增博客文章
+     * 新增文章
      */
     @PreAuthorize("@ss.hasPermi('system:article:add')")
-    @Log(title = "博客文章", businessType = BusinessType.INSERT, isSaveRequestData = false)
+    @Log(title = "文章管理", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody BlogArticle blogArticle)
+    public AjaxResult add(@RequestBody Map<String, Object> params)
     {
-        log.info("前端传入authorId: {}", blogArticle.getAuthorId());
-        log.info("前端传入title: {}", blogArticle.getTitle());
-        log.info("前端传入content长度: {}", blogArticle.getContent() != null ? blogArticle.getContent().length() : 0);
-        
-        // 设置默认值
-        if (blogArticle.getViewCount() == null) {
-            blogArticle.setViewCount(0L);
+        try {
+            // 解析文章信息
+            BlogArticle blogArticle = parseArticleFromParams(params);
+            
+            // 解析标签ID列表
+            @SuppressWarnings("unchecked")
+            List<Long> tagIds = (List<Long>) params.get("tagIds");
+
+            // 插入文章
+            int result = blogArticleService.insertBlogArticle(blogArticle);
+            if (result > 0) {
+                // 关联标签
+                if (tagIds != null && !tagIds.isEmpty()) {
+                    blogArticleService.insertArticleTagRelations(blogArticle.getId(), tagIds);
+                }
+                return success("文章创建成功");
+            } else {
+                return error("文章创建失败");
+            }
+        } catch (Exception e) {
+            logger.error("创建文章失败", e);
+            return error("创建文章失败：" + e.getMessage());
         }
-        if (blogArticle.getLikeCount() == null) {
-            blogArticle.setLikeCount(0L);
-        }
-        if (blogArticle.getCommentCount() == null) {
-            blogArticle.setCommentCount(0L);
-        }
-        if (blogArticle.getDelFlag() == null) {
-            blogArticle.setDelFlag(0L);
-        }
-        
-        return toAjax(blogArticleService.insertBlogArticle(blogArticle));
     }
 
     /**
-     * 修改博客文章
+     * 修改文章
      */
     @PreAuthorize("@ss.hasPermi('system:article:edit')")
-    @Log(title = "博客文章", businessType = BusinessType.UPDATE, isSaveRequestData = false)
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody BlogArticle blogArticle)
+    public AjaxResult edit(@RequestBody Map<String, Object> params)
     {
-        // 设置默认值
-        if (blogArticle.getDelFlag() == null) {
-            blogArticle.setDelFlag(0L);
+        try {
+            // 解析文章信息
+            BlogArticle blogArticle = parseArticleFromParams(params);
+            
+            // 解析标签ID列表
+            @SuppressWarnings("unchecked")
+            List<Long> tagIds = (List<Long>) params.get("tagIds");
+
+            // 更新文章
+            int result = blogArticleService.updateBlogArticle(blogArticle);
+            if (result > 0) {
+                // 更新标签关联
+                blogArticleService.updateArticleTagRelations(blogArticle.getId(), tagIds);
+                return success("文章更新成功");
+            } else {
+                return error("文章更新失败");
+            }
+        } catch (Exception e) {
+            logger.error("更新文章失败", e);
+            return error("更新文章失败：" + e.getMessage());
         }
-        return toAjax(blogArticleService.updateBlogArticle(blogArticle));
     }
 
     /**
-     * 删除博客文章
+     * 删除文章
      */
     @PreAuthorize("@ss.hasPermi('system:article:remove')")
-    @Log(title = "博客文章", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
+    @Log(title = "文章管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(blogArticleService.deleteBlogArticleByIds(ids));
     }
 
     /**
-     * 文章浏览量+1
+     * 获取分类和标签选项
      */
-    @PostMapping("/view/{id}")
-    public AjaxResult addView(@PathVariable Long id) {
-        blogArticleService.addViewCount(id);
-        return AjaxResult.success();
+    @PreAuthorize("@ss.hasPermi('system:article:query')")
+    @GetMapping("/options")
+    public AjaxResult getOptions()
+    {
+        Map<String, Object> result = new HashMap<>();
+
+        // 获取分类列表
+        BlogCategory categoryQuery = new BlogCategory();
+        categoryQuery.setDelFlag("0");
+        categoryQuery.setStatus(1);
+        List<BlogCategory> categories = blogCategoryService.selectBlogCategoryList(categoryQuery);
+        result.put("categories", categories);
+
+        // 获取标签列表
+        BlogTag tagQuery = new BlogTag();
+        tagQuery.setDelFlag(0);
+        List<BlogTag> tags = blogTagService.selectBlogTagList(tagQuery);
+        result.put("tags", tags);
+
+        return success(result);
+    }
+
+    /**
+     * 批量更新文章状态
+     */
+    @PreAuthorize("@ss.hasPermi('system:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/status")
+    public AjaxResult updateStatus(@RequestBody Map<String, Object> params)
+    {
+        try {
+            @SuppressWarnings("unchecked")
+            List<Long> ids = (List<Long>) params.get("ids");
+            Integer status = (Integer) params.get("status");
+
+            if (ids == null || ids.isEmpty()) {
+                return error("请选择要更新的文章");
+            }
+
+            int result = blogArticleService.updateArticleStatus(ids, status);
+            return toAjax(result);
+        } catch (Exception e) {
+            logger.error("更新文章状态失败", e);
+            return error("更新文章状态失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 搜索文章
+     */
+    @PreAuthorize("@ss.hasPermi('system:article:list')")
+    @GetMapping("/search")
+    public TableDataInfo search(@RequestParam("keyword") String keyword, BlogArticle blogArticle)
+    {
+        startPage();
+        List<BlogArticle> list = blogArticleService.searchArticles(keyword, blogArticle);
+        return getDataTable(list);
+    }
+
+    /**
+     * 根据分类获取文章
+     */
+    @PreAuthorize("@ss.hasPermi('system:article:list')")
+    @GetMapping("/category/{categoryId}")
+    public TableDataInfo getByCategory(@PathVariable("categoryId") Long categoryId, BlogArticle blogArticle)
+    {
+        blogArticle.setCategoryId(categoryId);
+        startPage();
+        List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+        return getDataTable(list);
+    }
+
+    /**
+     * 根据标签获取文章
+     */
+    @PreAuthorize("@ss.hasPermi('system:article:list')")
+    @GetMapping("/tag/{tagId}")
+    public TableDataInfo getByTag(@PathVariable("tagId") Long tagId)
+    {
+        startPage();
+        List<BlogArticle> list = blogArticleService.selectArticlesByTagId(tagId);
+        return getDataTable(list);
+    }
+
+    /**
+     * 从参数中解析文章对象
+     */
+    private BlogArticle parseArticleFromParams(Map<String, Object> params) {
+        BlogArticle article = new BlogArticle();
+        
+        if (params.get("id") != null) {
+            article.setId(Long.valueOf(params.get("id").toString()));
+        }
+        if (params.get("title") != null) {
+            article.setTitle(params.get("title").toString());
+        }
+        if (params.get("summary") != null) {
+            article.setSummary(params.get("summary").toString());
+        }
+        if (params.get("content") != null) {
+            article.setContent(params.get("content").toString());
+        }
+        if (params.get("coverImage") != null) {
+            article.setCoverImage(params.get("coverImage").toString());
+        }
+        if (params.get("categoryId") != null) {
+            article.setCategoryId(Long.valueOf(params.get("categoryId").toString()));
+        }
+        if (params.get("status") != null) {
+            article.setStatus(Long.valueOf(params.get("status").toString()));
+        }
+        if (params.get("isTop") != null) {
+            article.setIsTop(Long.valueOf(params.get("isTop").toString()));
+        }
+        if (params.get("isRecommend") != null) {
+            article.setIsRecommend(Long.valueOf(params.get("isRecommend").toString()));
+        }
+        
+        return article;
     }
 }

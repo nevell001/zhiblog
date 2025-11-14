@@ -3,8 +3,8 @@
 <mapper namespace="com.ruoyi.system.mapper.BlogTagMapper">
     
     <resultMap type="BlogTag" id="BlogTagResult">
-        <result property="tagId"    column="id"    />
-        <result property="tagName"    column="name"    />
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
         <result property="articleCount"    column="article_count"    />
         <result property="description"    column="description"    />
         <result property="color"    column="color"    />
@@ -33,7 +33,8 @@
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
         <where>
-            <if test="tagName != null and !tagName.isEmpty()"> and bt.name like concat('%', #{tagName}, '%')</if>
+            <if test="name != null and name != ''"> and bt.name like concat('%', #{name}, '%')</if>
+            <if test="tagName != null and tagName != ''"> and bt.name like concat('%', #{tagName}, '%')</if>
             and bt.del_flag = 0
         </where>
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
@@ -49,13 +50,13 @@
     
     <select id="selectBlogTagById" parameterType="Long" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where bt.id = #{tagId} and bt.del_flag = 0
+        where bt.id = #{id} and bt.del_flag = 0
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
     </select>
     
     <select id="checkTagNameUnique" parameterType="String" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
-        where bt.name = #{tagName} and bt.del_flag = 0
+        where bt.name = #{name} and bt.del_flag = 0
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
         limit 1
     </select>
@@ -93,17 +94,19 @@
         where bat.article_id = #{articleId} and bt.del_flag = 0
     </select>
 
-    <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="tagId">
+    <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="id">
         insert into blog_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="tagName != null and !tagName.isEmpty()">name,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="tagName != null and tagName != ''">name,</if>
             <if test="description != null">description,</if>
             <if test="color != null">color,</if>
             <if test="icon != null">icon,</if>
             <if test="delFlag != null">del_flag,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="tagName != null and !tagName.isEmpty()">#{tagName},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="tagName != null and tagName != ''">#{tagName},</if>
             <if test="description != null">#{description},</if>
             <if test="color != null">#{color},</if>
             <if test="icon != null">#{icon},</if>
@@ -114,23 +117,24 @@
     <update id="updateBlogTag" parameterType="BlogTag">
         update blog_tag
         <trim prefix="SET" suffixOverrides=",">
-            <if test="tagName != null and !tagName.isEmpty()">name = #{tagName},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="tagName != null and tagName != ''">name = #{tagName},</if>
             <if test="description != null">description = #{description},</if>
             <if test="color != null">color = #{color},</if>
             <if test="icon != null">icon = #{icon},</if>
             <if test="delFlag != null">del_flag = #{delFlag},</if>
         </trim>
-        where id = #{tagId}
+        where id = #{id}
     </update>
 
     <delete id="deleteBlogTagById" parameterType="Long">
-        update blog_tag set del_flag = 1 where id = #{tagId}
+        update blog_tag set del_flag = 1 where id = #{id}
     </delete>
 
     <delete id="deleteBlogTagByIds" parameterType="String">
-        update blog_tag set del_flag = 1 where id in 
-        <foreach item="tagId" collection="array" open="(" separator="," close=")">
-            #{tagId}
+        update blog_tag set del_flag = 1 where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
         </foreach>
     </delete>
 </mapper>

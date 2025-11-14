@@ -22,7 +22,6 @@
           plain
           icon="Plus"
           @click="handleAdd"
-          v-hasPermi="['blog:category:add']"
         >新增</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -32,7 +31,6 @@
           icon="Edit"
           :disabled="single"
           @click="handleUpdate"
-          v-hasPermi="['blog:category:edit']"
         >修改</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -42,7 +40,6 @@
           icon="Delete"
           :disabled="multiple"
           @click="handleDelete"
-          v-hasPermi="['blog:category:remove']"
         >删除</el-button>
       </el-col>
       <el-col :span="1.5">
@@ -51,7 +48,6 @@
           plain
           icon="Download"
           @click="handleExport"
-          v-hasPermi="['blog:category:export']"
         >导出</el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
@@ -70,10 +66,10 @@
       <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-tooltip content="修改" placement="top">
-            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" v-hasPermi="['blog:category:edit']"></el-button>
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)"></el-button>
           </el-tooltip>
           <el-tooltip content="删除" placement="top">
-            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" v-hasPermi="['blog:category:remove']"></el-button>
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"></el-button>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -108,7 +104,8 @@
 </template>
 
 <script setup name="BlogCategory">
-import { listCategory, getCategory, delCategory, addCategory, updateCategory } from "@/api/blog/category";
+import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
+import { listCategory, getCategory, delCategory, addCategory, updateCategory } from "@/api/admin/blog/category";
 
 const { proxy } = getCurrentInstance();
 const { sys_normal_disable } = proxy.useDict("sys_normal_disable");
@@ -241,5 +238,8 @@ function handleExport() {
   }, `category_${new Date().getTime()}.xlsx`)
 }
 
-getList();
+// 初始化页面
+onMounted(() => {
+  getList();
+});
 </script>

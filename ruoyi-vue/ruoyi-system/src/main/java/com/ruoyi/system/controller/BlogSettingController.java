@@ -98,6 +98,18 @@ public class BlogSettingController extends BaseController
     }
 
     /**
+     * 通过设置键修改设置值 (POST方法支持)
+     */
+    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @Log(title = "博客设置", businessType = BusinessType.UPDATE)
+    @PostMapping("/updateByKey")
+    public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
+    {
+        return toAjax(blogSettingService.updateSettingValueByKey(
+            blogSetting.getSettingKey(), blogSetting.getSettingValue()));
+    }
+
+    /**
      * 删除博客设置
      */
     @PreAuthorize("@ss.hasPermi('system:setting:remove')")

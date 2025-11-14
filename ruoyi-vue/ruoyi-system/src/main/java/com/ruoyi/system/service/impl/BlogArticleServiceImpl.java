@@ -225,4 +225,82 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
         return blogArticleMapper.searchArticles(keyword, blogArticle);
     }
+
+    /**
+     * 插入文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @param tagIds 标签ID列表
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int insertArticleTagRelations(Long articleId, List<Long> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return 0;
+        }
+        
+        int result = 0;
+        for (Long tagId : tagIds) {
+            BlogArticleTag articleTag = new BlogArticleTag();
+            articleTag.setArticleId(articleId);
+            articleTag.setTagId(tagId);
+            result += blogArticleTagMapper.insertBlogArticleTag(articleTag);
+        }
+        return result;
+    }
+
+    /**
+     * 更新文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @param tagIds 标签ID列表
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int updateArticleTagRelations(Long articleId, List<Long> tagIds) {
+        // 先删除原有关联
+        deleteArticleTagRelations(articleId);
+        
+        // 插入新的关联
+        return insertArticleTagRelations(articleId, tagIds);
+    }
+
+    /**
+     * 删除文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int deleteArticleTagRelations(Long articleId) {
+        return blogArticleTagMapper.deleteByArticleId(articleId);
+    }
+
+    /**
+     * 批量更新文章状态
+     *
+     * @param ids 文章ID列表
+     * @param status 状态
+     * @return 结果
+     */
+    @Override
+    @Transactional
+    public int updateArticleStatus(List<Long> ids, Integer status) {
+        if (ids == null || ids.isEmpty()) {
+            return 0;
+        }
+        
+        int result = 0;
+        for (Long id : ids) {
+            BlogArticle article = new BlogArticle();
+            article.setId(id);
+            article.setStatus(status.longValue());
+            article.setUpdateTime(DateUtils.getNowDate());
+            result += blogArticleMapper.updateBlogArticle(article);
+        }
+        return result;
+    }
 }

@@ -126,6 +126,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { ElMessage, ElButton, ElCard, ElRow, ElCol, ElTag } from 'element-plus'
 
 const version = ref('1.0.0')
 const stats = ref({})

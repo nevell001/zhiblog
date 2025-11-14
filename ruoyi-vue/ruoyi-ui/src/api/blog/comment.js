@@ -60,3 +60,19 @@ export function addBlogComment(data) {
     data: data
   })
 }
+
+// 审核评论
+export function auditComment(id) {
+  return request({
+    url: '/system/comment/audit/' + id,
+    method: 'put'
+  })
+}
+
+// 驳回评论
+export function rejectComment(id) {
+  return request({
+    url: '/system/comment/reject/' + id,
+    method: 'put'
+  })
+}

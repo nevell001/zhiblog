@@ -8,15 +8,27 @@ export const blogRoutes = [
   },
   {
     path: '/blog/article/:id',
-    component: () => import('@/views/blog/article/detail'),
+    component: () => import('@/views/blog/article/detail.vue'),
     name: 'BlogArticleDetail',
     meta: { title: '文章详情' }
+  },
+  {
+    path: '/blog/category',
+    component: () => import('@/views/blog/category/index'),
+    name: 'BlogCategoryList',
+    meta: { title: '分类列表' }
   },
   {
     path: '/blog/category/:id',
     component: () => import('@/views/blog/category/index'),
     name: 'BlogCategory',
     meta: { title: '分类文章' }
+  },
+  {
+    path: '/blog/tag',
+    component: () => import('@/views/blog/tag/index'),
+    name: 'BlogTagList',
+    meta: { title: '标签列表' }
   },
   {
     path: '/blog/tag/:id',

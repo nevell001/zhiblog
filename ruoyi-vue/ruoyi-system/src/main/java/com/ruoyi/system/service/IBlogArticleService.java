@@ -106,4 +106,39 @@ public interface IBlogArticleService
      * @return 文章列表
      */
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle);
+
+    /**
+     * 插入文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @param tagIds 标签ID列表
+     * @return 结果
+     */
+    public int insertArticleTagRelations(Long articleId, List<Long> tagIds);
+
+    /**
+     * 更新文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @param tagIds 标签ID列表
+     * @return 结果
+     */
+    public int updateArticleTagRelations(Long articleId, List<Long> tagIds);
+
+    /**
+     * 删除文章标签关联关系
+     *
+     * @param articleId 文章ID
+     * @return 结果
+     */
+    public int deleteArticleTagRelations(Long articleId);
+
+    /**
+     * 批量更新文章状态
+     *
+     * @param ids 文章ID列表
+     * @param status 状态
+     * @return 结果
+     */
+    public int updateArticleStatus(List<Long> ids, Integer status);
 }

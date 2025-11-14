@@ -120,3 +120,28 @@ export function searchArticles(keyword, query) {
     params: { ...query, keyword: keyword }
   })
 }
+
+// 获取相关文章
+export function getRelatedArticles(id) {
+  return request({
+    url: '/blog/article/related/' + id,
+    method: 'get'
+  })
+}
+
+// 获取文章评论
+export function getArticleComments(articleId) {
+  return request({
+    url: '/blog/comment/article/' + articleId,
+    method: 'get'
+  })
+}
+
+// 提交评论
+export function submitComment(data) {
+  return request({
+    url: '/blog/comment',
+    method: 'post',
+    data: data
+  })
+}

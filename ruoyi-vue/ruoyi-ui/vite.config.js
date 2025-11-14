@@ -46,22 +46,24 @@ export default defineConfig(({ mode, command }) => {
       open: false, // 不自动打开浏览器，在容器中会导致错误
       proxy: {
         // 接口代理 - RuoYi 默认 API 前缀
-        '/dev-api': {
-          target: baseUrl,
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/dev-api/, '')
-        },
-        // 代理系统管理接口
-        '/system': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        // 代理博客前台接口
-        '/blog': {
-          target: baseUrl,
-          changeOrigin: true
-        }
+      '/dev-api': {
+        target: baseUrl,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/dev-api/, '')
+      },
+      // 代理系统管理接口
+      '/system': {
+        target: baseUrl,
+        changeOrigin: true
+      },
+      // 代理博客前台接口
+      '/blog': {
+        target: baseUrl,
+        changeOrigin: true
       }
+      },
+      // 解决 SPA 应用 history 模式下刷新404问题
+      historyApiFallback: true
     },
     css: {
       postcss: {

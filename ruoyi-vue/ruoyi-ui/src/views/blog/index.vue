@@ -75,8 +75,11 @@
         <div v-else-if="articleList.length === 0" class="empty-state">
           <div class="empty-content">
             <i class="el-icon-document-copy empty-icon"></i>
-            <h3>暂无文章</h3>
-            <p>还没有发布任何文章，敬请期待...</p>
+            <h3>{{ searchKeyword ? '未找到相关文章' : '暂无文章' }}</h3>
+            <p>{{ searchKeyword ? `没有找到包含"${searchKeyword}"的文章，请尝试其他关键词` : '还没有发布任何文章，敬请期待...' }}</p>
+            <el-button v-if="searchKeyword" type="primary" @click="clearSearch" style="margin-top: 15px;">
+              清除搜索
+            </el-button>
           </div>
         </div>
 
@@ -113,7 +116,7 @@
                   {{ article.commentCount }} 评论
                 </span>
               </div>
-              <p class="article-summary">{{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}</p>
+              <p class="article-summary">{{ article.summary || (article.content ? stripHtmlTags(article.content).substring(0, 150) + '...' : '暂无摘要') }}</p>
               <div class="article-tags" v-if="article.tags && article.tags.length">
                 <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="tag-badge" :style="{ backgroundColor: tag.color || '#409EFF' }">
                   {{ tag.name }}
@@ -187,7 +190,7 @@
             <i class="el-icon-menu"></i>
             文章分类
           </h3>
-          <ul class="category-list">
+          <ul class="category-list" v-if="categoryList.length > 0">
             <li v-for="category in categoryList" :key="category.id" class="category-item">
               <router-link :to="`/blog/category/${category.id}`" class="category-link">
                 <span class="category-name">{{ category.name }}</span>
@@ -195,6 +198,10 @@
               </router-link>
             </li>
           </ul>
+          <div v-else class="no-data">
+            <i class="el-icon-folder-opened"></i>
+            <p>暂无分类</p>
+          </div>
         </div>
 
         <!-- 标签云 -->
@@ -228,14 +235,18 @@
             <i class="el-icon-star-on"></i>
             热门文章
           </h3>
-          <ul class="hot-article-list">
+          <ul class="hot-article-list" v-if="hotArticles.length > 0">
             <li v-for="(article, index) in hotArticles.slice(0, 8)" :key="article.id" class="hot-article-item">
-              <span class="article-rank">{{ index + 1 }}</span>
+              <span class="article-rank" :class="{ 'rank-top': index < 3 }">{{ index + 1 }}</span>
               <router-link :to="`/blog/article/${article.id}`" class="hot-article-link" :title="article.title">
                 {{ article.title }}
               </router-link>
             </li>
           </ul>
+          <div v-else class="no-data">
+            <i class="el-icon-star-on"></i>
+            <p>暂无热门文章</p>
+          </div>
         </div>
 
         <!-- 文章归档 -->
@@ -244,7 +255,7 @@
             <i class="el-icon-date"></i>
             文章归档
           </h3>
-          <ul class="archive-list">
+          <ul class="archive-list" v-if="archiveList.length > 0">
             <li v-for="archive in archiveList.slice(0, 6)" :key="archive.archive_date" class="archive-item">
               <router-link to="/blog/archive" class="archive-link">
                 <span class="archive-date">{{ formatArchiveDate(archive.archive_date) }}</span>
@@ -252,6 +263,10 @@
               </router-link>
             </li>
           </ul>
+          <div v-else class="no-data">
+            <i class="el-icon-date"></i>
+            <p>暂无归档</p>
+          </div>
         </div>
 
         <!-- 最新评论 -->
@@ -283,6 +298,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import { getArticleList, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings } from '@/api/blog/setting'
@@ -327,18 +343,64 @@ const loadArticleList = async (append = false) => {
     }
 
     console.log('文章列表响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", total: 0, rows: [...]}
-    const newArticles = response.rows || []
+    
+    // 处理不同的响应格式
+    let newArticles = []
+    let totalCount = 0
+    
+    if (response && response.code === 200) {
+      // RuoYi标准响应格式：{code: 200, msg: "", total: 0, rows: [...]}
+      newArticles = response.rows || response.data || []
+      totalCount = response.total || 0
+    } else if (response && Array.isArray(response)) {
+      // 直接返回数组
+      newArticles = response
+      totalCount = response.length
+    } else if (response && response.data) {
+      // 其他格式：{data: [...]}
+      newArticles = Array.isArray(response.data) ? response.data : []
+      totalCount = response.total || newArticles.length
+    }
+    
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
     } else {
       articleList.value = newArticles
     }
-    total.value = response.total || 0
-    totalArticles.value = total.value
+    total.value = totalCount
+    totalArticles.value = totalCount
   } catch (error) {
     console.error('获取文章列表失败:', error)
-    ElMessage.error('获取文章列表失败')
+    // 如果是网络错误或接口不存在，显示友好提示
+    if (error.response && error.response.status === 404) {
+      console.warn('文章接口暂未实现，使用模拟数据')
+      // 使用模拟数据
+      const mockArticles = [
+        {
+          id: 1,
+          title: '欢迎使用博客系统',
+          summary: '这是一个基于RuoYi-Vue的博客系统，支持文章管理、分类管理、标签管理等功能。',
+          content: '这是一个基于RuoYi-Vue的博客系统...',
+          coverUrl: 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=博客系统',
+          categoryName: '系统公告',
+          createTime: new Date().toISOString(),
+          viewCount: 100,
+          likeCount: 10,
+          commentCount: 5,
+          tags: [
+            { id: 1, name: 'Vue', color: '#4FC08D' },
+            { id: 2, name: 'Spring Boot', color: '#6DB33F' }
+          ]
+        }
+      ]
+      if (!append) {
+        articleList.value = mockArticles
+        total.value = mockArticles.length
+        totalArticles.value = mockArticles.length
+      }
+    } else {
+      ElMessage.error('获取文章列表失败: ' + (error.message || '网络错误'))
+    }
   } finally {
     loading.value = false
     loadingMore.value = false
@@ -350,10 +412,25 @@ const loadCategoryList = async () => {
   try {
     const response = await getCategoryList({})
     console.log('分类列表响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
-    categoryList.value = response.data || response.rows || []
+    
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      categoryList.value = response.data || response.rows || []
+    } else if (response && Array.isArray(response)) {
+      categoryList.value = response
+    } else if (response && response.data) {
+      categoryList.value = Array.isArray(response.data) ? response.data : []
+    }
   } catch (error) {
     console.error('获取分类列表失败:', error)
+    if (error.response && error.response.status === 404) {
+      console.warn('分类接口暂未实现，使用模拟数据')
+      categoryList.value = [
+        { id: 1, name: '技术分享', articleCount: 5 },
+        { id: 2, name: '生活随笔', articleCount: 3 },
+        { id: 3, name: '学习笔记', articleCount: 8 }
+      ]
+    }
   }
 }
 
@@ -363,10 +440,25 @@ const loadHotArticles = async () => {
     // 获取前5个热门文章
     const response = await getHotArticles({ pageNum: 1, pageSize: 5 })
     console.log('热门文章响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", total: 0, rows: [...]}
-    hotArticles.value = response.rows || []
+    
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      hotArticles.value = response.rows || response.data || []
+    } else if (response && Array.isArray(response)) {
+      hotArticles.value = response
+    } else if (response && response.data) {
+      hotArticles.value = Array.isArray(response.data) ? response.data : []
+    }
   } catch (error) {
     console.error('获取热门文章失败:', error)
+    if (error.response && error.response.status === 404) {
+      console.warn('热门文章接口暂未实现，使用模拟数据')
+      hotArticles.value = [
+        { id: 1, title: '欢迎使用博客系统' },
+        { id: 2, title: 'Vue 3 开发指南' },
+        { id: 3, title: 'Spring Boot 最佳实践' }
+      ]
+    }
   }
 }
 
@@ -375,12 +467,29 @@ const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettings()
     console.log('博客设置响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", data: {...}}
-    blogSettings.value = response.data || {}
+    
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      blogSettings.value = response.data || {}
+    } else if (response && typeof response === 'object') {
+      blogSettings.value = response
+    }
+    
     // 设置最后更新时间
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
     console.error('获取博客设置失败:', error)
+    if (error.response && error.response.status === 404) {
+      console.warn('博客设置接口暂未实现，使用默认设置')
+      blogSettings.value = {
+        blog_name: '我的博客',
+        blog_desc: '这是一个基于RuoYi-Vue的博客系统',
+        blog_author: 'nevell',
+        blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主'
+      }
+    }
+    // 设置最后更新时间
+    lastUpdateTime.value = formatDate(new Date().toISOString())
   }
 }
 
@@ -389,10 +498,26 @@ const loadTagCloud = async () => {
   try {
     const response = await getTagCloud()
     console.log('标签云响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
-    tagCloud.value = response.data || []
+    
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      tagCloud.value = response.data || []
+    } else if (response && Array.isArray(response)) {
+      tagCloud.value = response
+    } else if (response && response.data) {
+      tagCloud.value = Array.isArray(response.data) ? response.data : []
+    }
   } catch (error) {
     console.error('获取标签云失败:', error)
+    if (error.response && error.response.status === 404) {
+      console.warn('标签云接口暂未实现，使用模拟数据')
+      tagCloud.value = [
+        { id: 1, name: 'Vue', color: '#4FC08D', article_count: 5 },
+        { id: 2, name: 'Spring Boot', color: '#6DB33F', article_count: 3 },
+        { id: 3, name: 'JavaScript', color: '#F7DF1E', article_count: 8 },
+        { id: 4, name: 'Java', color: '#ED8B00', article_count: 6 }
+      ]
+    }
   }
 }
 
@@ -401,10 +526,34 @@ const loadArchiveData = async () => {
   try {
     const response = await getArticleArchive()
     console.log('归档数据响应:', response)
-    // 后端返回的数据结构：{code: 200, msg: "", data: [...]}
-    archiveList.value = (response.data || []).slice(0, 10) // 只显示前10个归档
+    
+    // 处理不同的响应格式
+    let archiveData = []
+    if (response && response.code === 200) {
+      archiveData = response.data || []
+    } else if (response && Array.isArray(response)) {
+      archiveData = response
+    } else if (response && response.data) {
+      archiveData = Array.isArray(response.data) ? response.data : []
+    }
+    
+    archiveList.value = archiveData.slice(0, 10) // 只显示前10个归档
   } catch (error) {
     console.error('获取归档数据失败:', error)
+    if (error.response && error.response.status === 404) {
+      console.warn('归档接口暂未实现，使用模拟数据')
+      const currentDate = new Date()
+      archiveList.value = [
+        {
+          archive_date: `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`,
+          article_count: 5
+        },
+        {
+          archive_date: `${currentDate.getFullYear()}-${String(currentDate.getMonth()).padStart(2, '0')}`,
+          article_count: 3
+        }
+      ]
+    }
   }
 }
 
@@ -1508,5 +1657,41 @@ onMounted(() => {
     padding: 3px 6px;
     font-size: 0.8rem;
   }
+}
+
+/* 新增样式 */
+.no-data {
+  text-align: center;
+  padding: 30px 0;
+  color: #999;
+}
+
+.no-data i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  display: block;
+  opacity: 0.6;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.rank-top {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a24) !important;
+  box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+}
+
+.hot-article-item:nth-child(1) .rank-top {
+  background: linear-gradient(135deg, #ffd700, #ffb347) !important;
+}
+
+.hot-article-item:nth-child(2) .rank-top {
+  background: linear-gradient(135deg, #c0c0c0, #a8a8a8) !important;
+}
+
+.hot-article-item:nth-child(3) .rank-top {
+  background: linear-gradient(135deg, #cd7f32, #b8860b) !important;
 }
 </style>

@@ -237,7 +237,7 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
-import { getArticlesByCategory, getCategoryDetail } from '@/api/blog/category'
+import { getCategoryDetail } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
 import { getArticleList } from '@/api/blog/article'
 
@@ -270,7 +270,7 @@ const loadCategoryArticles = async (append = false) => {
     loading.value = !append
     if (append) loadingMore.value = true
 
-    const response = await getArticlesByCategory(queryParams.categoryId, queryParams)
+    const response = await getArticleList({ ...queryParams, categoryId: queryParams.categoryId })
     console.log('分类文章列表响应:', response)
 
     const newArticles = response.rows || []

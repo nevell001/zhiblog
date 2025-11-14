@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 /* Layout */
-import Layout from '@/layout'
+import Layout from '@/layout/index.vue'
 
 // 博客前台路由
 import blogRoutes from './blog'
@@ -71,6 +71,8 @@ export const constantRoutes = [
   {
     path: '/index',
     component: () => import('@/views/blog/index'),
+    name: 'BlogHome',
+    meta: { title: '博客首页' },
     hidden: true
   },
   {

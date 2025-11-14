@@ -89,4 +89,12 @@ public interface IBlogTagService
      * @return 结果
      */
     public boolean checkTagExistArticle(Long tagId);
+
+    /**
+     * 根据文章ID查询标签列表
+     *
+     * @param articleId 文章ID
+     * @return 标签列表
+     */
+    public List<BlogTag> selectTagsByArticleId(Long articleId);
 }

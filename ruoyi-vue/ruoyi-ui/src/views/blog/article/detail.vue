@@ -168,8 +168,8 @@
               </div>
               <div class="comment-text">{{ comment.content }}</div>
               <div class="comment-actions">
-                <el-button size="mini" @click="handleReply(comment)" type="text">回复</el-button>
-                <el-button size="mini" @click="handleLikeComment(comment)" type="text">
+                <el-button size="mini" @click="handleReply(comment)" type="link">回复</el-button>
+                <el-button size="mini" @click="handleLikeComment(comment)" type="link">
                   <i class="el-icon-star-off"></i>
                   {{ comment.likeCount || 0 }}
                 </el-button>
@@ -282,24 +282,55 @@ const loadArticleDetail = async () => {
   try {
     loading.value = true
     const articleId = route.params.id
-
+    console.log('准备请求文章详情，ID:', articleId)
+    
     // 获取文章详情
     const response = await getArticleDetail(articleId)
     console.log('文章详情响应:', response)
-    article.value = response.data || response
-
-    // 获取相关文章
-    if (article.value) {
-      const relatedResponse = await getRelatedArticles(articleId, { pageNum: 1, pageSize: 6 })
-      relatedArticles.value = relatedResponse.rows || []
+    
+    // 正确解析API响应数据结构
+    if (response.code === 200 && response.data) {
+      // 提取文章主体数据
+      article.value = response.data.article || null
+      
+      // 提取上下篇文章数据
+      if (response.data.extraInfo) {
+        prevArticle.value = response.data.extraInfo.prevArticle || null
+        nextArticle.value = response.data.extraInfo.nextArticle || null
+      }
+      
+      // 获取相关文章 - 暂时注释掉，因为后端API不存在
+      // if (article.value) {
+      //   const relatedResponse = await getRelatedArticles(articleId, { pageNum: 1, pageSize: 6 })
+      //   relatedArticles.value = relatedResponse.rows || []
+      // }
+      
+      // 暂时设置为空数组，避免页面显示问题
+      relatedArticles.value = []
+      
+      // 获取评论列表
+      await loadComments()
+    } else {
+      console.error('获取文章详情失败: 响应数据格式不正确')
+      console.error('响应码:', response.code)
+      console.error('响应消息:', response.msg)
+      ElMessage.error(response.msg || '获取文章详情失败')
     }
 
-    // 获取评论列表
-    await loadComments()
-
   } catch (error) {
-    console.error('获取文章详情失败:', error)
-    ElMessage.error('获取文章详情失败')
+    console.error('获取文章详情失败，详细错误:', error)
+    console.error('错误类型:', typeof error)
+    console.error('错误状态:', error.response?.status)
+    console.error('错误状态文本:', error.response?.statusText)
+    console.error('请求URL:', error.config?.url)
+    console.error('请求方法:', error.config?.method)
+    
+    // 更详细的错误提示
+    const errorMsg = error.response?.status === 404 
+      ? `系统接口404异常，请求路径: ${error.config?.url}` 
+      : `获取文章详情失败: ${error.message || '未知错误'}`
+    
+    ElMessage.error(errorMsg)
   } finally {
     loading.value = false
   }

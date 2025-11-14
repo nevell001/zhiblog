@@ -64,7 +64,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
     
     <update id="updateSettingValueByKey">
-        update blog_setting set config_value = #{settingValue}, update_time = sysdate()
+        update blog_setting set config_value = #{settingValue}, update_time = now()
         where config_key = #{settingKey}
     </update>
 

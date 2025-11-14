@@ -148,6 +148,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import { getArticleDetail, updateArticleViewCount } from '@/api/blog/article'
 import { getArticleComments, addBlogComment } from '@/api/blog/comment'
 import BlogNav from '@/components/BlogNav.vue'

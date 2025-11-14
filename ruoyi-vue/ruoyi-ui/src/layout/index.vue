@@ -14,6 +14,7 @@
 </template>
 
 <script setup>
+import { computed, ref, watch, watchEffect } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import Sidebar from './components/Sidebar/index.vue'
 import { AppMain, Navbar, Settings, TagsView } from './components'
@@ -61,6 +62,10 @@ const settingRef = ref(null)
 function setLayout() {
   settingRef.value.openSetting()
 }
+
+defineOptions({
+  name: 'Layout'
+})
 </script>
 
 <style lang="scss" scoped>

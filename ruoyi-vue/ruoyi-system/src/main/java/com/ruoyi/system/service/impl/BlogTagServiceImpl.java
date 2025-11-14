@@ -135,4 +135,16 @@ public class BlogTagServiceImpl implements IBlogTagService
         int count = blogTagMapper.checkTagExistArticle(tagId);
         return count > 0;
     }
+
+    /**
+     * 根据文章ID查询标签列表
+     *
+     * @param articleId 文章ID
+     * @return 标签列表
+     */
+    @Override
+    public List<BlogTag> selectTagsByArticleId(Long articleId)
+    {
+        return blogTagMapper.selectTagsByArticleId(articleId);
+    }
 }

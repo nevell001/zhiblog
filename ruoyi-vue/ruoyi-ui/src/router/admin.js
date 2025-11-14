@@ -2,7 +2,7 @@
 export const adminRoutes = [
   {
     path: '/admin',
-    component: () => import('@/layout'),
+    component: () => import('@/layout/index.vue'),
     redirect: '/admin/dashboard',
     meta: { title: '后台管理', icon: 'dashboard' },
     children: [
@@ -16,7 +16,7 @@ export const adminRoutes = [
   },
   {
     path: '/admin/system',
-    component: () => import('@/layout'),
+    component: () => import('@/layout/index.vue'),
     redirect: '/admin/system/user',
     name: 'System',
     meta: { title: '系统管理', icon: 'system' },
@@ -73,7 +73,7 @@ export const adminRoutes = [
   },
   {
     path: '/admin/monitor',
-    component: () => import('@/layout'),
+    component: () => import('@/layout/index.vue'),
     redirect: '/admin/monitor/online',
     name: 'Monitor',
     meta: { title: '系统监控', icon: 'monitor' },
@@ -124,7 +124,7 @@ export const adminRoutes = [
   },
   {
     path: '/admin/tool',
-    component: () => import('@/layout'),
+    component: () => import('@/layout/index.vue'),
     redirect: '/admin/tool/gen',
     name: 'Tool',
     meta: { title: '系统工具', icon: 'tool' },
@@ -139,34 +139,34 @@ export const adminRoutes = [
   },
   {
     path: '/admin/blog',
-    component: () => import('@/layout'),
+    component: () => import('@/layout/index.vue'),
     redirect: '/admin/blog/article',
     name: 'Blog',
-    meta: { title: '博客管理', icon: 'documentation' },
+    meta: { title: '博客管理', icon: 'documentation', permissions: ['admin', 'editor'] },
     children: [
       {
         path: 'article',
-        component: () => import('@/views/admin/blog/article/article/index'),
+        component: () => import('@/views/admin/blog/article/article/index.vue'),
         name: 'Article',
-        meta: { title: '文章管理', icon: 'edit' }
+        meta: { title: '文章管理', icon: 'edit', permissions: ['admin', 'editor'] }
       },
       {
         path: 'category',
         component: () => import('@/views/admin/blog/category/category/index'),
         name: 'BlogCategory',
-        meta: { title: '分类管理', icon: 'list' }
+        meta: { title: '分类管理', icon: 'list', permissions: ['admin', 'editor'] }
       },
       {
         path: 'tag',
         component: () => import('@/views/admin/blog/tag/tag/index'),
         name: 'BlogTag',
-        meta: { title: '标签管理', icon: 'tag' }
+        meta: { title: '标签管理', icon: 'tag', permissions: ['admin', 'editor'] }
       },
       {
         path: 'comment',
         component: () => import('@/views/admin/blog/comment/comment/index'),
         name: 'Comment',
-        meta: { title: '评论管理', icon: 'message' }
+        meta: { title: '评论管理', icon: 'message', permissions: ['admin', 'editor'] }
       },
       {
         path: 'setting',
@@ -181,6 +181,12 @@ export const adminRoutes = [
         meta: { title: '友链管理', icon: 'link' }
       }
     ]
+  },
+  {
+    path: '/test-category',
+    component: () => import('@/views/test-category.vue'),
+    name: 'TestCategory',
+    meta: { title: '分类管理测试' }
   }
 ]
 
