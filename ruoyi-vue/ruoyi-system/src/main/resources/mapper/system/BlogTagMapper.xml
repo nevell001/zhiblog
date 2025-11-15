@@ -33,8 +33,7 @@
     <select id="selectBlogTagList" parameterType="BlogTag" resultMap="BlogTagResult">
         <include refid="selectBlogTagVo"/>
         <where>
-            <if test="name != null and name != ''"> and bt.name like concat('%', #{name}, '%')</if>
-            <if test="tagName != null and tagName != ''"> and bt.name like concat('%', #{tagName}, '%')</if>
+            <if test='name != null and name != ""'> and bt.name like concat('%', #{name}, '%')</if>
             and bt.del_flag = 0
         </where>
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
@@ -97,16 +96,14 @@
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="id">
         insert into blog_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">name,</if>
-            <if test="tagName != null and tagName != ''">name,</if>
+            <if test='name != null and name != ""'>name,</if>
             <if test="description != null">description,</if>
             <if test="color != null">color,</if>
             <if test="icon != null">icon,</if>
             <if test="delFlag != null">del_flag,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
-            <if test="name != null and name != ''">#{name},</if>
-            <if test="tagName != null and tagName != ''">#{tagName},</if>
+            <if test='name != null and name != ""'>#{name},</if>
             <if test="description != null">#{description},</if>
             <if test="color != null">#{color},</if>
             <if test="icon != null">#{icon},</if>
@@ -117,8 +114,7 @@
     <update id="updateBlogTag" parameterType="BlogTag">
         update blog_tag
         <trim prefix="SET" suffixOverrides=",">
-            <if test="name != null and name != ''">name = #{name},</if>
-            <if test="tagName != null and tagName != ''">name = #{tagName},</if>
+            <if test='name != null and name != ""'>name = #{name},</if>
             <if test="description != null">description = #{description},</if>
             <if test="color != null">color = #{color},</if>
             <if test="icon != null">icon = #{icon},</if>

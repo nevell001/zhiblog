@@ -9,10 +9,10 @@ export async function initBlogSettings() {
   try {
     // 获取博客个性化设置
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
-      getConfigKey('blog.custom.themeColor'),
-      getConfigKey('blog.custom.logo'),
-      getConfigKey('blog.custom.sidebarStyle'),
-      getConfigKey('blog.custom.customCss')
+      getConfigKey('blog.custom.themeColor').catch(() => ({ data: '' })),
+      getConfigKey('blog.custom.logo').catch(() => ({ data: '' })),
+      getConfigKey('blog.custom.sidebarStyle').catch(() => ({ data: '' })),
+      getConfigKey('blog.custom.customCss').catch(() => ({ data: '' }))
     ])
     
     const settingsStore = useSettingsStore()

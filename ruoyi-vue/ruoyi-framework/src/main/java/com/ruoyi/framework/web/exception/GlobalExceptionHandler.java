@@ -11,6 +11,7 @@ import org.springframework.web.bind.MissingPathVariableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.text.Convert;
@@ -141,5 +142,30 @@ public class GlobalExceptionHandler
     public AjaxResult handleDemoModeException(DemoModeException e)
     {
         return AjaxResult.error("演示模式，不允许操作");
+    }
+
+    /**
+     * 404页面未找到异常
+     */
+    @ExceptionHandler(NoHandlerFoundException.class)
+    public AjaxResult handleNoHandlerFoundException(NoHandlerFoundException e, HttpServletRequest request)
+    {
+        String requestURI = request.getRequestURI();
+        log.error("请求地址'{}'未找到，发生404异常.", requestURI, e);
+        
+        String errorMessage = String.format(
+            "页面访问异常 (type=Not Found, status=404)%n" +
+            "错误详情：请求的页面或资源不存在%n%n" +
+            "💡 解决方案建议：%n" +
+            "1. 检查URL地址是否正确拼写%n" +
+            "2. 确认页面是否已被移动或删除%n" +
+            "3. 尝试刷新页面或清除浏览器缓存%n" +
+            "4. 如需访问博客内容，请直接访问：http://localhost:8080/blog%n" +
+            "5. 如问题持续存在，请联系系统管理员%n%n" +
+            "Technical Details: %s",
+            e.getMessage()
+        );
+        
+        return AjaxResult.error(HttpStatus.NOT_FOUND, errorMessage);
     }
 }

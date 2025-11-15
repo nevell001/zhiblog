@@ -9,6 +9,16 @@ export function listArticle(query) {
   })
 }
 
+// 前台匿名访问文章列表
+export function getArticleListAnonymous(query) {
+  return request({
+    url: '/blog/article/list',
+    method: 'get',
+    params: query,
+    headers: { isToken: false } // 不携带token
+  })
+}
+
 // 查询博客文章详细
 export function getArticle(id) {
   return request({
@@ -57,7 +67,8 @@ export function getArticleList(query) {
   return request({
     url: '/blog/article/list',
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false } // 不携带token，允许匿名访问
   })
 }
 

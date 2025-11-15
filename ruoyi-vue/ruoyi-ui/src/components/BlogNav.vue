@@ -17,7 +17,7 @@
     
     <div class="nav-actions">
       <el-button
-        type="text"
+        link
         @click="toggleTheme"
         class="theme-toggle"
         title="切换主题"
@@ -25,7 +25,7 @@
         <i :class="isDarkTheme ? 'el-icon-sunny' : 'el-icon-moon'"></i>
       </el-button>
       <el-button
-        type="text"
+        link
         @click="scrollToTop"
         class="scroll-top"
         title="回到顶部"
@@ -46,7 +46,7 @@ let scrollHandler = null
 
 // 获取前台菜单
 const frontendMenus = computed(() => {
-  return getFilteredMenus('guest', 'frontend')
+  return getFilteredMenus('frontend', 'guest')
 })
 
 // 获取菜单图标

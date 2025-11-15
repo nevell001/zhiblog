@@ -1,3 +1,4 @@
+import { defineStore } from 'pinia'
 import router from '@/router'
 import { ElMessageBox, } from 'element-plus'
 import { login, logout, getInfo } from '@/api/login'

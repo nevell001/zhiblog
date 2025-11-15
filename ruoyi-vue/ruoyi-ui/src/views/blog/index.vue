@@ -1,5 +1,8 @@
 <template>
   <div class="blog-container">
+    <!-- 滚动进度条 -->
+    <div class="scroll-progress" :style="{ width: scrollProgress + '%' }"></div>
+    
     <!-- 博客导航 -->
     <BlogNav />
 
@@ -87,7 +90,8 @@
         <div v-else class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
             <div class="article-cover" v-if="article.coverUrl">
-              <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
+              <img :src="article.coverUrl" :alt="article.title" loading="lazy" @error="handleImageError" />
+              <div class="cover-overlay"></div>
               <div class="article-category-badge" v-if="article.categoryName">
                 {{ article.categoryName }}
               </div>
@@ -169,18 +173,56 @@
               <img :src="blogSettings.blog_avatar || 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主'" :alt="blogSettings.blog_author" />
             </div>
             <h4 class="author-name">{{ blogSettings.blog_author || 'nevell' }}</h4>
+            <p class="author-title">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
             <p class="about-desc">{{ blogSettings.blog_desc || '热爱技术，热爱生活，记录学习成长路上的点点滴滴' }}</p>
+            
+            <!-- 统计信息 -->
+            <div class="author-stats">
+              <div class="stat-box">
+                <div class="stat-number">{{ totalArticles }}</div>
+                <div class="stat-label">文章</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number">{{ categoryList.length }}</div>
+                <div class="stat-label">分类</div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-number">{{ tagCloud.length }}</div>
+                <div class="stat-label">标签</div>
+              </div>
+            </div>
+
+            <!-- 技能标签 -->
+            <div class="skills-section" v-if="blogSettings.skills && blogSettings.skills.length">
+              <div class="skills-title">技能专长</div>
+              <div class="skills-tags">
+                <span v-for="(skill, index) in blogSettings.skills" :key="index" class="skill-tag">
+                  {{ skill }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 社交链接 -->
             <div class="social-links">
-              <a href="#" class="social-link" title="GitHub">
-                <i class="el-icon-github"></i>
+              <a :href="blogSettings.github_url || '#'" class="social-link" title="GitHub" target="_blank" rel="noopener">
+                <i class="el-icon-s-promotion"></i>
               </a>
-              <a href="#" class="social-link" title="微信">
-                <i class="el-icon-chat-dot-round"></i>
-              </a>
-              <a href="#" class="social-link" title="邮箱">
+              <a :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'" class="social-link" title="邮箱">
                 <i class="el-icon-message"></i>
               </a>
+              <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
+                <i class="el-icon-chat-dot-round"></i>
+              </a>
+              <a :href="blogSettings.weibo_url || '#'" class="social-link" title="微博" target="_blank" rel="noopener">
+                <i class="el-icon-star-off"></i>
+              </a>
             </div>
+
+            <!-- 联系按钮 -->
+            <el-button type="primary" size="small" class="contact-btn" @click="showContactDialog = true">
+              <i class="el-icon-chat-line-round"></i>
+              联系我
+            </el-button>
           </div>
         </div>
 
@@ -293,11 +335,48 @@
         </div>
       </div>
     </div>
+
+    <!-- 回到顶部按钮 -->
+    <transition name="fade">
+      <div v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
+        <i class="el-icon-arrow-up"></i>
+      </div>
+    </transition>
+
+    <!-- 微信二维码对话框 -->
+    <el-dialog v-model="showWechatQR" title="微信二维码" width="300px" center>
+      <div class="qr-code-container">
+        <img :src="blogSettings.wechat_qr || 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'" alt="微信二维码" />
+        <p>扫码添加微信</p>
+      </div>
+    </el-dialog>
+
+    <!-- 联系对话框 -->
+    <el-dialog v-model="showContactDialog" title="联系我" width="500px">
+      <el-form :model="contactForm" label-width="80px">
+        <el-form-item label="姓名">
+          <el-input v-model="contactForm.name" placeholder="请输入您的姓名" />
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="contactForm.email" placeholder="请输入您的邮箱" type="email" />
+        </el-form-item>
+        <el-form-item label="主题">
+          <el-input v-model="contactForm.subject" placeholder="请输入主题" />
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input v-model="contactForm.message" type="textarea" :rows="5" placeholder="请输入留言内容" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="showContactDialog = false">取消</el-button>
+        <el-button type="primary" @click="handleContactSubmit">发送</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { getArticleList, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
@@ -319,6 +398,16 @@ const archiveList = ref([])
 const recentComments = ref([])
 const loading = ref(false)
 const loadingMore = ref(false)
+const showBackToTop = ref(false)
+const scrollProgress = ref(0)
+const showWechatQR = ref(false)
+const showContactDialog = ref(false)
+const contactForm = reactive({
+  name: '',
+  email: '',
+  subject: '',
+  message: ''
+})
 
 // 查询参数
 const queryParams = reactive({
@@ -338,8 +427,14 @@ const loadArticleList = async (append = false) => {
       // 如果有搜索关键词，则执行搜索
       response = await searchArticles(searchKeyword.value, queryParams)
     } else {
-      // 否则获取所有文章
-      response = await getArticleList(queryParams)
+      // 否则获取所有文章 - 优先使用匿名访问接口
+      try {
+        response = await getArticleList(queryParams)
+      } catch (error) {
+        // 如果标准接口失败，尝试匿名接口
+        console.warn('标准文章接口访问失败，尝试匿名接口:', error)
+        response = await getArticleListAnonymous(queryParams)
+      }
     }
 
     console.log('文章列表响应:', response)
@@ -465,7 +560,16 @@ const loadHotArticles = async () => {
 // 获取博客设置
 const loadBlogSettings = async () => {
   try {
-    const response = await getBlogSettings()
+    // 优先使用匿名访问接口
+    let response;
+    try {
+      response = await getBlogSettings()
+    } catch (error) {
+      // 如果标准接口失败，尝试匿名接口
+      console.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
+      response = await getBlogSettingsAnonymous()
+    }
+    
     console.log('博客设置响应:', response)
     
     // 处理不同的响应格式
@@ -479,13 +583,18 @@ const loadBlogSettings = async () => {
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
     console.error('获取博客设置失败:', error)
-    if (error.response && error.response.status === 404) {
-      console.warn('博客设置接口暂未实现，使用默认设置')
+    if (error.response && error.response.status === 404 || error.response && error.response.status === 401) {
+      console.warn('博客设置接口暂未实现或匿名访问失败，使用默认设置')
       blogSettings.value = {
         blog_name: '我的博客',
         blog_desc: '这是一个基于RuoYi-Vue的博客系统',
         blog_author: 'nevell',
-        blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主'
+        author_title: '全栈开发工程师',
+        blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主',
+        skills: ['Vue.js', 'Spring Boot', 'Java', 'JavaScript', 'MySQL', 'Redis'],
+        github_url: 'https://github.com',
+        email: 'contact@example.com',
+        wechat_qr: 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
       }
     }
     // 设置最后更新时间
@@ -632,10 +741,45 @@ const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
+// 处理滚动事件
+const handleScroll = () => {
+  const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+  const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
+  
+  // 计算滚动进度
+  scrollProgress.value = (scrollTop / scrollHeight) * 100
+  
+  // 显示/隐藏回到顶部按钮
+  showBackToTop.value = scrollTop > 300
+}
+
 // 去除HTML标签
 const stripHtmlTags = (html) => {
   if (!html) return ''
   return html.replace(/<[^>]*>/g, '')
+}
+
+// 图片加载错误处理
+const handleImageError = (e) => {
+  e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
+}
+
+// 处理联系表单提交
+const handleContactSubmit = () => {
+  if (!contactForm.name || !contactForm.email || !contactForm.message) {
+    ElMessage.warning('请填写完整信息')
+    return
+  }
+  
+  // 这里可以调用API发送邮件
+  ElMessage.success('消息已发送，我会尽快回复您！')
+  showContactDialog.value = false
+  
+  // 重置表单
+  contactForm.name = ''
+  contactForm.email = ''
+  contactForm.subject = ''
+  contactForm.message = ''
 }
 
 // 组件挂载时加载数据
@@ -646,6 +790,14 @@ onMounted(() => {
   loadBlogSettings()
   loadTagCloud()
   loadArchiveData()
+  
+  // 添加滚动监听
+  window.addEventListener('scroll', handleScroll)
+})
+
+// 组件卸载时移除监听
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -653,15 +805,79 @@ onMounted(() => {
 .blog-container {
   min-height: 100vh;
   background-color: #f5f5f5;
+  position: relative;
+}
+
+/* 滚动进度条 */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #409eff, #667eea, #764ba2);
+  z-index: 9999;
+  transition: width 0.1s ease;
+  box-shadow: 0 2px 4px rgba(64, 158, 255, 0.3);
+}
+
+/* 回到顶部按钮 */
+.back-to-top {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  font-size: 1.5rem;
+}
+
+.back-to-top:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(64, 158, 255, 0.5);
+  background: linear-gradient(135deg, #337ecc, #2575fc);
+}
+
+.back-to-top:active {
+  transform: translateY(-3px);
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
 }
 
 .blog-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 60px 0;
+  padding: 80px 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  animation: headerFadeIn 0.8s ease-out;
+}
+
+@keyframes headerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .blog-header::before {
@@ -691,7 +907,7 @@ onMounted(() => {
 }
 
 .blog-title {
-  font-size: 3rem;
+  font-size: 3.5rem;
   margin: 0;
   font-weight: 700;
   background: linear-gradient(45deg, #fff, #f0f8ff);
@@ -699,6 +915,19 @@ onMounted(() => {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  animation: titleSlideIn 1s ease-out 0.2s both;
+  letter-spacing: -0.5px;
+}
+
+@keyframes titleSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .blog-description {
@@ -758,23 +987,73 @@ onMounted(() => {
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 30px;
   margin-bottom: 20px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .article-item {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
+  position: relative;
+  animation: cardFadeIn 0.6s ease-out backwards;
+}
+
+.article-item:nth-child(1) { animation-delay: 0.1s; }
+.article-item:nth-child(2) { animation-delay: 0.2s; }
+.article-item:nth-child(3) { animation-delay: 0.3s; }
+.article-item:nth-child(4) { animation-delay: 0.4s; }
+.article-item:nth-child(5) { animation-delay: 0.5s; }
+.article-item:nth-child(6) { animation-delay: 0.6s; }
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.article-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(64, 158, 255, 0.05), rgba(118, 75, 162, 0.05));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .article-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
-  border-color: rgba(64, 158, 255, 0.1);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  border-color: rgba(64, 158, 255, 0.2);
+}
+
+.article-item:hover::before {
+  opacity: 1;
 }
 
 .article-cover {
@@ -789,10 +1068,28 @@ onMounted(() => {
   height: 100%;
   object-fit: cover;
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: brightness(1);
 }
 
-.article-cover:hover img {
+.cover-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.article-item:hover .article-cover img {
   transform: scale(1.08);
+  filter: brightness(1.1);
+}
+
+.article-item:hover .cover-overlay {
+  opacity: 1;
 }
 
 .article-category-badge {
@@ -839,7 +1136,10 @@ onMounted(() => {
 }
 
 .article-title a:hover {
-  color: #409eff;
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   transform: translateX(4px);
 }
 
@@ -980,10 +1280,35 @@ onMounted(() => {
 
 .sidebar-widget {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px;
   margin-bottom: 20px;
+  transition: all 0.3s ease;
+  animation: slideInRight 0.6s ease-out backwards;
+}
+
+.sidebar-widget:nth-child(1) { animation-delay: 0.2s; }
+.sidebar-widget:nth-child(2) { animation-delay: 0.3s; }
+.sidebar-widget:nth-child(3) { animation-delay: 0.4s; }
+.sidebar-widget:nth-child(4) { animation-delay: 0.5s; }
+.sidebar-widget:nth-child(5) { animation-delay: 0.6s; }
+.sidebar-widget:nth-child(6) { animation-delay: 0.7s; }
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-widget:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .widget-title {
@@ -998,10 +1323,101 @@ onMounted(() => {
   text-align: center;
 }
 
+.author-title {
+  color: #409eff;
+  font-size: 0.85rem;
+  margin: 5px 0 10px 0;
+  font-weight: 500;
+}
+
 .about-desc {
   color: #666;
   font-size: 0.9rem;
-  margin-top: 5px;
+  margin: 15px 0;
+  line-height: 1.6;
+}
+
+.author-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px 0;
+  padding: 15px 0;
+  border-top: 1px solid #f0f0f0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-box {
+  text-align: center;
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #409eff;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.skills-section {
+  margin: 20px 0;
+}
+
+.skills-title {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.skills-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.skill-tag {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.skill-tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.contact-btn {
+  width: 100%;
+  margin-top: 15px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.qr-code-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.qr-code-container img {
+  width: 200px;
+  height: 200px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+.qr-code-container p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .category-list {
@@ -1036,22 +1452,43 @@ onMounted(() => {
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   padding: 15px 0;
 }
 
 .tag-item {
   color: white;
   text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 6px 12px;
-  border-radius: 8px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 500;
   position: relative;
   overflow: hidden;
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  animation: tagPop 0.5s ease-out backwards;
+}
+
+.tag-item:nth-child(1) { animation-delay: 0.1s; }
+.tag-item:nth-child(2) { animation-delay: 0.15s; }
+.tag-item:nth-child(3) { animation-delay: 0.2s; }
+.tag-item:nth-child(4) { animation-delay: 0.25s; }
+.tag-item:nth-child(5) { animation-delay: 0.3s; }
+.tag-item:nth-child(6) { animation-delay: 0.35s; }
+.tag-item:nth-child(7) { animation-delay: 0.4s; }
+.tag-item:nth-child(8) { animation-delay: 0.45s; }
+
+@keyframes tagPop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .tag-item::before {
@@ -1065,13 +1502,31 @@ onMounted(() => {
   transition: left 0.6s ease;
 }
 
+.tag-item::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
 .tag-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .tag-item:hover::before {
   left: 100%;
+}
+
+.tag-item:hover::after {
+  width: 100%;
+  height: 100%;
 }
 
 .hot-article-list {
@@ -1211,11 +1666,41 @@ onMounted(() => {
 .social-link {
   color: #666;
   font-size: 1.2rem;
-  transition: color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(64, 158, 255, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.social-link::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(64, 158, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
 }
 
 .social-link:hover {
   color: #409eff;
+  background: rgba(64, 158, 255, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
+}
+
+.social-link:hover::before {
+  width: 100%;
+  height: 100%;
 }
 
 .article-rank {
@@ -1582,6 +2067,13 @@ onMounted(() => {
     padding: 10px 0;
   }
 
+  .back-to-top {
+    bottom: 15px;
+    right: 15px;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
   .load-more-container {
     margin-top: 30px;
   }

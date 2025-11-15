@@ -115,4 +115,26 @@ public interface BlogArticleMapper
      * @return 被引用的文章数量
      */
     int countByCategoryIds(Long[] ids);
+
+    /**
+     * 查询博客文章数量
+     * 
+     * @param blogArticle 查询条件
+     * @return 文章数量
+     */
+    Long selectBlogArticleCount(BlogArticle blogArticle);
+
+    /**
+     * 获取文章总浏览量
+     * 
+     * @return 总浏览量
+     */
+    Long selectTotalViewCount();
+
+    /**
+     * 获取文章平均浏览量
+     * 
+     * @return 平均浏览量
+     */
+    Double selectAverageViewCount();
 }

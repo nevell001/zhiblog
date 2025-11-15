@@ -1,7 +1,7 @@
 // 博客前台路由配置
 export const blogRoutes = [
   {
-    path: '/index',
+    path: '/blog',
     component: () => import('@/views/blog/index'),
     name: 'BlogHome',
     meta: { title: '博客首页' }
@@ -49,10 +49,82 @@ export const blogRoutes = [
     meta: { title: '简洁版博客' }
   },
   {
-    path: '/about',
+    path: '/blog/about',
     component: () => import('@/views/blog/about'),
     name: 'About',
     meta: { title: '关于我们' }
+  },
+  {
+    path: '/index',
+    component: () => import('@/views/blog/index'),
+    name: 'Index',
+    meta: { title: '首页' }
+  },
+  {
+    path: '/about',
+    component: () => import('@/views/blog/about'),
+    name: 'AboutPage',
+    meta: { title: '关于' }
+  },
+  {
+    path: '/admin/statistics',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/statistics/overview',
+    name: 'Statistics',
+    meta: { title: '数据统计' },
+    children: [
+      {
+        path: 'overview',
+        component: () => import('@/views/admin/statistics/overview/index'),
+        name: 'StatisticsOverview',
+        meta: { title: '数据概览' }
+      }
+    ]
+  },
+  {
+    path: '/admin/system',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/system/user',
+    name: 'System',
+    meta: { title: '系统管理' },
+    children: [
+      {
+        path: 'user',
+        component: () => import('@/views/admin/system/user/user/index'),
+        name: 'SystemUser',
+        meta: { title: '用户管理' }
+      }
+    ]
+  },
+  {
+    path: '/admin/monitor',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/monitor/job',
+    name: 'Monitor',
+    meta: { title: '系统监控' },
+    children: [
+      {
+        path: 'job',
+        component: () => import('@/views/admin/monitor/job/index'),
+        name: 'MonitorJob',
+        meta: { title: '定时任务' }
+      }
+    ]
+  },
+  {
+    path: '/admin/tool',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/tool/gen',
+    name: 'Tool',
+    meta: { title: '系统工具' },
+    children: [
+      {
+        path: 'gen',
+        component: () => import('@/views/admin/tool/gen/index'),
+        name: 'ToolGen',
+        meta: { title: '代码生成' }
+      }
+    ]
   }
 ]
 

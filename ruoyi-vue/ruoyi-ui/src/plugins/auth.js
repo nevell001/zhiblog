@@ -2,7 +2,15 @@ import useUserStore from '@/store/modules/user'
 
 function authPermission(permission) {
   const all_permission = "*:*:*"
-  const permissions = useUserStore().permissions
+  const userStore = useUserStore()
+  const permissions = userStore.permissions || []
+  
+  // 检查用户权限数组是否存在且有效
+  if (!Array.isArray(permissions)) {
+    console.warn('用户权限数据格式错误，期望数组但得到:', typeof permissions)
+    return false
+  }
+  
   if (permission && permission.length > 0) {
     return permissions.some(v => {
       return all_permission === v || v === permission
@@ -14,7 +22,15 @@ function authPermission(permission) {
 
 function authRole(role) {
   const super_admin = "admin"
-  const roles = useUserStore().roles
+  const userStore = useUserStore()
+  const roles = userStore.roles || []
+  
+  // 检查用户角色数组是否存在且有效
+  if (!Array.isArray(roles)) {
+    console.warn('用户角色数据格式错误，期望数组但得到:', typeof roles)
+    return false
+  }
+  
   if (role && role.length > 0) {
     return roles.some(v => {
       return super_admin === v || v === role

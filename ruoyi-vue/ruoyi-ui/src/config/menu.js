@@ -214,6 +214,32 @@ export const menuConfig = {
           permissions: ['admin']
         }
       ]
+    },
+    {
+      name: '数据统计',
+      icon: 'chart',
+      permissions: ['admin'],
+      type: 'backend',
+      children: [
+        {
+          name: '数据概览',
+          path: '/admin/statistics/overview',
+          icon: 'overview',
+          permissions: ['admin']
+        },
+        {
+          name: '文章统计',
+          path: '/admin/statistics/article',
+          icon: 'documentation',
+          permissions: ['admin']
+        },
+        {
+          name: '用户统计',
+          path: '/admin/statistics/user',
+          icon: 'user',
+          permissions: ['admin']
+        }
+      ]
     }
   ]
 }

@@ -73,6 +73,16 @@ export function updateSettingValueByKey(key, value) {
 export function getBlogSettings() {
   return request({
     url: '/blog/setting',
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false } // 不携带token，允许匿名访问
+  })
+}
+
+// 匿名访问博客设置
+export function getBlogSettingsAnonymous() {
+  return request({
+    url: '/blog/setting',
+    method: 'get',
+    headers: { isToken: false }
   })
 }

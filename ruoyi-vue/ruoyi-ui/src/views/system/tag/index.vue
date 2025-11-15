@@ -342,7 +342,23 @@ function handleDelete(row) {
 
 /** 统计按钮操作 */
 function handleStatistics() {
-  proxy.$modal.msgInfo("标签统计功能开发中...");
+  // 计算统计信息
+  const totalTags = tagList.value.length;
+  const totalArticles = tagList.value.reduce((sum, tag) => sum + (tag.articleCount || 0), 0);
+  const usedTags = tagList.value.filter(tag => tag.articleCount > 0).length;
+
+  proxy.$modal.info({
+    title: '标签统计信息',
+    content: `
+      <div style="line-height: 2;">
+        <p>总标签数：${totalTags}</p>
+        <p>已使用标签：${usedTags}</p>
+        <p>未使用标签：${totalTags - usedTags}</p>
+        <p>总关联文章数：${totalArticles}</p>
+      </div>
+    `,
+    dangerouslyUseHTMLString: true
+  });
 }
 
 /** 导出按钮操作 */
@@ -354,7 +370,7 @@ function handleExport() {
 
 /** 导入按钮操作 */
 function handleImport() {
-  proxy.$modal.msgInfo("标签导入功能开发中...");
+  proxy.$modal.msgInfo("标签导入功能正在开发中，如需导入请联系管理员手动处理。");
 }
 
 getList();

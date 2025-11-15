@@ -83,6 +83,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取博客设置（前台用）
      */
+    @Anonymous
     @GetMapping("/setting")
     public AjaxResult getBlogSettings()
     {
@@ -248,6 +249,7 @@ public class BlogFrontController extends BaseController
     /**
      * 搜索文章（前台用，支持分页）
      */
+    @Anonymous
     @GetMapping("/article/search")
     public TableDataInfo searchArticles(BlogArticle blogArticle, @RequestParam(value = "keyword", required = false) String keyword)
     {
@@ -272,6 +274,7 @@ public class BlogFrontController extends BaseController
     /**
      * 根据分类获取文章列表（前台用，支持分页）
      */
+    @Anonymous
     @GetMapping("/article/category/{categoryId}")
     public TableDataInfo getArticlesByCategory(@PathVariable("categoryId") Long categoryId, BlogArticle blogArticle)
     {
@@ -288,6 +291,7 @@ public class BlogFrontController extends BaseController
     /**
      * 根据标签获取文章列表（前台用，支持分页）
      */
+    @Anonymous
     @GetMapping("/article/tag/{tagId}")
     public TableDataInfo getArticlesByTag(@PathVariable("tagId") Long tagId, BlogArticle blogArticle)
     {
@@ -299,6 +303,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取热门文章（前台用，支持分页）
      */
+    @Anonymous
     @GetMapping("/article/hot")
     public TableDataInfo getHotArticles(BlogArticle blogArticle)
     {
@@ -427,6 +432,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取RSS订阅
      */
+    @Anonymous
     @GetMapping(value = "/rss", produces = "application/xml;charset=UTF-8")
     public void getRssFeed(HttpServletResponse response) throws IOException {
         response.setContentType("application/xml;charset=UTF-8");

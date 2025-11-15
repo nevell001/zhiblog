@@ -83,11 +83,32 @@ function resolvePath(routePath, routeQuery) {
   if (isExternal(props.basePath)) {
     return props.basePath
   }
-  if (routeQuery) {
-    let query = JSON.parse(routeQuery)
-    return { path: getNormalPath(props.basePath + '/' + routePath), query: query }
+  
+  // 处理路径拼接，确保路径格式正确
+  let fullPath = ''
+  if (props.basePath && routePath) {
+    fullPath = getNormalPath(props.basePath + '/' + routePath)
+  } else if (props.basePath) {
+    fullPath = getNormalPath(props.basePath)
+  } else if (routePath) {
+    fullPath = getNormalPath(routePath)
   }
-  return getNormalPath(props.basePath + '/' + routePath)
+  
+  // 确保路径不以//开头
+  if (fullPath.startsWith('//')) {
+    fullPath = fullPath.substring(1)
+  }
+  
+  if (routeQuery) {
+    try {
+      let query = JSON.parse(routeQuery)
+      return { path: fullPath, query: query }
+    } catch (error) {
+      console.warn('路由查询参数解析失败:', routeQuery, error)
+      return fullPath
+    }
+  }
+  return fullPath
 }
 
 function hasTitle(title){

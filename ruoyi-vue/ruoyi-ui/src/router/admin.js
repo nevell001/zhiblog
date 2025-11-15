@@ -146,7 +146,7 @@ export const adminRoutes = [
     children: [
       {
         path: 'article',
-        component: () => import('@/views/admin/blog/article/article/index.vue'),
+        component: () => import('@/views/admin/blog/article/article/index'),
         name: 'Article',
         meta: { title: '文章管理', icon: 'edit', permissions: ['admin', 'editor'] }
       },
@@ -172,22 +172,44 @@ export const adminRoutes = [
         path: 'setting',
         component: () => import('@/views/admin/blog/setting/setting/index'),
         name: 'BlogSetting',
-        meta: { title: '博客设置', icon: 'setting' }
+        meta: { title: '博客设置', icon: 'setting', permissions: ['admin'] }
       },
       {
         path: 'friendLink',
         component: () => import('@/views/admin/blog/friendLink/friendLink/index'),
         name: 'FriendLink',
-        meta: { title: '友链管理', icon: 'link' }
+        meta: { title: '友链管理', icon: 'link', permissions: ['admin', 'editor'] }
       }
     ]
   },
   {
-    path: '/test-category',
-    component: () => import('@/views/test-category.vue'),
-    name: 'TestCategory',
-    meta: { title: '分类管理测试' }
+    path: '/admin/statistics',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/statistics/overview',
+    name: 'Statistics',
+    meta: { title: '数据统计', icon: 'chart', permissions: ['admin'] },
+    children: [
+      {
+        path: 'overview',
+        component: () => import('@/views/admin/statistics/overview/index'),
+        name: 'StatisticsOverview',
+        meta: { title: '数据概览', icon: 'overview' }
+      },
+      {
+        path: 'article',
+        component: () => import('@/views/admin/statistics/article/index'),
+        name: 'StatisticsArticle',
+        meta: { title: '文章统计', icon: 'documentation' }
+      },
+      {
+        path: 'user',
+        component: () => import('@/views/admin/statistics/user/index'),
+        name: 'StatisticsUser',
+        meta: { title: '用户统计', icon: 'user' }
+      }
+    ]
   }
+
 ]
 
 export default adminRoutes

@@ -70,7 +70,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-register-footer">
-      <span>Copyright © 2018-2025 ruoyi.vip All Rights Reserved.</span>
+      <span>Copyright © 2025 博客管理系统 All Rights Reserved.</span>
     </div>
   </div>
 </template>
@@ -91,7 +91,7 @@ const registerForm = ref({
   uuid: ""
 })
 
-const equalToPassword = (rule, value, callback) => {
+const equalToPassword = (_rule, value, callback) => {
   if (registerForm.value.password !== value) {
     callback(new Error("两次输入的密码不一致"))
   } else {
@@ -124,7 +124,7 @@ function handleRegister() {
   proxy.$refs.registerRef.validate(valid => {
     if (valid) {
       loading.value = true
-      register(registerForm.value).then(res => {
+      register(registerForm.value).then(_res => {
         const username = registerForm.value.username
         ElMessageBox.alert("<font color='red'>恭喜你，您的账号 " + username + " 注册成功！</font>", "系统提示", {
           dangerouslyUseHTMLString: true,

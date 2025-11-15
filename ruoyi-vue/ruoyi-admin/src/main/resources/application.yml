@@ -53,9 +53,9 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://localhost:3306/newblog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+        url: jdbc:mysql://localhost:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
         username: root
-        password: root
+        password: ${DB_PASSWORD:root}
         driverClassName: com.mysql.cj.jdbc.Driver
         # 从库数据源
         slave:
@@ -135,7 +135,7 @@ spring:
     database: 0
     # 密码
     # 警告：生产环境强烈建议设置Redis密码
-    password: 
+    password: ${REDIS_PASSWORD:} 
     # 连接超时时间
     timeout: 10s
     lettuce:

@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import useUserStore from '@/store/modules/user'
+import auth from '@/plugins/auth'
 
 /* Layout */
 import Layout from '@/layout/index.vue'
@@ -34,7 +36,7 @@ import adminRoutes from './admin'
 export const constantRoutes = [
   {
     path: '/',
-    redirect: '/index',
+    redirect: '/blog',
     hidden: true
   },
   {
@@ -169,6 +171,78 @@ const router = createRouter({
   history: createWebHistory(),
   routes: [...constantRoutes, ...blogRoutes, ...adminRoutes, ...dynamicRoutes],
   scrollBehavior: () => ({ top: 0 })
+})
+
+// 添加路由守卫，处理权限验证和路由匹配
+router.beforeEach((to, from, next) => {
+  // 获取用户信息
+  const userStore = useUserStore()
+  const token = userStore.token
+  
+  // 检查路由是否存在 - 使用Vue Router的匹配逻辑
+  const matchedRoutes = router.getRoutes().filter(route => {
+    // 使用Vue Router的路径匹配逻辑
+    if (route.path === to.path) return true
+    // 处理动态路由和嵌套路由
+    if (route.path.includes(':') && to.path.startsWith(route.path.split(':')[0])) return true
+    return false
+  })
+  
+  // 如果路由不存在，重定向到404
+  if (matchedRoutes.length === 0 && to.path !== '/404') {
+    console.warn(`路由未匹配: ${to.path}，重定向到404页面`)
+    next('/404')
+    return
+  }
+  
+  // 白名单路由（无需登录即可访问）
+  const whiteList = ['/login', '/register', '/404', '/401', '/blog', '/blog/article', '/blog/category', '/blog/tag', '/blog/archive', '/blog/about', '/index', '/about']
+  
+  // 检查是否为白名单路由
+  if (whiteList.includes(to.path) || to.path.startsWith('/blog/')) {
+    next()
+    return
+  }
+  
+  // 检查用户是否已登录
+  if (token) {
+    // 已登录用户访问登录页，重定向到首页
+    if (to.path === '/login') {
+      next({ path: '/' })
+      return
+    }
+    
+    // 检查用户权限
+    if (to.meta && to.meta.permissions) {
+      const hasPermission = auth.hasPermiOr(to.meta.permissions)
+      if (!hasPermission) {
+        console.warn(`权限不足，无法访问: ${to.path}`)
+        next('/401')
+        return
+      }
+    }
+    
+    // 检查用户角色
+    if (to.meta && to.meta.roles) {
+      const hasRole = auth.hasRoleOr(to.meta.roles)
+      if (!hasRole) {
+        console.warn(`角色不符，无法访问: ${to.path}`)
+        next('/401')
+        return
+      }
+    }
+    
+    next()
+  } else {
+    // 未登录用户访问需要权限的页面，重定向到登录页
+    if (to.meta && (to.meta.permissions || to.meta.roles)) {
+      console.warn(`未登录，重定向到登录页: ${to.path}`)
+      next(`/login?redirect=${to.path}`)
+      return
+    }
+    
+    next()
+  }
 })
 
 export default router

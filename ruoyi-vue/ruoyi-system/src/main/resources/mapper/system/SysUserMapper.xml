@@ -220,4 +220,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach> 
  	</delete>
 	
+	<!-- 统计相关SQL -->
+	<select id="selectUserCount" parameterType="SysUser" resultType="Long">
+		select count(1) from sys_user u
+		where u.del_flag = '0'
+		<if test="userName != null and userName != ''">
+			AND u.user_name like concat('%', #{userName}, '%')
+		</if>
+		<if test="status != null and status != ''">
+			AND u.status = #{status}
+		</if>
+		<if test="phonenumber != null and phonenumber != ''">
+			AND u.phonenumber like concat('%', #{phonenumber}, '%')
+		</if>
+	</select>
+	
+	<select id="selectActiveUserCount" parameterType="Integer" resultType="Long">
+		select count(1) from sys_user u
+		where u.del_flag = '0' 
+		and u.status = '0'
+		and u.login_date >= date_sub(now(), interval #{days} day)
+	</select>
+	
+	<select id="selectNewUserCount" parameterType="Integer" resultType="Long">
+		select count(1) from sys_user u
+		where u.del_flag = '0' 
+		and u.status = '0'
+		and u.create_time >= date_sub(now(), interval #{days} day)
+	</select>
+	
+	<select id="selectAdminUserCount" resultType="Long">
+		select count(1) from sys_user u
+		where u.del_flag = '0' 
+		and u.status = '0'
+		and u.user_id in (select ur.user_id from sys_user_role ur 
+			join sys_role r on ur.role_id = r.role_id 
+			where r.role_key = 'admin')
+	</select>
+	
 </mapper> 

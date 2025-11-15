@@ -203,4 +203,35 @@ public interface ISysUserService
      * @return 结果
      */
     public String importUser(List<SysUser> userList, Boolean isUpdateSupport, String operName);
+
+    /**
+     * 查询用户数量
+     * 
+     * @param user 查询条件
+     * @return 用户数量
+     */
+    public Long selectUserCount(SysUser user);
+
+    /**
+     * 查询活跃用户数量（最近N天登录的用户）
+     * 
+     * @param days 天数
+     * @return 活跃用户数量
+     */
+    public Long selectActiveUserCount(Integer days);
+
+    /**
+     * 查询新增用户数量（最近N天注册的用户）
+     * 
+     * @param days 天数
+     * @return 新增用户数量
+     */
+    public Long selectNewUserCount(Integer days);
+
+    /**
+     * 查询管理员用户数量
+     * 
+     * @return 管理员数量
+     */
+    public Long selectAdminUserCount();
 }

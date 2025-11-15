@@ -141,4 +141,26 @@ public interface IBlogArticleService
      * @return 结果
      */
     public int updateArticleStatus(List<Long> ids, Integer status);
+
+    /**
+     * 查询博客文章数量
+     * 
+     * @param blogArticle 查询条件
+     * @return 文章数量
+     */
+    public Long selectBlogArticleCount(BlogArticle blogArticle);
+
+    /**
+     * 获取文章总浏览量
+     * 
+     * @return 总浏览量
+     */
+    public Long selectTotalViewCount();
+
+    /**
+     * 获取文章平均浏览量
+     * 
+     * @return 平均浏览量
+     */
+    public Double selectAverageViewCount();
 }

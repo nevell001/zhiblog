@@ -7,7 +7,7 @@ import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
 
 // 匹配views里面所有的.vue文件
-const modules = import.meta.glob('./../../views/**/*.vue')
+// const _modules = import.meta.glob('./../../views/**/*.vue')
 
 const usePermissionStore = defineStore(
   'permission',
@@ -17,37 +17,7 @@ const usePermissionStore = defineStore(
       addRoutes: [],
       defaultRoutes: [],
       topbarRouters: [],
-      // 设置默认的侧边栏路由，确保菜单能够显示
-      sidebarRouters: [
-        {
-          path: '/home',
-          component: Layout,
-          name: 'Home',
-          meta: { title: '首页', icon: 'home' },
-          children: [
-            {
-              path: 'index',
-              component: () => import('@/views/index.vue'),
-              name: 'Dashboard',
-              meta: { title: '控制台', icon: 'dashboard' }
-            }
-          ]
-        },
-        {
-          path: '/demo',
-          component: Layout,
-          name: 'Demo',
-          meta: { title: '演示菜单', icon: 'example' },
-          children: [
-            {
-              path: 'test',
-              component: () => import('@/views/index.vue'),
-              name: 'TestPage',
-              meta: { title: '测试页面', icon: 'test' }
-            }
-          ]
-        }
-      ]
+      sidebarRouters: []
     }),
     actions: {
       setRoutes(routes) {
@@ -63,64 +33,180 @@ const usePermissionStore = defineStore(
       setSidebarRouters(routes) {
         this.sidebarRouters = routes
       },
-      generateRoutes(roles) {
+      generateRoutes(_roles) {
         return new Promise(resolve => {
-          console.log('generateRoutes被调用了!')
-          console.log('传入的roles:', roles)
-          
-          // 直接使用mock路由数据，确保菜单能够显示
-          const mockRoutes = [
-            {
-              path: '/home',
-              component: Layout,
-              name: 'Home',
-              meta: { title: '首页', icon: 'home' },
-              children: [
+          // 向后端请求路由数据
+          getRouters().then(res => {
+            // 增强数据验证逻辑和容错机制
+            if (!res || res.code !== 200 || !res.data || !Array.isArray(res.data)) {
+              console.warn('路由数据格式错误或请求失败，使用前端路由配置:', res)
+              // 使用前端路由配置作为后备方案
+              const frontendRoutes = filterAsyncRouter([
                 {
-                  path: 'index',
-                  component: () => import('@/views/index.vue'),
-                  name: 'Dashboard',
-                  meta: { title: '控制台', icon: 'dashboard' }
-                }
-              ]
-            },
-            {
-              path: '/demo',
-              component: Layout,
-              name: 'Demo',
-              meta: { title: '演示菜单', icon: 'example' },
-              children: [
+                  path: '/admin/dashboard',
+                  component: 'admin/dashboard/index',
+                  name: 'AdminDashboard',
+                  meta: { title: '后台首页', icon: 'dashboard' }
+                },
                 {
-                  path: 'test',
-                  component: () => import('@/views/index.vue'),
-                  name: 'TestPage',
-                  meta: { title: '测试页面', icon: 'test' }
+                  path: '/admin/system',
+                  component: 'Layout',
+                  redirect: '/admin/system/user',
+                  name: 'System',
+                  meta: { title: '系统管理', icon: 'system' },
+                  children: [
+                    {
+                      path: 'user',
+                      component: 'admin/system/user/user/index',
+                      name: 'User',
+                      meta: { title: '用户管理', icon: 'user' }
+                    },
+                    {
+                      path: 'role',
+                      component: 'admin/system/role/role/index',
+                      name: 'Role',
+                      meta: { title: '角色管理', icon: 'peoples' }
+                    },
+                    {
+                      path: 'menu',
+                      component: 'admin/system/menu/menu/index',
+                      name: 'Menu',
+                      meta: { title: '菜单管理', icon: 'tree-table' }
+                    }
+                  ]
+                },
+                {
+                  path: '/admin/monitor',
+                  component: 'Layout',
+                  redirect: '/admin/monitor/online',
+                  name: 'Monitor',
+                  meta: { title: '系统监控', icon: 'monitor' },
+                  children: [
+                    {
+                      path: 'online',
+                      component: 'admin/monitor/online/index',
+                      name: 'Online',
+                      meta: { title: '在线用户', icon: 'online' }
+                    },
+                    {
+                      path: 'job',
+                      component: 'admin/monitor/job/index',
+                      name: 'Job',
+                      meta: { title: '定时任务', icon: 'job' }
+                    }
+                  ]
+                },
+                {
+                  path: '/admin/statistics',
+                  component: 'Layout',
+                  redirect: '/admin/statistics/overview',
+                  name: 'Statistics',
+                  meta: { title: '数据统计', icon: 'chart' },
+                  children: [
+                    {
+                      path: 'overview',
+                      component: 'admin/statistics/overview/index',
+                      name: 'StatisticsOverview',
+                      meta: { title: '数据概览', icon: 'overview' }
+                    },
+                    {
+                      path: 'article',
+                      component: 'admin/statistics/article/index',
+                      name: 'StatisticsArticle',
+                      meta: { title: '文章统计', icon: 'documentation' }
+                    },
+                    {
+                      path: 'user',
+                      component: 'admin/statistics/user/index',
+                      name: 'StatisticsUser',
+                      meta: { title: '用户统计', icon: 'user' }
+                    }
+                  ]
                 }
-              ]
+              ])
+              this.setSidebarRouters(constantRoutes.concat(frontendRoutes))
+              resolve(frontendRoutes)
+              return
             }
-          ]
-          
-          console.log('mock路由数据:', mockRoutes)
-          // 直接使用mockRoutes作为侧边栏路由，确保菜单显示
-          this.setSidebarRouters(mockRoutes)
-          console.log('设置后sidebarRouters:', this.sidebarRouters)
-          this.setRoutes(mockRoutes)
-          this.setDefaultRoutes(mockRoutes)
-          this.setTopbarRoutes(mockRoutes)
-          
-          console.log('路由生成完成!')
-          resolve(mockRoutes)
+            
+            const sdata = JSON.parse(JSON.stringify(res.data))
+            const rdata = JSON.parse(JSON.stringify(res.data))
+            const defaultData = JSON.parse(JSON.stringify(res.data))
+            
+            try {
+              const sidebarRoutes = filterAsyncRouter(sdata)
+              const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+              const defaultRoutes = filterAsyncRouter(defaultData)
+              const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+              
+              // 清除现有动态路由
+              const existingRoutes = router.getRoutes()
+              existingRoutes.forEach(route => {
+                if (route.name && route.name.startsWith('DynamicRoute_')) {
+                  router.removeRoute(route.name)
+                }
+              })
+              
+              // 添加新的动态路由
+              asyncRoutes.forEach((route, _index) => {
+                if (route && route.name && !router.hasRoute(route.name)) {
+                  router.addRoute(route)
+                }
+              })
+              
+              this.setRoutes(rewriteRoutes)
+              this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+              this.setDefaultRoutes(sidebarRoutes)
+              this.setTopbarRoutes(defaultRoutes)
+              
+              resolve(rewriteRoutes)
+            } catch (error) {
+              console.error('处理路由数据时出错:', error)
+              // 返回空数组而不是抛出错误
+              resolve([])
+            }
+          }).catch(error => {
+            console.error('获取路由失败:', error)
+            // 返回空数组而不是抛出错误
+            resolve([])
+          })
         })
       }
     }
   })
 
 // 遍历后台传来的路由字符串，转换为组件对象
-function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
+function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
   return asyncRouterMap.filter(route => {
+    // 检查路由是否隐藏
+    if (route.hidden === true) {
+      return false
+    }
+    
+    // 检查权限控制 - 增强错误处理和容错机制
+    try {
+      if (route.permissions) {
+        if (!auth.hasPermiOr || !auth.hasPermiOr(route.permissions)) {
+          console.warn('权限验证失败，跳过路由:', route.path, route.permissions)
+          return false
+        }
+      }
+      if (route.roles) {
+        if (!auth.hasRoleOr || !auth.hasRoleOr(route.roles)) {
+          console.warn('角色验证失败，跳过路由:', route.path, route.roles)
+          return false
+        }
+      }
+    } catch (error) {
+      console.warn('权限验证出错，跳过路由:', route.path, error)
+      return false
+    }
+    
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
+    
+    // 组件加载处理 - 增强容错机制
     if (route.component) {
       // Layout ParentView 组件特殊处理
       if (route.component === 'Layout') {
@@ -130,20 +216,39 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
       } else if (route.component === 'InnerLink') {
         route.component = InnerLink
       } else {
-        route.component = loadView(route.component)
+        try {
+          route.component = loadView(route.component)
+        } catch (error) {
+          console.error('组件加载失败:', route.component, error)
+          // 使用默认错误页面替代，但保留路由结构
+          route.component = () => import('@/views/error/404.vue')
+        }
       }
     }
+    
+    // 处理子路由 - 增强容错机制
     if (route.children != null && route.children && route.children.length) {
-      route.children = filterAsyncRouter(route.children, route, type)
+      try {
+        route.children = filterAsyncRouter(route.children, route, type)
+        // 如果子路由全部被过滤掉，则隐藏父路由
+        if (route.children.length === 0) {
+          return false
+        }
+      } catch (error) {
+        console.error('处理子路由时出错:', route.path, error)
+        // 保留父路由，清空子路由
+        route.children = []
+      }
     } else {
       delete route['children']
       delete route['redirect']
     }
+    
     return true
   })
 }
 
-function filterChildren(childrenMap, lastRouter = false) {
+function filterChildren(childrenMap, _lastRouter = false) {
   var children = []
   childrenMap.forEach(el => {
     el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path
@@ -182,59 +287,57 @@ export const loadView = (view) => {
     return () => import('@/views/error/401.vue')
   }
   
-  // 使用try-catch处理动态导入
-  try {
-    // 为Vite添加忽略警告注释
-    return () => import(/* @vite-ignore */ `@/views/${view}.vue`)
-  } catch (error) {
-    try {
-      return () => import(/* @vite-ignore */ `@/views/${view}/index.vue`)
-    } catch (e) {
-      console.warn(`未找到组件: ${view}，将使用404页面替代`)
-      return () => import('@/views/error/404.vue')
-    }
+  // 处理特殊组件路径
+  if (view.startsWith('admin/')) {
+    // 后台管理组件使用标准路径
+    const normalizedPath = view.replace(/^admin\//, '')
+    return () => import(`@/views/admin/${normalizedPath}.vue`)
   }
-}
-
-// 为了确保侧边栏路由被正确设置，添加一个初始化函数
-export function initPermissionStore() {
-  const store = usePermissionStore()
-  // 直接使用mock路由数据，确保菜单能够显示
-  const mockRoutes = [
-    {
-      path: '/home',
-      component: Layout,
-      name: 'Home',
-      meta: { title: '首页', icon: 'home' },
-      children: [
-        {
-          path: 'index',
-          component: () => import('@/views/index.vue'),
-          name: 'Dashboard',
-          meta: { title: '控制台', icon: 'dashboard' }
-        }
-      ]
-    },
-    {
-      path: '/demo',
-      component: Layout,
-      name: 'Demo',
-      meta: { title: '演示菜单', icon: 'example' },
-      children: [
-        {
-          path: 'test',
-          component: () => import('@/views/index.vue'),
-          name: 'TestPage',
-          meta: { title: '测试页面', icon: 'test' }
-        }
-      ]
-    }
+  
+  // 处理标准组件路径
+  if (view.includes('/')) {
+    // 如果包含路径分隔符，直接使用
+    return () => import(`@/views/${view}.vue`)
+  }
+  
+  // 增强的组件加载逻辑 - 多级备用路径尝试
+  const loadAttempts = [
+    // 尝试1: 直接路径
+    () => import(`@/views/${view}.vue`),
+    // 尝试2: 带index的路径
+    () => import(`@/views/${view}/index.vue`),
+    // 尝试3: 后台管理路径
+    () => import(`@/views/admin/${view}/index.vue`),
+    // 尝试4: 系统管理路径
+    () => import(`@/views/admin/system/${view}/index.vue`),
+    // 尝试5: 博客管理路径
+    () => import(`@/views/admin/blog/${view}/index.vue`),
+    // 尝试6: 统计管理路径
+    () => import(`@/views/admin/statistics/${view}/index.vue`),
+    // 尝试7: 监控管理路径
+    () => import(`@/views/admin/monitor/${view}/index.vue`),
+    // 尝试8: 工具管理路径
+    () => import(`@/views/admin/tool/${view}/index.vue`)
   ]
   
-  if (store.sidebarRouters.length === 0) {
-    store.setSidebarRouters(mockRoutes)
-    console.log('初始化默认侧边栏路由:', store.sidebarRouters)
+  // 按顺序尝试加载组件
+  for (let i = 0; i < loadAttempts.length; i++) {
+    try {
+      return loadAttempts[i]
+    } catch (error) {
+      if (i === loadAttempts.length - 1) {
+        // 所有尝试都失败
+        console.error(`所有路径尝试失败: ${view}，使用404页面替代`)
+        return () => import('@/views/error/404.vue')
+      }
+      // 继续尝试下一个路径
+      continue
+    }
   }
+  
+  // 默认返回404页面
+  return () => import('@/views/error/404.vue')
 }
+
 
 export default usePermissionStore

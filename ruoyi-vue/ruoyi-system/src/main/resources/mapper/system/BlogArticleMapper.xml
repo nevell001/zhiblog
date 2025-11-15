@@ -187,4 +187,21 @@
             #{id}
         </foreach>
     </select>
+
+    <!-- 统计相关SQL -->
+    <select id="selectBlogArticleCount" parameterType="BlogArticle" resultType="Long">
+        select count(1) from blog_article
+        where del_flag = 0
+        <if test="status != null and status != ''">
+            and status = #{status}
+        </if>
+    </select>
+
+    <select id="selectTotalViewCount" resultType="Long">
+        select sum(view_count) from blog_article where del_flag = 0 and status = '1'
+    </select>
+
+    <select id="selectAverageViewCount" resultType="Double">
+        select avg(view_count) from blog_article where del_flag = 0 and status = '1'
+    </select>
 </mapper>

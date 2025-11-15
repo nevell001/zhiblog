@@ -1,0 +1,71 @@
+# 生产环境配置
+# 生产环境专用配置，安全性更高
+
+# Spring配置
+spring:
+  # 数据源配置
+  datasource:
+    druid:
+      # 生产环境关闭Druid监控页面
+      stat-view-servlet:
+        enabled: false
+      # 生产环境关闭WebStatFilter
+      webStatFilter:
+        enabled: false
+  # 生产环境关闭热部署
+  devtools:
+    restart:
+      enabled: false
+
+# Swagger配置 - 生产环境关闭Swagger
+swagger:
+  enabled: false
+
+# 日志配置 - 生产环境使用info级别
+logging:
+  level:
+    com.ruoyi: info
+    org.springframework: warn
+
+# 生产环境安全配置
+server:
+  # 生产环境建议使用HTTPS
+  # ssl:
+  #   key-store: classpath:keystore.p12
+  #   key-store-password: your-password
+  #   key-store-type: PKCS12
+  #   key-alias: tomcat
+  # port: 8443
+  
+  # 生产环境建议设置服务器头信息
+  server-header: 
+
+# 生产环境文件上传限制
+spring:
+  servlet:
+    multipart:
+      # 单个文件大小限制
+      max-file-size: 5MB
+      # 总上传文件大小限制
+      max-request-size: 10MB
+
+# 生产环境安全配置
+ruoyi:
+  # 生产环境关闭获取IP地址
+  addressEnabled: false
+  # 生产环境使用字符验证码
+  captchaType: char
+
+# 生产环境Token配置
+token:
+  # 生产环境缩短Token有效期
+  expireTime: 15
+
+# 生产环境XSS防护配置
+xss:
+  # 生产环境启用XSS过滤
+  enabled: true
+  # 生产环境排除链接
+  excludes: /blog/**,/api/**,/index
+  # 生产环境匹配链接
+  urlPatterns: /system/*,/monitor/*,/tool/*,/admin/*

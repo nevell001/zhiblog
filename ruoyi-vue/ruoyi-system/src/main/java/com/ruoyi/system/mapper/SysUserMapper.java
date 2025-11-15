@@ -124,4 +124,35 @@ public interface SysUserMapper
      * @return 结果
      */
     public SysUser checkEmailUnique(String email);
+
+    /**
+     * 查询用户数量
+     * 
+     * @param user 查询条件
+     * @return 用户数量
+     */
+    Long selectUserCount(SysUser user);
+
+    /**
+     * 获取活跃用户数量（最近N天登录的用户）
+     * 
+     * @param days 天数
+     * @return 活跃用户数量
+     */
+    Long selectActiveUserCount(Integer days);
+
+    /**
+     * 获取新增用户数量（最近N天注册的用户）
+     * 
+     * @param days 天数
+     * @return 新增用户数量
+     */
+    Long selectNewUserCount(Integer days);
+
+    /**
+     * 获取管理员用户数量
+     * 
+     * @return 管理员数量
+     */
+    Long selectAdminUserCount();
 }

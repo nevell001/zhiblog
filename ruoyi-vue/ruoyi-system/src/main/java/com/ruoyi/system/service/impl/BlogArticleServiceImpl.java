@@ -303,4 +303,38 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         }
         return result;
     }
+
+    /**
+     * 查询博客文章数量
+     * 
+     * @param blogArticle 查询条件
+     * @return 文章数量
+     */
+    @Override
+    public Long selectBlogArticleCount(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectBlogArticleCount(blogArticle);
+    }
+
+    /**
+     * 获取文章总浏览量
+     * 
+     * @return 总浏览量
+     */
+    @Override
+    public Long selectTotalViewCount()
+    {
+        return blogArticleMapper.selectTotalViewCount();
+    }
+
+    /**
+     * 获取文章平均浏览量
+     * 
+     * @return 平均浏览量
+     */
+    @Override
+    public Double selectAverageViewCount()
+    {
+        return blogArticleMapper.selectAverageViewCount();
+    }
 }

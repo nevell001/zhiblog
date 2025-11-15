@@ -46,3 +46,7 @@ nbdist/
 !*/build/*.html
 !*/build/*.xml
 uploadPath/
+
+# 环境变量文件
+.env
+ruoyi-admin/src/main/resources/.env

@@ -4,6 +4,11 @@
 *.jar
 *.war
 logs/
+uploadPath/
+target/
+*.iml
+*.class
+
 
 # 构建产物与依赖
 node_modules/
