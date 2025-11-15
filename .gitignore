@@ -39,3 +39,4 @@ cypress/downloads/
 .cursor
 dump.rdb
 *.rdb
+uploadPath/
