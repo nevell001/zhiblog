@@ -6,6 +6,16 @@ export function listFriendLink(query) {
     url: '/system/friendLink/list',
     method: 'get',
     params: query
+  }).then(response => {
+    // 确保返回的数据格式正确
+    if (response && response.code === 200 && response.data) {
+      return response.data
+    } else {
+      throw new Error('获取友链列表数据格式错误')
+    }
+  }).catch(error => {
+    console.error('查询友链列表失败:', error)
+    throw error
   })
 }
 
@@ -14,6 +24,15 @@ export function getFriendLink(id) {
   return request({
     url: '/system/friendLink/' + id,
     method: 'get'
+  }).then(response => {
+    if (response && response.code === 200) {
+      return response
+    } else {
+      throw new Error('获取友链详情失败')
+    }
+  }).catch(error => {
+    console.error('查询友链详情失败:', error)
+    throw error
   })
 }
 
@@ -23,6 +42,15 @@ export function addFriendLink(data) {
     url: '/system/friendLink',
     method: 'post',
     data: data
+  }).then(response => {
+    if (response && response.code === 200) {
+      return response
+    } else {
+      throw new Error(response.message || '新增友链失败')
+    }
+  }).catch(error => {
+    console.error('新增友链失败:', error)
+    throw error
   })
 }
 
@@ -32,6 +60,15 @@ export function updateFriendLink(data) {
     url: '/system/friendLink',
     method: 'put',
     data: data
+  }).then(response => {
+    if (response && response.code === 200) {
+      return response
+    } else {
+      throw new Error(response.message || '修改友链失败')
+    }
+  }).catch(error => {
+    console.error('修改友链失败:', error)
+    throw error
   })
 }
 
@@ -40,5 +77,49 @@ export function delFriendLink(id) {
   return request({
     url: '/system/friendLink/' + id,
     method: 'delete'
+  }).then(response => {
+    if (response && response.code === 200) {
+      return response
+    } else {
+      throw new Error(response.message || '删除友链失败')
+    }
+  }).catch(error => {
+    console.error('删除友链失败:', error)
+    throw error
+  })
+}
+
+// 查询前台友链列表（用于前台展示）
+export function getFrontFriendLinkList() {
+  return request({
+    url: '/system/friendLink/front/list',
+    method: 'get'
+  }).then(response => {
+    if (response && response.code === 200) {
+      return response
+    } else {
+      throw new Error('获取前台友链列表失败')
+    }
+  }).catch(error => {
+    console.error('查询前台友链列表失败:', error)
+    throw error
+  })
+}
+
+// 校验友链名称唯一性
+export function checkFriendLinkNameUnique(name, id) {
+  return request({
+    url: '/system/friendLink/check/nameUnique',
+    method: 'get',
+    params: { name, id }
+  })
+}
+
+// 校验友链URL唯一性
+export function checkFriendLinkUrlUnique(url, id) {
+  return request({
+    url: '/system/friendLink/check/urlUnique',
+    method: 'get',
+    params: { url, id }
   })
 }

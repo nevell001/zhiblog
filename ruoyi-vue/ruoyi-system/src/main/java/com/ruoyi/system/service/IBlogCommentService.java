@@ -57,4 +57,20 @@ public interface IBlogCommentService
      * @return 结果
      */
     public int deleteBlogCommentById(Long id);
+    
+    /**
+     * 审核通过博客评论
+     * 
+     * @param ids 需要审核通过的博客评论主键集合
+     * @return 结果
+     */
+    public int auditBlogCommentByIds(Long[] ids);
+    
+    /**
+     * 审核拒绝博客评论
+     * 
+     * @param ids 需要审核拒绝的博客评论主键集合
+     * @return 结果
+     */
+    public int rejectBlogCommentByIds(Long[] ids);
 }

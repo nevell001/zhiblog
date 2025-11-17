@@ -89,4 +89,44 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     {
         return blogCommentMapper.deleteBlogCommentById(id);
     }
+
+    /**
+     * 审核通过博客评论
+     * 
+     * @param ids 需要审核通过的博客评论主键集合
+     * @return 结果
+     */
+    @Override
+    public int auditBlogCommentByIds(Long[] ids)
+    {
+        // 更新评论状态为已审核（通过）
+        int count = 0;
+        for (Long id : ids) {
+            BlogComment blogComment = new BlogComment();
+            blogComment.setId(id);
+            blogComment.setStatus("1"); // 1表示已审核通过
+            count += blogCommentMapper.updateBlogComment(blogComment);
+        }
+        return count;
+    }
+
+    /**
+     * 审核拒绝博客评论
+     * 
+     * @param ids 需要审核拒绝的博客评论主键集合
+     * @return 结果
+     */
+    @Override
+    public int rejectBlogCommentByIds(Long[] ids)
+    {
+        // 更新评论状态为已删除（拒绝）
+        int count = 0;
+        for (Long id : ids) {
+            BlogComment blogComment = new BlogComment();
+            blogComment.setId(id);
+            blogComment.setStatus("2"); // 2表示已删除（拒绝）
+            count += blogCommentMapper.updateBlogComment(blogComment);
+        }
+        return count;
+    }
 }

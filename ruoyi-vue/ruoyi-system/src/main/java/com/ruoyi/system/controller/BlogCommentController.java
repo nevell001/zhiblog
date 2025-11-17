@@ -100,4 +100,26 @@ public class BlogCommentController extends BaseController
     {
         return toAjax(blogCommentService.deleteBlogCommentByIds(ids));
     }
+    
+    /**
+     * 审核通过博客评论
+     */
+    @PreAuthorize("@ss.hasPermi('system:comment:audit')")
+    @Log(title = "博客评论", businessType = BusinessType.UPDATE)
+    @PutMapping("/audit/{ids}")
+    public AjaxResult audit(@PathVariable Long[] ids)
+    {
+        return toAjax(blogCommentService.auditBlogCommentByIds(ids));
+    }
+    
+    /**
+     * 审核拒绝博客评论
+     */
+    @PreAuthorize("@ss.hasPermi('system:comment:reject')")
+    @Log(title = "博客评论", businessType = BusinessType.UPDATE)
+    @PutMapping("/reject/{ids}")
+    public AjaxResult reject(@PathVariable Long[] ids)
+    {
+        return toAjax(blogCommentService.rejectBlogCommentByIds(ids));
+    }
 }
