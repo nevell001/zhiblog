@@ -134,6 +134,12 @@ export const adminRoutes = [
         component: () => import('@/views/admin/tool/gen/index'),
         name: 'Gen',
         meta: { title: '代码生成', icon: 'code' }
+      },
+      {
+        path: 'swagger',
+        component: () => import('@/views/admin/tool/swagger/index'),
+        name: 'Swagger',
+        meta: { title: '系统接口', icon: 'swagger' }
       }
     ]
   },

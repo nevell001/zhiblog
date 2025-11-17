@@ -72,6 +72,36 @@ const usePermissionStore = defineStore(
                       component: 'admin/system/menu/menu/index',
                       name: 'Menu',
                       meta: { title: '菜单管理', icon: 'tree-table' }
+                    },
+                    {
+                      path: 'dept',
+                      component: 'admin/system/dept/dept/index',
+                      name: 'Dept',
+                      meta: { title: '部门管理', icon: 'tree' }
+                    },
+                    {
+                      path: 'post',
+                      component: 'admin/system/post/post/index',
+                      name: 'Post',
+                      meta: { title: '岗位管理', icon: 'post' }
+                    },
+                    {
+                      path: 'dict',
+                      component: 'admin/system/dict/dict/index',
+                      name: 'Dict',
+                      meta: { title: '字典管理', icon: 'dict' }
+                    },
+                    {
+                      path: 'config',
+                      component: 'admin/system/config/config/index',
+                      name: 'Config',
+                      meta: { title: '参数设置', icon: 'edit' }
+                    },
+                    {
+                      path: 'notice',
+                      component: 'admin/system/notice/notice/index',
+                      name: 'Notice',
+                      meta: { title: '通知公告', icon: 'message' }
                     }
                   ]
                 },
@@ -89,10 +119,61 @@ const usePermissionStore = defineStore(
                       meta: { title: '在线用户', icon: 'online' }
                     },
                     {
+                      path: 'logininfor',
+                      component: 'admin/monitor/logininfor/index',
+                      name: 'Logininfor',
+                      meta: { title: '登录日志', icon: 'logininfor' }
+                    },
+                    {
+                      path: 'operlog',
+                      component: 'admin/monitor/operlog/index',
+                      name: 'Operlog',
+                      meta: { title: '操作日志', icon: 'form' }
+                    },
+                    {
+                      path: 'druid',
+                      component: 'admin/monitor/druid/index',
+                      name: 'Druid',
+                      meta: { title: '数据监控', icon: 'druid' }
+                    },
+                    {
+                      path: 'server',
+                      component: 'admin/monitor/server/index',
+                      name: 'Server',
+                      meta: { title: '服务监控', icon: 'server' }
+                    },
+                    {
+                      path: 'cache',
+                      component: 'admin/monitor/cache/index',
+                      name: 'Cache',
+                      meta: { title: '缓存监控', icon: 'redis' }
+                    },
+                    {
                       path: 'job',
                       component: 'admin/monitor/job/index',
                       name: 'Job',
                       meta: { title: '定时任务', icon: 'job' }
+                    }
+                  ]
+                },
+                {
+                  path: '/admin/tool',
+                  component: 'Layout',
+                  redirect: '/admin/tool/gen',
+                  name: 'Tool',
+                  meta: { title: '系统工具', icon: 'tool' },
+                  children: [
+                    {
+                      path: 'gen',
+                      component: 'admin/tool/gen/index',
+                      name: 'Gen',
+                      meta: { title: '代码生成', icon: 'code' }
+                    },
+                    {
+                      path: 'swagger',
+                      component: 'admin/tool/swagger/index',
+                      name: 'Swagger',
+                      meta: { title: '系统接口', icon: 'swagger' }
                     }
                   ]
                 },
@@ -183,6 +264,36 @@ function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
       return false
     }
     
+    // 修复路由路径，确保以/开头
+    if (route.path && !route.path.startsWith('/') && !route.path.startsWith('http')) {
+      route.path = '/' + route.path
+    }
+    
+    // 统一为管理类路由添加/admin前缀，确保与实际路由定义一致
+    // 需要添加/admin前缀的条件：
+    // 1. 不是以http开头的外部链接
+    // 2. 不是以/admin开头的已有管理路由
+    // 3. 不是前台博客相关路由（以/blog开头）
+    // 4. 不是登录、注册、404等公共路由
+    // 5. 是系统管理、监控、工具等后台管理相关路由
+    const isExternal = route.path.startsWith('http')
+    const isAlreadyAdmin = route.path.startsWith('/admin')
+    const isBlogRoute = route.path.startsWith('/blog')
+    const isPublicRoute = ['/login', '/register', '/404', '/401', '/index', '/redirect'].some(path => route.path.startsWith(path))
+    const isSystemRoute = ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(path => route.path.startsWith(path))
+    
+    // 如果是系统管理类路由且没有/admin前缀，则添加前缀
+    if (!isExternal && !isAlreadyAdmin && !isBlogRoute && !isPublicRoute && isSystemRoute) {
+      route.path = '/admin' + route.path
+    }
+    
+    // 同样处理重定向路径
+    if (route.redirect && !route.redirect.startsWith('http') && !route.redirect.startsWith('/admin') && 
+        !route.redirect.startsWith('/blog') && route.redirect !== 'noRedirect' && 
+        ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(path => route.redirect.startsWith(path))) {
+      route.redirect = '/admin' + route.redirect
+    }
+    
     // 检查权限控制 - 增强错误处理和容错机制
     try {
       if (route.permissions) {
@@ -248,7 +359,7 @@ function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
   })
 }
 
-function filterChildren(childrenMap, _lastRouter = false) {
+function filterChildren(childrenMap, lastRouter = false) {
   var children = []
   childrenMap.forEach(el => {
     el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path
@@ -279,7 +390,13 @@ export function filterDynamicRoutes(routes) {
 }
 
 export const loadView = (view) => {
-  // 使用Vite兼容的静态路径导入
+  /**
+   * 组件加载函数
+   * 根据统一的组件命名和路径规范加载组件，最多尝试2个路径
+   * 遵循 COMPONENT_NAMING_AND_PATHING_CONVENTIONS.md 文档中的规范
+   */
+  
+  // 1. 特殊页面处理 - 直接返回已知路径
   if (view === '404') {
     return () => import('@/views/error/404.vue')
   }
@@ -287,56 +404,84 @@ export const loadView = (view) => {
     return () => import('@/views/error/401.vue')
   }
   
-  // 处理特殊组件路径
-  if (view.startsWith('admin/')) {
-    // 后台管理组件使用标准路径
-    const normalizedPath = view.replace(/^admin\//, '')
-    return () => import(`@/views/admin/${normalizedPath}.vue`)
+  // 2. 路径规范化处理
+  let normalizedPath = view
+  
+  // 移除末尾的 index 后缀（如有）
+  if (normalizedPath.endsWith('/index')) {
+    normalizedPath = normalizedPath.slice(0, -6)
+  } else if (normalizedPath.endsWith('/index.vue')) {
+    normalizedPath = normalizedPath.slice(0, -10)
   }
   
-  // 处理标准组件路径
-  if (view.includes('/')) {
-    // 如果包含路径分隔符，直接使用
-    return () => import(`@/views/${view}.vue`)
-  }
+  // 3. 确定组件类型并构建加载路径
+  // 根据规范，组件路径主要分为三类：
+  // - 后台管理组件: @/views/admin/{module}/{submodule}/index.vue
+  // - 前台博客组件: @/views/blog/{component}/index.vue
+  // - 其他组件: @/views/{path}/index.vue
   
-  // 增强的组件加载逻辑 - 多级备用路径尝试
-  const loadAttempts = [
-    // 尝试1: 直接路径
-    () => import(`@/views/${view}.vue`),
-    // 尝试2: 带index的路径
-    () => import(`@/views/${view}/index.vue`),
-    // 尝试3: 后台管理路径
-    () => import(`@/views/admin/${view}/index.vue`),
-    // 尝试4: 系统管理路径
-    () => import(`@/views/admin/system/${view}/index.vue`),
-    // 尝试5: 博客管理路径
-    () => import(`@/views/admin/blog/${view}/index.vue`),
-    // 尝试6: 统计管理路径
-    () => import(`@/views/admin/statistics/${view}/index.vue`),
-    // 尝试7: 监控管理路径
-    () => import(`@/views/admin/monitor/${view}/index.vue`),
-    // 尝试8: 工具管理路径
-    () => import(`@/views/admin/tool/${view}/index.vue`)
-  ]
-  
-  // 按顺序尝试加载组件
-  for (let i = 0; i < loadAttempts.length; i++) {
-    try {
-      return loadAttempts[i]
-    } catch (error) {
-      if (i === loadAttempts.length - 1) {
-        // 所有尝试都失败
-        console.error(`所有路径尝试失败: ${view}，使用404页面替代`)
-        return () => import('@/views/error/404.vue')
+  // 处理已包含 admin/ 前缀的路径
+  if (normalizedPath.startsWith('admin/')) {
+    // 提取实际路径（移除 admin/ 前缀）
+    const adminPath = normalizedPath.slice(6)
+    
+    // 构建主要尝试路径 - 遵循规范的标准路径
+    const mainPath = `@/views/admin/${adminPath}/index.vue`
+    
+    // 返回异步加载函数，最多尝试2个路径
+    return async () => {
+      try {
+        // 尝试主要路径 - 标准组件路径格式
+        return await import(mainPath)
+      } catch (err1) {
+        // 尝试备选路径 - 组件直接在模块目录下
+        try {
+          return await import(`@/views/admin/${adminPath}.vue`)
+        } catch (err2) {
+          console.error(`loadView: 无法加载后台组件 ${view}，尝试路径: ${mainPath}`, err2)
+          return import('@/views/error/404.vue')
+        }
       }
-      // 继续尝试下一个路径
-      continue
     }
   }
   
-  // 默认返回404页面
-  return () => import('@/views/error/404.vue')
+  // 处理已包含 blog/ 前缀的前台组件
+  if (normalizedPath.startsWith('blog/')) {
+    const blogPath = normalizedPath.slice(5)
+    const mainPath = `@/views/blog/${blogPath}/index.vue`
+    
+    return async () => {
+      try {
+        return await import(mainPath)
+      } catch (err1) {
+        try {
+          return await import(`@/views/blog/${blogPath}.vue`)
+        } catch (err2) {
+          console.error(`loadView: 无法加载前台组件 ${view}，尝试路径: ${mainPath}`, err2)
+          return import('@/views/error/404.vue')
+        }
+      }
+    }
+  }
+  
+  // 4. 通用组件路径处理（默认情况）
+  // 假设是后台管理组件，并添加 admin/ 前缀
+  const mainPath = `@/views/admin/${normalizedPath}/index.vue`
+  
+  return async () => {
+    try {
+      // 尝试主要路径 - 标准后台组件路径
+      return await import(mainPath)
+    } catch (err1) {
+      // 尝试备选路径 - 无前缀的通用路径
+      try {
+        return await import(`@/views/${normalizedPath}/index.vue`)
+      } catch (err2) {
+        console.error(`loadView: 无法加载组件 ${view}，尝试路径: ${mainPath}`, err2)
+        return import('@/views/error/404.vue')
+      }
+    }
+  }
 }
 
 

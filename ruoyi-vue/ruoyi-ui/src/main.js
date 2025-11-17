@@ -87,3 +87,15 @@ app.use(ElementPlus, {
 })
 
 app.mount('#app')
+
+// 开发环境下执行loadView性能测试
+if (import.meta.env.DEV) {
+  import('./utils/loadViewPerformanceTest.js').then(({ runLoadViewPerformanceTest }) => {
+    console.log('执行loadView性能测试...');
+    setTimeout(() => {
+      runLoadViewPerformanceTest().catch(err => {
+        console.error('性能测试执行失败:', err);
+      });
+    }, 1000);
+  });
+}
