@@ -54,49 +54,49 @@ const usePermissionStore = defineStore(
                   children: [
                     {
                       path: 'user',
-                      component: 'admin/system/user/user/index',
+                      component: 'admin/system/user/index',
                       name: 'User',
                       meta: { title: '用户管理', icon: 'user' }
                     },
                     {
                       path: 'role',
-                      component: 'admin/system/role/role/index',
+                      component: 'admin/system/role/index',
                       name: 'Role',
                       meta: { title: '角色管理', icon: 'peoples' }
                     },
                     {
                       path: 'menu',
-                      component: 'admin/system/menu/menu/index',
+                      component: 'admin/system/menu/index',
                       name: 'Menu',
                       meta: { title: '菜单管理', icon: 'tree-table' }
                     },
                     {
                       path: 'dept',
-                      component: 'admin/system/dept/dept/index',
+                      component: 'admin/system/dept/index',
                       name: 'Dept',
                       meta: { title: '部门管理', icon: 'tree' }
                     },
                     {
                       path: 'post',
-                      component: 'admin/system/post/post/index',
+                      component: 'admin/system/post/index',
                       name: 'Post',
                       meta: { title: '岗位管理', icon: 'post' }
                     },
                     {
                       path: 'dict',
-                      component: 'admin/system/dict/dict/index',
+                      component: 'admin/system/dict/index',
                       name: 'Dict',
                       meta: { title: '字典管理', icon: 'dict' }
                     },
                     {
                       path: 'config',
-                      component: 'admin/system/config/config/index',
+                      component: 'admin/system/config/index',
                       name: 'Config',
                       meta: { title: '参数设置', icon: 'edit' }
                     },
                     {
                       path: 'notice',
-                      component: 'admin/system/notice/notice/index',
+                      component: 'admin/system/notice/index',
                       name: 'Notice',
                       meta: { title: '通知公告', icon: 'message' }
                     }
@@ -171,45 +171,6 @@ const usePermissionStore = defineStore(
                       component: 'admin/tool/swagger/index',
                       name: 'Swagger',
                       meta: { title: '系统接口', icon: 'swagger' }
-                    }
-                  ]
-                },
-                {
-                  path: '/admin/blog',
-                  component: 'Layout',
-                  redirect: '/admin/blog/article',
-                  name: 'Blog',
-                  meta: { title: '博客管理', icon: 'documentation' },
-                  children: [
-                    {
-                      path: 'article',
-                      component: 'admin/blog/article/article/index',
-                      name: 'BlogArticle',
-                      meta: { title: '文章管理', icon: 'documentation' }
-                    },
-                    {
-                      path: 'category',
-                      component: 'admin/blog/category/category/index',
-                      name: 'BlogCategory',
-                      meta: { title: '分类管理', icon: 'component' }
-                    },
-                    {
-                      path: 'tag',
-                      component: 'admin/blog/tag/tag/index',
-                      name: 'BlogTag',
-                      meta: { title: '标签管理', icon: 'tag' }
-                    },
-                    {
-                      path: 'comment',
-                      component: 'admin/blog/comment/comment/index',
-                      name: 'BlogComment',
-                      meta: { title: '评论管理', icon: 'message' }
-                    },
-                    {
-                      path: 'setting',
-                      component: 'admin/blog/setting/setting/index',
-                      name: 'BlogSetting',
-                      meta: { title: '博客设置', icon: 'edit' }
                     }
                   ]
                 },

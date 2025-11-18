@@ -3,20 +3,21 @@
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :background-color="getMenuBackground"
-        :text-color="getMenuTextColor"
-        :unique-opened="true"
-        :active-text-color="theme"
-        :collapse-transition="true"
-        :router="true"
-        mode="vertical"
-        :class="sideTheme"
-        @select="handleSelect"
-        @open="handleOpen"
-        @close="handleClose"
-      >
+      :default-active="activeMenu"
+      :collapse="isCollapse"
+      :background-color="getMenuBackground"
+      :text-color="getMenuTextColor"
+      :unique-opened="true"
+      :active-text-color="theme"
+      :collapse-transition="true"
+      :router="true"
+      mode="vertical"
+      :class="sideTheme"
+      @select="handleSelect"
+      @open="handleOpen"
+      @close="handleClose"
+      @click="handleMenuClick"
+    >
         <sidebar-item
           v-for="(route, index) in sidebarRouters"
           :key="route.path + index"
@@ -37,7 +38,8 @@ import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import _Layout from '@/layout/index.vue'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import router from '@/router'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -95,15 +97,56 @@ function onlyOneChild(children) {
   return false
 }
 
+// 处理菜单点击事件 - 这是一个额外的保障，确保菜单点击能被捕获
+function handleMenuClick(event) {
+  console.log('菜单点击事件:', event)
+  
+  // 查找最近的el-menu-item或el-sub-menu元素
+  const menuItem = event.target.closest('el-menu-item, .el-sub-menu')
+  if (menuItem) {
+    // 获取index属性作为路由路径
+    const index = menuItem.getAttribute('index')
+    if (index && index.trim()) {
+      // 如果select事件没有正常工作，这里会作为备选处理
+      console.log('从click事件获取的路径:', index)
+      // 不直接跳转，避免重复处理
+    }
+  }
+}
+
 // 处理菜单选择事件
 function handleSelect(key, keyPath) {
-  // 可以在这里添加选中菜单时的逻辑处理
-  console.log('菜单选中:', key, keyPath)
+  // 仅在有有效选中值时才记录日志，避免空数组重复打印
+  if (key && key.trim()) {
+    console.log('菜单选中:', key, keyPath)
+    
+    try {
+      // 使用已导入的router对象进行路由跳转
+      console.log(`尝试跳转到: ${key}`)
+      
+      // 直接执行路由跳转
+      router.push(key).then(() => {
+        console.log(`成功跳转到: ${key}`)
+      }).catch(err => {
+        console.error('路由跳转失败:', err)
+        // 如果Vue Router跳转失败，尝试直接修改location
+        console.log('尝试使用window.location.href作为备选方案')
+        window.location.href = key
+      })
+    } catch (e) {
+      console.error('执行路由跳转时发生异常:', e)
+      // 最后的备选方案
+      try {
+        window.location.href = key
+      } catch (finalError) {
+        console.error('所有导航方案均失败:', finalError)
+      }
+    }
+  }
 }
 
 // 处理子菜单展开事件
 function handleOpen(key, keyPath) {
-  // 确保子菜单正确展开
   console.log('菜单展开:', key, keyPath)
 }
 
@@ -111,6 +154,45 @@ function handleOpen(key, keyPath) {
 function handleClose(key, keyPath) {
   console.log('菜单关闭:', key, keyPath)
 }
+
+// 组件挂载后执行初始化
+onMounted(() => {
+  console.log('Sidebar组件挂载完成')
+  
+  // 为所有菜单标题添加点击事件委托作为最后保障
+  const menuContainer = document.querySelector('.sidebar-container')
+  if (menuContainer) {
+    menuContainer.addEventListener('click', (e) => {
+      const menuTitle = e.target.closest('.menu-title')
+      if (menuTitle && !e.defaultPrevented) {
+        console.log('通过事件委托捕获菜单标题点击')
+        
+        // 查找对应的菜单项
+        const menuItem = menuTitle.closest('el-menu-item, .el-sub-menu')
+        if (menuItem) {
+          const index = menuItem.getAttribute('index')
+          if (index && index.trim()) {
+            console.log('通过事件委托获取路径:', index)
+            // 使用setTimeout确保事件传播完成后再执行
+            setTimeout(() => {
+              // 检查当前路由是否已更新
+              if (route.path !== index) {
+                console.log('路由未更新，执行手动跳转')
+                try {
+                  router.push(index).catch(() => {
+                    window.location.href = index
+                  })
+                } catch {
+                  window.location.href = index
+                }
+              }
+            }, 100)
+          }
+        }
+      }
+    }, true) // 使用捕获阶段
+  }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -378,9 +378,9 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getArticleList, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
+import { getArticleList, getArticleListAnonymous, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
-import { getBlogSettings } from '@/api/blog/setting'
+import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
 import BlogNav from '@/components/BlogNav.vue'
 

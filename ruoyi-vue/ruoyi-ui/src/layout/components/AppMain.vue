@@ -13,6 +13,8 @@
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
+import { onMounted, watchEffect } from 'vue'
 import copyright from "./Copyright/index"
 import iframeToggle from "./IframeToggle/index"
 import useTagsViewStore from '@/store/modules/tagsView'

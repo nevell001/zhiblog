@@ -124,24 +124,7 @@ function hasOneShowingChild(children = [], parent) {
   }
 
   if (showingChildren.length === 0) {
-    // 🔥 关键修复: 为父菜单生成默认路径
-    let defaultPath = ''
-    if (parent.meta?.title) {
-      const nameToPath = {
-        '系统管理': '/admin/system',
-        '系统监控': '/admin/monitor', 
-        '系统工具': '/admin/tool',
-        '博客管理': '/admin/blog',
-        '数据统计': '/admin/statistics'
-      }
-      defaultPath = nameToPath[parent.meta.title] || ''
-    }
-    
-    onlyOneChild.value = { 
-      ...parent, 
-      path: defaultPath, 
-      noShowingChildren: true 
-    }
+    onlyOneChild.value = { ...parent, path: '', noShowingChildren: true }
     return true
   }
 
@@ -150,14 +133,8 @@ function hasOneShowingChild(children = [], parent) {
 
 // 🔥 关键改进2: 优化路径解析
 function resolvePath(routePath, routeQuery) {
-  // 🔥 关键修复: 处理空路径和undefined
-  if (!routePath || routePath === 'undefined' || routePath === 'null') {
-    console.warn('路径为空，尝试使用basePath:', props.basePath)
-    if (props.basePath) {
-      routePath = props.basePath
-    } else {
-      return ''
-    }
+  if (!routePath) {
+    return ''
   }
   
   if (isExternal(routePath)) {
@@ -214,7 +191,6 @@ function hasTitle(title) {
 // 🔥 关键改进2: 重构菜单点击事件处理逻辑
 function handleMenuClick(menuItem, event) {
   console.log('菜单点击事件:', menuItem.meta?.title)
-  console.log('菜单项完整数据:', menuItem)
   
   // 检查权限
   if (!hasMenuPermission(menuItem)) {
@@ -235,46 +211,12 @@ function handleMenuClick(menuItem, event) {
     return false
   }
   
-  // 🔥 关键修复: 智能路径生成
-  let targetPath = ''
-  
-  // 1. 优先使用直接路径
-  if (menuItem.path) {
-    targetPath = resolvePath(menuItem.path, menuItem.query)
-  }
-  // 2. 如果没有path但有children，使用第一个子路由的路径
-  else if (menuItem.children && menuItem.children.length > 0) {
-    const firstChild = menuItem.children.find(child => child.path && !child.hidden)
-    if (firstChild) {
-      targetPath = resolvePath(firstChild.path, firstChild.query)
-      console.log('使用第一个子路由路径:', firstChild.path)
-    }
-  }
-  // 3. 如果有redirect，使用redirect
-  else if (menuItem.redirect && menuItem.redirect !== 'noRedirect') {
-    targetPath = resolvePath(menuItem.redirect)
-    console.log('使用redirect路径:', menuItem.redirect)
-  }
-  // 4. 根据菜单名称生成默认路径
-  else {
-    const nameToPath = {
-      '系统管理': '/admin/system',
-      '系统监控': '/admin/monitor', 
-      '系统工具': '/admin/tool',
-      '博客管理': '/admin/blog',
-      '数据统计': '/admin/statistics'
-    }
-    
-    const defaultPath = nameToPath[menuItem.meta?.title]
-    if (defaultPath) {
-      targetPath = defaultPath
-      console.log('使用默认路径:', defaultPath)
-    }
-  }
+  // 获取目标路径
+  let targetPath = resolvePath(menuItem.path, menuItem.query)
   
   if (!targetPath) {
-    console.warn('无法确定目标路径，菜单数据:', menuItem)
-    ElMessage.warning(`"${menuItem.meta?.title}"菜单路径配置错误，请联系管理员`)
+    console.warn('无法确定目标路径')
+    ElMessage.warning('路径配置错误，请联系管理员')
     return false
   }
   

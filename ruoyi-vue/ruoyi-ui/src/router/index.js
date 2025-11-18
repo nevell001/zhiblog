@@ -167,11 +167,33 @@ export const dynamicRoutes = [
   }
 ]
 
+// 合并所有路由 - 调整注册顺序确保博客路由优先匹配
+const routes = [
+  // 首先注册静态路由
+  ...constantRoutes,
+  // 然后注册博客相关路由
+  ...blogRoutes,
+  // 最后注册管理路由和动态路由
+  ...adminRoutes,
+  ...dynamicRoutes,
+  // 确保404页面放在最后
+  { path: '/:pathMatch(.*)*', redirect: '/404' }
+]
+
+// 创建路由实例
 const router = createRouter({
   history: createWebHistory(),
-  routes: [...constantRoutes, ...blogRoutes, ...adminRoutes, ...dynamicRoutes],
+  routes: routes,
   scrollBehavior: () => ({ top: 0 })
 })
+
+// 路由注册完成后打印日志
+console.log('路由注册完成:')
+console.log('- 公共路由数量:', constantRoutes.length)
+console.log('- 博客路由数量:', blogRoutes.length)
+console.log('- 管理路由数量:', adminRoutes.length)
+console.log('- 动态路由数量:', dynamicRoutes.length)
+console.log('- 博客路由详情:', blogRoutes.map(route => route.path).join(', '))
 
 // 添加路由守卫，处理权限验证和路由匹配
 router.beforeEach((to, from, next) => {
@@ -179,27 +201,46 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const token = userStore.token
   
-  // 检查路由是否存在 - 使用Vue Router的匹配逻辑
-  const matchedRoutes = router.getRoutes().filter(route => {
-    // 使用Vue Router的路径匹配逻辑
-    if (route.path === to.path) return true
-    // 处理动态路由和嵌套路由
-    if (route.path.includes(':') && to.path.startsWith(route.path.split(':')[0])) return true
-    return false
-  })
+  // 为博客相关的动态路由添加特殊处理
+  // 直接放行标签、分类和文章详情页面的路径
+  const isBlogDynamicRoute = 
+    to.path.match(/^\/blog\/tag\/\d+$/) ||
+    to.path.match(/^\/blog\/category\/\d+$/) ||
+    to.path.match(/^\/blog\/article\/\d+$/) ||
+    to.path.match(/^\/blog$/) ||
+    to.path.match(/^\/blog\/category$/) ||
+    to.path.match(/^\/blog\/tag$/) ||
+    to.path.match(/^\/blog\/archive$/) ||
+    to.path.match(/^\/blog\/about$/)
   
-  // 如果路由不存在，重定向到404
-  if (matchedRoutes.length === 0 && to.path !== '/404') {
-    console.warn(`路由未匹配: ${to.path}，重定向到404页面`)
-    next('/404')
-    return
+  if (isBlogDynamicRoute) {
+    console.log(`直接放行博客相关路由: ${to.path}`)
+    // 对于博客相关路由，直接跳过路由存在性检查
+    // 因为我们已经确认这些路由在blogRoutes中定义了
+  } else {
+    // 对于非博客路由，使用Vue Router v4的正确API检查
+    try {
+      const matched = router.resolve(to.path)
+      const routeExists = matched.matched.length > 0
+      
+      if (!routeExists && to.path !== '/404') {
+        console.warn(`路由未匹配: ${to.path}，重定向到404页面`)
+        next('/404')
+        return
+      }
+    } catch (error) {
+      console.error('路由解析错误:', error)
+      next('/404')
+      return
+    }
   }
   
   // 白名单路由（无需登录即可访问）
-  const whiteList = ['/login', '/register', '/404', '/401', '/blog', '/blog/article', '/blog/category', '/blog/tag', '/blog/archive', '/blog/about', '/index', '/about']
+  const whiteList = ['/login', '/register', '/404', '/401', '/index', '/about']
   
-  // 检查是否为白名单路由
-  if (whiteList.includes(to.path) || to.path.startsWith('/blog/')) {
+  // 检查是否为白名单路由或博客相关路由
+  if (whiteList.includes(to.path) || to.path.startsWith('/blog')) {
+    console.log(`博客相关路由或白名单路由，直接放行: ${to.path}`)
     next()
     return
   }
