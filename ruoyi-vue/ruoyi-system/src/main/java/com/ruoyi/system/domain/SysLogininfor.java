@@ -1,7 +1,6 @@
 package com.ruoyi.system.domain;
 
 import java.util.Date;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.annotation.Excel.ColumnType;
 import com.ruoyi.common.core.domain.BaseEntity;
@@ -47,9 +46,8 @@ public class SysLogininfor extends BaseEntity
     @Excel(name = "提示消息")
     private String msg;
 
-    /** 访问时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "访问时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    /** 登录时间 */
+    @Excel(name = "登录时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date loginTime;
 
     public Long getInfoId()

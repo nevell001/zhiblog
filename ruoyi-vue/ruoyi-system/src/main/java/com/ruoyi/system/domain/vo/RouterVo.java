@@ -1,6 +1,6 @@
 package com.ruoyi.system.domain.vo;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+
 import java.util.List;
 
 /**
@@ -8,7 +8,7 @@ import java.util.List;
  * 
  * @author ruoyi
  */
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+
 public class RouterVo
 {
     /**

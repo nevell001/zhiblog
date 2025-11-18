@@ -67,27 +67,20 @@
       <el-table-column label="文章标题" align="center" prop="title" :show-overflow-tooltip="true" />
       <el-table-column label="分类" align="center" prop="categoryName" />
       <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="状态" align="center" prop="status">
+
+      <el-table-column label="标签" align="center" prop="tags" min-width="120">
         <template #default="scope">
-          <el-tag :type="scope.row.status === 1 ? 'success' : 'info'">
-            {{ scope.row.status === 1 ? '发布' : '草稿' }}
+          <el-tag v-for="(tag, index) in formatTagList(scope.row.tags)" :key="index" size="small" class="mr-1">
+            {{ tag }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="标签" align="center" prop="tags" width="200">
+
+      <el-table-column label="状态" align="center" prop="status" min-width="80">
         <template #default="scope">
-          <div v-if="scope.row.tags && scope.row.tags.length > 0">
-            <el-tag
-              v-for="tag in scope.row.tags"
-              :key="tag.id || tag.tagId"
-              :color="tag.color || '#409EFF'"
-              style="margin: 2px;"
-            >
-              <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
-              {{ tag.name || tag.tagName }}
-            </el-tag>
-          </div>
-          <span v-else style="color: #909399;">无标签</span>
+          <el-tag :type="scope.row.status === '1' ? 'success' : 'warning'" effect="dark">
+            {{ scope.row.status === '1' ? '已发布' : '草稿' }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="浏览量" align="center" prop="viewCount" />
@@ -107,7 +100,14 @@
           >修改</el-button>
           <el-button
             link
-            type="primary"
+            type="warning"
+            icon="Refresh"
+            @click="handleStatusChange(scope.row)"
+            v-hasPermi="['blog:article:edit']"
+          >{{ scope.row.status === 1 || scope.row.status === '1' ? '转为草稿' : '发布' }}</el-button>
+          <el-button
+            link
+            type="danger"
             icon="Delete"
             @click="handleDelete(scope.row)"
             v-hasPermi="['blog:article:remove']"
@@ -125,8 +125,8 @@
     />
 
     <!-- 添加或修改博客文章对话框 -->
-    <el-dialog :title="title" v-model="open" width="780px" append-to-body>
-      <el-form ref="articleRef" :model="form" :rules="rules" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="800px" append-to-body>
+        <el-form ref="articleRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="文章标题" prop="title">
@@ -213,12 +213,13 @@
 <script setup name="Article">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
 import useUserStore from '@/store/modules/user'
-import { listArticle, getArticle, delArticle, addArticle, updateArticle } from "@/api/blog/article";
-import { listCategory } from "@/api/blog/category";
-import { listTag } from "@/api/blog/tag";
+import { listArticle, getArticle, delArticle, addArticle, updateArticle } from '@/api/admin/blog/article'
+import { listCategory } from '@/api/admin/blog/category'
+import { listTag } from '@/api/admin/blog/tag'
 import ImageUpload from "@/components/ImageUpload";
 import TagCategorySelector from "@/components/TagCategorySelector.vue";
 import { parseTime } from "@/utils/ruoyi";
+import { ElMessage, ElMessageBox } from 'element-plus';
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
@@ -246,10 +247,18 @@ const data = reactive({
   },
   rules: {
     title: [
-      { required: true, message: "文章标题不能为空", trigger: "blur" }
+      { required: true, message: "文章标题不能为空", trigger: "blur" },
+      { min: 2, max: 200, message: "标题长度应为2-200个字符", trigger: "blur" }
     ],
     content: [
-      { required: true, message: "文章内容不能为空", trigger: "blur" }
+      { required: true, message: "文章内容不能为空", trigger: "blur" },
+      { min: 10, message: "内容至少需要10个字符", trigger: "blur" }
+    ],
+    summary: [
+      { max: 500, message: "摘要长度不能超过500个字符", trigger: "blur" }
+    ],
+    categoryId: [
+      { required: true, message: "请选择文章分类", trigger: "change" }
     ]
   }
 });
@@ -257,30 +266,50 @@ const data = reactive({
 const { queryParams, form, rules } = toRefs(data);
 
 /** 查询博客文章列表 */
-function getList() {
+async function getList() {
   loading.value = true;
-  listArticle(queryParams.value).then(response => {
-    articleList.value = response.rows;
-    total.value = response.total;
+  try {
+    const response = await listArticle(queryParams.value);
+    articleList.value = response.rows || [];
+    total.value = response.total || 0;
+    
+    // 如果搜索结果为空，显示提示信息
+    if (articleList.value.length === 0) {
+      ElMessage.info('未找到符合条件的文章');
+    }
+  } catch (error) {
+    console.error('获取文章列表失败:', error);
+    ElMessage.error('获取文章列表失败: ' + (error.message || '未知错误'));
+    // 错误时也设置空数组，确保表格不会显示错误数据
+    articleList.value = [];
+    total.value = 0;
+  } finally {
     loading.value = false;
-  });
+  }
 }
 
 /** 查询分类列表 */
-function getCategoryList() {
-  listCategory().then(response => {
-    categoryOptions.value = response.rows;
-  });
+async function getCategoryList() {
+  try {
+    const response = await listCategory();
+    categoryOptions.value = response.rows || [];
+  } catch (error) {
+    console.error('获取分类列表失败:', error);
+    ElMessage.error('获取分类列表失败: ' + (error.message || '未知错误'));
+    categoryOptions.value = [];
+  }
 }
 
 /** 查询标签列表 */
-function getTagList() {
-  listTag().then(response => {
-    console.log('标签选项数据:', response.rows); // 调试信息
-    tagOptions.value = response.rows;
-  }).catch(error => {
+async function getTagList() {
+  try {
+    const response = await listTag();
+    tagOptions.value = response.rows || [];
+  } catch (error) {
     console.error('获取标签列表失败:', error);
-  });
+    ElMessage.error('获取标签列表失败: ' + (error.message || '未知错误'));
+    tagOptions.value = [];
+  }
 }
 
 // 取消按钮
@@ -293,18 +322,24 @@ function cancel() {
 function reset() {
   form.value = {
     id: null,
-    title: null,
-    summary: null,
-    content: null,
-    coverUrl: null,
+    title: '',
+    summary: '',
+    content: '',
+    coverUrl: '',
     categoryId: null,
+    authorId: userStore.userId || null,
     author: userStore.name || 'admin',
+    status: 0, // 默认草稿状态
     isTop: 0,
     isRecommend: 0,
-    status: 1,
-    tagIds: []
+    tagIds: [],
+    viewCount: 0,
+    likeCount: 0,
+    commentCount: 0,
+    createTime: null,
+    updateTime: null,
+    delFlag: 0
   };
-  proxy.resetForm("articleRef");
 }
 
 /** 搜索按钮操作 */
@@ -315,8 +350,15 @@ function handleQuery() {
 
 /** 重置按钮操作 */
 function resetQuery() {
-  proxy.resetForm("queryRef");
-  handleQuery();
+  // 直接重置查询参数
+  queryParams.value = {
+    pageNum: 1,
+    pageSize: 10,
+    title: null,
+    categoryId: null,
+    status: null
+  };
+  getList();
 }
 
 // 多选框选中数据
@@ -334,11 +376,13 @@ function handleAdd() {
 }
 
 /** 修改按钮操作 */
-function handleUpdate(row) {
+async function handleUpdate(row) {
   reset();
   const id = row.id || ids.value;
-  getArticle(id).then(response => {
-    form.value = response.data;
+  try {
+    loading.value = true;
+    const response = await getArticle(id);
+    form.value = response.data || {};
     // 确保tagIds是数组类型
     if (form.value.tagIds && !Array.isArray(form.value.tagIds)) {
       form.value.tagIds = [form.value.tagIds];
@@ -347,124 +391,214 @@ function handleUpdate(row) {
     }
     open.value = true;
     title.value = "修改博客文章";
-  });
+  } catch (error) {
+    console.error('获取文章详情失败:', error);
+    ElMessage.error('获取文章详情失败: ' + (error.message || '未知错误'));
+  } finally {
+    loading.value = false;
+  }
 }
 
-/** 提交按钮 */
-function submitForm() {
-  proxy.$refs["articleRef"].validate(valid => {
+/** 格式化标签列表 */
+function formatTagList(tags) {
+  try {
+    // 处理null或undefined情况
+    if (!tags) return [];
+    
+    // 如果是字符串，尝试解析JSON
+    if (typeof tags === 'string') {
+      try {
+        const parsedTags = JSON.parse(tags);
+        if (Array.isArray(parsedTags)) {
+          return parsedTags.map(tag => {
+            // 处理对象类型的标签
+            if (typeof tag === 'object' && tag !== null) {
+              return tag.name || tag.title || String(tag);
+            }
+            return String(tag);
+          });
+        }
+        // 如果解析结果不是数组，返回字符串本身的数组
+        return [tags];
+      } catch (e) {
+        // 如果JSON解析失败，检查是否为逗号分隔的字符串
+        if (tags.includes(',')) {
+          return tags.split(',').map(tag => tag.trim());
+        }
+        // 否则返回原字符串作为单个标签
+        return [tags];
+      }
+    }
+    
+    // 如果已经是数组
+    if (Array.isArray(tags)) {
+      return tags.map(tag => {
+        // 处理对象类型的标签
+        if (typeof tag === 'object' && tag !== null) {
+          return tag.name || tag.title || String(tag);
+        }
+        return String(tag);
+      });
+    }
+    
+    // 其他类型转为字符串数组
+    return [String(tags)];
+  } catch (error) {
+    console.error('格式化标签列表失败:', error);
+    return [];
+  }
+}
+
+// 提交按钮
+const articleRef = ref()
+const submitForm = async () => {
+  if (!articleRef.value) return
+  
+  articleRef.value.validate(async (valid) => {
     if (valid) {
+      loading.value = true
       try {
         // 创建一个完整的数据对象，包含所有必需的字段
-        // 直接使用form.value，避免手动构建可能引入JSON格式错误
         const apiData = { ...form.value };
         
         // 确保所有必需的字段都有值
-        apiData.title = apiData.title || '';
-        apiData.summary = apiData.summary || '';
-        
-        // 对content字段进行JSON安全处理，确保HTML标签不会破坏JSON格式
-        if (apiData.content) {
-          // 直接使用原始内容，让axios自动处理JSON序列化
-          // 不需要手动转义，axios会自动处理
-        } else {
-          apiData.content = '';
-        }
-        
+        apiData.title = apiData.title?.trim() || '';
+        apiData.summary = apiData.summary?.trim() || '';
+        apiData.content = apiData.content || '';
         apiData.coverUrl = apiData.coverUrl || '';
         
         // 设置默认值，确保数据类型正确
-        apiData.authorId = 1; // 默认作者ID
-        apiData.author = apiData.author || userStore.name || 'admin';
+        apiData.authorId = userStore.userId || 1; // 使用当前用户ID
+        apiData.author = userStore.name || 'admin';
         apiData.isTop = apiData.isTop ? 1 : 0;
         apiData.isRecommend = apiData.isRecommend ? 1 : 0;
         apiData.status = apiData.status ? 1 : 0;
-        apiData.viewCount = 0;
-        apiData.likeCount = 0;
-        apiData.commentCount = 0;
         
-        // 确保所有数值字段都是Number类型，避免JSON序列化问题
+        // 确保所有数值字段都是Number类型
         apiData.authorId = Number(apiData.authorId);
         apiData.isTop = Number(apiData.isTop);
         apiData.isRecommend = Number(apiData.isRecommend);
         apiData.status = Number(apiData.status);
-        apiData.viewCount = Number(apiData.viewCount);
-        apiData.likeCount = Number(apiData.likeCount);
-        apiData.commentCount = Number(apiData.commentCount);
         
-        // 确保数值类型正确
+        // 确保分类ID类型正确
         if (apiData.categoryId !== null && apiData.categoryId !== undefined) {
           apiData.categoryId = Number(apiData.categoryId);
         }
         
+        // 处理标签数据，确保格式正确
+        if (apiData.tagIds && Array.isArray(apiData.tagIds)) {
+          // 保留标签ID数组格式
+        } else if (typeof apiData.tagIds === 'string') {
+          // 如果是字符串，尝试分割为数组
+          apiData.tagIds = apiData.tagIds.split(',').map(id => Number(id.trim())).filter(id => !isNaN(id));
+        } else {
+          apiData.tagIds = [];
+        }
+        
         // 移除可能引起JSON解析问题的字段
-        // 修改时需要保留id字段，新增时不需要id
-        if (form.value.id == null) {
+        if (apiData.id == null || apiData.id === '') {
           delete apiData.id; // 新增时不需要id
         }
         delete apiData.createTime;
         delete apiData.updateTime;
         delete apiData.delFlag;
         
-        // 使用现有的API函数而不是直接使用axios
+        // 使用现有的API函数
         if (form.value.id != null) {
-          updateArticle(apiData).then(() => {
-            proxy.$modal.msgSuccess("修改成功");
-            open.value = false;
-            getList();
-          }).catch(error => {
-            console.error("更新文章失败:", error);
-            // 如果是401错误，可能是token过期，提示重新登录
-            if (error.code === 401) {
-              proxy.$modal.msgError("登录已过期，请重新登录");
-              // 清除token并跳转到登录页
-              proxy.$store.dispatch('LogOut').then(() => {
-                location.href = '/index';
-              });
-            } else {
-              // 显示后端返回的具体错误信息
-              const errorMsg = error.response?.data?.msg || error.message || "未知错误";
-              proxy.$modal.msgError("更新失败: " + errorMsg);
-            }
-          });
+          await updateArticle(apiData)
+          ElMessage.success("修改成功")
         } else {
-          addArticle(apiData).then(() => {
-            proxy.$modal.msgSuccess("新增成功");
-            open.value = false;
-            getList();
-          }).catch(error => {
-            console.error("添加文章失败:", error);
-            // 如果是401错误，可能是token过期，提示重新登录
-            if (error.code === 401) {
-              proxy.$modal.msgError("登录已过期，请重新登录");
-              // 清除token并跳转到登录页
-              proxy.$store.dispatch('LogOut').then(() => {
-                location.href = '/index';
-              });
-            } else {
-              // 显示后端返回的具体错误信息
-              const errorMsg = error.response?.data?.msg || error.message || "未知错误";
-              proxy.$modal.msgError("添加失败: " + errorMsg);
-            }
-          });
+          await addArticle(apiData)
+          ElMessage.success("新增成功")
         }
-      } catch (e) {
-        console.error("提交表单时出错:", e);
-        proxy.$modal.msgError("提交失败: " + e.message);
+        
+        open.value = false
+        await getList()
+      } catch (error) {
+        console.error("操作失败:", error)
+        // 显示友好的错误提示
+        const errorMsg = error.response?.data?.msg || error.message || "操作失败，请重试"
+        ElMessage.error(errorMsg)
+        
+        // 如果是401错误，处理登录过期
+        if (error.response?.status === 401) {
+          setTimeout(() => {
+            window.location.href = '/index'
+          }, 1500)
+        }
+      } finally {
+        loading.value = false
       }
     }
-  });
+  })
 }
 
 /** 删除按钮操作 */
-function handleDelete(row) {
+async function handleDelete(row) {
   const articleIds = row.id || ids.value;
-  proxy.$modal.confirm('是否确认删除博客文章编号为"' + articleIds + '"的数据项？').then(function() {
-    return delArticle(articleIds);
-  }).then(() => {
-    getList();
-    proxy.$modal.msgSuccess("删除成功");
-  }).catch(() => {});
+  
+  try {
+    await ElMessageBox.confirm(
+      '是否确认删除博客文章编号为"' + articleIds + '"的数据项？',
+      '删除确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+    
+    loading.value = true
+    await delArticle(articleIds)
+    ElMessage.success('删除成功')
+    await getList()
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('删除失败:', error)
+      ElMessage.error('删除失败: ' + (error.message || '未知错误'))
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 状态切换按钮操作 */
+async function handleStatusChange(row) {
+  try {
+    const newStatus = row.status === '1' || row.status === 1 ? 0 : 1;
+    const statusText = newStatus === 1 ? '发布' : '草稿';
+    
+    // 安全处理标题显示，防止title为null或undefined
+    const articleTitle = row.title || '(无标题文章)';
+    
+    await ElMessageBox.confirm(
+      `是否确认将文章《${articleTitle}》的状态切换为${statusText}？`,
+      '状态切换确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+    
+    loading.value = true
+    // 使用updateArticle接口进行状态更新
+    await updateArticle({
+      id: row.id,
+      status: newStatus
+    })
+    ElMessage.success('状态切换成功')
+    await getList()
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('状态切换失败:', error)
+      // 显示更友好的错误提示，优先使用后端返回的错误信息
+      const errorMsg = error.response?.data?.msg || error.message || '状态切换失败';
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
 }
 
 /** 获取封面图片URL */
@@ -479,10 +613,20 @@ function getCoverUrl(coverUrl) {
   return baseUrl + coverUrl;
 }
 
+
+
 // 页面加载时初始化数据
-onMounted(() => {
-  getList();
-  getCategoryList();
-  getTagList();
+onMounted(async () => {
+  // 并行加载所有初始化数据
+  try {
+    await Promise.all([
+      getList(),
+      getCategoryList(),
+      getTagList()
+    ]);
+  } catch (error) {
+    console.error('初始化数据加载失败:', error);
+    // 单个请求失败不会阻止其他请求继续执行，这里只是记录错误
+  }
 });
 </script>

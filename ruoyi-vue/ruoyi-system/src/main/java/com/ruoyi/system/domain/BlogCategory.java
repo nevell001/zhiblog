@@ -2,8 +2,8 @@ package com.ruoyi.system.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -49,7 +49,6 @@ public class BlogCategory extends BaseEntity
     private Integer status;
 
     /** 删除标志 0正常 1删除 */
-    @JsonSerialize(using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
     private String delFlag = "0";
 
     /** 排序（兼容旧字段） */
@@ -141,7 +140,6 @@ public class BlogCategory extends BaseEntity
         this.delFlag = delFlag;
     }
 
-    @JsonGetter("delFlag")
     public String getDelFlag()
     {
         if (delFlag == null) {

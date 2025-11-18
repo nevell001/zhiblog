@@ -7,6 +7,12 @@ export const blogRoutes = [
     meta: { title: '博客首页' }
   },
   {
+    path: '/blog/article',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/admin/blog/article',
+    meta: { title: '文章管理', permissions: ['admin', 'editor'] }
+  },
+  {
     path: '/blog/article/:id',
     component: () => import('@/views/blog/article/detail.vue'),
     name: 'BlogArticleDetail',

@@ -9,9 +9,13 @@
         :text-color="getMenuTextColor"
         :unique-opened="true"
         :active-text-color="theme"
-        :collapse-transition="false"
+        :collapse-transition="true"
+        :router="true"
         mode="vertical"
         :class="sideTheme"
+        @select="handleSelect"
+        @open="handleOpen"
+        @close="handleClose"
       >
         <sidebar-item
           v-for="(route, index) in sidebarRouters"
@@ -32,6 +36,8 @@ import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import _Layout from '@/layout/index.vue'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -70,6 +76,41 @@ const activeMenu = computed(() => {
   }
   return path
 })
+
+// 判断是否只有一个子菜单并生成标题
+function onlyOneChild(children) {
+  // 确保children是数组
+  if (!Array.isArray(children)) {
+    return false
+  }
+  
+  const showChildren = children.filter(item => {
+    // 确保item存在且未隐藏
+    return item && !item.hidden
+  })
+  
+  if (showChildren.length === 1) {
+    return showChildren[0]
+  }
+  return false
+}
+
+// 处理菜单选择事件
+function handleSelect(key, keyPath) {
+  // 可以在这里添加选中菜单时的逻辑处理
+  console.log('菜单选中:', key, keyPath)
+}
+
+// 处理子菜单展开事件
+function handleOpen(key, keyPath) {
+  // 确保子菜单正确展开
+  console.log('菜单展开:', key, keyPath)
+}
+
+// 处理子菜单关闭事件
+function handleClose(key, keyPath) {
+  console.log('菜单关闭:', key, keyPath)
+}
 </script>
 
 <style lang="scss" scoped>

@@ -171,7 +171,7 @@
 <script setup name="BlogFriendLink">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted, computed, onUnmounted } from 'vue'
 import { listFriendLink, getFriendLink, delFriendLink, addFriendLink, updateFriendLink } from "@/api/blog/friendLink";
-import { parseTime } from '@/utils/date-time' // 导入时间解析工具
+import { parseTime } from '@/utils/ruoyi' // 导入时间解析工具
 
 const { proxy } = getCurrentInstance();
 

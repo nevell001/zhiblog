@@ -85,8 +85,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         if (blogArticle.getContent() == null || blogArticle.getContent().trim().isEmpty()) {
             throw new RuntimeException("文章内容不能为空，请填写内容后再发布！");
         }
-        // 标题去除前后空格
-        String title = blogArticle.getTitle().trim();
+        // 标题去除前后空格，并进行非空校验
+        String title = blogArticle.getTitle();
+        if (title == null || title.trim().isEmpty()) {
+            throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
+        }
+        title = title.trim();
         BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
         if (exist != null) {
             throw new RuntimeException("文章标题已存在，请更换标题！");
@@ -131,14 +135,23 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Transactional
     public int updateBlogArticle(BlogArticle blogArticle)
     {
-        // 标题去除前后空格
-        String title = blogArticle.getTitle().trim();
-        // 校验除自己外是否有同名文章（保持原大小写）
-        BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
-        if (exist != null && !exist.getId().equals(blogArticle.getId())) {
-            throw new RuntimeException("文章标题已存在，请更换标题！");
+        // 只有在更新标题时才进行非空校验和处理
+        String title = blogArticle.getTitle();
+        if (title != null) {
+            // 如果明确设置了标题，则进行校验和处理
+            if (title.trim().isEmpty()) {
+                throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
+            }
+            title = title.trim();
+            blogArticle.setTitle(title);
+            
+            // 校验除自己外是否有同名文章（保持原大小写）
+            BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
+            if (exist != null && !exist.getId().equals(blogArticle.getId())) {
+                throw new RuntimeException("文章标题已存在，请修改标题后重试！");
+            }
         }
-        blogArticle.setTitle(title);
+        // 如果只更新状态等其他字段，不校验标题和唯一性
         blogArticle.setUpdateTime(DateUtils.getNowDate());
         // 确保delFlag有默认值
         if (blogArticle.getDelFlag() == null) {
@@ -295,11 +308,21 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         
         int result = 0;
         for (Long id : ids) {
-            BlogArticle article = new BlogArticle();
-            article.setId(id);
-            article.setStatus(status.longValue());
-            article.setUpdateTime(DateUtils.getNowDate());
-            result += blogArticleMapper.updateBlogArticle(article);
+            // 先查询文章，验证标题是否为空
+            BlogArticle existingArticle = blogArticleMapper.selectBlogArticleById(id);
+            if (existingArticle != null) {
+                // 当状态为发布时，校验标题是否为空
+                if (status == 1 && (existingArticle.getTitle() == null || existingArticle.getTitle().trim().isEmpty())) {
+                    throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
+                }
+                
+                // 创建更新对象，仅设置必要字段
+                BlogArticle article = new BlogArticle();
+                article.setId(id);
+                article.setStatus(status.longValue());
+                article.setUpdateTime(DateUtils.getNowDate());
+                result += blogArticleMapper.updateBlogArticle(article);
+            }
         }
         return result;
     }
