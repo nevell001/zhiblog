@@ -1,5 +1,5 @@
 import { getConfigKey } from "@/api/system/config"
-import useSettingsStore from '@/store/modules/settings'
+import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 
 /**

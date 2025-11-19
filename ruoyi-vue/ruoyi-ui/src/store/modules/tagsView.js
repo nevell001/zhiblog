@@ -1,3 +1,5 @@
+import { defineStore } from 'pinia'
+
 const useTagsViewStore = defineStore(
   'tags-view',
   {
@@ -178,5 +180,7 @@ const useTagsViewStore = defineStore(
       }
     }
   })
+
+export { useTagsViewStore }
 
 export default useTagsViewStore

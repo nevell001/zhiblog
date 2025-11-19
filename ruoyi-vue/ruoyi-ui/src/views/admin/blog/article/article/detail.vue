@@ -13,28 +13,38 @@
             {{ formatDate(article.createTime) }}
           </span>
           <span class="meta-item">
+            <i class="el-icon-user"></i>
+            作者：{{ article.author || article.authorName || '未知作者' }}
+          </span>
+          <span class="meta-item">
             <i class="el-icon-view"></i>
             {{ article.viewCount || 0 }} 阅读
           </span>
-          <span class="meta-item" v-if="article.categoryName">
+          <span class="meta-item" v-if="article.categoryName || category">
             <i class="el-icon-folder"></i>
-            {{ article.categoryName }}
+            分类：{{ article.categoryName || category.name }}
           </span>
-          <span class="meta-item" v-if="article.tags && article.tags.length">
-            <i class="el-icon-collection-tag"></i>
-            <span v-for="tag in article.tags" :key="tag.id" class="tag">{{ tag.name }}</span>
-          </span>
+          <div class="article-stats">
+            <span class="stat-item">
+              <i class="el-icon-star-off"></i>
+              点赞：{{ article.likeCount || 0 }}
+            </span>
+            <span class="stat-item">
+              <i class="el-icon-chat-line-round"></i>
+              评论：{{ article.commentCount || 0 }}
+            </span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 文章封面 -->
-    <div class="article-cover" v-if="article.coverUrl">
-      <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
+    <!-- 文章封面 - 支持coverUrl和coverImage -->
+    <div class="article-cover" v-if="article.coverUrl || article.coverImage">
+      <img :src="article.coverUrl || article.coverImage" :alt="article.title" loading="lazy" />
       <div class="article-cover-overlay">
-        <div class="article-category-tag" v-if="article.categoryName">
+        <div class="article-category-tag" v-if="article.categoryName || category">
           <i class="el-icon-folder"></i>
-          {{ article.categoryName }}
+          {{ article.categoryName || category.name }}
         </div>
         <div class="article-stats">
           <span class="stat">
@@ -53,9 +63,18 @@
       </div>
     </div>
 
+    <!-- 文章摘要 - 新增显示摘要 -->
+    <div v-if="article.summary" class="article-summary">
+      <div class="summary-label">摘要：</div>
+      <div class="summary-content">{{ article.summary }}</div>
+    </div>
+
     <!-- 文章内容 -->
     <div class="article-content">
-      <div class="content-wrapper" v-html="article.content"></div>
+      <div v-if="article.content && article.content !== '暂无内容'" class="content-wrapper" v-html="article.content"></div>
+      <div v-else class="content-wrapper-empty">
+        <el-empty description="暂无文章内容" />
+      </div>
     </div>
 
     <!-- 文章底部 -->
@@ -146,7 +165,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getArticleDetail, updateArticleViewCount } from '@/api/blog/article'
@@ -157,75 +176,157 @@ const route = useRoute()
 const articleId = route.params.id
 
 // 响应式数据
-const article = ref({})
+const article = ref({
+  title: '',
+  content: '',
+  author: '',
+  authorName: '',
+  createTime: '',
+  viewCount: 0,
+  likeCount: 0,
+  commentCount: 0,
+  coverUrl: '',
+  coverImage: '',
+  summary: '',
+  tags: []
+})
 const comments = ref([])
 const prevArticle = ref(null)
 const nextArticle = ref(null)
 const commentContent = ref('')
 const submittingComment = ref(false)
 const replyTo = ref(null)
+const category = ref(null)
 
 // 获取文章详情
 const loadArticleDetail = async () => {
   try {
+    // 添加加载中消息，提升用户体验
+    ElMessage.loading({
+      message: '加载文章中...',
+      duration: 0,
+      loadingType: 'spinner'
+    })
+    
     const response = await getArticleDetail(articleId)
-    const data = response.data || {}
     
-    // 设置文章数据，确保所有字段都有默认值
-    const articleData = data.article || {}
-    article.value = {
-      id: articleData.id || 0,
-      title: articleData.title || '',
-      summary: articleData.summary || '',
-      content: articleData.content || '',
-      coverUrl: articleData.coverUrl || '',
-      categoryId: articleData.categoryId || 0,
-      authorId: articleData.authorId || 0,
-      author: articleData.author || '',
-      authorName: articleData.authorName || '',
-      isTop: articleData.isTop || 0,
-      isRecommend: articleData.isRecommend || 0,
-      status: articleData.status || 0,
-      viewCount: articleData.viewCount || 0,
-      likeCount: articleData.likeCount || 0,
-      commentCount: articleData.commentCount || 0,
-      createTime: articleData.createTime || '',
-      updateTime: articleData.updateTime || '',
-      delFlag: articleData.delFlag || 0
-    }
+    // 关闭加载提示
+    ElMessage.closeAll()
     
-    // 设置上下篇文章数据，确保字段安全访问
-    if (data.extraInfo) {
-      const prev = data.extraInfo.prevArticle
-      const next = data.extraInfo.nextArticle
+    if (response && response.code === 200 && response.data) {
+      const data = response.data || {}
       
-      prevArticle.value = prev ? {
-        id: prev.id || 0,
-        title: prev.title || '上一篇'
-      } : null
+      // 确保文章数据完整，设置默认值避免显示问题
+      const articleData = data.article || {}
+      article.value = {
+        id: articleData.id || 0,
+        title: articleData.title || '无标题文章',
+        content: articleData.content || '暂无内容',
+        summary: articleData.summary || '',
+        coverUrl: articleData.coverUrl || articleData.coverImage || '',
+        coverImage: articleData.coverImage || articleData.coverUrl || '',
+        categoryId: articleData.categoryId || 0,
+        authorId: articleData.authorId || 0,
+        author: articleData.author || articleData.authorName || '未知作者',
+        authorName: articleData.authorName || articleData.author || '未知作者',
+        isTop: articleData.isTop || 0,
+        isRecommend: articleData.isRecommend || 0,
+        status: articleData.status || 0,
+        viewCount: articleData.viewCount || 0,
+        likeCount: articleData.likeCount || 0,
+        commentCount: articleData.commentCount || 0,
+        createTime: articleData.createTime || new Date().toISOString(),
+        updateTime: articleData.updateTime || '',
+        delFlag: articleData.delFlag || 0,
+        tags: articleData.tags || []
+      }
       
-      nextArticle.value = next ? {
-        id: next.id || 0,
-        title: next.title || '下一篇'
-      } : null
+      // 设置上下篇文章数据，确保字段安全访问
+      if (data.extraInfo) {
+        const prev = data.extraInfo.prevArticle
+        const next = data.extraInfo.nextArticle
+        const catInfo = data.extraInfo.category
+        
+        prevArticle.value = prev ? {
+          id: prev.id || 0,
+          title: prev.title || '上一篇'
+        } : null
+        
+        nextArticle.value = next ? {
+          id: next.id || 0,
+          title: next.title || '下一篇'
+        } : null
+        
+        // 设置分类信息
+        if (catInfo) {
+          category.value = catInfo
+        }
+      }
+      
+      // 更新阅读量（异步执行，不阻塞页面显示）
+      updateArticleViewCount(articleId).catch(err => {
+        console.warn('更新阅读量失败:', err)
+      })
+    } else {
+      ElMessage.error(response?.msg || '获取文章详情失败')
+      // 设置默认文章数据，避免页面空白
+      article.value.title = '文章加载失败'
+      article.value.content = '抱歉，无法加载文章内容，请稍后再试。'
     }
-    
-    // 更新阅读量
-    await updateArticleViewCount(articleId)
   } catch (error) {
+    ElMessage.closeAll()
     console.error('获取文章详情失败:', error)
+    ElMessage.error('加载文章失败，请检查网络连接或稍后再试')
+    // 设置默认文章数据，避免页面空白
+    article.value.title = '文章加载失败'
+    article.value.content = '抱歉，无法加载文章内容，请稍后再试。'
   }
 }
 
-// 获取评论列表
-const loadComments = async () => {
-  try {
-    const response = await getArticleComments(articleId)
-    comments.value = response.rows || []
-  } catch (error) {
-    console.error('获取评论列表失败:', error)
+// 获取评论列表 - 优化错误处理和加载逻辑
+  const loadComments = async () => {
+    try {
+      const response = await getArticleComments(articleId, {
+        pageNum: 1,
+        pageSize: 100
+      })
+      
+      // 安全检查并过滤无效评论
+      comments.value = response?.data?.rows?.filter(comment => comment && comment.id) || response.rows || []
+    } catch (error) {
+      console.error('获取评论失败:', error)
+      ElMessage.warning('获取评论列表失败，显示本地评论数据')
+      // 保持评论数组为空，避免显示错误数据
+      comments.value = []
+    }
   }
-}
+
+  // 处理图片加载失败 - 为文章内容中的图片添加错误处理
+  const handleImageError = (event) => {
+    const img = event.target
+    img.onerror = null // 防止无限循环
+    img.src = '/ruoyi-ui/images/error/image-error.png' // 设置默认错误图片
+    img.alt = '图片加载失败'
+    img.style.maxWidth = '100%'
+    img.style.height = 'auto'
+  }
+
+  // 监听文章内容变化，为图片添加错误处理
+  const setupImageErrorHandlers = async () => {
+    await nextTick()
+    const contentImages = document.querySelectorAll('.article-content img')
+    contentImages.forEach(img => {
+      img.onerror = handleImageError
+      // 添加懒加载和响应式处理
+      img.loading = 'lazy'
+      img.style.maxWidth = '100%'
+      img.style.height = 'auto'
+      // 确保图片有alt属性
+      if (!img.alt) {
+        img.alt = '文章图片'
+      }
+    })
+  }
 
 // 提交评论
 const submitComment = async () => {
@@ -280,23 +381,59 @@ const getAvatarUrl = (comment) => {
   return comment.avatar || `https://via.placeholder.com/40x40/409EFF/FFFFFF?text=${(comment.nickname || '匿名').charAt(0)}`
 }
 
-// 日期格式化
-const formatDate = (dateString) => {
-  if (!dateString) return ''
-  const date = new Date(dateString)
-  return date.toLocaleDateString('zh-CN', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
-}
+// 格式化日期 - 更强大的日期格式化函数
+  const formatDate = (dateString) => {
+    if (!dateString) return '未知日期'
+    
+    try {
+      const date = new Date(dateString)
+      
+      // 检查是否为有效日期
+      if (isNaN(date.getTime())) {
+        return '日期格式错误'
+      }
+      
+      const year = date.getFullYear()
+      const month = (date.getMonth() + 1).toString().padStart(2, '0')
+      const day = date.getDate().toString().padStart(2, '0')
+      const hours = date.getHours().toString().padStart(2, '0')
+      const minutes = date.getMinutes().toString().padStart(2, '0')
+      
+      // 返回格式：YYYY-MM-DD HH:mm
+      return `${year}-${month}-${day} ${hours}:${minutes}`
+    } catch (error) {
+      console.warn('日期格式化错误:', error)
+      return '日期格式错误'
+    }
+  }
+
+  // 获取分类名称 - 支持从category对象获取分类名称
+  const getCategoryName = () => {
+    if (article.value.categoryName) return article.value.categoryName
+    if (category.value && category.value.name) return category.value.name
+    return '未分类'
+  }
 
 // 组件挂载时加载数据
-onMounted(() => {
-  loadArticleDetail()
-  loadComments()
+onMounted(async () => {
+  // 加载文章详情
+  await loadArticleDetail()
+  
+  // 文章内容加载完成后，设置图片错误处理
+  await setupImageErrorHandlers()
+  
+  // 加载评论（异步执行，不阻塞页面显示）
+  loadComments().catch(err => {
+    console.warn('评论加载失败:', err)
+  })
+  
+  // 监听窗口大小变化，确保响应式布局
+  window.addEventListener('resize', setupImageErrorHandlers)
+})
+
+// 组件卸载时清理事件监听器
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', setupImageErrorHandlers)
 })
 </script>
 

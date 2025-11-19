@@ -1,5 +1,5 @@
 import defaultSettings from '@/settings'
-import useSettingsStore from '@/store/modules/settings'
+import { useSettingsStore } from '@/store/modules/settings'
 import { getConfigKey } from "@/api/system/config"
 
 /**

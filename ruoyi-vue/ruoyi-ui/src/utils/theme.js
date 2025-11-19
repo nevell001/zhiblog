@@ -1,5 +1,9 @@
 // 处理主题样式
 export function handleThemeStyle(theme) {
+	// 添加主题参数有效性检查，避免undefined导致的错误
+	if (!theme || typeof theme !== 'string') {
+		theme = '#409EFF'; // 使用Element UI默认主色调作为备用
+	}
 	document.documentElement.style.setProperty('--el-color-primary', theme)
 	for (let i = 1; i <= 9; i++) {
 		document.documentElement.style.setProperty(`--el-color-primary-light-${i}`, `${getLightColor(theme, i / 10)}`)

@@ -14,9 +14,10 @@ import locale from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/assets/styles/index.scss' // global css
 
-import App from './App'
-import store from './store'
-import router from './router'
+import App from './App';
+import { createPinia } from 'pinia';
+import router from './router';
+import { useSettingsStore } from './stores/settings';
 import directive from './directive' // directive
 
 // 注册指令
@@ -51,31 +52,37 @@ import DictTag from '@/components/DictTag'
 
 const app = createApp(App)
 
+// 创建并挂载Pinia实例
+const store = createPinia()
+app.use(store)
+app.use(router)
+
 // 全局方法挂载
-app.config.globalProperties.useDict = useDict
-app.config.globalProperties.download = download
-app.config.globalProperties.parseTime = parseTime
-app.config.globalProperties.resetForm = resetForm
-app.config.globalProperties.handleTree = handleTree
-app.config.globalProperties.addDateRange = addDateRange
-app.config.globalProperties.getConfigKey = getConfigKey
-app.config.globalProperties.selectDictLabel = selectDictLabel
-app.config.globalProperties.selectDictLabels = selectDictLabels
+app.config.globalProperties.useDict = useDict;
+app.config.globalProperties.download = download;
+app.config.globalProperties.parseTime = parseTime;
+app.config.globalProperties.resetForm = resetForm;
+app.config.globalProperties.handleTree = handleTree;
+app.config.globalProperties.addDateRange = addDateRange;
+app.config.globalProperties.getConfigKey = getConfigKey;
+app.config.globalProperties.selectDictLabel = selectDictLabel;
+app.config.globalProperties.selectDictLabels = selectDictLabels;
 
 // 全局组件挂载
-app.component('DictTag', DictTag)
-app.component('Pagination', Pagination)
-app.component('FileUpload', FileUpload)
-app.component('ImageUpload', ImageUpload)
-app.component('ImagePreview', ImagePreview)
-app.component('RightToolbar', RightToolbar)
-app.component('Editor', Editor)
+app.component('DictTag', DictTag);
+app.component('Pagination', Pagination);
+app.component('FileUpload', FileUpload);
+app.component('ImageUpload', ImageUpload);
+app.component('ImagePreview', ImagePreview);
+app.component('RightToolbar', RightToolbar);
+app.component('Editor', Editor);
+app.component('svg-icon', SvgIcon);
 
-app.use(router)
-app.use(store)
-app.use(plugins)
-app.use(elementIcons)
-app.component('svg-icon', SvgIcon)
+app.use(plugins);
+app.use(elementIcons);
+
+// 初始化设置store
+const settingsStore = useSettingsStore();
 
 directive(app)
 

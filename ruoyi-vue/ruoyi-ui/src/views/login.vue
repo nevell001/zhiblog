@@ -46,7 +46,7 @@
           :loading="loading"
           size="large"
           type="primary"
-          style="width:100%;"
+          style="width:100%; font-size: 16px; padding: 12px 0; font-weight: bold; box-shadow: 0 2px 12px 0 rgba(24, 144, 255, 0.3);"
           @click.prevent="handleLogin"
         >
           <span v-if="!loading">登 录</span>
@@ -176,6 +176,7 @@ getCookie()
   height: 100%;
   background-image: url("../assets/images/login-background.jpg");
   background-size: cover;
+  padding: 20px;
 }
 .title {
   margin: 0px auto 30px auto;
@@ -186,7 +187,8 @@ getCookie()
 .login-form {
   border-radius: 6px;
   background: #ffffff;
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
   padding: 25px 25px 5px 25px;
   z-index: 1;
   .el-input {
@@ -199,6 +201,40 @@ getCookie()
     height: 39px;
     width: 14px;
     margin-left: 0px;
+  }
+}
+
+// 响应式设计，确保在移动设备上也能正常显示
+@media screen and (max-width: 768px) {
+  .login-form {
+    padding: 20px 20px 5px 20px;
+  }
+  
+  .title {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .el-button {
+    font-size: 14px !important;
+    padding: 10px 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login {
+    padding: 15px;
+  }
+  
+  .login-form {
+    padding: 15px 15px 5px 15px;
+  }
+  
+  .el-input {
+    height: 36px !important;
+    input {
+      height: 36px !important;
+    }
   }
 }
 .login-tip {

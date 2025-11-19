@@ -132,7 +132,7 @@ public class BlogFrontController extends BaseController
      */
     @Anonymous
     @GetMapping("/article/{id}")
-    public AjaxResult getArticle(@PathVariable("id") Long id)
+    public AjaxResult getArticleDetail(@PathVariable("id") Long id)
     {
         BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
         if (blogArticle == null) {
@@ -160,53 +160,62 @@ public class BlogFrontController extends BaseController
             return error("文章已删除");
         }
         
-        // 确保其他字段都有默认值
+        // 确保所有必要字段都有默认值，防止前端显示问题
         if (blogArticle.getViewCount() == null) blogArticle.setViewCount(0L);
         if (blogArticle.getLikeCount() == null) blogArticle.setLikeCount(0L);
         if (blogArticle.getCommentCount() == null) blogArticle.setCommentCount(0L);
         if (blogArticle.getIsTop() == null) blogArticle.setIsTop(0L);
         if (blogArticle.getIsRecommend() == null) blogArticle.setIsRecommend(0L);
+        if (blogArticle.getTitle() == null) blogArticle.setTitle("无标题文章");
+        if (blogArticle.getContent() == null) blogArticle.setContent("暂无内容");
+        if (blogArticle.getSummary() == null) blogArticle.setSummary("");
+        if (blogArticle.getAuthor() == null) blogArticle.setAuthor("未知作者");
+        if (blogArticle.getAuthorName() == null) blogArticle.setAuthorName(blogArticle.getAuthor());
         
         // 获取上一篇和下一篇文章，使用专门的DTO对象
         Map<String, Object> extraInfo = new HashMap<>();
         
-        BlogArticle prevArticle = blogArticleService.getPrevArticle(id);
-        BlogArticle nextArticle = blogArticleService.getNextArticle(id);
-        
-        // 确保prevArticle和nextArticle的delFlag字段有默认值
-        // 在调用getDelFlag()之前先检查对象是否为null并设置默认值
-        if (prevArticle != null) {
-            Long prevDelFlag = prevArticle.getDelFlag();
-            if (prevDelFlag == null) {
-                prevArticle.setDelFlag(0L);
+        try {
+            BlogArticle prevArticle = blogArticleService.getPrevArticle(id);
+            BlogArticle nextArticle = blogArticleService.getNextArticle(id);
+            
+            // 使用DTO对象避免序列化问题，添加更严格的null检查
+            if (prevArticle != null && prevArticle.getId() != null && prevArticle.getStatus() != null && prevArticle.getStatus().equals(1L)) {
+                ArticleNavigationDTO prevArticleDTO = new ArticleNavigationDTO(
+                    prevArticle.getId(), 
+                    prevArticle.getTitle() != null ? prevArticle.getTitle() : "上一篇"
+                );
+                extraInfo.put("prevArticle", prevArticleDTO);
+            } else {
+                extraInfo.put("prevArticle", null);
             }
-        }
-        if (nextArticle != null) {
-            Long nextDelFlag = nextArticle.getDelFlag();
-            if (nextDelFlag == null) {
-                nextArticle.setDelFlag(0L);
+            
+            if (nextArticle != null && nextArticle.getId() != null && nextArticle.getStatus() != null && nextArticle.getStatus().equals(1L)) {
+                ArticleNavigationDTO nextArticleDTO = new ArticleNavigationDTO(
+                    nextArticle.getId(), 
+                    nextArticle.getTitle() != null ? nextArticle.getTitle() : "下一篇"
+                );
+                extraInfo.put("nextArticle", nextArticleDTO);
+            } else {
+                extraInfo.put("nextArticle", null);
             }
-        }
-        
-        // 使用DTO对象避免序列化问题，添加更严格的null检查
-        if (prevArticle != null && prevArticle.getId() != null) {
-            ArticleNavigationDTO prevArticleDTO = new ArticleNavigationDTO(
-                prevArticle.getId(), 
-                prevArticle.getTitle() != null ? prevArticle.getTitle() : "上一篇"
-            );
-            extraInfo.put("prevArticle", prevArticleDTO);
-        } else {
+        } catch (Exception e) {
+            // 处理获取上下篇文章时的异常，确保即使出错也能返回文章详情
             extraInfo.put("prevArticle", null);
+            extraInfo.put("nextArticle", null);
+            System.err.println("获取上下篇文章出错: " + e.getMessage());
         }
         
-        if (nextArticle != null && nextArticle.getId() != null) {
-            ArticleNavigationDTO nextArticleDTO = new ArticleNavigationDTO(
-                nextArticle.getId(), 
-                nextArticle.getTitle() != null ? nextArticle.getTitle() : "下一篇"
-            );
-            extraInfo.put("nextArticle", nextArticleDTO);
-        } else {
-            extraInfo.put("nextArticle", null);
+        // 添加分类信息
+        try {
+            if (blogArticle.getCategoryId() != null) {
+                BlogCategory category = blogCategoryService.selectBlogCategoryById(blogArticle.getCategoryId());
+                if (category != null && "0".equals(category.getDelFlag())) {
+                    extraInfo.put("category", category);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("获取分类信息出错: " + e.getMessage());
         }
         
         Map<String, Object> result = new HashMap<>();
