@@ -148,43 +148,43 @@ export const adminRoutes = [
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/blog/article',
     name: 'Blog',
-    meta: { title: '博客管理', icon: 'documentation', permissions: ['admin', 'editor'] },
+    meta: { title: '博客管理', icon: 'documentation', permissions: ['blog:article:list'] },
     children: [
       {
         path: 'article',
         component: () => import('@/views/admin/blog/article/article/index'),
         name: 'Article',
-        meta: { title: '文章管理', icon: 'edit', permissions: ['admin', 'editor'] }
+        meta: { title: '文章管理', icon: 'edit', permissions: ['blog:article:list'] }
       },
       {
         path: 'category',
         component: () => import('@/views/admin/blog/category/category/index'),
         name: 'BlogCategory',
-        meta: { title: '分类管理', icon: 'list', permissions: ['admin', 'editor'] }
+        meta: { title: '分类管理', icon: 'list', permissions: ['blog:category:list'] }
       },
       {
         path: 'tag',
         component: () => import('@/views/admin/blog/tag/tag/index'),
         name: 'BlogTag',
-        meta: { title: '标签管理', icon: 'tag', permissions: ['admin', 'editor'] }
+        meta: { title: '标签管理', icon: 'tag', permissions: ['blog:tag:list'] }
       },
       {
         path: 'comment',
         component: () => import('@/views/admin/blog/comment/comment/index'),
         name: 'Comment',
-        meta: { title: '评论管理', icon: 'message', permissions: ['admin', 'editor'] }
+        meta: { title: '评论管理', icon: 'message', permissions: ['blog:comment:list'] }
       },
       {
         path: 'setting',
         component: () => import('@/views/admin/blog/setting/setting/index'),
         name: 'BlogSetting',
-        meta: { title: '博客设置', icon: 'setting', permissions: ['admin'] }
+        meta: { title: '博客设置', icon: 'setting', permissions: ['blog:setting:list'] }
       },
       {
         path: 'friendLink',
         component: () => import('@/views/admin/blog/friendLink/friendLink/index'),
         name: 'FriendLink',
-        meta: { title: '友链管理', icon: 'link', permissions: ['admin', 'editor'] }
+        meta: { title: '友链管理', icon: 'link', permissions: ['blog:friendLink:list'] }
       }
     ]
   },

@@ -36,7 +36,7 @@ public class BlogCommentController extends BaseController
     /**
      * 查询博客评论列表
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:list')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogComment blogComment)
     {
@@ -48,7 +48,7 @@ public class BlogCommentController extends BaseController
     /**
      * 导出博客评论列表
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:export')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:export')")
     @Log(title = "博客评论", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogComment blogComment)
@@ -61,7 +61,7 @@ public class BlogCommentController extends BaseController
     /**
      * 获取博客评论详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:query')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -71,7 +71,7 @@ public class BlogCommentController extends BaseController
     /**
      * 新增博客评论
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:add')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:add')")
     @Log(title = "博客评论", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogComment blogComment)
@@ -82,7 +82,7 @@ public class BlogCommentController extends BaseController
     /**
      * 修改博客评论
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:edit')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogComment blogComment)
@@ -93,7 +93,7 @@ public class BlogCommentController extends BaseController
     /**
      * 删除博客评论
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:remove')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:remove')")
     @Log(title = "博客评论", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
@@ -104,7 +104,7 @@ public class BlogCommentController extends BaseController
     /**
      * 审核通过博客评论
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:audit')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:audit')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)
     @PutMapping("/audit/{ids}")
     public AjaxResult audit(@PathVariable Long[] ids)
@@ -115,7 +115,7 @@ public class BlogCommentController extends BaseController
     /**
      * 审核拒绝博客评论
      */
-    @PreAuthorize("@ss.hasPermi('system:comment:reject')")
+    @PreAuthorize("@ss.hasPermi('blog:comment:reject')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)
     @PutMapping("/reject/{ids}")
     public AjaxResult reject(@PathVariable Long[] ids)

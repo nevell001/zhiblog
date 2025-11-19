@@ -1,25 +1,23 @@
 <template>
   <div class="errPage-container">
-    <el-button icon="arrow-left" class="pan-back-btn" @click="back">
-      返回
+    <el-button icon="arrow-left" class="back-btn" @click="back">
+      返回上一页
     </el-button>
-    <el-row>
+    <el-row justify="center" align="middle">
       <el-col :span="12">
-        <h1 class="text-jumbo text-ginormous">
-          401错误!
+        <h1 class="text-jumbo">
+          401
         </h1>
-        <h2>您没有访问权限！</h2>
-        <h6>对不起，您没有访问权限，请不要进行非法操作！您可以返回主页面</h6>
-        <ul class="list-unstyled">
-          <li class="link-type">
-            <router-link to="/">
-              回首页
-            </router-link>
-          </li>
-        </ul>
+        <h2>需要权限访问</h2>
+        <p>您目前没有足够的权限访问此页面</p>
+        <div class="action-buttons">
+          <router-link to="/" class="home-link">
+            返回首页
+          </router-link>
+        </div>
       </el-col>
-      <el-col :span="12">
-        <img :src="errGif" width="313" height="428" alt="Girl has dropped her ice cream.">
+      <el-col :span="12" class="image-container">
+        <img :src="errGif" alt="权限不足提示" class="error-image">
       </el-col>
     </el-row>
   </div>
@@ -45,37 +43,62 @@ function back() {
 .errPage-container {
   width: 800px;
   max-width: 100%;
-  margin: 100px auto;
-  .pan-back-btn {
-    background: #008489;
+  margin: 60px auto;
+  
+  .back-btn {
+    background: #409eff;
     color: #fff;
-    border: none !important;
+    border: none;
+    margin-bottom: 20px;
   }
-  .pan-gif {
-    margin: 0 auto;
-    display: block;
+  
+  .image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
-  .pan-img {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
+  
+  .error-image {
+    max-width: 100%;
+    height: auto;
+    max-height: 300px;
   }
+  
   .text-jumbo {
-    font-size: 60px;
+    font-size: 72px;
     font-weight: 700;
-    color: #484848;
+    color: #409eff;
+    margin-bottom: 10px;
   }
-  .list-unstyled {
-    font-size: 14px;
-    li {
-      padding-bottom: 5px;
-    }
-    a {
-      color: #008489;
+  
+  h2 {
+    color: #606266;
+    margin-bottom: 15px;
+    font-size: 24px;
+  }
+  
+  p {
+    color: #909399;
+    margin-bottom: 20px;
+    font-size: 16px;
+  }
+  
+  .action-buttons {
+    margin-top: 20px;
+  }
+  
+  .home-link {
+    display: inline-block;
+    padding: 8px 20px;
+    background: #409eff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    
+    &:hover {
+      background: #66b1ff;
       text-decoration: none;
-      &:hover {
-        text-decoration: underline;
-      }
     }
   }
 }

@@ -37,7 +37,7 @@ public class BlogTagController extends BaseController
     /**
      * 查询博客标签列表
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:list')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogTag blogTag)
     {
@@ -49,7 +49,7 @@ public class BlogTagController extends BaseController
     /**
      * 导出博客标签列表
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:export')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:export')")
     @Log(title = "博客标签", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogTag blogTag)
@@ -62,7 +62,7 @@ public class BlogTagController extends BaseController
     /**
      * 获取博客标签详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:query')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:query')")
     @GetMapping(value = "/{tagId}")
     public AjaxResult getInfo(@PathVariable("tagId") Long tagId)
     {
@@ -72,7 +72,7 @@ public class BlogTagController extends BaseController
     /**
      * 新增博客标签
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:add')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:add')")
     @Log(title = "博客标签", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogTag blogTag)
@@ -87,7 +87,7 @@ public class BlogTagController extends BaseController
     /**
      * 修改博客标签
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:edit')")
     @Log(title = "博客标签", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogTag blogTag)
@@ -102,7 +102,7 @@ public class BlogTagController extends BaseController
     /**
      * 删除博客标签
      */
-    @PreAuthorize("@ss.hasPermi('system:tag:remove')")
+    @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
     @Log(title = "博客标签", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tagIds}")
     public AjaxResult remove(@PathVariable Long[] tagIds)

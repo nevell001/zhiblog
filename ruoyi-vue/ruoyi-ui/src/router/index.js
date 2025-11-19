@@ -8,7 +8,7 @@ import Layout from '@/layout/index.vue'
 // 博客前台路由
 import blogRoutes from './blog'
 // 后台管理路由
-import adminRoutes from './admin'
+import adminRoutes from './admin-optimized'
 
 /**
  * Note: 路由配置项
@@ -187,13 +187,7 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 })
 })
 
-// 路由注册完成后打印日志
-console.log('路由注册完成:')
-console.log('- 公共路由数量:', constantRoutes.length)
-console.log('- 博客路由数量:', blogRoutes.length)
-console.log('- 管理路由数量:', adminRoutes.length)
-console.log('- 动态路由数量:', dynamicRoutes.length)
-console.log('- 博客路由详情:', blogRoutes.map(route => route.path).join(', '))
+// 路由配置完成
 
 // 添加路由守卫，处理权限验证和路由匹配
 router.beforeEach((to, from, next) => {
@@ -201,38 +195,10 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const token = userStore.token
   
-  // 为博客相关的动态路由添加特殊处理
-  // 直接放行标签、分类和文章详情页面的路径
-  const isBlogDynamicRoute = 
-    to.path.match(/^\/blog\/tag\/\d+$/) ||
-    to.path.match(/^\/blog\/category\/\d+$/) ||
-    to.path.match(/^\/blog\/article\/\d+$/) ||
-    to.path.match(/^\/blog$/) ||
-    to.path.match(/^\/blog\/category$/) ||
-    to.path.match(/^\/blog\/tag$/) ||
-    to.path.match(/^\/blog\/archive$/) ||
-    to.path.match(/^\/blog\/about$/)
-  
-  if (isBlogDynamicRoute) {
-    console.log(`直接放行博客相关路由: ${to.path}`)
-    // 对于博客相关路由，直接跳过路由存在性检查
-    // 因为我们已经确认这些路由在blogRoutes中定义了
-  } else {
-    // 对于非博客路由，使用Vue Router v4的正确API检查
-    try {
-      const matched = router.resolve(to.path)
-      const routeExists = matched.matched.length > 0
-      
-      if (!routeExists && to.path !== '/404') {
-        console.warn(`路由未匹配: ${to.path}，重定向到404页面`)
-        next('/404')
-        return
-      }
-    } catch (error) {
-      console.error('路由解析错误:', error)
-      next('/404')
-      return
-    }
+  // 标准路由匹配检查
+  if (!router.hasRoute(to.name) && !to.path.startsWith('/blog') && !to.path.startsWith('/admin')) {
+    next('/404')
+    return
   }
   
   // 白名单路由（无需登录即可访问）
@@ -240,7 +206,6 @@ router.beforeEach((to, from, next) => {
   
   // 检查是否为白名单路由或博客相关路由
   if (whiteList.includes(to.path) || to.path.startsWith('/blog')) {
-    console.log(`博客相关路由或白名单路由，直接放行: ${to.path}`)
     next()
     return
   }
@@ -253,11 +218,9 @@ router.beforeEach((to, from, next) => {
       return
     }
     
-    // 检查用户权限
+      // 检查用户权限
     if (to.meta && to.meta.permissions) {
-      const hasPermission = auth.hasPermiOr(to.meta.permissions)
-      if (!hasPermission) {
-        console.warn(`权限不足，无法访问: ${to.path}`)
+      if (!auth.hasPermiOr(to.meta.permissions)) {
         next('/401')
         return
       }
@@ -265,9 +228,7 @@ router.beforeEach((to, from, next) => {
     
     // 检查用户角色
     if (to.meta && to.meta.roles) {
-      const hasRole = auth.hasRoleOr(to.meta.roles)
-      if (!hasRole) {
-        console.warn(`角色不符，无法访问: ${to.path}`)
+      if (!auth.hasRoleOr(to.meta.roles)) {
         next('/401')
         return
       }
@@ -277,7 +238,6 @@ router.beforeEach((to, from, next) => {
   } else {
     // 未登录用户访问需要权限的页面，重定向到登录页
     if (to.meta && (to.meta.permissions || to.meta.roles)) {
-      console.warn(`未登录，重定向到登录页: ${to.path}`)
       next(`/login?redirect=${to.path}`)
       return
     }
