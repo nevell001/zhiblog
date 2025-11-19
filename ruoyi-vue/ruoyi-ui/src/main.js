@@ -94,37 +94,3 @@ app.use(ElementPlus, {
 })
 
 app.mount('#app')
-
-// 在开发环境下暴露Vue应用实例和调试功能
-import { exposeVueApp } from './utils/menuDebug'
-import { exposeCompatibilityTest } from './utils/compatibilityTest'
-
-exposeVueApp(app)
-exposeCompatibilityTest(app)
-
-// 调试路由注册情况
-import { debugRoutes } from './utils/routeDebug'
-import { testBlogRoutes } from './utils/testBlogRoutes'
-debugRoutes()
-
-// 延迟测试博客动态路由匹配，确保路由完全注册后再测试
-setTimeout(() => {
-  try {
-    console.log('开始测试博客路由...');
-    testBlogRoutes();
-  } catch (error) {
-    console.error('博客路由测试出错:', error);
-  }
-}, 1000)
-
-// 开发环境下执行loadView性能测试
-if (import.meta.env.DEV) {
-  import('./utils/loadViewPerformanceTest.js').then(({ runLoadViewPerformanceTest }) => {
-    console.log('执行loadView性能测试...');
-    setTimeout(() => {
-      runLoadViewPerformanceTest().catch(err => {
-        console.error('性能测试执行失败:', err);
-      });
-    }, 1000);
-  });
-}

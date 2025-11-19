@@ -103,7 +103,39 @@ function hasMenuPermission(menuItem) {
     return menuItem.meta.hasPermission
   }
   
-  // 默认认为有权限
+  // 检查用户角色和权限
+  const userStore = useUserStore()
+  const roles = userStore.roles || []
+  const permissions = userStore.permissions || []
+  
+  console.log(`🔍 检查菜单权限:`, {
+    menuItem: menuItem.meta?.title,
+    path: menuItem.path,
+    userRoles: roles,
+    userPermissions: permissions,
+    requiredRoles: menuItem.meta?.roles,
+    requiredPermissions: menuItem.meta?.permissions
+  })
+  
+  // 检查角色权限
+  if (menuItem.meta?.roles && menuItem.meta.roles.length > 0) {
+    const hasRole = menuItem.meta.roles.some(role => roles.includes(role))
+    if (!hasRole) {
+      console.log(`❌ 角色权限不足: ${menuItem.meta.title}`)
+      return false
+    }
+  }
+  
+  // 检查具体权限
+  if (menuItem.meta?.permissions && menuItem.meta.permissions.length > 0) {
+    const hasPermission = menuItem.meta.permissions.some(permission => permissions.includes(permission))
+    if (!hasPermission) {
+      console.log(`❌ 具体权限不足: ${menuItem.meta.title}`)
+      return false
+    }
+  }
+  
+  console.log(`✅ 菜单权限验证通过: ${menuItem.meta?.title}`)
   return true
 }
 

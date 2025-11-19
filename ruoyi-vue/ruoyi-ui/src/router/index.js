@@ -70,13 +70,7 @@ export const constantRoutes = [
     component: () => import('@/views/error/401'),
     hidden: true
   },
-  {
-    path: '/index',
-    component: () => import('@/views/blog/index'),
-    name: 'BlogHome',
-    meta: { title: '博客首页' },
-    hidden: true
-  },
+  
   {
     path: '/user',
     component: Layout,
@@ -195,32 +189,30 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const token = userStore.token
   
-  // 标准路由匹配检查
-  if (!router.hasRoute(to.name) && !to.path.startsWith('/blog') && !to.path.startsWith('/admin')) {
-    next('/404')
-    return
-  }
-  
   // 白名单路由（无需登录即可访问）
-  const whiteList = ['/login', '/register', '/404', '/401', '/index', '/about']
+  const whiteList = ['/login', '/register', '/404', '/401', '/about']
   
   // 检查是否为白名单路由或博客相关路由
   if (whiteList.includes(to.path) || to.path.startsWith('/blog')) {
+    console.log(`✅ 白名单路由或博客路由，允许访问: ${to.path}`)
     next()
     return
   }
   
   // 检查用户是否已登录
   if (token) {
+    console.log(`🔑 用户已登录，访问: ${to.path}`)
+    
     // 已登录用户访问登录页，重定向到首页
     if (to.path === '/login') {
       next({ path: '/' })
       return
     }
     
-      // 检查用户权限
+    // 检查用户权限
     if (to.meta && to.meta.permissions) {
       if (!auth.hasPermiOr(to.meta.permissions)) {
+        console.log(`❌ 权限不足，需要权限: ${to.meta.permissions}`)
         next('/401')
         return
       }
@@ -229,15 +221,28 @@ router.beforeEach((to, from, next) => {
     // 检查用户角色
     if (to.meta && to.meta.roles) {
       if (!auth.hasRoleOr(to.meta.roles)) {
+        console.log(`❌ 角色不足，需要角色: ${to.meta.roles}`)
+        console.log(`👤 当前用户角色: ${userStore.roles}`)
         next('/401')
         return
       }
     }
     
+    console.log(`✅ 权限验证通过，访问: ${to.path}`)
     next()
   } else {
+    console.log(`🔒 用户未登录，访问: ${to.path}`)
+    
     // 未登录用户访问需要权限的页面，重定向到登录页
     if (to.meta && (to.meta.permissions || to.meta.roles)) {
+      console.log(`🔐 需要权限，重定向到登录页: ${to.path}`)
+      next(`/login?redirect=${to.path}`)
+      return
+    }
+    
+    // 未登录用户访问管理后台，重定向到登录页
+    if (to.path.startsWith('/admin')) {
+      console.log(`🔐 未登录用户访问管理页面 ${to.path}，重定向到登录页`)
       next(`/login?redirect=${to.path}`)
       return
     }

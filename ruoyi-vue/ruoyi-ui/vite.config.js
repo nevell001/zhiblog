@@ -56,14 +56,14 @@ export default defineConfig(({ mode, command }) => {
         target: baseUrl,
         changeOrigin: true
       },
-      // 代理博客前台接口
-      '/blog': {
+      // 代理博客API接口（精确匹配API调用，避免代理前端路由）
+      '^/blog/(article|category|tag|comment|friendLink|setting)': {
         target: baseUrl,
         changeOrigin: true
       }
-      },
+      }
       // 解决 SPA 应用 history 模式下刷新404问题
-      historyApiFallback: true
+      // historyApiFallback: true  // 在Vite中不需要这个配置
     },
     css: {
       postcss: {

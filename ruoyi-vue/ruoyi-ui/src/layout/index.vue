@@ -20,7 +20,7 @@ import Sidebar from './components/Sidebar/index.vue'
 import { AppMain, Navbar, Settings, TagsView } from './components'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
-import menuFixer from '@/utils/menu-fix.js'
+
 
 const settingsStore = useSettingsStore()
 const theme = computed(() => settingsStore.theme)
@@ -64,13 +64,9 @@ function setLayout() {
   settingRef.value.openSetting()
 }
 
-// 组件挂载后执行菜单修复
+// 组件挂载后执行初始化
 onMounted(() => {
-  console.log('🎯 Layout组件挂载完成，开始执行菜单修复')
-  // 延迟执行，确保DOM完全渲染
-  setTimeout(() => {
-    menuFixer.fixAllIssues()
-  }, 1000)
+  console.log('🎯 Layout组件挂载完成')
 })
 
 defineOptions({

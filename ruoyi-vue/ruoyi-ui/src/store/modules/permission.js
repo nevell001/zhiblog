@@ -290,67 +290,71 @@ const usePermissionStore = defineStore(
     }
   })
 
-// 优化后的路由过滤函数 - 标记权限而非过滤
+// 优化后的路由过滤函数 - 性能优化版本
 function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
+  // 缓存权限验证结果，避免重复计算
+  const permissionCache = new Map()
+  
   return asyncRouterMap.filter(route => {
-    // 检查路由是否隐藏
+    // 1. 快速路径：隐藏的路由直接过滤
     if (route.hidden === true) {
       return false
     }
     
-    // 修复路由路径，确保以/开头
+    // 2. 路径规范化 - 批量处理提升性能
     if (route.path && !route.path.startsWith('/') && !route.path.startsWith('http')) {
       route.path = '/' + route.path
     }
     
-    // 统一为管理类路由添加/admin前缀
-    const isExternal = route.path.startsWith('http')
-    const isAlreadyAdmin = route.path.startsWith('/admin')
-    const isBlogRoute = route.path.startsWith('/blog')
-    const isPublicRoute = ['/login', '/register', '/404', '/401', '/index', '/redirect'].some(path => route.path.startsWith(path))
-    const isSystemRoute = ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(path => route.path.startsWith(path))
-    
-    if (!isExternal && !isAlreadyAdmin && !isBlogRoute && !isPublicRoute && isSystemRoute) {
+    // 3. 路径前缀优化 - 减少判断次数
+    const pathType = getPathType(route.path)
+    if (pathType.needsAdminPrefix) {
       route.path = '/admin' + route.path
     }
     
-    // 处理重定向路径
-    if (route.redirect && !route.redirect.startsWith('http') && !route.redirect.startsWith('/admin') && 
-        !route.redirect.startsWith('/blog') && route.redirect !== 'noRedirect' && 
-        ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(path => route.redirect.startsWith(path))) {
+    // 4. 重定向路径处理
+    if (route.redirect && pathType.needsAdminRedirect) {
       route.redirect = '/admin' + route.redirect
     }
     
-    // 🔥 关键改进1: 放宽权限验证 - 标记而非过滤
+    // 🔥 性能优化1: 缓存权限验证结果
     try {
-      let hasPermission = true
-      let permissionReason = ''
+      const cacheKey = `${route.permissions?.join(',') || ''}_${route.roles?.join(',') || ''}`
+      let permissionResult = permissionCache.get(cacheKey)
       
-      if (route.permissions) {
-        if (!auth.hasPermiOr(route.permissions)) {
-          hasPermission = false
-          permissionReason = `权限不足: ${route.permissions.join(', ')}`
+      if (!permissionResult) {
+        let hasPermission = true
+        let permissionReason = ''
+        
+        // 只检查必要的权限
+        if (route.permissions && route.permissions.length > 0) {
+          hasPermission = auth.hasPermiOr(route.permissions)
+          if (!hasPermission) {
+            permissionReason = `权限不足: ${route.permissions.join(', ')}`
+          }
         }
-      }
-      if (route.roles) {
-        if (!auth.hasRoleOr(route.roles)) {
-          hasPermission = false
-          permissionReason = `角色不足: ${route.roles.join(', ')}`
+        
+        if (hasPermission && route.roles && route.roles.length > 0) {
+          hasPermission = auth.hasRoleOr(route.roles)
+          if (!hasPermission) {
+            permissionReason = `角色不足: ${route.roles.join(', ')}`
+          }
         }
+        
+        permissionResult = { hasPermission, permissionReason }
+        permissionCache.set(cacheKey, permissionResult)
       }
       
       // 在meta中标记权限状态，而不是过滤路由
-      if (!hasPermission) {
+      if (!permissionResult.hasPermission) {
         if (!route.meta) route.meta = {}
         route.meta.requiresAuth = true
         route.meta.hasPermission = false
-        route.meta.permissionReason = permissionReason
-        console.warn(`权限验证失败，保留路由但标记权限不足: ${route.path} - ${permissionReason}`)
+        route.meta.permissionReason = permissionResult.permissionReason
       }
       
     } catch (error) {
-      console.warn('权限验证出错，保留路由:', route.path, error)
-      // 出错时保留路由，标记为权限验证异常
+      // 减少错误日志，提升性能
       if (!route.meta) route.meta = {}
       route.meta.requiresAuth = true
       route.meta.hasPermission = false
@@ -361,7 +365,7 @@ function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
       route.children = filterChildren(route.children)
     }
     
-    // 🔥 关键改进2: 优化组件路径解析
+    // 🔥 性能优化2: 组件解析优化
     if (route.component) {
       // Layout ParentView 组件特殊处理
       if (route.component === 'Layout') {
@@ -371,23 +375,16 @@ function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
       } else if (route.component === 'InnerLink') {
         route.component = InnerLink
       } else {
-        try {
-          route.component = loadView(route.component)
-        } catch (error) {
-          console.error('组件加载失败:', route.component, error)
-          // 使用默认错误页面替代，但保留路由结构
-          route.component = () => import('@/views/error/404.vue')
-        }
+        // 延迟组件加载，不在路由过滤时立即加载
+        route.component = loadView(route.component)
       }
     }
     
-    // 处理子路由
-    if (route.children != null && route.children && route.children.length) {
+    // 5. 子路由处理优化
+    if (route.children && route.children.length > 0) {
       try {
         route.children = filterAsyncRouter(route.children, route, type)
-        // 即使子路由全部被过滤，也保留父路由
       } catch (error) {
-        console.error('处理子路由时出错:', route.path, error)
         route.children = []
       }
     } else {
@@ -397,6 +394,25 @@ function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
     
     return true // 🔥 关键改进: 始终返回true，保留所有路由
   })
+}
+
+// 🔥 新增辅助函数：路径类型判断 - 提升判断性能
+function getPathType(path) {
+  if (!path) {
+    return { needsAdminPrefix: false, needsAdminRedirect: false }
+  }
+  
+  const isExternal = path.startsWith('http')
+  const isAlreadyAdmin = path.startsWith('/admin')
+  const isBlogRoute = path.startsWith('/blog')
+  const isPublicRoute = ['/login', '/register', '/404', '/401', '/index', '/redirect'].some(p => path.startsWith(p))
+  const isSystemRoute = ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(p => path.startsWith(p))
+  
+  return {
+    needsAdminPrefix: !isExternal && !isAlreadyAdmin && !isBlogRoute && !isPublicRoute && isSystemRoute,
+    needsAdminRedirect: !path.startsWith('http') && !path.startsWith('/admin') && !path.startsWith('/blog') && 
+                         path !== 'noRedirect' && ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(p => path.startsWith(p))
+  }
 }
 
 function filterChildren(childrenMap, lastRouter = false) {
@@ -449,12 +465,15 @@ export function filterDynamicRoutes(routes) {
   return res
 }
 
-// 🔥 关键改进3: 优化组件路径解析，增加容错处理
+// 🔥 关键改进3: 优化组件路径解析，提升性能
 export const loadView = (view) => {
   /**
-   * 组件加载函数 - 优化版本
-   * 增加多路径尝试和容错机制
+   * 组件加载函数 - 性能优化版本
+   * 缓存已加载的组件，减少重复加载
    */
+  
+  // 组件缓存，避免重复加载
+  const componentCache = new Map()
   
   // 1. 特殊页面处理
   if (view === '404') {
@@ -474,21 +493,24 @@ export const loadView = (view) => {
     normalizedPath = normalizedPath.slice(0, -10)
   }
   
-  // 🔥 关键改进: 多路径尝试策略
-  const generatePaths = (basePath) => {
+  // 🔥 性能优化: 优先级路径策略，减少尝试次数
+  const generateOptimizedPaths = (basePath) => {
     const paths = []
     
-    // 标准路径: @/views/admin/{path}/index.vue
+    // 根据常见组件结构确定优先级
+    if (basePath.includes('/')) {
+      // 嵌套路径优先使用完整路径
+      paths.push(`@/views/admin/${basePath}/index.vue`)
+      paths.push(`@/views/${basePath}/index.vue`)
+    } else {
+      // 简单路径优先使用简化路径
+      paths.push(`@/views/admin/${basePath}.vue`)
+      paths.push(`@/views/${basePath}.vue`)
+    }
+    
+    // 备选路径
     paths.push(`@/views/admin/${basePath}/index.vue`)
-    
-    // 简化路径: @/views/admin/{path}.vue
-    paths.push(`@/views/admin/${basePath}.vue`)
-    
-    // 备选路径: @/views/{path}/index.vue
     paths.push(`@/views/${basePath}/index.vue`)
-    
-    // 最终备选: @/views/{path}.vue
-    paths.push(`@/views/${basePath}.vue`)
     
     return paths
   }
@@ -499,44 +521,51 @@ export const loadView = (view) => {
   if (normalizedPath.startsWith('admin/')) {
     // 已包含admin前缀
     const adminPath = normalizedPath.slice(6)
-    attemptPaths = generatePaths(adminPath)
+    attemptPaths = generateOptimizedPaths(adminPath)
   } else if (normalizedPath.startsWith('blog/')) {
-    // 前台博客组件
+    // 前台博客组件 - 优化路径尝试顺序
     const blogPath = normalizedPath.slice(5)
     attemptPaths = [
       `@/views/blog/${blogPath}/index.vue`,
-      `@/views/blog/${blogPath}.vue`,
-      `@/views/${blogPath}/index.vue`,
-      `@/views/${blogPath}.vue`
+      `@/views/blog/${blogPath}.vue`
     ]
   } else {
     // 默认作为后台管理组件处理
-    attemptPaths = generatePaths(normalizedPath)
+    attemptPaths = generateOptimizedPaths(normalizedPath)
   }
   
-  // 4. 返回异步加载函数
+  // 4. 返回异步加载函数 - 优化错误处理和性能
   return async () => {
+    // 检查缓存
+    if (componentCache.has(view)) {
+      return componentCache.get(view)
+    }
+    
     const errors = []
     
     // 依次尝试所有可能的路径
     for (let i = 0; i < attemptPaths.length; i++) {
       const path = attemptPaths[i]
       try {
-        console.log(`尝试加载组件: ${view} -> ${path}`)
+        // 减少日志输出，提升性能
         const module = await import(/* @vite-ignore */ path)
-        console.log(`组件加载成功: ${view} <- ${path}`)
+        
+        // 缓存成功加载的组件
+        componentCache.set(view, module)
         return module
       } catch (error) {
         errors.push({ path, error })
-        console.warn(`组件加载失败: ${path}`, error.message)
+        // 只在开发环境下输出警告日志
+        if (import.meta.env.DEV) {
+          console.warn(`组件加载失败: ${path}`)
+        }
       }
     }
     
-    // 所有路径都尝试失败，记录详细错误信息
-    console.error(`loadView: 无法加载组件 ${view}，已尝试以下路径:`, attemptPaths)
-    errors.forEach(({ path, error }) => {
-      console.error(`  - ${path}: ${error.message}`)
-    })
+    // 只在开发环境下输出详细错误信息
+    if (import.meta.env.DEV) {
+      console.error(`loadView: 无法加载组件 ${view}，已尝试以下路径:`, attemptPaths)
+    }
     
     // 返回404页面作为最后的备选
     return import('@/views/error/404.vue')
