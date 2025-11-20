@@ -48,9 +48,9 @@
             <h4>博客统计</h4>
             <ul>
               <li>文章总数: {{ stats.articleCount || 0 }}</li>
-              <li>分类数量: {{ stats.categoryCount || 0 }}</li>
-              <li>标签数量: {{ stats.tagCount || 0 }}</li>
+              <li>用户数量: {{ stats.userCount || 0 }}</li>
               <li>评论数量: {{ stats.commentCount || 0 }}</li>
+              <li>总浏览量: {{ stats.viewCount || 0 }}</li>
             </ul>
           </el-col>
           <el-col :span="6">
@@ -126,7 +126,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { ElMessage, ElButton, ElCard, ElRow, ElCol, ElTag } from 'element-plus'
+import { ElMessage, ElRow, ElCol, ElTag, ElButton, ElCard } from 'element-plus'
+import request from '@/utils/request'
 
 const version = ref('1.0.0')
 const stats = ref({})
@@ -136,17 +137,39 @@ onMounted(() => {
   loadStats()
 })
 
-const loadStats = () => {
-  // 这里可以调用API获取统计数据
-  stats.value = {
-    articleCount: 0,
-    categoryCount: 0,
-    tagCount: 0,
-    commentCount: 0,
-    onlineUsers: 0,
-    todayVisits: 0,
-    systemUptime: '0天',
-    memoryUsage: '0%'
+const loadStats = async () => {
+  try {
+    const response = await request.get('/statistics/overview')
+    if (response.code === 200 && response.data) {
+      stats.value = response.data
+    } else {
+      ElMessage.error('获取统计数据失败')
+      // 使用默认数据确保页面不会空白
+      stats.value = {
+        articleCount: 0,
+        userCount: 0,
+        commentCount: 0,
+        viewCount: 0,
+        onlineUsers: 0,
+        todayVisits: 0,
+        systemUptime: '0天',
+        memoryUsage: '0%'
+      }
+    }
+  } catch (error) {
+    console.error('获取统计数据时发生错误:', error)
+    ElMessage.error('获取统计数据时发生错误')
+    // 使用默认数据确保页面不会空白
+    stats.value = {
+      articleCount: 0,
+      userCount: 0,
+      commentCount: 0,
+      viewCount: 0,
+      onlineUsers: 0,
+      todayVisits: 0,
+      systemUptime: '0天',
+      memoryUsage: '0%'
+    }
   }
 }
 </script>

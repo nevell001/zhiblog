@@ -25,7 +25,7 @@ export const optimizedAdminRoutes = [
     children: [
       {
         path: 'article',
-        component: () => import('@/views/admin/blog/article/article/index.vue'),
+        component: () => import('@/views/admin/blog/article/index.vue'),
         name: 'BlogArticle',
         meta: { 
           title: '文章管理', 
@@ -35,7 +35,7 @@ export const optimizedAdminRoutes = [
       },
       {
         path: 'article/detail/:id(\\d+)',
-        component: () => import('@/views/admin/blog/article/article/detail.vue'),
+        component: () => import('@/views/blog/article/detail.vue'),
         name: 'BlogArticleDetail',
         meta: { 
           title: '文章详情', 
@@ -44,56 +44,11 @@ export const optimizedAdminRoutes = [
         },
         hidden: true
       },
-      {
-        path: 'category',
-        component: () => import('@/views/admin/blog/category/category/index.vue'),
-        name: 'BlogCategory',
-        meta: { 
-          title: '分类管理', 
-          icon: 'list',
-          roles: ['admin', 'editor']
-        }
-      },
-      {
-        path: 'tag',
-        component: () => import('@/views/admin/blog/tag/tag/index.vue'),
-        name: 'BlogTag',
-        meta: { 
-          title: '标签管理', 
-          icon: 'tag',
-          roles: ['admin', 'editor']
-        }
-      },
-      {
-        path: 'comment',
-        component: () => import('@/views/admin/blog/comment/comment/index.vue'),
-        name: 'BlogComment',
-        meta: { 
-          title: '评论管理', 
-          icon: 'message',
-          roles: ['admin', 'editor']
-        }
-      },
-      {
-        path: 'setting',
-        component: () => import('@/views/admin/blog/setting/setting/index.vue'),
-        name: 'BlogSetting',
-        meta: { 
-          title: '博客设置', 
-          icon: 'setting',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'friendLink',
-        component: () => import('@/views/admin/blog/friendLink/friendLink/index.vue'),
-        name: 'BlogFriendLink',
-        meta: { 
-          title: '友链管理', 
-          icon: 'link',
-          roles: ['admin']
-        }
-      }
+      {        path: 'category',        component: () => import('@/views/admin/blog/category/index.vue'),        name: 'BlogCategory',        meta: {           title: '分类管理',           icon: 'list',          roles: ['admin', 'editor']        }      },
+      {        path: 'tag',        component: () => import('@/views/admin/blog/tag/index.vue'),        name: 'BlogTag',        meta: {           title: '标签管理',           icon: 'tag',          roles: ['admin', 'editor']        }      },
+      {        path: 'comment',        component: () => import('@/views/admin/blog/comment/index.vue'),        name: 'BlogComment',        meta: {           title: '评论管理',           icon: 'message',          roles: ['admin', 'editor']        }      },
+      {        path: 'setting',        component: () => import('@/views/admin/blog/setting/index.vue'),        name: 'BlogSetting',        meta: {           title: '博客设置',           icon: 'setting',          roles: ['admin']        }      },
+      {        path: 'friendLink',        component: () => import('@/views/admin/blog/friendLink/index.vue'),        name: 'BlogFriendLink',        meta: {           title: '友链管理',           icon: 'link',          roles: ['admin']        }      }
     ]
   },
   {

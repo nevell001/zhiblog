@@ -176,7 +176,7 @@
 <script setup name="BlogSetting">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { ElMessage, ElMessageBox, ElButton, ElCard, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElInputNumber, ElSwitch, ElColorPicker, ElRadioGroup, ElRadio, ElDatePicker, ElUpload } from 'element-plus';
-import { listSetting, getSetting, updateSettingValueByKey } from "@/api/blog/setting/index";
+import { listSetting, getSetting, updateSetting } from "@/api/admin/blog/setting";
 import { reloadBlogSettings } from '@/utils/blogSettings';
 
 const { proxy } = getCurrentInstance();

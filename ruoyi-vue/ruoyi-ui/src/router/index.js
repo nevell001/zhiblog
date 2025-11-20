@@ -192,9 +192,17 @@ router.beforeEach((to, from, next) => {
   // 白名单路由（无需登录即可访问）
   const whiteList = ['/login', '/register', '/404', '/401', '/about']
   
+  // 首先检查是否为管理后台路由，如果是且用户未登录，直接重定向到登录页
+  if (to.path.startsWith('/admin') && !token) {
+    console.log(`🔐 未登录用户访问管理后台页面 ${to.path}，重定向到登录页`)
+    next(`/login?redirect=${to.path}`)
+    return
+  }
+  
   // 检查是否为白名单路由或博客相关路由
-  if (whiteList.includes(to.path) || to.path.startsWith('/blog')) {
-    console.log(`✅ 白名单路由或博客路由，允许访问: ${to.path}`)
+  // 确保所有博客相关路由（包括首页和about页面）都能匿名访问
+  if (whiteList.includes(to.path) || to.path.startsWith('/blog') || to.path === '/' || to.path === '/index') {
+    console.log(`✅ 白名单路由或博客路由，允许匿名访问: ${to.path}`)
     next()
     return
   }
@@ -233,6 +241,13 @@ router.beforeEach((to, from, next) => {
   } else {
     console.log(`🔒 用户未登录，访问: ${to.path}`)
     
+    // 检查是否为博客相关路由，如果是则直接允许访问
+    if (to.path.startsWith('/blog') || to.path === '/' || to.path === '/index') {
+      console.log(`✅ 博客相关路由，允许匿名用户访问: ${to.path}`)
+      next()
+      return
+    }
+    
     // 未登录用户访问需要权限的页面，重定向到登录页
     if (to.meta && (to.meta.permissions || to.meta.roles)) {
       console.log(`🔐 需要权限，重定向到登录页: ${to.path}`)
@@ -247,6 +262,7 @@ router.beforeEach((to, from, next) => {
       return
     }
     
+    // 其他非博客、非管理、非权限页面，允许匿名访问
     next()
   }
 })

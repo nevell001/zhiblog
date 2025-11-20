@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth'
 import { isPathMatch } from '@/utils/validate'
 import useUserStore from '@/store/modules/user'
 import usePermissionStore from '@/store/modules/permission'
-import { useSettingsStore } from '@/store/modules/settings'
+import useSettingsStore from '@/store/modules/settings'
 
 NProgress.configure({ showSpinner: false })
 

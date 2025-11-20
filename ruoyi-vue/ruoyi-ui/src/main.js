@@ -17,7 +17,7 @@ import '@/assets/styles/index.scss' // global css
 import App from './App';
 import { createPinia } from 'pinia';
 import router from './router';
-import { useSettingsStore } from './stores/settings';
+import useSettingsStore from './store/modules/settings';
 import directive from './directive' // directive
 
 // 注册指令

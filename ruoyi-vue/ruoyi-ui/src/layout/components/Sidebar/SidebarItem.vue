@@ -64,6 +64,7 @@ import { ElMessage, ElNotification } from 'element-plus'
 import { isExternal } from '@/utils/validate'
 import AppLink from './Link'
 import { getNormalPath } from '@/utils/ruoyi'
+import useUserStore from '@/store/modules/user'
 
 const props = defineProps({
   // route object

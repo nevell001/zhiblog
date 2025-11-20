@@ -183,31 +183,31 @@ const usePermissionStore = defineStore(
                   children: [
                     {
                       path: 'article',
-                      component: 'admin/blog/article/article/index',
+                      component: 'admin/blog/article/index',
                       name: 'BlogArticle',
                       meta: { title: '文章管理', icon: 'documentation' }
                     },
                     {
                       path: 'category',
-                      component: 'admin/blog/category/category/index',
+                      component: 'admin/blog/category/index',
                       name: 'BlogCategory',
                       meta: { title: '分类管理', icon: 'component' }
                     },
                     {
                       path: 'tag',
-                      component: 'admin/blog/tag/tag/index',
+                      component: 'admin/blog/tag/index',
                       name: 'BlogTag',
                       meta: { title: '标签管理', icon: 'tag' }
                     },
                     {
                       path: 'comment',
-                      component: 'admin/blog/comment/comment/index',
+                      component: 'admin/blog/comment/index',
                       name: 'BlogComment',
                       meta: { title: '评论管理', icon: 'message' }
                     },
                     {
                       path: 'setting',
-                      component: 'admin/blog/setting/setting/index',
+                      component: 'admin/blog/setting/index',
                       name: 'BlogSetting',
                       meta: { title: '博客设置', icon: 'edit' }
                     }

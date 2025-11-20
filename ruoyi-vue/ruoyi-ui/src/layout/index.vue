@@ -18,8 +18,8 @@ import { computed, ref, watch, watchEffect, onMounted } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import Sidebar from './components/Sidebar/index.vue'
 import { AppMain, Navbar, Settings, TagsView } from './components'
-import { useAppStore } from '@/stores/app'
-import { useSettingsStore } from '@/stores/settings'
+import useAppStore from '@/store/modules/app'
+import useSettingsStore from '@/store/modules/settings'
 
 
 const settingsStore = useSettingsStore()
