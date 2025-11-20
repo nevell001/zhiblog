@@ -49,7 +49,8 @@ export function getTagList(query) {
   return request({
     url: '/blog/tag/list',
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }
 
@@ -65,7 +66,8 @@ export function getTagDetail(id) {
 export function getTagCloud() {
   return request({
     url: '/blog/tag/cloud',
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 
@@ -74,6 +76,7 @@ export function getArticlesByTag(tagId, query) {
   return request({
     url: '/blog/tag/articles/' + tagId,
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }

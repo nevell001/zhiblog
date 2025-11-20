@@ -77,7 +77,8 @@ export function getArticlesByCategory(categoryId, query) {
   return request({
     url: '/blog/article/category/' + categoryId,
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }
 
@@ -86,7 +87,8 @@ export function getArticlesByTag(tagId, query) {
   return request({
     url: '/blog/article/tag/' + tagId,
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }
 
@@ -95,7 +97,8 @@ export function getHotArticles(query) {
   return request({
     url: '/blog/article/hot',
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }
 
@@ -103,7 +106,8 @@ export function getHotArticles(query) {
 export function getArticleDetail(id) {
   return request({
     url: '/blog/article/' + id,
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 
@@ -111,7 +115,8 @@ export function getArticleDetail(id) {
 export function updateArticleViewCount(id) {
   return request({
     url: '/blog/article/view/' + id,
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 
@@ -119,7 +124,8 @@ export function updateArticleViewCount(id) {
 export function getArticleArchive() {
   return request({
     url: '/blog/article-archive',
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 
@@ -128,7 +134,8 @@ export function searchArticles(keyword, query) {
   return request({
     url: '/blog/article/search',
     method: 'get',
-    params: { ...query, keyword: keyword }
+    params: { ...query, keyword: keyword },
+    headers: { isToken: false }
   })
 }
 
@@ -136,7 +143,8 @@ export function searchArticles(keyword, query) {
 export function getRelatedArticles(id) {
   return request({
     url: '/blog/article/related/' + id,
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 
@@ -144,7 +152,8 @@ export function getRelatedArticles(id) {
 export function getArticleComments(articleId) {
   return request({
     url: '/blog/comment/article/' + articleId,
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }
 

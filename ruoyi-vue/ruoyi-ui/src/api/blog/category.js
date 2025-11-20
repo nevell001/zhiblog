@@ -49,7 +49,8 @@ export function getCategoryList(query) {
   return request({
     url: '/blog/category/list',
     method: 'get',
-    params: query
+    params: query,
+    headers: { isToken: false }
   })
 }
 
@@ -57,6 +58,7 @@ export function getCategoryList(query) {
 export function getCategoryDetail(id) {
   return request({
     url: '/blog/category/' + id,
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }

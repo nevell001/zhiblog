@@ -101,7 +101,7 @@
       <!-- 上下篇文章 -->
       <div class="article-navigation" v-if="prevArticle || nextArticle">
         <div class="nav-item prev-article" v-if="prevArticle">
-          <router-link :to="`/blog/article/${prevArticle.id}`" class="nav-link">
+          <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid) } }" class="nav-link">
             <div class="nav-arrow">
               <i class="el-icon-arrow-left"></i>
             </div>
@@ -112,7 +112,7 @@
           </router-link>
         </div>
         <div class="nav-item next-article" v-if="nextArticle">
-          <router-link :to="`/blog/article/${nextArticle.id}`" class="nav-link">
+          <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid) } }" class="nav-link">
             <div class="nav-content">
               <div class="nav-label">下一篇</div>
               <div class="nav-title">{{ nextArticle.title }}</div>
@@ -132,7 +132,7 @@
         </h3>
         <div class="related-list">
           <div v-for="related in relatedArticles.slice(0, 6)" :key="related.id" class="related-item">
-            <router-link :to="`/blog/article/${related.id}`" class="related-link">
+            <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (related.id ?? related.articleId ?? related.uuid) } }" class="related-link">
               <div class="related-cover" v-if="related.coverUrl">
                 <img :src="related.coverUrl" :alt="related.title" />
               </div>
@@ -239,12 +239,15 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import useUserStore from '@/store/modules/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import { getArticleDetail, getRelatedArticles, getArticleComments, submitComment as apiSubmitComment } from '@/api/blog/article'
 
 const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 
 // 响应式数据
 const article = ref(null)
@@ -256,7 +259,7 @@ const totalComments = ref(0)
 const loading = ref(false)
 const likeLoading = ref(false)
 const commentSubmitting = ref(false)
-const isLoggedIn = ref(false) // 假设有登录状态
+const isLoggedIn = ref(false)
 
 // 评论表单
 const commentForm = reactive({
@@ -354,6 +357,11 @@ const handleLike = async () => {
   if (likeLoading.value) return
 
   try {
+    if (!isLoggedIn.value) {
+      ElMessage.info('请先登录后再进行点赞')
+      router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
     likeLoading.value = true
     // 这里应该调用点赞API
     // await likeArticle(article.value.id)
@@ -392,6 +400,11 @@ const handleShare = () => {
 
 // 收藏文章
 const handleBookmark = () => {
+  if (!isLoggedIn.value) {
+    ElMessage.info('请先登录后再进行收藏')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+    return
+  }
   article.value.isBookmarked = !article.value.isBookmarked
   ElMessage.success(article.value.isBookmarked ? '收藏成功' : '取消收藏')
 }
@@ -411,6 +424,11 @@ const handleLikeComment = (comment) => {
 // 提交评论
 const submitComment = async () => {
   try {
+    if (!isLoggedIn.value) {
+      ElMessage.info('请先登录后再发表评论')
+      router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+      return
+    }
     await commentFormRef.value.validate()
 
     commentSubmitting.value = true
@@ -452,6 +470,7 @@ const formatDate = (dateString) => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadArticleDetail()
+  isLoggedIn.value = !!userStore.token
 })
 </script>
 

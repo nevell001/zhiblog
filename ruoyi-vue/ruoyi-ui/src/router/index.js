@@ -190,7 +190,7 @@ router.beforeEach((to, from, next) => {
   const token = userStore.token
   
   // 白名单路由（无需登录即可访问）
-  const whiteList = ['/login', '/register', '/404', '/401', '/about']
+  const whiteList = ['/login', '/register', '/404', '/401', '/about', '/article']
   
   // 首先检查是否为管理后台路由，如果是且用户未登录，直接重定向到登录页
   if (to.path.startsWith('/admin') && !token) {
@@ -201,7 +201,7 @@ router.beforeEach((to, from, next) => {
   
   // 检查是否为白名单路由或博客相关路由
   // 确保所有博客相关路由（包括首页和about页面）都能匿名访问
-  if (whiteList.includes(to.path) || to.path.startsWith('/blog') || to.path === '/' || to.path === '/index') {
+  if (whiteList.includes(to.path) || to.path.startsWith('/blog') || to.path.startsWith('/article') || to.path === '/' || to.path === '/index') {
     console.log(`✅ 白名单路由或博客路由，允许匿名访问: ${to.path}`)
     next()
     return
@@ -242,7 +242,7 @@ router.beforeEach((to, from, next) => {
     console.log(`🔒 用户未登录，访问: ${to.path}`)
     
     // 检查是否为博客相关路由，如果是则直接允许访问
-    if (to.path.startsWith('/blog') || to.path === '/' || to.path === '/index') {
+    if (to.path.startsWith('/blog') || to.path.startsWith('/article') || to.path === '/' || to.path === '/index') {
       console.log(`✅ 博客相关路由，允许匿名用户访问: ${to.path}`)
       next()
       return
@@ -264,6 +264,13 @@ router.beforeEach((to, from, next) => {
     
     // 其他非博客、非管理、非权限页面，允许匿名访问
     next()
+  }
+})
+
+router.afterEach((to, from) => {
+  if (to.path.startsWith('/blog/article/')) {
+    const id = to.params?.id || to.path.split('/').pop()
+    console.log(`📄 访问文章详情: ${id} 来自: ${from.fullPath || '直接进入'}`)
   }
 })
 

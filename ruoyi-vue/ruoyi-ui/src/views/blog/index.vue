@@ -98,7 +98,7 @@
             </div>
             <div class="article-content">
               <h2 class="article-title">
-                <router-link :to="`/blog/article/${article.id}`" :title="article.title">
+                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" :title="article.title">
                   {{ article.title }}
                 </router-link>
               </h2>
@@ -127,7 +127,7 @@
                 </span>
               </div>
               <div class="article-footer">
-                <router-link :to="`/blog/article/${article.id}`" class="read-more">
+                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="read-more">
                   阅读全文 <i class="el-icon-arrow-right"></i>
                 </router-link>
               </div>
@@ -234,7 +234,7 @@
           </h3>
           <ul class="category-list" v-if="categoryList.length > 0">
             <li v-for="category in categoryList" :key="category.id" class="category-item">
-              <router-link :to="`/blog/category/${category.id}`" class="category-link">
+              <router-link :to="{ name: 'PublicBlogCategory', params: { id: category.id } }" class="category-link">
                 <span class="category-name">{{ category.name }}</span>
                 <span class="category-count">({{ category.articleCount || 0 }})</span>
               </router-link>
@@ -256,7 +256,7 @@
             <router-link
               v-for="tag in tagCloud.slice(0, 15)"
               :key="tag.id"
-              :to="`/blog/tag/${tag.id}`"
+              :to="{ name: 'PublicBlogTag', params: { id: tag.id } }"
               class="tag-item"
               :style="{
                 fontSize: getTagFontSize(tag.article_count) + 'px',
@@ -280,7 +280,7 @@
           <ul class="hot-article-list" v-if="hotArticles.length > 0">
             <li v-for="(article, index) in hotArticles.slice(0, 8)" :key="article.id" class="hot-article-item">
               <span class="article-rank" :class="{ 'rank-top': index < 3 }">{{ index + 1 }}</span>
-              <router-link :to="`/blog/article/${article.id}`" class="hot-article-link" :title="article.title">
+              <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="hot-article-link" :title="article.title">
                 {{ article.title }}
               </router-link>
             </li>

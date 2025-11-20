@@ -3,61 +3,62 @@ export const blogRoutes = [
   {
     path: '/blog',
     component: () => import('@/views/blog/index'),
-    name: 'BlogHome',
+    name: 'PublicBlogHome',
     meta: { title: '博客首页' }
   },
   {
-    path: '/blog/article/:id(\\d+)',
+    path: '/blog/article/:id',
     component: () => import('@/views/blog/article/detail.vue'),
-    name: 'BlogArticleDetail',
-    meta: { title: '文章详情' }
+    name: 'PublicBlogArticleDetail',
+    meta: { title: '文章详情' },
+    alias: ['/article/:id']
   },
   {
     path: '/blog/category',
     component: () => import('@/views/blog/category/index'),
-    name: 'BlogCategoryList',
+    name: 'PublicBlogCategoryList',
     meta: { title: '分类列表' }
   },
   {
-    path: '/blog/category/:id(\\d+)',
+    path: '/blog/category/:id',
     component: () => import('@/views/blog/category/index'),
-    name: 'BlogCategory',
+    name: 'PublicBlogCategory',
     meta: { title: '分类文章' }
   },
   {
     path: '/blog/tag',
     component: () => import('@/views/blog/tag/index'),
-    name: 'BlogTagList',
+    name: 'PublicBlogTagList',
     meta: { title: '标签列表' }
   },
   {
-    path: '/blog/tag/:id(\\d+)',
+    path: '/blog/tag/:id',
     component: () => import('@/views/blog/tag/index'),
-    name: 'BlogTag',
+    name: 'PublicBlogTag',
     meta: { title: '标签文章' }
   },
   {
     path: '/blog/archive',
     component: () => import('@/views/blog/archive/index'),
-    name: 'BlogArchive',
+    name: 'PublicBlogArchive',
     meta: { title: '文章归档' }
   },
   {
     path: '/blog/about',
     component: () => import('@/views/blog/about'),
-    name: 'About',
+    name: 'PublicAbout',
     meta: { title: '关于我们' }
   },
   {
     path: '/index',
     component: () => import('@/views/blog/index'),
-    name: 'Index',
+    name: 'PublicIndex',
     meta: { title: '首页' }
   },
   {
     path: '/about',
     component: () => import('@/views/blog/about'),
-    name: 'AboutPage',
+    name: 'PublicAboutPage',
     meta: { title: '关于' }
   }
 ]
