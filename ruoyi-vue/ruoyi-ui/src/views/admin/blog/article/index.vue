@@ -585,7 +585,9 @@ async function handleStatusChange(row) {
     // 使用updateArticle接口进行状态更新
     await updateArticle({
       id: row.id,
-      status: newStatus
+      status: newStatus,
+      // 确保标题字段不为空，防止后端报错
+      title: row.title || ''
     })
     ElMessage.success('状态切换成功')
     await getList()

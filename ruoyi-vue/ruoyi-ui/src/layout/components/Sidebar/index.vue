@@ -10,7 +10,7 @@
       :unique-opened="true"
       :active-text-color="theme"
       :collapse-transition="true"
-      :router="true"
+      :router="false"
       mode="vertical"
       :class="sideTheme"
       @select="handleSelect"
@@ -19,7 +19,7 @@
       @click="handleMenuClick"
     >
         <sidebar-item
-          v-for="(route, index) in sidebarRouters"
+          v-for="(route, index) in sidebarRouters.filter(r => r.meta && r.meta.title)"
           :key="route.path + index"
           :item="route"
           :base-path="route.path"
@@ -37,7 +37,7 @@ import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 import _Layout from '@/layout/index.vue'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import router from '@/router'
 
@@ -48,7 +48,8 @@ const permissionStore = usePermissionStore()
 
 // 使用动态生成的路由数据
 const sidebarRouters = computed(() => {
-  return permissionStore.sidebarRouters
+  console.log('侧边栏路由数据:', permissionStore.sidebarRouters)
+  return permissionStore.sidebarRouters || []
 })
 const showLogo = computed(() => settingsStore.sidebarLogo)
 const sideTheme = computed(() => settingsStore.sideTheme)
@@ -107,9 +108,9 @@ function handleMenuClick(event) {
     // 获取index属性作为路由路径
     const index = menuItem.getAttribute('index')
     if (index && index.trim()) {
-      // 如果select事件没有正常工作，这里会作为备选处理
+      // 直接使用window.location跳转
       console.log('从click事件获取的路径:', index)
-      // 不直接跳转，避免重复处理
+      window.location.href = index
     }
   }
 }
@@ -124,15 +125,17 @@ function handleSelect(key, keyPath) {
       // 使用已导入的router对象进行路由跳转
       console.log(`尝试跳转到: ${key}`)
       
-      // 直接执行路由跳转
-      router.push(key).then(() => {
-        console.log(`成功跳转到: ${key}`)
-      }).catch(err => {
-        console.error('路由跳转失败:', err)
-        // 如果Vue Router跳转失败，尝试直接修改location
-        console.log('尝试使用window.location.href作为备选方案')
-        window.location.href = key
-      })
+      // 🔥 关键修复: 避免路径重复
+      let targetPath = key
+      
+      // 如果路径已经包含/admin/前缀，直接使用
+      if (key && key.startsWith('/admin/')) {
+        targetPath = key
+      }
+      
+      // 直接使用window.location跳转
+      console.log(`使用window.location跳转到: ${key}`)
+      window.location.href = key
     } catch (e) {
       console.error('执行路由跳转时发生异常:', e)
       // 最后的备选方案
@@ -173,20 +176,9 @@ onMounted(() => {
           const index = menuItem.getAttribute('index')
           if (index && index.trim()) {
             console.log('通过事件委托获取路径:', index)
-            // 使用setTimeout确保事件传播完成后再执行
-            setTimeout(() => {
-              // 检查当前路由是否已更新
-              if (route.path !== index) {
-                console.log('路由未更新，执行手动跳转')
-                try {
-                  router.push(index).catch(() => {
-                    window.location.href = index
-                  })
-                } catch {
-                  window.location.href = index
-                }
-              }
-            }, 100)
+            // 直接使用window.location跳转
+            console.log('通过事件委托执行跳转到:', index)
+            window.location.href = index
           }
         }
       }

@@ -80,6 +80,11 @@ const useUserStore = defineStore(
             this.roles = []
             this.permissions = []
             removeToken()
+            // 退出后重定向到登录页
+            // 使用 window.location.href 而不是 router.push 避免路由循环
+            setTimeout(() => {
+              window.location.href = '/login'
+            }, 100)
             resolve()
           }).catch(error => {
             reject(error)

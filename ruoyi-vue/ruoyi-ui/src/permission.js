@@ -9,30 +9,48 @@ import useSettingsStore from '@/store/modules/settings'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/register', '/index', '/blog', '/blog/*', '/about', '/', '/blog/article/*', '/blog/category/*', '/blog/tag/*', '/blog/archive', '/blog/simple', '/blog/article', '/blog/category', '/blog/tag']
+const whiteList = ['/login', '/register', '/index', '/blog', '/blog/*', '/about', '/', '/blog/article/*', '/blog/category/*', '/blog/tag/*', '/blog/archive', '/blog/simple', '/blog/article', '/blog/category', '/blog/tag', '/admin', '/admin/*']
 
 const isWhiteList = (path) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
 
-router.beforeEach((to, _from, next) => {
+// 防止重复导航的标志
+let isNavigating = false
+
+router.beforeEach(async (to, from, next) => {
+  // 如果已经在导航中，且目标路径相同，则取消导航
+  if (isNavigating && to.path === from.path) {
+    return next(false)
+  }
+
+  isNavigating = true
   NProgress.start()
-  
-  if (getToken()) {
-    to.meta.title && useSettingsStore().setTitle(to.meta.title)
-    /* has token*/
-    if (to.path === '/login') {
-      next({ path: '/' })
-      NProgress.done()
-    } else {
-      const userStore = useUserStore()
-      const permissionStore = usePermissionStore()
-      
-      if (userStore.roles.length === 0) {
-        // 判断当前用户是否已拉取完user_info信息
-        userStore.getInfo().then(() => {
-          // 生成可访问的路由表
-          permissionStore.generateRoutes().then(accessRoutes => {
+
+  try {
+    if (getToken()) {
+      to.meta.title && useSettingsStore().setTitle(to.meta.title)
+      /* has token*/
+      if (to.path === '/login') {
+        // 如果有redirect参数，则重定向到指定路径
+        const redirect = to.query.redirect
+        if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
+          // 使用 window.location.href 而不是 router.push 避免路由循环
+          window.location.href = redirect
+        } else {
+          // 使用 window.location.href 而不是 router.push 避免路由循环
+          window.location.href = '/blog'
+        }
+      } else {
+        const userStore = useUserStore()
+        const permissionStore = usePermissionStore()
+
+        if (userStore.roles.length === 0) {
+          // 判断当前用户是否已拉取完user_info信息
+          try {
+            await userStore.getInfo()
+            // 生成可访问的路由表
+            const accessRoutes = await permissionStore.generateRoutes()
             // 根据roles权限生成可访问的路由表
             if (accessRoutes && Array.isArray(accessRoutes)) {
               accessRoutes.forEach(route => {
@@ -41,36 +59,46 @@ router.beforeEach((to, _from, next) => {
                 }
               })
             }
-            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
-          }).catch(routeErr => {
-            console.error('生成路由失败:', routeErr)
-            // 路由生成失败时，尝试直接跳转
-            next()
-          })
-        }).catch(err => {
-          console.error('获取用户信息失败:', err)
-          userStore.logOut().then(() => {
-            next({ path: '/login' })
-          }).catch(() => {
-            next({ path: '/login' })
-          })
-        })
-      } else {
+            // 确保addRoutes已完成
+            next({ ...to, replace: true })
+          } catch (err) {
+            console.error('获取用户信息或生成路由失败:', err)
+            // 直接清除用户信息并重定向
+            userStore.token = ''
+            userStore.roles = []
+            userStore.permissions = []
+            removeToken()
+            window.location.href = '/login'
+          }
+        } else {
+          next()
+        }
+      }
+    } else {
+      // 没有token
+      if (isWhiteList(to.path)) {
+        // 在免登录白名单，直接进入
         next()
+      } else {
+        // 避免循环重定向
+        if (to.path !== '/login') {
+          next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
+          NProgress.done()
+        } else {
+          next()
+        }
       }
     }
-  } else {
-    // 没有token
-    if (isWhiteList(to.path)) {
-      // 在免登录白名单，直接进入
-      next()
-    } else {
-      next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
-      NProgress.done()
-    }
+  } catch (error) {
+    console.error('路由守卫错误:', error)
+    next(false)
+  } finally {
+    isNavigating = false
   }
 })
 
 router.afterEach(() => {
   NProgress.done()
 })
+
+export default router

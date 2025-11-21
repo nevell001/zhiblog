@@ -1,7 +1,7 @@
 <template>
-  <component 
-    :is="type" 
-    v-bind="linkProps()" 
+  <component
+    :is="type"
+    v-bind="linkProps()"
     @click="handleLinkClick"
     @error="handleLinkError"
   >
@@ -51,37 +51,28 @@ function linkProps() {
 // 🔥 关键改进2: 优化事件绑定处理
 function handleLinkClick(event) {
   console.log('Link组件点击事件:', props.to)
-  
+
   // 对于外部链接，让浏览器默认处理
   if (isExt.value) {
     return true
   }
-  
-  // 对于内部链接，检查路由状态
+
+  // 对于内部链接，直接使用window.location跳转
   try {
-    // 检查目标路由是否存在
-    const targetPath = typeof props.to === 'string' ? props.to : props.to.path
-    const route = router.resolve(targetPath)
-    
-    if (!route || route.matched.length === 0) {
-      console.warn('目标路由不存在:', targetPath)
-      event.preventDefault()
-      
-      ElMessage.warning({
-        message: `页面路径不存在: ${targetPath}`,
-        duration: 3000
-      })
-      return false
-    }
-    
-    console.log('路由验证通过:', targetPath)
-    return true
-    
-  } catch (error) {
-    console.error('路由验证失败:', error)
+    // 阻止默认事件
     event.preventDefault()
-    
-    ElMessage.error('路由配置错误，请联系管理员')
+
+    // 获取目标路径
+    const targetPath = typeof props.to === 'string' ? props.to : props.to.path
+
+    // 直接使用window.location跳转
+    console.log('使用window.location跳转到:', targetPath)
+    window.location.href = targetPath
+
+    return false
+  } catch (error) {
+    console.error('跳转失败:', error)
+    ElMessage.error('页面跳转失败，请重试')
     return false
   }
 }

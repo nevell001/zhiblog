@@ -10,10 +10,10 @@
       <span>{{ menu.name }}</span>
     </router-link>
     
-    <router-link to="/admin" class="nav-item admin-link">
+    <div class="nav-item admin-link" @click="goToAdmin">
       <i class="el-icon-setting"></i>
       <span>后台管理</span>
-    </router-link>
+    </div>
     
     <div class="nav-actions">
       <el-button
@@ -38,7 +38,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { getFilteredMenus } from '@/config/menu'
+
+// 路由实例
+const router = useRouter()
 
 // 主题状态
 const isDarkTheme = ref(false)
@@ -71,6 +75,11 @@ const toggleTheme = () => {
 // 回到顶部
 const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+// 跳转到后台管理
+const goToAdmin = () => {
+  window.location.href = '/login?redirect=/admin'
 }
 
 // 显示/隐藏回到顶部按钮

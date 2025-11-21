@@ -6,6 +6,9 @@ import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
 
+// 组件缓存，避免重复加载
+const componentCache = new Map()
+
 const usePermissionStore = defineStore(
   'permission',
   {
@@ -131,9 +134,24 @@ const usePermissionStore = defineStore(
                       meta: { title: '文章统计', icon: 'documentation' }
                     }
                   ]
+                },
+                {
+                  path: '/admin/monitor',
+                  component: 'Layout',
+                  redirect: '/admin/monitor/server',
+                  name: 'Monitor',
+                  meta: { title: '系统监控', icon: 'monitor' },
+                  children: [
+                    {
+                      path: 'server',
+                      component: 'admin/monitor/server/index',
+                      name: 'Server',
+                      meta: { title: '服务监控', icon: 'server' }
+                    }
+                  ]
                 }
               ])
-              this.setSidebarRouters(constantRoutes.concat(frontendRoutes))
+              this.setSidebarRouters(frontendRoutes)
               resolve(frontendRoutes)
               return
             }
@@ -164,7 +182,7 @@ const usePermissionStore = defineStore(
               })
               
               this.setRoutes(rewriteRoutes)
-              this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+              this.setSidebarRouters(sidebarRoutes)
               this.setDefaultRoutes(sidebarRoutes)
               this.setTopbarRoutes(defaultRoutes)
               
@@ -364,8 +382,7 @@ export const loadView = (view) => {
    * 缓存已加载的组件，减少重复加载
    */
   
-  // 组件缓存，避免重复加载
-  const componentCache = new Map()
+  // 组件缓存，避免重复加载 - 已移到函数外部，确保缓存有效
   
   // 1. 特殊页面处理
   if (view === '404') {

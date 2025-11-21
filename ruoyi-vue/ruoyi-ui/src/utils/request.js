@@ -124,7 +124,17 @@ service.interceptors.response.use(res => {
       }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     } else if (code === 500) {
-      ElMessage({ message: msg, type: 'error' })
+      console.error('服务器错误:', {
+        url: res.config.url,
+        method: res.config.method,
+        status: res.status,
+        response: res.data
+      })
+      ElMessage({ 
+        message: `服务器错误: ${msg}`, 
+        type: 'error',
+        duration: 5000
+      })
       return Promise.reject(new Error(msg))
     } else if (code === 601) {
       ElMessage({ message: msg, type: 'warning' })

@@ -65,6 +65,8 @@
 </template>
 
 <script setup>
+import { ref, watch, getCurrentInstance } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { getCodeImg } from "@/api/login"
 import Cookies from "js-cookie"
 import { encrypt, decrypt } from "@/utils/jsencrypt"
@@ -127,7 +129,10 @@ function handleLogin() {
           }
           return acc
         }, {})
-        router.push({ path: redirect.value || "/", query: otherQueryParams })
+        // 使用 window.location.href 而不是 router.push 避免路由循环
+        const targetPath = redirect.value && redirect.value !== '/login' && redirect.value !== '/' && redirect.value !== '/index' ? redirect.value : "/blog"
+        const queryString = Object.keys(otherQueryParams).length > 0 ? '?' + new URLSearchParams(otherQueryParams).toString() : ''
+        window.location.href = targetPath + queryString
       }).catch(() => {
         loading.value = false
         // 重新获取验证码

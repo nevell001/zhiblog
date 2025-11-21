@@ -46,59 +46,59 @@ export default defineConfig(({ mode, command }) => {
       open: false, // 不自动打开浏览器，在容器中会导致错误
       proxy: {
         // 接口代理 - RuoYi 默认 API 前缀
-      '/dev-api': {
-        target: baseUrl,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/dev-api/, '')
+        '/dev-api': {
+          target: baseUrl,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/dev-api/, '')
+        },
+        // 代理系统管理接口
+        '/system': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        // 代理博客API接口（精确匹配API调用，避免代理前端路由）
+        '/blog/article': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        '/blog/category': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        '/blog/tag': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        '/blog/comment': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        '/blog/friendLink': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        '/blog/setting': {
+          target: baseUrl,
+          changeOrigin: true
+        }
+        // 解决 SPA 应用 history 模式下刷新404问题
+        // historyApiFallback: true  // 在Vite中不需要这个配置
       },
-      // 代理系统管理接口
-      '/system': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      // 代理博客API接口（精确匹配API调用，避免代理前端路由）
-      '/blog/article': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      '/blog/category': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      '/blog/tag': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      '/blog/comment': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      '/blog/friendLink': {
-        target: baseUrl,
-        changeOrigin: true
-      },
-      '/blog/setting': {
-        target: baseUrl,
-        changeOrigin: true
-      }
-      // 解决 SPA 应用 history 模式下刷新404问题
-      // historyApiFallback: true  // 在Vite中不需要这个配置
-      }
-    },
-    css: {
-      postcss: {
-        plugins: [
-          {
-            postcssPlugin: 'internal:charset-removal',
-            AtRule: {
-              charset: (atRule) => {
-                if (atRule.name === 'charset') {
-                  atRule.remove()
+      css: {
+        postcss: {
+          plugins: [
+            {
+              postcssPlugin: 'internal:charset-removal',
+              AtRule: {
+                charset: (atRule) => {
+                  if (atRule.name === 'charset') {
+                    atRule.remove()
+                  }
                 }
               }
             }
-          }
-        ]
+          ]
+        }
       }
     }
   }
