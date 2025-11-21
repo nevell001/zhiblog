@@ -81,19 +81,17 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Transactional
     public int insertBlogArticle(BlogArticle blogArticle)
     {
-        // 校验文章内容不能为空
         if (blogArticle.getContent() == null || blogArticle.getContent().trim().isEmpty()) {
-            throw new RuntimeException("文章内容不能为空，请填写内容后再发布！");
+            throw new IllegalArgumentException("文章内容不能为空");
         }
-        // 标题去除前后空格，并进行非空校验
         String title = blogArticle.getTitle();
         if (title == null || title.trim().isEmpty()) {
-            throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
+            throw new IllegalArgumentException("文章标题不能为空");
         }
         title = title.trim();
         BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
         if (exist != null) {
-            throw new RuntimeException("文章标题已存在，请更换标题！");
+            throw new IllegalArgumentException("文章标题已存在");
         }
         blogArticle.setTitle(title);
         blogArticle.setCreateTime(DateUtils.getNowDate());
@@ -108,18 +106,29 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             
             // 处理标签关联
             if (blogArticle.getTagIds() != null && !blogArticle.getTagIds().isEmpty()) {
-                for (Long tagId : blogArticle.getTagIds()) {
-                    BlogArticleTag articleTag = new BlogArticleTag();
-                    articleTag.setArticleId(blogArticle.getId());
-                    articleTag.setTagId(tagId);
-                    blogArticleTagMapper.insertBlogArticleTag(articleTag);
+                for (Object tagIdObj : blogArticle.getTagIds()) {
+                    Long tagId = null;
+                    if (tagIdObj instanceof Long) {
+                        tagId = (Long) tagIdObj;
+                    } else if (tagIdObj instanceof Integer) {
+                        tagId = ((Integer) tagIdObj).longValue();
+                    } else if (tagIdObj instanceof String) {
+                        tagId = Long.parseLong((String) tagIdObj);
+                    }
+                    
+                    if (tagId != null) {
+                        BlogArticleTag articleTag = new BlogArticleTag();
+                        articleTag.setArticleId(blogArticle.getId());
+                        articleTag.setTagId(tagId);
+                        blogArticleTagMapper.insertBlogArticleTag(articleTag);
+                    }
                 }
             }
             
             return result;
         } catch (Exception e) {
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
-                throw new RuntimeException("文章标题已存在，请更换标题！");
+                throw new IllegalArgumentException("文章标题已存在");
             }
             throw e;
         }
@@ -135,21 +144,18 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Transactional
     public int updateBlogArticle(BlogArticle blogArticle)
     {
-        // 只有在更新标题时才进行非空校验和处理
+        if (blogArticle.getId() == null) {
+            throw new IllegalArgumentException("文章ID不能为空");
+        }
         String title = blogArticle.getTitle();
-        if (title != null) {
-            // 如果明确设置了标题，则进行校验和处理
-            if (title.trim().isEmpty()) {
-                throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
-            }
-            title = title.trim();
-            blogArticle.setTitle(title);
-            
-            // 校验除自己外是否有同名文章（保持原大小写）
-            BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
-            if (exist != null && !exist.getId().equals(blogArticle.getId())) {
-                throw new RuntimeException("文章标题已存在，请修改标题后重试！");
-            }
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("文章标题不能为空");
+        }
+        title = title.trim();
+        blogArticle.setTitle(title);
+        BlogArticle exist = blogArticleMapper.selectBlogArticleByTitle(title);
+        if (exist != null && !exist.getId().equals(blogArticle.getId())) {
+            throw new IllegalArgumentException("文章标题已存在");
         }
         // 如果只更新状态等其他字段，不校验标题和唯一性
         blogArticle.setUpdateTime(DateUtils.getNowDate());
@@ -158,7 +164,6 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             blogArticle.setDelFlag(0L);
         }
         try {
-            // 先删除原有的标签关联
             blogArticleTagMapper.deleteByArticleId(blogArticle.getId());
             
             // 处理新的标签关联
@@ -313,7 +318,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             if (existingArticle != null) {
                 // 当状态为发布时，校验标题是否为空
                 if (status == 1 && (existingArticle.getTitle() == null || existingArticle.getTitle().trim().isEmpty())) {
-                    throw new RuntimeException("文章标题不能为空，请填写标题后再发布！");
+                    throw new IllegalArgumentException("文章标题不能为空");
                 }
                 
                 // 创建更新对象，仅设置必要字段

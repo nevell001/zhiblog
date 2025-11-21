@@ -113,8 +113,7 @@ public class BlogArticleController extends BaseController
             BlogArticle blogArticle = parseArticleFromParams(params);
             
             // 解析标签ID列表
-            @SuppressWarnings("unchecked")
-            List<Long> tagIds = (List<Long>) params.get("tagIds");
+            List<Long> tagIds = parseTagIds(params.get("tagIds"));
 
             // 插入文章
             int result = blogArticleService.insertBlogArticle(blogArticle);
@@ -146,8 +145,7 @@ public class BlogArticleController extends BaseController
             BlogArticle blogArticle = parseArticleFromParams(params);
             
             // 解析标签ID列表
-            @SuppressWarnings("unchecked")
-            List<Long> tagIds = (List<Long>) params.get("tagIds");
+            List<Long> tagIds = parseTagIds(params.get("tagIds"));
 
             // 更新文章
             int result = blogArticleService.updateBlogArticle(blogArticle);
@@ -297,5 +295,32 @@ public class BlogArticleController extends BaseController
         }
         
         return article;
+    }
+    
+    /**
+     * 解析标签ID列表
+     */
+    @SuppressWarnings("unchecked")
+    private List<Long> parseTagIds(Object tagIdsObj) {
+        List<Long> tagIds = new java.util.ArrayList<>();
+        if (tagIdsObj != null) {
+            if (tagIdsObj instanceof List) {
+                List<Object> tagIdObjs = (List<Object>) tagIdsObj;
+                for (Object tagIdObj : tagIdObjs) {
+                    if (tagIdObj instanceof Long) {
+                        tagIds.add((Long) tagIdObj);
+                    } else if (tagIdObj instanceof Integer) {
+                        tagIds.add(((Integer) tagIdObj).longValue());
+                    } else if (tagIdObj instanceof String) {
+                        try {
+                            tagIds.add(Long.parseLong((String) tagIdObj));
+                        } catch (NumberFormatException e) {
+                            // 忽略无效的数字
+                        }
+                    }
+                }
+            }
+        }
+        return tagIds;
     }
 }

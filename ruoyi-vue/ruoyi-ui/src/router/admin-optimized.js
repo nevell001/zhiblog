@@ -1,5 +1,5 @@
 // 优化后的后台管理路由配置 - 简化层级结构，统一权限管理
-import Layout from '@/layout/index.vue';
+import Layout from '@/layout/index.vue'
 
 export const optimizedAdminRoutes = [
   {
@@ -44,11 +44,56 @@ export const optimizedAdminRoutes = [
         },
         hidden: true
       },
-      {        path: 'category',        component: () => import('@/views/admin/blog/category/index.vue'),        name: 'BlogCategory',        meta: {           title: '分类管理',           icon: 'list',          roles: ['admin', 'editor']        }      },
-      {        path: 'tag',        component: () => import('@/views/admin/blog/tag/index.vue'),        name: 'BlogTag',        meta: {           title: '标签管理',           icon: 'tag',          roles: ['admin', 'editor']        }      },
-      {        path: 'comment',        component: () => import('@/views/admin/blog/comment/index.vue'),        name: 'BlogComment',        meta: {           title: '评论管理',           icon: 'message',          roles: ['admin', 'editor']        }      },
-      {        path: 'setting',        component: () => import('@/views/admin/blog/setting/index.vue'),        name: 'BlogSetting',        meta: {           title: '博客设置',           icon: 'setting',          roles: ['admin']        }      },
-      {        path: 'friendLink',        component: () => import('@/views/admin/blog/friendLink/index.vue'),        name: 'BlogFriendLink',        meta: {           title: '友链管理',           icon: 'link',          roles: ['admin']        }      }
+      {
+        path: 'category',
+        component: () => import('@/views/admin/blog/category/index.vue'),
+        name: 'BlogCategory',
+        meta: { 
+          title: '分类管理', 
+          icon: 'list',
+          roles: ['admin', 'editor']
+        }
+      },
+      {
+        path: 'tag',
+        component: () => import('@/views/admin/blog/tag/index.vue'),
+        name: 'BlogTag',
+        meta: { 
+          title: '标签管理', 
+          icon: 'tag',
+          roles: ['admin', 'editor']
+        }
+      },
+      {
+        path: 'comment',
+        component: () => import('@/views/admin/blog/comment/index.vue'),
+        name: 'BlogComment',
+        meta: { 
+          title: '评论管理', 
+          icon: 'message',
+          roles: ['admin', 'editor']
+        }
+      },
+      {
+        path: 'setting',
+        component: () => import('@/views/admin/blog/setting/index.vue'),
+        name: 'BlogSetting',
+        meta: { 
+          title: '博客设置', 
+          icon: 'setting',
+          roles: ['admin']
+        }
+      },
+      {
+        path: 'friendLink',
+        component: () => import('@/views/admin/blog/friendLink/index.vue'),
+        name: 'BlogFriendLink',
+        meta: { 
+          title: '友链管理', 
+          icon: 'link',
+          roles: ['admin']
+        }
+      }
     ]
   },
   {
@@ -136,6 +181,65 @@ export const optimizedAdminRoutes = [
           title: '通知公告', 
           icon: 'message',
           permissions: ['system:notice:list']
+        }
+      }
+    ]
+  },
+  {
+    path: '/admin/statistics',
+    component: Layout,
+    redirect: '/admin/statistics/visit',
+    name: 'DataStatistics',
+    meta: { title: '数据统计', icon: 'chart', roles: ['admin'] },
+    children: [
+      {
+        path: 'visit',
+        component: () => import('@/views/admin/statistics/visit/index.vue'),
+        name: 'StatisticsVisit',
+        meta: { 
+          title: '访问统计', 
+          icon: 'eye',
+          permissions: ['statistics:visit:list']
+        }
+      },
+      {
+        path: 'article',
+        component: () => import('@/views/admin/statistics/article/index.vue'),
+        name: 'StatisticsArticle',
+        meta: { 
+          title: '文章统计', 
+          icon: 'documentation',
+          permissions: ['statistics:article:list']
+        }
+      },
+      {
+        path: 'user',
+        component: () => import('@/views/admin/statistics/user/index.vue'),
+        name: 'StatisticsUser',
+        meta: { 
+          title: '用户统计', 
+          icon: 'peoples',
+          permissions: ['statistics:user:list']
+        }
+      },
+      {
+        path: 'comment',
+        component: () => import('@/views/admin/statistics/comment/index.vue'),
+        name: 'StatisticsComment',
+        meta: { 
+          title: '评论统计', 
+          icon: 'message',
+          permissions: ['statistics:comment:list']
+        }
+      },
+      {
+        path: 'traffic',
+        component: () => import('@/views/admin/statistics/traffic/index.vue'),
+        name: 'StatisticsTraffic',
+        meta: { 
+          title: '流量分析', 
+          icon: 'guide',
+          permissions: ['statistics:traffic:list']
         }
       }
     ]
