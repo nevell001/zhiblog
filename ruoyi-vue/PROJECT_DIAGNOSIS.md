@@ -1149,31 +1149,7 @@ chore: 构建/工具
 
 ---
 
-## 📞 十八、技术支持
 
-### 18.1 相关文档
-
-**项目文档**:
-- [菜单修复总结](./MENU_FIX_SUMMARY.md)
-- [菜单问题排查](./MENU_TROUBLESHOOTING.md)
-- [前端问题修复](./FRONTEND_FIXES.md)
-- [系统改进建议](./improve_blog_system.md)
-
-**官方文档**:
-- [RuoYi-Vue文档](http://doc.ruoyi.vip/)
-- [Vue 3文档](https://cn.vuejs.org/)
-- [Element Plus文档](https://element-plus.org/)
-- [Spring Boot文档](https://spring.io/projects/spring-boot)
-
-### 18.2 问题反馈
-
-如遇到问题,请提供:
-1. 详细的错误信息和日志
-2. 复现步骤
-3. 环境信息(操作系统、数据库版本等)
-4. 相关配置文件
-
----
 
 ## 📋 十九、检查清单
 
@@ -1534,61 +1510,6 @@ scrape_configs:
   }
 }
 ```
-
----
-
-## 📝 附录D: 常见问题FAQ
-
-### D.1 部署相关
-
-**Q: 如何修改数据库连接配置?**
-A: 编辑`ruoyi-admin/src/main/resources/application.yml`,修改datasource部分。
-
-**Q: 如何配置Redis密码?**
-A: 在application.yml中设置`spring.redis.password`。
-
-**Q: Docker部署时如何持久化数据?**
-A: 使用Docker volumes,参考docker-compose.yml配置。
-
-### D.2 功能相关
-
-**Q: 菜单不显示怎么办?**
-A: 参考`MENU_TROUBLESHOOTING.md`文档排查。
-
-**Q: 如何添加新的博客功能?**
-A: 参考现有模块,创建Controller、Service、Mapper。
-
-**Q: 如何自定义博客主题?**
-A: 修改前端样式文件和组件。
-
-### D.3 性能相关
-
-**Q: 如何提升查询性能?**
-A: 添加数据库索引,使用Redis缓存。
-
-**Q: 如何优化图片加载?**
-A: 使用图片压缩、懒加载、CDN。
-
----
-
-## 🎉 结语
-
-本报告对RuoYi-Vue博客系统进行了全面深入的检查和分析,识别了项目的优势和不足,并提供了详细的优化建议和行动计划。
-
-**核心建议**:
-1. 🔴 立即执行安全加固
-2. 🟡 尽快清理冗余代码
-3. 🟡 逐步优化性能
-4. 🟢 持续完善功能
-
-通过系统化的优化,本项目完全可以达到生产级别的质量标准,为用户提供稳定、安全、高效的博客服务。
-
----
-
-**报告生成时间**: 2025-01-15 16:30 (UTC+8)  
-**报告版本**: v2.0  
-**检查人员**: Kilo Code (AI Architect)  
-**下次检查建议**: 完成第一阶段优化后(约2周)
 
 ---
 

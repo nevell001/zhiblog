@@ -46,135 +46,6 @@ const usePermissionStore = defineStore(
                   meta: { title: '后台首页', icon: 'dashboard' }
                 },
                 {
-                  path: '/admin/system',
-                  component: 'Layout',
-                  redirect: '/admin/system/user',
-                  name: 'System',
-                  meta: { title: '系统管理', icon: 'system' },
-                  children: [
-                    {
-                      path: 'user',
-                      component: 'admin/system/user/user/index',
-                      name: 'User',
-                      meta: { title: '用户管理', icon: 'user' }
-                    },
-                    {
-                      path: 'role',
-                      component: 'admin/system/role/role/index',
-                      name: 'Role',
-                      meta: { title: '角色管理', icon: 'peoples' }
-                    },
-                    {
-                      path: 'menu',
-                      component: 'admin/system/menu/menu/index',
-                      name: 'Menu',
-                      meta: { title: '菜单管理', icon: 'tree-table' }
-                    },
-                    {
-                      path: 'dept',
-                      component: 'admin/system/dept/dept/index',
-                      name: 'Dept',
-                      meta: { title: '部门管理', icon: 'tree' }
-                    },
-                    {
-                      path: 'post',
-                      component: 'admin/system/post/post/index',
-                      name: 'Post',
-                      meta: { title: '岗位管理', icon: 'post' }
-                    },
-                    {
-                      path: 'dict',
-                      component: 'admin/system/dict/dict/index',
-                      name: 'Dict',
-                      meta: { title: '字典管理', icon: 'dict' }
-                    },
-                    {
-                      path: 'config',
-                      component: 'admin/system/config/config/index',
-                      name: 'Config',
-                      meta: { title: '参数设置', icon: 'edit' }
-                    },
-                    {
-                      path: 'notice',
-                      component: 'admin/system/notice/notice/index',
-                      name: 'Notice',
-                      meta: { title: '通知公告', icon: 'message' }
-                    }
-                  ]
-                },
-                {
-                  path: '/admin/monitor',
-                  component: 'Layout',
-                  redirect: '/admin/monitor/online',
-                  name: 'Monitor',
-                  meta: { title: '系统监控', icon: 'monitor' },
-                  children: [
-                    {
-                      path: 'online',
-                      component: 'admin/monitor/online/index',
-                      name: 'Online',
-                      meta: { title: '在线用户', icon: 'online' }
-                    },
-                    {
-                      path: 'logininfor',
-                      component: 'admin/monitor/logininfor/index',
-                      name: 'Logininfor',
-                      meta: { title: '登录日志', icon: 'logininfor' }
-                    },
-                    {
-                      path: 'operlog',
-                      component: 'admin/monitor/operlog/index',
-                      name: 'Operlog',
-                      meta: { title: '操作日志', icon: 'form' }
-                    },
-                    {
-                      path: 'druid',
-                      component: 'admin/monitor/druid/index',
-                      name: 'Druid',
-                      meta: { title: '数据监控', icon: 'druid' }
-                    },
-                    {
-                      path: 'server',
-                      component: 'admin/monitor/server/index',
-                      name: 'Server',
-                      meta: { title: '服务监控', icon: 'server' }
-                    },
-                    {
-                      path: 'cache',
-                      component: 'admin/monitor/cache/index',
-                      name: 'Cache',
-                      meta: { title: '缓存监控', icon: 'redis' }
-                    },
-                    {
-                      path: 'job',
-                      component: 'admin/monitor/job/index',
-                      name: 'Job',
-                      meta: { title: '定时任务', icon: 'job' }
-                    }
-                  ]
-                },
-                {
-                  path: '/admin/tool',
-                  component: 'Layout',
-                  redirect: '/admin/tool/gen',
-                  name: 'Tool',
-                  meta: { title: '系统工具', icon: 'tool' },
-                  children: [
-                    {
-                      path: 'gen',
-                      component: 'admin/tool/gen/index',
-                      name: 'Gen',
-                      meta: { title: '代码生成', icon: 'code' }
-                    },
-                    {
-                      path: 'swagger',
-                      component: 'admin/tool/swagger/index',
-                      name: 'Swagger',
-                      meta: { title: '系统接口', icon: 'swagger' }
-                    }
-                  ]
-                },
-                {
                   path: '/admin/blog',
                   component: 'Layout',
                   redirect: '/admin/blog/article',
@@ -214,6 +85,33 @@ const usePermissionStore = defineStore(
                   ]
                 },
                 {
+                  path: '/admin/system',
+                  component: 'Layout',
+                  redirect: '/admin/system/user',
+                  name: 'System',
+                  meta: { title: '系统管理', icon: 'system' },
+                  children: [
+                    {
+                      path: 'user',
+                      component: 'admin/system/user/user/index',
+                      name: 'User',
+                      meta: { title: '用户管理', icon: 'user' }
+                    },
+                    {
+                      path: 'role',
+                      component: 'admin/system/role/role/index',
+                      name: 'Role',
+                      meta: { title: '角色管理', icon: 'peoples' }
+                    },
+                    {
+                      path: 'menu',
+                      component: 'admin/system/menu/menu/index',
+                      name: 'Menu',
+                      meta: { title: '菜单管理', icon: 'tree-table' }
+                    }
+                  ]
+                },
+                {
                   path: '/admin/statistics',
                   component: 'Layout',
                   redirect: '/admin/statistics/overview',
@@ -231,12 +129,6 @@ const usePermissionStore = defineStore(
                       component: 'admin/statistics/article/index',
                       name: 'StatisticsArticle',
                       meta: { title: '文章统计', icon: 'documentation' }
-                    },
-                    {
-                      path: 'user',
-                      component: 'admin/statistics/user/index',
-                      name: 'StatisticsUser',
-                      meta: { title: '用户统计', icon: 'user' }
                     }
                   ]
                 }

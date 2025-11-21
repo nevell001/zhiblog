@@ -10,6 +10,6 @@ export default function createVitePlugins(viteEnv, isBuild = false) {
     vitePlugins.push(createAutoImport())
 	vitePlugins.push(createSetupExtend())
     vitePlugins.push(createSvgIcon(isBuild))
-	isBuild && vitePlugins.push(...createCompression(viteEnv))
+	// isBuild && vitePlugins.push(...createCompression(viteEnv)) // 暂时注释掉有问题的压缩插件
     return vitePlugins
 }

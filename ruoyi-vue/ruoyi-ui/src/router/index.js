@@ -8,7 +8,7 @@ import Layout from '@/layout/index.vue'
 // 博客前台路由
 import blogRoutes from './blog'
 // 后台管理路由
-import adminRoutes from './admin-optimized'
+import adminRoutes from './admin-simple'
 
 /**
  * Note: 路由配置项
