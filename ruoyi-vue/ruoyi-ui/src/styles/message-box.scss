@@ -1,0 +1,41 @@
+/* Element Plus Message Box 自定义样式 */
+
+// 确保MessageBox按钮区域样式正确
+.el-message-box {
+  .el-message-box__btns {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 20px;
+    padding: 15px 0;
+    
+    .el-button {
+      min-width: 100px !important;
+      padding: 10px 20px !important;
+      font-size: 14px !important;
+      margin: 0 !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+// 重新登录弹窗特定样式
+.relogin-message-box {
+  .el-message-box__btns {
+    .el-button--primary {
+      background-color: #409EFF !important;
+      border-color: #409EFF !important;
+    }
+  }
+}
+
+// 退出登录弹窗特定样式
+.logout-message-box {
+  .el-message-box__btns {
+    .el-button--danger {
+      background-color: #F56C6C !important;
+      border-color: #F56C6C !important;
+    }
+  }
+}
