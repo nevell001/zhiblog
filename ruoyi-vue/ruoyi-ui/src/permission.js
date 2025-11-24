@@ -1,7 +1,7 @@
 import router from './router'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import { getToken } from '@/utils/auth'
+import { getToken, removeToken } from '@/utils/auth'
 import { isPathMatch } from '@/utils/validate'
 import useUserStore from '@/store/modules/user'
 import usePermissionStore from '@/store/modules/permission'
