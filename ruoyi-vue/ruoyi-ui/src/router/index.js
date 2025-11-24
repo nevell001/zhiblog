@@ -109,6 +109,20 @@ const routes = [
         name: 'SystemMenu',
         component: () => import('@/views/admin/system/menu/menu/index.vue'),
         meta: { title: '菜单管理', icon: 'tree-table' }
+      },
+      {
+        path: 'dict-data',
+        component: () => import('@/layout/index.vue'),
+        hidden: true,
+        permissions: ['system:dict:list'],
+        children: [
+          {
+            path: 'index/:dictId(\\d+)',
+            component: () => import('@/views/admin/system/dict/dict/data.vue'),
+            name: 'Data',
+            meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
+          }
+        ]
       }
     ]
   },

@@ -32,26 +32,35 @@
     </template>
 
     <!-- 简单菜单项 -->
-    <div 
-      v-if="item.path && (item.meta && item.meta.title)" 
-      class="menu-item"
-      :class="{ 
-        'no-permission': !hasMenuPermission(item),
-        'is-active': isActive(item)
+    <el-menu-item
+      v-if="item.path && (item.meta && item.meta.title) && !item.children"
+      :index="resolvePath(item.path)"
+      :class="{
+        'no-permission': !hasMenuPermission(item)
       }"
-      @click="handleMenuClick(item, $event)"
+      @click="handleMenuItemClick(item)"
     >
+      <!-- 调试信息 -->
+      <div v-if="false" style="color: green; font-size: 10px; position: absolute; right: 20px; top: 2px; z-index: 100;">
+        [{{ resolvePath(item.path) }}]
+      </div>
       <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'"/>
-      <span class="menu-title">{{ (item.meta && item.meta.title) || '' }}</span>
-    </div>
+      <template #title>
+        <span>{{ (item.meta && item.meta.title) || '' }}</span>
+      </template>
+    </el-menu-item>
 
     <el-sub-menu
       v-else-if="item.children && item.children.length > 0"
       ref="subMenu"
       :index="resolvePath(item.path)"
-      :popper-append-to-body="false"
+      :popper-class="'sidebar-submenu'"
       :class="{ 'no-permission': !hasMenuPermission(item) }"
     >
+      <!-- 调试信息 -->
+      <div v-if="false" style="color: blue; font-size: 10px; position: absolute; right: 20px; top: 18px; z-index: 100;">
+        [{{ item.meta?.title }}:{{ item.children?.length }}]
+      </div>
       <template v-if="item.meta" #title>
         <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'" />
         <span
@@ -71,7 +80,7 @@
         :key="child.path + index"
         :is-nest="true"
         :item="child"
-        :base-path="resolvePath(item.path + '/' + child.path)"
+        :base-path="resolvePath(item.path)"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -79,12 +88,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { ElMessage, ElNotification } from 'element-plus'
-import { isExternal } from '@/utils/validate'
+import { ref, onMounted } from 'vue'
+import { ElNotification } from 'element-plus'
 import { getNormalPath } from '@/utils/ruoyi'
 import useUserStore from '@/store/modules/user'
-import { useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   // route object
@@ -104,7 +112,7 @@ const props = defineProps({
 
 const onlyOneChild = ref({})
 const subMenu = ref(null)
-const route = useRoute()
+const router = useRouter()
 
 // 🔥 关键改进2: 优化事件绑定处理
 onMounted(() => {
@@ -160,24 +168,6 @@ function hasMenuPermission(menuItem) {
   return true
 }
 
-// 判断当前菜单项是否为活动状态
-function isActive(menuItem) {
-  if (!menuItem || !menuItem.path) return false
-  
-  const currentPath = route.path
-  const menuPath = menuItem.path
-  
-  // 如果路径完全匹配
-  if (currentPath === menuPath) return true
-  
-  // 如果当前路径是菜单路径的子路径
-  if (currentPath.startsWith(menuPath + '/')) return true
-  
-  // 特殊处理：如果菜单有redirect属性，检查当前路径是否匹配redirect
-  if (menuItem.redirect && currentPath === menuItem.redirect) return true
-  
-  return false
-}
 
 function hasOneShowingChild(children = [], parent) {
   console.log('🔍 hasOneShowingChild被调用:', {
@@ -220,61 +210,25 @@ function hasOneShowingChild(children = [], parent) {
   return false
 }
 
-// 🔥 关键改进2: 优化路径解析
-function resolvePath(routePath, routeQuery) {
-  // 🔥 关键修复: 处理空路径和undefined
-  if (!routePath || routePath === 'undefined' || routePath === 'null') {
-    console.warn('路径为空，尝试使用basePath:', props.basePath)
-    if (props.basePath) {
-      routePath = props.basePath
-    } else {
-      return '/'
+// 修复路径解析 - 确保二级菜单路径正确
+function resolvePath(routePath) {
+  // 如果传入了路由路径
+  if (routePath) {
+    // 如果已经是完整路径，直接返回
+    if (routePath.startsWith('/')) {
+      return routePath
     }
+
+    // 拼接基础路径
+    const basePath = props.basePath || '/'
+    const normalizedBasePath = basePath.endsWith('/') ? basePath.slice(0, -1) : basePath
+    const normalizedRoutePath = routePath.startsWith('/') ? routePath : `/${routePath}`
+
+    return `${normalizedBasePath}${normalizedRoutePath}`
   }
 
-  if (isExternal(routePath)) {
-    return routePath
-  }
-  if (isExternal(props.basePath)) {
-    return props.basePath
-  }
-
-  // 如果路径已经是完整路径，直接返回
-  if (routePath.startsWith('/admin/')) {
-    return routePath
-  }
-
-  // 处理相对路径
-  let fullPath = ''
-  if (props.basePath && routePath) {
-    // 确保basePath不以/结尾，routePath以/开头
-    const basePath = props.basePath.replace(/\/$/, '')
-    const childPath = routePath.startsWith('/') ? routePath : '/' + routePath
-    fullPath = getNormalPath(basePath + childPath)
-  } else if (props.basePath) {
-    fullPath = getNormalPath(props.basePath)
-  } else if (routePath) {
-    fullPath = getNormalPath(routePath)
-  }
-
-  // 确保路径以/开头
-  if (!fullPath.startsWith('/')) {
-    fullPath = '/' + fullPath
-  }
-
-  // 移除末尾的/
-  fullPath = fullPath.replace(/\/$/, '') || '/'
-
-  if (routeQuery) {
-    try {
-      let query = JSON.parse(routeQuery)
-      return { path: fullPath, query: query }
-    } catch (error) {
-      console.warn('路由查询参数解析失败:', routeQuery, error)
-      return fullPath
-    }
-  }
-  return fullPath
+  // 如果没有传入路径，使用basePath
+  return props.basePath || '/'
 }
 
 function hasTitle(title) {
@@ -288,112 +242,58 @@ function hasTitle(title) {
   }
 }
 
-// 🔥 关键改进2: 重构菜单点击事件处理逻辑
-function handleMenuClick(menuItem, event) {
-  console.log('菜单点击事件:', (menuItem.meta && menuItem.meta.title) || '')
-  console.log('菜单项完整数据:', menuItem)
+// 菜单项点击处理 - 强制路由跳转
+function handleMenuItemClick(menuItem) {
+  console.log('🖱️ 菜单项点击:', menuItem)
 
-  // 检查权限
+  const targetPath = resolvePath(menuItem.path)
+  console.log('🎯 目标路径:', targetPath)
+
+  // 权限检查
+  if (!hasMenuPermission(menuItem)) {
+    const reason = (menuItem.meta && menuItem.meta.permissionReason) || '权限不足'
+
+    ElNotification({
+      title: '访问受限',
+      message: `您没有权限访问"${(menuItem.meta && menuItem.meta.title) || ''}"功能。原因：${reason}`,
+      type: 'warning',
+      duration: 4000,
+      showClose: true
+    })
+    return false
+  }
+
+  // 强制路由跳转
+  if (targetPath && targetPath !== '/') {
+    console.log('🚀 强制路由跳转到:', targetPath)
+    router.push(targetPath).catch(err => {
+      console.error('路由跳转失败:', err)
+    })
+  }
+
+  return true
+}
+
+// 简化的菜单点击处理 - Element Plus原生处理
+function handleMenuClick(menuItem, event) {
+  // 权限检查
   if (!hasMenuPermission(menuItem)) {
     event?.preventDefault()
     event?.stopPropagation()
 
     const reason = (menuItem.meta && menuItem.meta.permissionReason) || '权限不足'
 
-    // 友好的权限提示
     ElNotification({
       title: '访问受限',
-      message: `您没有权限访问"${(menuItem.meta && menuItem.meta.title) || ''}"功能。
-原因：${reason}`,
+      message: `您没有权限访问"${(menuItem.meta && menuItem.meta.title) || ''}"功能。原因：${reason}`,
       type: 'warning',
       duration: 4000,
       showClose: true
     })
-
     return false
   }
 
-  // 🔥 关键修复: 智能路径生成
-  let targetPath = ''
-  
-  // 获取菜单标题
-  const menuTitle = (menuItem.meta && menuItem.meta.title) || ''
-  
-  console.log('处理菜单点击:', {
-    title: menuTitle,
-    path: menuItem.path,
-    redirect: menuItem.redirect,
-    children: menuItem.children
-  })
-
-  // 1. 优先使用redirect
-  if (menuItem.redirect && menuItem.redirect !== 'noRedirect') {
-    targetPath = menuItem.redirect
-    console.log('使用redirect路径:', targetPath)
-  }
-  // 2. 如果有子菜单，使用第一个子菜单的路径
-  else if (menuItem.children && menuItem.children.length > 0) {
-    const firstChild = menuItem.children.find(child => child.path && !child.hidden)
-    if (firstChild) {
-      targetPath = firstChild.path
-      console.log('使用第一个子菜单路径:', targetPath)
-    }
-  }
-  // 3. 使用直接路径
-  else if (menuItem.path) {
-    targetPath = menuItem.path
-    console.log('使用直接路径:', targetPath)
-  }
-  // 4. 根据菜单名称生成默认路径
-  else {
-    const nameToPath = {
-      '系统管理': '/admin/system',
-      '系统监控': '/admin/monitor',
-      '系统工具': '/admin/tool',
-      '博客管理': '/admin/blog',
-      '数据统计': '/admin/statistics'
-    }
-
-    targetPath = nameToPath[menuTitle] || ''
-    if (targetPath) {
-      console.log('使用默认路径:', targetPath)
-    }
-  }
-
-  if (!targetPath) {
-    console.warn('无法确定目标路径，菜单数据:', menuItem)
-    ElMessage.warning(`"${(menuItem.meta && menuItem.meta.title) || ''}"菜单路径配置错误，请联系管理员`)
-    return false
-  }
-
-  console.log('尝试导航到:', targetPath)
-
-  // 添加视觉反馈
-  if (event && event.currentTarget) {
-    const targetElement = event.currentTarget
-    // 添加点击动画效果
-    targetElement.style.transform = 'scale(0.98)'
-    targetElement.style.transition = 'transform 0.1s ease'
-    
-    setTimeout(() => {
-      targetElement.style.transform = ''
-    }, 100)
-  }
-
-  // 🔥 关键改进2: 直接使用window.location跳转，避免Vue Router问题
-  try {
-    console.log('使用window.location跳转到:', targetPath)
-    // 确保目标路径是完整的URL
-    if (targetPath.startsWith('/')) {
-      window.location.href = window.location.origin + targetPath
-    } else {
-      window.location.href = targetPath
-    }
-  } catch (error) {
-    console.error('导航失败:', error)
-    ElMessage.error('页面跳转失败，请重试')
-  }
-
+  // Element Plus的:router="true"会自动处理路由跳转
   return true
 }
 </script>
@@ -477,5 +377,49 @@ function handleMenuClick(menuItem, event) {
 /* 增加点击反馈效果 */
 .el-sub-menu__title:hover {
   transition: all 0.3s ease;
+}
+
+/* 🔥 关键修复: 确保二级菜单能正常显示和展开 */
+.el-sub-menu .el-menu {
+  background-color: inherit !important;
+}
+
+.el-sub-menu .el-menu-item {
+  background-color: var(--submenu-bg, rgba(0, 0, 0, 0.02)) !important;
+  color: var(--submenu-text, #606266) !important;
+}
+
+.el-sub-menu .el-menu-item:hover {
+  background-color: var(--submenu-hover, rgba(0, 0, 0, 0.06)) !important;
+  color: var(--menu-active-text, #409eff) !important;
+}
+
+.el-sub-menu .el-menu-item.is-active {
+  background-color: var(--submenu-active, rgba(64, 158, 255, 0.1)) !important;
+  color: var(--menu-active-text, #409eff) !important;
+}
+
+/* 确保子菜单标题可点击 */
+.el-sub-menu__title {
+  cursor: pointer !important;
+  user-select: none !important;
+  pointer-events: auto !important;
+}
+
+/* 移除可能的遮挡层 */
+.sidebar-container .el-menu--collapse .el-sub-menu > .el-menu {
+  display: none !important;
+}
+
+.sidebar-container .el-menu--collapse .el-sub-menu.is-opened > .el-menu {
+  display: block !important;
+}
+
+/* 确保嵌套菜单正确显示 */
+.nest-menu .el-menu-item,
+.nest-menu .el-sub-menu__title {
+  padding-left: 40px !important;
+  min-height: 50px;
+  line-height: 50px;
 }
 </style>

@@ -7,16 +7,15 @@
       :collapse="isCollapse"
       :background-color="getMenuBackground"
       :text-color="getMenuTextColor"
-      :unique-opened="true"
+      :unique-opened="false"
       :active-text-color="theme"
-      :collapse-transition="true"
-      :router="false"
+      :collapse-transition="false"
+      :router="true"
       mode="vertical"
       :class="sideTheme"
       @select="handleSelect"
       @open="handleOpen"
       @close="handleClose"
-      @click="handleMenuClick"
     >
         <sidebar-item
           v-for="(route, index) in sidebarRouters.filter(r => r.meta && r.meta.title)"
@@ -48,7 +47,17 @@ const permissionStore = usePermissionStore()
 
 // 使用动态生成的路由数据
 const sidebarRouters = computed(() => {
-  console.log('侧边栏路由数据:', permissionStore.sidebarRouters)
+  console.log('📋 侧边栏路由数据:', permissionStore.sidebarRouters)
+
+  // 检查博客管理菜单是否正确
+  const blogMenu = permissionStore.sidebarRouters?.find(route =>
+    route.meta?.title === '博客管理' || route.name === '博客管理'
+  )
+  console.log('🔍 博客管理菜单:', blogMenu)
+  if (blogMenu) {
+    console.log('✅ 博客管理子菜单数量:', blogMenu.children?.length || 0)
+  }
+
   return permissionStore.sidebarRouters || []
 })
 const showLogo = computed(() => settingsStore.sidebarLogo)
@@ -98,92 +107,48 @@ function onlyOneChild(children) {
   return false
 }
 
-// 处理菜单点击事件 - 这是一个额外的保障，确保菜单点击能被捕获
-function handleMenuClick(event) {
-  console.log('菜单点击事件:', event)
-  
-  // 查找最近的el-menu-item或el-sub-menu元素
-  const menuItem = event.target.closest('el-menu-item, .el-sub-menu')
-  if (menuItem) {
-    // 获取index属性作为路由路径
-    const index = menuItem.getAttribute('index')
-    if (index && index.trim()) {
-      // 直接使用window.location跳转
-      console.log('从click事件获取的路径:', index)
-      window.location.href = index
-    }
-  }
-}
+// 🚫 移除全局菜单点击事件处理，避免干扰Element Plus的原生展开/收起功能
+// function handleMenuClick(event) {
+//   console.log('菜单点击事件:', event)
+//
+//   // 查找最近的el-menu-item或el-sub-menu元素
+//   const menuItem = event.target.closest('el-menu-item, .el-sub-menu')
+//   if (menuItem) {
+//     // 获取index属性作为路由路径
+//     const index = menuItem.getAttribute('index')
+//     if (index && index.trim()) {
+//       // 直接使用window.location跳转
+//       console.log('从click事件获取的路径:', index)
+//       window.location.href = index
+//     }
+//   }
+// }
 
 // 处理菜单选择事件
 function handleSelect(key, keyPath) {
-  // 仅在有有效选中值时才记录日志，避免空数组重复打印
   if (key && key.trim()) {
     console.log('菜单选中:', key, keyPath)
-    
-    try {
-      // 使用已导入的router对象进行路由跳转
-      console.log(`尝试跳转到: ${key}`)
-      
-      // 🔥 关键修复: 避免路径重复
-      let targetPath = key
-      
-      // 如果路径已经包含/admin/前缀，直接使用
-      if (key && key.startsWith('/admin/')) {
-        targetPath = key
-      }
-      
-      // 直接使用window.location跳转
-      console.log(`使用window.location跳转到: ${key}`)
-      window.location.href = key
-    } catch (e) {
-      console.error('执行路由跳转时发生异常:', e)
-      // 最后的备选方案
-      try {
-        window.location.href = key
-      } catch (finalError) {
-        console.error('所有导航方案均失败:', finalError)
-      }
-    }
+    // Element Plus的:router="true"会自动处理路由跳转
+    // 这里只需要做日志记录和额外的处理逻辑
   }
 }
 
 // 处理子菜单展开事件
 function handleOpen(key, keyPath) {
-  console.log('菜单展开:', key, keyPath)
+  console.log('📂 菜单展开:', key, keyPath)
 }
 
 // 处理子菜单关闭事件
 function handleClose(key, keyPath) {
-  console.log('菜单关闭:', key, keyPath)
+  console.log('📁 菜单关闭:', key, keyPath)
 }
 
 // 组件挂载后执行初始化
 onMounted(() => {
   console.log('Sidebar组件挂载完成')
-  
-  // 为所有菜单标题添加点击事件委托作为最后保障
-  const menuContainer = document.querySelector('.sidebar-container')
-  if (menuContainer) {
-    menuContainer.addEventListener('click', (e) => {
-      const menuTitle = e.target.closest('.menu-title')
-      if (menuTitle && !e.defaultPrevented) {
-        console.log('通过事件委托捕获菜单标题点击')
-        
-        // 查找对应的菜单项
-        const menuItem = menuTitle.closest('el-menu-item, .el-sub-menu')
-        if (menuItem) {
-          const index = menuItem.getAttribute('index')
-          if (index && index.trim()) {
-            console.log('通过事件委托获取路径:', index)
-            // 直接使用window.location跳转
-            console.log('通过事件委托执行跳转到:', index)
-            window.location.href = index
-          }
-        }
-      }
-    }, true) // 使用捕获阶段
-  }
+
+  // 🚫 移除事件委托，避免干扰Element Plus原生菜单行为
+  // 让Element Plus的el-menu和el-sub-menu组件正常工作
 })
 </script>
 

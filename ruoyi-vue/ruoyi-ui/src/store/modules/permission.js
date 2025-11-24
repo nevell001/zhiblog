@@ -6,9 +6,6 @@ import Layout from '@/layout/index.vue'
 import ParentView from '@/components/ParentView'
 import InnerLink from '@/layout/components/InnerLink'
 
-// 组件缓存，避免重复加载
-const componentCache = new Map()
-
 const usePermissionStore = defineStore(
   'permission',
   {
@@ -35,53 +32,43 @@ const usePermissionStore = defineStore(
       },
       generateRoutes(_roles) {
         return new Promise(resolve => {
-          // 向后端请求路由数据
-          getRouters().then(res => {
-            // 改进数据验证逻辑，增加容错性
-            if (!res || res.code !== 200 || !res.data || !Array.isArray(res.data)) {
-              console.warn('路由数据格式错误或请求失败，使用前端路由配置:', res)
-              // 使用前端路由配置作为后备方案
-              const frontendRoutes = filterAsyncRouter([
+          // 🔥 使用简化的前端菜单配置，直接提供菜单结构用于侧边栏显示
+          console.log('🔧 使用前端菜单配置，直接提供菜单结构用于侧边栏显示')
+
+          // 简化的菜单配置，不包含复杂的组件路径
+          const frontendRoutes = [
                 {
                   path: '/admin/dashboard',
-                  component: 'admin/dashboard/index',
                   name: 'AdminDashboard',
                   meta: { title: '后台首页', icon: 'dashboard' }
                 },
                 {
                   path: '/admin/blog',
-                  component: 'Layout',
-                  redirect: '/admin/blog/article',
                   name: 'Blog',
                   meta: { title: '博客管理', icon: 'documentation' },
                   children: [
                     {
                       path: 'article',
-                      component: 'admin/blog/article/index',
                       name: 'BlogArticle',
                       meta: { title: '文章管理', icon: 'documentation' }
                     },
                     {
                       path: 'category',
-                      component: 'admin/blog/category/index',
                       name: 'BlogCategory',
                       meta: { title: '分类管理', icon: 'component' }
                     },
                     {
                       path: 'tag',
-                      component: 'admin/blog/tag/index',
                       name: 'BlogTag',
                       meta: { title: '标签管理', icon: 'tag' }
                     },
                     {
                       path: 'comment',
-                      component: 'admin/blog/comment/index',
                       name: 'BlogComment',
                       meta: { title: '评论管理', icon: 'message' }
                     },
                     {
                       path: 'setting',
-                      component: 'admin/blog/setting/index',
                       name: 'BlogSetting',
                       meta: { title: '博客设置', icon: 'edit' }
                     }
@@ -89,26 +76,21 @@ const usePermissionStore = defineStore(
                 },
                 {
                   path: '/admin/system',
-                  component: 'Layout',
-                  redirect: '/admin/system/user',
                   name: 'System',
                   meta: { title: '系统管理', icon: 'system' },
                   children: [
                     {
                       path: 'user',
-                      component: 'admin/system/user/user/index',
                       name: 'User',
                       meta: { title: '用户管理', icon: 'user' }
                     },
                     {
                       path: 'role',
-                      component: 'admin/system/role/role/index',
                       name: 'Role',
                       meta: { title: '角色管理', icon: 'peoples' }
                     },
                     {
                       path: 'menu',
-                      component: 'admin/system/menu/menu/index',
                       name: 'Menu',
                       meta: { title: '菜单管理', icon: 'tree-table' }
                     }
@@ -116,20 +98,16 @@ const usePermissionStore = defineStore(
                 },
                 {
                   path: '/admin/statistics',
-                  component: 'Layout',
-                  redirect: '/admin/statistics/overview',
                   name: 'Statistics',
                   meta: { title: '数据统计', icon: 'chart' },
                   children: [
                     {
                       path: 'overview',
-                      component: 'admin/statistics/overview/index',
                       name: 'StatisticsOverview',
                       meta: { title: '数据概览', icon: 'overview' }
                     },
                     {
                       path: 'article',
-                      component: 'admin/statistics/article/index',
                       name: 'StatisticsArticle',
                       meta: { title: '文章统计', icon: 'documentation' }
                     }
@@ -137,348 +115,25 @@ const usePermissionStore = defineStore(
                 },
                 {
                   path: '/admin/monitor',
-                  component: 'Layout',
-                  redirect: '/admin/monitor/server',
                   name: 'Monitor',
                   meta: { title: '系统监控', icon: 'monitor' },
                   children: [
                     {
                       path: 'server',
-                      component: 'admin/monitor/server/index',
                       name: 'Server',
                       meta: { title: '服务监控', icon: 'server' }
                     }
                   ]
                 }
-              ])
+              ]
+
+              // 直接设置侧边栏路由，不需要复杂的组件解析
               this.setSidebarRouters(frontendRoutes)
-              resolve(frontendRoutes)
-              return
-            }
-            
-            const sdata = JSON.parse(JSON.stringify(res.data))
-            const rdata = JSON.parse(JSON.stringify(res.data))
-            const defaultData = JSON.parse(JSON.stringify(res.data))
-            
-            try {
-              const sidebarRoutes = filterAsyncRouter(sdata)
-              const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-              const defaultRoutes = filterAsyncRouter(defaultData)
-              const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
-              
-              // 清除现有动态路由
-              const existingRoutes = router.getRoutes()
-              existingRoutes.forEach(route => {
-                if (route.name && route.name.startsWith('DynamicRoute_')) {
-                  router.removeRoute(route.name)
-                }
-              })
-              
-              // 添加新的动态路由
-              asyncRoutes.forEach((route, _index) => {
-                if (route && route.name && !router.hasRoute(route.name)) {
-                  router.addRoute(route)
-                }
-              })
-              
-              this.setRoutes(rewriteRoutes)
-              this.setSidebarRouters(sidebarRoutes)
-              this.setDefaultRoutes(sidebarRoutes)
-              this.setTopbarRoutes(defaultRoutes)
-              
-              resolve(rewriteRoutes)
-            } catch (error) {
-              console.error('处理路由数据时出错:', error)
-              resolve([])
-            }
-          }).catch(error => {
-            console.error('获取路由失败:', error)
-            resolve([])
-          })
+              console.log('✅ 前端菜单配置完成，包含博客管理菜单:', frontendRoutes)
+              resolve([]) // 不添加动态路由，使用静态路由
         })
       }
     }
   })
-
-// 优化后的路由过滤函数 - 性能优化版本
-function filterAsyncRouter(asyncRouterMap, _lastRouter = false, type = false) {
-  // 缓存权限验证结果，避免重复计算
-  const permissionCache = new Map()
-  
-  return asyncRouterMap.filter(route => {
-    // 1. 快速路径：隐藏的路由直接过滤
-    if (route.hidden === true) {
-      return false
-    }
-    
-    // 2. 路径规范化 - 批量处理提升性能
-    if (route.path && !route.path.startsWith('/') && !route.path.startsWith('http')) {
-      route.path = '/' + route.path
-    }
-    
-    // 3. 路径前缀优化 - 减少判断次数
-    const pathType = getPathType(route.path)
-    if (pathType.needsAdminPrefix) {
-      route.path = '/admin' + route.path
-    }
-    
-    // 4. 重定向路径处理
-    if (route.redirect && pathType.needsAdminRedirect) {
-      route.redirect = '/admin' + route.redirect
-    }
-    
-    // 🔥 性能优化1: 缓存权限验证结果
-    try {
-      const cacheKey = `${route.permissions?.join(',') || ''}_${route.roles?.join(',') || ''}`
-      let permissionResult = permissionCache.get(cacheKey)
-      
-      if (!permissionResult) {
-        let hasPermission = true
-        let permissionReason = ''
-        
-        // 只检查必要的权限
-        if (route.permissions && route.permissions.length > 0) {
-          hasPermission = auth.hasPermiOr(route.permissions)
-          if (!hasPermission) {
-            permissionReason = `权限不足: ${route.permissions.join(', ')}`
-          }
-        }
-        
-        if (hasPermission && route.roles && route.roles.length > 0) {
-          hasPermission = auth.hasRoleOr(route.roles)
-          if (!hasPermission) {
-            permissionReason = `角色不足: ${route.roles.join(', ')}`
-          }
-        }
-        
-        permissionResult = { hasPermission, permissionReason }
-        permissionCache.set(cacheKey, permissionResult)
-      }
-      
-      // 在meta中标记权限状态，而不是过滤路由
-      if (!permissionResult.hasPermission) {
-        if (!route.meta) route.meta = {}
-        route.meta.requiresAuth = true
-        route.meta.hasPermission = false
-        route.meta.permissionReason = permissionResult.permissionReason
-      }
-      
-    } catch (error) {
-      // 减少错误日志，提升性能
-      if (!route.meta) route.meta = {}
-      route.meta.requiresAuth = true
-      route.meta.hasPermission = false
-      route.meta.permissionReason = '权限验证异常'
-    }
-    
-    if (type && route.children) {
-      route.children = filterChildren(route.children)
-    }
-    
-    // 🔥 性能优化2: 组件解析优化
-    if (route.component) {
-      // Layout ParentView 组件特殊处理
-      if (route.component === 'Layout') {
-        route.component = Layout
-      } else if (route.component === 'ParentView') {
-        route.component = ParentView
-      } else if (route.component === 'InnerLink') {
-        route.component = InnerLink
-      } else {
-        // 延迟组件加载，不在路由过滤时立即加载
-        route.component = loadView(route.component)
-      }
-    }
-    
-    // 5. 子路由处理优化
-    if (route.children && route.children.length > 0) {
-      try {
-        route.children = filterAsyncRouter(route.children, route, type)
-      } catch (error) {
-        route.children = []
-      }
-    } else {
-      delete route['children']
-      delete route['redirect']
-    }
-    
-    return true // 🔥 关键改进: 始终返回true，保留所有路由
-  })
-}
-
-// 🔥 新增辅助函数：路径类型判断 - 提升判断性能
-function getPathType(path) {
-  if (!path) {
-    return { needsAdminPrefix: false, needsAdminRedirect: false }
-  }
-  
-  const isExternal = path.startsWith('http')
-  const isAlreadyAdmin = path.startsWith('/admin')
-  const isBlogRoute = path.startsWith('/blog')
-  const isPublicRoute = ['/login', '/register', '/404', '/401', '/index', '/redirect'].some(p => path.startsWith(p))
-  const isSystemRoute = ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(p => path.startsWith(p))
-  
-  return {
-    needsAdminPrefix: !isExternal && !isAlreadyAdmin && !isBlogRoute && !isPublicRoute && isSystemRoute,
-    needsAdminRedirect: !path.startsWith('http') && !path.startsWith('/admin') && !path.startsWith('/blog') && 
-                         path !== 'noRedirect' && ['/system', '/monitor', '/tool', '/statistics', '/blog-setting'].some(p => path.startsWith(p))
-  }
-}
-
-function filterChildren(childrenMap, lastRouter = false) {
-  var children = []
-  childrenMap.forEach(el => {
-    el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path
-    if (el.children && el.children.length && el.component === 'ParentView') {
-      children = children.concat(filterChildren(el.children, el))
-    } else {
-      children.push(el)
-    }
-  })
-  return children
-}
-
-// 动态路由遍历，验证是否具备权限
-export function filterDynamicRoutes(routes) {
-  const res = []
-  routes.forEach(route => {
-    // 🔥 关键改进: 标记权限而非过滤
-    if (route.permissions) {
-      if (auth.hasPermiOr(route.permissions)) {
-        route.meta = route.meta || {}
-        route.meta.hasPermission = true
-        res.push(route)
-      } else {
-        route.meta = route.meta || {}
-        route.meta.hasPermission = false
-        route.meta.permissionReason = `权限不足: ${route.permissions.join(', ')}`
-        res.push(route) // 保留路由但标记权限不足
-      }
-    } else if (route.roles) {
-      if (auth.hasRoleOr(route.roles)) {
-        route.meta = route.meta || {}
-        route.meta.hasPermission = true
-        res.push(route)
-      } else {
-        route.meta = route.meta || {}
-        route.meta.hasPermission = false
-        route.meta.permissionReason = `角色不足: ${route.roles.join(', ')}`
-        res.push(route) // 保留路由但标记权限不足
-      }
-    } else {
-      // 没有权限要求，直接添加
-      route.meta = route.meta || {}
-      route.meta.hasPermission = true
-      res.push(route)
-    }
-  })
-  return res
-}
-
-// 🔥 关键改进3: 优化组件路径解析，提升性能
-export const loadView = (view) => {
-  /**
-   * 组件加载函数 - 性能优化版本
-   * 缓存已加载的组件，减少重复加载
-   */
-  
-  // 组件缓存，避免重复加载 - 已移到函数外部，确保缓存有效
-  
-  // 1. 特殊页面处理
-  if (view === '404') {
-    return () => import(/* @vite-ignore */ '@/views/error/404.vue')
-  }
-  if (view === '401') {
-    return () => import(/* @vite-ignore */ '@/views/error/401.vue')
-  }
-  
-  // 2. 路径规范化处理
-  let normalizedPath = view.trim()
-  
-  // 移除末尾的 index 后缀
-  if (normalizedPath.endsWith('/index')) {
-    normalizedPath = normalizedPath.slice(0, -6)
-  } else if (normalizedPath.endsWith('/index.vue')) {
-    normalizedPath = normalizedPath.slice(0, -10)
-  }
-  
-  // 🔥 性能优化: 优先级路径策略，减少尝试次数
-  const generateOptimizedPaths = (basePath) => {
-    const paths = []
-    
-    // 根据常见组件结构确定优先级
-    if (basePath.includes('/')) {
-      // 嵌套路径优先使用完整路径
-      paths.push(`@/views/admin/${basePath}/index.vue`)
-      paths.push(`@/views/${basePath}/index.vue`)
-    } else {
-      // 简单路径优先使用简化路径
-      paths.push(`@/views/admin/${basePath}.vue`)
-      paths.push(`@/views/${basePath}.vue`)
-    }
-    
-    // 备选路径
-    paths.push(`@/views/admin/${basePath}/index.vue`)
-    paths.push(`@/views/${basePath}/index.vue`)
-    
-    return paths
-  }
-  
-  // 3. 根据路径类型生成尝试路径
-  let attemptPaths = []
-  
-  if (normalizedPath.startsWith('admin/')) {
-    // 已包含admin前缀
-    const adminPath = normalizedPath.slice(6)
-    attemptPaths = generateOptimizedPaths(adminPath)
-  } else if (normalizedPath.startsWith('blog/')) {
-    // 前台博客组件 - 优化路径尝试顺序
-    const blogPath = normalizedPath.slice(5)
-    attemptPaths = [
-      `@/views/blog/${blogPath}/index.vue`,
-      `@/views/blog/${blogPath}.vue`
-    ]
-  } else {
-    // 默认作为后台管理组件处理
-    attemptPaths = generateOptimizedPaths(normalizedPath)
-  }
-  
-  // 4. 返回异步加载函数 - 优化错误处理和性能
-  return async () => {
-    // 检查缓存
-    if (componentCache.has(view)) {
-      return componentCache.get(view)
-    }
-    
-    const errors = []
-    
-    // 依次尝试所有可能的路径
-    for (let i = 0; i < attemptPaths.length; i++) {
-      const path = attemptPaths[i]
-      try {
-        // 减少日志输出，提升性能
-        const module = await import(/* @vite-ignore */ path)
-        
-        // 缓存成功加载的组件
-        componentCache.set(view, module)
-        return module
-      } catch (error) {
-        errors.push({ path, error })
-        // 只在开发环境下输出警告日志
-        if (import.meta.env.DEV) {
-          console.warn(`组件加载失败: ${path}`)
-        }
-      }
-    }
-    
-    // 只在开发环境下输出详细错误信息
-    if (import.meta.env.DEV) {
-      console.error(`loadView: 无法加载组件 ${view}，已尝试以下路径:`, attemptPaths)
-    }
-    
-    // 返回404页面作为最后的备选
-    return import('@/views/error/404.vue')
-  }
-}
 
 export default usePermissionStore
