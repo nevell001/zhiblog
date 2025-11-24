@@ -154,7 +154,7 @@ const routes = [
       {
         path: 'build',
         name: 'Build',
-        component: () => import('@/views/admin/tool/build/index.vue'),
+        component: () => import('@/views/admin/tool/gen/index.vue'),
         meta: { title: '表单构建', icon: 'build' }
       }
     ]

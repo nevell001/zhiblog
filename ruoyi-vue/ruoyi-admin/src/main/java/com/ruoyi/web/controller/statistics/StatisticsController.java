@@ -12,7 +12,7 @@ import java.util.Map;
  * 统计分析控制器
  */
 @RestController
-@RequestMapping("/statistics")
+@RequestMapping("/system-stats")
 public class StatisticsController {
     
     /**
