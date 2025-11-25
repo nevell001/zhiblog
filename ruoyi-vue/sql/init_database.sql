@@ -330,25 +330,127 @@ CREATE TABLE QRTZ_SIMPROP_TRIGGERS (
 -- 博客文章表
 DROP TABLE IF EXISTS `blog_article`;
 CREATE TABLE `blog_article` (
-  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-  `title` varchar(255) NOT NULL COMMENT '文章标题',
-  `summary` varchar(512) DEFAULT NULL COMMENT '摘要',
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文章ID',
+  `title` varchar(200) NOT NULL COMMENT '文章标题',
+  `summary` varchar(500) DEFAULT NULL COMMENT '文章摘要',
   `content` longtext NOT NULL COMMENT '文章内容',
-  `cover_url` varchar(512) DEFAULT NULL COMMENT '封面图片',
+  `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
-  `author_id` bigint NOT NULL COMMENT '作者ID（关联sys_user）',
-  `is_top` tinyint DEFAULT '0' COMMENT '是否置顶 0否 1是',
-  `is_recommend` tinyint DEFAULT '0' COMMENT '是否推荐 0否 1是',
-  `status` tinyint DEFAULT '1' COMMENT '状态 0草稿 1发布',
+  `author_id` bigint DEFAULT NULL COMMENT '作者ID',
+  `author_name` varchar(50) DEFAULT NULL COMMENT '作者名称',
+  `is_top` tinyint DEFAULT '0' COMMENT '是否置顶：0否 1是',
+  `is_recommend` tinyint DEFAULT '0' COMMENT '是否推荐：0否 1是',
+  `status` tinyint DEFAULT '0' COMMENT '文章状态：0草稿 1已发布',
   `view_count` int DEFAULT '0' COMMENT '浏览量',
   `like_count` int DEFAULT '0' COMMENT '点赞数',
   `comment_count` int DEFAULT '0' COMMENT '评论数',
+  `del_flag` char(1) DEFAULT '0' COMMENT '删除标志：0正常 1删除',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_author_id` (`author_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_is_top` (`is_top`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
+
+-- 博客分类表
+DROP TABLE IF EXISTS `blog_category`;
+CREATE TABLE `blog_category` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '分类ID',
+  `name` varchar(100) NOT NULL COMMENT '分类名称',
+  `alias` varchar(100) DEFAULT NULL COMMENT '分类别名',
+  `description` varchar(255) DEFAULT NULL COMMENT '分类描述',
+  `parent_id` bigint DEFAULT '0' COMMENT '父分类ID，0表示顶级分类',
+  `sort_order` int DEFAULT '0' COMMENT '排序序号',
+  `article_count` int DEFAULT '0' COMMENT '文章数量',
+  `status` tinyint DEFAULT '1' COMMENT '状态：0禁用 1启用',
+  `del_flag` char(1) DEFAULT '0' COMMENT '删除标志：0正常 1删除',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `sort` int DEFAULT '0' COMMENT '排序',
+  PRIMARY KEY (`id`),
+  KEY `idx_parent_id` (`parent_id`),
+  KEY `idx_status` (`status`),
+  KEY `idx_sort_order` (`sort_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客分类表';
+
+-- 博客标签表
+DROP TABLE IF EXISTS `blog_tag`;
+CREATE TABLE `blog_tag` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(64) NOT NULL COMMENT '标签名称',
+  `description` varchar(255) DEFAULT NULL COMMENT '标签描述',
+  `color` varchar(20) DEFAULT '#409EFF' COMMENT '标签颜色',
+  `icon` varchar(100) DEFAULT NULL COMMENT '标签图标',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint DEFAULT '0' COMMENT '删除标志 0正常 1删除',
+  `article_count` int DEFAULT '0' COMMENT '文章数量',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客标签表';
+
+-- 文章标签关联表
+DROP TABLE IF EXISTS `blog_article_tag`;
+CREATE TABLE `blog_article_tag` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `article_id` bigint NOT NULL COMMENT '文章ID',
+  `tag_id` bigint NOT NULL COMMENT '标签ID',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_title` (`title`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
+  UNIQUE KEY `uk_article_tag` (`article_id`,`tag_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章标签关联表';
+
+-- 博客评论表
+DROP TABLE IF EXISTS `blog_comment`;
+CREATE TABLE `blog_comment` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `article_id` bigint NOT NULL COMMENT '文章ID',
+  `user_id` bigint DEFAULT NULL COMMENT '用户ID（可为空，匿名评论）',
+  `nickname` varchar(64) DEFAULT NULL COMMENT '昵称（匿名评论用）',
+  `email` varchar(128) DEFAULT NULL COMMENT '邮箱（匿名评论用）',
+  `content` text NOT NULL COMMENT '评论内容',
+  `parent_id` bigint DEFAULT '0' COMMENT '父评论ID',
+  `status` tinyint DEFAULT '1' COMMENT '状态 0待审核 1正常 2已删除',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `ip` varchar(64) DEFAULT NULL COMMENT '评论IP',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客评论表';
+
+-- 博客友情链接表
+DROP TABLE IF EXISTS `blog_friend_link`;
+CREATE TABLE `blog_friend_link` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `name` varchar(64) NOT NULL COMMENT '友链名称',
+  `url` varchar(255) NOT NULL COMMENT '友链地址',
+  `logo` varchar(255) DEFAULT NULL COMMENT '友链Logo',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  `status` tinyint DEFAULT '1' COMMENT '状态 0禁用 1启用',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `del_flag` tinyint DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `sort` int DEFAULT '0' COMMENT '排序',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客友链表';
+
+-- 博客系统设置表
+DROP TABLE IF EXISTS `blog_setting`;
+CREATE TABLE `blog_setting` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `config_key` varchar(64) NOT NULL COMMENT '配置项Key',
+  `config_value` longtext COMMENT '配置项Value',
+  `description` varchar(255) DEFAULT NULL COMMENT '描述',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_config_key` (`config_key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客系统设置表';
 
 
 
@@ -364,11 +466,11 @@ INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`) VALUES
 ('blog_beian', 'ICP备XXXXXXXX号', '备案信息');
 
 -- 插入博客分类示例数据
-INSERT INTO `blog_category` (`name`, `sort`) VALUES
-('技术分享', 1),
-('生活随笔', 2),
-('学习笔记', 3),
-('项目实战', 4);
+INSERT INTO `blog_category` (`name`, `description`, `parent_id`, `sort_order`, `sort`) VALUES
+('技术分享', '技术相关文章', 0, 1, 1),
+('生活随笔', '生活记录和感悟', 0, 2, 2),
+('学习笔记', '学习过程中的笔记', 0, 3, 3),
+('项目实战', '项目开发经验', 0, 4, 4);
 
 -- 插入博客标签示例数据
 INSERT INTO `blog_tag` (`name`, `description`, `color`, `icon`) VALUES
@@ -384,8 +486,8 @@ INSERT INTO `blog_tag` (`name`, `description`, `color`, `icon`) VALUES
 ('算法', '算法相关标签', '#909399', 'el-icon-data-analysis');
 
 -- 插入博客文章示例数据
-INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `is_top`, `is_recommend`, `status`) VALUES
-('Spring Boot + Vue.js 全栈开发实战', '本文介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用', 
+INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`) VALUES
+('Spring Boot + Vue.js 全栈开发实战', '本文介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用',
 '# Spring Boot + Vue.js 全栈开发实战
 
 ## 项目介绍
@@ -403,10 +505,10 @@ INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `categor
 5. 权限控制
 
 ## 总结
-通过本项目的实践，可以深入理解前后端分离开发的完整流程。', 
-'', 1, 1, 1, 1, 1),
+通过本项目的实践，可以深入理解前后端分离开发的完整流程。',
+'', 1, 1, 'admin', 1, 1, 1),
 
-('MySQL数据库优化实践', '分享MySQL数据库性能优化的实用技巧和经验', 
+('MySQL数据库优化实践', '分享MySQL数据库性能优化的实用技巧和经验',
 '# MySQL数据库优化实践
 
 ## 索引优化
@@ -416,10 +518,10 @@ INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `categor
 避免全表扫描，优化SQL语句结构。
 
 ## 配置优化
-调整MySQL配置参数，提升整体性能。', 
-'', 1, 1, 0, 0, 1),
+调整MySQL配置参数，提升整体性能。',
+'', 1, 1, 'admin', 0, 0, 1),
 
-('Vue.js 3.0 新特性详解', '深入了解Vue.js 3.0的Composition API等新特性', 
+('Vue.js 3.0 新特性详解', '深入了解Vue.js 3.0的Composition API等新特性',
 '# Vue.js 3.0 新特性详解
 
 ## Composition API
@@ -429,8 +531,8 @@ INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `categor
 Vue 3在性能方面有显著提升。
 
 ## TypeScript支持
-更好的TypeScript集成。', 
-'', 1, 1, 0, 0, 1);
+更好的TypeScript集成。',
+'', 1, 1, 'admin', 0, 0, 1);
 
 -- 插入文章标签关联数据
 INSERT INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
@@ -538,91 +640,3 @@ SELECT '博客系统表数量：' AS info, COUNT(*) as count FROM information_sc
 SELECT 'Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'QRTZ_%';
 SELECT '博客管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '博客管理' OR parent_id = 2000;
 
-
-
--- ========== 初始化博客数据 ==========
-
--- 初始化博客分类数据
-INSERT IGNORE INTO `blog_category` (`name`, `sort`) VALUES
-('Java技术', 1),
-('Spring生态', 2),
-('前端开发', 3),
-('数据库', 4),
-('项目实践', 5);
-
--- 初始化博客标签数据
-INSERT IGNORE INTO `blog_tag` (`name`, `description`, `color`, `icon`) VALUES 
-('Java', 'Java编程语言相关', '#FF6B6B', 'el-icon-coffee-cup'),
-('Spring Boot', 'Spring Boot框架相关', '#4ECDC4', 'el-icon-leaf'),
-('Vue.js', 'Vue.js前端框架相关', '#45B7D1', 'el-icon-monitor'),
-('MySQL', 'MySQL数据库相关', '#96CEB4', 'el-icon-data-board'),
-('Redis', 'Redis缓存相关', '#FECA57', 'el-icon-cloudy'),
-('前端开发', '前端开发技术', '#FF9FF3', 'el-icon-brush'),
-('后端开发', '后端开发技术', '#54A0FF', 'el-icon-cpu'),
-('数据库', '数据库相关技术', '#5F27CD', 'el-icon-database'),
-('框架学习', '各种框架学习', '#00D2D3', 'el-icon-reading'),
-('项目经验', '项目开发经验', '#FF9F43', 'el-icon-trophy');
-
--- 初始化友情链接数据
-INSERT IGNORE INTO `blog_friend_link` (`name`, `url`, `description`, `status`) VALUES
-('Spring官网', 'https://spring.io/', 'Spring框架官方网站', 1),
-('Vue.js官网', 'https://vuejs.org/', 'Vue.js框架官方网站', 1),
-('Element Plus', 'https://element-plus.org/', 'Vue 3组件库', 1),
-('GitHub', 'https://github.com/', '全球最大的代码托管平台', 1),
-('MDN Web Docs', 'https://developer.mozilla.org/', 'Web开发者资源', 1);
-
--- 初始化博客设置数据
-INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`) VALUES
-('blog_name', '我的技术博客', '博客名称'),
-('blog_desc', '分享技术，记录生活，成长路上的点点滴滴', '博客描述'),
-('blog_author', 'Nevell', '博客作者'),
-('blog_keywords', 'Java,Spring Boot,Vue.js,前端,后端,全栈开发', '博客关键词'),
-('blog_copyright', 'Copyright © 2025 我的技术博客. All rights reserved.', '版权信息'),
-('blog_beian', 'ICP备XXXXXXXX号', '备案信息'),
-('blog_comment_enable', '1', '是否开启评论功能'),
-('blog_comment_audit', '1', '评论是否需要审核');
-
--- 初始化示例文章数据
-INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `category_id`, `author_id`, `is_top`, `is_recommend`, `status`) VALUES
-('Spring Boot入门教程', '本文介绍Spring Boot的基本概念和快速入门方法', 'Spring Boot是一个基于Spring框架的快速开发脚手架...', 2, 1, 1, 1, 1),
-('Vue.js组件化开发实践', '分享Vue.js组件化开发的最佳实践和经验', 'Vue.js作为现代前端框架，组件化是其核心特性...', 3, 1, 0, 1, 1),
-('MySQL性能优化技巧', '介绍MySQL数据库性能优化的常用技巧和方法', 'MySQL作为最流行的关系型数据库，性能优化是DBA必备技能...', 4, 1, 0, 0, 1);
-
--- ========== 博客系统菜单权限配置 ==========
-
--- 创建博客管理主菜单（如果不存在）
-INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-VALUES (2000, '博客管理', 0, 10, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '博客管理目录');
-
--- 创建博客管理子菜单
-INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, remark)
-VALUES 
-(2001, '文章管理', 2000, 1, 'article', 'blog/article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'edit', 'admin', NOW(), '文章管理菜单'),
-(2002, '分类管理', 2000, 2, 'category', 'blog/category/index', '', '', 1, 0, 'C', '0', '0', 'blog:category:list', 'list', 'admin', NOW(), '分类管理菜单'),
-(2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tag', 'admin', NOW(), '标签管理菜单'),
-(2004, '评论管理', 2000, 4, 'comment', 'blog/comment/index', '', '', 1, 0, 'C', '0', '0', 'blog:comment:list', 'message', 'admin', NOW(), '评论管理菜单'),
-(2005, '博客设置', 2000, 5, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'setting', 'admin', NOW(), '博客设置菜单'),
-(2006, '友链管理', 2000, 6, 'friendLink', 'blog/friendLink/index', '', '', 1, 0, 'C', '0', '0', 'blog:friendLink:list', 'link', 'admin', NOW(), '友链管理菜单');
-
--- 为管理员角色分配博客管理菜单权限
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2000);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2001);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2002);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2003);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2004);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2005);
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2006);
-
--- ========== 博客系统完成提示 ==========
-
-SELECT '博客系统数据库初始化完成！' AS '系统提示';
-SELECT '博客系统包含以下功能模块：' AS '功能模块';
-SELECT '✓ 文章管理' AS '模块';
-SELECT '✓ 分类管理' AS '模块';
-SELECT '✓ 标签管理' AS '模块';
-SELECT '✓ 评论管理' AS '模块';
-SELECT '✓ 友链管理' AS '模块';
-SELECT '✓ 系统设置' AS '模块';
-SELECT '管理员账号：admin / 密码：admin123' AS '登录信息';
-SELECT '博客前台地址：http://localhost:8080/blog' AS '前台地址';
-SELECT '博客后台地址：http://localhost:8080' AS '后台地址';

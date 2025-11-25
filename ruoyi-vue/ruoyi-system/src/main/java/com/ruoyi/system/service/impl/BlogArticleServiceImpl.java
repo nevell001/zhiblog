@@ -52,7 +52,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             // 设置标签ID列表
             List<Long> tagIds = new ArrayList<>();
             for (BlogTag tag : tags) {
-                tagIds.add(tag.getTagId());
+                if (tag != null && tag.getId() != null) {
+                    tagIds.add(tag.getId());
+                }
             }
             article.setTagIds(tagIds);
         }
