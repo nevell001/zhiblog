@@ -66,7 +66,7 @@
       <el-table-column label="文章ID" align="center" prop="id" />
       <el-table-column label="文章标题" align="center" prop="title" :show-overflow-tooltip="true" />
       <el-table-column label="分类" align="center" prop="categoryName" />
-      <el-table-column label="作者" align="center" prop="author" />
+      <el-table-column label="作者" align="center" prop="authorName" />
 
       <el-table-column label="标签" align="center" prop="tags" min-width="120">
         <template #default="scope">
@@ -193,11 +193,11 @@
             placeholder="选择或创建标签"
           />
         </el-form-item>
-        <el-form-item label="作者" prop="author" v-if="form.id">
-          <el-input v-model="form.author" placeholder="请输入作者" readonly />
+        <el-form-item label="作者" prop="authorName" v-if="form.id">
+          <el-input v-model="form.authorName" placeholder="请输入作者" readonly />
         </el-form-item>
-        <el-form-item label="作者" prop="author" v-else>
-          <el-input v-model="form.author" placeholder="自动填充为当前用户" readonly />
+        <el-form-item label="作者" prop="authorName" v-else>
+          <el-input v-model="form.authorName" placeholder="自动填充为当前用户" readonly />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -328,7 +328,7 @@ function reset() {
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
-    author: userStore.name || 'admin',
+    authorName: userStore.name || 'admin',
     status: 0, // 默认草稿状态
     isTop: 0,
     isRecommend: 0,
@@ -382,13 +382,44 @@ async function handleUpdate(row) {
   try {
     loading.value = true;
     const response = await getArticle(id);
-    form.value = response.data || {};
-    // 确保tagIds是数组类型
-    if (form.value.tagIds && !Array.isArray(form.value.tagIds)) {
-      form.value.tagIds = [form.value.tagIds];
-    } else if (!form.value.tagIds) {
-      form.value.tagIds = [];
+
+    if (response.data) {
+      // 深拷贝并确保数据类型正确
+      const articleData = JSON.parse(JSON.stringify(response.data));
+
+      // 确保数值字段是正确的类型
+      if (articleData.categoryId !== null && articleData.categoryId !== undefined) {
+        articleData.categoryId = Number(articleData.categoryId);
+      }
+      if (articleData.status !== null && articleData.status !== undefined) {
+        articleData.status = Number(articleData.status);
+      }
+      if (articleData.isTop !== null && articleData.isTop !== undefined) {
+        articleData.isTop = Number(articleData.isTop);
+      }
+      if (articleData.isRecommend !== null && articleData.isRecommend !== undefined) {
+        articleData.isRecommend = Number(articleData.isRecommend);
+      }
+
+      // 确保tagIds是数组类型
+      if (articleData.tagIds && !Array.isArray(articleData.tagIds)) {
+        articleData.tagIds = [articleData.tagIds];
+      } else if (!articleData.tagIds) {
+        articleData.tagIds = [];
+      }
+
+      // 确保字符串字段不为null
+      articleData.title = articleData.title || '';
+      articleData.summary = articleData.summary || '';
+      articleData.content = articleData.content || '';
+      articleData.coverUrl = articleData.coverUrl || '';
+      articleData.authorName = articleData.authorName || '';
+
+      form.value = articleData;
+    } else {
+      form.value = {};
     }
+
     open.value = true;
     title.value = "修改博客文章";
   } catch (error) {

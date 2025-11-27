@@ -10,7 +10,6 @@
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
         <result property="authorId"    column="author_id"    />
-        <result property="author"    column="author"    />
         <result property="authorName"    column="author_name"    />
         <result property="isTop"    column="is_top"    />
         <result property="isRecommend"    column="is_recommend"    />
@@ -31,7 +30,7 @@
 
     <sql id="selectBlogArticleVo">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-               ba.author, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name,
                GROUP_CONCAT(DISTINCT bt.id) as tag_ids,
@@ -44,7 +43,7 @@
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-               ba.author, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name,
                GROUP_CONCAT(DISTINCT bt.id) as tag_ids,
@@ -80,7 +79,7 @@
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-               ba.author, ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag
         from blog_article ba
         where ba.title = #{title} limit 1

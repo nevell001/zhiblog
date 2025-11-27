@@ -84,20 +84,6 @@ public class BlogArticleController extends BaseController
             return error("文章不存在");
         }
 
-        // 获取文章关联的标签ID列表
-        List<Long> tagIds = new java.util.ArrayList<>();
-        List<BlogTag> tags = blogTagService.selectTagsByArticleId(id);
-        if (tags != null && !tags.isEmpty()) {
-            for (BlogTag tag : tags) {
-                if (tag != null && tag.getId() != null) {
-                    tagIds.add(tag.getId());
-                }
-            }
-        }
-
-        // 将标签ID列表设置到文章对象中
-        article.setTagIds(tagIds);
-
         return success(article);
     }
 
@@ -296,9 +282,6 @@ public class BlogArticleController extends BaseController
         }
         if (params.get("authorId") != null) {
             article.setAuthorId(Long.valueOf(params.get("authorId").toString()));
-        }
-        if (params.get("author") != null) {
-            article.setAuthor(params.get("author").toString());
         }
         if (params.get("authorName") != null) {
             article.setAuthorName(params.get("authorName").toString());
