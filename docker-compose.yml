@@ -5,14 +5,16 @@ services:
       dockerfile: Dockerfile-admin
     container_name: ruoyi-admin
     working_dir: /app
-    command: sh -c "for i in {1..30}; do if (echo > /dev/tcp/mysql/3306) >/dev/null 2>&1; then break; else echo 'waiting mysql...'; sleep 2; fi; done && java -jar /app/ruoyi-admin.jar"
+    command: sh -c "for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar"
     ports:
       - "8080:8080"            # 后端端口
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/newblog?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_REDIS_HOST: redis
@@ -38,6 +40,12 @@ services:
       - mysql_data:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d   # 初始化SQL脚本
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      timeout: 20s
+      retries: 20
+      interval: 10s
+      start_period: 120s
     networks:
       - ruoyi-network
 
@@ -47,6 +55,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      timeout: 3s
+      retries: 5
+      interval: 5s
     networks:
       - ruoyi-network
 
@@ -62,15 +75,19 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
-      - redis
-      - ruoyi-admin
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ruoyi-admin:
+        condition: service_started
     environment:
       - DOCKER=true  # 标记当前在 Docker 环境
       - LANG=C.UTF-8
       - VITE_API_BASE_URL=http://ruoyi-admin:8080
     networks:
       - ruoyi-network
+    restart: unless-stopped
 volumes:
   mysql_data:
 
