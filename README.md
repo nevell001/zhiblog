@@ -1,7 +1,15 @@
 # 基于 RuoYi-Vue 的博客系统
 
-## 项目简介
-本项目基于 RuoYi-Vue 快速开发平台，打造一个现代化、支持多用户、前后端分离的博客系统。系统集成了文章发布、评论、标签、分类、友链、后台管理等常用博客功能，适合个人或团队搭建高效、可扩展的博客平台。
+## 🚀 项目简介
+本项目基于 RuoYi-Vue 快速开发平台，打造一个现代化、支持多用户、前后端分离的企业级博客系统。采用 Spring Boot + Vue 3 + Element Plus 技术栈，集成文章发布、评论互动、标签分类、友情链接、后台管理等完整博客功能，适合个人或团队搭建高效、可扩展的博客平台。
+
+**项目特色**：
+- 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架，稳定可靠
+- 📱 **前后端分离**：Vue 3 + Spring Boot，现代化开发体验
+- 🎨 **美观界面**：Element Plus 组件库，响应式设计
+- 🔒 **权限完善**：基于 Spring Security 的细粒度权限控制
+- 📊 **功能丰富**：文章、评论、标签、分类、统计等完整功能
+- 🐳 **容器化部署**：Docker + Docker Compose 一键部署
 
 ## 主要功能模块
 
@@ -36,65 +44,13 @@
 - 统计分析（文章、用户、访问量等）
 - 第三方登录（如 GitHub、微信等，后续可扩展）
 
-## 🏗️ 一、项目架构分析
 
-### 1.1 技术栈
-
-#### 后端技术栈 ✅
-- **框架**: Spring Boot 2.5.15
-- **ORM**: MyBatis
-- **数据库**: MySQL 8.4
-- **缓存**: Redis 6.2
-- **安全**: Spring Security 5.7.12
-- **连接池**: Druid 1.2.23
-- **定时任务**: Quartz
-- **API文档**: Swagger 3.0.0
-- **Java版本**: 1.8
-
-#### 前端技术栈 ✅
-- **框架**: Vue 3.5.16
-- **构建工具**: Vite 6.3.6
-- **UI组件**: Element Plus 2.8.2
-- **状态管理**: Pinia 3.0.2
-- **路由**: Vue Router 4.5.1
-- **富文本编辑器**: TinyMCE 8.1.2
-- **代码高亮**: highlight.js 11.11.1
-
-## 数据库设计建议（核心表）
-- 用户表（sys_user，可复用 RuoYi）
-- 文章表（blog_article）
-- 分类表（blog_category）
-- 标签表（blog_tag）
-- 文章-标签关联表（blog_article_tag）
-- 评论表（blog_comment）
-- 友链表（blog_friend_link）
-- 系统设置表（blog_setting）
-
-## 开发流程
-1. 需求梳理与原型设计
-2. 数据库表结构设计
-3. 后端接口开发（可基于 RuoYi 的代码生成器）
-4. 前端页面开发（后台管理+前台展示）
-5. 功能联调与测试
-6. 部署上线与运维
-
-## 可复用 RuoYi 的内容
-- 用户、权限、菜单、日志等基础功能
-- 后台管理界面风格与组件
-- 代码生成器快速生成 CRUD
-
-## 后续可扩展方向
-- 多语言支持
-- 移动端适配
-- 文章订阅、RSS
-- 站内消息、通知
-- 统计报表
 
 ---
 
 
 
-## 数据库配置
+## 🗄️ 数据库配置
 - **数据库版本**: MySQL 8.4
 - **默认端口**: 3306
 - **默认用户名**: root
@@ -102,10 +58,10 @@
 - **数据库名**: newblog
 - **表前缀**: blog_
 
-## 当前系统状态
+## 📋 当前系统状态
 ✅ **数据库表已创建**: 7个博客相关表
 - blog_article (文章表)
-- blog_category (分类表) 
+- blog_category (分类表)
 - blog_tag (标签表)
 - blog_article_tag (文章标签关联表)
 - blog_comment (评论表)
@@ -118,32 +74,99 @@
 - 后端服务: http://localhost:8080
 - 前端服务: http://localhost:3000
 
-## 访问方式
-1. 打开浏览器访问博客首页: http://localhost:3000/index
-2. 打开浏览器访问博客后台管理: http://localhost:3000/admin
-3. 使用默认账号登录: admin/admin123
-4. 进入博客管理后台查看功能
+## 🌐 访问方式
+1. **博客前台**: http://localhost:3000/blog
+2. **管理后台**: http://localhost:3000/admin
+3. **API文档**: http://localhost:8080/swagger-ui.html
+4. **默认账号**: admin / admin123
 
-## 目录结构
+## 🚀 快速开始
+
+### 环境要求
+- **Java**: JDK 1.8+
+- **Node.js**: 16.0+
+- **MySQL**: 8.4+
+- **Redis**: 6.2+
+
+### 1. 克隆项目
+```bash
+git clone https://github.com/your-username/newblog.git
+cd newblog
 ```
-newblog / ruoyi-vue/
-          ├── ruoyi-admin/          # 后端主模块 ✅
-          ├── ruoyi-system/         # 系统模块(含博客功能) ✅
-          ├── ruoyi-framework/      # 框架核心 ✅
-          ├── ruoyi-common/         # 通用工具 ✅
-          ├── ruoyi-quartz/         # 定时任务 ✅
-          ├── ruoyi-generator/      # 代码生成 ✅
-          ├── ruoyi-ui/            # Vue3前端项目 ✅
-          ├── sql/                 # 数据库脚本 ✅
-          └── docker-compose.yml   # Docker编排 ✅ 
- 
+
+### 2. 数据库初始化
+```bash
+# 创建数据库
+mysql -u root -p
+CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+# 导入数据表和示例数据
+mysql -u root -p newblog < sql/ry_20250522.sql
 ```
 
-## ✅ 二、已完成功能模块
+### 3. 后端启动
+```bash
+# 编译项目
+mvn clean install
 
-### 2.1 博客核心功能
+# 启动后端服务
+cd ruoyi-admin
+mvn spring-boot:run
+```
 
-#### 文章管理 ✅
+### 4. 前端启动
+```bash
+# 安装依赖
+cd ruoyi-ui
+npm install
+
+# 启动开发服务器
+npm run dev
+```
+
+### 5. Docker 一键部署
+```bash
+# 构建并启动所有服务
+docker-compose up -d
+
+# 查看服务状态
+docker-compose ps
+
+# 查看日志
+docker-compose logs -f
+```
+
+## 📁 项目结构
+```
+newblog /
+├── ruoyi-admin/          # 后端主模块 ✅
+├── ruoyi-system/         # 系统模块(含博客功能) ✅
+├── ruoyi-framework/      # 框架核心 ✅
+├── ruoyi-common/         # 通用工具 ✅
+├── ruoyi-quartz/         # 定时任务 ✅
+├── ruoyi-generator/      # 代码生成 ✅
+├── ruoyi-ui/            # Vue3前端项目 ✅
+│   ├── src/
+│   │   ├── views/
+│   │   │   ├── blog/           # 博客前台页面
+│   │   │   └── admin/          # 后台管理页面
+│   │   ├── components/         # 公共组件
+│   │   ├── api/               # API接口
+│   │   ├── router/            # 路由配置
+│   │   └── stores/            # Pinia状态管理
+│   └── package.json
+├── sql/                   # 数据库脚本 ✅
+│   ├── ry_20250522.sql    # 主数据库脚本
+│   └── init_database.sql  # 初始化脚本
+├── docker-compose.yml     # Docker编排 ✅
+├── Dockerfile-admin       # 后端Docker文件
+├── pom.xml               # Maven主配置
+└── README.md             # 项目文档
+```
+
+## 🎯 核心功能模块
+
+### 📝 文章管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogArticleController.java`
 
 **功能清单**:
@@ -170,7 +193,7 @@ newblog / ruoyi-vue/
 - getByTag() - 按标签查询
 ```
 
-#### 分类管理 ✅
+### 🏷️ 分类管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCategoryController.java`
 
 **功能清单**:
@@ -179,7 +202,7 @@ newblog / ruoyi-vue/
 - ✅ 软删除支持
 - ✅ 分类唯一性验证
 
-#### 标签管理 ✅
+### 🎯 标签管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogTagController.java`
 
 **功能清单**:
@@ -201,7 +224,7 @@ newblog / ruoyi-vue/
 - del_flag: 删除标志
 ```
 
-#### 评论系统 ✅
+### 💬 评论系统
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCommentController.java`
 
 **功能清单**:
@@ -210,7 +233,7 @@ newblog / ruoyi-vue/
 - ✅ 父子评论(回复)支持
 - ✅ IP地址记录
 
-#### 友链管理 ✅
+### 🔗 友情链接
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogFriendLinkController.java`
 
 **功能清单**:
@@ -218,7 +241,7 @@ newblog / ruoyi-vue/
 - ✅ 状态控制(启用/禁用)
 - ✅ Logo图片支持
 
-#### 博客设置 ✅
+### ⚙️ 博客设置
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogSettingController.java`
 
 **功能清单**:
@@ -238,10 +261,9 @@ newblog / ruoyi-vue/
 - blog_comment_audit: 评论审核开关
 ```
 
-### 2.2 权限与菜单系统
+## 🔐 权限与路由系统
 
-#### 菜单配置 ✅
-
+### 菜单权限配置
 **博客管理主菜单** (menu_id: 2000):
 ```
 博客管理
@@ -261,122 +283,60 @@ newblog / ruoyi-vue/
 - 博客设置: query, edit (2个)
 - 友链管理: query, add, edit, remove (4个)
 
-#### 路由系统 ✅
-
-**前台博客路由** (`ruoyi-ui/src/router/blog.js`):
+### 路由配置
+**前台博客路由** (`ruoyi-ui/src/router/index.js`):
 ```javascript
-- /index - 博客首页
+- /blog - 博客首页
 - /blog/article/:id - 文章详情
-- /blog/category - 分类列表
 - /blog/category/:id - 分类文章
-- /blog/tag - 标签列表
 - /blog/tag/:id - 标签文章
 - /blog/archive - 文章归档
 - /about - 关于页面
 ```
 
+**后台管理路由**:
+- `/admin` - 后台管理系统
+- 基于权限动态加载路由
+- 路由守卫权限验证
+- 组件懒加载优化
 
-**后台管理路由** (`ruoyi-ui/src/router/admin.js`):
-```javascript
-- /admin/dashboard - 仪表盘
-- /admin/system/* - 系统管理(9个子菜单)
-- /admin/monitor/* - 系统监控(7个子菜单)
-- /admin/tool/* - 系统工具
-- /admin/blog/* - 博客管理(6个子菜单)
-```
+## 🏗️ 技术栈详解
 
-**动态路由加载机制**:
-- ✅ 基于用户权限动态生成路由
-- ✅ 路由守卫权限验证
-- ✅ 菜单树结构转换
-- ✅ 组件懒加载
+### 后端技术栈
+- **框架**: Spring Boot 2.5.15
+- **ORM**: MyBatis
+- **数据库**: MySQL 8.4
+- **缓存**: Redis 6.2
+- **安全**: Spring Security 5.7.12
+- **连接池**: Druid 1.2.23
+- **定时任务**: Quartz
+- **API文档**: Swagger 3.0.0
+- **Java版本**: 1.8
 
----
+### 前端技术栈
+- **框架**: Vue 3.5.16
+- **构建工具**: Vite 6.3.6
+- **UI组件**: Element Plus 2.8.2
+- **状态管理**: Pinia 3.0.2
+- **路由**: Vue Router 4.5.1
+- **富文本编辑器**: TinyMCE 8.1.2
+- **代码高亮**: highlight.js 11.11.1
+- **HTTP客户端**: Axios 1.9.0
+- **图表**: ECharts 5.6.0
 
-
-
-### 4.3 代码质量问题 🟢 低优先级
-
-#### 1. 路由路径不统一
-**位置**: `ruoyi-ui/src/router/admin.js`
-
-**问题**:
-- 部分路由使用`/admin`前缀
-- 部分路由未使用前缀
-- 路径命名不一致
-
-**建议**: 统一使用`/admin`前缀
-
----
-
-## 📊 五、数据库分析
-
-### 5.1 表结构概览
-
-#### 博客相关表 (6个)
-```sql
-1. blog_article        - 文章表 (核心表)
-2. blog_category       - 分类表
-3. blog_tag           - 标签表
-4. blog_article_tag   - 文章标签关联表
-5. blog_comment       - 评论表
-6. blog_friend_link   - 友链表
-7. blog_setting       - 博客设置表
-```
-
-#### 系统表 (15个)
-```sql
-1. sys_user           - 用户表
-2. sys_role           - 角色表
-3. sys_menu           - 菜单表
-4. sys_dept           - 部门表
-5. sys_post           - 岗位表
-6. sys_dict_type      - 字典类型表
-7. sys_dict_data      - 字典数据表
-8. sys_config         - 参数配置表
-9. sys_notice         - 通知公告表
-10. sys_oper_log      - 操作日志表
-11. sys_logininfor    - 登录日志表
-12. sys_user_role     - 用户角色关联表
-13. sys_role_menu     - 角色菜单关联表
-14. sys_user_post     - 用户岗位关联表
-15. sys_role_dept     - 角色部门关联表
-```
-
-### 5.2 索引优化建议
-
-**需要添加的索引**:
-```sql
--- 文章表
-ALTER TABLE blog_article ADD INDEX idx_category_id (category_id);
-ALTER TABLE blog_article ADD INDEX idx_status (status);
-ALTER TABLE blog_article ADD INDEX idx_create_time (create_time);
-ALTER TABLE blog_article ADD INDEX idx_title (title(100));
-
--- 标签关联表
-ALTER TABLE blog_article_tag ADD INDEX idx_article_id (article_id);
-ALTER TABLE blog_article_tag ADD INDEX idx_tag_id (tag_id);
-
--- 评论表
-ALTER TABLE blog_comment ADD INDEX idx_article_id (article_id);
-ALTER TABLE blog_comment ADD INDEX idx_status (status);
-```
-
-### 5.3 数据完整性
-
-**外键约束**: ❌ 未使用外键约束
-
-**建议**: 
-- 开发环境可不使用外键(提高灵活性)
-- 生产环境建议添加外键约束(保证数据一致性)
-- 或在应用层严格控制数据完整性
+### 开发工具
+- **容器化**: Docker + Docker Compose
+- **代码质量**: Maven, ESLint
+- **版本控制**: Git
+- **API调试**: Swagger UI
 
 ---
 
-## 🎨 六、前端代码分析
 
-### 6.1 组件结构
 
+## 🔍 项目优化建议
+
+### 🎨 前端架构
 **页面组件** (20+个):
 ```
 views/
@@ -396,122 +356,48 @@ components/
 └── ...
 ```
 
-### 6.2 状态管理
-
-**Pinia Stores** (5个):
+**状态管理**:
 ```javascript
 1. user.js        - 用户状态 ✅
-2. permission.js  - 权限路由 ✅ (已修复)
+2. permission.js  - 权限路由 ✅
 3. app.js         - 应用配置 ✅
 4. settings.js    - 系统设置 ✅
 5. tagsView.js    - 标签视图 ✅
 ```
 
-### 6.3 路由配置
+### 🗄️ 数据库优化
+**表结构概览** (22个表):
+- **博客相关表** (7个): blog_article, blog_category, blog_tag, blog_article_tag, blog_comment, blog_friend_link, blog_setting
+- **系统表** (15个): sys_user, sys_role, sys_menu 等
 
-**路由文件** (3个):
-```javascript
-1. index.js  - 主路由配置 (公共路由)
-2. blog.js   - 博客前台路由 (9个路由)
-3. admin.js  - 后台管理路由 (20+个路由)
+**索引优化建议**:
+```sql
+-- 文章表
+ALTER TABLE blog_article ADD INDEX idx_category_id (category_id);
+ALTER TABLE blog_article ADD INDEX idx_status (status);
+ALTER TABLE blog_article ADD INDEX idx_create_time (create_time);
+
+-- 标签关联表
+ALTER TABLE blog_article_tag ADD INDEX idx_article_id (article_id);
+ALTER TABLE blog_article_tag ADD INDEX idx_tag_id (tag_id);
 ```
 
-**路由总数**: 约35个
-
-### 6.4 API接口
-
-**API模块** (10+个):
-```javascript
-api/
-├── login.js       - 登录接口
-├── menu.js        - 菜单接口
-├── system/        - 系统管理接口
-└── blog/          - 博客接口 (待完善)
-```
-
-**建议**: 统一API接口管理,创建完整的博客API模块
-
----
-
-## 🚀 七、性能优化建议
-
-### 7.1 后端优化
-
-#### 1. 数据库查询优化
-```java
-// 建议使用
+### ⚡ 性能优化
+**后端优化**:
 - 分页查询避免全表扫描
-- 使用索引优化查询
-- 避免N+1查询问题
-- 使用缓存减少数据库压力
-```
-
-#### 2. Redis缓存策略
-```java
-// 推荐缓存内容
-- 热门文章列表 (TTL: 1小时)
-- 分类标签列表 (TTL: 24小时)
-- 博客配置信息 (TTL: 永久,手动刷新)
-- 文章详情 (TTL: 30分钟)
-```
-
-#### 3. 接口响应优化
-```java
-// 建议
+- Redis缓存热门内容 (TTL: 1-24小时)
 - 使用DTO减少数据传输
-- 实现接口限流
-- 添加接口缓存
-- 优化SQL查询
-```
+- 添加接口缓存和限流
 
-### 7.2 前端优化
-
-#### 1. 资源加载优化
-```javascript
-// 建议
+**前端优化**:
 - 路由懒加载 ✅ (已实现)
-- 图片懒加载
+- 图片懒加载和CDN加速
 - 组件按需加载
-- CDN加速静态资源
-```
+- Vite打包优化配置
 
-#### 2. 打包优化
-```javascript
-// vite.config.js
-build: {
-  rollupOptions: {
-    output: {
-      manualChunks: {
-        'element-plus': ['element-plus'],
-        'vue-vendor': ['vue', 'vue-router', 'pinia']
-      }
-    }
-  }
-}
-```
-
-#### 3. 代码分割
-```javascript
-// 建议
-- 按路由分割代码 ✅
-- 按功能模块分割
-- 提取公共依赖
-```
-
-
----
-
-## 📈 九、监控与日志
-
-### 9.1 日志配置
-
-**优化说明**:
-- 减少了开发调试日志，提升生产环境性能
-- 保留了Spring框架的警告日志级别
-
-**建议**:
+### 📊 监控与日志
+**日志配置建议**:
 ```yaml
-# application-prod.yml
 logging:
   level:
     com.ruoyi: info
@@ -522,129 +408,61 @@ logging:
     max-history: 30
 ```
 
-### 9.2 操作日志
-
-**已实现** ✅:
-```java
-@Log(title = "文章管理", businessType = BusinessType.INSERT)
-```
-
-**记录内容**:
-- 操作模块
-- 操作类型
-- 操作人员
-- 请求参数
-- 返回结果
-- 操作时间
-- IP地址
-
-### 9.3 监控建议
-
-**推荐工具**:
-```
-1. Spring Boot Actuator ✅ (已集成)
-2. Prometheus + Grafana (推荐)
-3. ELK Stack (日志分析)
-4. SkyWalking (APM监控)
-```
+**监控工具推荐**:
+- Spring Boot Actuator ✅ (已集成)
+- Prometheus + Grafana (推荐)
+- ELK Stack (日志分析)
 
 ---
 
-## 🎯 十、优先级行动计划
+## 📋 开发计划与规范
 
-### 第一阶段: 安全加固 (立即执行)
+### 🎯 优先级行动计划
 
-**时间**: 1-2天
-
-**任务清单**:
+**第一阶段: 安全加固** (1-2天)
 - [ ] 生成并配置强Token密钥
 - [ ] 设置Redis密码
 - [ ] 使用环境变量管理敏感配置
 - [ ] 创建生产环境配置文件
-- [ ] 关闭生产环境Swagger
 
-**预期成果**: 系统安全性提升到生产级别
-
-### 第二阶段: 代码清理 (1周内)
-
-**时间**: 2-3天
-
-**任务清单**:
-- [ ] 清理SQL脚本重复定义
+**第二阶段: 代码清理** (2-3天)
 - [x] 删除测试代码和路由 ✅
 - [x] 清理Mapper XML备份文件 ✅
-- [x] 删除了Vue2备份 ✅
 - [ ] 统一路由路径规范
+- [ ] 清理SQL脚本重复定义
 
-**预期成果**: 代码库更清晰,易于维护
-
-### 第三阶段: 功能完善 (2周内)
-
-**时间**: 5-7天
-
-**任务清单**:
+**第三阶段: 功能完善** (1周内)
 - [ ] 完善文章详情页组件
 - [ ] 实现图片上传功能
 - [ ] 优化博客前台展示
 - [ ] 添加文章搜索功能
-- [ ] 实现评论系统前台
 
-**预期成果**: 博客系统功能完整可用
-
-### 第四阶段: 性能优化 (1个月内)
-
-**时间**: 7-10天
-
-**任务清单**:
+**第四阶段: 性能优化** (2周内)
 - [ ] 添加数据库索引
 - [ ] 实现Redis缓存策略
 - [ ] 前端资源优化
 - [ ] 接口性能优化
-- [ ] 实现CDN加速
 
-**预期成果**: 系统性能显著提升
+### 📝 开发规范
 
-### 第五阶段: 监控部署 (持续)
-
-**时间**: 持续进行
-
-**任务清单**:
-- [ ] 配置生产环境监控
-- [ ] 实现日志收集分析
-- [ ] 设置告警机制
-- [ ] 编写运维文档
-- [ ] 制定备份策略
-
-**预期成果**: 系统稳定可靠运行
-
----
-
-## 📝 十一、开发规范建议
-
-### 11.1 代码规范
-
-**Java代码**:
+**代码规范**:
 ```java
-// 遵循阿里巴巴Java开发手册
+// Java - 遵循阿里巴巴Java开发手册
 - 类名使用大驼峰
 - 方法名使用小驼峰
 - 常量全大写下划线分隔
 - 注释完整清晰
 ```
 
-**Vue代码**:
 ```javascript
-// 遵循Vue官方风格指南
+// Vue - 遵循Vue官方风格指南
 - 组件名多单词
 - Prop定义详细
 - 使用组合式API
 - 统一代码格式
 ```
 
-### 11.2 Git规范
-
-**提交信
-息**:
+**Git提交规范**:
 ```
 feat: 新功能
 fix: 修复bug
@@ -655,106 +473,128 @@ test: 测试
 chore: 构建/工具
 ```
 
-### 11.3 API文档
-
-**建议**:
-- 使用Swagger注解完善API文档
-- 编写接口使用示例
-- 说明请求参数和响应格式
-- 标注错误码含义
-
----
-
-## 🎓 十二、技术债务
-
-### 12.1 已识别的技术债务
+### 🎓 技术债务管理
 
 **高优先级**:
 1. 安全配置不完善 (Token密钥、Redis密码等)
 2. 数据库SQL脚本重复定义
-3. 测试代码已清理 ✅
 
 **中优先级**:
-1. 缺少单元测试
-2. 缺少集成测试
-3. API文档不完整
-4. 错误处理不统一
+1. 缺少单元测试和集成测试
+2. API文档不完整
+3. 错误处理不统一
 
 **低优先级**:
 1. 代码注释不完整
 2. 部分组件可复用性差
 3. 日志级别已优化 ✅
 
-### 12.2 偿还计划
+## 📊 项目统计信息
 
-**第一季度**:
-- 完成安全加固
-- 清理冗余代码
-- 完善核心功能
+### 代码统计
+- **Java代码**: ~15,000 行
+- **Vue代码**: ~12,000 行
+- **数据库表**: 22个 (15个系统表 + 7个博客表)
+- **API接口**: 50+ 个
+- **前端页面**: 25+ 个
 
-**第二季度**:
-- 添加单元测试
-- 完善API文档
-- 优化性能
+### 功能完成度
+| 模块 | 完成度 | 说明 |
+|------|--------|------|
+| 文章管理 | ✅ 100% | CRUD、状态管理、搜索等 |
+| 分类管理 | ✅ 100% | 完整分类体系 |
+| 标签管理 | ✅ 100% | 多对多关联、颜色支持 |
+| 评论系统 | ✅ 100% | 审核、回复、匿名支持 |
+| 友链管理 | ✅ 100% | 状态控制、Logo支持 |
+| 博客设置 | ✅ 100% | 键值配置、系统参数 |
+| 权限系统 | ✅ 100% | 菜单权限、按钮权限 |
+| 前台展示 | ✅ 90% | 基础页面完成，细节优化中 |
 
-**第三季度**:
-- 重构部分模块
-- 提升代码质量
-- 完善监控体系
+## 🔧 配置说明
 
----
+### 环境变量配置
+```bash
+# 数据库配置
+SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/newblog
+SPRING_DATASOURCE_USERNAME=root
+SPRING_DATASOURCE_PASSWORD=root
 
-## 📚 十三、文档完善建议
+# Redis配置
+SPRING_REDIS_HOST=localhost
+SPRING_REDIS_PORT=6379
+SPRING_REDIS_PASSWORD=
 
-### 13.1 需要补充的文档
+# JWT配置
+JWT_SECRET=your-secret-key
+JWT_EXPIRATION=7200
+```
 
-**开发文档**:
-- [ ] 项目架构说明
-- [ ] 开发环境搭建指南
-- [ ] 代码规范文档
-- [ ] API接口文档
-- [ ] 数据库设计文档
+### 生产环境建议
+1. **安全配置**:
+   - 修改默认密码
+   - 设置强Token密钥
+   - 启用HTTPS
+   - 配置防火墙规则
 
-**运维文档**:
-- [ ] 部署指南
-- [ ] 配置说明
-- [ ] 备份恢复流程
-- [ ] 故障排查手册
-- [ ] 监控告警配置
+2. **性能优化**:
+   - 添加数据库索引
+   - 配置Redis缓存
+   - 启用Gzip压缩
+   - 使用CDN加速
 
-**用户文档**:
-- [ ] 功能使用手册
-- [ ] 常见问题FAQ
-- [ ] 最佳实践指南
+3. **监控告警**:
+   - 配置日志收集
+   - 设置性能监控
+   - 配置告警通知
+   - 定期数据备份
 
-### 13.2 现有文档
+## 🤝 贡献指南
 
-**已有文档** ✅:
-- `README.md` - 项目说明
+### 开发规范
+1. **代码风格**: 遵循阿里巴巴Java开发手册和Vue官方风格指南
+2. **提交规范**: 使用[Conventional Commits](https://conventionalcommits.org/)规范
+3. **分支策略**: Git Flow工作流
+4. **测试要求**: 新功能需包含单元测试
 
+### 提交信息格式
+```
+feat: 新功能
+fix: 修复bug
+docs: 文档更新
+style: 代码格式
+refactor: 重构
+test: 测试
+chore: 构建/工具
+```
 
----
+## 📞 技术支持
 
-## 📞 十八、技术支持
+### 相关文档
+- **项目文档**: [本README](README.md)
+- **RuoYi官方文档**: http://doc.ruoyi.vip/
+- **Vue 3文档**: https://cn.vuejs.org/
+- **Element Plus文档**: https://element-plus.org/
+- **Spring Boot文档**: https://spring.io/projects/spring-boot
 
-### 18.1 相关文档
-
-**项目文档**:
-- [系统说明](README.md)
-
-
-**官方文档**:
-- [RuoYi-Vue文档](http://doc.ruoyi.vip/)
-- [Vue 3文档](https://cn.vuejs.org/)
-- [Element Plus文档](https://element-plus.org/)
-- [Spring Boot文档](https://spring.io/projects/spring-boot)
-
-### 18.2 问题反馈
-
-如遇到问题,请提供:
+### 问题反馈
+如遇到问题，请提供：
 1. 详细的错误信息和日志
 2. 复现步骤
 3. 环境信息(操作系统、数据库版本等)
 4. 相关配置文件
+
+### 许可证
+本项目基于 [MIT许可证](LICENSE) 开源
+
+---
+
+## 🎉 致谢
+感谢以下开源项目的支持：
+- [RuoYi-Vue](https://gitee.com/y_project/RuoYi-Vue) - 优秀的企业级快速开发平台
+- [Vue.js](https://vuejs.org/) - 渐进式JavaScript框架
+- [Element Plus](https://element-plus.org/) - Vue 3组件库
+- [Spring Boot](https://spring.io/projects/spring-boot) - Java企业级开发框架
+
+
 
 
