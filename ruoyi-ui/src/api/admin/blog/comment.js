@@ -43,14 +43,18 @@ export function delComment(ids) {
   })
 }
 
-// 审核评论
-export function auditComment(id, status) {
+// 审核通过评论
+export function auditComment(ids) {
   return request({
-    url: '/system/comment/audit',
-    method: 'put',
-    data: {
-      id: id,
-      status: status
-    }
+    url: '/system/comment/audit/' + ids,
+    method: 'put'
+  })
+}
+
+// 审核拒绝评论
+export function rejectComment(ids) {
+  return request({
+    url: '/system/comment/reject/' + ids,
+    method: 'put'
   })
 }

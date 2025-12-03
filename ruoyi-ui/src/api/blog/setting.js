@@ -62,9 +62,9 @@ export function getSettingValueByKey(key) {
 // 根据键更新设置值
 export function updateSettingValueByKey(key, value) {
   return request({
-    url: '/system/setting/value/' + key,
-    method: 'put',
-    data: { value: value }
+    url: '/system/setting/updateByKey',
+    method: 'post',
+    data: { settingKey: key, settingValue: value }
   })
 }
 

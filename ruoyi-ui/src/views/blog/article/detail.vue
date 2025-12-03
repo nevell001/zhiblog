@@ -234,6 +234,14 @@
         </div>
       </div>
     </div>
+
+    <!-- 博客底部 -->
+    <BlogFooter
+      :blogSettings="blogSettings"
+      :totalArticles="0"
+      :categoryCount="0"
+      :tagCount="0"
+    />
   </div>
 </template>
 
@@ -243,7 +251,9 @@ import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
+import BlogFooter from '@/components/BlogFooter.vue'
 import { getArticleDetail, getRelatedArticles, getArticleComments, submitComment as apiSubmitComment } from '@/api/blog/article'
+import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 const route = useRoute()
 const router = useRouter()
@@ -260,6 +270,7 @@ const loading = ref(false)
 const likeLoading = ref(false)
 const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
+const blogSettings = ref({})
 
 // 评论表单
 const commentForm = reactive({
@@ -343,12 +354,23 @@ const loadArticleDetail = async () => {
 const loadComments = async () => {
   try {
     const articleId = route.params.id
-    const response = await getArticleComments(articleId, { pageNum: 1, pageSize: 20 })
+    const response = await getArticleComments(articleId)
     console.log('评论列表响应:', response)
-    commentList.value = response.rows || []
-    totalComments.value = response.total || 0
+
+    // 处理响应数据格式
+    let comments = []
+    if (response && response.code === 200) {
+      comments = response.data || []
+    } else if (response && Array.isArray(response)) {
+      comments = response
+    }
+
+    commentList.value = comments
+    totalComments.value = comments.length
   } catch (error) {
     console.error('获取评论列表失败:', error)
+    commentList.value = []
+    totalComments.value = 0
   }
 }
 
@@ -467,9 +489,33 @@ const formatDate = (dateString) => {
   })
 }
 
+// 获取博客设置
+const loadBlogSettings = async () => {
+  try {
+    let response;
+    try {
+      response = await getBlogSettings()
+    } catch (error) {
+      console.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
+      response = await getBlogSettingsAnonymous()
+    }
+
+    if (response && response.code === 200) {
+      blogSettings.value = response.data || {}
+    } else if (response && typeof response === 'object') {
+      blogSettings.value = response
+    }
+  } catch (error) {
+    console.error('获取博客设置失败:', error)
+    blogSettings.value = {}
+  }
+}
+
 // 组件挂载时加载数据
 onMounted(() => {
   loadArticleDetail()
+  loadComments()
+  loadBlogSettings()
   isLoggedIn.value = !!userStore.token
 })
 </script>

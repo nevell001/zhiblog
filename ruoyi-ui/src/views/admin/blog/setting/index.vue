@@ -176,7 +176,7 @@
 <script setup name="BlogSetting">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { ElMessage, ElMessageBox, ElButton, ElCard, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElInputNumber, ElSwitch, ElColorPicker, ElRadioGroup, ElRadio, ElDatePicker, ElUpload } from 'element-plus';
-import { listSetting, getSetting, updateSetting } from "@/api/admin/blog/setting";
+import { listSetting, getSetting, updateSetting, updateSettingValueByKey } from "@/api/admin/blog/setting";
 import { reloadBlogSettings } from '@/utils/blogSettings';
 
 const { proxy } = getCurrentInstance();
@@ -197,14 +197,23 @@ async function getAllSettings() {
     const response = await listSetting({});
     const settingList = response.rows || response.data || [];
     
-    // 将设置项转换为Map格式
+    // 将设置项转换为Map格式，并处理布尔值
     const settings = {};
     settingList.forEach(setting => {
       if (setting.settingKey) {
-        settings[setting.settingKey] = setting.settingValue;
+        let value = setting.settingValue;
+
+        // 处理布尔值转换
+        if (value === 'true') {
+          value = true;
+        } else if (value === 'false') {
+          value = false;
+        }
+
+        settings[setting.settingKey] = value;
       }
     });
-    
+
     // 设置默认值，确保所有必要的设置项都有值
     const defaultSettings = {
       blog_name: '我的博客',
@@ -241,14 +250,28 @@ async function getAllSettings() {
       greeting_message: '欢迎来到我的博客！',
       about_content: ''
     };
-    
-    // 合并默认设置和从服务器获取的设置
-    const mergedSettings = { ...defaultSettings, ...settings };
-    
+
+    // 合并默认设置和从服务器获取的设置（服务器设置优先）
+    const mergedSettings = { ...defaultSettings };
+
+    // 用服务器获取的设置覆盖默认设置
+    Object.keys(settings).forEach(key => {
+      if (settings[key] !== undefined && settings[key] !== null) {
+        mergedSettings[key] = settings[key];
+      }
+    });
+
     // 保存设置到响应式数据
     settingsMap.value = mergedSettings;
-    // 保存原始设置用于重置
-    originalSettings.value = { ...mergedSettings };
+    // 保存原始设置用于重置（转换为字符串以便比较）
+    originalSettings.value = {};
+    Object.keys(mergedSettings).forEach(key => {
+      let value = mergedSettings[key];
+      if (typeof value === 'boolean') {
+        value = value.toString();
+      }
+      originalSettings.value[key] = value;
+    });
     
   } catch (error) {
     console.error('获取设置失败:', error);
@@ -290,7 +313,15 @@ async function getAllSettings() {
     };
     
     settingsMap.value = defaultSettings;
-    originalSettings.value = { ...defaultSettings };
+    // 保存原始设置用于重置（转换为字符串以便比较）
+    originalSettings.value = {};
+    Object.keys(defaultSettings).forEach(key => {
+      let value = defaultSettings[key];
+      if (typeof value === 'boolean') {
+        value = value.toString();
+      }
+      originalSettings.value[key] = value;
+    });
     
     ElMessage.warning('获取设置失败，已使用默认设置');
   } finally {
@@ -308,9 +339,16 @@ async function saveAllSettings() {
     const modifiedSettings = [];
     for (const key in settingsMap.value) {
       if (JSON.stringify(settingsMap.value[key]) !== JSON.stringify(originalSettings.value[key])) {
+        let value = settingsMap.value[key];
+
+        // 将布尔值转换为字符串，以便保存到数据库
+        if (typeof value === 'boolean') {
+          value = value.toString();
+        }
+
         modifiedSettings.push({
           key,
-          value: settingsMap.value[key]
+          value: value
         });
       }
     }
@@ -352,8 +390,15 @@ async function saveAllSettings() {
       console.warn('重新加载设置失败，但不影响保存:', error);
     }
     
-    // 更新原始设置
-    originalSettings.value = { ...settingsMap.value };
+    // 更新原始设置（转换为字符串以便比较）
+    originalSettings.value = {};
+    Object.keys(settingsMap.value).forEach(key => {
+      let value = settingsMap.value[key];
+      if (typeof value === 'boolean') {
+        value = value.toString();
+      }
+      originalSettings.value[key] = value;
+    });
     
     ElMessage.success(`成功保存 ${modifiedSettings.length} 项设置`);
     

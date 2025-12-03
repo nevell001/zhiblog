@@ -1,4 +1,4 @@
-package com.ruoyi.system.controller;
+package com.ruoyi.web.controller.blog;
 
 import java.util.List;
 import java.util.Map;
