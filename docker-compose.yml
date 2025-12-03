@@ -14,14 +14,14 @@ services:
       redis:
         condition: service_started
     environment:
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      TZ: Asia/Shanghai
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
     networks:
       - ruoyi-network
 
@@ -30,12 +30,13 @@ services:
     container_name: mysql
     restart: always
     environment:
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: newblog
       MYSQL_CHARSET: utf8mb4
       MYSQL_COLLATION: utf8mb4_unicode_ci
-      LANG: C.UTF-8
-      TZ: Asia/Shanghai
     ports:
       - "3306:3306"
     volumes:
@@ -63,6 +64,8 @@ services:
       - "6379:6379"
     environment:
       TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       timeout: 3s
@@ -90,10 +93,11 @@ services:
       ruoyi-admin:
         condition: service_started
     environment:
-      - DOCKER=true  # 标记当前在 Docker 环境
-      - LANG=C.UTF-8
-      - TZ=Asia/Shanghai
-      - VITE_API_BASE_URL=http://ruoyi-admin:8080
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      DOCKER: true  # 标记当前在 Docker 环境
+      VITE_API_BASE_URL: http://ruoyi-admin:8080
     networks:
       - ruoyi-network
     restart: unless-stopped
