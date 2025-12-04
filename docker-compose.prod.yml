@@ -7,7 +7,7 @@ services:
     working_dir: /app
     command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar"
     ports:
-      - "8080:8080"            # 后端端口
+      - "8080:8080"
     depends_on:
       mysql:
         condition: service_healthy
@@ -35,24 +35,17 @@ services:
       LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: newblog
-      MYSQL_CHARSET: utf8mb4
-      MYSQL_COLLATION: utf8mb4_unicode_ci
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./sql:/docker-entrypoint-initdb.d   # 初始化SQL脚本
-    command: >
-      --character-set-server=utf8mb4 
-      --collation-server=utf8mb4_unicode_ci
-      --default-time-zone='+08:00'
-      --log_timestamps=SYSTEM
+      - ./sql:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
       timeout: 20s
       retries: 20
       interval: 10s
-      start_period: 120s
+      start_period: 40s
     networks:
       - ruoyi-network
 
@@ -62,45 +55,29 @@ services:
     restart: always
     ports:
       - "6379:6379"
-    environment:
-      TZ: Asia/Shanghai
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      timeout: 3s
-      retries: 5
-      interval: 5s
     networks:
       - ruoyi-network
 
   ruoyi-ui:
     build:
       context: ./ruoyi-ui
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: ruoyi-ui
-    working_dir: /app
-    volumes:
-      - ./ruoyi-ui:/app
-      - ./ruoyi-ui/node_modules:/app/node_modules
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
       ruoyi-admin:
         condition: service_started
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      DOCKER: true  # 标记当前在 Docker 环境
-      VITE_API_BASE_URL: http://ruoyi-admin:8080
+      DOCKER: "true"
+
     networks:
       - ruoyi-network
     restart: unless-stopped
+
 volumes:
   mysql_data:
 

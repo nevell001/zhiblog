@@ -1,0 +1,89 @@
+services:
+  ruoyi-admin:
+    build:
+      context: .
+      dockerfile: Dockerfile-admin
+    container_name: ruoyi-admin
+    working_dir: /app
+    command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar"
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    networks:
+      - ruoyi-network
+
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: newblog
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      timeout: 20s
+      retries: 20
+      interval: 10s
+      start_period: 40s
+    networks:
+      - ruoyi-network
+
+  redis:
+    image: redis:6.2
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - ruoyi-network
+
+  ruoyi-ui:
+    build:
+      context: ./ruoyi-ui
+      dockerfile: Dockerfile.dev
+    container_name: ruoyi-ui
+    working_dir: /app
+    volumes:
+      - ./ruoyi-ui:/app:cached
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      ruoyi-admin:
+        condition: service_started
+    environment:
+      TZ: Asia/Shanghai
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      DOCKER: "true"
+      VITE_API_BASE_URL: http://ruoyi-admin:8080
+    networks:
+      - ruoyi-network
+
+volumes:
+  mysql_data:
+
+networks:
+  ruoyi-network:
+    driver: bridge
