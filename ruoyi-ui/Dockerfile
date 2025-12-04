@@ -1,17 +1,17 @@
 FROM node:22
 
+ARG TZ=Asia/Shanghai
+ENV TZ=${TZ}
+
 WORKDIR /app
 
-# 复制package文件
 COPY package*.json ./
 
-# 安装依赖
-RUN npm install
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install --legacy-peer-deps
 
-# 复制源代码
 COPY . .
 
 EXPOSE 3000
 
-# 启动开发服务器
 CMD ["npm", "run", "dev"]

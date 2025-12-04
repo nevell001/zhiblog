@@ -33,6 +33,4 @@ else
     echo "🔗 访问地址:"
     echo "  前端: http://localhost:3000"
     echo "  后端: http://localhost:8080"
-    echo "  数据库: localhost:3306 (用户: root, 密码: root)"
-    echo "  Redis: localhost:6379"
 fi

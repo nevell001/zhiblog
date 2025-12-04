@@ -82,7 +82,7 @@ services:
     working_dir: /app
     volumes:
       - ./ruoyi-ui:/app
-      - /app/node_modules
+      - ./ruoyi-ui/node_modules:/app/node_modules
     ports:
       - "3000:3000"
     depends_on:
