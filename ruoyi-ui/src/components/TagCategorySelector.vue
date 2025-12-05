@@ -2,9 +2,9 @@
   <div class="tag-category-selector">
     <!-- 分类选择 -->
     <el-form-item label="分类" prop="categoryId" v-if="showCategory">
-      <el-select 
-        v-model="selectedCategory" 
-        placeholder="请选择分类" 
+      <el-select
+        v-model="localSelectedCategory"
+        placeholder="请选择分类"
         clearable
         filterable
         @change="handleCategoryChange"
@@ -30,10 +30,10 @@
     <el-form-item label="标签" prop="tagIds" v-if="showTags">
       <div class="tag-selector-container">
         <!-- 标签选择器 -->
-        <el-select 
-          v-model="selectedTags" 
-          multiple 
-          placeholder="请选择标签" 
+        <el-select
+          v-model="localSelectedTags"
+          multiple
+          :placeholder="placeholder"
           clearable
           filterable
           collapse-tags
@@ -115,19 +115,20 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
-import { listCategory } from "@/api/blog/category"
-import { listTag, addTag } from "@/api/blog/tag"
+import { ref, computed, onMounted } from 'vue'
+import { listCategory } from "@/api/admin/blog/category"
+import { listTag, addTag } from "@/api/admin/blog/tag"
 import { ElMessage } from 'element-plus'
 
 // Props
 const props = defineProps({
-  modelValue: {
-    type: Object,
-    default: () => ({
-      categoryId: null,
-      tagIds: []
-    })
+  selectedTags: {
+    type: Array,
+    default: () => []
+  },
+  selectedCategory: {
+    type: [Number, String],
+    default: null
   },
   showCategory: {
     type: Boolean,
@@ -140,56 +141,60 @@ const props = defineProps({
   allowQuickAdd: {
     type: Boolean,
     default: true
+  },
+  placeholder: {
+    type: String,
+    default: '请选择标签'
   }
 })
 
 // Emits
-const emit = defineEmits(['update:modelValue', 'change'])
+const emit = defineEmits(['update:selectedTags', 'update:selectedCategory', 'change'])
 
 // 响应式数据
 const categoryOptions = ref([])
 const tagOptions = ref([])
-const selectedCategory = ref(null)
-const selectedTags = ref([])
 const newTagName = ref('')
 
 // 计算属性
+const localSelectedCategory = computed({
+  get: () => props.selectedCategory,
+  set: (value) => {
+    emit('update:selectedCategory', value)
+    emit('change', { category: value, tags: props.selectedTags })
+  }
+})
+
+const localSelectedTags = computed({
+  get: () => props.selectedTags,
+  set: (value) => {
+    emit('update:selectedTags', value)
+    emit('change', { category: props.selectedCategory, tags: value })
+  }
+})
+
+// 计算属性
 const selectedTagsDisplay = computed(() => {
-  return tagOptions.value.filter(tag => 
-    selectedTags.value.includes(tag.id || tag.tagId)
+  return tagOptions.value.filter(tag =>
+    localSelectedTags.value.includes(tag.id || tag.tagId)
   )
 })
 
-// 监听器
-watch(() => props.modelValue, (newVal) => {
-  if (newVal) {
-    selectedCategory.value = newVal.categoryId
-    selectedTags.value = newVal.tagIds || []
-  }
-}, { immediate: true, deep: true })
-
-watch([selectedCategory, selectedTags], () => {
-  const value = {
-    categoryId: selectedCategory.value,
-    tagIds: [...selectedTags.value]
-  }
-  emit('update:modelValue', value)
-  emit('change', value)
-}, { deep: true })
-
 // 方法
 const handleCategoryChange = (value) => {
-  selectedCategory.value = value
+  localSelectedCategory.value = value
 }
 
 const handleTagChange = (value) => {
-  selectedTags.value = value
+  localSelectedTags.value = value
 }
 
 const removeTag = (tagId) => {
-  const index = selectedTags.value.indexOf(tagId)
+  const currentTags = [...localSelectedTags.value]
+  const index = currentTags.indexOf(tagId)
   if (index > -1) {
-    selectedTags.value.splice(index, 1)
+    currentTags.splice(index, 1)
+    localSelectedTags.value = currentTags
   }
 }
 
@@ -208,8 +213,8 @@ const addNewTag = async () => {
     ElMessage.warning('标签已存在')
     // 如果标签存在但未选中，则选中它
     const tagId = existingTag.id || existingTag.tagId
-    if (!selectedTags.value.includes(tagId)) {
-      selectedTags.value.push(tagId)
+    if (!localSelectedTags.value.includes(tagId)) {
+      localSelectedTags.value = [...localSelectedTags.value, tagId]
     }
     newTagName.value = ''
     return
@@ -238,8 +243,8 @@ const addNewTag = async () => {
       
       if (createdTag) {
         const tagId = createdTag.id || createdTag.tagId
-        if (!selectedTags.value.includes(tagId)) {
-          selectedTags.value.push(tagId)
+        if (!localSelectedTags.value.includes(tagId)) {
+          localSelectedTags.value = [...localSelectedTags.value, tagId]
         }
       }
       

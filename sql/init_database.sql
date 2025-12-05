@@ -192,7 +192,7 @@ CREATE TABLE sys_menu (
 INSERT INTO sys_menu VALUES('1', '系统管理', '0', '1', 'system',           NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
 INSERT INTO sys_menu VALUES('2', '系统监控', '0', '2', 'monitor',          NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
 INSERT INTO sys_menu VALUES('3', '系统工具', '0', '3', 'tool',             NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
-INSERT INTO sys_menu VALUES('4', '若依官网', '0', '4', 'http://ruoyi.vip', NULL, '', '', 0, 0, 'M', '0', '0', '', 'guide',    'admin', NOW(), '', NULL, '若依官网地址');
+INSERT INTO sys_menu VALUES('4', '日志管理', '2', '9', 'log',      '', '', '', 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '', NULL, '日志管理菜单');
 
 -- 6、角色和菜单关联表
 DROP TABLE IF EXISTS sys_role_menu;
@@ -571,37 +571,47 @@ INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_
 ('设计模式', 'pattern', '设计模式学习笔记', 4, 2, 2, 1),
 ('面试经验', 'interview', '面试准备和经验分享', 4, 3, 3, 1);
 
--- 插入完整的博客标签数据（20个常用标签）
-INSERT INTO `blog_tag` (`name`, `description`, `color`, `icon`, `article_count`) VALUES
+-- 插入完整的博客标签数据（26个常用标签）
+INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
+-- 核心标签（确保与test_tags.sql一致）
+(1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
+(2, 'Vue.js', 'Vue.js前端框架相关文章', '#4fc08d', 'el-icon-monitor', 0),
+(3, 'Spring Boot', 'Spring Boot框架相关文章', '#6db33f', 'el-icon-setting', 0),
+(4, 'MySQL', 'MySQL数据库相关文章', '#00758f', 'el-icon-coin', 0),
+(5, '前端开发', '前端开发技术相关文章', '#e34c26', 'el-icon-brush', 0),
+(6, '后端开发', '后端开发技术相关文章', '#337ecc', 'el-icon-server', 0),
+
 -- 编程语言
-('Java', 'Java编程语言相关', '#F56C6C', 'el-icon-coffee-cup', 0),
-('Python', 'Python编程语言相关', '#3776AB', 'el-icon-python', 0),
-('JavaScript', 'JavaScript编程语言相关', '#F7DF1E', 'el-icon-link', 0),
-('TypeScript', 'TypeScript编程语言相关', '#3178C6', 'el-icon-document', 0),
+(7, 'Python', 'Python编程语言相关', '#3776AB', 'el-icon-python', 0),
+(8, 'JavaScript', 'JavaScript编程语言相关', '#F7DF1E', 'el-icon-link', 0),
+(9, 'TypeScript', 'TypeScript编程语言相关', '#3178C6', 'el-icon-document', 0),
 
 -- 后端框架
-('Spring Boot', 'Spring Boot框架相关', '#6DB33F', 'el-icon-leaf', 0),
-('Spring Cloud', 'Spring Cloud微服务框架', '#6DB33F', 'el-icon-cloudy', 0),
-('MyBatis', 'MyBatis持久层框架', '#000000', 'el-icon-database', 0),
-('Node.js', 'Node.js运行时环境', '#339933', 'el-icon-node', 0),
+(10, 'Spring Cloud', 'Spring Cloud微服务框架', '#6DB33F', 'el-icon-cloudy', 0),
+(11, 'MyBatis', 'MyBatis持久层框架', '#000000', 'el-icon-database', 0),
+(12, 'Node.js', 'Node.js运行时环境', '#339933', 'el-icon-node', 0),
 
 -- 前端框架
-('Vue.js', 'Vue.js前端框架相关', '#4FC08D', 'el-icon-monitor', 0),
-('React', 'React前端框架相关', '#61DAFB', 'el-icon-cpu', 0),
-('Angular', 'Angular前端框架相关', '#DD0031', 'el-icon-trophy', 0),
-('Element Plus', 'Element Plus组件库', '#409EFF', 'el-icon-menu', 0),
+(13, 'Element Plus', 'Element Plus组件库', '#409EFF', 'el-icon-menu', 0),
+(14, 'React', 'React前端框架相关', '#61DAFB', 'el-icon-cpu', 0),
+(15, 'Angular', 'Angular前端框架相关', '#DD0031', 'el-icon-trophy', 0),
 
 -- 数据库
-('MySQL', 'MySQL数据库相关', '#4479A1', 'el-icon-data-board', 0),
-('Redis', 'Redis缓存数据库', '#DC382D', 'el-icon-connection', 0),
-('MongoDB', 'MongoDB文档数据库', '#47A248', 'el-icon-folder-opened', 0),
+(16, 'Redis', 'Redis缓存数据库', '#DC382D', 'el-icon-connection', 0),
+(17, 'MongoDB', 'MongoDB文档数据库', '#47A248', 'el-icon-folder-opened', 0),
 
 -- 工具和其他
-('Docker', 'Docker容器技术', '#2496ED', 'el-icon-box', 0),
-('Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
-('Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0),
-('算法', '算法和数据结构', '#FF9800', 'el-icon-data-analysis', 0),
-('设计模式', '软件设计模式', '#9C27B0', 'el-icon-setting', 0);
+(18, 'Docker', 'Docker容器技术', '#2496ED', 'el-icon-box', 0),
+(19, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
+(20, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0),
+(21, '算法', '算法和数据结构', '#FF9800', 'el-icon-data-analysis', 0),
+(22, '设计模式', '软件设计模式', '#9C27B0', 'el-icon-setting', 0),
+
+-- 额外专业标签
+(23, '微服务', '微服务架构设计', '#E91E63', 'el-icon-connection', 0),
+(24, '分布式系统', '分布式系统架构', '#9C27B0', 'el-icon-share', 0),
+(25, '性能优化', '系统性能优化技术', '#FF5722', 'el-icon-lightning', 0),
+(26, '架构设计', '软件架构设计', '#795548', 'el-icon-s-home', 0);
 
 -- 插入完整的博客文章示例数据
 INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
@@ -947,16 +957,16 @@ release/* (发布分支)
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
 INSERT INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
 -- 文章1：Spring Boot + Vue.js 全栈开发实战
-(1, 1), (1, 5), (1, 9), (1, 10), (1, 11), (1, 13),
+(1, 1), (1, 2), (1, 3),
 
--- 文章2：MySQL数据库优化实战指南
-(2, 1), (2, 14), (2, 15), (2, 16),
+-- 文章2：MySQL数据库优化实践
+(2, 1), (2, 4), (2, 6),
 
 -- 文章3：Vue.js 3.0 Composition API 深度解析
 (3, 3), (3, 4), (3, 10), (3, 11),
 
--- 文章4：Docker容器化部署最佳实践
-(4, 16), (4, 17), (4, 18),
+-- 文章4：关于调整2025高校科技成果交易会举办时间等有关事项的通知
+(4, 6),
 
 -- 文章5：Redis缓存设计与实战
 (5, 1), (5, 7), (5, 15),
@@ -1192,6 +1202,38 @@ UNION ALL
 SELECT CONCAT('🔗 友链数量: ', COUNT(*)) AS info FROM blog_friend_link WHERE del_flag = '0'
 UNION ALL
 SELECT CONCAT('⚙️  设置数量: ', COUNT(*)) AS info FROM blog_setting;
+
+-- 验证标签和文章关联数据
+SELECT '📋 标签列表验证' as type, t.id, t.name, t.color, t.description
+FROM blog_tag t WHERE t.del_flag = 0
+ORDER BY t.id;
+
+-- 验证文章-标签关联
+SELECT
+    '📎 文章标签关联' as type,
+    a.id as article_id,
+    a.title as article_title,
+    t.id as tag_id,
+    t.name as tag_name,
+    t.color as tag_color
+FROM blog_article a
+LEFT JOIN blog_article_tag bat ON a.id = bat.article_id
+LEFT JOIN blog_tag t ON bat.tag_id = t.id AND t.del_flag = 0
+WHERE a.id IN (1, 2, 4) AND a.del_flag = 0
+ORDER BY a.id, t.name;
+
+-- 统计每篇文章的标签数量
+SELECT
+    '📊 标签数量统计' as type,
+    a.id as article_id,
+    a.title as article_title,
+    COUNT(bat.tag_id) as tag_count
+FROM blog_article a
+LEFT JOIN blog_article_tag bat ON a.id = bat.article_id
+LEFT JOIN blog_tag t ON bat.tag_id = t.id AND t.del_flag = 0
+WHERE a.id IN (1, 2, 4) AND a.del_flag = 0
+GROUP BY a.id, a.title
+ORDER BY a.id;
 
 SELECT '🚀 博客系统已准备就绪，可以开始使用了！' AS final_message;
 

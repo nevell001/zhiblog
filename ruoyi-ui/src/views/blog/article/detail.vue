@@ -249,10 +249,10 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
-import { getArticleDetail, getRelatedArticles, getArticleComments, submitComment as apiSubmitComment } from '@/api/blog/article'
+import { getArticleDetail, getArticleComments, submitComment as apiSubmitComment } from '@/api/blog/article'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 const route = useRoute()
@@ -311,8 +311,14 @@ const loadArticleDetail = async () => {
       if (response.data.extraInfo) {
         prevArticle.value = response.data.extraInfo.prevArticle || null
         nextArticle.value = response.data.extraInfo.nextArticle || null
+
+        // 设置分类名称
+        if (response.data.extraInfo.category && response.data.extraInfo.category.name) {
+          article.value.categoryName = response.data.extraInfo.category.name
+        }
       }
-      
+
+    
       // 获取相关文章 - 暂时注释掉，因为后端API不存在
       // if (article.value) {
       //   const relatedResponse = await getRelatedArticles(articleId, { pageNum: 1, pageSize: 6 })
