@@ -360,14 +360,16 @@ public class BlogFrontController extends BaseController
     }
 
     /**
-     * 获取分类列表（前台用）
+     * 获取分类列表（前台用，包含文章数量）
      */
+    @Anonymous
     @GetMapping("/category/list")
     public AjaxResult categoryList()
     {
         BlogCategory blogCategory = new BlogCategory();
         blogCategory.setDelFlag("0"); // 只查询未删除的分类
-        List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
+        blogCategory.setStatus(1); // 只查询启用的分类（1=启用，0=禁用）
+        List<BlogCategory> list = blogCategoryService.selectCategoryListForFront(blogCategory);
         return success(list);
     }
 
