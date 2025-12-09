@@ -257,12 +257,50 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     @Override
     public List<BlogArticle> selectArticlesByTagId(Long tagId) {
-        return blogArticleMapper.selectArticlesByTagId(tagId);
+        List<BlogArticle> articleList = blogArticleMapper.selectArticlesByTagId(tagId);
+        if (articleList != null && !articleList.isEmpty()) {
+            // 为每篇文章加载标签数据
+            for (BlogArticle article : articleList) {
+                if (article != null && article.getId() != null) {
+                    List<BlogTag> tags = blogTagMapper.selectTagsByArticleId(article.getId());
+                    article.setTags(tags);
+
+                    // 设置标签ID列表
+                    List<Long> tagIds = new ArrayList<>();
+                    for (BlogTag tag : tags) {
+                        if (tag != null && tag.getId() != null) {
+                            tagIds.add(tag.getId());
+                        }
+                    }
+                    article.setTagIds(tagIds);
+                }
+            }
+        }
+        return articleList;
     }
 
     @Override
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
-        return blogArticleMapper.searchArticles(keyword, blogArticle);
+        List<BlogArticle> articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
+        if (articleList != null && !articleList.isEmpty()) {
+            // 为每篇文章加载标签数据
+            for (BlogArticle article : articleList) {
+                if (article != null && article.getId() != null) {
+                    List<BlogTag> tags = blogTagMapper.selectTagsByArticleId(article.getId());
+                    article.setTags(tags);
+
+                    // 设置标签ID列表
+                    List<Long> tagIds = new ArrayList<>();
+                    for (BlogTag tag : tags) {
+                        if (tag != null && tag.getId() != null) {
+                            tagIds.add(tag.getId());
+                        }
+                    }
+                    article.setTagIds(tagIds);
+                }
+            }
+        }
+        return articleList;
     }
 
     /**

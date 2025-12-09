@@ -74,7 +74,7 @@ export function getTagCloud() {
 // 根据标签获取文章列表
 export function getArticlesByTag(tagId, query) {
   return request({
-    url: '/blog/tag/articles/' + tagId,
+    url: '/blog/article/tag/' + tagId,
     method: 'get',
     params: query,
     headers: { isToken: false }
