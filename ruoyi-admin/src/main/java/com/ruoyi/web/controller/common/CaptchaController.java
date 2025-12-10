@@ -46,7 +46,19 @@ public class CaptchaController
     public AjaxResult getCode(HttpServletResponse response) throws IOException
     {
         AjaxResult ajax = AjaxResult.success();
-        boolean captchaEnabled = configService.selectCaptchaEnabled();
+
+        // 优先使用环境变量控制验证码开关，环境变量优先级最高
+        String envCaptcha = System.getenv("CAPTCHA_ENABLED");
+        boolean captchaEnabled = false;
+
+        if (envCaptcha != null) {
+            // 环境变量存在，使用环境变量值
+            captchaEnabled = Boolean.parseBoolean(envCaptcha);
+        } else {
+            // 环境变量不存在，使用数据库配置
+            captchaEnabled = configService.selectCaptchaEnabled();
+        }
+
         ajax.put("captchaEnabled", captchaEnabled);
         if (!captchaEnabled)
         {

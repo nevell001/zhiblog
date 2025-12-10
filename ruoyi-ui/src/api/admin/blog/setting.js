@@ -58,3 +58,12 @@ export function refreshCache() {
     method: 'delete'
   })
 }
+
+// 根据键更新设置值
+export function updateSettingValueByKey(key, value) {
+  return request({
+    url: '/system/setting/updateByKey',
+    method: 'post',
+    data: { settingKey: key, settingValue: value }
+  })
+}

@@ -1,0 +1,15 @@
+FROM node:22-slim
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install --legacy-peer-deps --force \
+    && arch=$(uname -m) \
+    && if [ "$arch" = "aarch64" ]; then \
+         npm install @rollup/rollup-linux-arm64-gnu --save-dev; \
+       fi
+
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "run", "dev", "--", "--host"]

@@ -1,0 +1,19 @@
+# 构建阶段
+FROM node:22-slim AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm config set registry https://registry.npmmirror.com \
+    && npm install --legacy-peer-deps --force
+COPY . .
+ARG VITE_APP_TITLE=博客管理系统
+ENV VITE_APP_TITLE=$VITE_APP_TITLE
+RUN npm run build:prod
+
+# 生产阶段
+FROM nginx:alpine
+# 安装 curl 用于健康检查
+RUN apk add --no-cache curl
+COPY --from=build /app/dist /usr/share/nginx/html
+# 注意：nginx.conf 会在 docker-compose 中挂载，这里不复制
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

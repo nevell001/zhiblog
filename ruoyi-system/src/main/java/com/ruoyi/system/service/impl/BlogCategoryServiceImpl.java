@@ -105,7 +105,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
 
     /**
      * 删除文章分类信息
-     * 
+     *
      * @param id 文章分类主键
      * @return 结果
      */
@@ -117,5 +117,40 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
             throw new ServiceException("存在文章引用该分类，无法删除，请先迁移或删除相关文章");
         }
         return blogCategoryMapper.deleteBlogCategoryById(id);
+    }
+
+    /**
+     * 查询前台分类列表（包含文章数量）
+     *
+     * @param blogCategory 分类实体
+     * @return 包含文章数量的分类集合
+     */
+    @Override
+    public List<BlogCategory> selectCategoryListForFront(BlogCategory blogCategory)
+    {
+        return blogCategoryMapper.selectCategoryListForFront(blogCategory);
+    }
+
+    /**
+     * 更新指定分类的文章数量
+     *
+     * @param id 分类ID
+     * @return 结果
+     */
+    @Override
+    public int updateArticleCount(Long id)
+    {
+        return blogCategoryMapper.updateArticleCount(id);
+    }
+
+    /**
+     * 批量更新所有分类的文章数量
+     *
+     * @return 结果
+     */
+    @Override
+    public int updateAllArticleCount()
+    {
+        return blogCategoryMapper.updateAllArticleCount();
     }
 }

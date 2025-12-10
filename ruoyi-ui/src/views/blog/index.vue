@@ -372,6 +372,14 @@
         <el-button type="primary" @click="handleContactSubmit">发送</el-button>
       </template>
     </el-dialog>
+
+    <!-- 博客底部 -->
+    <BlogFooter
+      :blogSettings="blogSettings"
+      :totalArticles="totalArticles"
+      :categoryCount="categoryList.length"
+      :tagCount="tagCloud.length"
+    />
   </div>
 </template>
 
@@ -383,6 +391,7 @@ import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
 import BlogNav from '@/components/BlogNav.vue'
+import BlogFooter from '@/components/BlogFooter.vue'
 
 // 响应式数据
 const articleList = ref([])

@@ -102,7 +102,7 @@ public class SysLoginService
 
     /**
      * 校验验证码
-     * 
+     *
      * @param username 用户名
      * @param code 验证码
      * @param uuid 唯一标识
@@ -110,7 +110,18 @@ public class SysLoginService
      */
     public void validateCaptcha(String username, String code, String uuid)
     {
-        boolean captchaEnabled = configService.selectCaptchaEnabled();
+        // 优先使用环境变量控制验证码开关，环境变量优先级最高
+        String envCaptcha = System.getenv("CAPTCHA_ENABLED");
+        boolean captchaEnabled = false;
+
+        if (envCaptcha != null) {
+            // 环境变量存在，使用环境变量值
+            captchaEnabled = Boolean.parseBoolean(envCaptcha);
+        } else {
+            // 环境变量不存在，使用数据库配置
+            captchaEnabled = configService.selectCaptchaEnabled();
+        }
+
         if (captchaEnabled)
         {
             String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");

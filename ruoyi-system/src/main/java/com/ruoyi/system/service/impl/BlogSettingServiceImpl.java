@@ -83,7 +83,7 @@ public class BlogSettingServiceImpl implements IBlogSettingService
     }
 
     /**
-     * 通过设置键修改设置值
+     * 通过设置键修改设置值（如果不存在则创建）
      * 
      * @param settingKey 设置键
      * @param settingValue 设置值
@@ -92,7 +92,16 @@ public class BlogSettingServiceImpl implements IBlogSettingService
     @Override
     public int updateSettingValueByKey(String settingKey, String settingValue)
     {
-        return blogSettingMapper.updateSettingValueByKey(settingKey, settingValue);
+        int result = blogSettingMapper.updateSettingValueByKey(settingKey, settingValue);
+        // 如果更新失败（记录不存在），则创建新记录
+        if (result == 0) {
+            BlogSetting newSetting = new BlogSetting();
+            newSetting.setSettingKey(settingKey);
+            newSetting.setSettingValue(settingValue);
+            newSetting.setDescription("系统自动创建的设置项");
+            result = blogSettingMapper.insertBlogSetting(newSetting);
+        }
+        return result;
     }
 
     /**

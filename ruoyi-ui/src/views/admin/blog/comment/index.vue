@@ -117,7 +117,7 @@
 </template>
 
 <script setup name="BlogComment">
-import { listComment, delComment, auditComment } from "@/api/admin/blog/comment";
+import { listComment, delComment, auditComment, rejectComment } from "@/api/admin/blog/comment";
 
 const { proxy } = getCurrentInstance();
 const { comment_status } = proxy.useDict("comment_status");

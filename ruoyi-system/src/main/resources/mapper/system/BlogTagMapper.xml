@@ -65,11 +65,11 @@
     </select>
 
     <select id="getTagCloud" resultType="map">
-        SELECT 
+        SELECT
             bt.id,
             bt.name,
             bt.color,
-            COUNT(bat.article_id) as article_count
+            COUNT(DISTINCT bat.article_id) as article_count
         FROM blog_tag bt
         LEFT JOIN blog_article_tag bat ON bt.id = bat.tag_id
         LEFT JOIN blog_article ba ON bat.article_id = ba.id AND ba.status = 1 AND ba.del_flag = 0
@@ -79,18 +79,22 @@
     </select>
 
     <select id="selectTagsByArticleId" parameterType="Long" resultMap="BlogTagResult">
-        select 
-            bt.id, 
-            bt.name, 
+        select
+            bt.id,
+            bt.name,
             bt.description,
             bt.color,
             bt.icon,
-            bt.create_time, 
-            bt.update_time, 
-            bt.del_flag
+            bt.create_time,
+            bt.update_time,
+            bt.del_flag,
+            COUNT(DISTINCT bat2.article_id) as article_count
         from blog_tag bt
         inner join blog_article_tag bat on bt.id = bat.tag_id
+        left join blog_article_tag bat2 on bt.id = bat2.tag_id
+        left join blog_article ba on bat2.article_id = ba.id and ba.status = 1 and ba.del_flag = 0
         where bat.article_id = #{articleId} and bt.del_flag = 0
+        group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
     </select>
 
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="id">

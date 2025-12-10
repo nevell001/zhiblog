@@ -65,4 +65,24 @@ public interface BlogCategoryMapper
      * @return 数量
      */
     public int countByName(BlogCategory blogCategory);
+
+    /**
+     * 查询前台分类列表（包含文章数量）
+     * @param blogCategory 分类实体
+     * @return 包含文章数量的分类集合
+     */
+    public List<BlogCategory> selectCategoryListForFront(BlogCategory blogCategory);
+
+    /**
+     * 更新指定分类的文章数量
+     * @param id 分类ID
+     * @return 结果
+     */
+    public int updateArticleCount(Long id);
+
+    /**
+     * 批量更新所有分类的文章数量
+     * @return 结果
+     */
+    public int updateAllArticleCount();
 }

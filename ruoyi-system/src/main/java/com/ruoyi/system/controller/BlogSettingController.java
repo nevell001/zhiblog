@@ -50,7 +50,8 @@ public class BlogSettingController extends BaseController
     @GetMapping("/value/{settingKey}")
     public AjaxResult getSettingValueByKey(@PathVariable String settingKey)
     {
-        return success(blogSettingService.selectSettingValueByKey(settingKey));
+        String value = blogSettingService.selectSettingValueByKey(settingKey);
+        return success(value);
     }
 
     /**

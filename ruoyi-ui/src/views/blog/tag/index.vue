@@ -246,7 +246,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
@@ -285,15 +285,46 @@ const loadTagArticles = async (append = false) => {
     if (append) loadingMore.value = true
 
     const response = await getArticlesByTag(queryParams.tagId, queryParams)
-    console.log('标签文章列表响应:', response)
+    console.log('标签文章列表完整响应:', JSON.stringify(response, null, 2))
+    console.log('查询参数:', queryParams.tagId, queryParams)
 
-    const newArticles = response.rows || []
+    // 处理不同的响应格式
+    let newArticles = []
+    let totalCount = 0
+
+    if (response && response.rows && Array.isArray(response.rows)) {
+      // 标准的 TableDataInfo 格式
+      newArticles = response.rows
+      totalCount = response.total || 0
+    } else if (response && Array.isArray(response)) {
+      // 直接返回数组格式
+      newArticles = response
+      totalCount = response.length
+    } else if (response && response.data && Array.isArray(response.data)) {
+      // 包装在 data 字段中的格式
+      newArticles = response.data
+      totalCount = response.total || response.data.length
+    } else {
+      console.warn('未知的响应格式:', response)
+      newArticles = []
+      totalCount = 0
+    }
+
+    console.log('处理后的文章数量:', newArticles.length)
+    console.log('处理后的总数:', totalCount)
+    console.log('第一篇文章内容:', newArticles[0] ? '有内容' : '无内容')
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
     } else {
       articleList.value = newArticles
     }
-    total.value = response.total || 0
+
+    // 如果是首次加载，更新总数（避免分页时覆盖标签详情中的总数）
+    if (!append && totalCount > 0) {
+      total.value = totalCount
+    }
+
+    console.log('文章列表长度:', articleList.value.length, '总数:', total.value)
   } catch (error) {
     console.error('获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
@@ -314,6 +345,12 @@ const loadTagDetail = async () => {
     tagDescription.value = tag.description || ''
     tagColor.value = tag.color || '#409EFF'
     tagCreateTime.value = tag.createTime || new Date().toISOString()
+
+    // 更新页面显示的文章数量
+    if (tag.articleCount !== undefined && tag.articleCount !== null) {
+      total.value = tag.articleCount
+      console.log('标签文章数量:', tag.articleCount)
+    }
   } catch (error) {
     console.error('获取标签详情失败:', error)
   }

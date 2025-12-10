@@ -10,14 +10,11 @@ FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-# 安装netcat用于连接测试
-RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
-
 # 复制编译好的JAR包
 COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
 
 # 设置时区
 ENV TZ=Asia/Shanghai
 
-# 启动命令 - 使用netcat等待MySQL就绪，增加等待时间
-CMD sh -c "for i in {1..120}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && sleep 10 && java -jar /app/ruoyi-admin.jar"
+# 启动命令 - 使用简单的sleep等待依赖服务就绪
+CMD sh -c "sleep 30 && java -jar /app/ruoyi-admin.jar"

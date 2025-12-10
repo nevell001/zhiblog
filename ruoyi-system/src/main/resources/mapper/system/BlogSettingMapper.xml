@@ -67,6 +67,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         update blog_setting set config_value = #{settingValue}, update_time = now()
         where config_key = #{settingKey}
     </update>
+    
+    <!-- 插入或更新设置值（如果不存在则创建） -->
+    <insert id="insertOrUpdateSetting" parameterType="map">
+        INSERT INTO blog_setting (config_key, config_value, description, create_time, update_time)
+        VALUES (#{settingKey}, #{settingValue}, #{description}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE 
+        config_value = #{settingValue}, 
+        update_time = NOW()
+    </insert>
 
     <delete id="deleteBlogSettingById" parameterType="Long">
         delete from blog_setting where id = #{id}
