@@ -73,8 +73,21 @@
     </select>
     
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
-        <include refid="selectBlogArticleVo"/>
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+               bc.name as category_name,
+               GROUP_CONCAT(DISTINCT bt.id) as tag_ids,
+               GROUP_CONCAT(DISTINCT bt.name) as tag_names
+        from blog_article ba
+        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        left join blog_article_tag bat on ba.id = bat.article_id
+        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         where ba.id = #{id}
+        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+                 bc.name
     </select>
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
@@ -142,7 +155,16 @@
     </select>
 
     <select id="searchArticles" resultMap="BlogArticleResult">
-        <include refid="selectBlogArticleVo"/>
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+               bc.name as category_name,
+               GROUP_CONCAT(DISTINCT bt.id) as tag_ids,
+               GROUP_CONCAT(DISTINCT bt.name) as tag_names
+        from blog_article ba
+        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        left join blog_article_tag bat on ba.id = bat.article_id
+        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         <where>
             ba.status = 1 and ba.del_flag = 0
             <if test="keyword != null and keyword != ''">
@@ -158,6 +180,10 @@
                 and ba.is_recommend = #{blogArticle.isRecommend}
             </if>
         </where>
+        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+                 bc.name
         order by ba.create_time desc
     </select>
 

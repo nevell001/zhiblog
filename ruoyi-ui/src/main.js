@@ -20,6 +20,9 @@ import router from './router';
 import useSettingsStore from './store/modules/settings';
 import directive from './directive' // directive
 
+// 导入自定义动画指令
+import animateDirective from './directives/animate'
+
 // 注册指令
 import plugins from './plugins' // plugins
 import { download } from '@/utils/request'
@@ -80,6 +83,9 @@ app.component('svg-icon', SvgIcon);
 
 app.use(plugins);
 app.use(elementIcons);
+
+// 注册自定义动画指令
+app.directive('animate', animateDirective);
 
 // 初始化设置store
 const settingsStore = useSettingsStore();

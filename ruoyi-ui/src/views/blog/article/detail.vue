@@ -37,32 +37,44 @@
 
     <!-- 文章详情 -->
     <div v-else class="article-detail">
+      <!-- 文章头部 -->
       <div class="article-header">
-        <div class="article-meta">
+        <!-- 分类标签 -->
+        <div class="article-category" v-if="article.categoryName">
+          <span class="category-badge">{{ article.categoryName }}</span>
+        </div>
+
+        <!-- 文章标题 -->
+        <h1 class="article-title" v-animate="'fade-in-up'">{{ article.title }}</h1>
+
+        <!-- 文章元信息 -->
+        <div class="article-meta" v-animate="'fade-in-up'">
           <div class="meta-info">
-            <span class="category" v-if="article.categoryName">{{ article.categoryName }}</span>
-            <span class="publish-time">
+            <span class="meta-item">
+              <i class="el-icon-user"></i>
+              <span>{{ article.authorName || article.author || '匿名作者' }}</span>
+            </span>
+            <span class="meta-item">
               <i class="el-icon-date"></i>
-              {{ formatDate(article.createTime) }}
+              <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
             </span>
-            <span class="view-count">
+            <span class="meta-item">
               <i class="el-icon-view"></i>
-              {{ article.viewCount || 0 }} 阅读
+              <span>{{ article.viewCount || 0 }} 阅读</span>
             </span>
-            <span class="like-count" v-if="article.likeCount">
+            <span class="meta-item" v-if="article.likeCount">
               <i class="el-icon-star-off"></i>
-              {{ article.likeCount }} 点赞
+              <span>{{ article.likeCount }} 点赞</span>
             </span>
-            <span class="comment-count" v-if="article.commentCount">
+            <span class="meta-item" v-if="article.commentCount">
               <i class="el-icon-chat-line-round"></i>
-              {{ article.commentCount }} 评论
+              <span>{{ article.commentCount }} 评论</span>
             </span>
           </div>
         </div>
 
-        <h1 class="article-title">{{ article.title }}</h1>
-
-        <div class="article-tags" v-if="article.tags && article.tags.length">
+        <!-- 文章标签 -->
+        <div class="article-tags" v-if="article.tags && article.tags.length" v-animate="'fade-in-up'">
           <span v-for="tag in article.tags" :key="tag.id" class="tag-item" :style="{ backgroundColor: tag.color || '#409EFF' }">
             <i class="el-icon-price-tag"></i>
             {{ tag.name }}
@@ -533,42 +545,95 @@ onMounted(() => {
 }
 
 .article-detail {
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
   margin-top: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .article-header {
-  border-bottom: 1px solid #f0f0f0;
-  padding-bottom: 30px;
-  margin-bottom: 30px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 40px 50px 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+.article-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(64, 158, 255, 0.05), transparent 70%);
+  border-radius: 50%;
+}
+
+.article-category {
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.category-badge {
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(64, 158, 255, 0.3);
+  display: inline-block;
+  animation: categoryPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes categoryPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
 }
 
 .article-meta {
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  position: relative;
+  z-index: 1;
 }
 
 .meta-info {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 25px;
   flex-wrap: wrap;
   color: #666;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
-.category {
-  background: linear-gradient(135deg, #409eff, #337ecc);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 500;
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 6px 12px;
+  border-radius: 15px;
+  transition: all 0.3s ease;
+}
+
+.meta-item:hover {
+  background: rgba(64, 158, 255, 0.1);
+  color: #409eff;
+  transform: translateY(-2px);
+}
+
+.meta-item i {
+  font-size: 1rem;
+  opacity: 0.8;
 }
 
 .publish-time,
@@ -581,33 +646,61 @@ onMounted(() => {
 }
 
 .article-title {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
-  line-height: 1.2;
-  margin: 20px 0;
+  line-height: 1.3;
+  margin: 25px 0;
   color: #1a1a1a;
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(135deg, #1a1a1a, #333);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .article-tags {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  margin-top: 25px;
+  position: relative;
+  z-index: 1;
 }
 
 .tag-item {
   color: white;
-  padding: 6px 12px;
-  border-radius: 16px;
+  padding: 8px 16px;
+  border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 500;
+  font-weight: 600;
   display: flex;
   align-items: center;
-  gap: 4px;
-  transition: transform 0.3s ease;
+  gap: 6px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tag-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
 }
 
 .tag-item:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.tag-item:hover::before {
+  left: 100%;
 }
 
 .article-content {
@@ -630,45 +723,217 @@ onMounted(() => {
 .content-body {
   line-height: 1.8;
   color: #333;
-  font-size: 1.1rem;
+  font-size: 1.05rem;
+  padding: 0 50px 50px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* 文章标题样式 */
 .content-body :deep(h1),
 .content-body :deep(h2),
 .content-body :deep(h3),
 .content-body :deep(h4),
 .content-body :deep(h5),
 .content-body :deep(h6) {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.content-body :deep(p) {
+  margin-top: 2em;
   margin-bottom: 1em;
+  font-weight: 700;
+  color: #1a1a1a;
+  position: relative;
 }
 
+.content-body :deep(h1) {
+  font-size: 2em;
+  border-bottom: 3px solid #409eff;
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+.content-body :deep(h2) {
+  font-size: 1.75em;
+  border-left: 5px solid #409eff;
+  padding-left: 15px;
+  margin-top: 2.5em;
+}
+
+.content-body :deep(h3) {
+  font-size: 1.5em;
+  color: #333;
+}
+
+.content-body :deep(h4) {
+  font-size: 1.25em;
+  color: #444;
+}
+
+/* 段落样式 */
+.content-body :deep(p) {
+  margin-bottom: 1.2em;
+  text-align: justify;
+  word-wrap: break-word;
+}
+
+/* 图片样式 */
 .content-body :deep(img) {
   max-width: 100%;
   height: auto;
-  border-radius: 6px;
-  margin: 1em 0;
+  border-radius: 12px;
+  margin: 1.5em auto;
+  display: block;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
 }
 
+.content-body :deep(img):hover {
+  transform: scale(1.02);
+}
+
+/* 代码块样式 */
 .content-body :deep(pre) {
-  background: #f6f8fa;
-  border-radius: 6px;
-  padding: 16px;
+  background: linear-gradient(135deg, #282c34, #21252b);
+  border-radius: 12px;
+  padding: 20px;
   overflow-x: auto;
-  margin: 1em 0;
+  margin: 1.5em 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  position: relative;
 }
 
+.content-body :deep(pre)::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background: linear-gradient(to right, #ff5f56, #ffbd2e, #27ca3f);
+  border-radius: 12px 12px 0 0;
+}
+
+.content-body :deep(pre) code {
+  background: none;
+  padding: 0;
+  color: #abb2bf;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+/* 行内代码样式 */
 .content-body :deep(code) {
-  background: #f6f8fa;
-  padding: 2px 4px;
-  border-radius: 3px;
+  background: linear-gradient(135deg, #f6f8fa, #e9ecef);
+  color: #e83e8c;
+  padding: 3px 8px;
+  border-radius: 6px;
   font-size: 0.9em;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  border: 1px solid #e9ecef;
+  font-weight: 500;
+}
+
+/* 引用块样式 */
+.content-body :deep(blockquote) {
+  border-left: 5px solid #409eff;
+  margin: 1.5em 0;
+  padding: 15px 25px;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+.content-body :deep(blockquote)::before {
+  content: '"';
+  position: absolute;
+  top: -10px;
+  left: 15px;
+  font-size: 3em;
+  color: #409eff;
+  opacity: 0.3;
+  font-family: Georgia, serif;
+}
+
+/* 表格样式 */
+.content-body :deep(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  font-size: 0.95em;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.content-body :deep(th),
+.content-body :deep(td) {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.content-body :deep(th) {
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  color: white;
+  font-weight: 600;
+}
+
+.content-body :deep(tr:nth-child(even)) {
+  background: #f8f9fa;
+}
+
+.content-body :deep(tr:hover) {
+  background: rgba(64, 158, 255, 0.05);
+}
+
+/* 列表样式 */
+.content-body :deep(ul),
+.content-body :deep(ol) {
+  margin: 1.2em 0;
+  padding-left: 30px;
+}
+
+.content-body :deep(li) {
+  margin-bottom: 0.5em;
+  line-height: 1.6;
+}
+
+/* 链接样式 */
+.content-body :deep(a) {
+  color: #409eff;
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.content-body :deep(a)::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #409eff, #337ecc);
+  transition: width 0.3s ease;
+}
+
+.content-body :deep(a):hover {
+  color: #337ecc;
+}
+
+.content-body :deep(a):hover::after {
+  width: 100%;
+}
+
+/* 分隔线样式 */
+.content-body :deep(hr) {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #409eff, transparent);
+  margin: 3em 0;
+  opacity: 0.5;
 }
 
 .article-actions {
@@ -1021,6 +1286,154 @@ onMounted(() => {
   .comment-item {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+/* 移动端响应式优化 */
+@media (max-width: 768px) {
+  .article-detail {
+    margin: 10px;
+    border-radius: 15px;
+  }
+
+  .article-header {
+    padding: 30px 25px 25px;
+  }
+
+  .article-title {
+    font-size: 2rem;
+    line-height: 1.3;
+    margin: 20px 0;
+  }
+
+  .content-body {
+    padding: 0 25px 40px;
+    font-size: 1rem;
+  }
+
+  .content-body :deep(h1) {
+    font-size: 1.75em;
+  }
+
+  .content-body :deep(h2) {
+    font-size: 1.5em;
+  }
+
+  .content-body :deep(h3) {
+    font-size: 1.3em;
+  }
+
+  .content-body :deep(pre) {
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+  }
+
+  .meta-info {
+    gap: 15px;
+    font-size: 0.85rem;
+  }
+
+  .meta-item {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+  }
+
+  .tag-item {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+
+  .article-actions {
+    padding: 20px 25px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .action-buttons {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .article-navigation {
+    padding: 20px 25px;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .nav-item {
+    width: 100%;
+  }
+
+  .nav-link {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .related-articles {
+    padding: 30px 25px;
+  }
+
+  .related-list {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .comment-section {
+    padding: 30px 25px;
+  }
+
+  .comment-item {
+    gap: 12px;
+    padding: 15px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .article-title {
+    font-size: 1.75rem;
+  }
+
+  .content-body {
+    padding: 0 20px 30px;
+    font-size: 0.95rem;
+  }
+
+  .article-header {
+    padding: 25px 20px 20px;
+  }
+
+  .meta-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .content-body :deep(pre) {
+    padding: 12px;
+    font-size: 0.8rem;
+  }
+
+  .content-body :deep(table) {
+    font-size: 0.85rem;
+  }
+
+  .content-body :deep(th),
+  .content-body :deep(td) {
+    padding: 8px 10px;
+  }
+
+  .action-buttons .el-button {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+  }
+
+  .tag-item {
+    padding: 4px 8px;
+    font-size: 0.75rem;
   }
 }
 </style>
