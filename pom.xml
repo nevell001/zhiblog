@@ -8,8 +8,8 @@
     <artifactId>ruoyi</artifactId>
     <version>3.9.0</version>
 
-    <name>ruoyi</name>
-    <url>http://www.ruoyi.vip</url>
+    <name>newblog</name>
+    <url>http://www.gitee.com/nevell/newblog</url>
     <description>博客管理系统</description>
     
     <properties>

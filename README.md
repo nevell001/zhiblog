@@ -90,7 +90,7 @@
 
 ### 1. 克隆项目
 ```bash
-git clone https://github.com/your-username/newblog.git
+git clone https://gitee.com/nevell/newblog.git
 cd newblog
 ```
 
@@ -127,13 +127,15 @@ npm run dev
 ### 5. Docker 一键部署
 ```bash
 # 构建并启动所有服务
-docker-compose up -d
+docker compose -f docker-compose.dev.yml up -d  //开发环境
+
+docker compose -f docker-compose.prod.yml up -d  //生产环境
 
 # 查看服务状态
-docker-compose ps
+docker compose -f docker-compose.dev.yml ps
 
 # 查看日志
-docker-compose logs -f
+docker compose -f docker-compose.dev.yml logs -f
 ```
 
 ## 📁 项目结构
@@ -426,8 +428,6 @@ logging:
 - [ ] 创建生产环境配置文件
 
 **第二阶段: 代码清理** (2-3天)
-- [x] 删除测试代码和路由 ✅
-- [x] 清理Mapper XML备份文件 ✅
 - [ ] 统一路由路径规范
 - [ ] 清理SQL脚本重复定义
 
@@ -556,18 +556,7 @@ JWT_EXPIRATION=7200
 3. **分支策略**: Git Flow工作流
 4. **测试要求**: 新功能需包含单元测试
 
-### 提交信息格式
-```
-feat: 新功能
-fix: 修复bug
-docs: 文档更新
-style: 代码格式
-refactor: 重构
-test: 测试
-chore: 构建/工具
-```
-
-## 📞 技术支持
+# 📞 技术支持
 
 ### 相关文档
 - **项目文档**: [本README](README.md)
@@ -575,13 +564,6 @@ chore: 构建/工具
 - **Vue 3文档**: https://cn.vuejs.org/
 - **Element Plus文档**: https://element-plus.org/
 - **Spring Boot文档**: https://spring.io/projects/spring-boot
-
-### 问题反馈
-如遇到问题，请提供：
-1. 详细的错误信息和日志
-2. 复现步骤
-3. 环境信息(操作系统、数据库版本等)
-4. 相关配置文件
 
 ### 许可证
 本项目基于 [MIT许可证](LICENSE) 开源
@@ -594,7 +576,3 @@ chore: 构建/工具
 - [Vue.js](https://vuejs.org/) - 渐进式JavaScript框架
 - [Element Plus](https://element-plus.org/) - Vue 3组件库
 - [Spring Boot](https://spring.io/projects/spring-boot) - Java企业级开发框架
-
-
-
-
