@@ -1,5 +1,4 @@
 // 页面动画指令
-import { defineDirective } from 'vue'
 
 // 动画类型映射
 const animations = {
@@ -47,9 +46,9 @@ const animations = {
   }
 }
 
-export default defineDirective((el, binding) => {
+const animateDirective = (el, binding) => {
   const animationType = binding.value || 'fade-in-up'
-  const delay = binding.modifiers.delay ? parseFloat(binding.modifiers.delay) : 0
+  const delay = 0
 
   // 设置初始状态
   el.style.opacity = '0'
@@ -63,7 +62,7 @@ export default defineDirective((el, binding) => {
         setTimeout(() => {
           const animation = animations[animationType]
           if (animation) {
-            const [from, to] = animation.enter
+            const [, to] = animation.enter
             const { duration, easing } = animation.options
 
             // 应用动画
@@ -87,4 +86,6 @@ export default defineDirective((el, binding) => {
 
   // 清理函数
   el._animationObserver = observer
-})
+}
+
+export default animateDirective

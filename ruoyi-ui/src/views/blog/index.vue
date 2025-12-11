@@ -30,17 +30,18 @@
 
         <!-- 搜索框 -->
         <div class="search-container">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索文章标题或内容..."
-            class="search-input"
-            @keyup.enter="handleSearch"
-            clearable
-          >
-            <template #append>
-              <el-button icon="Search" @click="handleSearch" />
-            </template>
-          </el-input>
+          <div class="search-wrapper">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索文章标题或内容..."
+              class="search-input"
+              @keyup.enter="handleSearch"
+              clearable
+            />
+            <button class="search-button" @click="handleSearch">
+              <el-icon><Search /></el-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -386,6 +387,7 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
@@ -995,9 +997,46 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-.search-input {
+.search-wrapper {
+  position: relative;
   width: 100%;
   animation: searchSlideIn 0.8s ease-out 0.4s both;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.search-button {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  border: none;
+  border-radius: 0 46px 46px 0;
+  width: 46px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.search-button:hover {
+  background: linear-gradient(135deg, #337ecc, #2575fc);
+}
+
+.search-button:active {
+  transform: scale(0.98);
+}
+
+/* 设置搜索图标为透明，让按钮背景色透过 */
+.search-button .el-icon {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
 }
 
 @keyframes searchSlideIn {
@@ -1013,7 +1052,7 @@ onUnmounted(() => {
 
 .search-input :deep(.el-input__wrapper) {
   border-radius: 50px;
-  padding: 4px 4px 4px 20px;
+  padding: 4px 20px 4px 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -1021,16 +1060,26 @@ onUnmounted(() => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.search-input :deep(.el-input__wrapper):hover {
+.search-wrapper:hover .search-input :deep(.el-input__wrapper) {
   transform: translateY(-2px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
   border-color: rgba(255, 255, 255, 0.5);
+}
+
+.search-wrapper:hover .search-button {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 .search-input :deep(.el-input__wrapper.is-focus) {
   transform: translateY(-2px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
   border-color: rgba(255, 255, 255, 0.8);
+}
+
+.search-input :deep(.el-input__wrapper.is-focus) + .search-button {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
 }
 
 .search-input :deep(.el-input__inner) {
@@ -1044,42 +1093,6 @@ onUnmounted(() => {
   font-weight: 400;
 }
 
-.search-input :deep(.el-input-group__append) {
-  background: linear-gradient(135deg, #409eff, #337ecc);
-  border: none;
-  padding: 0 20px;
-  border-radius: 0 50px 50px 0;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.search-input :deep(.el-input-group__append):hover {
-  background: linear-gradient(135deg, #337ecc, #2575fc);
-  transform: scale(1.05);
-}
-
-.search-input :deep(.el-input-group__append):active {
-  transform: scale(0.98);
-}
-
-.search-input :deep(.el-input-group__append)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.search-input :deep(.el-input-group__append):hover::before {
-  left: 100%;
-}
 
 .blog-main {
   max-width: 1200px;
@@ -2102,6 +2115,16 @@ onUnmounted(() => {
 
   .search-input :deep(.el-input__inner) {
     font-size: 16px; /* 防止iOS Safari缩放 */
+  }
+
+  .search-button {
+    width: 40px;
+    right: 2px;
+    border-radius: 0 40px 40px 0;
+  }
+
+  .search-input :deep(.el-input__wrapper) {
+    padding: 4px 16px 4px 16px;
   }
 
   .blog-main {

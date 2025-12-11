@@ -190,73 +190,7 @@
           </el-form>
         </el-tab-pane>
 
-        <!-- 技能管理 -->
-        <el-tab-pane label="技能管理" name="skills">
-          <div class="skills-container">
-            <div class="skills-header">
-              <h3>技能列表</h3>
-              <el-button type="primary" size="small" @click="addSkill">
-                <i class="el-icon-plus"></i> 添加技能
-              </el-button>
-            </div>
-            <div class="skills-list">
-              <div v-for="(skill, index) in skillsList" :key="index" class="skill-item">
-                <el-row :gutter="20">
-                  <el-col :span="6">
-                    <el-input v-model="skill.name" placeholder="技能名称" />
-                  </el-col>
-                  <el-col :span="4">
-                    <el-input-number v-model="skill.level" :min="0" :max="100" placeholder="熟练度" />
-                  </el-col>
-                  <el-col :span="4">
-                    <el-color-picker v-model="skill.color" show-alpha />
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input v-model="skill.description" placeholder="技能描述" />
-                  </el-col>
-                  <el-col :span="2">
-                    <el-button type="danger" size="small" @click="removeSkill(index)">
-                      <i class="el-icon-delete"></i>
-                    </el-button>
-                  </el-col>
-                </el-row>
-              </div>
-            </div>
-          </div>
-        </el-tab-pane>
-
-        <!-- 经历管理 -->
-        <el-tab-pane label="经历管理" name="experience">
-          <div class="experience-container">
-            <div class="experience-header">
-              <h3>成长历程</h3>
-              <el-button type="primary" size="small" @click="addExperience">
-                <i class="el-icon-plus"></i> 添加经历
-              </el-button>
-            </div>
-            <div class="experience-list">
-              <div v-for="(exp, index) in experienceList" :key="index" class="experience-item">
-                <el-row :gutter="20">
-                  <el-col :span="6">
-                    <el-input v-model="exp.date" placeholder="时间段" />
-                  </el-col>
-                  <el-col :span="6">
-                    <el-input v-model="exp.title" placeholder="职位/学历" />
-                  </el-col>
-                  <el-col :span="8">
-                    <el-input v-model="exp.description" placeholder="描述" />
-                  </el-col>
-                  <el-col :span="4">
-                    <el-button type="danger" size="small" @click="removeExperience(index)">
-                      <i class="el-icon-delete"></i> 删除
-                    </el-button>
-                  </el-col>
-                </el-row>
-              </div>
-            </div>
-          </div>
-        </el-tab-pane>
-
+  
         <!-- 其他设置 -->
         <el-tab-pane label="其他设置" name="other">
           <el-form ref="otherForm" :model="settingsMap" label-width="120px">
@@ -296,11 +230,6 @@ const activeTab = ref('basic');
 const settingsMap = ref({});
 const originalSettings = ref({});
 
-// 技能列表数据
-const skillsList = ref([]);
-
-// 经历列表数据
-const experienceList = ref([]);
 
 /**
  * 获取所有博客设置
@@ -515,10 +444,6 @@ async function saveAllSettings() {
       originalSettings.value[key] = value;
     });
 
-    // 保存技能和经历数据
-    saveSkillsData();
-    saveExperienceData();
-
     ElMessage.success(`成功保存 ${modifiedSettings.length} 项设置`);
     
   } catch (error) {
@@ -551,20 +476,6 @@ function handleAvatarChange(file) {
 }
 
 /**
- * 处理头像变更
- */
-function handleAvatarChange(file) {
-  // 这里只是预览，实际上传需要调用上传接口
-  // 在真实环境中，这里应该上传图片到服务器并获取URL
-  // 现在只是简单地读取本地文件用于预览
-  const reader = new FileReader();
-  reader.readAsDataURL(file.raw);
-  reader.onload = (e) => {
-    settingsMap.value.blog_avatar = e.target.result;
-  };
-}
-
-/**
  * 处理微信二维码变更
  */
 function handleWechatQRChange(file) {
@@ -575,115 +486,12 @@ function handleWechatQRChange(file) {
   };
 }
 
-/**
- * 添加技能
- */
-function addSkill() {
-  skillsList.value.push({
-    name: '',
-    level: 0,
-    color: '#409EFF',
-    description: ''
-  });
-}
-
-/**
- * 删除技能
- */
-function removeSkill(index) {
-  skillsList.value.splice(index, 1);
-}
-
-/**
- * 添加经历
- */
-function addExperience() {
-  experienceList.value.push({
-    date: '',
-    title: '',
-    description: ''
-  });
-}
-
-/**
- * 删除经历
- */
-function removeExperience(index) {
-  experienceList.value.splice(index, 1);
-}
-
-/**
- * 加载技能数据
- */
-function loadSkillsData() {
-  try {
-    const skillsData = localStorage.getItem('blog_skills');
-    if (skillsData) {
-      skillsList.value = JSON.parse(skillsData);
-    } else {
-      // 默认技能数据
-      skillsList.value = [
-        { name: 'Vue.js', level: 90, color: '#4FC08D', description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等' },
-        { name: 'React', level: 75, color: '#61DAFB', description: '了解 React 生态，能够进行 React 项目开发' },
-        { name: 'Node.js', level: 85, color: '#339933', description: '熟悉 Node.js 后端开发，Express、Koa 框架' },
-        { name: 'Java', level: 88, color: '#ED8B00', description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构' }
-      ];
-    }
-  } catch (error) {
-    console.error('加载技能数据失败:', error);
-  }
-}
-
-/**
- * 加载经历数据
- */
-function loadExperienceData() {
-  try {
-    const experienceData = localStorage.getItem('blog_experience');
-    if (experienceData) {
-      experienceList.value = JSON.parse(experienceData);
-    } else {
-      // 默认经历数据
-      experienceList.value = [
-        { date: '2024 - 至今', title: '高级全栈工程师', description: '负责公司核心产品架构设计和团队技术管理，推动技术革新和性能优化' },
-        { date: '2022 - 2024', title: '全栈开发工程师', description: '参与多个大型 Web 项目开发，精通前后端技术栈，独立完成项目交付' },
-        { date: '2020 - 2022', title: '前端开发工程师', description: '专注于前端开发，精通 Vue、React 等现代前端框架，推动前端工程化建设' }
-      ];
-    }
-  } catch (error) {
-    console.error('加载经历数据失败:', error);
-  }
-}
-
-/**
- * 保存技能数据
- */
-function saveSkillsData() {
-  try {
-    localStorage.setItem('blog_skills', JSON.stringify(skillsList.value));
-  } catch (error) {
-    console.error('保存技能数据失败:', error);
-  }
-}
-
-/**
- * 保存经历数据
- */
-function saveExperienceData() {
-  try {
-    localStorage.setItem('blog_experience', JSON.stringify(experienceList.value));
-  } catch (error) {
-    console.error('保存经历数据失败:', error);
-  }
-}
 
 /**
  * 初始化获取设置
  */
 onMounted(() => {
   getAllSettings();
-  loadSkillsData();
-  loadExperienceData();
 });
 
 /**
@@ -700,8 +508,6 @@ async function resetSettings() {
     loading.value = true;
     // 重新加载原始设置
     await getAllSettings();
-    loadSkillsData();
-    loadExperienceData();
     proxy.$modal.msgSuccess('设置已重置');
   } catch (error) {
     // 用户取消操作
@@ -796,48 +602,6 @@ el-form-item {
   margin-bottom: 20px;
 }
 
-/* 技能和经历管理样式 */
-.skills-container,
-.experience-container {
-  padding: 20px;
-}
-
-.skills-header,
-.experience-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.skills-header h3,
-.experience-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
-}
-
-.skills-list,
-.experience-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.skill-item,
-.experience-item {
-  padding: 15px;
-  background: #f9f9f9;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.skill-item:hover,
-.experience-item:hover {
-  background: #f0f0f0;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
 
 /* 响应式优化 */
 @media (max-width: 768px) {
@@ -854,18 +618,6 @@ el-form-item {
 
   .avatar-input {
     width: 100%;
-  }
-
-  .skills-header,
-  .experience-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .skill-item .el-row,
-  .experience-item .el-row {
-    margin: 0 !important;
   }
 }
 </style>
