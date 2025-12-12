@@ -163,10 +163,7 @@
             <el-form-item label="微博地址" prop="weibo_url">
               <el-input v-model="settingsMap.weibo_url" placeholder="请输入微博地址" />
             </el-form-item>
-            <el-form-item label="知乎地址" prop="zhihu_url">
-              <el-input v-model="settingsMap.zhihu_url" placeholder="请输入知乎地址" />
-            </el-form-item>
-            <el-form-item label="微信二维码" prop="wechat_qr">
+              <el-form-item label="微信二维码" prop="wechat_qr">
               <div class="avatar-upload">
                 <el-upload
                   class="avatar-uploader"
@@ -219,10 +216,14 @@
 <script setup name="BlogSetting">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
 import { ElMessage, ElButton, ElCard, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElInputNumber, ElSwitch, ElColorPicker, ElRadioGroup, ElRadio, ElDatePicker, ElUpload, ElRow, ElCol } from 'element-plus';
-import { listSetting, getSetting, updateSetting, updateSettingValueByKey } from "@/api/admin/blog/setting";
+import { listSetting, getSetting, updateSetting, updateSettingValueByKey, addSetting, getConfigByKey, delSetting } from "@/api/admin/blog/setting";
 import { reloadBlogSettings } from '@/utils/blogSettings';
+import { useBlogSettingsStore } from '@/stores/blogSettings';
 
 const { proxy } = getCurrentInstance();
+
+// 初始化博客设置全局状态
+const blogSettingsStore = useBlogSettingsStore();
 
 // 响应式数据
 const loading = ref(false);
@@ -237,26 +238,241 @@ const originalSettings = ref({});
 async function getAllSettings() {
   loading.value = true;
   try {
-    // 获取所有设置项
-    const response = await listSetting({});
-    const settingList = response.rows || response.data || [];
-    
-    // 将设置项转换为Map格式，并处理布尔值
+    console.log('🚀 开始强制刷新获取博客设置...');
+
+    // 强制清除可能的缓存，使用多重策略
+    const timestamp = new Date().getTime();
+    const randomNonce = Math.random().toString(36).substring(7);
+    const cacheBuster = `${timestamp}_${randomNonce}`;
+
+    console.log(`🔄 使用缓存破坏器: ${cacheBuster}`);
+
+    // 尝试多种查询策略来获取博客设置
+    let allSettings = [];
+    let queryStrategies = [];
+
+    // 策略1: 标准查询，大页面大小
+    queryStrategies.push({
+      name: '标准查询(大页面)',
+      params: { _t: cacheBuster, pageSize: 200, pageNum: 1 }
+    });
+
+    // 策略2: 查询包含blog_前缀的配置
+    queryStrategies.push({
+      name: '博客配置查询',
+      params: { _t: cacheBuster, configKey: 'blog_', pageSize: 200 }
+    });
+
+    // 策略3: 查询所有可能的博客相关配置键
+    const blogKeys = [
+      'blog_name', 'blog_desc', 'blog_author', 'blog_email', 'blog_url', 'blog_start_time',
+      'blog_avatar', 'blog_signature', 'blog_keywords', 'blog_copyright', 'blog_beian',
+      'seo_title', 'seo_description', 'seo_canonical_url', 'seo_robots', 'seo_favicon',
+      'theme_color', 'header_background', 'sidebar_style',
+      'comment_enabled', 'comment_review', 'like_enabled', 'view_count_enabled',
+      'share_enabled', 'search_enabled', 'sidebar_enabled', 'footer_enabled', 'copyright_enabled',
+      'page_size', 'hot_article_count', 'recent_comment_count', 'greeting_message', 'about_content',
+      'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'
+    ];
+
+    // 策略4: 分别查询关键的博客设置
+    for (const key of blogKeys) {
+      queryStrategies.push({
+        name: `单独查询: ${key}`,
+        params: { _t: cacheBuster, configKey: key, pageSize: 1 }
+      });
+    }
+
+    // 执行优化的查询策略 - 减少API调用
+    let successfulQueries = 0;
+    let totalFound = 0;
+
+    // 策略1: 先尝试标准查询
+    try {
+      console.log(`📡 执行标准查询(大页面)`);
+      const response = await listSetting(queryStrategies[0].params);
+      const settingList = response.rows || response.data || [];
+
+      if (settingList.length > 0) {
+        successfulQueries++;
+        totalFound += settingList.length;
+
+        const foundKeys = settingList.map(s => s.configKey).filter(Boolean);
+        console.log(`✅ 标准查询找到 ${settingList.length} 项设置:`, foundKeys);
+
+        allSettings.push(...settingList);
+      }
+    } catch (error) {
+      console.warn(`❌ 标准查询失败:`, error.message);
+    }
+
+    // 如果标准查询没有找到关键的博客设置，才执行单独查询
+    const loadCriticalKeys = ['blog_start_time', 'blog_avatar', 'blog_signature'];
+    const foundCriticalKeys = allSettings.map(s => s.configKey).filter(key => loadCriticalKeys.includes(key));
+
+    console.log(`📊 检查关键设置: 已找到 ${foundCriticalKeys.length}/3 关键设置:`, foundCriticalKeys);
+
+    if (foundCriticalKeys.length < 3) {
+      console.log(`🔍 关键设置缺失，执行针对性查询...`);
+
+      // 只查询缺失的关键设置，减少API调用
+      const missingKeys = loadCriticalKeys.filter(key => !foundCriticalKeys.includes(key));
+      const batchQuery = {
+        _t: cacheBuster,
+        configKey: missingKeys.join(','), // 假设API支持批量查询
+        pageSize: 50
+      };
+
+      try {
+        console.log(`📡 批量查询缺失的关键设置:`, missingKeys);
+        const batchResponse = await listSetting(batchQuery);
+        const batchSettings = batchResponse.rows || batchResponse.data || [];
+
+        if (batchSettings.length > 0) {
+          successfulQueries++;
+          totalFound += batchSettings.length;
+
+          const batchFoundKeys = batchSettings.map(s => s.configKey).filter(Boolean);
+          console.log(`✅ 批量查询找到 ${batchSettings.length} 项关键设置:`, batchFoundKeys);
+
+          // 合并并去重
+          batchSettings.forEach(setting => {
+            if (setting.configKey) {
+              const existingIndex = allSettings.findIndex(s => s.configKey === setting.configKey);
+              if (existingIndex >= 0) {
+                allSettings[existingIndex] = setting;
+                console.log(`🔄 更新已存在的设置: ${setting.configKey}`);
+              } else {
+                allSettings.push(setting);
+                console.log(`➕ 添加新设置: ${setting.configKey} = ${setting.configValue}`);
+              }
+            }
+          });
+        }
+      } catch (batchError) {
+        console.warn(`❌ 批量查询失败，回退到单独查询:`, batchError.message);
+
+        // 回退策略：使用并行查询来提高速度
+        if (missingKeys.length > 0) {
+          console.log(`📡 并行查询缺失的关键设置...`);
+          const parallelQueries = missingKeys.map(async (key) => {
+            try {
+              console.log(`📡 并行查询: ${key}`);
+              const singleResponse = await listSetting({
+                _t: cacheBuster,
+                configKey: key,
+                pageSize: 1
+              });
+
+              const singleSettings = singleResponse.rows || singleResponse.data || [];
+              if (singleSettings.length > 0) {
+                console.log(`➕ 并行查询找到设置: ${key}`);
+                return singleSettings[0]; // 返回找到的设置项
+              }
+            } catch (singleError) {
+              console.warn(`❌ 并行查询 ${key} 失败:`, singleError.message);
+            }
+            return null;
+          });
+
+          // 等待所有并行查询完成
+          const parallelResults = await Promise.all(parallelQueries);
+          const validResults = parallelResults.filter(result => result !== null);
+
+          successfulQueries += validResults.length;
+          totalFound += validResults.length;
+          allSettings.push(...validResults);
+
+          console.log(`✅ 并行查询完成，找到 ${validResults.length} 项设置`);
+        }
+      }
+    }
+
+    console.log(`📊 查询总结: ${successfulQueries}/${queryStrategies.length} 个策略成功，总共找到 ${allSettings.length} 项设置`);
+
+    // 如果还是没有找到博客设置，尝试强制刷新和延迟重试
+    if (allSettings.length <= 10) {
+      console.log('⚠️ 找到的设置数量过少，尝试强制刷新...');
+
+      // 减少延迟时间到500毫秒，提高响应速度
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      try {
+        const retryResponse = await listSetting({
+          _t: new Date().getTime(),
+          pageSize: 500,
+          pageNum: 1
+        });
+
+        const retrySettings = retryResponse.rows || retryResponse.data || [];
+        console.log(`🔄 重试查询找到 ${retrySettings.length} 项设置`);
+
+        if (retrySettings.length > allSettings.length) {
+          allSettings = retrySettings;
+          console.log('✅ 重试查询找到更多设置，已更新');
+        }
+      } catch (retryError) {
+        console.warn('重试查询也失败:', retryError.message);
+      }
+    }
+
+    console.log('📋 最终合并的设置列表 (共 ' + allSettings.length + ' 项):', allSettings.map(s => ({
+      key: s.configKey,
+      value: s.configValue,
+      type: typeof s.configValue
+    })));
+
+    // 将设置项转换为Map格式，并处理特殊类型
     const settings = {};
-    settingList.forEach(setting => {
-      if (setting.settingKey) {
-        let value = setting.settingValue;
+    allSettings.forEach(setting => {
+      if (setting.configKey) {
+        let value = setting.configValue;
+        const originalType = typeof value;
 
         // 处理布尔值转换
         if (value === 'true') {
           value = true;
+          console.log(`🔄 布尔转换 ${setting.configKey}: 'true' → true`);
         } else if (value === 'false') {
           value = false;
+          console.log(`🔄 布尔转换 ${setting.configKey}: 'false' → false`);
         }
 
-        settings[setting.settingKey] = value;
+        // 处理日期类型转换
+        if (setting.configKey === 'blog_start_time' && value && typeof value === 'string') {
+          // 将YYYY-MM-DD格式的字符串转换为Date对象
+          const dateValue = new Date(value);
+          if (!isNaN(dateValue.getTime())) {
+            value = dateValue;
+            console.log(`📅 日期转换 ${setting.configKey}: '${setting.configValue}' → Date(${value.toISOString()})`);
+          } else {
+            console.warn(`⚠️ 无效的日期格式 ${setting.configKey}: '${value}'`);
+            value = null;
+          }
+        }
+
+        // 验证和处理头像数据
+        if (setting.configKey === 'blog_avatar' && value && value.length > 500) {
+          console.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，使用默认头像`);
+          value = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
+        }
+
+        settings[setting.configKey] = value;
+
+        // 为关键字段添加详细调试信息
+        if (['blog_start_time', 'blog_avatar', 'blog_signature'].includes(setting.configKey)) {
+          console.log(`🔍 关键字段 ${setting.configKey}:`, {
+            value: value,
+            valueType: typeof value,
+            originalValue: setting.configValue,
+            originalType: originalType,
+            isValid: value !== null && value !== undefined && value !== ''
+          });
+        }
       }
     });
+
+    console.log('🗂️ 最终处理后的设置对象:', settings);
 
     // 设置默认值，确保所有必要的设置项都有值
     const defaultSettings = {
@@ -265,7 +481,7 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
-      blog_start_time: new Date(),
+      blog_start_time: null, // 不设置默认值，让用户自行选择
       blog_avatar: '',
       blog_signature: '',
       seo_title: '',
@@ -292,29 +508,80 @@ async function getAllSettings() {
       hot_article_count: 5,
       recent_comment_count: 5,
       greeting_message: '欢迎来到我的博客！',
-      about_content: ''
+      about_content: '',
+      // 社交链接
+      github_url: '',
+      weibo_url: '',
+      wechat_qr: '',
+      author_title: '',
+      author_bio: '',
+      author_location: '',
+      personal_website: ''
     };
 
     // 合并默认设置和从服务器获取的设置（服务器设置优先）
     const mergedSettings = { ...defaultSettings };
 
+    // 统计从服务器获取的设置数量
+    const serverSettingKeys = Object.keys(settings);
+    const criticalKeys = ['blog_start_time', 'blog_avatar', 'blog_signature'];
+    const retrievedCriticalKeys = serverSettingKeys.filter(key => criticalKeys.includes(key));
+
+    console.log(`📊 设置统计: 从服务器获取 ${serverSettingKeys.length} 项设置`);
+    console.log(`🔑 关键键统计: 找到 ${retrievedCriticalKeys.length}/3 项关键设置:`, retrievedCriticalKeys);
+    console.log(`📋 服务器设置键:`, serverSettingKeys);
+
     // 用服务器获取的设置覆盖默认设置
     Object.keys(settings).forEach(key => {
-      if (settings[key] !== undefined && settings[key] !== null) {
+      if (settings[key] !== undefined) {
+        // 即使是 null 或空字符串也要保留，因为有些字段可能就是空的
         mergedSettings[key] = settings[key];
+
+        // 为关键字段添加详细日志
+        if (criticalKeys.includes(key)) {
+          console.log(`✅ 应用关键设置 ${key}:`, {
+            value: settings[key],
+            valueType: typeof settings[key],
+            isEmpty: settings[key] === '' || settings[key] === null || settings[key] === undefined
+          });
+        }
       }
+    });
+
+    // 验证关键字段是否正确加载
+    console.log('🔍 关键字段最终验证:');
+    criticalKeys.forEach(key => {
+      const finalValue = mergedSettings[key];
+      console.log(`  ${key}:`, {
+        value: finalValue,
+        type: typeof finalValue,
+        isEmpty: finalValue === '' || finalValue === null || finalValue === undefined,
+        fromServer: serverSettingKeys.includes(key)
+      });
     });
 
     // 保存设置到响应式数据
     settingsMap.value = mergedSettings;
-    // 保存原始设置用于重置（转换为字符串以便比较）
+    // 保存原始设置用于重置（转换为存储格式以便比较）
     originalSettings.value = {};
     Object.keys(mergedSettings).forEach(key => {
       let value = mergedSettings[key];
-      if (typeof value === 'boolean') {
+      let originalType = typeof value;
+      if (value instanceof Date) {
+        // 将日期转换为YYYY-MM-DD格式
+        value = value.toISOString().split('T')[0];
+        originalType = 'Date->' + typeof value;
+      } else if (typeof value === 'boolean') {
+        // 将布尔值转换为字符串
         value = value.toString();
+        originalType = 'boolean->' + typeof value;
       }
       originalSettings.value[key] = value;
+
+      // 对关键字段添加调试信息
+      if (['blog_start_time', 'blog_avatar', 'blog_signature'].includes(key)) {
+        console.log(`原始设置 ${key} (${originalType}):`, value);
+      }
     });
     
   } catch (error) {
@@ -326,7 +593,7 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
-      blog_start_time: new Date(),
+      blog_start_time: null, // 不设置默认值，让用户自行选择
       blog_avatar: '',
       blog_signature: '',
       seo_title: '',
@@ -353,18 +620,39 @@ async function getAllSettings() {
       hot_article_count: 5,
       recent_comment_count: 5,
       greeting_message: '欢迎来到我的博客！',
-      about_content: ''
+      about_content: '',
+      // 社交链接
+      github_url: '',
+      weibo_url: '',
+      blog_email: '',
+      wechat_qr: ''
     };
     
     settingsMap.value = defaultSettings;
-    // 保存原始设置用于重置（转换为字符串以便比较）
+    // 保存原始设置用于重置（转换为存储格式以便比较）
     originalSettings.value = {};
     Object.keys(defaultSettings).forEach(key => {
       let value = defaultSettings[key];
-      if (typeof value === 'boolean') {
+      let originalType = typeof value;
+      if (value instanceof Date) {
+        // 将日期转换为YYYY-MM-DD格式
+        value = value.toISOString().split('T')[0];
+        originalType = 'Date->' + typeof value;
+      } else if (typeof value === 'boolean') {
+        // 将布尔值转换为字符串
         value = value.toString();
+        originalType = 'boolean->' + typeof value;
+      } else if (value === null || value === undefined) {
+        // 将 null/undefined 转换为空字符串
+        value = '';
+        originalType = 'null/undef->string';
       }
       originalSettings.value[key] = value;
+
+      // 对关键字段添加调试信息
+      if (['blog_start_time', 'blog_avatar', 'blog_signature', 'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'].includes(key)) {
+        console.log(`错误处理-原始设置 ${key} (${originalType}):`, value);
+      }
     });
     
     ElMessage.warning('获取设置失败，已使用默认设置');
@@ -382,18 +670,50 @@ async function saveAllSettings() {
     // 获取修改过的设置项
     const modifiedSettings = [];
     for (const key in settingsMap.value) {
-      if (JSON.stringify(settingsMap.value[key]) !== JSON.stringify(originalSettings.value[key])) {
-        let value = settingsMap.value[key];
+      let currentValue = settingsMap.value[key];
+      let originalValue = originalSettings.value[key];
+
+      // 统一比较格式：将当前值转换为存储格式
+      let comparableCurrentValue = currentValue;
+      if (currentValue instanceof Date) {
+        comparableCurrentValue = currentValue.toISOString().split('T')[0];
+      } else if (typeof currentValue === 'boolean') {
+        comparableCurrentValue = currentValue.toString();
+      }
+      // 字符串类型保持不变，但需要处理 null/undefined
+      else if (comparableCurrentValue === null || comparableCurrentValue === undefined) {
+        comparableCurrentValue = '';
+      }
+
+      // 对关键字段添加详细调试信息
+      if (['blog_start_time', 'blog_avatar', 'blog_signature', 'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'].includes(key)) {
+        console.log(`字段比较 ${key}:`, {
+          current: currentValue,
+          currentType: typeof currentValue,
+          original: originalValue,
+          originalType: typeof originalValue,
+          comparable: comparableCurrentValue,
+          hasChanged: comparableCurrentValue !== originalValue
+        });
+      }
+
+      // 如果值有变化，则加入保存列表
+      if (comparableCurrentValue !== originalValue) {
+        let value = currentValue;
 
         // 将布尔值转换为字符串，以便保存到数据库
         if (typeof value === 'boolean') {
           value = value.toString();
+        } else if (value === null || value === undefined) {
+          value = ''; // 将 null/undefined 转换为空字符串
         }
 
         modifiedSettings.push({
           key,
           value: value
         });
+
+        console.log(`检测到修改 ${key}:`, value);
       }
     }
     
@@ -403,45 +723,248 @@ async function saveAllSettings() {
     }
     
     console.log('开始保存设置，修改项数量:', modifiedSettings.length);
-    
-    // 批量更新设置
-    const promises = modifiedSettings.map(async (setting) => {
-      console.log(`正在保存设置: ${setting.key} = ${setting.value}`);
+
+    // 移除获取配置列表的步骤，直接在保存时动态检测是否存在
+    // 这可以减少一次API调用，提高性能
+
+    // 顺序处理设置以避免并发操作导致的键冲突
+    const results = [];
+
+    for (const setting of modifiedSettings) {
+      console.log(`正在保存设置: ${setting.key} = ${setting.value} (${typeof setting.value})`);
+
       try {
-        await updateSettingValueByKey(setting.key, setting.value);
-        console.log(`设置 ${setting.key} 保存成功`);
-        return { success: true, key: setting.key };
+        // 处理日期类型的值
+        let processedValue = setting.value;
+        if (setting.value instanceof Date) {
+          // 将日期转换为YYYY-MM-DD格式
+          processedValue = setting.value.toISOString().split('T')[0];
+          console.log(`日期 ${setting.key} 转换为: ${processedValue}`);
+        }
+
+        // 验证字段长度以符合数据库约束
+        if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 500) {
+          console.error(`头像base64过长: ${processedValue.length} 字符，超过500字符限制`);
+          // 尝试压缩
+          try {
+            processedValue = await compressBase64(processedValue, 450);
+            console.log(`头像压缩后长度: ${processedValue.length} 字符`);
+          } catch (compressError) {
+            console.error('头像压缩失败:', compressError);
+            // 设置默认头像
+            processedValue = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
+            ElMessage.warning('头像数据过长，已设置为默认头像');
+          }
+        }
+
+        // 验证其他字段的长度
+        if (processedValue && typeof processedValue === 'string') {
+          // 大部分字符串字段限制为500字符
+          if (processedValue.length > 500) {
+            console.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过500字符，将被截断`);
+            processedValue = processedValue.substring(0, 497) + '...';
+          }
+        }
+
+        const configData = {
+          configKey: setting.key,
+          configValue: processedValue,
+          configName: setting.key, // 后端验证需要这个字段
+          configType: "N" // 非系统内置配置
+        };
+
+        let success = false;
+
+        // 尝试保存配置（智能检测新增或更新）
+        try {
+          // 首先尝试更新，因为大多数情况下配置已存在
+          console.log(`尝试智能保存配置 ${setting.key}`);
+
+          // 获取最新的配置状态以决定使用更新还是新增
+          const currentConfigResponse = await listSetting({ configKey: setting.key });
+          console.log(`获取配置响应 ${setting.key}:`, {
+            status: currentConfigResponse.status,
+            rows: currentConfigResponse.rows?.length,
+            data: currentConfigResponse.data?.length,
+            total: currentConfigResponse.total
+          });
+
+          const currentConfigs = currentConfigResponse.rows || currentConfigResponse.data || [];
+          const currentConfig = currentConfigs.find(config => config.configKey === setting.key);
+
+          if (currentConfig) {
+            // 配置存在，执行更新
+            console.log(`配置 ${setting.key} 已存在，执行更新，ID: ${currentConfig.configId}, 当前值: ${currentConfig.configValue}`);
+            const updateResponse = await updateSetting({
+              ...configData,
+              configId: currentConfig.configId
+            });
+            console.log(`设置 ${setting.key} 更新响应:`, updateResponse);
+            // 验证更新是否真的成功
+            if (updateResponse.code === 200) {
+              console.log(`✅ 设置 ${setting.key} 更新成功，返回码: ${updateResponse.code}`);
+              success = true;
+            } else {
+              console.error(`❌ 设置 ${setting.key} 更新失败，返回码: ${updateResponse.code}, 消息: ${updateResponse.msg}`);
+              success = false;
+            }
+          } else {
+            // 配置不存在，执行新增
+            console.log(`配置 ${setting.key} 不存在，执行新增`);
+            const addResponse = await addSetting(configData);
+            console.log(`设置 ${setting.key} 新增响应:`, addResponse);
+            // 验证新增是否真的成功
+            if (addResponse.code === 200) {
+              console.log(`✅ 设置 ${setting.key} 新增成功，返回码: ${addResponse.code}`);
+              success = true;
+            } else {
+              console.error(`❌ 设置 ${setting.key} 新增失败，返回码: ${addResponse.code}, 消息: ${addResponse.msg}`);
+              success = false;
+            }
+          }
+
+        } catch (saveErr) {
+          console.error(`设置 ${setting.key} 保存失败详细信息:`, {
+            message: saveErr.message,
+            response: saveErr.response,
+            status: saveErr.response?.status,
+            data: saveErr.response?.data,
+            configData: configData
+          });
+
+          // 分析错误类型并采取相应策略
+          const errorMessage = saveErr.message || '';
+          const responseData = saveErr.response?.data || {};
+
+          if (errorMessage.includes('参数键名已存在') || errorMessage.includes('key already exists') || responseData.msg?.includes('参数键名已存在')) {
+            // 键已存在错误，重新获取配置并尝试更新
+            console.log(`检测到键冲突，重新获取配置并更新 ${setting.key}`);
+            try {
+              const retryResponse = await listSetting({ configKey: setting.key });
+              const retryConfigs = retryResponse.rows || retryResponse.data || [];
+              const retryConfig = retryConfigs.find(config => config.configKey === setting.key);
+
+              if (retryConfig) {
+                await updateSetting({
+                  ...configData,
+                  configId: retryConfig.configId
+                });
+                console.log(`设置 ${setting.key} 冲突解决后更新成功`);
+                success = true;
+              } else {
+                console.error(`配置 ${setting.key} 冲突但无法找到更新目标`);
+              }
+            } catch (retryErr) {
+              console.error(`设置 ${setting.key} 冲突解决失败:`, retryErr);
+            }
+          } else {
+            // 其他类型的错误
+            console.error(`设置 ${setting.key} 遇到数据库错误:`, {
+              errorCode: saveErr.response?.status,
+              errorMessage: responseData.msg || saveErr.message,
+              validationErrors: responseData.errors || responseData.errors
+            });
+          }
+        }
+
+        results.push({ success, key: setting.key });
+
+        // 减少延迟以提高性能，只保留必要的最小延迟
+        await new Promise(resolve => setTimeout(resolve, 10));
+
       } catch (err) {
-        console.error(`设置 ${setting.key} 保存失败:`, err);
-        return { success: false, key: setting.key, error: err };
+        console.error(`设置 ${setting.key} 保存过程出错:`, err);
+        results.push({ success: false, key: setting.key, error: err });
       }
-    });
-    
-    const results = await Promise.all(promises);
+    }
     
     // 检查结果
     const failedSettings = results.filter(result => !result.success);
     
     if (failedSettings.length > 0) {
       const failedKeys = failedSettings.map(s => s.key).join(', ');
+      const conflictErrors = failedSettings.filter(s =>
+        s.error && (s.error.message.includes('参数键名已存在') || s.error.message.includes('key already exists'))
+      );
+
+      if (conflictErrors.length > 0) {
+        console.warn('检测到键冲突错误，可能是并发操作导致，尝试重新加载配置...');
+        // 减少延迟时间，提高响应速度
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
       throw new Error(`以下设置保存失败: ${failedKeys}`);
     }
     
     // 重新加载博客设置，使新设置立即生效
     try {
       await reloadBlogSettings();
+      console.log('重新加载博客设置完成');
     } catch (error) {
       console.warn('重新加载设置失败，但不影响保存:', error);
     }
-    
-    // 更新原始设置（转换为字符串以便比较）
+
+    // 更新全局博客设置状态，通知前台页面
+    try {
+      // 构建最新的设置对象
+      const latestSettings = {};
+      Object.keys(settingsMap.value).forEach(key => {
+        let value = settingsMap.value[key];
+        // 转换为存储格式
+        if (value instanceof Date) {
+          value = value.toISOString().split('T')[0];
+        } else if (typeof value === 'boolean') {
+          value = value.toString();
+        } else if (value === null || value === undefined) {
+          value = '';
+        }
+        latestSettings[key] = value;
+      });
+
+      blogSettingsStore.updateBlogSettings(latestSettings);
+      console.log('博客设置全局状态已更新，前台页面将收到通知');
+
+      // 触发自定义事件，通知其他组件
+      window.dispatchEvent(new CustomEvent('blogSettingsUpdated', {
+        detail: latestSettings
+      }));
+
+    } catch (error) {
+      console.warn('更新全局状态失败:', error);
+    }
+
+    // 保存后立即重新获取设置数据，确保显示最新值
+    console.log('💾 保存成功后立即获取最新数据...');
+
+    // 减少延迟时间，提高响应速度
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    await getAllSettings();
+
+    // 更新原始设置（转换为存储格式以便比较）
     originalSettings.value = {};
     Object.keys(settingsMap.value).forEach(key => {
       let value = settingsMap.value[key];
-      if (typeof value === 'boolean') {
+      let originalType = typeof value;
+      if (value instanceof Date) {
+        // 将日期转换为YYYY-MM-DD格式
+        value = value.toISOString().split('T')[0];
+        originalType = 'Date->' + typeof value;
+      } else if (typeof value === 'boolean') {
+        // 将布尔值转换为字符串
         value = value.toString();
+        originalType = 'boolean->' + typeof value;
+      } else if (value === null || value === undefined) {
+        // 将 null/undefined 转换为空字符串
+        value = '';
+        originalType = 'null/undef->string';
       }
       originalSettings.value[key] = value;
+
+      // 对关键字段添加调试信息
+      if (['blog_start_time', 'blog_avatar', 'blog_signature', 'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'].includes(key)) {
+        console.log(`保存后-原始设置 ${key} (${originalType}):`, value);
+      }
     });
 
     ElMessage.success(`成功保存 ${modifiedSettings.length} 项设置`);
@@ -462,17 +985,135 @@ async function saveAllSettings() {
 }
 
 /**
+ * 压缩base64图片以适应数据库字段长度限制
+ * @param {string} base64String - 原始base64字符串
+ * @param {number} maxLength - 最大长度限制（默认500字符）
+ * @returns {string} 压缩后的base64字符串
+ */
+function compressBase64(base64String, maxLength = 500) {
+  // 如果已经小于限制长度，直接返回
+  if (base64String.length <= maxLength) {
+    return base64String;
+  }
+
+  // 计算需要压缩的比例
+  const ratio = maxLength / base64String.length;
+
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // 使用更激进的压缩策略，首先大幅缩小尺寸
+      const newWidth = Math.floor(img.width * Math.sqrt(ratio) * 0.4); // 更激进的缩小
+      const newHeight = Math.floor(img.height * Math.sqrt(ratio) * 0.4);
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+
+      // 绘制压缩后的图片
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+      // 转换为base64，使用极低的质量
+      let compressedBase64 = canvas.toDataURL('image/jpeg', 0.2); // 从0.2质量开始
+
+      // 如果仍然太长，使用多级压缩策略
+      if (compressedBase64.length > maxLength) {
+        console.log(`初次压缩后长度: ${compressedBase64.length}，继续压缩...`);
+
+        // 多级压缩策略，更激进
+        const compressionStrategies = [
+          { width: newWidth * 0.6, height: newHeight * 0.6, quality: 0.15 },
+          { width: newWidth * 0.4, height: newHeight * 0.4, quality: 0.1 },
+          { width: newWidth * 0.2, height: newHeight * 0.2, quality: 0.05 }
+        ];
+
+        for (const strategy of compressionStrategies) {
+          canvas.width = Math.floor(strategy.width);
+          canvas.height = Math.floor(strategy.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          compressedBase64 = canvas.toDataURL('image/jpeg', strategy.quality);
+          console.log(`压缩策略 - 尺寸: ${canvas.width}x${canvas.height}, 质量: ${strategy.quality}, 长度: ${compressedBase64.length}`);
+
+          if (compressedBase64.length <= maxLength) {
+            break;
+          }
+        }
+
+        // 如果所有策略都失败，生成极小的默认头像
+        if (compressedBase64.length > maxLength) {
+          console.log(`所有压缩策略失败，生成极小默认头像`);
+          compressedBase64 = generateMinimalAvatar(maxLength);
+        }
+      }
+
+      resolve(compressedBase64);
+    };
+
+    img.onerror = () => {
+      // 如果压缩失败，返回一个简化的默认头像
+      resolve(generateMinimalAvatar(maxLength));
+    };
+
+    img.src = base64String;
+  });
+}
+
+/**
+ * 生成极小的默认头像base64
+ * @param {number} maxLength - 最大长度限制
+ * @returns {string} 极小的默认头像base64
+ */
+function generateMinimalAvatar(maxLength) {
+  // 生成一个极小的SVG头像，大约200-300字符
+  const minimalSvg = `data:image/svg+xml;base64,${btoa(
+    '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle cx="20" cy="20" r="20" fill="#f0f0f0"/>' +
+    '<circle cx="20" cy="15" r="7" fill="#999999"/>' +
+    '<ellipse cx="20" cy="30" rx="10" ry="7" fill="#999999"/>' +
+    '</svg>'
+  )}`;
+
+  console.log(`生成极小默认头像，长度: ${minimalSvg.length}`);
+  return minimalSvg;
+}
+
+/**
  * 处理头像变更
  */
-function handleAvatarChange(file) {
-  // 这里只是预览，实际上传需要调用上传接口
-  // 在真实环境中，这里应该上传图片到服务器并获取URL
-  // 现在只是简单地读取本地文件用于预览
-  const reader = new FileReader();
-  reader.readAsDataURL(file.raw);
-  reader.onload = (e) => {
-    settingsMap.value.blog_avatar = e.target.result;
-  };
+async function handleAvatarChange(file) {
+  try {
+    const reader = new FileReader();
+    reader.readAsDataURL(file.raw);
+
+    reader.onload = async (e) => {
+      const originalBase64 = e.target.result;
+      console.log('原始头像base64长度:', originalBase64.length);
+
+      try {
+        // 压缩base64以适应450字符限制（留50字符缓冲）
+        const compressedBase64 = await compressBase64(originalBase64, 450);
+        console.log('压缩后头像base64长度:', compressedBase64.length);
+
+        settingsMap.value.blog_avatar = compressedBase64;
+        ElMessage.success(`头像已压缩至${compressedBase64.length}字符，符合数据库限制`);
+      } catch (compressError) {
+        console.error('头像压缩失败:', compressError);
+        // 如果压缩失败，设置一个简单的默认头像
+        settingsMap.value.blog_avatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
+        ElMessage.warning('头像压缩失败，已设置为默认头像');
+      }
+    };
+
+    reader.onerror = () => {
+      ElMessage.error('头像文件读取失败');
+    };
+  } catch (error) {
+    console.error('头像处理失败:', error);
+    ElMessage.error('头像处理失败，请重试');
+  }
 }
 
 /**
@@ -493,6 +1134,58 @@ function handleWechatQRChange(file) {
 onMounted(() => {
   getAllSettings();
 });
+
+// 添加一个测试函数用于验证数据库连接
+async function testDatabaseConnection() {
+  console.log('=== 开始数据库连接测试 ===');
+
+  try {
+    // 1. 测试获取所有设置
+    console.log('1. 测试获取所有设置...');
+    const allSettingsResponse = await listSetting({});
+    console.log('获取所有设置成功:', allSettingsResponse);
+
+    // 2. 测试获取特定设置（如果存在）
+    console.log('2. 测试获取特定设置...');
+    const testKey = 'blog_name'; // 尝试获取一个可能存在的设置
+    const specificResponse = await listSetting({ configKey: testKey });
+    console.log(`获取设置 ${testKey}:`, specificResponse);
+
+    // 3. 测试添加一个测试设置
+    console.log('3. 测试添加测试设置...');
+    const testConfig = {
+      configKey: 'test_setting_' + Date.now(),
+      configValue: 'test_value_' + Date.now(),
+      configName: '测试设置',
+      configType: 'N'
+    };
+
+    try {
+      const addResponse = await addSetting(testConfig);
+      console.log('添加测试设置成功:', addResponse);
+
+      // 4. 测试更新刚添加的设置
+      console.log('4. 测试更新测试设置...');
+      const updateData = {
+        ...testConfig,
+        configValue: 'updated_value_' + Date.now()
+      };
+      const updateResponse = await updateSetting(updateData);
+      console.log('更新测试设置成功:', updateResponse);
+
+    } catch (testErr) {
+      console.error('测试设置操作失败:', testErr);
+    }
+
+    console.log('=== 数据库连接测试完成 ===');
+
+  } catch (error) {
+    console.error('数据库连接测试失败:', error);
+  }
+}
+
+// 将测试函数暴露到全局，方便在控制台调用
+window.testDatabaseConnection = testDatabaseConnection;
 
 /**
  * 重置设置

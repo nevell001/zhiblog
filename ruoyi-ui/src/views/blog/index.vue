@@ -208,7 +208,7 @@
               <a :href="blogSettings.github_url || '#'" class="social-link" title="GitHub" target="_blank" rel="noopener">
                 <i class="el-icon-s-promotion"></i>
               </a>
-              <a :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'" class="social-link" title="邮箱">
+              <a :href="blogSettings.blog_email ? `mailto:${blogSettings.blog_email}` : '#'" class="social-link" title="邮箱">
                 <i class="el-icon-message"></i>
               </a>
               <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
@@ -219,12 +219,7 @@
               </a>
             </div>
 
-            <!-- 联系按钮 -->
-            <el-button type="primary" size="small" class="contact-btn" @click="showContactDialog = true">
-              <i class="el-icon-chat-line-round"></i>
-              联系我
-            </el-button>
-          </div>
+            </div>
         </div>
 
         <!-- 分类 -->
@@ -352,28 +347,7 @@
       </div>
     </el-dialog>
 
-    <!-- 联系对话框 -->
-    <el-dialog v-model="showContactDialog" title="联系我" width="500px">
-      <el-form :model="contactForm" label-width="80px">
-        <el-form-item label="姓名">
-          <el-input v-model="contactForm.name" placeholder="请输入您的姓名" />
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="contactForm.email" placeholder="请输入您的邮箱" type="email" />
-        </el-form-item>
-        <el-form-item label="主题">
-          <el-input v-model="contactForm.subject" placeholder="请输入主题" />
-        </el-form-item>
-        <el-form-item label="内容">
-          <el-input v-model="contactForm.message" type="textarea" :rows="5" placeholder="请输入留言内容" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showContactDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleContactSubmit">发送</el-button>
-      </template>
-    </el-dialog>
-
+  
     <!-- 博客底部 -->
     <BlogFooter
       :blogSettings="blogSettings"
@@ -394,6 +368,10 @@ import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
+
+// 初始化博客设置全局状态
+const blogSettingsStore = useBlogSettingsStore()
 
 // 响应式数据
 const articleList = ref([])
@@ -412,13 +390,6 @@ const loadingMore = ref(false)
 const showBackToTop = ref(false)
 const scrollProgress = ref(0)
 const showWechatQR = ref(false)
-const showContactDialog = ref(false)
-const contactForm = reactive({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
 
 // 查询参数
 const queryParams = reactive({
@@ -580,23 +551,31 @@ const loadBlogSettings = async () => {
       console.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
       response = await getBlogSettingsAnonymous()
     }
-    
+
     console.log('博客设置响应:', response)
-    
+
+    let settings = {}
+
     // 处理不同的响应格式
     if (response && response.code === 200) {
-      blogSettings.value = response.data || {}
+      settings = response.data || {}
     } else if (response && typeof response === 'object') {
-      blogSettings.value = response
+      settings = response
     }
-    
+
+    // 更新本地状态
+    blogSettings.value = settings
+
+    // 同步到全局状态
+    blogSettingsStore.setBlogSettings(settings)
+
     // 设置最后更新时间
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
     console.error('获取博客设置失败:', error)
     if (error.response && error.response.status === 404 || error.response && error.response.status === 401) {
       console.warn('博客设置接口暂未实现或匿名访问失败，使用默认设置')
-      blogSettings.value = {
+      const defaultSettings = {
         blog_name: '我的博客',
         blog_desc: '这是一个基于RuoYi-Vue的博客系统',
         blog_author: 'nevell',
@@ -604,13 +583,31 @@ const loadBlogSettings = async () => {
         blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主',
         skills: ['Vue.js', 'Spring Boot', 'Java', 'JavaScript', 'MySQL', 'Redis'],
         github_url: 'https://github.com',
-        email: 'contact@example.com',
+        blog_email: 'contact@example.com',
+        weibo_url: 'https://weibo.com',
         wechat_qr: 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
       }
+      blogSettings.value = defaultSettings
+      blogSettingsStore.setBlogSettings(defaultSettings)
     }
     // 设置最后更新时间
     lastUpdateTime.value = formatDate(new Date().toISOString())
   }
+}
+
+// 监听博客设置更新事件
+const handleBlogSettingsUpdate = (event) => {
+  console.log('收到博客设置更新事件:', event.detail)
+
+  // 更新本地状态
+  const newSettings = event.detail
+  blogSettings.value = { ...blogSettings.value, ...newSettings }
+
+  // 强制重新渲染
+  lastUpdateTime.value = formatDate(new Date().toISOString())
+
+  // 显示提示
+  ElMessage.success('博客设置已更新，头像等信息将立即生效')
 }
 
 // 获取标签云
@@ -775,23 +772,6 @@ const handleImageError = (e) => {
   e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
 }
 
-// 处理联系表单提交
-const handleContactSubmit = () => {
-  if (!contactForm.name || !contactForm.email || !contactForm.message) {
-    ElMessage.warning('请填写完整信息')
-    return
-  }
-  
-  // 这里可以调用API发送邮件
-  ElMessage.success('消息已发送，我会尽快回复您！')
-  showContactDialog.value = false
-  
-  // 重置表单
-  contactForm.name = ''
-  contactForm.email = ''
-  contactForm.subject = ''
-  contactForm.message = ''
-}
 
 // 组件挂载时加载数据
 onMounted(() => {
@@ -801,14 +781,22 @@ onMounted(() => {
   loadBlogSettings()
   loadTagCloud()
   loadArchiveData()
-  
+
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll)
+
+  // 添加博客设置更新监听器
+  window.addEventListener('blogSettingsUpdated', handleBlogSettingsUpdate)
+  console.log('博客设置更新监听器已添加')
 })
 
 // 组件卸载时移除监听
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+
+  // 移除博客设置更新监听器
+  window.removeEventListener('blogSettingsUpdated', handleBlogSettingsUpdate)
+  console.log('博客设置更新监听器已移除')
 })
 </script>
 
@@ -1524,12 +1512,6 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.contact-btn {
-  width: 100%;
-  margin-top: 15px;
-  border-radius: 20px;
-  font-weight: 600;
-}
 
 .qr-code-container {
   text-align: center;
