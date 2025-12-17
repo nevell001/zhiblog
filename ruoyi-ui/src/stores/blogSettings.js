@@ -22,7 +22,14 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
   }),
 
   getters: {
-    getBlogAvatar: (state) => state.blogSettings.blog_avatar || 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主',
+    getBlogAvatar: (state) => {
+      const avatar = state.blogSettings.blog_avatar;
+      if (avatar && avatar.trim() && avatar !== 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主') {
+        return avatar;
+      }
+      // 返回默认头像（使用Data URL）
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiM0MDlFRkYiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTQiIGZpbGw9IndoaXRlIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjU4IiByeD0iMjAiIHJ5PSIxNiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4K';
+    },
     getBlogAuthor: (state) => state.blogSettings.blog_author || 'nevell',
     getBlogName: (state) => state.blogSettings.blog_name || '我的博客'
   },

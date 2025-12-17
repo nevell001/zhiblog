@@ -28,6 +28,8 @@ import com.ruoyi.system.service.IBlogCategoryService;
 import com.ruoyi.system.service.IBlogCommentService;
 import com.ruoyi.system.service.IBlogSettingService;
 import com.ruoyi.system.service.IBlogTagService;
+import com.ruoyi.system.service.ISysConfigService;
+import com.ruoyi.system.domain.SysConfig;
 
 /**
  * 上下篇文章信息DTO
@@ -80,6 +82,9 @@ public class BlogFrontController extends BaseController
     @Autowired
     private IBlogTagService blogTagService;
 
+    @Autowired
+    private ISysConfigService sysConfigService;
+
     /**
      * 获取博客设置（前台用）
      */
@@ -87,24 +92,138 @@ public class BlogFrontController extends BaseController
     @GetMapping("/setting")
     public AjaxResult getBlogSettings()
     {
-        // 创建一个Map来存储所有设置项，键为settingKey，值为settingValue
-        Map<String, String> settingsMap = new HashMap<>();
-        
-        // 查询所有设置项
-        BlogSetting blogSetting = new BlogSetting();
-        blogSetting.setDelFlag("0"); // 只查询未删除的设置
-        List<BlogSetting> list = blogSettingService.selectBlogSettingList(blogSetting);
-        
-        if (list != null && !list.isEmpty()) {
-            // 将所有设置项转换为Map格式
-            for (BlogSetting setting : list) {
-                if (setting.getSettingKey() != null) {
-                    settingsMap.put(setting.getSettingKey(), setting.getSettingValue());
+        // 创建一个Map来存储所有设置项，键为configKey，值为configValue
+        Map<String, Object> settingsMap = new HashMap<>();
+
+        try {
+            System.out.println("=== 博客设置调试信息 ===");
+
+            // 首先尝试从sys_config表获取（后台管理页面配置的数据）
+            List<SysConfig> configList = null;
+            try {
+                configList = sysConfigService.selectConfigList(new SysConfig());
+                System.out.println("从sys_config表获取到 " + (configList != null ? configList.size() : 0) + " 个配置项");
+            } catch (Exception e) {
+                System.out.println("sys_config表查询失败: " + e.getMessage());
+            }
+
+            // 如果sys_config表为空，则回退到blog_setting表
+            if (configList == null || configList.isEmpty()) {
+                System.out.println("sys_config表为空，回退到blog_setting表");
+                BlogSetting blogSetting = new BlogSetting();
+                blogSetting.setDelFlag("0"); // 只查询未删除的设置
+                List<BlogSetting> blogSettingList = blogSettingService.selectBlogSettingList(blogSetting);
+                System.out.println("从blog_setting表获取到 " + (blogSettingList != null ? blogSettingList.size() : 0) + " 个配置项");
+
+                if (blogSettingList != null && !blogSettingList.isEmpty()) {
+                    for (BlogSetting setting : blogSettingList) {
+                        if (setting.getSettingKey() != null) {
+                            String key = setting.getSettingKey();
+                            String value = setting.getSettingValue();
+
+                            // 输出关键配置项
+                            if (key.startsWith("blog_") || key.equals("github_url") || key.equals("weibo_url") || key.equals("wechat_qr")) {
+                                System.out.println("配置项: " + key + " = " + value);
+                            }
+
+                            // 处理特殊类型转换
+                            Object convertedValue = value;
+
+                            // 布尔值转换
+                            if ("true".equals(value)) {
+                                convertedValue = true;
+                            } else if ("false".equals(value)) {
+                                convertedValue = false;
+                            }
+
+                            // 头像URL特殊处理
+                            if ("blog_avatar".equals(key) && value != null && !value.isEmpty() && !value.startsWith("http") && !value.startsWith("data:")) {
+                                // 确保头像URL格式正确
+                                if (value.startsWith("/")) {
+                                    convertedValue = value; // 已经是正确的绝对路径
+                                } else {
+                                    convertedValue = "/" + value; // 添加前导斜杠
+                                }
+                            }
+
+                            settingsMap.put(key, convertedValue);
+                        }
+                    }
+                }
+            } else {
+                // 使用sys_config表的数据
+                for (SysConfig config : configList) {
+                    if (config.getConfigKey() != null) {
+                        String key = config.getConfigKey();
+                        String value = config.getConfigValue();
+
+                        // 输出关键配置项
+                        if (key.startsWith("blog_") || key.equals("github_url") || key.equals("weibo_url") || key.equals("wechat_qr")) {
+                            System.out.println("配置项: " + key + " = " + value);
+                        }
+
+                        // 处理特殊类型转换
+                        Object convertedValue = value;
+
+                        // 布尔值转换
+                        if ("true".equals(value)) {
+                            convertedValue = true;
+                        } else if ("false".equals(value)) {
+                            convertedValue = false;
+                        }
+
+                        // 头像URL特殊处理
+                        if ("blog_avatar".equals(key) && value != null && !value.isEmpty() && !value.startsWith("http") && !value.startsWith("data:")) {
+                            // 确保头像URL格式正确
+                            if (value.startsWith("/")) {
+                                convertedValue = value; // 已经是正确的绝对路径
+                            } else {
+                                convertedValue = "/" + value; // 添加前导斜杠
+                            }
+                        }
+
+                        settingsMap.put(key, convertedValue);
+                    }
                 }
             }
+
+            // 确保必要的设置项都有默认值
+            setDefaultSetting(settingsMap, "blog_avatar", "");
+            setDefaultSetting(settingsMap, "github_url", "");
+            setDefaultSetting(settingsMap, "weibo_url", "");
+            setDefaultSetting(settingsMap, "wechat_qr", "");
+            setDefaultSetting(settingsMap, "blog_author", "nevell");
+            setDefaultSetting(settingsMap, "blog_name", "我的博客");
+            setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
+            setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
+            setDefaultSetting(settingsMap, "blog_email", "");
+
+        } catch (Exception e) {
+            System.err.println("获取博客设置出错: " + e.getMessage());
+            e.printStackTrace();
+
+            // 如果出错，返回默认设置
+            setDefaultSetting(settingsMap, "blog_avatar", "");
+            setDefaultSetting(settingsMap, "github_url", "");
+            setDefaultSetting(settingsMap, "weibo_url", "");
+            setDefaultSetting(settingsMap, "wechat_qr", "");
+            setDefaultSetting(settingsMap, "blog_author", "nevell");
+            setDefaultSetting(settingsMap, "blog_name", "我的博客");
+            setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
+            setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
+            setDefaultSetting(settingsMap, "blog_email", "");
         }
-        
+
         return success(settingsMap);
+    }
+
+    /**
+     * 设置默认值
+     */
+    private void setDefaultSetting(Map<String, Object> settingsMap, String key, String defaultValue) {
+        if (!settingsMap.containsKey(key) || settingsMap.get(key) == null || "".equals(settingsMap.get(key))) {
+            settingsMap.put(key, defaultValue);
+        }
     }
 
     /**
@@ -320,9 +439,10 @@ public class BlogFrontController extends BaseController
         blogArticle.setStatus(1L); // 只查询已发布的文章
         blogArticle.setDelFlag(0L); // 只查询未删除的文章
         blogArticle.setIsRecommend(1L); // 推荐的文章
+        blogArticle.setIsTop(1L); // 置顶文章优先
         
         startPage(); // 启用分页
-        List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+        List<BlogArticle> list = blogArticleService.selectBlogArticleListWithCache(blogArticle);
         return getDataTable(list);
     }
 

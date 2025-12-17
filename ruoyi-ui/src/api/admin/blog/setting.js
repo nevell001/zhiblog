@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 查询博客设置列表
 export function listSetting(query) {
   return request({
-    url: '/system/config/list',
+    url: '/system/setting/list',
     method: 'get',
     params: query
   })
@@ -12,7 +12,7 @@ export function listSetting(query) {
 // 查询博客设置详细
 export function getSetting(id) {
   return request({
-    url: '/system/config/' + id,
+    url: '/system/setting/' + id,
     method: 'get'
   })
 }
@@ -20,7 +20,7 @@ export function getSetting(id) {
 // 根据配置键查询配置值
 export function getConfigByKey(configKey) {
   return request({
-    url: '/system/config/configKey/' + configKey,
+    url: '/system/setting/value/' + configKey,
     method: 'get'
   })
 }
@@ -28,7 +28,7 @@ export function getConfigByKey(configKey) {
 // 新增博客设置
 export function addSetting(data) {
   return request({
-    url: '/system/config',
+    url: '/system/setting',
     method: 'post',
     data: data
   })
@@ -37,7 +37,7 @@ export function addSetting(data) {
 // 修改博客设置
 export function updateSetting(data) {
   return request({
-    url: '/system/config',
+    url: '/system/setting',
     method: 'put',
     data: data
   })
@@ -46,7 +46,7 @@ export function updateSetting(data) {
 // 删除博客设置
 export function delSetting(ids) {
   return request({
-    url: '/system/config/' + ids,
+    url: '/system/setting/' + ids,
     method: 'delete'
   })
 }
@@ -54,7 +54,7 @@ export function delSetting(ids) {
 // 刷新缓存
 export function refreshCache() {
   return request({
-    url: '/system/config/refreshCache',
+    url: '/system/setting/refreshCache',
     method: 'delete'
   })
 }
@@ -62,8 +62,8 @@ export function refreshCache() {
 // 根据键更新设置值
 export function updateSettingValueByKey(key, value) {
   return request({
-    url: '/system/config',
-    method: 'put',
-    data: { configKey: key, configValue: value }
+    url: '/system/setting/updateByKey',
+    method: 'post',
+    data: { settingKey: key, settingValue: value }
   })
 }

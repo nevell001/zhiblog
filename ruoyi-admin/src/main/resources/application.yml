@@ -151,6 +151,14 @@ spring:
         max-active: 8
         # #连接池最大阻塞等待时间（使用负值表示没有限制）
         max-wait: -1ms
+  # 缓存配置
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600s  # 默认缓存10分钟
+      cache-null-values: false
+      key-prefix: "blog:"
+      use-key-prefix: true
 
 # token配置
 token:
@@ -194,3 +202,25 @@ xss:
   excludes: /system/notice,/system/article
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+# 图片压缩配置
+image:
+  compress:
+    # 是否启用图片压缩
+    enabled: true
+    # 压缩阈值（超过此大小才压缩）
+    threshold-size: 2MB
+    # 默认最大宽度
+    max-width: 1920
+    # 默认最大高度
+    max-height: 1080
+    # 默认压缩质量 (0.0-1.0)
+    default-quality: 0.85
+    # 头像压缩尺寸
+    avatar-size: 200
+    # 缩略图压缩尺寸
+    thumbnail-size: 400
+    # 头像压缩质量
+    avatar-quality: 0.9
+    # 缩略图压缩质量
+    thumbnail-quality: 0.8

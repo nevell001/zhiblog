@@ -18,6 +18,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.common.utils.file.MimeTypeUtils;
 import com.ruoyi.framework.config.ServerConfig;
 
 /**
@@ -86,6 +87,96 @@ public class CommonController
             ajax.put("fileName", fileName);
             ajax.put("newFileName", FileUtils.getName(fileName));
             ajax.put("originalFilename", file.getOriginalFilename());
+            return ajax;
+        }
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 通用上传请求（带图片压缩）
+     */
+    @PostMapping("/upload/compressed")
+    public AjaxResult uploadFileCompressed(MultipartFile file) throws Exception
+    {
+        try
+        {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            // 上传并返回新文件名称（带图片压缩）
+            String fileName = FileUploadUtils.uploadWithCompression(filePath, file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION);
+
+            // 生成可访问的URL，使用相对路径避免域名问题
+            String url = fileName; // 直接返回文件路径，前端会自动拼接域名
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("url", url);
+            ajax.put("fileName", fileName);
+            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", file.getOriginalFilename());
+            ajax.put("compressed", true); // 标记是否进行了压缩
+            return ajax;
+        }
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 头像上传接口（专门压缩为头像尺寸）
+     */
+    @PostMapping("/upload/avatar")
+    public AjaxResult uploadAvatar(MultipartFile file) throws Exception
+    {
+        try
+        {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            // 上传并返回新文件名称（头像压缩）
+            String fileName = FileUploadUtils.uploadAvatar(filePath, file, true);
+
+            // 生成可访问的URL，使用相对路径避免域名问题
+            String url = fileName; // 直接返回文件路径
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("url", url);
+            ajax.put("fileName", fileName);
+            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", file.getOriginalFilename());
+            ajax.put("type", "avatar"); // 标记为头像类型
+            return ajax;
+        }
+        catch (Exception e)
+        {
+            return AjaxResult.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 缩略图上传接口
+     */
+    @PostMapping("/upload/thumbnail")
+    public AjaxResult uploadThumbnail(MultipartFile file) throws Exception
+    {
+        try
+        {
+            // 上传文件路径
+            String filePath = RuoYiConfig.getUploadPath();
+            // 上传并返回新文件名称（缩略图压缩）
+            String fileName = FileUploadUtils.uploadThumbnail(filePath, file, true);
+
+            // 生成可访问的URL，使用相对路径避免域名问题
+            String url = fileName; // 直接返回文件路径
+
+            AjaxResult ajax = AjaxResult.success();
+            ajax.put("url", url);
+            ajax.put("fileName", fileName);
+            ajax.put("newFileName", FileUtils.getName(fileName));
+            ajax.put("originalFilename", file.getOriginalFilename());
+            ajax.put("type", "thumbnail"); // 标记为缩略图类型
             return ajax;
         }
         catch (Exception e)

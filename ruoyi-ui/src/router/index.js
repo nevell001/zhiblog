@@ -82,6 +82,12 @@ const routes = [
         name: 'BlogSetting',
         component: () => import('@/views/admin/blog/setting/index.vue'),
         meta: { title: '博客设置', icon: 'setting' }
+      },
+      {
+        path: 'test/image-compress',
+        name: 'ImageCompressTest',
+        component: () => import('@/views/admin/test/ImageCompressTest.vue'),
+        meta: { title: '图片压缩测试', icon: 'picture' }
       }
     ]
   },

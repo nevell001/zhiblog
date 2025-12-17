@@ -46,15 +46,20 @@
               <div class="avatar-upload">
                 <el-upload
                   class="avatar-uploader"
-                  action=""
-                  :on-change="handleAvatarChange"
+                  :action="uploadAvatarUrl"
+                  :headers="headers"
+                  :on-success="handleAvatarUploadSuccess"
+                  :before-upload="handleAvatarBeforeUpload"
                   :show-file-list="false"
-                  :auto-upload="false"
                 >
                   <img v-if="settingsMap.blog_avatar" :src="settingsMap.blog_avatar" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <el-input v-model="settingsMap.blog_avatar" class="avatar-input" placeholder="或直接输入头像URL" />
+                <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
+                  🎯 <strong>推荐使用专业压缩</strong>：自动压缩为200x200正方形，质量90%，文件小
+                  <br>💡 支持 JPG/PNG/GIF 格式，最大10MB，自动居中裁剪
+                </div>
               </div>
             </el-form-item>
             <el-form-item label="博主签名" prop="blog_signature">
@@ -167,15 +172,20 @@
               <div class="avatar-upload">
                 <el-upload
                   class="avatar-uploader"
-                  action=""
-                  :on-change="handleWechatQRChange"
+                  :action="uploadThumbnailUrl"
+                  :headers="headers"
+                  :on-success="handleQRCodeUploadSuccess"
+                  :before-upload="handleQRCodeBeforeUpload"
                   :show-file-list="false"
-                  :auto-upload="false"
                 >
                   <img v-if="settingsMap.wechat_qr" :src="settingsMap.wechat_qr" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <el-input v-model="settingsMap.wechat_qr" class="avatar-input" placeholder="或直接输入二维码URL" />
+                <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
+                  🎯 <strong>智能压缩二维码</strong>：自动压缩为400x400，保持清晰度，质量80%
+                  <br>💡 适合微信二维码、支付码等，自动优化大小和清晰度
+                </div>
               </div>
             </el-form-item>
             <el-form-item label="位置信息" prop="author_location">
@@ -209,6 +219,56 @@
           </el-form>
         </el-tab-pane>
       </el-tabs>
+
+      <!-- 图片压缩功能介绍 -->
+      <el-card shadow="never" style="margin-top: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+        <template #header>
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center;">
+              <span style="color: #409EFF; font-weight: bold;">🎨 图片压缩功能</span>
+              <el-tag type="success" size="small" style="margin-left: 10px;">已启用</el-tag>
+            </div>
+            <el-button size="small" type="primary" @click="openCompressTest">
+              <i class="el-icon-setting"></i> 测试压缩功能
+            </el-button>
+          </div>
+        </template>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <div class="compress-feature">
+              <h4>👤 头像压缩</h4>
+              <p><strong>200×200正方形</strong> | 质量90% | 自动居中裁剪</p>
+              <div class="feature-example">
+                <div class="example-avatar"></div>
+                <span>博主头像、用户头像</span>
+              </div>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="compress-feature">
+              <h4>🖼️ 缩略图压缩</h4>
+              <p><strong>400×400最大尺寸</strong> | 质量80% | 保持宽高比</p>
+              <div class="feature-example">
+                <div class="example-thumbnail"></div>
+                <span>二维码、图片预览</span>
+              </div>
+            </div>
+          </el-col>
+          <el-col :span="8">
+            <div class="compress-feature">
+              <h4>📦 智能压缩</h4>
+              <p><strong>自适应压缩策略</strong> | 根据文件大小 | 高质量压缩</p>
+              <div class="feature-example">
+                <div class="example-smart"></div>
+                <span>文章配图、通用图片</span>
+              </div>
+            </div>
+          </el-col>
+        </el-row>
+        <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #666;">
+          基于 <strong>Thumbnailator</strong> 专业图片处理库 | 压缩率可达60-80% | 支持JPG/PNG/GIF
+        </div>
+      </el-card>
     </el-card>
   </div>
 </template>
@@ -219,8 +279,15 @@ import { ElMessage, ElButton, ElCard, ElTabs, ElTabPane, ElForm, ElFormItem, ElI
 import { listSetting, getSetting, updateSetting, updateSettingValueByKey, addSetting, getConfigByKey, delSetting } from "@/api/admin/blog/setting";
 import { reloadBlogSettings } from '@/utils/blogSettings';
 import { useBlogSettingsStore } from '@/stores/blogSettings';
+import { getToken } from "@/utils/auth";
 
 const { proxy } = getCurrentInstance();
+
+// 头像上传相关
+const baseUrl = import.meta.env.VITE_APP_BASE_API;
+const uploadAvatarUrl = baseUrl + '/common/upload/avatar';
+const uploadThumbnailUrl = baseUrl + '/common/upload/thumbnail';
+const headers = ref({ Authorization: "Bearer " + getToken() });
 
 // 初始化博客设置全局状态
 const blogSettingsStore = useBlogSettingsStore();
@@ -560,6 +627,14 @@ async function getAllSettings() {
       });
     });
 
+    // 特别处理头像URL，确保格式正确
+    if (mergedSettings.blog_avatar) {
+      mergedSettings.blog_avatar = cleanAvatarUrl(mergedSettings.blog_avatar);
+    }
+    if (mergedSettings.wechat_qr) {
+      mergedSettings.wechat_qr = cleanAvatarUrl(mergedSettings.wechat_qr);
+    }
+
     // 保存设置到响应式数据
     settingsMap.value = mergedSettings;
     // 保存原始设置用于重置（转换为存储格式以便比较）
@@ -628,6 +703,10 @@ async function getAllSettings() {
       wechat_qr: ''
     };
     
+    // 特别处理默认头像URL
+    defaultSettings.blog_avatar = cleanAvatarUrl(defaultSettings.blog_avatar);
+    defaultSettings.wechat_qr = cleanAvatarUrl(defaultSettings.wechat_qr);
+
     settingsMap.value = defaultSettings;
     // 保存原始设置用于重置（转换为存储格式以便比较）
     originalSettings.value = {};
@@ -744,16 +823,16 @@ async function saveAllSettings() {
 
         // 验证字段长度以符合数据库约束
         if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 500) {
-          console.error(`头像base64过长: ${processedValue.length} 字符，超过500字符限制`);
-          // 尝试压缩
-          try {
-            processedValue = await compressBase64(processedValue, 450);
-            console.log(`头像压缩后长度: ${processedValue.length} 字符`);
-          } catch (compressError) {
-            console.error('头像压缩失败:', compressError);
-            // 设置默认头像
-            processedValue = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
-            ElMessage.warning('头像数据过长，已设置为默认头像');
+          console.warn(`头像URL过长: ${processedValue.length} 字符，超过500字符限制`);
+          // 如果是base64格式且过长，建议使用文件上传方式
+          if (processedValue.startsWith('data:image/')) {
+            ElMessage.warning('检测到base64格式头像过长，建议使用文件上传方式获得更优质量');
+            // 截断base64以避免数据库错误
+            processedValue = processedValue.substring(0, 497) + '...';
+          } else if (processedValue.startsWith('http')) {
+            // 如果是URL过长，提示用户
+            ElMessage.warning('头像URL过长，请使用较短的URL或文件上传方式');
+            processedValue = processedValue.substring(0, 497) + '...';
           }
         }
 
@@ -984,156 +1063,231 @@ async function saveAllSettings() {
   }
 }
 
+
+
+
+
 /**
- * 压缩base64图片以适应数据库字段长度限制
- * @param {string} base64String - 原始base64字符串
- * @param {number} maxLength - 最大长度限制（默认500字符）
- * @returns {string} 压缩后的base64字符串
+ * 清理和验证头像URL
  */
-function compressBase64(base64String, maxLength = 500) {
-  // 如果已经小于限制长度，直接返回
-  if (base64String.length <= maxLength) {
-    return base64String;
+function cleanAvatarUrl(url) {
+  if (!url) return '';
+
+  // 如果是base64格式，提示用户使用文件上传
+  if (url.startsWith('data:image/')) {
+    ElMessage.warning('检测到Base64格式头像，建议使用文件上传以获得更好的性能和显示效果');
+    return url; // 暂时保留，但给出提示
   }
 
-  // 计算需要压缩的比例
-  const ratio = maxLength / base64String.length;
+  // 如果是相对路径，确保格式正确
+  if (!url.startsWith('http') && !url.startsWith('/')) {
+    url = '/' + url;
+  }
 
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-
-      // 使用更激进的压缩策略，首先大幅缩小尺寸
-      const newWidth = Math.floor(img.width * Math.sqrt(ratio) * 0.4); // 更激进的缩小
-      const newHeight = Math.floor(img.height * Math.sqrt(ratio) * 0.4);
-
-      canvas.width = newWidth;
-      canvas.height = newHeight;
-
-      // 绘制压缩后的图片
-      ctx.drawImage(img, 0, 0, newWidth, newHeight);
-
-      // 转换为base64，使用极低的质量
-      let compressedBase64 = canvas.toDataURL('image/jpeg', 0.2); // 从0.2质量开始
-
-      // 如果仍然太长，使用多级压缩策略
-      if (compressedBase64.length > maxLength) {
-        console.log(`初次压缩后长度: ${compressedBase64.length}，继续压缩...`);
-
-        // 多级压缩策略，更激进
-        const compressionStrategies = [
-          { width: newWidth * 0.6, height: newHeight * 0.6, quality: 0.15 },
-          { width: newWidth * 0.4, height: newHeight * 0.4, quality: 0.1 },
-          { width: newWidth * 0.2, height: newHeight * 0.2, quality: 0.05 }
-        ];
-
-        for (const strategy of compressionStrategies) {
-          canvas.width = Math.floor(strategy.width);
-          canvas.height = Math.floor(strategy.height);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          compressedBase64 = canvas.toDataURL('image/jpeg', strategy.quality);
-          console.log(`压缩策略 - 尺寸: ${canvas.width}x${canvas.height}, 质量: ${strategy.quality}, 长度: ${compressedBase64.length}`);
-
-          if (compressedBase64.length <= maxLength) {
-            break;
-          }
-        }
-
-        // 如果所有策略都失败，生成极小的默认头像
-        if (compressedBase64.length > maxLength) {
-          console.log(`所有压缩策略失败，生成极小默认头像`);
-          compressedBase64 = generateMinimalAvatar(maxLength);
-        }
-      }
-
-      resolve(compressedBase64);
-    };
-
-    img.onerror = () => {
-      // 如果压缩失败，返回一个简化的默认头像
-      resolve(generateMinimalAvatar(maxLength));
-    };
-
-    img.src = base64String;
-  });
+  return url;
 }
 
 /**
- * 生成极小的默认头像base64
- * @param {number} maxLength - 最大长度限制
- * @returns {string} 极小的默认头像base64
+ * 处理单个设置项的变更保存
  */
-function generateMinimalAvatar(maxLength) {
-  // 生成一个极小的SVG头像，大约200-300字符
-  const minimalSvg = `data:image/svg+xml;base64,${btoa(
-    '<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-    '<circle cx="20" cy="20" r="20" fill="#f0f0f0"/>' +
-    '<circle cx="20" cy="15" r="7" fill="#999999"/>' +
-    '<ellipse cx="20" cy="30" rx="10" ry="7" fill="#999999"/>' +
-    '</svg>'
-  )}`;
-
-  console.log(`生成极小默认头像，长度: ${minimalSvg.length}`);
-  return minimalSvg;
-}
-
-/**
- * 处理头像变更
- */
-async function handleAvatarChange(file) {
+async function handleSingleSettingChange(key, value) {
   try {
-    const reader = new FileReader();
-    reader.readAsDataURL(file.raw);
+    console.log(`开始保存单个设置: ${key} = ${value}`);
 
-    reader.onload = async (e) => {
-      const originalBase64 = e.target.result;
-      console.log('原始头像base64长度:', originalBase64.length);
+    // 处理日期类型的值
+    let processedValue = value;
+    if (value instanceof Date) {
+      processedValue = value.toISOString().split('T')[0];
+      console.log(`日期 ${key} 转换为: ${processedValue}`);
+    }
 
-      try {
-        // 压缩base64以适应450字符限制（留50字符缓冲）
-        const compressedBase64 = await compressBase64(originalBase64, 450);
-        console.log('压缩后头像base64长度:', compressedBase64.length);
-
-        settingsMap.value.blog_avatar = compressedBase64;
-        ElMessage.success(`头像已压缩至${compressedBase64.length}字符，符合数据库限制`);
-      } catch (compressError) {
-        console.error('头像压缩失败:', compressError);
-        // 如果压缩失败，设置一个简单的默认头像
-        settingsMap.value.blog_avatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
-        ElMessage.warning('头像压缩失败，已设置为默认头像');
-      }
+    const configData = {
+      configKey: key,
+      configValue: processedValue,
+      configName: key,
+      configType: "N"
     };
 
-    reader.onerror = () => {
-      ElMessage.error('头像文件读取失败');
-    };
+    // 检查配置是否存在
+    const currentConfigResponse = await listSetting({ configKey: key });
+    const currentConfigs = currentConfigResponse.rows || currentConfigResponse.data || [];
+    const currentConfig = currentConfigs.find(config => config.configKey === key);
+
+    let success = false;
+    if (currentConfig) {
+      // 更新现有配置
+      const updateResponse = await updateSetting({
+        ...configData,
+        configId: currentConfig.configId
+      });
+      success = updateResponse.code === 200;
+      console.log(`设置 ${key} 更新${success ? '成功' : '失败'}`);
+    } else {
+      // 新增配置
+      const addResponse = await addSetting(configData);
+      success = addResponse.code === 200;
+      console.log(`设置 ${key} 新增${success ? '成功' : '失败'}`);
+    }
+
+    if (success) {
+      ElMessage.success(`设置 ${key} 保存成功`);
+      // 更新原始设置以避免重复保存
+      originalSettings.value[key] = processedValue;
+    } else {
+      ElMessage.error(`设置 ${key} 保存失败`);
+    }
+
+    return success;
   } catch (error) {
-    console.error('头像处理失败:', error);
-    ElMessage.error('头像处理失败，请重试');
+    console.error(`保存设置 ${key} 失败:`, error);
+    ElMessage.error(`保存设置 ${key} 失败: ${error.message}`);
+    return false;
   }
 }
 
 /**
- * 处理微信二维码变更
+ * 强制刷新前台头像显示
  */
-function handleWechatQRChange(file) {
-  const reader = new FileReader();
-  reader.readAsDataURL(file.raw);
-  reader.onload = (e) => {
-    settingsMap.value.wechat_qr = e.target.result;
-  };
-}
+function refreshFrontendAvatar() {
+  const blogSettingsStore = useBlogSettingsStore();
 
+  // 如果当前有头像设置，更新前台store
+  if (settingsMap.value.blog_avatar) {
+    blogSettingsStore.updateBlogAvatar(settingsMap.value.blog_avatar);
+    console.log('前台头像已刷新:', settingsMap.value.blog_avatar);
+  }
+
+  // 刷新前台二维码
+  if (settingsMap.value.wechat_qr) {
+    blogSettingsStore.updateBlogSettings({
+      wechat_qr: settingsMap.value.wechat_qr
+    });
+  }
+}
 
 /**
  * 初始化获取设置
  */
 onMounted(() => {
-  getAllSettings();
+  getAllSettings().then(() => {
+    // 设置加载完成后，强制刷新前台头像显示
+    setTimeout(() => {
+      refreshFrontendAvatar();
+    }, 1000);
+  });
 });
+
+/**
+ * 头像上传前检查
+ */
+function handleAvatarBeforeUpload(file) {
+  // 检查文件类型
+  const isImage = file.type.startsWith('image/');
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!');
+    return false;
+  }
+
+  // 检查文件大小 (10MB)
+  const isLt10M = file.size / 1024 / 1024 < 10;
+  if (!isLt10M) {
+    ElMessage.error('头像图片大小不能超过 10MB!');
+    return false;
+  }
+
+  ElMessage.info('正在上传并压缩头像...');
+  return true;
+}
+
+/**
+ * 头像上传成功回调
+ */
+function handleAvatarUploadSuccess(response, uploadFile) {
+  if (response.code === 200) {
+    // 处理头像URL，确保在开发环境中能正确访问
+    let avatarUrl = response.url;
+
+    if (!response.url.startsWith('http')) {
+      // 开发环境中需要通过代理访问静态资源
+      const baseUrl = window.location.origin;
+      const cleanUrl = response.url.startsWith('/') ? response.url.substring(1) : response.url;
+      avatarUrl = `${baseUrl}/${cleanUrl}`;
+    }
+
+    // 清理并验证URL格式
+    avatarUrl = cleanAvatarUrl(avatarUrl);
+
+    settingsMap.value.blog_avatar = avatarUrl;
+    ElMessage.success('头像上传成功！已自动压缩为200x200尺寸');
+
+    // 同时更新前台store
+    const blogSettingsStore = useBlogSettingsStore();
+    blogSettingsStore.updateBlogAvatar(avatarUrl);
+
+    // 自动保存头像设置
+    setTimeout(() => {
+      handleSingleSettingChange('blog_avatar', avatarUrl);
+    }, 500);
+  } else {
+    ElMessage.error('头像上传失败: ' + response.msg);
+  }
+}
+
+/**
+ * 二维码上传前检查
+ */
+function handleQRCodeBeforeUpload(file) {
+  // 检查文件类型
+  const isImage = file.type.startsWith('image/');
+  if (!isImage) {
+    ElMessage.error('只能上传图片文件!');
+    return false;
+  }
+
+  // 检查文件大小 (10MB)
+  const isLt10M = file.size / 1024 / 1024 < 10;
+  if (!isLt10M) {
+    ElMessage.error('二维码图片大小不能超过 10MB!');
+    return false;
+  }
+
+  ElMessage.info('正在上传并压缩二维码...');
+  return true;
+}
+
+/**
+ * 二维码上传成功回调
+ */
+function handleQRCodeUploadSuccess(response, uploadFile) {
+  if (response.code === 200) {
+    // 处理二维码URL，确保在开发环境中能正确访问
+    let qrCodeUrl = response.url;
+
+    if (!response.url.startsWith('http')) {
+      // 开发环境中需要通过代理访问静态资源
+      const baseUrl = window.location.origin;
+      const cleanUrl = response.url.startsWith('/') ? response.url.substring(1) : response.url;
+      qrCodeUrl = `${baseUrl}/${cleanUrl}`;
+    }
+
+    settingsMap.value.wechat_qr = qrCodeUrl;
+    ElMessage.success('二维码上传成功！已自动压缩为400x400尺寸');
+
+    // 自动保存二维码设置
+    setTimeout(() => {
+      handleSingleSettingChange('wechat_qr', qrCodeUrl);
+    }, 500);
+  } else {
+    ElMessage.error('二维码上传失败: ' + response.msg);
+  }
+}
+
+/**
+ * 打开图片压缩测试页面
+ */
+function openCompressTest() {
+  window.open('/admin/blog/test/image-compress', '_blank');
+}
 
 // 添加一个测试函数用于验证数据库连接
 async function testDatabaseConnection() {
@@ -1215,6 +1369,66 @@ async function resetSettings() {
   margin-bottom: 20px;
 }
 
+/* 图片压缩功能样式 */
+.compress-feature {
+  text-align: center;
+  padding: 15px;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
+}
+
+.compress-feature:hover {
+  transform: translateY(-2px);
+}
+
+.compress-feature h4 {
+  margin: 0 0 10px 0;
+  color: #409EFF;
+  font-size: 16px;
+}
+
+.compress-feature p {
+  margin: 0 0 15px 0;
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+.feature-example {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.example-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.example-thumbnail {
+  width: 35px;
+  height: 35px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.example-smart {
+  width: 35px;
+  height: 35px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.feature-example span {
+  font-size: 11px;
+  color: #888;
+}
+
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -1285,13 +1499,13 @@ async function resetSettings() {
 }
 
 /* 表单样式优化 */
-el-form {
+.el-form {
   padding: 20px;
   background-color: #fafafa;
   border-radius: 8px;
 }
 
-el-form-item {
+.el-form-item {
   margin-bottom: 20px;
 }
 

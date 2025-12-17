@@ -1,0 +1,205 @@
+# 🎨 图片压缩功能使用指南
+
+## 📋 功能概述
+
+博客系统集成了专业的 **Thumbnailator** 图片压缩库，提供智能、高效、高质量的图片压缩功能。
+
+### ✨ 核心优势
+
+- 🎯 **专业压缩**：基于 Thumbnailator 库，业界领先的图片处理技术
+- 🔄 **智能策略**：根据文件大小自动选择最佳压缩参数
+- 📱 **多种模式**：支持普通压缩、头像压缩、缩略图压缩
+- ⚡ **高性能**：后端压缩，不占用前端资源
+- 🛠️ **可配置**：所有参数可通过配置文件调整
+
+## 🚀 压缩接口说明
+
+### 1. 智能压缩接口
+```
+POST /common/upload/compressed
+```
+- **用途**：通用图片压缩上传
+- **压缩策略**：根据文件大小自动选择轻度/中度/重度压缩
+- **适用场景**：文章配图、其他通用图片上传
+
+### 2. 头像专用接口
+```
+POST /common/upload/avatar
+```
+- **压缩尺寸**：200x200 正方形
+- **压缩质量**：90%
+- **特点**：居中裁剪，保持主体内容
+
+### 3. 缩略图接口
+```
+POST /common/upload/thumbnail
+```
+- **压缩尺寸**：400x400 最大尺寸
+- **压缩质量**：80%
+- **特点**：保持宽高比，适合列表展示
+
+## 📊 压缩策略详情
+
+### 文件大小阈值
+- **小于 2MB**：不压缩，直接使用原图
+- **2-4MB**：轻度压缩 (85% 质量)
+- **4-8MB**：中度压缩 (75% 质量)
+- **大于 8MB**：重度压缩 (65% 质量)
+
+### 格式支持
+- ✅ JPEG/JPG
+- ✅ PNG
+- ✅ GIF
+- ✅ WebP (自动转换为 JPG)
+
+## ⚙️ 配置参数
+
+### application.yml 配置
+```yaml
+image:
+  compress:
+    enabled: true              # 是否启用压缩
+    threshold-size: 2MB        # 压缩阈值
+    max-width: 1920           # 最大宽度
+    max-height: 1080          # 最大高度
+    default-quality: 0.85     # 默认质量
+    avatar-size: 200          # 头像尺寸
+    thumbnail-size: 400       # 缩略图尺寸
+    avatar-quality: 0.9       # 头像质量
+    thumbnail-quality: 0.8    # 缩略图质量
+```
+
+## 💻 前端使用示例
+
+### 头像上传组件
+```vue
+<template>
+  <el-upload
+    :action="uploadAvatarUrl"
+    :headers="headers"
+    :on-success="handleAvatarUploadSuccess"
+    :before-upload="handleAvatarBeforeUpload"
+    :show-file-list="false"
+  >
+    <img v-if="avatarUrl" :src="avatarUrl" class="avatar" />
+    <i v-else class="upload-icon" />
+  </el-upload>
+</template>
+
+<script setup>
+import { getToken } from "@/utils/auth"
+
+const uploadAvatarUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload/avatar'
+const headers = ref({ Authorization: "Bearer " + getToken() })
+
+function handleAvatarUploadSuccess(response) {
+  if (response.code === 200) {
+    avatarUrl.value = response.url
+    ElMessage.success('头像上传成功！已自动压缩为200x200尺寸')
+  }
+}
+</script>
+```
+
+### 缩略图上传组件
+```vue
+<template>
+  <el-upload
+    :action="uploadThumbnailUrl"
+    :headers="headers"
+    :on-success="handleThumbnailSuccess"
+    :before-upload="handleBeforeUpload"
+  >
+    <el-button type="primary">上传缩略图</el-button>
+  </el-upload>
+</template>
+
+<script setup>
+const uploadThumbnailUrl = import.meta.env.VITE_APP_BASE_API + '/common/upload/thumbnail'
+
+function handleThumbnailSuccess(response) {
+  if (response.code === 200) {
+    thumbnailUrl.value = response.url
+    ElMessage.success('缩略图上传成功！已自动压缩为400x400尺寸')
+  }
+}
+</script>
+```
+
+## 🧪 测试功能
+
+### 访问测试页面
+1. 登录管理后台
+2. 导航到：**博客管理** → **图片压缩测试**
+3. 页面地址：`/admin/blog/test/image-compress`
+
+### 测试项目
+- ✅ 智能压缩测试
+- ✅ 头像压缩测试 (200x200)
+- ✅ 缩略图压缩测试 (400x400)
+- ✅ 配置信息查看
+- ✅ 压缩效果对比
+
+## 🎯 使用建议
+
+### 1. 头像设置
+- **推荐接口**：`/common/upload/avatar`
+- **使用场景**：博主头像、用户头像
+- **优势**：自动裁剪为正方形，质量高，文件小
+
+### 2. 二维码上传
+- **推荐接口**：`/common/upload/thumbnail`
+- **使用场景**：微信二维码、其他二维码
+- **优势**：保持清晰度，控制文件大小
+
+### 3. 文章配图
+- **推荐接口**：`/common/upload/compressed`
+- **使用场景**：文章插图、Banner图片
+- **优势**：智能压缩，平衡质量和大小
+
+## ⚠️ 注意事项
+
+### 安全考虑
+- 所有上传接口都需要身份验证
+- 文件类型限制为图片格式
+- 文件大小限制为 10MB
+- 自动生成安全文件名
+
+### 性能考虑
+- 压缩处理在服务器端进行
+- 大文件建议在客户端预处理
+- 可根据服务器性能调整压缩参数
+
+### 存储考虑
+- 压缩后文件可节省 60-80% 存储空间
+- 建议定期清理未使用的图片文件
+- 考虑使用 CDN 加速图片访问
+
+## 🐛 常见问题
+
+### Q1: 图片上传后显示不正常？
+**A**: 检查图片格式是否支持，确保文件没有损坏。
+
+### Q2: 压缩后图片质量不理想？
+**A**: 可以在配置文件中调整 `default-quality` 参数。
+
+### Q3: 如何禁用图片压缩？
+**A**: 在 `application.yml` 中设置 `image.compress.enabled: false`。
+
+### Q4: 上传速度很慢？
+**A**: 检查服务器性能，可考虑异步处理大文件。
+
+## 📞 技术支持
+
+如有问题或建议，请联系开发团队或查看系统日志：
+
+```bash
+# 查看压缩相关日志
+tail -f logs/ruoyi.log | grep "compress"
+```
+
+---
+
+**版本**: 1.0.0
+**更新时间**: 2025-12-17
+**技术栈**: Spring Boot + Thumbnailator + Vue 3

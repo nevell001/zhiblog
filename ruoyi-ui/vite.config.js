@@ -80,6 +80,11 @@ export default defineConfig(({ mode, command }) => {
         '/blog/setting': {
           target: baseUrl,
           changeOrigin: true
+        },
+        // 代理静态资源访问
+        '/profile': {
+          target: baseUrl,
+          changeOrigin: true
         }
         // 解决 SPA 应用 history 模式下刷新404问题
         // historyApiFallback: true  // 在Vite中不需要这个配置

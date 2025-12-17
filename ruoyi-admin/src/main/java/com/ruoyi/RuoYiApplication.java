@@ -4,14 +4,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import com.ruoyi.common.config.ImageCompressConfig;
 
 /**
  * 启动程序
- * 
+ *
  * @author ruoyi
  */
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 @ComponentScan(basePackages = {"com.ruoyi", "com.ruoyi.system.controller"})
+@EnableConfigurationProperties({ImageCompressConfig.class})
 public class RuoYiApplication
 {
     public static void main(String[] args)

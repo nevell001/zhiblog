@@ -136,29 +136,33 @@
           </div>
         </div>
 
-        <!-- 加载更多 -->
-        <div v-if="articleList.length < total && !loading" class="load-more-container">
-          <el-button
-            type="primary"
-            @click="loadMoreArticles"
-            :loading="loadingMore"
-            round
-          >
-            {{ loadingMore ? '加载中...' : '加载更多' }}
-          </el-button>
-        </div>
-
-        <!-- 分页 -->
-        <div class="pagination-container" v-if="total > queryParams.pageSize">
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="queryParams.pageSize"
-            :current-page="queryParams.pageNum"
-            @current-change="handlePageChange"
-          />
-        </div>
+        <!-- 无限滚动分页 -->
+        <InfiniteScroll
+          :items="articleList"
+          :loading="loading"
+          :has-more="articleList.length < total"
+          :load-more="loadMoreArticles"
+          :threshold="200"
+          ref="infiniteScrollRef"
+        >
+          <template #default="{ items, loading, hasMore }">
+            <div v-if="items.length < total && !loading" class="load-more-container">
+              <el-button
+                type="primary"
+                @click="loadMoreArticles"
+                :loading="loadingMore"
+                round
+              >
+                {{ loadingMore ? '加载中...' : '加载更多' }}
+              </el-button>
+            </div>
+          </template>
+          <template #empty>
+            <div class="empty-articles">
+              <el-empty description="暂无文章" />
+            </div>
+          </template>
+        </InfiniteScroll>
       </div>
 
       <!-- 侧边栏 -->
@@ -171,7 +175,7 @@
           </h3>
           <div class="about-content">
             <div class="author-avatar">
-              <img :src="blogSettings.blog_avatar || 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主'" :alt="blogSettings.blog_author" />
+              <img :src="getAvatarUrl()" :alt="blogSettings.blog_author || 'nevell'" @error="handleAvatarError" />
             </div>
             <h4 class="author-name">{{ blogSettings.blog_author || 'nevell' }}</h4>
             <p class="author-title">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
@@ -205,18 +209,22 @@
 
             <!-- 社交链接 -->
             <div class="social-links">
-              <a :href="blogSettings.github_url || '#'" class="social-link" title="GitHub" target="_blank" rel="noopener">
+              <a v-if="blogSettings.github_url" :href="blogSettings.github_url" class="social-link" title="GitHub" target="_blank" rel="noopener">
                 <i class="el-icon-s-promotion"></i>
               </a>
-              <a :href="blogSettings.blog_email ? `mailto:${blogSettings.blog_email}` : '#'" class="social-link" title="邮箱">
+              <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`" class="social-link" title="邮箱">
                 <i class="el-icon-message"></i>
               </a>
-              <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
+              <a v-if="blogSettings.wechat_qr" href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
                 <i class="el-icon-chat-dot-round"></i>
               </a>
-              <a :href="blogSettings.weibo_url || '#'" class="social-link" title="微博" target="_blank" rel="noopener">
+              <a v-if="blogSettings.weibo_url" :href="blogSettings.weibo_url" class="social-link" title="微博" target="_blank" rel="noopener">
                 <i class="el-icon-star-off"></i>
               </a>
+              <!-- 如果没有任何社交链接，显示默认提示 -->
+              <div v-if="!blogSettings.github_url && !blogSettings.blog_email && !blogSettings.wechat_qr && !blogSettings.weibo_url" class="no-social-links" style="color: #999; font-size: 0.9rem; margin-top: 10px;">
+                暂未配置社交链接
+              </div>
             </div>
 
             </div>
@@ -359,7 +367,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
@@ -368,6 +376,7 @@ import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
+import InfiniteScroll from '@/components/InfiniteScroll/index.vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 // 初始化博客设置全局状态
@@ -377,7 +386,8 @@ const blogSettingsStore = useBlogSettingsStore()
 const articleList = ref([])
 const categoryList = ref([])
 const hotArticles = ref([])
-const blogSettings = ref({})
+// 直接使用store中的数据，避免数据不一致
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const total = ref(0)
 const totalArticles = ref(0)
 const lastUpdateTime = ref('')
@@ -563,10 +573,7 @@ const loadBlogSettings = async () => {
       settings = response
     }
 
-    // 更新本地状态
-    blogSettings.value = settings
-
-    // 同步到全局状态
+    // 直接更新全局状态，移除本地状态管理
     blogSettingsStore.setBlogSettings(settings)
 
     // 设置最后更新时间
@@ -587,7 +594,6 @@ const loadBlogSettings = async () => {
         weibo_url: 'https://weibo.com',
         wechat_qr: 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
       }
-      blogSettings.value = defaultSettings
       blogSettingsStore.setBlogSettings(defaultSettings)
     }
     // 设置最后更新时间
@@ -599,15 +605,21 @@ const loadBlogSettings = async () => {
 const handleBlogSettingsUpdate = (event) => {
   console.log('收到博客设置更新事件:', event.detail)
 
-  // 更新本地状态
-  const newSettings = event.detail
-  blogSettings.value = { ...blogSettings.value, ...newSettings }
+  // 直接更新全局状态，无需更新本地状态（因为使用computed）
+  blogSettingsStore.updateBlogSettings(event.detail)
 
   // 强制重新渲染
   lastUpdateTime.value = formatDate(new Date().toISOString())
 
   // 显示提示
   ElMessage.success('博客设置已更新，头像等信息将立即生效')
+}
+
+// 强制刷新博客设置（供外部调用）
+const refreshBlogSettings = async () => {
+  console.log('强制刷新博客设置...')
+  await loadBlogSettings()
+  ElMessage.success('博客设置已刷新')
 }
 
 // 获取标签云
@@ -737,11 +749,69 @@ const truncateText = (text, maxLength) => {
   return text.substring(0, maxLength) + '...'
 }
 
-// 加载更多文章
-const loadMoreArticles = () => {
-  if (loadingMore.value || articleList.value.length >= total.value) return
+// 防抖函数
+const debounce = (func, wait) => {
+  let timeout
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout)
+      func(...args)
+    }
+    clearTimeout(timeout)
+    timeout = setTimeout(later, wait)
+  }
+}
+
+// 预加载下一页数据
+const preloadNextPage = debounce(() => {
+  if (!loadingMore.value && articleList.value.length < total.value - queryParams.pageSize) {
+    loadMoreArticles()
+  }
+}, 500)
+
+// 优化的加载更多文章
+const loadMoreArticles = async () => {
+  if (loadingMore.value || articleList.value.length >= total.value) {
+    console.log('加载条件不满足:', {
+      loadingMore: loadingMore.value,
+      hasMore: articleList.value.length < total.value
+    })
+    return
+  }
+  
+  loadingMore.value = true
   queryParams.pageNum++
-  loadArticleList(true)
+  
+  try {
+    const response = await getArticleListAnonymous(queryParams)
+    if (response.code === 200 && response.rows) {
+      // 合并新数据到现有列表
+      const newArticles = response.rows.map(article => ({
+        ...article,
+        // 预处理图片懒加载
+        content: article.content ? addLazyLoadToImages(article.content) : article.content
+      }))
+      
+      articleList.value = [...articleList.value, ...newArticles]
+      total.value = response.total
+      
+      // 更新URL和状态
+      const url = new URL(window.location)
+      url.searchParams.set('page', queryParams.pageNum)
+      window.history.replaceState({}, '', url)
+    }
+  } catch (error) {
+    console.error('加载更多文章失败:', error)
+    ElMessage.error('加载文章失败，请稍后重试')
+    queryParams.pageNum-- // 回滚页码
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+// 为图片添加懒加载属性
+const addLazyLoadToImages = (content) => {
+  return content.replace(/<img([^>]+)src=/gi, '<img$1src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB2aWV3Qm94PSIwIDAgMSAxIiBmaWxsPSJ0cmFuc3BhcmVudCI+PC9zdmc+" loading="lazy" src=')
 }
 
 // 回到顶部
@@ -772,6 +842,32 @@ const handleImageError = (e) => {
   e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
 }
 
+// 获取头像URL
+const getAvatarUrl = () => {
+  // 直接从API获取设置
+  const avatar = blogSettings.value.blog_avatar;
+
+  console.log('获取到的头像设置:', avatar);
+
+  // 如果有有效的头像URL（非空且不是旧的placeholder），直接返回
+  if (avatar && avatar.trim() && !avatar.includes('via.placeholder.com')) {
+    console.log('使用配置的头像:', avatar);
+    return avatar;
+  }
+
+  // 否则返回默认头像（使用Data URL）
+  const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiM0MDlFRkYiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTQiIGZpbGw9IndoaXRlIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjU4IiByeD0iMjAiIHJ5PSIxNiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4K';
+  console.log('使用默认头像');
+  return defaultAvatar;
+}
+
+// 头像加载错误处理
+const handleAvatarError = (e) => {
+  // 使用Data URL作为默认头像，避免外部依赖
+  const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiM0MDlFRkYiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTQiIGZpbGw9IndoaXRlIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjU4IiByeD0iMjAiIHJ5PSIxNiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4K';
+  e.target.src = defaultAvatar;
+}
+
 
 // 组件挂载时加载数据
 onMounted(() => {
@@ -797,6 +893,11 @@ onUnmounted(() => {
   // 移除博客设置更新监听器
   window.removeEventListener('blogSettingsUpdated', handleBlogSettingsUpdate)
   console.log('博客设置更新监听器已移除')
+})
+
+// 导出函数供外部调用
+defineExpose({
+  refreshBlogSettings
 })
 </script>
 
