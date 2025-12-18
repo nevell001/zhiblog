@@ -376,7 +376,7 @@ public class CommonController extends BaseController
      * 获取博客设置（前台用）- 转发接口
      */
     @Anonymous
-    @GetMapping("/blog/setting")
+    @GetMapping("/blog/settings")
     public AjaxResult getBlogSettings()
     {
         try {
@@ -394,7 +394,7 @@ public class CommonController extends BaseController
      * 获取文章列表（前台用，支持分页）- 转发接口
      */
     @Anonymous
-    @GetMapping("/blog/article/list")
+    @GetMapping("/blog/articles/list")
     public TableDataInfo articleList(BlogArticle blogArticle)
     {
         try {
@@ -415,7 +415,7 @@ public class CommonController extends BaseController
      * 获取文章详情（前台用）- 转发接口
      */
     @Anonymous
-    @GetMapping("/blog/article/{id}")
+    @GetMapping("/blog/articles/{id}")
     public AjaxResult getArticleDetail(@PathVariable("id") Long id)
     {
         try {
@@ -444,7 +444,7 @@ public class CommonController extends BaseController
      * 获取分类列表（前台用）- 转发接口
      */
     @Anonymous
-    @GetMapping("/blog/category/list")
+    @GetMapping("/blog/categories/list")
     public AjaxResult categoryList()
     {
         try {
@@ -463,7 +463,7 @@ public class CommonController extends BaseController
      * 获取标签云（前台用）- 转发接口
      */
     @Anonymous
-    @GetMapping("/blog/tag/cloud")
+    @GetMapping("/blog/tags/cloud")
     public AjaxResult getTagCloud()
     {
         try {

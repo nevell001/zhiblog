@@ -32,13 +32,7 @@ const routes = [
     path: '/index',
     redirect: '/blog'
   },
-  // 测试页面
-  {
-    path: '/test/avatar',
-    component: () => import('@/views/test/avatar-test.vue'),
-    name: 'AvatarTest'
-  },
-  // 后台管理路由 - 简化版
+    // 后台管理路由 - 简化版
   {
     path: '/admin',
     component: () => import('@/layout/index.vue'),
@@ -88,12 +82,6 @@ const routes = [
         name: 'BlogSetting',
         component: () => import('@/views/admin/blog/setting/index.vue'),
         meta: { title: '博客设置', icon: 'setting' }
-      },
-      {
-        path: 'test/image-compress',
-        name: 'ImageCompressTest',
-        component: () => import('@/views/admin/test/ImageCompressTest.vue'),
-        meta: { title: '图片压缩测试', icon: 'picture' }
       }
     ]
   },
@@ -195,7 +183,7 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
   // 添加错误处理
-  scrollBehavior(to, from, savedPosition) {
+  scrollBehavior(_to, _from, savedPosition) {
     // 解决页面跳转后滚动位置问题
     if (savedPosition) {
       return savedPosition

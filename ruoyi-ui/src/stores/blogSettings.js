@@ -25,18 +25,13 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     getBlogAvatar: (state) => {
       const avatar = state.blogSettings.blog_avatar;
 
-      // 优先使用实际存在的头像
-      if (avatar && avatar.trim() && !avatar.startsWith('data:') && avatar !== 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主') {
-        return avatar;
-      }
-
-      // 拒绝Base64格式，使用内嵌SVG默认头像
-      if (avatar && avatar.startsWith('data:')) {
+      // 如果没有设置头像，返回默认头像
+      if (!avatar || !avatar.trim()) {
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E";
       }
 
-      // 使用已知的实际头像
-      return '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg';
+      // 返回实际设置的头像URL（包括相对路径、完整URL等）
+      return avatar;
     },
     getBlogAuthor: (state) => state.blogSettings.blog_author || 'nevell',
     getBlogName: (state) => state.blogSettings.blog_name || '我的博客'

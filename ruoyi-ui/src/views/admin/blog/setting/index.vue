@@ -225,14 +225,9 @@
       <!-- 图片压缩功能介绍 -->
       <el-card shadow="never" style="margin-top: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
         <template #header>
-          <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center;">
-              <span style="color: #409EFF; font-weight: bold;">🎨 图片压缩功能</span>
-              <el-tag type="success" size="small" style="margin-left: 10px;">已启用</el-tag>
-            </div>
-            <el-button size="small" type="primary" @click="openCompressTest">
-              <i class="el-icon-setting"></i> 测试压缩功能
-            </el-button>
+          <div style="display: flex; align-items: center;">
+            <span style="color: #409EFF; font-weight: bold;">🎨 图片压缩功能</span>
+            <el-tag type="success" size="small" style="margin-left: 10px;">已启用</el-tag>
           </div>
         </template>
         <el-row :gutter="20">
@@ -1280,12 +1275,6 @@ function handleQRCodeUploadSuccess(response, uploadFile) {
   }
 }
 
-/**
- * 打开图片压缩测试页面
- */
-function openCompressTest() {
-  window.open('/admin/blog/test/image-compress', '_blank');
-}
 
 // 添加一个测试函数用于验证数据库连接
 async function testDatabaseConnection() {

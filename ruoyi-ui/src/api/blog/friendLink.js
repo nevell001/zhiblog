@@ -106,20 +106,3 @@ export function getFrontFriendLinkList() {
   })
 }
 
-// 校验友链名称唯一性
-export function checkFriendLinkNameUnique(name, id) {
-  return request({
-    url: '/system/friendLink/check/nameUnique',
-    method: 'get',
-    params: { name, id }
-  })
-}
-
-// 校验友链URL唯一性
-export function checkFriendLinkUrlUnique(url, id) {
-  return request({
-    url: '/system/friendLink/check/urlUnique',
-    method: 'get',
-    params: { url, id }
-  })
-}

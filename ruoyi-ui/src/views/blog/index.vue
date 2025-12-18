@@ -10,21 +10,23 @@
     <div class="blog-header">
       <div class="header-content">
         <div class="blog-info">
-          <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
-          <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
-          <div class="blog-stats">
-            <span class="stat-item">
-              <i class="el-icon-document-copy"></i>
-              {{ totalArticles }} 篇文章
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-price-tag"></i>
-              {{ tagCloud.length }} 个标签
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-date"></i>
-              最后更新 {{ lastUpdateTime }}
-            </span>
+          <div class="blog-text-info">
+            <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
+            <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
+            <div class="blog-stats">
+              <span class="stat-item">
+                <i class="el-icon-document-copy"></i>
+                {{ totalArticles }} 篇文章
+              </span>
+              <span class="stat-item">
+                <i class="el-icon-price-tag"></i>
+                {{ tagCloud.length }} 个标签
+              </span>
+              <span class="stat-item">
+                <i class="el-icon-date"></i>
+                最后更新 {{ lastUpdateTime }}
+              </span>
+            </div>
           </div>
         </div>
 
@@ -1050,6 +1052,25 @@ defineExpose({
   gap: 20px;
 }
 
+
+.blog-text-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+}
+
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .blog-title {
   font-size: 3.5rem;
   margin: 0;
@@ -2073,6 +2094,7 @@ defineExpose({
     padding: 60px 0 40px 0;
   }
 
+  
   .blog-title {
     font-size: 2.2rem;
     line-height: 1.2;

@@ -144,7 +144,7 @@ export function getAvatarThumbnail(avatarUrl, size = 80) {
 }
 
 /**
- * 预处理头像URL（移除Base64格式，优化显示）
+ * 预处理头像URL（优化显示）
  * @param {string} avatarUrl 头像URL
  * @returns {string} 处理后的头像URL
  */
@@ -154,16 +154,27 @@ export function processAvatarUrl(avatarUrl) {
     return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E"
   }
 
-  // 拒绝Base64格式，使用默认头像
-  if (avatarUrl.startsWith('data:')) {
-    return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E"
+  // 处理相对路径 - 这是最常见的情况，对应上传到服务器的头像
+  if (avatarUrl.startsWith('/profile/') || avatarUrl.startsWith('/static/')) {
+    return window.location.origin + avatarUrl
   }
 
-  // 处理相对路径
+  // 其他以 / 开头的相对路径
   if (avatarUrl.startsWith('/')) {
     return window.location.origin + avatarUrl
   }
 
+  // 完整的HTTP/HTTPS URL直接返回
+  if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://')) {
+    return avatarUrl
+  }
+
+  // Base64格式也可以接受（虽然不推荐用于头像）
+  if (avatarUrl.startsWith('data:')) {
+    return avatarUrl
+  }
+
+  // 其他情况，尝试作为相对路径处理
   return avatarUrl
 }
 

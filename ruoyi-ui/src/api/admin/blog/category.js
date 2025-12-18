@@ -43,14 +43,6 @@ export function delCategory(ids) {
   })
 }
 
-// 导出分类
-export function exportCategory(query) {
-  return request({
-    url: '/system/category/export',
-    method: 'post',
-    params: query
-  })
-}
 
 // 获取分类下拉树
 export function categoryTreeSelect() {
@@ -60,10 +52,3 @@ export function categoryTreeSelect() {
   })
 }
 
-// 查询分类及其文章数量
-export function getCategoryArticleCount() {
-  return request({
-    url: '/system/category/articleCount',
-    method: 'get'
-  })
-}

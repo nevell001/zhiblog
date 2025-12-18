@@ -14,6 +14,15 @@ target/
 node_modules/
 dist/
 build/
+# 忽略后端静态目录里的构建产物
+ruoyi-admin/src/main/resources/static/static/js/
+ruoyi-admin/src/main/resources/static/static/css/
+# 忽略所有构建输出，但保留必要的默认头像文件
+ruoyi-admin/src/main/resources/static/static/
+!ruoyi-admin/src/main/resources/static/default-avatar.jpg
+!ruoyi-admin/src/main/resources/static/default-avatar.svg
+!ruoyi-admin/src/main/resources/static/favicon.ico
+!ruoyi-admin/src/main/resources/static/index.html
 
 
 

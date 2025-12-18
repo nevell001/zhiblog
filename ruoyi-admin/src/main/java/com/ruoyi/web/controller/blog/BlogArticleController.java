@@ -29,7 +29,7 @@ import io.swagger.annotations.ApiParam;
  * @date 2025-12-18
  */
 @Api(tags = "博客文章管理（前台）")
-@RestController
+@RestController("blogFrontArticleController")
 @RequestMapping("/common/blog/article")
 public class BlogArticleController extends BaseController {
 
