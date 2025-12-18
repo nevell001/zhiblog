@@ -57,7 +57,7 @@ export function getCategoryList(query) {
 // 获取分类详情（前台用）
 export function getCategoryDetail(id) {
   return request({
-    url: '/blog/category/' + id,
+    url: '/dev-api/blog/category/' + id,
     method: 'get',
     headers: { isToken: false }
   })

@@ -57,8 +57,9 @@
                 </el-upload>
                 <el-input v-model="settingsMap.blog_avatar" class="avatar-input" placeholder="或直接输入头像URL" />
                 <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
-                  🎯 <strong>推荐使用专业压缩</strong>：自动压缩为200x200正方形，质量90%，文件小
-                  <br>💡 支持 JPG/PNG/GIF 格式，最大10MB，自动居中裁剪
+                  🚀 <strong>基于Thumbnailator专业处理</strong>：智能压缩为200x200像素，质量优化
+                  <br>💡 支持 JPG/PNG/GIF 格式，最大10MB，自动居中裁剪，高性能
+                  <br>📦 文件存储，数据库仅存URL，性能卓越
                 </div>
               </div>
             </el-form-item>
@@ -183,8 +184,9 @@
                 </el-upload>
                 <el-input v-model="settingsMap.wechat_qr" class="avatar-input" placeholder="或直接输入二维码URL" />
                 <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
-                  🎯 <strong>智能压缩二维码</strong>：自动压缩为400x400，保持清晰度，质量80%
+                  🚀 <strong>基于Thumbnailator专业处理</strong>：智能压缩为400x400像素，保持清晰度
                   <br>💡 适合微信二维码、支付码等，自动优化大小和清晰度
+                  <br>📦 文件存储，数据库仅存URL，扫描性能更佳
                 </div>
               </div>
             </el-form-item>
@@ -518,10 +520,15 @@ async function getAllSettings() {
           }
         }
 
-        // 验证和处理头像数据
-        if (setting.configKey === 'blog_avatar' && value && value.length > 500) {
-          console.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，使用默认头像`);
-          value = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmMGYwZjAiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNSIgcj0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8ZWxsaXBzZSBjeD0iMjAiIGN5PSIzMCIgcng9IjEwIiByeT0iNyIgZmlsbD0iIzk5OTk5OSIvPgo8L3N2Zz4K';
+        // 验证和处理头像数据 - 不再支持Base64格式
+        if (setting.configKey === 'blog_avatar') {
+          if (value && value.length > 500) {
+            console.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，清空并要求用户重新上传`);
+            value = '';
+          } else if (value && value.startsWith('data:image/')) {
+            console.warn(`⚠️ 检测到Base64格式头像，不再支持，清空并要求用户重新上传`);
+            value = '';
+          }
         }
 
         settings[setting.configKey] = value;
@@ -629,10 +636,10 @@ async function getAllSettings() {
 
     // 特别处理头像URL，确保格式正确
     if (mergedSettings.blog_avatar) {
-      mergedSettings.blog_avatar = cleanAvatarUrl(mergedSettings.blog_avatar);
+      mergedSettings.blog_avatar = validateAvatarUrl(mergedSettings.blog_avatar);
     }
     if (mergedSettings.wechat_qr) {
-      mergedSettings.wechat_qr = cleanAvatarUrl(mergedSettings.wechat_qr);
+      mergedSettings.wechat_qr = validateAvatarUrl(mergedSettings.wechat_qr);
     }
 
     // 保存设置到响应式数据
@@ -704,8 +711,8 @@ async function getAllSettings() {
     };
     
     // 特别处理默认头像URL
-    defaultSettings.blog_avatar = cleanAvatarUrl(defaultSettings.blog_avatar);
-    defaultSettings.wechat_qr = cleanAvatarUrl(defaultSettings.wechat_qr);
+    defaultSettings.blog_avatar = validateAvatarUrl(defaultSettings.blog_avatar);
+    defaultSettings.wechat_qr = validateAvatarUrl(defaultSettings.wechat_qr);
 
     settingsMap.value = defaultSettings;
     // 保存原始设置用于重置（转换为存储格式以便比较）
@@ -824,15 +831,14 @@ async function saveAllSettings() {
         // 验证字段长度以符合数据库约束
         if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 500) {
           console.warn(`头像URL过长: ${processedValue.length} 字符，超过500字符限制`);
-          // 如果是base64格式且过长，建议使用文件上传方式
-          if (processedValue.startsWith('data:image/')) {
-            ElMessage.warning('检测到base64格式头像过长，建议使用文件上传方式获得更优质量');
-            // 截断base64以避免数据库错误
+          // 不再支持Base64格式，只处理URL格式
+          if (processedValue.startsWith('http')) {
+            ElMessage.warning('头像URL过长，请使用文件上传方式或较短的URL');
             processedValue = processedValue.substring(0, 497) + '...';
-          } else if (processedValue.startsWith('http')) {
-            // 如果是URL过长，提示用户
-            ElMessage.warning('头像URL过长，请使用较短的URL或文件上传方式');
-            processedValue = processedValue.substring(0, 497) + '...';
+          } else {
+            // 清空过长的值，要求用户重新上传
+            ElMessage.warning('头像数据格式不支持，请使用文件上传功能');
+            processedValue = '';
           }
         }
 
@@ -1068,15 +1074,16 @@ async function saveAllSettings() {
 
 
 /**
- * 清理和验证头像URL
+ * 验证头像URL格式
+ * 专注于文件上传，不再支持Base64格式
  */
-function cleanAvatarUrl(url) {
+function validateAvatarUrl(url) {
   if (!url) return '';
 
-  // 如果是base64格式，提示用户使用文件上传
+  // 如果是base64格式，直接清空并提示用户使用文件上传
   if (url.startsWith('data:image/')) {
-    ElMessage.warning('检测到Base64格式头像，建议使用文件上传以获得更好的性能和显示效果');
-    return url; // 暂时保留，但给出提示
+    ElMessage.warning('不再支持Base64格式头像，请使用文件上传功能');
+    return '';
   }
 
   // 如果是相对路径，确保格式正确
@@ -1101,47 +1108,32 @@ async function handleSingleSettingChange(key, value) {
       console.log(`日期 ${key} 转换为: ${processedValue}`);
     }
 
-    const configData = {
-      configKey: key,
-      configValue: processedValue,
-      configName: key,
-      configType: "N"
-    };
+    // 使用 updateSettingValueByKey 方法，这个方法会自动处理不存在的情况
+    const response = await updateSettingValueByKey(key, processedValue);
 
-    // 检查配置是否存在
-    const currentConfigResponse = await listSetting({ configKey: key });
-    const currentConfigs = currentConfigResponse.rows || currentConfigResponse.data || [];
-    const currentConfig = currentConfigs.find(config => config.configKey === key);
-
-    let success = false;
-    if (currentConfig) {
-      // 更新现有配置
-      const updateResponse = await updateSetting({
-        ...configData,
-        configId: currentConfig.configId
-      });
-      success = updateResponse.code === 200;
-      console.log(`设置 ${key} 更新${success ? '成功' : '失败'}`);
-    } else {
-      // 新增配置
-      const addResponse = await addSetting(configData);
-      success = addResponse.code === 200;
-      console.log(`设置 ${key} 新增${success ? '成功' : '失败'}`);
-    }
-
-    if (success) {
+    if (response.code === 200) {
+      console.log(`✅ ${key} 保存成功`);
       ElMessage.success(`设置 ${key} 保存成功`);
+
       // 更新原始设置以避免重复保存
       originalSettings.value[key] = processedValue;
-    } else {
-      ElMessage.error(`设置 ${key} 保存失败`);
-    }
+      console.log(`原始设置已更新: ${key} = ${processedValue}`);
 
-    return success;
+      // 如果是头像设置，同时更新前台store
+      if (key === 'blog_avatar' && processedValue) {
+        console.log('更新前台store中的头像设置...');
+        const blogSettingsStore = useBlogSettingsStore();
+        if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
+          blogSettingsStore.updateBlogAvatar(processedValue);
+        }
+      }
+    } else {
+      throw new Error(response.msg || '操作失败');
+    }
   } catch (error) {
-    console.error(`保存设置 ${key} 失败:`, error);
+    console.error(`❌ 保存设置 ${key} 失败:`, error);
     ElMessage.error(`保存设置 ${key} 失败: ${error.message}`);
-    return false;
+    throw error;
   }
 }
 
@@ -1204,25 +1196,29 @@ function handleAvatarBeforeUpload(file) {
  */
 function handleAvatarUploadSuccess(response, uploadFile) {
   if (response.code === 200) {
-    // 处理头像URL，确保在开发环境中能正确访问
+    // 处理头像URL
     let avatarUrl = response.url;
 
-    if (!response.url.startsWith('http')) {
-      // 开发环境中需要通过代理访问静态资源
-      const baseUrl = window.location.origin;
-      const cleanUrl = response.url.startsWith('/') ? response.url.substring(1) : response.url;
-      avatarUrl = `${baseUrl}/${cleanUrl}`;
+    // 确保URL格式正确
+    if (avatarUrl && !avatarUrl.startsWith('http')) {
+      // 如果是相对路径，直接使用后端返回的路径
+      // 开发环境会通过vite代理访问，生产环境会通过nginx代理访问
+      if (!avatarUrl.startsWith('/')) {
+        avatarUrl = '/' + avatarUrl;
+      }
     }
 
-    // 清理并验证URL格式
-    avatarUrl = cleanAvatarUrl(avatarUrl);
+    // 验证URL格式
+    avatarUrl = validateAvatarUrl(avatarUrl);
 
     settingsMap.value.blog_avatar = avatarUrl;
     ElMessage.success('头像上传成功！已自动压缩为200x200尺寸');
 
     // 同时更新前台store
     const blogSettingsStore = useBlogSettingsStore();
-    blogSettingsStore.updateBlogAvatar(avatarUrl);
+    if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
+      blogSettingsStore.updateBlogAvatar(avatarUrl);
+    }
 
     // 自动保存头像设置
     setTimeout(() => {
@@ -1260,14 +1256,16 @@ function handleQRCodeBeforeUpload(file) {
  */
 function handleQRCodeUploadSuccess(response, uploadFile) {
   if (response.code === 200) {
-    // 处理二维码URL，确保在开发环境中能正确访问
+    // 处理二维码URL
     let qrCodeUrl = response.url;
 
-    if (!response.url.startsWith('http')) {
-      // 开发环境中需要通过代理访问静态资源
-      const baseUrl = window.location.origin;
-      const cleanUrl = response.url.startsWith('/') ? response.url.substring(1) : response.url;
-      qrCodeUrl = `${baseUrl}/${cleanUrl}`;
+    // 确保URL格式正确
+    if (qrCodeUrl && !qrCodeUrl.startsWith('http')) {
+      // 如果是相对路径，直接使用后端返回的路径
+      // 开发环境会通过vite代理访问，生产环境会通过nginx代理访问
+      if (!qrCodeUrl.startsWith('/')) {
+        qrCodeUrl = '/' + qrCodeUrl;
+      }
     }
 
     settingsMap.value.wechat_qr = qrCodeUrl;

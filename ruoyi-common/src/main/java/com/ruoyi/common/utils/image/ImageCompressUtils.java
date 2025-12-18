@@ -84,6 +84,17 @@ public class ImageCompressUtils {
     private static final int THUMBNAIL_SIZE = 400;
 
     /**
+     * 文章封面图尺寸
+     */
+    private static final int ARTICLE_COVER_WIDTH = 800;
+    private static final int ARTICLE_COVER_HEIGHT = 450;
+
+    /**
+     * 移动端适配尺寸
+     */
+    private static final int MOBILE_MAX_WIDTH = 750;
+
+    /**
      * 智能压缩图片
      * 根据文件大小和图片类型自动选择最佳压缩策略
      *
@@ -229,6 +240,186 @@ public class ImageCompressUtils {
                     .toOutputStream(outputStream);
 
             return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * 压缩文章封面图
+     * 生成适合文章列表和详情页的封面图
+     *
+     * @param file 源图片文件
+     * @return 压缩后的封面图数据
+     * @throws IOException
+     */
+    public static byte[] compressArticleCover(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("文件为空");
+        }
+
+        String format = getImageFormat(file);
+
+        // 获取配置参数
+        int coverWidth = (config != null && config.getArticleCoverWidth() > 0) ?
+                        config.getArticleCoverWidth() : ARTICLE_COVER_WIDTH;
+        int coverHeight = (config != null && config.getArticleCoverHeight() > 0) ?
+                         config.getArticleCoverHeight() : ARTICLE_COVER_HEIGHT;
+        double coverQuality = (config != null) ? config.getCoverQuality() : 0.85;
+
+        log.debug("开始压缩文章封面: {}, 尺寸: {}x{}, 质量: {}",
+                file.getOriginalFilename(), coverWidth, coverHeight, coverQuality);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Thumbnails.of(file.getInputStream())
+                    .size(coverWidth, coverHeight)
+                    .keepAspectRatio(true)
+                    .outputQuality(coverQuality)
+                    .outputFormat(format != null ? format : "jpg")
+                    .toOutputStream(outputStream);
+
+            byte[] compressed = outputStream.toByteArray();
+            log.debug("文章封面压缩完成: {} -> {} bytes", file.getSize(), compressed.length);
+
+            return compressed;
+        }
+    }
+
+    /**
+     * 移动端适配压缩
+     * 为移动端设备优化图片尺寸和质量
+     *
+     * @param file 源图片文件
+     * @return 压缩后的移动端适配图片数据
+     * @throws IOException
+     */
+    public static byte[] compressForMobile(MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("文件为空");
+        }
+
+        String format = getImageFormat(file);
+
+        // 获取移动端配置参数
+        int mobileWidth = (config != null && config.getMobileMaxWidth() > 0) ?
+                          config.getMobileMaxWidth() : MOBILE_MAX_WIDTH;
+        double mobileQuality = (config != null) ? config.getMobileQuality() : 0.75;
+
+        log.debug("开始移动端适配压缩: {}, 最大宽度: {}, 质量: {}",
+                file.getOriginalFilename(), mobileWidth, mobileQuality);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Thumbnails.of(file.getInputStream())
+                    .width(mobileWidth)
+                    .keepAspectRatio(true)
+                    .outputQuality(mobileQuality)
+                    .outputFormat(format != null ? format : "jpg")
+                    .toOutputStream(outputStream);
+
+            byte[] compressed = outputStream.toByteArray();
+            log.debug("移动端适配压缩完成: {} -> {} bytes", file.getSize(), compressed.length);
+
+            return compressed;
+        }
+    }
+
+    /**
+     * 水印图片处理
+     * 在图片上添加水印
+     *
+     * @param file 源图片文件
+     * @param watermarkText 水印文字
+     * @return 处理后的图片数据
+     * @throws IOException
+     */
+    public static byte[] addWatermark(MultipartFile file, String watermarkText) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("文件为空");
+        }
+
+        if (StringUtils.isEmpty(watermarkText)) {
+            return file.getBytes();
+        }
+
+        String format = getImageFormat(file);
+
+        log.debug("开始添加水印: {}, 水印文字: {}", file.getOriginalFilename(), watermarkText);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Thumbnails.of(file.getInputStream())
+                    .size(DEFAULT_MAX_WIDTH, DEFAULT_MAX_HEIGHT)
+                    .keepAspectRatio(true)
+                    .outputQuality(DEFAULT_QUALITY)
+                    .watermark(Positions.BOTTOM_RIGHT,
+                               createWatermarkImage(watermarkText),
+                               0.5f)
+                    .outputFormat(format != null ? format : "jpg")
+                    .toOutputStream(outputStream);
+
+            return outputStream.toByteArray();
+        }
+    }
+
+    /**
+     * 创建水印图片
+     */
+    private static java.awt.image.BufferedImage createWatermarkImage(String text) {
+        int width = 200;
+        int height = 50;
+        java.awt.image.BufferedImage image = new java.awt.image.BufferedImage(width, height,
+                java.awt.image.BufferedImage.TYPE_INT_ARGB);
+
+        java.awt.Graphics2D g2d = image.createGraphics();
+        g2d.setRenderingHint(java.awt.RenderingHints.KEY_TEXT_ANTIALIASING,
+                            java.awt.RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+        // 设置半透明背景
+        g2d.setColor(new java.awt.Color(0, 0, 0, 128));
+        g2d.fillRect(0, 0, width, height);
+
+        // 设置文字颜色和字体
+        g2d.setColor(java.awt.Color.WHITE);
+        g2d.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
+
+        // 绘制文字
+        java.awt.FontMetrics fm = g2d.getFontMetrics();
+        int textWidth = fm.stringWidth(text);
+        int textHeight = fm.getHeight();
+
+        g2d.drawString(text, (width - textWidth) / 2, (height + textHeight) / 2);
+        g2d.dispose();
+
+        return image;
+    }
+
+    /**
+     * 图片格式转换
+     * 将图片转换为指定格式
+     *
+     * @param file 源图片文件
+     * @param targetFormat 目标格式 (jpg, png, webp)
+     * @return 转换后的图片数据
+     * @throws IOException
+     */
+    public static byte[] convertFormat(MultipartFile file, String targetFormat) throws IOException {
+        if (file == null || file.isEmpty()) {
+            throw new IOException("文件为空");
+        }
+
+        if (StringUtils.isEmpty(targetFormat)) {
+            return file.getBytes();
+        }
+
+        log.debug("开始格式转换: {} -> {}", file.getOriginalFilename(), targetFormat);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            Thumbnails.of(file.getInputStream())
+                    .scale(1.0)
+                    .outputFormat(targetFormat.toLowerCase())
+                    .toOutputStream(outputStream);
+
+            byte[] converted = outputStream.toByteArray();
+            log.debug("格式转换完成: {} -> {} bytes", targetFormat, converted.length);
+
+            return converted;
         }
     }
 

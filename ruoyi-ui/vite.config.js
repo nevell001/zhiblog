@@ -56,28 +56,13 @@ export default defineConfig(({ mode, command }) => {
           target: baseUrl,
           changeOrigin: true
         },
-        // 代理博客API接口（精确匹配API调用，避免代理前端路由）
-        '/blog/article': {
+                // 代理通用接口（包括头像上传）
+        '/common': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/category': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        '/blog/tag': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        '/blog/comment': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        '/blog/friendLink': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        '/blog/setting': {
+        // 代理博客前台接口
+        '/blog': {
           target: baseUrl,
           changeOrigin: true
         },

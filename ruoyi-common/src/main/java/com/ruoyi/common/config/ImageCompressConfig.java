@@ -58,6 +58,31 @@ public class ImageCompressConfig {
      */
     private double thumbnailQuality = 0.8;
 
+    /**
+     * 文章封面图宽度
+     */
+    private int articleCoverWidth = 800;
+
+    /**
+     * 文章封面图高度
+     */
+    private int articleCoverHeight = 450;
+
+    /**
+     * 文章封面图压缩质量
+     */
+    private double coverQuality = 0.85;
+
+    /**
+     * 移动端最大宽度
+     */
+    private int mobileMaxWidth = 750;
+
+    /**
+     * 移动端压缩质量
+     */
+    private double mobileQuality = 0.75;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -130,6 +155,46 @@ public class ImageCompressConfig {
         this.thumbnailQuality = thumbnailQuality;
     }
 
+    public int getArticleCoverWidth() {
+        return articleCoverWidth;
+    }
+
+    public void setArticleCoverWidth(int articleCoverWidth) {
+        this.articleCoverWidth = articleCoverWidth;
+    }
+
+    public int getArticleCoverHeight() {
+        return articleCoverHeight;
+    }
+
+    public void setArticleCoverHeight(int articleCoverHeight) {
+        this.articleCoverHeight = articleCoverHeight;
+    }
+
+    public double getCoverQuality() {
+        return coverQuality;
+    }
+
+    public void setCoverQuality(double coverQuality) {
+        this.coverQuality = coverQuality;
+    }
+
+    public int getMobileMaxWidth() {
+        return mobileMaxWidth;
+    }
+
+    public void setMobileMaxWidth(int mobileMaxWidth) {
+        this.mobileMaxWidth = mobileMaxWidth;
+    }
+
+    public double getMobileQuality() {
+        return mobileQuality;
+    }
+
+    public void setMobileQuality(double mobileQuality) {
+        this.mobileQuality = mobileQuality;
+    }
+
     /**
      * 获取压缩阈值字节数
      */
@@ -172,6 +237,11 @@ public class ImageCompressConfig {
                 ", thumbnailSize=" + thumbnailSize +
                 ", avatarQuality=" + avatarQuality +
                 ", thumbnailQuality=" + thumbnailQuality +
+                ", articleCoverWidth=" + articleCoverWidth +
+                ", articleCoverHeight=" + articleCoverHeight +
+                ", coverQuality=" + coverQuality +
+                ", mobileMaxWidth=" + mobileMaxWidth +
+                ", mobileQuality=" + mobileQuality +
                 '}';
     }
 }

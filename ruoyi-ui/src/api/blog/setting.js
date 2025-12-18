@@ -86,3 +86,12 @@ export function getBlogSettingsAnonymous() {
     headers: { isToken: false }
   })
 }
+
+// 更新博客设置
+export function updateBlogSettings(data) {
+  return request({
+    url: '/dev-api/common/blog/setting/update',
+    method: 'post',
+    data: data
+  })
+}

@@ -75,7 +75,7 @@ export function getArticleList(query) {
 // 根据分类获取文章列表（前台用，支持分页）
 export function getArticlesByCategory(categoryId, query) {
   return request({
-    url: '/blog/article/category/' + categoryId,
+    url: '/dev-api/blog/article/category/' + categoryId,
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -85,7 +85,7 @@ export function getArticlesByCategory(categoryId, query) {
 // 根据标签获取文章列表（前台用，支持分页）
 export function getArticlesByTag(tagId, query) {
   return request({
-    url: '/blog/article/tag/' + tagId,
+    url: '/dev-api/blog/article/tag/' + tagId,
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -95,9 +95,9 @@ export function getArticlesByTag(tagId, query) {
 // 获取热门文章（支持分页）
 export function getHotArticles(query) {
   return request({
-    url: '/blog/article/hot',
+    url: '/dev-api/blog/article/hot',
     method: 'get',
-    params: query,
+    params: { ...query, pageSize: query.pageSize || 5 },
     headers: { isToken: false }
   })
 }
@@ -114,7 +114,7 @@ export function getArticleDetail(id) {
 // 更新文章浏览量
 export function updateArticleViewCount(id) {
   return request({
-    url: '/blog/article/view/' + id,
+    url: '/dev-api/blog/article/view/' + id,
     method: 'get',
     headers: { isToken: false }
   })
@@ -123,7 +123,7 @@ export function updateArticleViewCount(id) {
 // 获取文章归档
 export function getArticleArchive() {
   return request({
-    url: '/blog/article-archive',
+    url: '/dev-api/blog/article-archive',
     method: 'get',
     headers: { isToken: false }
   })
@@ -132,7 +132,7 @@ export function getArticleArchive() {
 // 搜索文章（支持分页）
 export function searchArticles(keyword, query) {
   return request({
-    url: '/blog/article/search',
+    url: '/dev-api/blog/article/search',
     method: 'get',
     params: { ...query, keyword: keyword },
     headers: { isToken: false }
@@ -142,7 +142,7 @@ export function searchArticles(keyword, query) {
 // 获取相关文章
 export function getRelatedArticles(id) {
   return request({
-    url: '/blog/article/related/' + id,
+    url: '/dev-api/blog/article/related/' + id,
     method: 'get',
     headers: { isToken: false }
   })
@@ -151,7 +151,7 @@ export function getRelatedArticles(id) {
 // 获取文章评论
 export function getArticleComments(articleId) {
   return request({
-    url: '/blog/comment/article/' + articleId,
+    url: '/dev-api/blog/comment/article/' + articleId,
     method: 'get',
     headers: { isToken: false }
   })
@@ -160,7 +160,7 @@ export function getArticleComments(articleId) {
 // 提交评论
 export function submitComment(data) {
   return request({
-    url: '/blog/comment',
+    url: '/dev-api/blog/comment',
     method: 'post',
     data: data
   })

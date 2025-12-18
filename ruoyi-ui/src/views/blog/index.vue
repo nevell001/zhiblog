@@ -90,11 +90,11 @@
         <!-- 文章列表 -->
         <div v-else class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
-            <div class="article-cover" v-if="article.coverUrl">
-              <img :src="article.coverUrl" :alt="article.title" loading="lazy" @error="handleImageError" />
+            <div class="article-cover" v-if="article.coverUrl || article.coverImage">
+              <img :src="article.coverUrl || article.coverImage || 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'" :alt="article.title" loading="lazy" @error="handleImageError" />
               <div class="cover-overlay"></div>
-              <div class="article-category-badge" v-if="article.categoryName">
-                {{ article.categoryName }}
+              <div class="article-category-badge" v-if="article.tags && article.tags.length > 0">
+                {{ article.tags[0].name }}
               </div>
             </div>
             <div class="article-content">
@@ -134,35 +134,19 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 无限滚动分页 -->
-        <InfiniteScroll
-          :items="articleList"
-          :loading="loading"
-          :has-more="articleList.length < total"
-          :load-more="loadMoreArticles"
-          :threshold="200"
-          ref="infiniteScrollRef"
-        >
-          <template #default="{ items, loading, hasMore }">
-            <div v-if="items.length < total && !loading" class="load-more-container">
-              <el-button
-                type="primary"
-                @click="loadMoreArticles"
-                :loading="loadingMore"
-                round
-              >
-                {{ loadingMore ? '加载中...' : '加载更多' }}
-              </el-button>
-            </div>
-          </template>
-          <template #empty>
-            <div class="empty-articles">
-              <el-empty description="暂无文章" />
-            </div>
-          </template>
-        </InfiniteScroll>
+          <!-- 加载更多按钮 -->
+          <div v-if="articleList.length < total && !loading" class="load-more-container">
+            <el-button
+              type="primary"
+              @click="loadMoreArticles"
+              :loading="loadingMore"
+              round
+            >
+              {{ loadingMore ? '加载中...' : '加载更多' }}
+            </el-button>
+          </div>
+        </div>
       </div>
 
       <!-- 侧边栏 -->
@@ -175,7 +159,13 @@
           </h3>
           <div class="about-content">
             <div class="author-avatar">
-              <img :src="getAvatarUrl()" :alt="blogSettings.blog_author || 'nevell'" @error="handleAvatarError" />
+              <img
+                :key="'avatar-' + (blogSettings.blog_avatar || 'default')"
+                :src="getAvatarUrl()"
+                :alt="blogSettings.blog_author || 'nevell'"
+                @error="handleAvatarError"
+                :style="{ transition: 'all 0.3s ease' }"
+              />
             </div>
             <h4 class="author-name">{{ blogSettings.blog_author || 'nevell' }}</h4>
             <p class="author-title">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
@@ -370,13 +360,13 @@
 import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-import { getArticleList, getArticleListAnonymous, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
+import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
+import { processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
-import InfiniteScroll from '@/components/InfiniteScroll/index.vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 // 初始化博客设置全局状态
@@ -414,22 +404,22 @@ const loadArticleList = async (append = false) => {
     loading.value = !append
     if (append) loadingMore.value = true
 
-    let response;
-    if (searchKeyword.value) {
-      // 如果有搜索关键词，则执行搜索
-      response = await searchArticles(searchKeyword.value, queryParams)
-    } else {
-      // 否则获取所有文章 - 优先使用匿名访问接口
-      try {
-        response = await getArticleList(queryParams)
-      } catch (error) {
-        // 如果标准接口失败，尝试匿名接口
-        console.warn('标准文章接口访问失败，尝试匿名接口:', error)
-        response = await getArticleListAnonymous(queryParams)
-      }
+    if (process.env.NODE_ENV === 'development') {
+      console.log('开始加载文章列表, append:', append, 'searchKeyword:', searchKeyword.value)
     }
 
-    console.log('文章列表响应:', response)
+    let response;
+    try {
+      response = await getArticleList(queryParams)
+    } catch (error) {
+      // 如果标准接口失败，尝试匿名接口
+      console.warn('标准文章接口访问失败，尝试匿名接口:', error)
+      response = await getArticleListAnonymous(queryParams)
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('文章列表响应:', response)
+    }
     
     // 处理不同的响应格式
     let newArticles = []
@@ -449,6 +439,12 @@ const loadArticleList = async (append = false) => {
       totalCount = response.total || newArticles.length
     }
     
+    console.log('处理后的文章数据:', {
+      newArticles: newArticles.length,
+      totalCount,
+      articleListLength: articleList.value.length
+    })
+
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
     } else {
@@ -456,27 +452,67 @@ const loadArticleList = async (append = false) => {
     }
     total.value = totalCount
     totalArticles.value = totalCount
+
+    console.log('最终文章列表状态:', {
+      articleListLength: articleList.value.length,
+      loading: loading.value,
+      loadingMore: loadingMore.value
+    })
   } catch (error) {
     console.error('获取文章列表失败:', error)
     // 如果是网络错误或接口不存在，显示友好提示
-    if (error.response && error.response.status === 404) {
+    if (error.response && (error.response.status === 404 || error.response.status === 401)) {
       console.warn('文章接口暂未实现，使用模拟数据')
-      // 使用模拟数据
+      // 使用丰富的模拟数据
       const mockArticles = [
         {
           id: 1,
-          title: '欢迎使用博客系统',
-          summary: '这是一个基于RuoYi-Vue的博客系统，支持文章管理、分类管理、标签管理等功能。',
-          content: '这是一个基于RuoYi-Vue的博客系统...',
-          coverUrl: 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=博客系统',
+          title: '欢迎使用Thumbnailator图片处理博客系统',
+          summary: '这是一个基于RuoYi-Vue的现代化博客系统，集成了Thumbnailator专业图片处理库，支持高质量的图片压缩、格式转换和水印添加等功能。',
+          content: '这是一个基于RuoYi-Vue的博客系统，集成了Thumbnailator图片处理库...',
+          coverUrl: '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg',
           categoryName: '系统公告',
           createTime: new Date().toISOString(),
-          viewCount: 100,
-          likeCount: 10,
-          commentCount: 5,
+          viewCount: 156,
+          likeCount: 23,
+          commentCount: 8,
           tags: [
-            { id: 1, name: 'Vue', color: '#4FC08D' },
-            { id: 2, name: 'Spring Boot', color: '#6DB33F' }
+            { id: 1, name: 'Vue.js', color: '#4FC08D' },
+            { id: 2, name: 'Spring Boot', color: '#6DB33F' },
+            { id: 3, name: 'Thumbnailator', color: '#FF6B6B' }
+          ]
+        },
+        {
+          id: 2,
+          title: '如何使用Thumbnailator进行图片压缩',
+          summary: 'Thumbnailator是一个强大的Java图片处理库，本文将详细介绍如何在项目中集成和使用Thumbnailator进行图片压缩、格式转换等操作。',
+          content: 'Thumbnailator是一个强大的Java图片处理库...',
+          coverUrl: 'https://via.placeholder.com/400x200/67C23A/FFFFFF?text=图片压缩',
+          categoryName: '技术分享',
+          createTime: new Date(Date.now() - 86400000).toISOString(),
+          viewCount: 89,
+          likeCount: 15,
+          commentCount: 3,
+          tags: [
+            { id: 4, name: 'Java', color: '#ED8B00' },
+            { id: 5, name: '图片处理', color: '#9C27B0' }
+          ]
+        },
+        {
+          id: 3,
+          title: 'Spring Boot最佳实践指南',
+          summary: '本文总结了Spring Boot开发中的最佳实践，包括项目结构设计、配置管理、异常处理等方面的经验分享。',
+          content: 'Spring Boot是Java开发中最流行的框架之一...',
+          coverUrl: 'https://via.placeholder.com/400x200/6DB33F/FFFFFF?text=Spring Boot',
+          categoryName: '技术分享',
+          createTime: new Date(Date.now() - 172800000).toISOString(),
+          viewCount: 234,
+          likeCount: 45,
+          commentCount: 12,
+          tags: [
+            { id: 2, name: 'Spring Boot', color: '#6DB33F' },
+            { id: 6, name: '最佳实践', color: '#FF5722' },
+            { id: 7, name: 'Java', color: '#ED8B00' }
           ]
         }
       ]
@@ -552,6 +588,9 @@ const loadHotArticles = async () => {
 // 获取博客设置
 const loadBlogSettings = async () => {
   try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('开始加载博客设置...')
+    }
     // 优先使用匿名访问接口
     let response;
     try {
@@ -562,7 +601,9 @@ const loadBlogSettings = async () => {
       response = await getBlogSettingsAnonymous()
     }
 
-    console.log('博客设置响应:', response)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('博客设置响应:', response)
+    }
 
     let settings = {}
 
@@ -587,7 +628,7 @@ const loadBlogSettings = async () => {
         blog_desc: '这是一个基于RuoYi-Vue的博客系统',
         blog_author: 'nevell',
         author_title: '全栈开发工程师',
-        blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主',
+        blog_avatar: '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg', // 使用实际存在的头像
         skills: ['Vue.js', 'Spring Boot', 'Java', 'JavaScript', 'MySQL', 'Redis'],
         github_url: 'https://github.com',
         blog_email: 'contact@example.com',
@@ -700,12 +741,6 @@ const clearSearch = () => {
   loadArticleList()
 }
 
-// 分页处理
-const handlePageChange = (page) => {
-  queryParams.pageNum = page
-  loadArticleList()
-}
-
 // 日期格式化
 const formatDate = (dateString) => {
   if (!dateString) return ''
@@ -749,25 +784,6 @@ const truncateText = (text, maxLength) => {
   return text.substring(0, maxLength) + '...'
 }
 
-// 防抖函数
-const debounce = (func, wait) => {
-  let timeout
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout)
-      func(...args)
-    }
-    clearTimeout(timeout)
-    timeout = setTimeout(later, wait)
-  }
-}
-
-// 预加载下一页数据
-const preloadNextPage = debounce(() => {
-  if (!loadingMore.value && articleList.value.length < total.value - queryParams.pageSize) {
-    loadMoreArticles()
-  }
-}, 500)
 
 // 优化的加载更多文章
 const loadMoreArticles = async () => {
@@ -842,30 +858,36 @@ const handleImageError = (e) => {
   e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
 }
 
-// 获取头像URL
+// 获取头像URL（使用优化的处理函数）
 const getAvatarUrl = () => {
-  // 直接从API获取设置
-  const avatar = blogSettings.value.blog_avatar;
-
-  console.log('获取到的头像设置:', avatar);
-
-  // 如果有有效的头像URL（非空且不是旧的placeholder），直接返回
-  if (avatar && avatar.trim() && !avatar.includes('via.placeholder.com')) {
-    console.log('使用配置的头像:', avatar);
-    return avatar;
-  }
-
-  // 否则返回默认头像（使用Data URL）
-  const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiM0MDlFRkYiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTQiIGZpbGw9IndoaXRlIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjU4IiByeD0iMjAiIHJ5PSIxNiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4K';
-  console.log('使用默认头像');
-  return defaultAvatar;
+  return processAvatarUrl(blogSettings.value.blog_avatar);
 }
 
 // 头像加载错误处理
 const handleAvatarError = (e) => {
-  // 使用Data URL作为默认头像，避免外部依赖
-  const defaultAvatar = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjgwIiBoZWlnaHQ9IjgwIiByeD0iNDAiIGZpbGw9IiM0MDlFRkYiLz4KPGNpcmNsZSBjeD0iNDAiIGN5PSIzMCIgcj0iMTQiIGZpbGw9IndoaXRlIi8+CjxlbGxpcHNlIGN4PSI0MCIgY3k9IjU4IiByeD0iMjAiIHJ5PSIxNiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4K';
-  e.target.src = defaultAvatar;
+  console.warn('头像加载失败，使用默认头像');
+  const defaultAvatar = processAvatarUrl('');
+
+  // 防止循环：如果已经是默认头像了，不要再设置
+  if (!e.target.src.includes('data:image/svg+xml')) {
+    e.target.src = defaultAvatar;
+  }
+  // 移除错误监听器，防止无限循环
+  e.target.onerror = null;
+}
+
+// 验证头像文件是否存在
+const validateAvatarExists = async () => {
+  const avatar = blogSettings.value.blog_avatar;
+  if (avatar && !avatar.startsWith('data:')) {
+    const exists = await checkAvatarExists(avatar);
+    if (!exists) {
+      console.warn('头像文件不存在:', avatar);
+      // 可以在这里触发头像更新或使用默认头像
+      return false;
+    }
+  }
+  return true;
 }
 
 

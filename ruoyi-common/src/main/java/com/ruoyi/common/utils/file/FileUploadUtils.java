@@ -453,4 +453,125 @@ public class FileUploadUtils
 
         return getPathFileName(baseDir, fileName);
     }
+
+    /**
+     * 上传文章封面图（带压缩）
+     *
+     * @param baseDir 基础路径
+     * @param file 上传的文件
+     * @param useCustomNaming 是否使用自定义命名
+     * @return 文件路径
+     * @throws IOException
+     */
+    public static final String uploadArticleCover(String baseDir, MultipartFile file, boolean useCustomNaming) throws IOException
+    {
+        try
+        {
+            return uploadWithSpecialCompression(baseDir, file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION, useCustomNaming, "article-cover");
+        }
+        catch (Exception e)
+        {
+            throw new IOException("文章封面图上传失败", e);
+        }
+    }
+
+    /**
+     * 上传移动端适配图片
+     *
+     * @param baseDir 基础路径
+     * @param file 上传的文件
+     * @param useCustomNaming 是否使用自定义命名
+     * @return 文件路径
+     * @throws IOException
+     */
+    public static final String uploadMobileImage(String baseDir, MultipartFile file, boolean useCustomNaming) throws IOException
+    {
+        try
+        {
+            return uploadWithSpecialCompression(baseDir, file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION, useCustomNaming, "mobile");
+        }
+        catch (Exception e)
+        {
+            throw new IOException("移动端图片上传失败", e);
+        }
+    }
+
+    /**
+     * 上传带水印的图片
+     *
+     * @param baseDir 基础路径
+     * @param file 上传的文件
+     * @param watermarkText 水印文字
+     * @param useCustomNaming 是否使用自定义命名
+     * @return 文件路径
+     * @throws IOException
+     */
+    public static final String uploadWatermarkImage(String baseDir, MultipartFile file, String watermarkText, boolean useCustomNaming) throws IOException, InvalidExtensionException
+    {
+        try
+        {
+            int fileNamelength = file.getOriginalFilename().length();
+            if (fileNamelength > DEFAULT_FILE_NAME_LENGTH)
+            {
+                throw new FileNameLengthLimitExceededException(DEFAULT_FILE_NAME_LENGTH);
+            }
+
+            assertAllowed(file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION);
+
+            String fileName = useCustomNaming ? uuidFilename(file) : extractFilename(file);
+            String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+
+            // 添加水印
+            byte[] watermarkedData = ImageCompressUtils.addWatermark(file, watermarkText);
+            Files.write(Paths.get(absPath), watermarkedData);
+
+            log.debug("带水印图片已保存: {}, 水印文字: {}", fileName, watermarkText);
+
+            return getPathFileName(baseDir, fileName);
+        }
+        catch (Exception e)
+        {
+            throw new IOException("带水印图片上传失败", e);
+        }
+    }
+
+    /**
+     * 专用压缩上传方法
+     */
+    private static final String uploadWithSpecialCompression(String baseDir, MultipartFile file, String[] allowedExtension, boolean useCustomNaming, String compressType) throws IOException, InvalidExtensionException {
+        int fileNamelength = file.getOriginalFilename().length();
+        if (fileNamelength > DEFAULT_FILE_NAME_LENGTH) {
+            throw new FileNameLengthLimitExceededException(DEFAULT_FILE_NAME_LENGTH);
+        }
+
+        assertAllowed(file, allowedExtension);
+
+        String fileName = useCustomNaming ? uuidFilename(file) : extractFilename(file);
+        String absPath = getAbsoluteFile(baseDir, fileName).getAbsolutePath();
+
+        try {
+            byte[] compressedData;
+            switch (compressType) {
+                case "article-cover":
+                    compressedData = ImageCompressUtils.compressArticleCover(file);
+                    break;
+                case "mobile":
+                    compressedData = ImageCompressUtils.compressForMobile(file);
+                    break;
+                default:
+                    compressedData = ImageCompressUtils.smartCompress(file);
+                    break;
+            }
+
+            Files.write(Paths.get(absPath), compressedData);
+            log.debug("专用压缩图片已保存: {}, 压缩类型: {}, 原始大小: {} bytes, 压缩后: {} bytes",
+                    fileName, compressType, file.getSize(), compressedData.length);
+        } catch (Exception e) {
+            log.warn("专用压缩失败，使用原始文件: {}, 压缩类型: {}, 错误: {}", fileName, compressType, e.getMessage());
+            // 压缩失败时使用原始文件
+            file.transferTo(Paths.get(absPath));
+        }
+
+        return getPathFileName(baseDir, fileName);
+    }
 }

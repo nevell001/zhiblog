@@ -32,6 +32,12 @@ const routes = [
     path: '/index',
     redirect: '/blog'
   },
+  // 测试页面
+  {
+    path: '/test/avatar',
+    component: () => import('@/views/test/avatar-test.vue'),
+    name: 'AvatarTest'
+  },
   // 后台管理路由 - 简化版
   {
     path: '/admin',
