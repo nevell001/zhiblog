@@ -359,7 +359,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
@@ -654,6 +654,15 @@ const handleBlogSettingsUpdate = (event) => {
   // 强制重新渲染
   lastUpdateTime.value = formatDate(new Date().toISOString())
 
+  // 强制刷新所有头像显示（强制重新计算computed属性）
+  nextTick(() => {
+    // 强制触发响应式更新
+    const currentAvatar = blogSettingsStore.blogSettings.blog_avatar
+    if (currentAvatar) {
+      blogSettingsStore.updateBlogAvatar(currentAvatar + '?force=' + Date.now())
+    }
+  })
+
   // 显示提示
   ElMessage.success('博客设置已更新，头像等信息将立即生效')
 }
@@ -906,7 +915,24 @@ onMounted(() => {
   window.addEventListener('scroll', handleScroll)
 
   // 添加博客设置更新监听器
-  window.addEventListener('blogSettingsUpdated', handleBlogSettingsUpdate)
+  window.addEventListener('blog-settings-update', handleBlogSettingsUpdate)
+
+  // 添加跨标签页storage监听器
+  const handleStorageChange = (event) => {
+    if (event.key === 'blog-settings-update') {
+      try {
+        const updateData = JSON.parse(event.newValue || event.oldValue || '{}')
+        if (updateData.type === 'avatar_update' && updateData.avatarUrl) {
+          console.log('🔔 收到跨标签页头像更新事件:', updateData)
+          handleBlogSettingsUpdate({ detail: { blog_avatar: updateData.avatarUrl } })
+        }
+      } catch (error) {
+        console.error('解析storage事件失败:', error)
+      }
+    }
+  }
+  window.addEventListener('storage', handleStorageChange)
+
   console.log('博客设置更新监听器已添加')
 })
 
@@ -915,9 +941,41 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
 
   // 移除博客设置更新监听器
-  window.removeEventListener('blogSettingsUpdated', handleBlogSettingsUpdate)
+  window.removeEventListener('blog-settings-update', handleBlogSettingsUpdate)
+
+  // 移除storage监听器
+  window.removeEventListener('storage', handleStorageChange)
+
+  // 清除定期检查的定时器
+  if (checkBlogSettingsInterval) {
+    clearInterval(checkBlogSettingsInterval)
+  }
+
   console.log('博客设置更新监听器已移除')
 })
+
+// 定期检查博客设置更新（每30秒检查一次，确保头像等设置的最新状态）
+const checkBlogSettingsInterval = setInterval(async () => {
+  try {
+    // 获取当前数据库中的头像设置
+    const response = await getBlogSettings()
+    if (response && response.code === 200 && response.data) {
+      const currentAvatar = response.data.blog_avatar
+      const storeAvatar = blogSettingsStore.blogSettings.blog_avatar
+
+      // 如果头像发生变化，更新store
+      if (currentAvatar && currentAvatar !== storeAvatar) {
+        console.log('🔄 检测到头像变化，更新store:', {
+          old: storeAvatar,
+          new: currentAvatar
+        })
+        blogSettingsStore.updateBlogSettings({ blog_avatar: currentAvatar })
+      }
+    }
+  } catch (error) {
+    console.log('定期检查博客设置时出错:', error)
+  }
+}, 30000) // 30秒检查一次
 
 // 导出函数供外部调用
 defineExpose({

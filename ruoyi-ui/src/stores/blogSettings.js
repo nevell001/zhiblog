@@ -30,7 +30,25 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E";
       }
 
-      // 返回实际设置的头像URL（包括相对路径、完整URL等）
+      // 如果头像路径是相对路径，则拼接后端服务器地址
+      if (avatar.startsWith('/')) {
+        // 添加时间戳避免缓存
+        const timestamp = state.lastUpdate || Date.now();
+        const separator = avatar.includes('?') ? '&' : '?';
+        const finalUrl = import.meta.env.DEV
+          ? `${avatar}${separator}t=${timestamp}`  // 开发环境通过代理转发
+          : `${avatar}${separator}t=${timestamp}`; // 生产环境直接使用相对路径
+
+        console.log('🔗 构建头像URL:', {
+          originalAvatar: avatar,
+          timestamp: timestamp,
+          lastUpdate: state.lastUpdate,
+          finalUrl: finalUrl
+        });
+
+        return finalUrl;
+      }
+
       return avatar;
     },
     getBlogAuthor: (state) => state.blogSettings.blog_author || 'nevell',

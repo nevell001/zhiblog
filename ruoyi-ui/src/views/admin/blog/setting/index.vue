@@ -1114,13 +1114,18 @@ async function handleSingleSettingChange(key, value) {
       originalSettings.value[key] = processedValue;
       console.log(`原始设置已更新: ${key} = ${processedValue}`);
 
-      // 如果是头像设置，同时更新前台store
+      // 如果是头像设置，同时更新前台store并发送更新事件
       if (key === 'blog_avatar' && processedValue) {
         console.log('更新前台store中的头像设置...');
         const blogSettingsStore = useBlogSettingsStore();
         if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
           blogSettingsStore.updateBlogAvatar(processedValue);
         }
+
+        // 发送更新事件给前台页面
+        window.dispatchEvent(new CustomEvent('blog-settings-update', {
+          detail: { blog_avatar: processedValue }
+        }));
       }
     } else {
       throw new Error(response.msg || '操作失败');
@@ -1214,6 +1219,26 @@ function handleAvatarUploadSuccess(response, uploadFile) {
     if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
       blogSettingsStore.updateBlogAvatar(avatarUrl);
     }
+
+    // 发送更新事件给前台页面
+    console.log('📤 发送头像更新事件:', {
+      avatarUrl: avatarUrl,
+      timestamp: Date.now()
+    });
+
+    // 方式1: 同窗口事件通知
+    window.dispatchEvent(new CustomEvent('blog-settings-update', {
+      detail: { blog_avatar: avatarUrl }
+    }));
+
+    // 方式2: 跨标签页通知（使用localStorage）
+    const updateData = {
+      type: 'avatar_update',
+      avatarUrl: avatarUrl,
+      timestamp: Date.now()
+    };
+    localStorage.setItem('blog-settings-update', JSON.stringify(updateData));
+    localStorage.removeItem('blog-settings-update'); // 触发storage事件
 
     // 自动保存头像设置
     setTimeout(() => {
