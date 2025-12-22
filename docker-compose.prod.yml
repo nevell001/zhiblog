@@ -78,6 +78,7 @@ services:
     build:
       context: ./ruoyi-ui
       dockerfile: Dockerfile.prod
+    image: ruoyi-ui:prod
     container_name: ruoyi-ui
     ports:
       - "80:80"

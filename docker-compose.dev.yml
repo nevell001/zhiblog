@@ -64,6 +64,7 @@ services:
     build:
       context: ./ruoyi-ui
       dockerfile: Dockerfile.dev
+    image: ruoyi-ui:dev
     container_name: ruoyi-ui
     working_dir: /app
     volumes:

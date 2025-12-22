@@ -137,11 +137,22 @@ public class BlogFrontController extends BaseController
                             }
 
                             // 头像URL特殊处理
-                            if ("blog_avatar".equals(key) && value != null && !value.isEmpty() && !value.startsWith("http") && !value.startsWith("data:")) {
-                                // 确保头像URL格式正确
-                                if (value.startsWith("/")) {
-                                    convertedValue = value; // 已经是正确的绝对路径
-                                } else {
+                            if ("blog_avatar".equals(key) && value != null && !value.isEmpty()) {
+                                // 如果是完整的HTTP URL，转换为相对路径
+                                if (value.startsWith("http")) {
+                                    try {
+                                        java.net.URL url = new java.net.URL(value);
+                                        String path = url.getPath();
+                                        if (path.startsWith("/profile/")) {
+                                            convertedValue = path; // 保留/profile/开头的相对路径
+                                            System.out.println("头像URL转换: " + value + " -> " + convertedValue);
+                                        } else {
+                                            convertedValue = value; // 其他情况保持原样
+                                        }
+                                    } catch (Exception e) {
+                                        convertedValue = value; // 转换失败保持原样
+                                    }
+                                } else if (!value.startsWith("data:") && !value.startsWith("/")) {
                                     convertedValue = "/" + value; // 添加前导斜杠
                                 }
                             }
@@ -173,11 +184,22 @@ public class BlogFrontController extends BaseController
                         }
 
                         // 头像URL特殊处理
-                        if ("blog_avatar".equals(key) && value != null && !value.isEmpty() && !value.startsWith("http") && !value.startsWith("data:")) {
-                            // 确保头像URL格式正确
-                            if (value.startsWith("/")) {
-                                convertedValue = value; // 已经是正确的绝对路径
-                            } else {
+                        if ("blog_avatar".equals(key) && value != null && !value.isEmpty()) {
+                            // 如果是完整的HTTP URL，转换为相对路径
+                            if (value.startsWith("http")) {
+                                try {
+                                    java.net.URL url = new java.net.URL(value);
+                                    String path = url.getPath();
+                                    if (path.startsWith("/profile/")) {
+                                        convertedValue = path; // 保留/profile/开头的相对路径
+                                        System.out.println("头像URL转换: " + value + " -> " + convertedValue);
+                                    } else {
+                                        convertedValue = value; // 其他情况保持原样
+                                    }
+                                } catch (Exception e) {
+                                    convertedValue = value; // 转换失败保持原样
+                                }
+                            } else if (!value.startsWith("data:") && !value.startsWith("/")) {
                                 convertedValue = "/" + value; // 添加前导斜杠
                             }
                         }
@@ -253,10 +275,16 @@ public class BlogFrontController extends BaseController
     @GetMapping("/article/{id}")
     public AjaxResult getArticleDetail(@PathVariable("id") Long id)
     {
+        logger.info("请求文章详情，ID: {}", id);
+
         BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
         if (blogArticle == null) {
+            logger.warn("文章不存在，ID: {}", id);
             return error("文章不存在");
         }
+
+        logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}",
+            id, blogArticle.getStatus(), blogArticle.getDelFlag());
         
         // 确保所有字段都有值，避免null
         if (blogArticle.getStatus() == null) {
@@ -264,20 +292,30 @@ public class BlogFrontController extends BaseController
         }
         // 使用安全的null检查方式
         Long status = blogArticle.getStatus();
-        if (status == null || !Long.valueOf(1L).equals(status)) {
+        if (status == null) {
+            logger.warn("文章状态为空，ID: {}", id);
+            return error("文章状态无效");
+        }
+
+        if (!Long.valueOf(1L).equals(status)) {
+            logger.warn("文章未发布，ID: {}, 状态: {}", id, status);
             return error("文章未发布");
         }
-        
+
         // 使用安全的null检查方式，避免直接调用getDelFlag().longValue()
         Long delFlag = blogArticle.getDelFlag();
         if (delFlag == null) {
+            logger.warn("文章删除标记为空，ID: {}, 设置为默认值0", id);
             blogArticle.setDelFlag(0L); // 使用默认值
             delFlag = 0L;
         }
         // 然后安全地检查delFlag的值
         if (!Long.valueOf(0L).equals(delFlag)) {
+            logger.warn("文章已删除，ID: {}, 删除标记: {}", id, delFlag);
             return error("文章已删除");
         }
+
+        logger.info("文章状态检查通过，ID: {}", id);
         
         // 确保所有必要字段都有默认值，防止前端显示问题
         if (blogArticle.getViewCount() == null) blogArticle.setViewCount(0L);

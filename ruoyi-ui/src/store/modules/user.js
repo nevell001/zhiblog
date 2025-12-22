@@ -75,19 +75,25 @@ const useUserStore = defineStore(
       // 退出系统
       logOut() {
         return new Promise((resolve, reject) => {
-          logout(this.token).then(() => {
-            this.token = ''
-            this.roles = []
-            this.permissions = []
-            removeToken()
-            // 退出后重定向到登录页
-            // 使用 window.location.href 而不是 router.push 避免路由循环
+          // 先清除本地token和状态，防止API返回401时触发无限循环
+          this.token = ''
+          this.roles = []
+          this.permissions = []
+          removeToken()
+          
+          // 调用logout API通知后端注销token（即使失败也继续执行）
+          logout().then(() => {
+            console.log('Logout API调用成功')
+          }).catch(error => {
+            console.error('Logout API调用失败:', error)
+            // API调用失败也不影响退出流程
+          }).finally(() => {
+            // 延迟重定向，确保状态已更新
             setTimeout(() => {
-              window.location.href = '/login'
+              // 直接修改location，避免路由守卫的复杂逻辑
+              window.location.replace('/login')
             }, 100)
             resolve()
-          }).catch(error => {
-            reject(error)
           })
         })
       }

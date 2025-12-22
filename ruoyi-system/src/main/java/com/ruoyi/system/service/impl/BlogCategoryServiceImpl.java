@@ -1,8 +1,11 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.common.cache.annotation.BlogCacheable;
+import com.ruoyi.common.cache.annotation.BlogCacheEvict;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.BlogCategoryMapper;
 import com.ruoyi.system.mapper.BlogArticleMapper;
@@ -32,6 +35,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 文章分类
      */
     @Override
+    @BlogCacheable(key = "blog:category:#id", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public BlogCategory selectBlogCategoryById(Long id)
     {
         return blogCategoryMapper.selectBlogCategoryById(id);
@@ -44,6 +48,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 文章分类
      */
     @Override
+    @BlogCacheable(key = "blog:category:list:#blogCategory.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<BlogCategory> selectBlogCategoryList(BlogCategory blogCategory)
     {
         if (blogCategory.getDelFlag() == null) {
@@ -59,6 +64,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
     public int insertBlogCategory(BlogCategory blogCategory)
     {
         // 重名校验（仅未删除）
@@ -76,6 +82,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
     public int updateBlogCategory(BlogCategory blogCategory)
     {
         // 重名校验（更新需要排除自身）

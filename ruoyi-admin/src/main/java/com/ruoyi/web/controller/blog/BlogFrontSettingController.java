@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.cache.UnifiedCacheManager;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.SysConfig;
@@ -44,9 +46,13 @@ public class BlogFrontSettingController extends BaseController {
     @Autowired
     private IBlogSettingService blogSettingService;
 
+    @Autowired
+    private UnifiedCacheManager unifiedCacheManager;
+
     /**
      * 获取博客设置（前台匿名访问）
      */
+    @Anonymous
     @ApiOperation("获取博客设置（前台用）")
     @GetMapping
     public AjaxResult getBlogSettings() {
@@ -169,6 +175,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 根据键获取单个设置值
      */
+    @Anonymous
     @ApiOperation("根据键获取设置值")
     @GetMapping("/value/{configKey}")
     public AjaxResult getSettingValueByKey(@PathVariable String configKey) {
@@ -239,6 +246,50 @@ public class BlogFrontSettingController extends BaseController {
         } catch (Exception e) {
             logger.error("批量更新博客设置失败", e);
             return AjaxResult.error("更新设置失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清除头像缓存（解决头像更新后缓存问题）
+     */
+    @PostMapping("/clear-avatar-cache")
+    public AjaxResult clearAvatarCache() {
+        try {
+            unifiedCacheManager.delete("sys_config:blog_avatar");
+            logger.info("头像缓存已清除");
+            return AjaxResult.success("头像缓存已清除");
+        } catch (Exception e) {
+            logger.error("清除头像缓存失败", e);
+            return AjaxResult.error("清除头像缓存失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清除所有博客设置缓存
+     */
+    @GetMapping("/clear-blog-cache")
+    public AjaxResult clearBlogCache() {
+        try {
+            String[] blogConfigKeys = {
+                "blog_name", "blog_desc", "blog_author", "blog_email", "blog_url", "blog_start_time",
+                "blog_avatar", "blog_signature", "blog_keywords", "blog_copyright", "blog_beian",
+                "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
+                "theme_color", "header_background", "sidebar_style",
+                "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
+                "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
+                "page_size", "hot_article_count", "recent_comment_count", "greeting_message", "about_content",
+                "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
+            };
+
+            for (String configKey : blogConfigKeys) {
+                unifiedCacheManager.delete("sys_config:" + configKey);
+            }
+
+            logger.info("所有博客设置缓存已清除");
+            return AjaxResult.success("所有博客设置缓存已清除");
+        } catch (Exception e) {
+            logger.error("清除博客设置缓存失败", e);
+            return AjaxResult.error("清除博客设置缓存失败: " + e.getMessage());
         }
     }
 }

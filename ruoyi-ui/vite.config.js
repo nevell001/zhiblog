@@ -71,11 +71,10 @@ export default defineConfig(({ mode, command }) => {
           target: baseUrl,
           changeOrigin: true
         },
-        // 代理静态资源访问
-        '^/profile': {
+        // 代理静态资源访问（上传的图片、头像等）
+        '/profile': {
           target: baseUrl,
-          changeOrigin: true,
-          rewrite: (path) => path // 直接转发，不重写
+          changeOrigin: true
         }
         // 解决 SPA 应用 history 模式下刷新404问题
         // 在Vite中，默认支持SPA history模式，无需额外配置

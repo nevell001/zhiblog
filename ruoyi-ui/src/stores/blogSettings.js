@@ -3,18 +3,55 @@ import { defineStore } from 'pinia'
 export const useBlogSettingsStore = defineStore('blogSettings', {
   state: () => ({
     blogSettings: {
+      // 基本设置
       blog_name: '我的博客',
       blog_desc: '欢迎来到我的博客',
       blog_author: 'nevell',
-      blog_avatar: '',
-      blog_signature: '',
       blog_email: '',
       blog_url: '',
+      blog_start_time: null,
+      blog_avatar: null, // 使用null而不是空字符串，便于区分默认状态
+      blog_signature: '',
+      blog_keywords: '',
+      blog_copyright: '',
+      blog_beian: '',
+
+      // SEO设置
+      seo_title: '',
+      seo_description: '',
+      seo_canonical_url: '',
+      seo_robots: 'index,follow',
+      seo_favicon: '',
+
+      // 个性化设置
+      theme_color: '#409EFF',
+      header_background: '#304156',
+      sidebar_style: 'dark',
+
+      // 功能设置
+      comment_enabled: true,
+      comment_review: true,
+      like_enabled: true,
+      view_count_enabled: true,
+      share_enabled: true,
+      search_enabled: true,
+      sidebar_enabled: true,
+      footer_enabled: true,
+      copyright_enabled: true,
+
+      // 其他设置
+      page_size: 10,
+      hot_article_count: 5,
+      recent_comment_count: 5,
+      greeting_message: '欢迎来到我的博客！',
+      about_content: '',
+
+      // 博主信息
+      author_title: '全栈开发工程师',
+      author_bio: '',
       github_url: '',
       weibo_url: '',
       wechat_qr: '',
-      author_title: '全栈开发工程师',
-      author_bio: '',
       author_location: '',
       personal_website: ''
     },
@@ -30,26 +67,25 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
         return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E";
       }
 
-      // 如果头像路径是相对路径，则拼接后端服务器地址
-      if (avatar.startsWith('/')) {
-        // 添加时间戳避免缓存
-        const timestamp = state.lastUpdate || Date.now();
-        const separator = avatar.includes('?') ? '&' : '?';
-        const finalUrl = import.meta.env.DEV
-          ? `${avatar}${separator}t=${timestamp}`  // 开发环境通过代理转发
-          : `${avatar}${separator}t=${timestamp}`; // 生产环境直接使用相对路径
+      // 引入processAvatarUrl函数处理头像URL
+      const { processAvatarUrl } = require('@/api/blog/avatar');
+      
+      // 添加时间戳避免缓存
+      const timestamp = state.lastUpdate || Date.now();
+      let finalUrl = processAvatarUrl(avatar);
+      
+      // 如果URL已经包含查询参数，添加时间戳参数
+      const separator = finalUrl.includes('?') ? '&' : '?';
+      finalUrl = `${finalUrl}${separator}t=${timestamp}`;
 
-        console.log('🔗 构建头像URL:', {
-          originalAvatar: avatar,
-          timestamp: timestamp,
-          lastUpdate: state.lastUpdate,
-          finalUrl: finalUrl
-        });
+      console.log('🔗 构建头像URL:', {
+        originalAvatar: avatar,
+        timestamp: timestamp,
+        lastUpdate: state.lastUpdate,
+        finalUrl: finalUrl
+      });
 
-        return finalUrl;
-      }
-
-      return avatar;
+      return finalUrl;
     },
     getBlogAuthor: (state) => state.blogSettings.blog_author || 'nevell',
     getBlogName: (state) => state.blogSettings.blog_name || '我的博客'

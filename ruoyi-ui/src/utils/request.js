@@ -10,6 +10,8 @@ import useUserStore from '@/store/modules/user'
 let downloadLoadingInstance
 // 是否显示重新登录
 export let isRelogin = { show: false }
+// 是否正在退出登录
+let isLoggingOut = false
 
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 // 创建axios实例
@@ -41,8 +43,12 @@ service.interceptors.request.use(config => {
     const isHtmlContent = config.data && typeof config.data === 'object' && 
                          config.data.content && config.data.content.includes('<');
     
-    if (isHtmlContent) {
-      // 对于HTML内容，直接跳过整个重复提交检查逻辑
+    // 对于登录和退出请求，跳过重复提交检查
+    const isLoginRequest = config.url && config.url.includes('/login');
+    const isLogoutRequest = config.url && config.url.includes('/logout');
+    
+    if (isHtmlContent || isLoginRequest || isLogoutRequest) {
+      // 对于HTML内容、登录或退出请求，直接跳过整个重复提交检查逻辑
       return config
     }
     
@@ -110,8 +116,32 @@ service.interceptors.response.use(res => {
         return Promise.resolve({ code: 200, data: null, msg: '匿名访问' })
       }
       
-      // 对于后台管理页面，静默处理401错误，不显示重新登录弹窗
-      console.warn('登录状态已过期，但未显示重新登录弹窗')
+      // 如果正在退出登录，不重复处理401错误
+      if (isLoggingOut) {
+        console.warn('正在退出登录，忽略401错误')
+        return Promise.reject('正在退出登录，忽略401错误')
+      }
+      
+      // 对于后台管理页面，直接重定向到登录页面
+      if (!isRelogin.show) {
+        isRelogin.show = true
+        // 设置退出登录标志
+        isLoggingOut = true
+        // 直接调用退出登录并重定向到登录页面，不显示弹窗
+        useUserStore().logOut().then(() => {
+          // 只在当前路径不是登录页面时才重定向，避免重复导航
+          if (window.location.pathname !== '/login') {
+            window.location.replace('/login')
+          }
+          isRelogin.show = false
+          // 重置退出登录标志
+          isLoggingOut = false
+        }).catch(() => {
+          isRelogin.show = false
+          // 重置退出登录标志
+          isLoggingOut = false
+        })
+      }
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     } else if (code === 500) {
       console.error('服务器错误:', {

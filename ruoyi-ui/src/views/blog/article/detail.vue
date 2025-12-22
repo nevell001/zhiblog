@@ -308,17 +308,52 @@ const loadArticleDetail = async () => {
   try {
     loading.value = true
     const articleId = route.params.id
-    console.log('准备请求文章详情，ID:', articleId)
-    
+    console.log('准备请求文章详情，ID:', articleId, '类型:', typeof articleId)
+
+    // 验证文章ID
+    if (!articleId) {
+      console.error('文章ID为空')
+      ElMessage.error('文章ID不能为空')
+      return
+    }
+
+    // 确保ID是数字
+    const numericId = Number(articleId)
+    if (isNaN(numericId) || numericId <= 0) {
+      console.error('文章ID格式不正确:', articleId)
+      ElMessage.error('文章ID格式不正确')
+      return
+    }
+
+    console.log('使用数字ID:', numericId)
+
     // 获取文章详情
-    const response = await getArticleDetail(articleId)
+    const response = await getArticleDetail(numericId)
     console.log('文章详情响应:', response)
-    
+    console.log('文章详情响应结构:', {
+      code: response.code,
+      message: response.msg,
+      data: response.data,
+      dataKeys: response.data ? Object.keys(response.data) : 'null'
+    })
+
+    // 检查响应状态
+    if (response.code !== 200) {
+      console.error('API调用失败:', response.code, response.msg)
+      return
+    }
+
+    if (!response.data) {
+      console.error('响应数据为空')
+      return
+    }
+
     // 正确解析API响应数据结构
-    if (response.code === 200 && response.data) {
+    if (response.data.article) {
       // 提取文章主体数据
-      article.value = response.data.article || null
-      
+      article.value = response.data.article
+      console.log('文章数据获取成功:', article.value)
+
       // 提取上下篇文章数据
       if (response.data.extraInfo) {
         prevArticle.value = response.data.extraInfo.prevArticle || null
@@ -330,23 +365,20 @@ const loadArticleDetail = async () => {
         }
       }
 
-    
       // 获取相关文章 - 暂时注释掉，因为后端API不存在
       // if (article.value) {
       //   const relatedResponse = await getRelatedArticles(articleId, { pageNum: 1, pageSize: 6 })
       //   relatedArticles.value = relatedResponse.rows || []
       // }
-      
+
       // 暂时设置为空数组，避免页面显示问题
       relatedArticles.value = []
-      
+
       // 获取评论列表
       await loadComments()
     } else {
-      console.error('获取文章详情失败: 响应数据格式不正确')
-      console.error('响应码:', response.code)
-      console.error('响应消息:', response.msg)
-      ElMessage.error(response.msg || '获取文章详情失败')
+      console.error('未找到文章数据，响应数据:', response.data)
+      article.value = null
     }
 
   } catch (error) {

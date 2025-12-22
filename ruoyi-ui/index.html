@@ -210,6 +210,55 @@
       <div class="load_title">正在加载系统资源，请耐心等待</div>
     </div>
   </div>
+
+  <!-- 缓存清除脚本 -->
+  <script>
+    // 强制清除头像相关缓存
+    (function() {
+      console.log('🔄 清除头像缓存...');
+
+      // 清除localStorage中的相关缓存
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.includes('avatar') || key.includes('blog_setting') || key.includes('blogSettings'))) {
+          keysToRemove.push(key);
+        }
+      }
+
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+        console.log('🗑️ 已清除localStorage缓存:', key);
+      });
+
+      // 清除sessionStorage中的相关缓存
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && (key.includes('avatar') || key.includes('blog_setting') || key.includes('blogSettings'))) {
+          sessionStorage.removeItem(key);
+          console.log('🗑️ 已清除sessionStorage缓存:', key);
+        }
+      }
+
+      // 清除可能的Service Worker缓存
+      if ('caches' in window) {
+        caches.keys().then(cacheNames => {
+          return Promise.all(
+            cacheNames.map(cacheName => {
+              if (cacheName.includes('avatar') || cacheName.includes('blog')) {
+                console.log('🗑️ 已清除Cache Storage:', cacheName);
+                return caches.delete(cacheName);
+              }
+              return Promise.resolve();
+            })
+          );
+        });
+      }
+
+      console.log('✅ 缓存清除完成，当前时间:', new Date().toLocaleString());
+    })();
+  </script>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

@@ -1,12 +1,20 @@
 import { getConfigKey } from "@/api/system/config"
-import { useSettingsStore } from '@/stores/settings'
+import { useSettingsStore } from '@/store/modules/settings'
 import { handleThemeStyle } from '@/utils/theme'
+import { getToken } from '@/utils/auth'
 
 /**
  * 初始化博客个性化设置
  */
 export async function initBlogSettings() {
   try {
+    // 检查是否有token，只有有token时才发起API请求
+    if (!getToken()) {
+      // 未登录状态，使用默认配置，不发起API请求
+      console.log('未登录状态，使用博客默认配置')
+      return
+    }
+    
     // 获取博客个性化设置
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
       getConfigKey('blog.custom.themeColor').catch(() => ({ data: '' })),

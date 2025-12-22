@@ -23,29 +23,32 @@ export async function uploadAvatar(file, options = {}) {
       throw new Error(validation.errors.join(', '))
     }
 
-    // 使用专用的头像上传接口
-    const result = await uploadImage(file, {
-      type: 'avatar',
-      compress: true, // 强制压缩
-      maxWidth: 200, // 头像尺寸限制
-      maxHeight: 200,
-      quality: 0.9,
-      ...options
+    // 创建FormData
+    const formData = new FormData()
+    formData.append('avatarfile', file)
+
+    // 使用项目中的request工具上传图片，确保使用正确的API路径
+    const response = await request({
+      url: '/system/user/profile/avatar',
+      method: 'post',
+      headers: { 'Content-Type': 'multipart/form-data' },
+      data: formData
     })
 
-    if (result.success) {
+    if (response.code === 200) {
+      // 返回正确的URL格式
       return {
         success: true,
         data: {
-          url: result.data.url || result.data.fileName,
-          originalSize: result.originalSize,
-          compressedSize: result.compressedSize,
-          compressionRatio: result.compressionRatio,
+          url: response.imgUrl, // 直接使用后端返回的URL
+          originalSize: file.size,
+          compressedSize: file.size, // 这里无法获取压缩后的大小，因为压缩是在后端进行的
+          compressionRatio: 0, // 后端压缩比例未知
           fileInfo: validation.fileInfo
         }
       }
     } else {
-      throw new Error(result.error || '头像上传失败')
+      throw new Error(response.msg || '头像上传失败')
     }
   } catch (error) {
     console.error('头像上传失败:', error)
@@ -135,9 +138,9 @@ export function getAvatarThumbnail(avatarUrl, size = 80) {
 
   // 如果是本地服务器上的图片，添加缩略图参数
   if (avatarUrl.includes('/profile/')) {
-    const url = new URL(avatarUrl, window.location.origin)
-    url.searchParams.set('size', size.toString())
-    return url.toString()
+    // 使用相对路径，在开发环境通过Vite代理转发
+    const separator = avatarUrl.includes('?') ? '&' : '?'
+    return `${avatarUrl}${separator}size=${size}`
   }
 
   return avatarUrl
@@ -156,12 +159,28 @@ export function processAvatarUrl(avatarUrl) {
 
   // 处理相对路径 - 这是最常见的情况，对应上传到服务器的头像
   if (avatarUrl.startsWith('/profile/') || avatarUrl.startsWith('/static/')) {
-    return window.location.origin + avatarUrl
+    // 使用相对路径，在开发环境通过Vite代理转发，在生产环境直接访问
+    // 添加时间戳防止缓存
+    const timestamp = Date.now()
+    const separator = avatarUrl.includes('?') ? '&' : '?'
+    const finalUrl = avatarUrl + `${separator}_t=${timestamp}`
+
+    // 开发环境下输出调试信息
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔗 头像URL处理:', {
+        original: avatarUrl,
+        timestamp,
+        finalUrl,
+        note: '使用相对路径，开发环境通过Vite代理转发'
+      })
+    }
+
+    return finalUrl
   }
 
   // 其他以 / 开头的相对路径
   if (avatarUrl.startsWith('/')) {
-    return window.location.origin + avatarUrl
+    return avatarUrl
   }
 
   // 完整的HTTP/HTTPS URL直接返回

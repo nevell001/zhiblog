@@ -52,11 +52,11 @@
                   :before-upload="handleAvatarBeforeUpload"
                   :show-file-list="false"
                 >
-                  <img v-if="settingsMap.blog_avatar" :src="settingsMap.blog_avatar" class="avatar" />
+                  <img v-if="settingsMap.blog_avatar" :src="processedAvatarUrl" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <el-input v-model="settingsMap.blog_avatar" class="avatar-input" placeholder="或直接输入头像URL" />
-                <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
+                <div class="upload-tip" style="font-size: 12px; color: var(--el-text-color-placeholder, #999); margin-top: 5px;">
                   🚀 <strong>基于Thumbnailator专业处理</strong>：智能压缩为200x200像素，质量优化
                   <br>💡 支持 JPG/PNG/GIF 格式，最大10MB，自动居中裁剪，高性能
                   <br>📦 文件存储，数据库仅存URL，性能卓越
@@ -179,11 +179,11 @@
                   :before-upload="handleQRCodeBeforeUpload"
                   :show-file-list="false"
                 >
-                  <img v-if="settingsMap.wechat_qr" :src="settingsMap.wechat_qr" class="avatar" />
+                  <img v-if="settingsMap.wechat_qr" :src="processedQRCodeUrl" class="avatar" />
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                 </el-upload>
                 <el-input v-model="settingsMap.wechat_qr" class="avatar-input" placeholder="或直接输入二维码URL" />
-                <div class="upload-tip" style="font-size: 12px; color: #999; margin-top: 5px;">
+                <div class="upload-tip" style="font-size: 12px; color: var(--el-text-color-placeholder, #999); margin-top: 5px;">
                   🚀 <strong>基于Thumbnailator专业处理</strong>：智能压缩为400x400像素，保持清晰度
                   <br>💡 适合微信二维码、支付码等，自动优化大小和清晰度
                   <br>📦 文件存储，数据库仅存URL，扫描性能更佳
@@ -204,13 +204,34 @@
         <el-tab-pane label="其他设置" name="other">
           <el-form ref="otherForm" :model="settingsMap" label-width="120px">
             <el-form-item label="每页文章数" prop="page_size">
-              <el-input-number v-model="settingsMap.page_size" :min="5" :max="50" :step="1" />
+              <el-input-number 
+                v-model="settingsMap.page_size" 
+                :min="5" 
+                :max="50" 
+                :step="1" 
+                :value="Number(settingsMap.page_size) || 10"
+                @change="(val) => settingsMap.page_size = Number(val)"
+              />
             </el-form-item>
             <el-form-item label="热门文章数" prop="hot_article_count">
-              <el-input-number v-model="settingsMap.hot_article_count" :min="1" :max="20" :step="1" />
+              <el-input-number 
+                v-model="settingsMap.hot_article_count" 
+                :min="1" 
+                :max="20" 
+                :step="1"
+                :value="Number(settingsMap.hot_article_count) || 5"
+                @change="(val) => settingsMap.hot_article_count = Number(val)"
+              />
             </el-form-item>
             <el-form-item label="最新评论数" prop="recent_comment_count">
-              <el-input-number v-model="settingsMap.recent_comment_count" :min="1" :max="20" :step="1" />
+              <el-input-number 
+                v-model="settingsMap.recent_comment_count" 
+                :min="1" 
+                :max="20" 
+                :step="1"
+                :value="Number(settingsMap.recent_comment_count) || 5"
+                @change="(val) => settingsMap.recent_comment_count = Number(val)"
+              />
             </el-form-item>
             <el-form-item label="欢迎信息" prop="greeting_message">
               <el-input v-model="settingsMap.greeting_message" placeholder="请输入欢迎信息" />
@@ -223,10 +244,10 @@
       </el-tabs>
 
       <!-- 图片压缩功能介绍 -->
-      <el-card shadow="never" style="margin-top: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+      <el-card shadow="never" style="margin-top: 20px; background: var(--el-bg-color-overlay, #ffffff);">
         <template #header>
           <div style="display: flex; align-items: center;">
-            <span style="color: #409EFF; font-weight: bold;">🎨 图片压缩功能</span>
+            <span style="color: var(--el-color-primary, #409EFF); font-weight: bold;">🎨 图片压缩功能</span>
             <el-tag type="success" size="small" style="margin-left: 10px;">已启用</el-tag>
           </div>
         </template>
@@ -262,7 +283,7 @@
             </div>
           </el-col>
         </el-row>
-        <div style="margin-top: 15px; text-align: center; font-size: 12px; color: #666;">
+        <div style="margin-top: 15px; text-align: center; font-size: 12px; color: var(--el-text-color-regular, #666);">
           基于 <strong>Thumbnailator</strong> 专业图片处理库 | 压缩率可达60-80% | 支持JPG/PNG/GIF
         </div>
       </el-card>
@@ -271,11 +292,12 @@
 </template>
 
 <script setup name="BlogSetting">
-import { ref, reactive, onMounted, getCurrentInstance } from 'vue';
+import { ref, reactive, computed, onMounted, getCurrentInstance } from 'vue';
 import { ElMessage, ElButton, ElCard, ElTabs, ElTabPane, ElForm, ElFormItem, ElInput, ElInputNumber, ElSwitch, ElColorPicker, ElRadioGroup, ElRadio, ElDatePicker, ElUpload, ElRow, ElCol } from 'element-plus';
 import { listSetting, getSetting, updateSetting, updateSettingValueByKey, addSetting, getConfigByKey, delSetting } from "@/api/admin/blog/setting";
-import { reloadBlogSettings } from '@/utils/blogSettings';
+import { clearBlogCache } from "@/api/blog/setting";
 import { useBlogSettingsStore } from '@/stores/blogSettings';
+import { processAvatarUrl } from '@/api/blog/avatar';
 import { getToken } from "@/utils/auth";
 
 const { proxy } = getCurrentInstance();
@@ -294,6 +316,27 @@ const loading = ref(false);
 const activeTab = ref('basic');
 const settingsMap = ref({});
 const originalSettings = ref({});
+
+// 计算属性：处理头像URL，确保与前端首页显示一致
+const processedAvatarUrl = computed(() => {
+  const avatarUrl = settingsMap.value.blog_avatar;
+  const processedUrl = processAvatarUrl(avatarUrl);
+  console.log('🖼️ 后台头像URL处理:', {
+    original: avatarUrl,
+    processed: processedUrl
+  });
+  return processedUrl;
+});
+
+const processedQRCodeUrl = computed(() => {
+  const qrUrl = settingsMap.value.wechat_qr;
+  const processedUrl = processAvatarUrl(qrUrl);
+  console.log('📱 后台二维码URL处理:', {
+    original: qrUrl,
+    processed: processedUrl
+  });
+  return processedUrl;
+});
 
 
 /**
@@ -529,7 +572,7 @@ async function getAllSettings() {
         settings[setting.configKey] = value;
 
         // 为关键字段添加详细调试信息
-        if (['blog_start_time', 'blog_avatar', 'blog_signature'].includes(setting.configKey)) {
+        if (['blog_name', 'blog_desc', 'blog_author', 'blog_email', 'blog_url', 'blog_start_time', 'blog_avatar', 'blog_signature'].includes(setting.configKey)) {
           console.log(`🔍 关键字段 ${setting.configKey}:`, {
             value: value,
             valueType: typeof value,
@@ -543,7 +586,7 @@ async function getAllSettings() {
 
     console.log('🗂️ 最终处理后的设置对象:', settings);
 
-    // 设置默认值，确保所有必要的设置项都有值
+    // 设置默认值，确保所有必要的设置项都有值，并确保数值类型正确
     const defaultSettings = {
       blog_name: '我的博客',
       blog_desc: '欢迎来到我的博客',
@@ -573,9 +616,9 @@ async function getAllSettings() {
       sidebar_enabled: true,
       footer_enabled: true,
       copyright_enabled: true,
-      page_size: 10,
-      hot_article_count: 5,
-      recent_comment_count: 5,
+      page_size: 10,           // 确保数值类型
+      hot_article_count: 5,     // 确保数值类型
+      recent_comment_count: 5,   // 确保数值类型
       greeting_message: '欢迎来到我的博客！',
       about_content: '',
       // 社交链接
@@ -652,11 +695,15 @@ async function getAllSettings() {
         // 将布尔值转换为字符串
         value = value.toString();
         originalType = 'boolean->' + typeof value;
+      } else if (typeof value === 'number') {
+        // 将数字转换为字符串
+        value = value.toString();
+        originalType = 'number->' + typeof value;
       }
       originalSettings.value[key] = value;
 
       // 对关键字段添加调试信息
-      if (['blog_start_time', 'blog_avatar', 'blog_signature'].includes(key)) {
+      if (['blog_name', 'blog_desc', 'blog_author', 'blog_email', 'blog_url', 'blog_start_time', 'blog_avatar', 'blog_signature'].includes(key)) {
         console.log(`原始设置 ${key} (${originalType}):`, value);
       }
     });
@@ -723,6 +770,10 @@ async function getAllSettings() {
         // 将布尔值转换为字符串
         value = value.toString();
         originalType = 'boolean->' + typeof value;
+      } else if (typeof value === 'number') {
+        // 将数字转换为字符串
+        value = value.toString();
+        originalType = 'number->' + typeof value;
       } else if (value === null || value === undefined) {
         // 将 null/undefined 转换为空字符串
         value = '';
@@ -760,6 +811,8 @@ async function saveAllSettings() {
         comparableCurrentValue = currentValue.toISOString().split('T')[0];
       } else if (typeof currentValue === 'boolean') {
         comparableCurrentValue = currentValue.toString();
+      } else if (typeof currentValue === 'number') {
+        comparableCurrentValue = currentValue.toString();
       }
       // 字符串类型保持不变，但需要处理 null/undefined
       else if (comparableCurrentValue === null || comparableCurrentValue === undefined) {
@@ -767,7 +820,7 @@ async function saveAllSettings() {
       }
 
       // 对关键字段添加详细调试信息
-      if (['blog_start_time', 'blog_avatar', 'blog_signature', 'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'].includes(key)) {
+      if (['blog_name', 'blog_desc', 'blog_author', 'blog_email', 'blog_url', 'blog_start_time', 'blog_avatar', 'blog_signature'].includes(key)) {
         console.log(`字段比较 ${key}:`, {
           current: currentValue,
           currentType: typeof currentValue,
@@ -782,8 +835,10 @@ async function saveAllSettings() {
       if (comparableCurrentValue !== originalValue) {
         let value = currentValue;
 
-        // 将布尔值转换为字符串，以便保存到数据库
+        // 将布尔值和数字转换为字符串，以便保存到数据库
         if (typeof value === 'boolean') {
+          value = value.toString();
+        } else if (typeof value === 'number') {
           value = value.toString();
         } else if (value === null || value === undefined) {
           value = ''; // 将 null/undefined 转换为空字符串
@@ -808,7 +863,7 @@ async function saveAllSettings() {
     // 移除获取配置列表的步骤，直接在保存时动态检测是否存在
     // 这可以减少一次API调用，提高性能
 
-    // 顺序处理设置以避免并发操作导致的键冲突
+    // 使用简化的保存逻辑，直接使用 updateSettingValueByKey 方法
     const results = [];
 
     for (const setting of modifiedSettings) {
@@ -823,13 +878,13 @@ async function saveAllSettings() {
           console.log(`日期 ${setting.key} 转换为: ${processedValue}`);
         }
 
-        // 验证字段长度以符合数据库约束
-        if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 500) {
-          console.warn(`头像URL过长: ${processedValue.length} 字符，超过500字符限制`);
+        // 验证字段长度以符合数据库约束（现已更新为1000字符）
+        if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 1000) {
+          console.warn(`头像URL过长: ${processedValue.length} 字符，超过1000字符限制`);
           // 不再支持Base64格式，只处理URL格式
           if (processedValue.startsWith('http')) {
             ElMessage.warning('头像URL过长，请使用文件上传方式或较短的URL');
-            processedValue = processedValue.substring(0, 497) + '...';
+            processedValue = processedValue.substring(0, 997) + '...';
           } else {
             // 清空过长的值，要求用户重新上传
             ElMessage.warning('头像数据格式不支持，请使用文件上传功能');
@@ -839,117 +894,29 @@ async function saveAllSettings() {
 
         // 验证其他字段的长度
         if (processedValue && typeof processedValue === 'string') {
-          // 大部分字符串字段限制为500字符
-          if (processedValue.length > 500) {
-            console.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过500字符，将被截断`);
-            processedValue = processedValue.substring(0, 497) + '...';
+          // 大部分字符串字段限制为1000字符
+          if (processedValue.length > 1000) {
+            console.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过1000字符，将被截断`);
+            processedValue = processedValue.substring(0, 997) + '...';
           }
         }
 
-        const configData = {
-          configKey: setting.key,
-          configValue: processedValue,
-          configName: setting.key, // 后端验证需要这个字段
-          configType: "N" // 非系统内置配置
-        };
+        // 使用 updateSettingValueByKey 方法，它会自动处理不存在的情况
+        console.log(`使用 updateSettingValueByKey 保存 ${setting.key}`);
+        const response = await updateSettingValueByKey(setting.key, processedValue);
 
-        let success = false;
+        console.log(`设置 ${setting.key} 保存响应:`, response);
 
-        // 尝试保存配置（智能检测新增或更新）
-        try {
-          // 首先尝试更新，因为大多数情况下配置已存在
-          console.log(`尝试智能保存配置 ${setting.key}`);
-
-          // 获取最新的配置状态以决定使用更新还是新增
-          const currentConfigResponse = await listSetting({ configKey: setting.key });
-          console.log(`获取配置响应 ${setting.key}:`, {
-            status: currentConfigResponse.status,
-            rows: currentConfigResponse.rows?.length,
-            data: currentConfigResponse.data?.length,
-            total: currentConfigResponse.total
-          });
-
-          const currentConfigs = currentConfigResponse.rows || currentConfigResponse.data || [];
-          const currentConfig = currentConfigs.find(config => config.configKey === setting.key);
-
-          if (currentConfig) {
-            // 配置存在，执行更新
-            console.log(`配置 ${setting.key} 已存在，执行更新，ID: ${currentConfig.configId}, 当前值: ${currentConfig.configValue}`);
-            const updateResponse = await updateSetting({
-              ...configData,
-              configId: currentConfig.configId
-            });
-            console.log(`设置 ${setting.key} 更新响应:`, updateResponse);
-            // 验证更新是否真的成功
-            if (updateResponse.code === 200) {
-              console.log(`✅ 设置 ${setting.key} 更新成功，返回码: ${updateResponse.code}`);
-              success = true;
-            } else {
-              console.error(`❌ 设置 ${setting.key} 更新失败，返回码: ${updateResponse.code}, 消息: ${updateResponse.msg}`);
-              success = false;
-            }
-          } else {
-            // 配置不存在，执行新增
-            console.log(`配置 ${setting.key} 不存在，执行新增`);
-            const addResponse = await addSetting(configData);
-            console.log(`设置 ${setting.key} 新增响应:`, addResponse);
-            // 验证新增是否真的成功
-            if (addResponse.code === 200) {
-              console.log(`✅ 设置 ${setting.key} 新增成功，返回码: ${addResponse.code}`);
-              success = true;
-            } else {
-              console.error(`❌ 设置 ${setting.key} 新增失败，返回码: ${addResponse.code}, 消息: ${addResponse.msg}`);
-              success = false;
-            }
-          }
-
-        } catch (saveErr) {
-          console.error(`设置 ${setting.key} 保存失败详细信息:`, {
-            message: saveErr.message,
-            response: saveErr.response,
-            status: saveErr.response?.status,
-            data: saveErr.response?.data,
-            configData: configData
-          });
-
-          // 分析错误类型并采取相应策略
-          const errorMessage = saveErr.message || '';
-          const responseData = saveErr.response?.data || {};
-
-          if (errorMessage.includes('参数键名已存在') || errorMessage.includes('key already exists') || responseData.msg?.includes('参数键名已存在')) {
-            // 键已存在错误，重新获取配置并尝试更新
-            console.log(`检测到键冲突，重新获取配置并更新 ${setting.key}`);
-            try {
-              const retryResponse = await listSetting({ configKey: setting.key });
-              const retryConfigs = retryResponse.rows || retryResponse.data || [];
-              const retryConfig = retryConfigs.find(config => config.configKey === setting.key);
-
-              if (retryConfig) {
-                await updateSetting({
-                  ...configData,
-                  configId: retryConfig.configId
-                });
-                console.log(`设置 ${setting.key} 冲突解决后更新成功`);
-                success = true;
-              } else {
-                console.error(`配置 ${setting.key} 冲突但无法找到更新目标`);
-              }
-            } catch (retryErr) {
-              console.error(`设置 ${setting.key} 冲突解决失败:`, retryErr);
-            }
-          } else {
-            // 其他类型的错误
-            console.error(`设置 ${setting.key} 遇到数据库错误:`, {
-              errorCode: saveErr.response?.status,
-              errorMessage: responseData.msg || saveErr.message,
-              validationErrors: responseData.errors || responseData.errors
-            });
-          }
+        const success = response.code === 200;
+        if (success) {
+          console.log(`✅ 设置 ${setting.key} 保存成功`);
+        } else {
+          console.error(`❌ 设置 ${setting.key} 保存失败，返回码: ${response.code}, 消息: ${response.msg}`);
         }
 
         results.push({ success, key: setting.key });
 
-        // 减少延迟以提高性能，只保留必要的最小延迟
+        // 减少延迟以提高性能
         await new Promise(resolve => setTimeout(resolve, 10));
 
       } catch (err) {
@@ -976,13 +943,25 @@ async function saveAllSettings() {
       throw new Error(`以下设置保存失败: ${failedKeys}`);
     }
     
-    // 重新加载博客设置，使新设置立即生效
-    try {
-      await reloadBlogSettings();
-      console.log('重新加载博客设置完成');
-    } catch (error) {
-      console.warn('重新加载设置失败，但不影响保存:', error);
-    }
+    // 注释掉复杂的重新加载逻辑，避免可能的认证问题
+    // try {
+    //   await reloadBlogSettings();
+    //   console.log('重新加载博客设置完成');
+    // } catch (error) {
+    //   console.warn('重新加载设置失败，但不影响保存:', error);
+    // }
+
+    // 清除前台API缓存，确保前台能获取到最新设置
+    // 使用异步方式，避免阻塞保存流程
+    setTimeout(async () => {
+      try {
+        console.log('清除前台API缓存...');
+        await clearBlogCache();
+        console.log('前台API缓存清除完成');
+      } catch (error) {
+        console.warn('清除前台API缓存失败，但不影响保存:', error);
+      }
+    }, 100);
 
     // 更新全局博客设置状态，通知前台页面
     try {
@@ -994,6 +973,8 @@ async function saveAllSettings() {
         if (value instanceof Date) {
           value = value.toISOString().split('T')[0];
         } else if (typeof value === 'boolean') {
+          value = value.toString();
+        } else if (typeof value === 'number') {
           value = value.toString();
         } else if (value === null || value === undefined) {
           value = '';
@@ -1034,6 +1015,10 @@ async function saveAllSettings() {
         // 将布尔值转换为字符串
         value = value.toString();
         originalType = 'boolean->' + typeof value;
+      } else if (typeof value === 'number') {
+        // 将数字转换为字符串
+        value = value.toString();
+        originalType = 'number->' + typeof value;
       } else if (value === null || value === undefined) {
         // 将 null/undefined 转换为空字符串
         value = '';
@@ -1042,7 +1027,7 @@ async function saveAllSettings() {
       originalSettings.value[key] = value;
 
       // 对关键字段添加调试信息
-      if (['blog_start_time', 'blog_avatar', 'blog_signature', 'author_title', 'author_bio', 'github_url', 'weibo_url', 'wechat_qr', 'author_location', 'personal_website'].includes(key)) {
+      if (['blog_name', 'blog_desc', 'blog_author', 'blog_email', 'blog_url', 'blog_start_time', 'blog_avatar', 'blog_signature'].includes(key)) {
         console.log(`保存后-原始设置 ${key} (${originalType}):`, value);
       }
     });
@@ -1377,8 +1362,76 @@ async function resetSettings() {
 </script>
 
 <style scoped>
+/* 主容器背景修复 - 支持暗色主题自动切换 */
+.app-container {
+  background-color: var(--el-bg-color-page);
+  min-height: calc(100vh - 84px);
+}
+
+/* 暗色主题下的背景色 */
+html.dark .app-container {
+  background-color: var(--el-bg-color-page, #141414);
+}
+
 .blog-setting-card {
   margin-bottom: 20px;
+  background-color: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color-light);
+}
+
+/* 暗色主题下的卡片样式 */
+html.dark .blog-setting-card {
+  background-color: var(--el-bg-color-overlay, #1d1e1f);
+  border: 1px solid var(--el-border-color-light, #434343);
+}
+
+/* 确保所有卡片组件在暗色主题下正确显示 */
+:deep(.el-card) {
+  background-color: var(--el-bg-color-overlay);
+  border: 1px solid var(--el-border-color-light);
+}
+
+:deep(.el-card__header) {
+  background-color: var(--el-bg-color-overlay);
+  border-bottom: 1px solid var(--el-border-color-light);
+}
+
+:deep(.el-card__body) {
+  background-color: var(--el-bg-color-overlay);
+}
+
+/* 卡片标题样式 */
+.card-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--el-text-color-primary, #303133);
+}
+
+/* 标签页样式修复 */
+:deep(.el-tabs__header) {
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  border-bottom: 1px solid var(--el-border-color-light, #e4e7ed);
+  margin: 0;
+}
+
+:deep(.el-tabs__nav-wrap) {
+  background-color: var(--el-bg-color-overlay, #ffffff);
+}
+
+:deep(.el-tabs__item) {
+  color: var(--el-text-color-regular, #606266);
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  border-right: 1px solid var(--el-border-color-light, #e4e7ed);
+}
+
+:deep(.el-tabs__item.is-active) {
+  color: var(--el-color-primary, #409EFF);
+  background-color: var(--el-bg-color-page, #f5f5f5);
+}
+
+:deep(.el-tabs__content) {
+  background-color: var(--el-bg-color-page, #f5f5f5);
+  padding: 0;
 }
 
 /* 图片压缩功能样式 */
@@ -1386,7 +1439,7 @@ async function resetSettings() {
   text-align: center;
   padding: 15px;
   border-radius: 8px;
-  background: white;
+  background: var(--el-bg-color-overlay, white);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transition: transform 0.2s ease;
 }
@@ -1397,14 +1450,14 @@ async function resetSettings() {
 
 .compress-feature h4 {
   margin: 0 0 10px 0;
-  color: #409EFF;
+  color: var(--el-color-primary, #409EFF);
   font-size: 16px;
 }
 
 .compress-feature p {
   margin: 0 0 15px 0;
   font-size: 12px;
-  color: #666;
+  color: var(--el-text-color-regular, #666);
   line-height: 1.4;
 }
 
@@ -1438,7 +1491,7 @@ async function resetSettings() {
 
 .feature-example span {
   font-size: 11px;
-  color: #888;
+  color: var(--el-text-color-placeholder, #888);
 }
 
 .card-header {
@@ -1491,19 +1544,19 @@ async function resetSettings() {
 .avatar-uploader-icon {
   width: 100px;
   height: 100px;
-  border: 1px dashed #d9d9d9;
+  border: 1px dashed var(--el-border-color-light, #d9d9d9);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #999;
+  color: var(--el-text-color-placeholder, #999);
   cursor: pointer;
   transition: all 0.3s;
 }
 
 .avatar-uploader-icon:hover {
-  color: #409EFF;
-  border-color: #409EFF;
+  color: var(--el-color-primary, #409EFF);
+  border-color: var(--el-color-primary, #409EFF);
 }
 
 .avatar-input {
@@ -1513,8 +1566,41 @@ async function resetSettings() {
 /* 表单样式优化 */
 .el-form {
   padding: 20px;
-  background-color: #fafafa;
+  background-color: var(--el-bg-color-page);
   border-radius: 8px;
+}
+
+/* 暗色主题下的表单背景 */
+html.dark .el-form {
+  background-color: var(--el-bg-color-page, #141414);
+}
+
+/* 表单项标签和输入框样式修复 */
+:deep(.el-form-item__label) {
+  color: var(--el-text-color-primary, #303133);
+  font-weight: 700;
+}
+
+:deep(.el-input__wrapper) {
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  border: 1px solid var(--el-border-color, #dcdfe6);
+}
+
+:deep(.el-input__inner) {
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  color: var(--el-text-color-primary, #303133);
+}
+
+:deep(.el-textarea__inner) {
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  color: var(--el-text-color-primary, #303133);
+  border: 1px solid var(--el-border-color, #dcdfe6);
+}
+
+:deep(.el-upload) {
+  border: 1px dashed var(--el-border-color-light, #d9d9d9);
+  border-radius: 6px;
+  background-color: var(--el-bg-color-overlay, #ffffff);
 }
 
 .el-form-item {
