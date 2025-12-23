@@ -15,15 +15,15 @@
             <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
             <div class="blog-stats">
               <span class="stat-item">
-                <i class="el-icon-document-copy"></i>
+                <el-icon :size="16"><DocumentCopy /></el-icon>
                 {{ totalArticles }} 篇文章
               </span>
               <span class="stat-item">
-                <i class="el-icon-price-tag"></i>
+                <el-icon :size="16"><PriceTag /></el-icon>
                 {{ tagCloud.length }} 个标签
               </span>
               <span class="stat-item">
-                <i class="el-icon-date"></i>
+                <el-icon :size="16"><Calendar /></el-icon>
                 最后更新 {{ lastUpdateTime }}
               </span>
             </div>
@@ -80,7 +80,7 @@
         <!-- 空状态 -->
         <div v-else-if="articleList.length === 0" class="empty-state">
           <div class="empty-content">
-            <i class="el-icon-document-copy empty-icon"></i>
+            <el-icon :size="60" class="empty-icon"><DocumentCopy /></el-icon>
             <h3>{{ searchKeyword ? '未找到相关文章' : '暂无文章' }}</h3>
             <p>{{ searchKeyword ? `没有找到包含"${searchKeyword}"的文章，请尝试其他关键词` : '还没有发布任何文章，敬请期待...' }}</p>
             <el-button v-if="searchKeyword" type="primary" @click="clearSearch" style="margin-top: 15px;">
@@ -107,19 +107,19 @@
               </h2>
               <div class="article-meta">
                 <span class="meta-item">
-                  <i class="el-icon-date"></i>
+                  <el-icon :size="14"><Calendar /></el-icon>
                   {{ formatDate(article.createTime) }}
                 </span>
                 <span class="meta-item">
-                  <i class="el-icon-view"></i>
+                  <el-icon :size="14"><View /></el-icon>
                   {{ article.viewCount || 0 }} 阅读
                 </span>
                 <span class="meta-item" v-if="article.likeCount">
-                  <i class="el-icon-star-off"></i>
+                  <el-icon :size="14"><Star /></el-icon>
                   {{ article.likeCount }} 点赞
                 </span>
                 <span class="meta-item" v-if="article.commentCount">
-                  <i class="el-icon-chat-line-round"></i>
+                  <el-icon :size="14"><ChatLineRound /></el-icon>
                   {{ article.commentCount }} 评论
                 </span>
               </div>
@@ -131,7 +131,7 @@
               </div>
               <div class="article-footer">
                 <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="read-more">
-                  阅读全文 <i class="el-icon-arrow-right"></i>
+                  阅读全文 <el-icon :size="14"><ArrowRight /></el-icon>
                 </router-link>
               </div>
             </div>
@@ -156,7 +156,7 @@
         <!-- 关于博主 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-user"></i>
+            <el-icon :size="18"><User /></el-icon>
             关于博主
           </h3>
           <div class="about-content">
@@ -202,16 +202,16 @@
             <!-- 社交链接 -->
             <div class="social-links">
               <a v-if="blogSettings.github_url" :href="blogSettings.github_url" class="social-link" title="GitHub" target="_blank" rel="noopener">
-                <i class="el-icon-s-promotion"></i>
+                <el-icon :size="18"><Promotion /></el-icon>
               </a>
               <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`" class="social-link" title="邮箱">
-                <i class="el-icon-message"></i>
+                <el-icon :size="18"><Message /></el-icon>
               </a>
               <a v-if="blogSettings.wechat_qr" href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
-                <i class="el-icon-chat-dot-round"></i>
+                <el-icon :size="18"><ChatDotRound /></el-icon>
               </a>
               <a v-if="blogSettings.weibo_url" :href="blogSettings.weibo_url" class="social-link" title="微博" target="_blank" rel="noopener">
-                <i class="el-icon-star-off"></i>
+                <el-icon :size="18"><Star /></el-icon>
               </a>
               <!-- 如果没有任何社交链接，显示默认提示 -->
               <div v-if="!blogSettings.github_url && !blogSettings.blog_email && !blogSettings.wechat_qr && !blogSettings.weibo_url" class="no-social-links" style="color: #999; font-size: 0.9rem; margin-top: 10px;">
@@ -225,7 +225,7 @@
         <!-- 分类 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-menu"></i>
+            <el-icon :size="18"><Menu /></el-icon>
             文章分类
           </h3>
           <ul class="category-list" v-if="categoryList.length > 0">
@@ -237,7 +237,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-folder-opened"></i>
+            <el-icon :size="40"><FolderOpened /></el-icon>
             <p>暂无分类</p>
           </div>
         </div>
@@ -245,7 +245,7 @@
         <!-- 标签云 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-collection-tag"></i>
+            <el-icon :size="18"><CollectionTag /></el-icon>
             标签云
           </h3>
           <div class="tag-cloud">
@@ -270,7 +270,7 @@
         <!-- 热门文章 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-star-on"></i>
+            <el-icon :size="18"><StarFilled /></el-icon>
             热门文章
           </h3>
           <ul class="hot-article-list" v-if="hotArticles.length > 0">
@@ -282,7 +282,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-star-on"></i>
+            <el-icon :size="40"><StarFilled /></el-icon>
             <p>暂无热门文章</p>
           </div>
         </div>
@@ -290,7 +290,7 @@
         <!-- 文章归档 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-date"></i>
+            <el-icon :size="18"><Calendar /></el-icon>
             文章归档
           </h3>
           <ul class="archive-list" v-if="archiveList.length > 0">
@@ -302,7 +302,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-date"></i>
+            <el-icon :size="40"><Calendar /></el-icon>
             <p>暂无归档</p>
           </div>
         </div>
@@ -310,12 +310,12 @@
         <!-- 最新评论 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-chat-dot-round"></i>
+            <el-icon :size="18"><ChatDotRound /></el-icon>
             最新评论
           </h3>
           <div class="recent-comments">
             <div v-if="recentComments.length === 0" class="no-comments">
-              <i class="el-icon-chat-line-round"></i>
+              <el-icon :size="40"><ChatLineRound /></el-icon>
               <p>暂无评论</p>
             </div>
             <div v-for="comment in recentComments.slice(0, 5)" :key="comment.id" class="comment-item">
@@ -335,7 +335,7 @@
     <!-- 回到顶部按钮 -->
     <transition name="fade">
       <div v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
-        <i class="el-icon-arrow-up"></i>
+        <el-icon :size="20"><ArrowUp /></el-icon>
       </div>
     </transition>
 
@@ -361,12 +361,16 @@
 <script setup>
 import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Search } from '@element-plus/icons-vue'
+import {
+  Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
+  DocumentCopy, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
+  FolderOpened, CollectionTag, ArrowUp
+} from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
-import { processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
+import { processAvatarUrl } from '@/api/blog/avatar'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
@@ -951,20 +955,6 @@ const handleAvatarError = (e) => {
   }
   // 移除错误监听器，防止无限循环
   e.target.onerror = null;
-}
-
-// 验证头像文件是否存在
-const validateAvatarExists = async () => {
-  const avatar = blogSettings.value.blog_avatar;
-  if (avatar && !avatar.startsWith('data:')) {
-    const exists = await checkAvatarExists(avatar);
-    if (!exists) {
-      console.warn('头像文件不存在:', avatar);
-      // 可以在这里触发头像更新或使用默认头像
-      return false;
-    }
-  }
-  return true;
 }
 
 

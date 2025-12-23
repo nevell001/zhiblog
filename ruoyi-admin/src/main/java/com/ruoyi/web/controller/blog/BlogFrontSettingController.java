@@ -74,7 +74,14 @@ public class BlogFrontSettingController extends BaseController {
             // 批量查询博客设置
             for (String configKey : blogConfigKeys) {
                 try {
-                    String configValue = configService.selectConfigByKey(configKey);
+                    // 优先从 blog_setting 表读取
+                    String configValue = blogSettingService.selectSettingValueByKey(configKey);
+
+                    // 如果 blog_setting 表中没有，尝试从 sys_config 表读取
+                    if (StringUtils.isEmpty(configValue)) {
+                        configValue = configService.selectConfigByKey(configKey);
+                    }
+
                     if (StringUtils.isNotEmpty(configValue)) {
                         blogSettings.put(configKey, configValue);
                     } else {
