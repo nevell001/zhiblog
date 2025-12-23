@@ -95,11 +95,12 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
 
     /**
      * 批量删除文章分类
-     * 
+     *
      * @param ids 需要删除的文章分类主键
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
     public int deleteBlogCategoryByIds(Long[] ids)
     {
         // 被引用校验
@@ -117,6 +118,7 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:category:*", "blog:category:list:*"}, keyPattern = "blog:category:*")
     public int deleteBlogCategoryById(Long id)
     {
         int refCount = blogArticleMapper.countByCategoryIds(new Long[]{ id });

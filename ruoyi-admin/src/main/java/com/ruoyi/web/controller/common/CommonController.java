@@ -451,7 +451,8 @@ public class CommonController extends BaseController
             BlogCategory blogCategory = new BlogCategory();
             blogCategory.setDelFlag("0");
             blogCategory.setStatus(1);
-            List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
+            // 使用实时统计的方法，确保文章数量准确
+            List<BlogCategory> list = blogCategoryService.selectCategoryListForFront(blogCategory);
             return AjaxResult.success(list);
         } catch (Exception e) {
             log.error("获取分类列表失败", e);

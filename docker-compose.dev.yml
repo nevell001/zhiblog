@@ -8,6 +8,8 @@ services:
     command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar"
     ports:
       - "8080:8080"
+    volumes:
+      - ./uploadPath:/app/uploadPath
     depends_on:
       mysql:
         condition: service_healthy

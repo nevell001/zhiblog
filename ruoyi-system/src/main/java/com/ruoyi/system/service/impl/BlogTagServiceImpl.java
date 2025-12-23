@@ -92,11 +92,12 @@ public class BlogTagServiceImpl implements IBlogTagService
 
     /**
      * 通过主键删除数据
-     * 
+     *
      * @param tagId 标签ID
      * @return 影响行数
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int deleteBlogTagById(Long tagId)
     {
         return blogTagMapper.deleteBlogTagById(tagId);
@@ -104,11 +105,12 @@ public class BlogTagServiceImpl implements IBlogTagService
 
     /**
      * 批量删除博客标签
-     * 
+     *
      * @param tagIds 需要删除的数据ID
      * @return 影响行数
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int deleteBlogTagByIds(Long[] tagIds)
     {
         return blogTagMapper.deleteBlogTagByIds(tagIds);

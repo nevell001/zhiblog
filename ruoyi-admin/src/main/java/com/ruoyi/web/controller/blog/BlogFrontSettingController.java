@@ -299,4 +299,57 @@ public class BlogFrontSettingController extends BaseController {
             return AjaxResult.error("清除博客设置缓存失败: " + e.getMessage());
         }
     }
+
+    /**
+     * 清除所有标签缓存
+     */
+    @Anonymous
+    @GetMapping("/clear-tag-cache")
+    public AjaxResult clearTagCache() {
+        try {
+            // 清除所有标签相关缓存
+            unifiedCacheManager.deleteByPattern("blog:tag:*");
+            logger.info("所有标签缓存已清除");
+            return AjaxResult.success("所有标签缓存已清除");
+        } catch (Exception e) {
+            logger.error("清除标签缓存失败", e);
+            return AjaxResult.error("清除标签缓存失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清除所有文章缓存
+     */
+    @Anonymous
+    @GetMapping("/clear-article-cache")
+    public AjaxResult clearArticleCache() {
+        try {
+            // 清除所有文章相关缓存
+            unifiedCacheManager.deleteByPattern("blog:article:*");
+            unifiedCacheManager.deleteByPattern("blog:search:*");
+            unifiedCacheManager.deleteByPattern("blog:hot:*");
+            logger.info("所有文章缓存已清除");
+            return AjaxResult.success("所有文章缓存已清除");
+        } catch (Exception e) {
+            logger.error("清除文章缓存失败", e);
+            return AjaxResult.error("清除文章缓存失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 清除所有博客缓存（文章、分类、标签等）
+     */
+    @Anonymous
+    @GetMapping("/clear-all-cache")
+    public AjaxResult clearAllBlogCache() {
+        try {
+            // 清除所有博客相关缓存
+            unifiedCacheManager.deleteByPattern("blog:*");
+            logger.info("所有博客缓存已清除");
+            return AjaxResult.success("所有博客缓存已清除（文章、分类、标签、搜索等）");
+        } catch (Exception e) {
+            logger.error("清除所有博客缓存失败", e);
+            return AjaxResult.error("清除所有博客缓存失败: " + e.getMessage());
+        }
+    }
 }

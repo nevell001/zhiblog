@@ -67,12 +67,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 查询博客文章列表
-     * 
+     *
      * @param blogArticle 博客文章
      * @return 博客文章
      */
     @Override
-    @BlogCacheable(key = "blog:article:list:#blogArticle.hashCode()", ttl = 15, timeUnit = TimeUnit.MINUTES)
+    // 移除缓存以确保前台始终显示最新数据
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle)
     {
         List<BlogArticle> articleList = blogArticleMapper.selectBlogArticleList(blogArticle);

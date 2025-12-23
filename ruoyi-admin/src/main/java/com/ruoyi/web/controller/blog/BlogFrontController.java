@@ -362,7 +362,7 @@ public class BlogFrontController extends BaseController
             extraInfo.put("nextArticle", null);
             System.err.println("获取上下篇文章出错: " + e.getMessage());
         }
-        
+
         // 添加分类信息
         try {
             if (blogArticle.getCategoryId() != null) {
@@ -375,8 +375,11 @@ public class BlogFrontController extends BaseController
             System.err.println("获取分类信息出错: " + e.getMessage());
         }
 
-        // 直接返回文章对象（已包含tags字段）
-        return success(blogArticle);
+        // 构建返回数据结构，包含文章主体和额外信息（上下篇文章、分类信息等）
+        Map<String, Object> result = new HashMap<>();
+        result.put("article", blogArticle);
+        result.put("extraInfo", extraInfo);
+        return success(result);
     }
 
     /**

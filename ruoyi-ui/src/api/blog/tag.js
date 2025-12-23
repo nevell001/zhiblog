@@ -47,7 +47,7 @@ export function delTag(id) {
 // 获取标签列表（前台用）
 export function getTagList(query) {
   return request({
-    url: '/dev-api/blog/tag/list',
+    url: '/blog/tag/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -57,7 +57,7 @@ export function getTagList(query) {
 // 获取标签详情（前台用）
 export function getTagDetail(id) {
   return request({
-    url: '/dev-api/blog/tag/' + id,
+    url: '/blog/tag/' + id,
     method: 'get'
   })
 }
@@ -74,7 +74,7 @@ export function getTagCloud() {
 // 根据标签获取文章列表
 export function getArticlesByTag(tagId, query) {
   return request({
-    url: '/dev-api/blog/article/tag/' + tagId,
+    url: '/blog/article/tag/' + tagId,
     method: 'get',
     params: query,
     headers: { isToken: false }

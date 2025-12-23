@@ -47,7 +47,7 @@ export function delComment(id) {
 // 获取文章评论列表（前台用）
 export function getArticleComments(articleId) {
   return request({
-    url: '/dev-api/blog/comment/article/' + articleId,
+    url: '/blog/comment/article/' + articleId,
     method: 'get'
   })
 }
@@ -55,7 +55,7 @@ export function getArticleComments(articleId) {
 // 添加评论（前台用）
 export function addBlogComment(data) {
   return request({
-    url: '/dev-api/blog/comment',
+    url: '/blog/comment',
     method: 'post',
     data: data
   })

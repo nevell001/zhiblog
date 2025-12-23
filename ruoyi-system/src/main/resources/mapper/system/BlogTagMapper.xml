@@ -69,10 +69,10 @@
             bt.id,
             bt.name,
             bt.color,
-            COUNT(DISTINCT bat.article_id) as article_count
+            COUNT(DISTINCT CASE WHEN ba.status = 1 AND ba.del_flag = 0 THEN bat.article_id END) as article_count
         FROM blog_tag bt
         LEFT JOIN blog_article_tag bat ON bt.id = bat.tag_id
-        LEFT JOIN blog_article ba ON bat.article_id = ba.id AND ba.status = 1 AND ba.del_flag = 0
+        LEFT JOIN blog_article ba ON bat.article_id = ba.id
         WHERE bt.del_flag = 0
         GROUP BY bt.id, bt.name, bt.color
         ORDER BY article_count DESC, bt.create_time DESC

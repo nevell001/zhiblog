@@ -984,6 +984,7 @@ const handleVisibilityChange = () => {
 
 // 组件挂载时加载数据
 onMounted(() => {
+  console.log('首页组件已挂载，开始加载数据...')
   loadArticleList()
   loadCategoryList()
   loadHotArticles()
@@ -993,6 +994,7 @@ onMounted(() => {
 
   // 启动定期刷新
   startSettingsRefresh()
+  startSettingsCheck()
 
   // 监听页面可见性变化
   document.addEventListener('visibilitychange', handleVisibilityChange)
@@ -1009,6 +1011,39 @@ onMounted(() => {
   console.log('博客设置更新监听器已添加')
 })
 
+// 定期检查博客设置的定时器引用
+let checkBlogSettingsInterval = null
+
+// 定期检查博客设置更新（每30秒检查一次，确保头像等设置的最新状态）
+const startSettingsCheck = () => {
+  // 清除旧的定时器
+  if (checkBlogSettingsInterval) {
+    clearInterval(checkBlogSettingsInterval)
+  }
+
+  checkBlogSettingsInterval = setInterval(async () => {
+    try {
+      // 获取当前数据库中的头像设置
+      const response = await getBlogSettings()
+      if (response && response.code === 200 && response.data) {
+        const currentAvatar = response.data.blog_avatar
+        const storeAvatar = blogSettingsStore.blogSettings.blog_avatar
+
+        // 如果头像发生变化，更新store
+        if (currentAvatar && currentAvatar !== storeAvatar) {
+          console.log('🔄 检测到头像变化，更新store:', {
+            old: storeAvatar,
+            new: currentAvatar
+          })
+          blogSettingsStore.updateBlogSettings({ blog_avatar: currentAvatar })
+        }
+      }
+    } catch (error) {
+      console.log('定期检查博客设置时出错:', error)
+    }
+  }, 30000) // 30秒检查一次
+}
+
 // 组件卸载时移除监听
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
@@ -1024,35 +1059,15 @@ onUnmounted(() => {
 
   // 清除定期刷新定时器
   stopSettingsRefresh()
+
+  // 清除设置检查定时器
   if (checkBlogSettingsInterval) {
     clearInterval(checkBlogSettingsInterval)
+    checkBlogSettingsInterval = null
   }
 
   console.log('博客设置更新监听器已移除')
 })
-
-// 定期检查博客设置更新（每30秒检查一次，确保头像等设置的最新状态）
-const checkBlogSettingsInterval = setInterval(async () => {
-  try {
-    // 获取当前数据库中的头像设置
-    const response = await getBlogSettings()
-    if (response && response.code === 200 && response.data) {
-      const currentAvatar = response.data.blog_avatar
-      const storeAvatar = blogSettingsStore.blogSettings.blog_avatar
-
-      // 如果头像发生变化，更新store
-      if (currentAvatar && currentAvatar !== storeAvatar) {
-        console.log('🔄 检测到头像变化，更新store:', {
-          old: storeAvatar,
-          new: currentAvatar
-        })
-        blogSettingsStore.updateBlogSettings({ blog_avatar: currentAvatar })
-      }
-    }
-  } catch (error) {
-    console.log('定期检查博客设置时出错:', error)
-  }
-}, 30000) // 30秒检查一次
 
 // 导出函数供外部调用
 defineExpose({
