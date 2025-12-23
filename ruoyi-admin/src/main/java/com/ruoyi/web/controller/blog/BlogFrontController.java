@@ -374,12 +374,9 @@ public class BlogFrontController extends BaseController
         } catch (Exception e) {
             System.err.println("获取分类信息出错: " + e.getMessage());
         }
-        
-        Map<String, Object> result = new HashMap<>();
-        result.put("article", blogArticle);
-        result.put("extraInfo", extraInfo);
-        
-        return success(result);
+
+        // 直接返回文章对象（已包含tags字段）
+        return success(blogArticle);
     }
 
     /**

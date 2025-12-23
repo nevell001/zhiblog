@@ -67,7 +67,23 @@ export default defineConfig(({ mode, command }) => {
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/blog\/api/, '/blog')
         },
+        // 代理博客设置接口
         '^/blog/setting': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        // 代理博客文章相关接口（文章列表、详情、标签等）
+        '^/blog/article/': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        // 代理博客标签相关接口
+        '^/blog/tag/': {
+          target: baseUrl,
+          changeOrigin: true
+        },
+        // 代理博客分类相关接口
+        '^/blog/category/': {
           target: baseUrl,
           changeOrigin: true
         },
