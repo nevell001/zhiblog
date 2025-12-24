@@ -17,15 +17,12 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     /**
      * 配置资源处理器，支持SPA应用history模式
+     * 注意：/profile/** 的资源映射在 ResourcesConfig 中已配置，这里不需要重复配置
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // 首先配置文件上传路径的静态资源访问，优先级更高
-        String profilePath = "/app/uploadPath/";
-        registry.addResourceHandler("/profile/**")
-                .addResourceLocations("file:" + profilePath);
-
         // 配置静态资源处理，支持SPA应用history模式
+        // 注意：排除 /profile 路径，该路径由 ResourcesConfig 处理上传文件
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/META-INF/resources/")
                 .addResourceLocations("classpath:/resources/")
@@ -44,13 +41,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
         @Override
         protected Resource getResource(String resourcePath, Resource location) throws IOException {
             Resource resource = super.getResource(resourcePath, location);
-            
+
             // 如果资源不存在，且不是API请求（不包含/api和不以下划线开头），且不是静态资源路径，且不是profile路径，返回index.html
             if (resource == null && !resourcePath.contains("/api") && !resourcePath.startsWith("/")
                 && !resourcePath.contains(".") && !resourcePath.startsWith("profile")) {
                 return super.getResource("index.html", location);
             }
-            
+
             return resource;
         }
     }

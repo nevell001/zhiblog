@@ -153,7 +153,7 @@
           <editor v-model="form.content" :min-height="192"/>
         </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
-          <image-upload v-model="form.coverUrl"/>
+          <image-upload v-model="form.coverUrl" action="/common/upload/article-cover"/>
           <div v-if="form.coverUrl" style="margin-top: 10px;">
             <img :src="getCoverUrl(form.coverUrl)" style="max-width: 200px; max-height: 150px; border: 1px solid #e0e0e0; border-radius: 4px;" />
             <div style="margin-top: 8px;">

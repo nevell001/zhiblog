@@ -737,25 +737,34 @@ public class ImageCompressUtils {
 
             Thumbnails.Builder<?> builder = Thumbnails.of(inputStream);
 
+            // 获取配置的质量参数，默认0.85
+            double configuredQuality = (config != null) ? config.getDefaultQuality() : DEFAULT_QUALITY;
+            // 获取配置的最大尺寸，默认1920x1080
+            int maxWidth = (config != null && config.getMaxWidth() > 0) ? config.getMaxWidth() : DEFAULT_MAX_WIDTH;
+            int maxHeight = (config != null && config.getMaxHeight() > 0) ? config.getMaxHeight() : DEFAULT_MAX_HEIGHT;
+
             switch (strategy) {
                 case LIGHT:
-                    builder.size(DEFAULT_MAX_WIDTH, DEFAULT_MAX_HEIGHT)
-                          .outputQuality(0.85);
+                    // 轻度压缩：保持高质量，使用配置的最大尺寸
+                    builder.size(maxWidth, maxHeight)
+                          .outputQuality(Math.max(configuredQuality, 0.9)); // 至少0.9质量
                     break;
 
                 case MODERATE:
-                    builder.size(1600, 1200)
-                          .outputQuality(0.75);
+                    // 中度压缩：适度降低质量和尺寸
+                    builder.size(2000, 1500)
+                          .outputQuality(Math.max(configuredQuality - 0.05, 0.85)); // 至少0.85质量
                     break;
 
                 case AGGRESSIVE:
-                    builder.size(1200, 900)
-                          .outputQuality(0.65);
+                    // 重度压缩：降低质量和尺寸
+                    builder.size(1600, 1200)
+                          .outputQuality(Math.max(configuredQuality - 0.1, 0.8)); // 至少0.8质量
                     break;
             }
 
             builder.keepAspectRatio(true)
-                   .outputFormat(format != null ? format : "png")
+                   .outputFormat(format != null ? format : "jpg")
                    .toOutputStream(outputStream);
 
             byte[] compressed = outputStream.toByteArray();
