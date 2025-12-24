@@ -50,6 +50,10 @@
         <!-- 文章元信息 -->
         <div class="article-meta" v-animate="'fade-in-up'">
           <div class="meta-info">
+            <router-link to="/" class="meta-item back-home-link" title="返回首页">
+              <i class="el-icon-house"></i>
+              <span>返回首页</span>
+            </router-link>
             <span class="meta-item">
               <i class="el-icon-user"></i>
               <span>{{ article.authorName || article.author || '匿名作者' }}</span>
@@ -258,7 +262,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
 import { ElMessage } from 'element-plus'
@@ -308,6 +312,7 @@ const loadArticleDetail = async () => {
   try {
     loading.value = true
     const articleId = route.params.id
+
     console.log('准备请求文章详情，ID:', articleId, '类型:', typeof articleId)
 
     // 验证文章ID
@@ -563,11 +568,32 @@ const loadBlogSettings = async () => {
 
 // 组件挂载时加载数据
 onMounted(() => {
+  console.log('文章详情页组件已挂载，路由ID:', route.params.id)
   loadArticleDetail()
   loadComments()
   loadBlogSettings()
   isLoggedIn.value = !!userStore.token
 })
+
+// 监听路由参数变化，当文章ID变化时重新加载
+watch(() => route.params.id, (newId, oldId) => {
+  console.log('路由参数变化:', { oldId, newId })
+  if (newId && newId !== oldId && newId !== oldId?.toString()) {
+    console.log('文章ID变化，重新加载文章详情')
+    // 滚动到顶部
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    // 重置文章数据
+    article.value = null
+    prevArticle.value = null
+    nextArticle.value = null
+    relatedArticles.value = []
+    commentList.value = []
+    totalComments.value = 0
+    // 重新加载文章详情
+    loadArticleDetail()
+    loadComments()
+  }
+}, { immediate: false })
 </script>
 
 <style scoped>
@@ -655,6 +681,12 @@ onMounted(() => {
   padding: 6px 12px;
   border-radius: 15px;
   transition: all 0.3s ease;
+}
+
+.back-home-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
 }
 
 .meta-item:hover {

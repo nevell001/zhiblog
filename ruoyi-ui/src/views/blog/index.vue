@@ -276,9 +276,15 @@
           <ul class="hot-article-list" v-if="hotArticles.length > 0">
             <li v-for="(article, index) in hotArticles.slice(0, 8)" :key="article.id" class="hot-article-item">
               <span class="article-rank" :class="{ 'rank-top': index < 3 }">{{ index + 1 }}</span>
-              <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="hot-article-link" :title="article.title">
-                {{ article.title }}
-              </router-link>
+              <div class="hot-article-info">
+                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="hot-article-link" :title="article.title">
+                  {{ article.title }}
+                </router-link>
+                <span class="hot-article-meta">
+                  <el-icon :size="12"><View /></el-icon>
+                  {{ article.viewCount || 0 }}
+                </span>
+              </div>
             </li>
           </ul>
           <div v-else class="no-data">
@@ -359,7 +365,8 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
@@ -377,6 +384,9 @@ import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 // 初始化博客设置全局状态
 const blogSettingsStore = useBlogSettingsStore()
+
+// 获取路由实例
+const route = useRoute()
 
 // 响应式数据
 const articleList = ref([])
@@ -1009,6 +1019,16 @@ onMounted(() => {
   window.addEventListener('storage', handleStorageChange)
 
   console.log('博客设置更新监听器已添加')
+})
+
+// 监听路由变化，当从文章详情页返回首页时刷新数据
+watch(route, (to, from) => {
+  // 检查是否从文章详情页返回首页
+  if (from.path?.includes('/blog/article/') && to.path === '/blog') {
+    console.log('从文章详情页返回首页，刷新数据...')
+    loadArticleList()
+    loadHotArticles()
+  }
 })
 
 // 定期检查博客设置的定时器引用
@@ -1958,6 +1978,9 @@ defineExpose({
   line-height: 1.4;
   transition: color 0.3s ease;
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .hot-article-link:hover {
@@ -2133,6 +2156,21 @@ defineExpose({
 .hot-article-item:last-child {
   margin-bottom: 0;
   border-bottom: none;
+}
+
+.hot-article-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hot-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #999;
 }
 
 .recent-comments {
