@@ -513,7 +513,7 @@ public class BlogFrontController extends BaseController
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
-        blogComment.setStatus("1"); // 设置评论状态为已发布
+        blogComment.setStatus("0"); // 设置评论状态为待审核，需要管理员审核通过后才显示
         return toAjax(blogCommentService.insertBlogComment(blogComment));
     }
 

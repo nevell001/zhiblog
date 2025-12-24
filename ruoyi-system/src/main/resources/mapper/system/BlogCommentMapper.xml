@@ -8,6 +8,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="id"    column="id"    />
         <result property="articleId"    column="article_id"    />
         <result property="userId"    column="user_id"    />
+        <result property="nickname"    column="nickname"    />
+        <result property="email"    column="email"    />
+        <result property="avatar"    column="avatar"    />
         <result property="content"    column="content"    />
         <result property="parentId"    column="parent_id"    />
         <result property="status"    column="status"    />
@@ -16,23 +19,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectBlogCommentVo">
-        select id, article_id, user_id, content, parent_id, status, create_time from blog_comment
+        select c.id, c.article_id, c.user_id, c.nickname, c.email,
+               COALESCE(u.avatar, '') as avatar,
+               c.content, c.parent_id, c.status, c.create_time
+        from blog_comment c
+        left join sys_user u on c.user_id = u.user_id
     </sql>
 
     <select id="selectBlogCommentList" parameterType="BlogComment" resultMap="BlogCommentResult">
         <include refid="selectBlogCommentVo"/>
-        <where>  
-            <if test="articleId != null "> and article_id = #{articleId}</if>
-            <if test="userId != null "> and user_id = #{userId}</if>
-            <if test="content != null  and content != ''"> and content like concat('%', #{content}, '%')</if>
-            <if test="parentId != null "> and parent_id = #{parentId}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
+        <where>
+            <if test="articleId != null "> and c.article_id = #{articleId}</if>
+            <if test="userId != null "> and c.user_id = #{userId}</if>
+            <if test="content != null  and content != ''"> and c.content like concat('%', #{content}, '%')</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
         </where>
+        order by c.create_time desc
     </select>
-    
+
     <select id="selectBlogCommentById" parameterType="Long" resultMap="BlogCommentResult">
         <include refid="selectBlogCommentVo"/>
-        where id = #{id}
+        where c.id = #{id}
     </select>
         
     <insert id="insertBlogComment" parameterType="BlogComment" useGeneratedKeys="true" keyProperty="id">
@@ -40,6 +48,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="articleId != null">article_id,</if>
             <if test="userId != null">user_id,</if>
+            <if test="nickname != null">nickname,</if>
+            <if test="email != null">email,</if>
             <if test="content != null">content,</if>
             <if test="parentId != null">parent_id,</if>
             <if test="status != null">status,</if>
@@ -49,6 +59,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="articleId != null">#{articleId},</if>
             <if test="userId != null">#{userId},</if>
+            <if test="nickname != null">#{nickname},</if>
+            <if test="email != null">#{email},</if>
             <if test="content != null">#{content},</if>
             <if test="parentId != null">#{parentId},</if>
             <if test="status != null">#{status},</if>
@@ -62,6 +74,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="articleId != null">article_id = #{articleId},</if>
             <if test="userId != null">user_id = #{userId},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="email != null">email = #{email},</if>
             <if test="content != null">content = #{content},</if>
             <if test="parentId != null">parent_id = #{parentId},</if>
             <if test="status != null">status = #{status},</if>

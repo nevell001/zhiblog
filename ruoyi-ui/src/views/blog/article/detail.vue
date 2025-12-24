@@ -171,7 +171,7 @@
         <div class="comment-list" v-if="commentList.length > 0">
           <div v-for="comment in commentList" :key="comment.id" class="comment-item">
             <div class="comment-avatar">
-              <img :src="comment.avatar || 'https://via.placeholder.com/40x40/409EFF/FFFFFF?text=' + (comment.nickname ? comment.nickname.charAt(0) : 'U')" :alt="comment.nickname" />
+              <img :src="comment.avatar || '/src/assets/images/profile.jpg'" :alt="comment.nickname || '匿名'" />
             </div>
             <div class="comment-content">
               <div class="comment-header">
@@ -191,7 +191,7 @@
               <div v-if="comment.replies && comment.replies.length > 0" class="comment-replies">
                 <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
                   <div class="reply-avatar">
-                    <img :src="reply.avatar || 'https://via.placeholder.com/32x32/409EFF/FFFFFF?text=' + (reply.nickname ? reply.nickname.charAt(0) : 'U')" :alt="reply.nickname" />
+                    <img :src="reply.avatar || '/src/assets/images/profile.jpg'" :alt="reply.nickname || '匿名'" />
                   </div>
                   <div class="reply-content">
                     <div class="reply-header">
@@ -482,7 +482,7 @@ const handleBookmark = () => {
 }
 
 // 回复评论
-const handleReply = (comment) => {
+const handleReply = (_comment) => {
   // 这里可以实现回复功能
   ElMessage.info('回复功能开发中')
 }

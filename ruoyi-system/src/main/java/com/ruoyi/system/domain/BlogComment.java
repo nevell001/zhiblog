@@ -25,6 +25,17 @@ public class BlogComment extends BaseEntity
     @Excel(name = "用户ID")
     private Long userId;
 
+    /** 昵称（匿名评论用） */
+    @Excel(name = "昵称")
+    private String nickname;
+
+    /** 邮箱（匿名评论用） */
+    @Excel(name = "邮箱")
+    private String email;
+
+    /** 头像（关联查询用户头像） */
+    private String avatar;
+
     /** 评论内容 */
     @Excel(name = "评论内容")
     private String content;
@@ -63,6 +74,30 @@ public class BlogComment extends BaseEntity
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getNickname() {
+        return nickname;
+    }
+
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
     public String getContent() {
