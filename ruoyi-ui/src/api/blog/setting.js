@@ -72,17 +72,37 @@ export function updateSettingValueByKey(key, value) {
 // 获取博客设置（前台用）
 export function getBlogSettings() {
   return request({
-    url: '/blog/setting',
+    url: '/common/blog/setting',
     method: 'get',
-    headers: { isToken: false } // 不携带token，允许匿名访问
+    headers: { isToken: false }, // 不携带token，允许匿名访问
+    params: { _t: Date.now() } // 添加时间戳防止缓存
   })
 }
 
 // 匿名访问博客设置
 export function getBlogSettingsAnonymous() {
   return request({
-    url: '/blog/setting',
+    url: '/common/blog/setting',
     method: 'get',
-    headers: { isToken: false }
+    headers: { isToken: false },
+    params: { _t: Date.now() } // 添加时间戳防止缓存
+  })
+}
+
+// 更新博客设置
+export function updateBlogSettings(data) {
+  return request({
+    url: '/common/blog/setting/update',
+    method: 'post',
+    data: data
+  })
+}
+
+// 清除博客设置缓存
+export function clearBlogCache() {
+  return request({
+    url: '/common/blog/setting/clear-blog-cache',
+    method: 'get'
+    // 移除 isToken: false，让request自动处理token
   })
 }

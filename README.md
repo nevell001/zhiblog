@@ -126,15 +126,15 @@ npm run dev
 ### 5. Docker 一键部署
 ```bash
 # 构建并启动所有服务
-docker compose  -f docker-compose-dev.yml up -d  //开发环境
+docker compose -f docker-compose.dev.yml up -d  //开发环境
 
-docker compose -f docker-compose-prod.yml up -d //生产环境
+docker compose -f docker-compose.prod.yml up -d  //生产环境
 
 # 查看服务状态
-docker compose ps
+docker compose -f docker-compose.dev.yml ps
 
 # 查看日志
-docker compose logs -f
+docker compose -f docker-compose.dev.yml logs -f
 ```
 
 ## 📁 项目结构
@@ -505,7 +505,7 @@ chore: 构建/工具
 | 友链管理 | ✅ 100% | 状态控制、Logo支持 |
 | 博客设置 | ✅ 100% | 键值配置、系统参数 |
 | 权限系统 | ✅ 100% | 菜单权限、按钮权限 |
-| 前台展示 | ✅ 90% | 基础页面完成，细节优化中 |
+| 前台展示 | ✅ 95% | 优化完成，现代化UI设计 |
 
 ## 🔧 配置说明
 
@@ -553,18 +553,7 @@ JWT_EXPIRATION=7200
 3. **分支策略**: Git Flow工作流
 4. **测试要求**: 新功能需包含单元测试
 
-### 提交信息格式
-```
-feat: 新功能
-fix: 修复bug
-docs: 文档更新
-style: 代码格式
-refactor: 重构
-test: 测试
-chore: 构建/工具
-```
-
-## 📞 技术支持
+# 📞 技术支持
 
 ### 相关文档
 - **项目文档**: [本README](README.md)
@@ -573,7 +562,10 @@ chore: 构建/工具
 - **Element Plus文档**: https://element-plus.org/
 - **Spring Boot文档**: https://spring.io/projects/spring-boot
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> develop
 ### 许可证
 本项目基于 [MIT许可证](LICENSE) 开源
 

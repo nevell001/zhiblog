@@ -56,33 +56,44 @@ export default defineConfig(({ mode, command }) => {
           target: baseUrl,
           changeOrigin: true
         },
-        // 代理博客API接口（精确匹配API调用，避免代理前端路由）
-        '/blog/article': {
+                // 代理通用接口（包括头像上传）
+        '/common': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/category': {
+        // 代理博客前台接口 (只代理API请求，不代理前端路由)
+        '^/blog/api/': {
+          target: baseUrl,
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/blog\/api/, '/blog')
+        },
+        // 代理博客设置接口
+        '^/blog/setting': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/tag': {
+        // 代理博客文章相关接口（文章列表、详情、标签等）
+        '^/blog/article/': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/comment': {
+        // 代理博客标签相关接口
+        '^/blog/tag/': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/friendLink': {
+        // 代理博客分类相关接口
+        '^/blog/category/': {
           target: baseUrl,
           changeOrigin: true
         },
-        '/blog/setting': {
+        // 代理静态资源访问（上传的图片、头像等）
+        '/profile': {
           target: baseUrl,
           changeOrigin: true
         }
         // 解决 SPA 应用 history 模式下刷新404问题
-        // historyApiFallback: true  // 在Vite中不需要这个配置
+        // 在Vite中，默认支持SPA history模式，无需额外配置
       },
       css: {
         postcss: {

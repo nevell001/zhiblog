@@ -10,37 +10,40 @@
     <div class="blog-header">
       <div class="header-content">
         <div class="blog-info">
-          <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
-          <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
-          <div class="blog-stats">
-            <span class="stat-item">
-              <i class="el-icon-document-copy"></i>
-              {{ totalArticles }} 篇文章
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-price-tag"></i>
-              {{ tagCloud.length }} 个标签
-            </span>
-            <span class="stat-item">
-              <i class="el-icon-date"></i>
-              最后更新 {{ lastUpdateTime }}
-            </span>
+          <div class="blog-text-info">
+            <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
+            <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
+            <div class="blog-stats">
+              <span class="stat-item">
+                <el-icon :size="16"><DocumentCopy /></el-icon>
+                {{ totalArticles }} 篇文章
+              </span>
+              <span class="stat-item">
+                <el-icon :size="16"><PriceTag /></el-icon>
+                {{ tagCloud.length }} 个标签
+              </span>
+              <span class="stat-item">
+                <el-icon :size="16"><Calendar /></el-icon>
+                最后更新 {{ lastUpdateTime }}
+              </span>
+            </div>
           </div>
         </div>
 
         <!-- 搜索框 -->
         <div class="search-container">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索文章标题或内容..."
-            class="search-input"
-            @keyup.enter="handleSearch"
-            clearable
-          >
-            <template #append>
-              <el-button icon="Search" @click="handleSearch" />
-            </template>
-          </el-input>
+          <div class="search-wrapper">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索文章标题或内容..."
+              class="search-input"
+              @keyup.enter="handleSearch"
+              clearable
+            />
+            <button class="search-button" @click="handleSearch">
+              <el-icon><Search /></el-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -77,7 +80,7 @@
         <!-- 空状态 -->
         <div v-else-if="articleList.length === 0" class="empty-state">
           <div class="empty-content">
-            <i class="el-icon-document-copy empty-icon"></i>
+            <el-icon :size="60" class="empty-icon"><DocumentCopy /></el-icon>
             <h3>{{ searchKeyword ? '未找到相关文章' : '暂无文章' }}</h3>
             <p>{{ searchKeyword ? `没有找到包含"${searchKeyword}"的文章，请尝试其他关键词` : '还没有发布任何文章，敬请期待...' }}</p>
             <el-button v-if="searchKeyword" type="primary" @click="clearSearch" style="margin-top: 15px;">
@@ -89,11 +92,11 @@
         <!-- 文章列表 -->
         <div v-else class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
-            <div class="article-cover" v-if="article.coverUrl">
-              <img :src="article.coverUrl" :alt="article.title" loading="lazy" @error="handleImageError" />
+            <div class="article-cover" v-if="article.coverUrl || article.coverImage">
+              <img :src="article.coverUrl || article.coverImage || 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'" :alt="article.title" loading="lazy" @error="handleImageError" />
               <div class="cover-overlay"></div>
-              <div class="article-category-badge" v-if="article.categoryName">
-                {{ article.categoryName }}
+              <div class="article-category-badge" v-if="article.tags && article.tags.length > 0">
+                {{ article.tags[0].name }}
               </div>
             </div>
             <div class="article-content">
@@ -104,19 +107,19 @@
               </h2>
               <div class="article-meta">
                 <span class="meta-item">
-                  <i class="el-icon-date"></i>
+                  <el-icon :size="14"><Calendar /></el-icon>
                   {{ formatDate(article.createTime) }}
                 </span>
                 <span class="meta-item">
-                  <i class="el-icon-view"></i>
+                  <el-icon :size="14"><View /></el-icon>
                   {{ article.viewCount || 0 }} 阅读
                 </span>
                 <span class="meta-item" v-if="article.likeCount">
-                  <i class="el-icon-star-off"></i>
+                  <el-icon :size="14"><Star /></el-icon>
                   {{ article.likeCount }} 点赞
                 </span>
                 <span class="meta-item" v-if="article.commentCount">
-                  <i class="el-icon-chat-line-round"></i>
+                  <el-icon :size="14"><ChatLineRound /></el-icon>
                   {{ article.commentCount }} 评论
                 </span>
               </div>
@@ -128,35 +131,23 @@
               </div>
               <div class="article-footer">
                 <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="read-more">
-                  阅读全文 <i class="el-icon-arrow-right"></i>
+                  阅读全文 <el-icon :size="14"><ArrowRight /></el-icon>
                 </router-link>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 加载更多 -->
-        <div v-if="articleList.length < total && !loading" class="load-more-container">
-          <el-button
-            type="primary"
-            @click="loadMoreArticles"
-            :loading="loadingMore"
-            round
-          >
-            {{ loadingMore ? '加载中...' : '加载更多' }}
-          </el-button>
-        </div>
-
-        <!-- 分页 -->
-        <div class="pagination-container" v-if="total > queryParams.pageSize">
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="queryParams.pageSize"
-            :current-page="queryParams.pageNum"
-            @current-change="handlePageChange"
-          />
+          <!-- 加载更多按钮 -->
+          <div v-if="articleList.length < total && !loading" class="load-more-container">
+            <el-button
+              type="primary"
+              @click="loadMoreArticles"
+              :loading="loadingMore"
+              round
+            >
+              {{ loadingMore ? '加载中...' : '加载更多' }}
+            </el-button>
+          </div>
         </div>
       </div>
 
@@ -165,12 +156,18 @@
         <!-- 关于博主 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-user"></i>
+            <el-icon :size="18"><User /></el-icon>
             关于博主
           </h3>
           <div class="about-content">
             <div class="author-avatar">
-              <img :src="blogSettings.blog_avatar || 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主'" :alt="blogSettings.blog_author" />
+              <img
+                :key="'avatar-' + (blogSettings.blog_avatar || 'default')"
+                :src="getAvatarUrl()"
+                :alt="blogSettings.blog_author || 'nevell'"
+                @error="handleAvatarError"
+                :style="{ transition: 'all 0.3s ease' }"
+              />
             </div>
             <h4 class="author-name">{{ blogSettings.blog_author || 'nevell' }}</h4>
             <p class="author-title">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
@@ -204,32 +201,31 @@
 
             <!-- 社交链接 -->
             <div class="social-links">
-              <a :href="blogSettings.github_url || '#'" class="social-link" title="GitHub" target="_blank" rel="noopener">
-                <i class="el-icon-s-promotion"></i>
+              <a v-if="blogSettings.github_url" :href="blogSettings.github_url" class="social-link" title="GitHub" target="_blank" rel="noopener">
+                <el-icon :size="18"><Promotion /></el-icon>
               </a>
-              <a :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'" class="social-link" title="邮箱">
-                <i class="el-icon-message"></i>
+              <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`" class="social-link" title="邮箱">
+                <el-icon :size="18"><Message /></el-icon>
               </a>
-              <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
-                <i class="el-icon-chat-dot-round"></i>
+              <a v-if="blogSettings.wechat_qr" href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
+                <el-icon :size="18"><ChatDotRound /></el-icon>
               </a>
-              <a :href="blogSettings.weibo_url || '#'" class="social-link" title="微博" target="_blank" rel="noopener">
-                <i class="el-icon-star-off"></i>
+              <a v-if="blogSettings.weibo_url" :href="blogSettings.weibo_url" class="social-link" title="微博" target="_blank" rel="noopener">
+                <el-icon :size="18"><Star /></el-icon>
               </a>
+              <!-- 如果没有任何社交链接，显示默认提示 -->
+              <div v-if="!blogSettings.github_url && !blogSettings.blog_email && !blogSettings.wechat_qr && !blogSettings.weibo_url" class="no-social-links" style="color: #999; font-size: 0.9rem; margin-top: 10px;">
+                暂未配置社交链接
+              </div>
             </div>
 
-            <!-- 联系按钮 -->
-            <el-button type="primary" size="small" class="contact-btn" @click="showContactDialog = true">
-              <i class="el-icon-chat-line-round"></i>
-              联系我
-            </el-button>
-          </div>
+            </div>
         </div>
 
         <!-- 分类 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-menu"></i>
+            <el-icon :size="18"><Menu /></el-icon>
             文章分类
           </h3>
           <ul class="category-list" v-if="categoryList.length > 0">
@@ -241,7 +237,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-folder-opened"></i>
+            <el-icon :size="40"><FolderOpened /></el-icon>
             <p>暂无分类</p>
           </div>
         </div>
@@ -249,7 +245,7 @@
         <!-- 标签云 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-collection-tag"></i>
+            <el-icon :size="18"><CollectionTag /></el-icon>
             标签云
           </h3>
           <div class="tag-cloud">
@@ -274,7 +270,7 @@
         <!-- 热门文章 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-star-on"></i>
+            <el-icon :size="18"><StarFilled /></el-icon>
             热门文章
           </h3>
           <ul class="hot-article-list" v-if="hotArticles.length > 0">
@@ -286,7 +282,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-star-on"></i>
+            <el-icon :size="40"><StarFilled /></el-icon>
             <p>暂无热门文章</p>
           </div>
         </div>
@@ -294,7 +290,7 @@
         <!-- 文章归档 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-date"></i>
+            <el-icon :size="18"><Calendar /></el-icon>
             文章归档
           </h3>
           <ul class="archive-list" v-if="archiveList.length > 0">
@@ -306,7 +302,7 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <i class="el-icon-date"></i>
+            <el-icon :size="40"><Calendar /></el-icon>
             <p>暂无归档</p>
           </div>
         </div>
@@ -314,12 +310,12 @@
         <!-- 最新评论 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <i class="el-icon-chat-dot-round"></i>
+            <el-icon :size="18"><ChatDotRound /></el-icon>
             最新评论
           </h3>
           <div class="recent-comments">
             <div v-if="recentComments.length === 0" class="no-comments">
-              <i class="el-icon-chat-line-round"></i>
+              <el-icon :size="40"><ChatLineRound /></el-icon>
               <p>暂无评论</p>
             </div>
             <div v-for="comment in recentComments.slice(0, 5)" :key="comment.id" class="comment-item">
@@ -339,7 +335,7 @@
     <!-- 回到顶部按钮 -->
     <transition name="fade">
       <div v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
-        <i class="el-icon-arrow-up"></i>
+        <el-icon :size="20"><ArrowUp /></el-icon>
       </div>
     </transition>
 
@@ -351,28 +347,7 @@
       </div>
     </el-dialog>
 
-    <!-- 联系对话框 -->
-    <el-dialog v-model="showContactDialog" title="联系我" width="500px">
-      <el-form :model="contactForm" label-width="80px">
-        <el-form-item label="姓名">
-          <el-input v-model="contactForm.name" placeholder="请输入您的姓名" />
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="contactForm.email" placeholder="请输入您的邮箱" type="email" />
-        </el-form-item>
-        <el-form-item label="主题">
-          <el-input v-model="contactForm.subject" placeholder="请输入主题" />
-        </el-form-item>
-        <el-form-item label="内容">
-          <el-input v-model="contactForm.message" type="textarea" :rows="5" placeholder="请输入留言内容" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showContactDialog = false">取消</el-button>
-        <el-button type="primary" @click="handleContactSubmit">发送</el-button>
-      </template>
-    </el-dialog>
-
+  
     <!-- 博客底部 -->
     <BlogFooter
       :blogSettings="blogSettings"
@@ -384,20 +359,31 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import { getArticleList, getArticleListAnonymous, getHotArticles, searchArticles, getArticleArchive } from '@/api/blog/article'
+import {
+  Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
+  DocumentCopy, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
+  FolderOpened, CollectionTag, ArrowUp
+} from '@element-plus/icons-vue'
+import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
+import { processAvatarUrl } from '@/api/blog/avatar'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
+
+// 初始化博客设置全局状态
+const blogSettingsStore = useBlogSettingsStore()
 
 // 响应式数据
 const articleList = ref([])
 const categoryList = ref([])
 const hotArticles = ref([])
-const blogSettings = ref({})
+// 直接使用store中的数据，避免数据不一致
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const total = ref(0)
 const totalArticles = ref(0)
 const lastUpdateTime = ref('')
@@ -410,13 +396,6 @@ const loadingMore = ref(false)
 const showBackToTop = ref(false)
 const scrollProgress = ref(0)
 const showWechatQR = ref(false)
-const showContactDialog = ref(false)
-const contactForm = reactive({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
-})
 
 // 查询参数
 const queryParams = reactive({
@@ -431,22 +410,22 @@ const loadArticleList = async (append = false) => {
     loading.value = !append
     if (append) loadingMore.value = true
 
-    let response;
-    if (searchKeyword.value) {
-      // 如果有搜索关键词，则执行搜索
-      response = await searchArticles(searchKeyword.value, queryParams)
-    } else {
-      // 否则获取所有文章 - 优先使用匿名访问接口
-      try {
-        response = await getArticleList(queryParams)
-      } catch (error) {
-        // 如果标准接口失败，尝试匿名接口
-        console.warn('标准文章接口访问失败，尝试匿名接口:', error)
-        response = await getArticleListAnonymous(queryParams)
-      }
+    if (process.env.NODE_ENV === 'development') {
+      console.log('开始加载文章列表, append:', append, 'searchKeyword:', searchKeyword.value)
     }
 
-    console.log('文章列表响应:', response)
+    let response;
+    try {
+      response = await getArticleList(queryParams)
+    } catch (error) {
+      // 如果标准接口失败，尝试匿名接口
+      console.warn('标准文章接口访问失败，尝试匿名接口:', error)
+      response = await getArticleListAnonymous(queryParams)
+    }
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('文章列表响应:', response)
+    }
     
     // 处理不同的响应格式
     let newArticles = []
@@ -466,6 +445,12 @@ const loadArticleList = async (append = false) => {
       totalCount = response.total || newArticles.length
     }
     
+    console.log('处理后的文章数据:', {
+      newArticles: newArticles.length,
+      totalCount,
+      articleListLength: articleList.value.length
+    })
+
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
     } else {
@@ -473,27 +458,67 @@ const loadArticleList = async (append = false) => {
     }
     total.value = totalCount
     totalArticles.value = totalCount
+
+    console.log('最终文章列表状态:', {
+      articleListLength: articleList.value.length,
+      loading: loading.value,
+      loadingMore: loadingMore.value
+    })
   } catch (error) {
     console.error('获取文章列表失败:', error)
     // 如果是网络错误或接口不存在，显示友好提示
-    if (error.response && error.response.status === 404) {
+    if (error.response && (error.response.status === 404 || error.response.status === 401)) {
       console.warn('文章接口暂未实现，使用模拟数据')
-      // 使用模拟数据
+      // 使用丰富的模拟数据
       const mockArticles = [
         {
           id: 1,
-          title: '欢迎使用博客系统',
-          summary: '这是一个基于RuoYi-Vue的博客系统，支持文章管理、分类管理、标签管理等功能。',
-          content: '这是一个基于RuoYi-Vue的博客系统...',
-          coverUrl: 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=博客系统',
+          title: '欢迎使用Thumbnailator图片处理博客系统',
+          summary: '这是一个基于RuoYi-Vue的现代化博客系统，集成了Thumbnailator专业图片处理库，支持高质量的图片压缩、格式转换和水印添加等功能。',
+          content: '这是一个基于RuoYi-Vue的博客系统，集成了Thumbnailator图片处理库...',
+          coverUrl: '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg',
           categoryName: '系统公告',
           createTime: new Date().toISOString(),
-          viewCount: 100,
-          likeCount: 10,
-          commentCount: 5,
+          viewCount: 156,
+          likeCount: 23,
+          commentCount: 8,
           tags: [
-            { id: 1, name: 'Vue', color: '#4FC08D' },
-            { id: 2, name: 'Spring Boot', color: '#6DB33F' }
+            { id: 1, name: 'Vue.js', color: '#4FC08D' },
+            { id: 2, name: 'Spring Boot', color: '#6DB33F' },
+            { id: 3, name: 'Thumbnailator', color: '#FF6B6B' }
+          ]
+        },
+        {
+          id: 2,
+          title: '如何使用Thumbnailator进行图片压缩',
+          summary: 'Thumbnailator是一个强大的Java图片处理库，本文将详细介绍如何在项目中集成和使用Thumbnailator进行图片压缩、格式转换等操作。',
+          content: 'Thumbnailator是一个强大的Java图片处理库...',
+          coverUrl: 'https://via.placeholder.com/400x200/67C23A/FFFFFF?text=图片压缩',
+          categoryName: '技术分享',
+          createTime: new Date(Date.now() - 86400000).toISOString(),
+          viewCount: 89,
+          likeCount: 15,
+          commentCount: 3,
+          tags: [
+            { id: 4, name: 'Java', color: '#ED8B00' },
+            { id: 5, name: '图片处理', color: '#9C27B0' }
+          ]
+        },
+        {
+          id: 3,
+          title: 'Spring Boot最佳实践指南',
+          summary: '本文总结了Spring Boot开发中的最佳实践，包括项目结构设计、配置管理、异常处理等方面的经验分享。',
+          content: 'Spring Boot是Java开发中最流行的框架之一...',
+          coverUrl: 'https://via.placeholder.com/400x200/6DB33F/FFFFFF?text=Spring Boot',
+          categoryName: '技术分享',
+          createTime: new Date(Date.now() - 172800000).toISOString(),
+          viewCount: 234,
+          likeCount: 45,
+          commentCount: 12,
+          tags: [
+            { id: 2, name: 'Spring Boot', color: '#6DB33F' },
+            { id: 6, name: '最佳实践', color: '#FF5722' },
+            { id: 7, name: 'Java', color: '#ED8B00' }
           ]
         }
       ]
@@ -569,6 +594,14 @@ const loadHotArticles = async () => {
 // 获取博客设置
 const loadBlogSettings = async () => {
   try {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('开始加载博客设置...')
+    }
+
+    // 强制清除可能的浏览器缓存
+    const timestamp = Date.now()
+    console.log('加载设置时间戳:', timestamp)
+
     // 优先使用匿名访问接口
     let response;
     try {
@@ -578,37 +611,129 @@ const loadBlogSettings = async () => {
       console.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
       response = await getBlogSettingsAnonymous()
     }
-    
-    console.log('博客设置响应:', response)
-    
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('博客设置响应:', response)
+    }
+
+    let settings = {}
+
     // 处理不同的响应格式
     if (response && response.code === 200) {
-      blogSettings.value = response.data || {}
+      settings = response.data || {}
     } else if (response && typeof response === 'object') {
-      blogSettings.value = response
+      settings = response
     }
-    
+
+    // 类型转换：将字符串值转换为正确的类型
+    const processedSettings = {}
+    Object.keys(settings).forEach(key => {
+      let value = settings[key]
+
+      // 处理布尔值转换
+      if (value === 'true') {
+        value = true
+      } else if (value === 'false') {
+        value = false
+      }
+      // 处理数字转换
+      else if (key.includes('_count') || key.includes('_size')) {
+        const numValue = Number(value)
+        if (!isNaN(numValue)) {
+          value = numValue
+        }
+      }
+      // 处理日期转换
+      else if (key === 'blog_start_time' && value && typeof value === 'string') {
+        const dateValue = new Date(value)
+        if (!isNaN(dateValue.getTime())) {
+          value = dateValue
+        }
+      }
+
+      processedSettings[key] = value
+    })
+
+    // 更新全局状态
+    blogSettingsStore.setBlogSettings(processedSettings)
+
+    // 强制更新组件，确保头像等设置立即生效
+    nextTick(() => {
+      // 强制触发Vue的响应式更新
+      if (settings.blog_avatar) {
+        console.log('头像设置已更新，强制重新渲染:', settings.blog_avatar)
+        // 可以在这里添加其他需要触发的更新逻辑
+      }
+    })
+
     // 设置最后更新时间
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
     console.error('获取博客设置失败:', error)
     if (error.response && error.response.status === 404 || error.response && error.response.status === 401) {
       console.warn('博客设置接口暂未实现或匿名访问失败，使用默认设置')
-      blogSettings.value = {
+      const defaultSettings = {
         blog_name: '我的博客',
         blog_desc: '这是一个基于RuoYi-Vue的博客系统',
         blog_author: 'nevell',
         author_title: '全栈开发工程师',
-        blog_avatar: 'https://via.placeholder.com/80x80/409EFF/FFFFFF?text=博主',
+        blog_avatar: '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg', // 使用实际存在的头像
         skills: ['Vue.js', 'Spring Boot', 'Java', 'JavaScript', 'MySQL', 'Redis'],
         github_url: 'https://github.com',
-        email: 'contact@example.com',
+        blog_email: 'contact@example.com',
+        weibo_url: 'https://weibo.com',
         wechat_qr: 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
       }
+      blogSettingsStore.setBlogSettings(defaultSettings)
     }
     // 设置最后更新时间
     lastUpdateTime.value = formatDate(new Date().toISOString())
   }
+}
+
+// 监听博客设置更新事件
+const handleBlogSettingsUpdate = (event) => {
+  console.log('收到博客设置更新事件:', event.detail)
+
+  // 直接更新全局状态，无需更新本地状态（因为使用computed）
+  blogSettingsStore.updateBlogSettings(event.detail)
+
+  // 强制重新渲染
+  lastUpdateTime.value = formatDate(new Date().toISOString())
+
+  // 强制刷新所有头像显示（强制重新计算computed属性）
+  nextTick(() => {
+    // 强制触发响应式更新
+    const currentAvatar = blogSettingsStore.blogSettings.blog_avatar
+    if (currentAvatar) {
+      blogSettingsStore.updateBlogAvatar(currentAvatar + '?force=' + Date.now())
+    }
+  })
+
+  // 显示提示
+  ElMessage.success('博客设置已更新，头像等信息将立即生效')
+}
+
+// 处理跨标签页storage变化事件
+const handleStorageChange = (event) => {
+  if (event.key === 'blog-settings-update') {
+    try {
+      const updateData = JSON.parse(event.newValue || event.oldValue || '{}')
+      if (updateData.type === 'avatar_update' && updateData.avatarUrl) {
+        console.log('🔔 收到跨标签页头像更新事件:', updateData)
+        handleBlogSettingsUpdate({ detail: { blog_avatar: updateData.avatarUrl } })
+      }
+    } catch (error) {
+      console.error('解析storage事件失败:', error)
+    }
+  }
+}
+
+// 强制刷新博客设置（供外部调用）
+const refreshBlogSettings = async () => {
+  console.log('强制刷新博客设置...')
+  await loadBlogSettings()
+  ElMessage.success('博客设置已刷新')
 }
 
 // 获取标签云
@@ -689,12 +814,6 @@ const clearSearch = () => {
   loadArticleList()
 }
 
-// 分页处理
-const handlePageChange = (page) => {
-  queryParams.pageNum = page
-  loadArticleList()
-}
-
 // 日期格式化
 const formatDate = (dateString) => {
   if (!dateString) return ''
@@ -738,11 +857,50 @@ const truncateText = (text, maxLength) => {
   return text.substring(0, maxLength) + '...'
 }
 
-// 加载更多文章
-const loadMoreArticles = () => {
-  if (loadingMore.value || articleList.value.length >= total.value) return
+
+// 优化的加载更多文章
+const loadMoreArticles = async () => {
+  if (loadingMore.value || articleList.value.length >= total.value) {
+    console.log('加载条件不满足:', {
+      loadingMore: loadingMore.value,
+      hasMore: articleList.value.length < total.value
+    })
+    return
+  }
+  
+  loadingMore.value = true
   queryParams.pageNum++
-  loadArticleList(true)
+  
+  try {
+    const response = await getArticleListAnonymous(queryParams)
+    if (response.code === 200 && response.rows) {
+      // 合并新数据到现有列表
+      const newArticles = response.rows.map(article => ({
+        ...article,
+        // 预处理图片懒加载
+        content: article.content ? addLazyLoadToImages(article.content) : article.content
+      }))
+      
+      articleList.value = [...articleList.value, ...newArticles]
+      total.value = response.total
+      
+      // 更新URL和状态
+      const url = new URL(window.location)
+      url.searchParams.set('page', queryParams.pageNum)
+      window.history.replaceState({}, '', url)
+    }
+  } catch (error) {
+    console.error('加载更多文章失败:', error)
+    ElMessage.error('加载文章失败，请稍后重试')
+    queryParams.pageNum-- // 回滚页码
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+// 为图片添加懒加载属性
+const addLazyLoadToImages = (content) => {
+  return content.replace(/<img([^>]+)src=/gi, '<img$1src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB2aWV3Qm94PSIwIDAgMSAxIiBmaWxsPSJ0cmFuc3BhcmVudCI+PC9zdmc+" loading="lazy" src=')
 }
 
 // 回到顶部
@@ -773,40 +931,147 @@ const handleImageError = (e) => {
   e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
 }
 
-// 处理联系表单提交
-const handleContactSubmit = () => {
-  if (!contactForm.name || !contactForm.email || !contactForm.message) {
-    ElMessage.warning('请填写完整信息')
-    return
+// 获取头像URL（使用优化的处理函数）
+const getAvatarUrl = () => {
+  const avatarUrl = blogSettings.value.blog_avatar;
+  if (process.env.NODE_ENV === 'development') {
+    console.log('获取头像URL:', avatarUrl);
   }
-  
-  // 这里可以调用API发送邮件
-  ElMessage.success('消息已发送，我会尽快回复您！')
-  showContactDialog.value = false
-  
-  // 重置表单
-  contactForm.name = ''
-  contactForm.email = ''
-  contactForm.subject = ''
-  contactForm.message = ''
+  const processedUrl = processAvatarUrl(avatarUrl);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('处理后的头像URL:', processedUrl);
+  }
+  return processedUrl;
+}
+
+// 头像加载错误处理
+const handleAvatarError = (e) => {
+  console.warn('头像加载失败，使用默认头像');
+  const defaultAvatar = processAvatarUrl('');
+
+  // 防止循环：如果已经是默认头像了，不要再设置
+  if (!e.target.src.includes('data:image/svg+xml')) {
+    e.target.src = defaultAvatar;
+  }
+  // 移除错误监听器，防止无限循环
+  e.target.onerror = null;
+}
+
+
+// 定期刷新博客设置（每5分钟）
+let settingsRefreshTimer = null
+
+const startSettingsRefresh = () => {
+  settingsRefreshTimer = setInterval(() => {
+    loadBlogSettings()
+  }, 5 * 60 * 1000) // 5分钟
+}
+
+const stopSettingsRefresh = () => {
+  if (settingsRefreshTimer) {
+    clearInterval(settingsRefreshTimer)
+    settingsRefreshTimer = null
+  }
+}
+
+// 页面可见性变化时重新加载设置
+const handleVisibilityChange = () => {
+  if (document.visibilityState === 'visible') {
+    // 页面重新可见时，立即刷新设置
+    loadBlogSettings()
+  }
 }
 
 // 组件挂载时加载数据
 onMounted(() => {
+  console.log('首页组件已挂载，开始加载数据...')
   loadArticleList()
   loadCategoryList()
   loadHotArticles()
   loadBlogSettings()
   loadTagCloud()
   loadArchiveData()
-  
+
+  // 启动定期刷新
+  startSettingsRefresh()
+  startSettingsCheck()
+
+  // 监听页面可见性变化
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll)
+
+  // 添加博客设置更新监听器
+  window.addEventListener('blog-settings-update', handleBlogSettingsUpdate)
+
+  // 添加跨标签页storage监听器
+  window.addEventListener('storage', handleStorageChange)
+
+  console.log('博客设置更新监听器已添加')
 })
+
+// 定期检查博客设置的定时器引用
+let checkBlogSettingsInterval = null
+
+// 定期检查博客设置更新（每30秒检查一次，确保头像等设置的最新状态）
+const startSettingsCheck = () => {
+  // 清除旧的定时器
+  if (checkBlogSettingsInterval) {
+    clearInterval(checkBlogSettingsInterval)
+  }
+
+  checkBlogSettingsInterval = setInterval(async () => {
+    try {
+      // 获取当前数据库中的头像设置
+      const response = await getBlogSettings()
+      if (response && response.code === 200 && response.data) {
+        const currentAvatar = response.data.blog_avatar
+        const storeAvatar = blogSettingsStore.blogSettings.blog_avatar
+
+        // 如果头像发生变化，更新store
+        if (currentAvatar && currentAvatar !== storeAvatar) {
+          console.log('🔄 检测到头像变化，更新store:', {
+            old: storeAvatar,
+            new: currentAvatar
+          })
+          blogSettingsStore.updateBlogSettings({ blog_avatar: currentAvatar })
+        }
+      }
+    } catch (error) {
+      console.log('定期检查博客设置时出错:', error)
+    }
+  }, 30000) // 30秒检查一次
+}
 
 // 组件卸载时移除监听
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll)
+
+  // 移除博客设置更新监听器
+  window.removeEventListener('blog-settings-update', handleBlogSettingsUpdate)
+
+  // 移除storage监听器
+  window.removeEventListener('storage', handleStorageChange)
+
+  // 移除页面可见性监听器
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+  // 清除定期刷新定时器
+  stopSettingsRefresh()
+
+  // 清除设置检查定时器
+  if (checkBlogSettingsInterval) {
+    clearInterval(checkBlogSettingsInterval)
+    checkBlogSettingsInterval = null
+  }
+
+  console.log('博客设置更新监听器已移除')
+})
+
+// 导出函数供外部调用
+defineExpose({
+  refreshBlogSettings
 })
 </script>
 
@@ -871,7 +1136,7 @@ onUnmounted(() => {
 .blog-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 80px 0;
+  padding: 100px 0 80px 0;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -881,7 +1146,7 @@ onUnmounted(() => {
 @keyframes headerFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-30px);
   }
   to {
     opacity: 1;
@@ -896,8 +1161,30 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
-  opacity: 0.6;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 2px, transparent 3px),
+    radial-gradient(circle at 70% 65%, rgba(255,255,255,0.1) 1px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 1.5px, transparent 2.5px),
+    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.1) 1px, transparent 2px),
+    radial-gradient(circle at 15% 85%, rgba(255,255,255,0.1) 1px, transparent 2px);
+  background-size: 100px 100px, 80px 80px, 120px 120px, 60px 60px, 90px 90px;
+  animation: floatStars 20s linear infinite;
+}
+
+@keyframes floatStars {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100px, -100px); }
+}
+
+.blog-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, #f5f5f5, transparent);
+  opacity: 0.1;
 }
 
 .header-content {
@@ -913,6 +1200,25 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
   gap: 20px;
+}
+
+
+.blog-text-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+}
+
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .blog-title {
@@ -967,13 +1273,108 @@ onUnmounted(() => {
 }
 
 .search-container {
-  max-width: 500px;
-  margin: 20px auto 0;
+  max-width: 600px;
+  margin: 30px auto 0;
+  position: relative;
+  z-index: 10;
+}
+
+.search-wrapper {
+  position: relative;
+  width: 100%;
+  animation: searchSlideIn 0.8s ease-out 0.4s both;
 }
 
 .search-input {
   width: 100%;
 }
+
+.search-button {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  bottom: 2px;
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  border: none;
+  border-radius: 0 46px 46px 0;
+  width: 46px;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+}
+
+.search-button:hover {
+  background: linear-gradient(135deg, #337ecc, #2575fc);
+}
+
+.search-button:active {
+  transform: scale(0.98);
+}
+
+/* 设置搜索图标为透明，让按钮背景色透过 */
+.search-button .el-icon {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 18px;
+}
+
+@keyframes searchSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.search-input :deep(.el-input__wrapper) {
+  border-radius: 50px;
+  padding: 4px 20px 4px 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-wrapper:hover .search-input :deep(.el-input__wrapper) {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.search-wrapper:hover .search-button {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.search-input :deep(.el-input__wrapper.is-focus) {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.search-input :deep(.el-input__wrapper.is-focus) + .search-button {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+.search-input :deep(.el-input__inner) {
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.search-input :deep(.el-input__inner::placeholder) {
+  color: #666;
+  font-weight: 400;
+}
+
 
 .blog-main {
   max-width: 1200px;
@@ -1012,15 +1413,16 @@ onUnmounted(() => {
 
 .article-item {
   background: white;
-  border-radius: 16px;
+  border-radius: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   position: relative;
   animation: cardFadeIn 0.6s ease-out backwards;
+  backdrop-filter: blur(10px);
 }
 
 .article-item:nth-child(1) { animation-delay: 0.1s; }
@@ -1404,12 +1806,6 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-.contact-btn {
-  width: 100%;
-  margin-top: 15px;
-  border-radius: 20px;
-  font-weight: 600;
-}
 
 .qr-code-container {
   text-align: center;
@@ -1845,16 +2241,21 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .blog-header {
-    padding: 40px 0;
+    padding: 60px 0 40px 0;
   }
 
+  
   .blog-title {
     font-size: 2.2rem;
+    line-height: 1.2;
+    margin-bottom: 15px;
   }
 
   .blog-description {
     font-size: 1.1rem;
     padding: 0 20px;
+    line-height: 1.5;
+    margin-bottom: 25px;
   }
 
   .blog-stats {
@@ -1991,6 +2392,16 @@ onUnmounted(() => {
 
   .search-input :deep(.el-input__inner) {
     font-size: 16px; /* 防止iOS Safari缩放 */
+  }
+
+  .search-button {
+    width: 40px;
+    right: 2px;
+    border-radius: 0 40px 40px 0;
+  }
+
+  .search-input :deep(.el-input__wrapper) {
+    padding: 4px 16px 4px 16px;
   }
 
   .blog-main {

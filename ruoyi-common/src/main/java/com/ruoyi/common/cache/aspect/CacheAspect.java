@@ -1,0 +1,180 @@
+package com.ruoyi.common.cache.aspect;
+
+import com.ruoyi.common.cache.BlogCacheManager;
+import com.ruoyi.common.cache.annotation.BlogCacheable;
+import com.ruoyi.common.cache.annotation.BlogCacheEvict;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * 缓存切面处理器
+ * 处理 @BlogCacheable 和 @BlogCacheEvict 注解
+ * 
+ * @author nevell
+ * @since 2025-12-20
+ */
+@Slf4j
+@Aspect
+@Component
+@Order(1)
+public class CacheAspect {
+
+    @Autowired
+    private BlogCacheManager blogCacheManager;
+
+    /**
+     * 处理 @BlogCacheable 注解
+     */
+    @Around("@annotation(blogCacheable)")
+    public Object handleCacheable(ProceedingJoinPoint joinPoint, BlogCacheable blogCacheable) throws Throwable {
+        String cacheKey = buildCacheKey(joinPoint, blogCacheable.key());
+        
+        try {
+            // 尝试从缓存获取
+            Object cachedValue = blogCacheManager.get(cacheKey, Object.class);
+            if (cachedValue != null) {
+                log.debug("Cache hit for key: {}", cacheKey);
+                return cachedValue;
+            }
+            
+            log.debug("Cache miss for key: {}", cacheKey);
+            
+            // 缓存未命中，执行原方法
+            Object result = joinPoint.proceed();
+            
+            // 将结果存入缓存
+            if (result != null) {
+                long ttl = blogCacheable.ttl();
+                TimeUnit timeUnit = blogCacheable.timeUnit();
+                blogCacheManager.set(cacheKey, result, ttl, timeUnit);
+                log.debug("Cached result for key: {} with TTL: {} {}", cacheKey, ttl, timeUnit);
+            }
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("Cache operation failed for key: {}, proceeding with method execution", cacheKey, e);
+            // 缓存操作失败时，直接执行原方法
+            return joinPoint.proceed();
+        }
+    }
+
+    /**
+     * 处理 @BlogCacheEvict 注解
+     */
+    @Around("@annotation(blogCacheEvict)")
+    public Object handleCacheEvict(ProceedingJoinPoint joinPoint, BlogCacheEvict blogCacheEvict) throws Throwable {
+        try {
+            // 先执行原方法
+            Object result = joinPoint.proceed();
+            
+            // 然后执行缓存清除
+            if (blogCacheEvict.allEntries()) {
+                // 清除所有博客相关缓存
+                blogCacheManager.clearAllBlogCache();
+                log.debug("Evicted all blog cache entries");
+            } else {
+                // 清除指定缓存
+                String[] keys = blogCacheEvict.value();
+                for (String key : keys) {
+                    String resolvedKey = resolveSpEL(key, joinPoint);
+                    blogCacheManager.delete(resolvedKey);
+                    log.debug("Evicted cache key: {}", resolvedKey);
+                }
+                
+                // 如果指定了keyPattern，按模式清除
+                if (!blogCacheEvict.keyPattern().isEmpty()) {
+                    blogCacheManager.deleteByPattern(blogCacheEvict.keyPattern());
+                    log.debug("Evicted cache keys with pattern: {}", blogCacheEvict.keyPattern());
+                }
+            }
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("Cache eviction failed", e);
+            // 缓存清除失败时，仍然返回方法执行结果
+            return joinPoint.proceed();
+        }
+    }
+
+    /**
+     * 构建缓存键
+     */
+    private String buildCacheKey(ProceedingJoinPoint joinPoint, String keyExpression) {
+        if (keyExpression.isEmpty()) {
+            // 如果没有指定key，使用方法签名生成默认key
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            return generateDefaultKey(signature, joinPoint.getArgs());
+        }
+        
+        // 解析SpEL表达式或使用字符串模板
+        return resolveSpEL(keyExpression, joinPoint);
+    }
+
+    /**
+     * 生成默认缓存键
+     */
+    private String generateDefaultKey(MethodSignature signature, Object[] args) {
+        StringBuilder keyBuilder = new StringBuilder();
+        keyBuilder.append(signature.getDeclaringType().getSimpleName())
+                  .append(".")
+                  .append(signature.getMethod().getName());
+        
+        if (args.length > 0) {
+            keyBuilder.append(":");
+            for (int i = 0; i < args.length; i++) {
+                if (i > 0) {
+                    keyBuilder.append(",");
+                }
+                keyBuilder.append(args[i] != null ? args[i].toString() : "null");
+            }
+        }
+        
+        return keyBuilder.toString();
+    }
+
+    /**
+     * 解析SpEL表达式或字符串模板
+     * 简化实现，支持常见的参数引用
+     */
+    private String resolveSpEL(String expression, ProceedingJoinPoint joinPoint) {
+        if (expression.startsWith("#") || expression.contains("$")) {
+            // 简化的SpEL解析
+            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            String[] paramNames = signature.getParameterNames();
+            Object[] args = joinPoint.getArgs();
+            
+            String result = expression;
+            
+            // 替换参数引用 #paramName 或 #p0
+            if (paramNames != null) {
+                for (int i = 0; i < paramNames.length; i++) {
+                    String paramName = paramNames[i];
+                    Object argValue = args[i];
+                    
+                    // 替换 #paramName
+                    result = result.replace("#" + paramName, 
+                                          argValue != null ? argValue.toString() : "null");
+                    // 替换 #p[i]
+                    result = result.replace("#p" + i, 
+                                          argValue != null ? argValue.toString() : "null");
+                }
+            }
+            
+            return result;
+        } else {
+            // 普通字符串，直接返回
+            return expression;
+        }
+    }
+}

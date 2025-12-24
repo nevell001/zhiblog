@@ -45,7 +45,8 @@ public class BlogCategoryController extends BaseController
             blogCategory.setDelFlag("0");
         }
         startPage();
-        List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
+        // 使用前台查询方法，获取实时统计的文章数量（与前台显示一致）
+        List<BlogCategory> list = blogCategoryService.selectCategoryListForFront(blogCategory);
         return getDataTable(list);
     }
 
@@ -60,7 +61,8 @@ public class BlogCategoryController extends BaseController
         if (blogCategory.getDelFlag() == null) {
             blogCategory.setDelFlag("0");
         }
-        List<BlogCategory> list = blogCategoryService.selectBlogCategoryList(blogCategory);
+        // 使用前台查询方法，获取实时统计的文章数量（与前台显示一致）
+        List<BlogCategory> list = blogCategoryService.selectCategoryListForFront(blogCategory);
         ExcelUtil<BlogCategory> util = new ExcelUtil<BlogCategory>(BlogCategory.class);
         util.exportExcel(response, list, "文章分类数据");
     }

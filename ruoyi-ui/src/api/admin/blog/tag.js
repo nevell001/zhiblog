@@ -43,19 +43,3 @@ export function delTag(tagIds) {
   })
 }
 
-// 导出标签
-export function exportTag(query) {
-  return request({
-    url: '/system/tag/export',
-    method: 'post',
-    params: query
-  })
-}
-
-// 获取所有标签列表
-export function getAllTags() {
-  return request({
-    url: '/system/tag/all',
-    method: 'get'
-  })
-}

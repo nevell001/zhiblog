@@ -78,8 +78,8 @@
 
       <el-table-column label="状态" align="center" prop="status" min-width="80">
         <template #default="scope">
-          <el-tag :type="scope.row.status === '1' ? 'success' : 'warning'" effect="dark">
-            {{ scope.row.status === '1' ? '已发布' : '草稿' }}
+          <el-tag :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'" effect="dark">
+            {{ scope.row.status === '1' || scope.row.status === 1 ? '已发布' : '草稿' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -125,7 +125,7 @@
     />
 
     <!-- 添加或修改博客文章对话框 -->
-    <el-dialog :title="title" v-model="open" width="800px" append-to-body>
+    <el-dialog :title="title" v-model="open" width="800px" append-to-body @close="cancel">
         <el-form ref="articleRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
@@ -211,7 +211,7 @@
 </template>
 
 <script setup name="Article">
-import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
+import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick } from 'vue'
 import useUserStore from '@/store/modules/user'
 import { listArticle, getArticle, delArticle, addArticle, updateArticle } from '@/api/admin/blog/article'
 import { listCategory } from '@/api/admin/blog/category'
@@ -314,17 +314,18 @@ async function getTagList() {
 
 // 取消按钮
 function cancel() {
-  open.value = false;
   reset();
+  open.value = false;
 }
 
 // 表单重置
 function reset() {
+  // 强制清空表单对象，使用 nextTick 确保响应式更新
   form.value = {
     id: null,
     title: '',
     summary: '',
-    content: '',
+    content: null, // 使用 null 而不是空字符串，确保编辑器组件能正确响应
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
@@ -340,6 +341,16 @@ function reset() {
     updateTime: null,
     delFlag: 0
   };
+
+  // 清空表单验证状态
+  if (articleRef.value) {
+    articleRef.value.clearValidate();
+  }
+
+  // 使用 nextTick 确保 DOM 更新后再设置内容为空
+  nextTick(() => {
+    form.value.content = '';
+  });
 }
 
 /** 搜索按钮操作 */
@@ -542,7 +553,9 @@ const submitForm = async () => {
           await addArticle(apiData)
           ElMessage.success("新增成功")
         }
-        
+
+        // 重置表单，清空所有字段
+        reset()
         open.value = false
         await getList()
       } catch (error) {
@@ -598,10 +611,10 @@ async function handleStatusChange(row) {
   try {
     const newStatus = row.status === '1' || row.status === 1 ? 0 : 1;
     const statusText = newStatus === 1 ? '发布' : '草稿';
-    
+
     // 安全处理标题显示，防止title为null或undefined
     const articleTitle = row.title || '(无标题文章)';
-    
+
     await ElMessageBox.confirm(
       `是否确认将文章《${articleTitle}》的状态切换为${statusText}？`,
       '状态切换确认',
@@ -611,14 +624,23 @@ async function handleStatusChange(row) {
         type: 'info'
       }
     )
-    
+
     loading.value = true
-    // 使用updateArticle接口进行状态更新
+    // 使用updateArticle接口进行状态更新，传递必要的字段以满足后端验证
     await updateArticle({
       id: row.id,
-      status: newStatus,
-      // 确保标题字段不为空，防止后端报错
-      title: row.title || ''
+      status: Number(newStatus), // 确保状态值是数字类型
+      title: row.title || '(无标题文章)',
+      // 传递其他必要字段以防止后端清空这些字段
+      categoryId: row.categoryId,
+      content: row.content,
+      summary: row.summary,
+      coverUrl: row.coverUrl,
+      authorId: row.authorId,
+      authorName: row.authorName,
+      isTop: row.isTop,
+      isRecommend: row.isRecommend,
+      tagIds: row.tagIds
     })
     ElMessage.success('状态切换成功')
     await getList()

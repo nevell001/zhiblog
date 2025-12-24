@@ -43,14 +43,6 @@ export function delArticle(ids) {
   })
 }
 
-// 导出文章
-export function exportArticle(query) {
-  return request({
-    url: '/system/article/export',
-    method: 'post',
-    params: query
-  })
-}
 
 // 更新文章浏览量
 export function updateArticleViewCount(id) {

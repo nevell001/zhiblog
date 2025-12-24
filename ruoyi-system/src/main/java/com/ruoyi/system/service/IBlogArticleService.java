@@ -29,6 +29,14 @@ public interface IBlogArticleService
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle);
 
     /**
+     * 查询博客文章列表（带缓存）
+     * 
+     * @param blogArticle 博客文章
+     * @return 博客文章集合
+     */
+    public List<BlogArticle> selectBlogArticleListWithCache(BlogArticle blogArticle);
+
+    /**
      * 新增博客文章
      * 
      * @param blogArticle 博客文章

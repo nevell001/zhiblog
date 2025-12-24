@@ -9,7 +9,7 @@ import useSettingsStore from '@/store/modules/settings'
 
 NProgress.configure({ showSpinner: false })
 
-const whiteList = ['/login', '/register', '/index', '/blog', '/blog/*', '/about', '/', '/blog/article/*', '/blog/category/*', '/blog/tag/*', '/blog/archive', '/blog/simple', '/blog/article', '/blog/category', '/blog/tag', '/admin', '/admin/*']
+const whiteList = ['/login', '/register', '/index', '/blog', '/blog/*', '/about', '/', '/blog/article/*', '/blog/category/*', '/blog/tag/*', '/blog/archive', '/blog/simple', '/blog/article', '/blog/category', '/blog/tag']
 
 const isWhiteList = (path) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
@@ -29,52 +29,54 @@ router.beforeEach(async (to, from, next) => {
 
   try {
     if (getToken()) {
-      to.meta.title && useSettingsStore().setTitle(to.meta.title)
-      /* has token*/
-      if (to.path === '/login') {
-        // 如果有redirect参数，则重定向到指定路径
-        const redirect = to.query.redirect
-        if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
-          // 使用 window.location.href 而不是 router.push 避免路由循环
-          window.location.href = redirect
-        } else {
-          // 使用 window.location.href 而不是 router.push 避免路由循环
-          window.location.href = '/blog'
-        }
-      } else {
-        const userStore = useUserStore()
-        const permissionStore = usePermissionStore()
-
-        if (userStore.roles.length === 0) {
-          // 判断当前用户是否已拉取完user_info信息
-          try {
-            await userStore.getInfo()
-            // 生成可访问的路由表
-            const accessRoutes = await permissionStore.generateRoutes()
-            // 根据roles权限生成可访问的路由表
-            if (accessRoutes && Array.isArray(accessRoutes)) {
-              accessRoutes.forEach(route => {
-                if (route && route.name && !router.hasRoute(route.name)) {
-                  router.addRoute(route) // 动态添加可访问路由表
-                }
-              })
-            }
-            // 确保addRoutes已完成
-            next({ ...to, replace: true })
-          } catch (err) {
-            console.error('获取用户信息或生成路由失败:', err)
-            // 直接清除用户信息并重定向
-            userStore.token = ''
-            userStore.roles = []
-            userStore.permissions = []
-            removeToken()
-            window.location.href = '/login'
+        to.meta.title && useSettingsStore().setTitle(to.meta.title)
+        /* has token*/
+        if (to.path === '/login') {
+          // 如果有redirect参数，则重定向到指定路径
+          const redirect = to.query.redirect
+          if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
+            // 使用 window.location.replace 而不是 window.location.href 避免重复历史记录
+            window.location.replace(redirect)
+          } else {
+            // 使用 window.location.replace 而不是 window.location.href 避免重复历史记录
+            window.location.replace('/blog')
           }
         } else {
-          next()
+          const userStore = useUserStore()
+          const permissionStore = usePermissionStore()
+
+          if (userStore.roles.length === 0) {
+            // 判断当前用户是否已拉取完user_info信息
+            try {
+              await userStore.getInfo()
+              // 生成可访问的路由表
+              const accessRoutes = await permissionStore.generateRoutes()
+              // 根据roles权限生成可访问的路由表
+              if (accessRoutes && Array.isArray(accessRoutes)) {
+                accessRoutes.forEach(route => {
+                  if (route && route.name && !router.hasRoute(route.name)) {
+                    router.addRoute(route) // 动态添加可访问路由表
+                  }
+                })
+              }
+              // 确保addRoutes已完成
+              next({ ...to, replace: true })
+              NProgress.done()
+            } catch (err) {
+              console.error('获取用户信息或生成路由失败:', err)
+              // 直接清除用户信息并重定向
+              userStore.token = ''
+              userStore.roles = []
+              userStore.permissions = []
+              removeToken()
+              // 使用 window.location.replace 避免重复历史记录和路由循环
+              window.location.replace('/login')
+            }
+          } else {
+            next()
+          }
         }
-      }
-    } else {
+      } else {
       // 没有token
       if (isWhiteList(to.path)) {
         // 在免登录白名单，直接进入

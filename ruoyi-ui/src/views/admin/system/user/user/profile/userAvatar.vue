@@ -63,8 +63,10 @@ import "vue-cropper/dist/index.css"
 import { VueCropper } from "vue-cropper"
 import { uploadAvatar } from "@/api/system/user"
 import useUserStore from "@/store/modules/user"
+import { useBlogSettingsStore } from "@/stores/blogSettings"
 
 const userStore = useUserStore()
+const blogSettingsStore = useBlogSettingsStore()
 const { proxy } = getCurrentInstance()
 
 const open = ref(false)
@@ -135,6 +137,8 @@ function uploadImg() {
       open.value = false
       options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl
       userStore.avatar = options.img
+      // 同时更新博客设置中的头像，确保前台首页显示最新头像
+      blogSettingsStore.updateBlogAvatar(response.imgUrl)
       proxy.$modal.msgSuccess("修改成功")
       visible.value = false
     })

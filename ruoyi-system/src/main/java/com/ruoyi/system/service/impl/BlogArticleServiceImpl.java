@@ -4,8 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.common.cache.annotation.BlogCacheable;
+import com.ruoyi.common.cache.annotation.BlogCacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.system.mapper.BlogArticleMapper;
@@ -41,6 +44,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 博客文章
      */
     @Override
+    @BlogCacheable(key = "blog:article:#id", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public BlogArticle selectBlogArticleById(Long id)
     {
         BlogArticle article = blogArticleMapper.selectBlogArticleById(id);
@@ -63,11 +67,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 查询博客文章列表
-     * 
+     *
      * @param blogArticle 博客文章
      * @return 博客文章
      */
     @Override
+    // 移除缓存以确保前台始终显示最新数据
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle)
     {
         List<BlogArticle> articleList = blogArticleMapper.selectBlogArticleList(blogArticle);
@@ -163,6 +168,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      */
     @Override
     @Transactional
+    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int updateBlogArticle(BlogArticle blogArticle)
     {
         if (blogArticle.getId() == null) {
@@ -214,6 +220,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      */
     @Override
     @Transactional
+    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int deleteBlogArticleByIds(Long[] ids)
     {
         // 先删除标签关联
@@ -280,6 +287,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     @Override
+    @BlogCacheable(key = "blog:search:#keyword + '_' + (#blogArticle != null ? #blogArticle.hashCode() : 'null')", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
         List<BlogArticle> articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
         if (articleList != null && !articleList.isEmpty()) {
@@ -423,5 +431,18 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public Double selectAverageViewCount()
     {
         return blogArticleMapper.selectAverageViewCount();
+    }
+
+    /**
+     * 查询博客文章列表（带缓存，用于热门文章）
+     * 
+     * @param blogArticle 博客文章
+     * @return 博客文章集合
+     */
+    @Override
+    @BlogCacheable(key = "blog:hot:#blogArticle.hashCode()", ttl = 60, timeUnit = TimeUnit.MINUTES)
+    public List<BlogArticle> selectBlogArticleListWithCache(BlogArticle blogArticle)
+    {
+        return selectBlogArticleList(blogArticle);
     }
 }

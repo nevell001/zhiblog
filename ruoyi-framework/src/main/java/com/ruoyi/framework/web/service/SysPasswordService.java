@@ -7,7 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 import com.ruoyi.common.constant.CacheConstants;
 import com.ruoyi.common.core.domain.entity.SysUser;
-import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.common.cache.UnifiedCacheManager;
 import com.ruoyi.common.exception.user.UserPasswordNotMatchException;
 import com.ruoyi.common.exception.user.UserPasswordRetryLimitExceedException;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -22,7 +22,7 @@ import com.ruoyi.framework.security.context.AuthenticationContextHolder;
 public class SysPasswordService
 {
     @Autowired
-    private RedisCache redisCache;
+    private UnifiedCacheManager unifiedCacheManager;
 
     @Value(value = "${user.password.maxRetryCount}")
     private int maxRetryCount;
@@ -47,7 +47,7 @@ public class SysPasswordService
         String username = usernamePasswordAuthenticationToken.getName();
         String password = usernamePasswordAuthenticationToken.getCredentials().toString();
 
-        Integer retryCount = redisCache.getCacheObject(getCacheKey(username));
+        Integer retryCount = unifiedCacheManager.get(getCacheKey(username), Integer.class);
 
         if (retryCount == null)
         {
@@ -62,7 +62,7 @@ public class SysPasswordService
         if (!matches(user, password))
         {
             retryCount = retryCount + 1;
-            redisCache.setCacheObject(getCacheKey(username), retryCount, lockTime, TimeUnit.MINUTES);
+            unifiedCacheManager.set(getCacheKey(username), retryCount, lockTime, TimeUnit.MINUTES);
             throw new UserPasswordNotMatchException();
         }
         else
@@ -78,9 +78,9 @@ public class SysPasswordService
 
     public void clearLoginRecordCache(String loginName)
     {
-        if (redisCache.hasKey(getCacheKey(loginName)))
+        if (unifiedCacheManager.exists(getCacheKey(loginName)))
         {
-            redisCache.deleteObject(getCacheKey(loginName));
+            unifiedCacheManager.delete(getCacheKey(loginName));
         }
     }
 }

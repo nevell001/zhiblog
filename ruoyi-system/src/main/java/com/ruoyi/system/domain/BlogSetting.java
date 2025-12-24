@@ -26,6 +26,31 @@ public class BlogSetting extends BaseEntity
     @Excel(name = "设置值")
     private String settingValue;
 
+    // 兼容前端字段名
+    public String getConfigKey() {
+        return settingKey;
+    }
+
+    public void setConfigKey(String configKey) {
+        this.settingKey = configKey;
+    }
+
+    public String getConfigValue() {
+        return settingValue;
+    }
+
+    public void setConfigValue(String configValue) {
+        this.settingValue = configValue;
+    }
+
+    public String getConfigName() {
+        return description;
+    }
+
+    public void setConfigName(String configName) {
+        this.description = configName;
+    }
+
     /** 设置描述 */
     @Excel(name = "设置描述")
     private String description;

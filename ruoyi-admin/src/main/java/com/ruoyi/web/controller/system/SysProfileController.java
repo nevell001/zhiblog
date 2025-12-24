@@ -16,6 +16,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.system.domain.SysConfig;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -25,6 +26,10 @@ import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
 import com.ruoyi.framework.web.service.TokenService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISysConfigService;
+import com.ruoyi.system.service.IBlogSettingService;
+import com.ruoyi.common.cache.UnifiedCacheManager;
+import com.ruoyi.common.constant.CacheConstants;
 
 /**
  * 个人信息 业务处理
@@ -40,6 +45,15 @@ public class SysProfileController extends BaseController
 
     @Autowired
     private TokenService tokenService;
+
+    @Autowired
+    private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private UnifiedCacheManager unifiedCacheManager;
+
+    @Autowired
+    private ISysConfigService configService;
 
     /**
      * 个人信息
@@ -127,9 +141,39 @@ public class SysProfileController extends BaseController
         if (!file.isEmpty())
         {
             LoginUser loginUser = getLoginUser();
-            String avatar = FileUploadUtils.upload(RuoYiConfig.getAvatarPath(), file, MimeTypeUtils.IMAGE_EXTENSION, true);
+            String avatar = FileUploadUtils.uploadAvatar(RuoYiConfig.getAvatarPath(), file, true);
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
+                // 同时更新博客设置中的头像，确保前台首页显示最新头像
+                blogSettingService.updateSettingValueByKey("blog_avatar", avatar);
+
+                // 同时更新 sys_config 表中的 blog_avatar（前台API从这里读取）
+                try {
+                    // 先尝试获取现有配置
+                    SysConfig config = new SysConfig();
+                    config.setConfigKey("blog_avatar");
+                    SysConfig existingConfig = configService.selectConfigList(config).stream()
+                        .filter(c -> "blog_avatar".equals(c.getConfigKey()))
+                        .findFirst()
+                        .orElse(null);
+
+                    if (existingConfig != null) {
+                        // 更新现有配置
+                        existingConfig.setConfigValue(avatar);
+                        configService.updateConfig(existingConfig);
+                        logger.info("已更新 sys_config 表中的 blog_avatar: {}", avatar);
+                    } else {
+                        // 创建新配置
+                        config.setConfigName("博客头像");
+                        config.setConfigValue(avatar);
+                        config.setConfigType("Y");
+                        configService.insertConfig(config);
+                        logger.info("已在 sys_config 表中创建 blog_avatar: {}", avatar);
+                    }
+                } catch (Exception e) {
+                    logger.error("更新 sys_config 表中的 blog_avatar 失败", e);
+                }
+                
                 String oldAvatar = loginUser.getUser().getAvatar();
                 if (StringUtils.isNotEmpty(oldAvatar))
                 {

@@ -5,7 +5,7 @@ import java.util.List;
 import com.alibaba.fastjson2.JSONArray;
 import com.ruoyi.common.constant.CacheConstants;
 import com.ruoyi.common.core.domain.entity.SysDictData;
-import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.common.cache.UnifiedCacheManager;
 import com.ruoyi.common.utils.spring.SpringUtils;
 
 /**
@@ -28,7 +28,7 @@ public class DictUtils
      */
     public static void setDictCache(String key, List<SysDictData> dictDatas)
     {
-        SpringUtils.getBean(RedisCache.class).setCacheObject(getCacheKey(key), dictDatas);
+        SpringUtils.getBean(UnifiedCacheManager.class).set(getCacheKey(key), dictDatas);
     }
 
     /**
@@ -39,10 +39,10 @@ public class DictUtils
      */
     public static List<SysDictData> getDictCache(String key)
     {
-        JSONArray arrayCache = SpringUtils.getBean(RedisCache.class).getCacheObject(getCacheKey(key));
-        if (StringUtils.isNotNull(arrayCache))
+        List<SysDictData> cacheData = SpringUtils.getBean(UnifiedCacheManager.class).get(getCacheKey(key), List.class);
+        if (StringUtils.isNotNull(cacheData))
         {
-            return arrayCache.toList(SysDictData.class);
+            return cacheData;
         }
         return null;
     }
@@ -214,7 +214,7 @@ public class DictUtils
      */
     public static void removeDictCache(String key)
     {
-        SpringUtils.getBean(RedisCache.class).deleteObject(getCacheKey(key));
+        SpringUtils.getBean(UnifiedCacheManager.class).delete(getCacheKey(key));
     }
 
     /**
@@ -222,8 +222,10 @@ public class DictUtils
      */
     public static void clearDictCache()
     {
-        Collection<String> keys = SpringUtils.getBean(RedisCache.class).keys(CacheConstants.SYS_DICT_KEY + "*");
-        SpringUtils.getBean(RedisCache.class).deleteObject(keys);
+        Collection<String> keys = SpringUtils.getBean(UnifiedCacheManager.class).keys(CacheConstants.SYS_DICT_KEY + "*");
+        if (keys != null && !keys.isEmpty()) {
+            SpringUtils.getBean(UnifiedCacheManager.class).delete(keys);
+        }
     }
 
     /**

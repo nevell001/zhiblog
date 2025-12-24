@@ -2,7 +2,10 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.common.cache.annotation.BlogCacheable;
+import com.ruoyi.common.cache.annotation.BlogCacheEvict;
 import org.springframework.stereotype.Service;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogTag;
@@ -28,6 +31,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 博客标签
      */
     @Override
+    @BlogCacheable(key = "blog:tag:list:#blogTag.hashCode()", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<BlogTag> selectBlogTagList(BlogTag blogTag)
     {
         return blogTagMapper.selectBlogTagList(blogTag);
@@ -39,6 +43,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 标签列表
      */
     @Override
+    @BlogCacheable(key = "blog:tag:all", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public List<BlogTag> selectAllTagList()
     {
         return blogTagMapper.selectAllTagList();
@@ -51,6 +56,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 实例对象
      */
     @Override
+    @BlogCacheable(key = "blog:tag:#tagId", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public BlogTag selectBlogTagById(Long tagId)
     {
         return blogTagMapper.selectBlogTagById(tagId);
@@ -63,6 +69,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int insertBlogTag(BlogTag blogTag)
     {
         blogTag.setCreateBy(SecurityUtils.getUsername());
@@ -76,6 +83,7 @@ public class BlogTagServiceImpl implements IBlogTagService
      * @return 结果
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int updateBlogTag(BlogTag blogTag)
     {
         blogTag.setUpdateBy(SecurityUtils.getUsername());
@@ -84,11 +92,12 @@ public class BlogTagServiceImpl implements IBlogTagService
 
     /**
      * 通过主键删除数据
-     * 
+     *
      * @param tagId 标签ID
      * @return 影响行数
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int deleteBlogTagById(Long tagId)
     {
         return blogTagMapper.deleteBlogTagById(tagId);
@@ -96,17 +105,19 @@ public class BlogTagServiceImpl implements IBlogTagService
 
     /**
      * 批量删除博客标签
-     * 
+     *
      * @param tagIds 需要删除的数据ID
      * @return 影响行数
      */
     @Override
+    @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
     public int deleteBlogTagByIds(Long[] tagIds)
     {
         return blogTagMapper.deleteBlogTagByIds(tagIds);
     }
 
     @Override
+    @BlogCacheable(key = "blog:tag:cloud", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public List<Map<String, Object>> getTagCloud() {
         return blogTagMapper.getTagCloud();
     }

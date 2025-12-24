@@ -2,13 +2,13 @@
 -- 🌟 博客系统完整数据库初始化脚本
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
--- 🔧 最后更新：2025-12-03
+-- 🔧 最后更新：2025-12-22
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
 -- 🚀 版本：v2.0.0 (完整版)
 -- 
 -- 📋 包含内容：
--- ✅ 若依系统基础表结构和数据 (15个表)
--- ✅ Quartz定时任务表结构 (11个表)  
+-- ✅ 若依系统基础表结构和数据 (19个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice)
+-- ✅ Quartz定时任务表结构 (11个表)
 -- ✅ 博客系统表结构和数据 (7个表)
 -- ✅ 性能优化索引 (20+个索引)
 -- ✅ 数据完整性约束和触发器
@@ -23,7 +23,7 @@
 -- - Redis
 -- 
 -- 📊 数据库统计：
--- - 总表数：33个
+-- - 总表数：37个（包含完整的若依系统表、Quartz表和博客系统表）
 -- - 总设置项：35个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
@@ -138,7 +138,35 @@ INSERT INTO sys_post VALUES(2, 'se',   '项目经理',  2, '0', 'admin', NOW(), 
 INSERT INTO sys_post VALUES(3, 'hr',   '人力资源',  3, '0', 'admin', NOW(), '', NULL, '');
 INSERT INTO sys_post VALUES(4, 'user', '普通员工',  4, '0', 'admin', NOW(), '', NULL, '');
 
--- 4、角色信息表
+-- 4、参数配置表（已修复config_value字段长度）
+DROP TABLE IF EXISTS sys_config;
+CREATE TABLE sys_config (
+  config_id         BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '参数主键',
+  config_name       VARCHAR(100)    DEFAULT ''                 COMMENT '参数名称',
+  config_key        VARCHAR(100)    DEFAULT ''                 COMMENT '参数键名',
+  config_value      VARCHAR(1000)   DEFAULT ''                 COMMENT '参数键值（已扩展到1000字符）',
+  config_type       CHAR(1)         DEFAULT 'N'                COMMENT '系统内置（Y是 N否）',
+  create_by         VARCHAR(64)     DEFAULT ''                 COMMENT '创建者',
+  create_time       DATETIME                                   COMMENT '创建时间',
+  update_by         VARCHAR(64)     DEFAULT ''                 COMMENT '更新者',
+  update_time       DATETIME                                   COMMENT '更新时间',
+  remark            VARCHAR(500)    DEFAULT NULL               COMMENT '备注',
+  PRIMARY KEY (config_id),
+  INDEX idx_config_key (config_key)
+) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '参数配置表';
+
+-- 初始化-参数配置表数据
+INSERT INTO sys_config VALUES(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',               'skin-blue',     'Y', 'admin', NOW(), '', NULL, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
+INSERT INTO sys_config VALUES(2, '用户管理-账号初始密码',         'sys.user.initPassword',            '123456',        'Y', 'admin', NOW(), '', NULL, '初始化密码 123456' );
+INSERT INTO sys_config VALUES(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',              'theme-dark',    'Y', 'admin', NOW(), '', NULL, '深色主题theme-dark，浅色主题theme-light' );
+INSERT INTO sys_config VALUES(4, '账号自助-验证码开关',           'sys.account.captchaEnabled',       'true',          'Y', 'admin', NOW(), '', NULL, '是否开启验证码功能（true开启，false关闭）');
+INSERT INTO sys_config VALUES(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',         'false',         'Y', 'admin', NOW(), '', NULL, '是否开启注册用户功能（true开启，false关闭）');
+INSERT INTO sys_config VALUES(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', NOW(), '', NULL, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');
+INSERT INTO sys_config VALUES(7, '用户管理-初始密码修改策略',     'sys.account.initPasswordModify',   '1',             'Y', 'admin', NOW(), '', NULL, '0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框');
+INSERT INTO sys_config VALUES(8, '用户管理-账号密码更新周期',     'sys.account.passwordValidateDays', '0',             'Y', 'admin', NOW(), '', NULL, '密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框');
+INSERT INTO sys_config VALUES(9, '博客头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '博主头像URL，用于前台博客页面显示。与blog_setting表中的blog_avatar保持同步');
+
+-- 5、角色信息表
 DROP TABLE IF EXISTS sys_role;
 CREATE TABLE sys_role (
   role_id              BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '角色ID',
@@ -162,7 +190,7 @@ CREATE TABLE sys_role (
 INSERT INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
 INSERT INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
 
--- 5、菜单权限表
+-- 6、菜单权限表
 DROP TABLE IF EXISTS sys_menu;
 CREATE TABLE sys_menu (
   menu_id           BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '菜单ID',
@@ -194,13 +222,109 @@ INSERT INTO sys_menu VALUES('2', '系统监控', '0', '2', 'monitor',          N
 INSERT INTO sys_menu VALUES('3', '系统工具', '0', '3', 'tool',             NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
 INSERT INTO sys_menu VALUES('4', '日志管理', '2', '9', 'log',      '', '', '', 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '', NULL, '日志管理菜单');
 
--- 6、角色和菜单关联表
+-- 7、用户和角色关联表（用户N-1角色）
+DROP TABLE IF EXISTS sys_user_role;
+CREATE TABLE sys_user_role (
+  user_id   BIGINT(20) NOT NULL COMMENT '用户ID',
+  role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
+  PRIMARY KEY (user_id, role_id)
+) ENGINE=INNODB COMMENT = '用户和角色关联表';
+
+-- 8、角色和菜单关联表（角色1-N菜单）
 DROP TABLE IF EXISTS sys_role_menu;
 CREATE TABLE sys_role_menu (
   role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
   menu_id   BIGINT(20) NOT NULL COMMENT '菜单ID',
   PRIMARY KEY (role_id, menu_id)
 ) ENGINE=INNODB COMMENT = '角色和菜单关联表';
+
+-- 9、角色和部门关联表（角色1-N部门）
+DROP TABLE IF EXISTS sys_role_dept;
+CREATE TABLE sys_role_dept (
+  role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
+  dept_id   BIGINT(20) NOT NULL COMMENT '部门ID',
+  PRIMARY KEY (role_id, dept_id)
+) ENGINE=INNODB COMMENT = '角色和部门关联表';
+
+-- 10、用户与岗位关联表（用户1-N岗位）
+DROP TABLE IF EXISTS sys_user_post;
+CREATE TABLE sys_user_post (
+  user_id   BIGINT(20) NOT NULL COMMENT '用户ID',
+  post_id   BIGINT(20) NOT NULL COMMENT '岗位ID',
+  PRIMARY KEY (user_id, post_id)
+) ENGINE=INNODB COMMENT = '用户与岗位关联表';
+
+-- 11、字典类型表
+DROP TABLE IF EXISTS sys_dict_type;
+CREATE TABLE sys_dict_type (
+  dict_id          BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '字典主键',
+  dict_name        VARCHAR(100)   DEFAULT ''                 COMMENT '字典名称',
+  dict_type        VARCHAR(100)   DEFAULT ''                 COMMENT '字典类型',
+  status           CHAR(1)        DEFAULT '0'                COMMENT '状态（0正常 1停用）',
+  create_by        VARCHAR(64)    DEFAULT ''                 COMMENT '创建者',
+  create_time      DATETIME                                  COMMENT '创建时间',
+  update_by        VARCHAR(64)    DEFAULT ''                 COMMENT '更新者',
+  update_time      DATETIME                                  COMMENT '更新时间',
+  remark           VARCHAR(500)   DEFAULT NULL               COMMENT '备注',
+  PRIMARY KEY (dict_id),
+  UNIQUE KEY uk_dict_type (dict_type)
+) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '字典类型表';
+
+-- 12、字典数据表
+DROP TABLE IF EXISTS sys_dict_data;
+CREATE TABLE sys_dict_data (
+  dict_code        BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '字典编码',
+  dict_sort        INT(4)         DEFAULT 0                  COMMENT '字典排序',
+  dict_label       VARCHAR(100)   DEFAULT ''                 COMMENT '字典标签',
+  dict_value       VARCHAR(100)   DEFAULT ''                 COMMENT '字典键值',
+  dict_type        VARCHAR(100)   DEFAULT ''                 COMMENT '字典类型',
+  css_class        VARCHAR(100)   DEFAULT NULL               COMMENT '样式属性（其他样式扩展）',
+  list_class       VARCHAR(100)   DEFAULT NULL               COMMENT '表格回显样式',
+  is_default       CHAR(1)        DEFAULT 'N'                COMMENT '是否默认（Y是 N否）',
+  status           CHAR(1)        DEFAULT '0'                COMMENT '状态（0正常 1停用）',
+  create_by        VARCHAR(64)    DEFAULT ''                 COMMENT '创建者',
+  create_time      DATETIME                                  COMMENT '创建时间',
+  update_by        VARCHAR(64)    DEFAULT ''                 COMMENT '更新者',
+  update_time      DATETIME                                  COMMENT '更新时间',
+  remark           VARCHAR(500)   DEFAULT NULL               COMMENT '备注',
+  PRIMARY KEY (dict_code)
+) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '字典数据表';
+
+-- 初始化字典数据
+INSERT INTO sys_dict_type VALUES(1,  '用户性别', 'sys_user_sex',        '0', 'admin', NOW(), '', NULL, '用户性别列表');
+INSERT INTO sys_dict_type VALUES(2,  '菜单状态', 'sys_show_hide',       '0', 'admin', NOW(), '', NULL, '菜单状态列表');
+INSERT INTO sys_dict_type VALUES(3,  '系统开关', 'sys_normal_disable',  '0', 'admin', NOW(), '', NULL, '系统开关列表');
+INSERT INTO sys_dict_type VALUES(4,  '评论状态', 'comment_status',     '0', 'admin', NOW(), '', NULL, '评论状态列表');
+
+INSERT INTO sys_dict_data VALUES(1,  1,  '男',       '0',       'sys_user_sex',        '',   '',        'Y', '0', 'admin', NOW(), '', NULL, '性别男');
+INSERT INTO sys_dict_data VALUES(2,  2,  '女',       '1',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别女');
+INSERT INTO sys_dict_data VALUES(3,  3,  '未知',     '2',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别未知');
+
+INSERT INTO sys_dict_data VALUES(4,  1,  '显示',     '0',       'sys_show_hide',       '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '显示菜单');
+INSERT INTO sys_dict_data VALUES(5,  2,  '隐藏',     '1',       'sys_show_hide',       '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '隐藏菜单');
+
+INSERT INTO sys_dict_data VALUES(6,  1,  '正常',     '0',       'sys_normal_disable',  '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
+INSERT INTO sys_dict_data VALUES(7,  2,  '停用',     '1',       'sys_normal_disable',  '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '停用状态');
+
+INSERT INTO sys_dict_data VALUES(8,  1,  '待审核',   '0',       'comment_status',      '',   'warning',  'N', '0', 'admin', NOW(), '', NULL, '待审核状态');
+INSERT INTO sys_dict_data VALUES(9,  2,  '已审核',   '1',       'comment_status',      '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '已审核状态');
+INSERT INTO sys_dict_data VALUES(10, 3,  '已删除',   '2',       'comment_status',      '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '已删除状态');
+
+-- 13、通知公告表
+DROP TABLE IF EXISTS sys_notice;
+CREATE TABLE sys_notice (
+  notice_id         BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '公告ID',
+  notice_title      VARCHAR(50)    NOT NULL                   COMMENT '公告标题',
+  notice_type       CHAR(1)        DEFAULT ''                 COMMENT '公告类型（1通知 2公告）',
+  notice_content    LONGTEXT       DEFAULT NULL               COMMENT '公告内容',
+  status            CHAR(1)        DEFAULT '0'                COMMENT '公告状态（0正常 1关闭）',
+  create_by         VARCHAR(64)    DEFAULT ''                 COMMENT '创建者',
+  create_time       DATETIME                                   COMMENT '创建时间',
+  update_by         VARCHAR(64)    DEFAULT ''                 COMMENT '更新者',
+  update_time       DATETIME                                   COMMENT '更新时间',
+  remark            VARCHAR(255)   DEFAULT NULL               COMMENT '备注',
+  PRIMARY KEY (notice_id)
+) ENGINE=INNODB AUTO_INCREMENT=10 COMMENT = '通知公告表';
 
 -- ========== 导入Quartz定时任务表结构 ==========
 

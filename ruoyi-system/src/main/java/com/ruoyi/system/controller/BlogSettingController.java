@@ -3,6 +3,10 @@ package com.ruoyi.system.controller;
 import java.util.List;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.system.domain.SysConfig;
+import com.ruoyi.system.service.ISysConfigService;
+import com.ruoyi.common.cache.UnifiedCacheManager;
+import com.ruoyi.common.constant.CacheConstants;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,6 +35,12 @@ public class BlogSettingController extends BaseController
 {
     @Autowired
     private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private ISysConfigService configService;
+
+    @Autowired
+    private UnifiedCacheManager unifiedCacheManager;
 
     /**
      * 查询博客设置列表
@@ -94,8 +104,46 @@ public class BlogSettingController extends BaseController
     @PutMapping("/updateByKey")
     public AjaxResult updateByKey(@RequestBody BlogSetting blogSetting)
     {
-        return toAjax(blogSettingService.updateSettingValueByKey(
-            blogSetting.getSettingKey(), blogSetting.getSettingValue()));
+        int result = blogSettingService.updateSettingValueByKey(
+            blogSetting.getSettingKey(), blogSetting.getSettingValue());
+
+        // 同时更新 sys_config 表，保持数据同步
+        if (result > 0) {
+            try {
+                String settingKey = blogSetting.getSettingKey();
+                String settingValue = blogSetting.getSettingValue();
+
+                // 先尝试获取现有配置
+                SysConfig config = new SysConfig();
+                config.setConfigKey(settingKey);
+                SysConfig existingConfig = configService.selectConfigList(config).stream()
+                    .filter(c -> settingKey.equals(c.getConfigKey()))
+                    .findFirst()
+                    .orElse(null);
+
+                if (existingConfig != null) {
+                    // 更新现有配置
+                    existingConfig.setConfigValue(settingValue);
+                    configService.updateConfig(existingConfig);
+                    logger.info("已同步更新 sys_config 表中的 {}: {}", settingKey, settingValue);
+                } else {
+                    // 创建新配置
+                    config.setConfigName("博客设置 - " + settingKey);
+                    config.setConfigValue(settingValue);
+                    config.setConfigType("Y");
+                    configService.insertConfig(config);
+                    logger.info("已在 sys_config 表中创建 {}: {}", settingKey, settingValue);
+                }
+
+                // 清除缓存
+                unifiedCacheManager.delete("sys_config:" + settingKey);
+                logger.info("已清除缓存: sys_config:{}", settingKey);
+            } catch (Exception e) {
+                logger.error("同步更新 sys_config 表失败", e);
+            }
+        }
+
+        return toAjax(result);
     }
 
     /**
@@ -106,8 +154,46 @@ public class BlogSettingController extends BaseController
     @PostMapping("/updateByKey")
     public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
     {
-        return toAjax(blogSettingService.updateSettingValueByKey(
-            blogSetting.getSettingKey(), blogSetting.getSettingValue()));
+        int result = blogSettingService.updateSettingValueByKey(
+            blogSetting.getSettingKey(), blogSetting.getSettingValue());
+
+        // 同时更新 sys_config 表，保持数据同步
+        if (result > 0) {
+            try {
+                String settingKey = blogSetting.getSettingKey();
+                String settingValue = blogSetting.getSettingValue();
+
+                // 先尝试获取现有配置
+                SysConfig config = new SysConfig();
+                config.setConfigKey(settingKey);
+                SysConfig existingConfig = configService.selectConfigList(config).stream()
+                    .filter(c -> settingKey.equals(c.getConfigKey()))
+                    .findFirst()
+                    .orElse(null);
+
+                if (existingConfig != null) {
+                    // 更新现有配置
+                    existingConfig.setConfigValue(settingValue);
+                    configService.updateConfig(existingConfig);
+                    logger.info("已同步更新 sys_config 表中的 {}: {}", settingKey, settingValue);
+                } else {
+                    // 创建新配置
+                    config.setConfigName("博客设置 - " + settingKey);
+                    config.setConfigValue(settingValue);
+                    config.setConfigType("Y");
+                    configService.insertConfig(config);
+                    logger.info("已在 sys_config 表中创建 {}: {}", settingKey, settingValue);
+                }
+
+                // 清除缓存
+                unifiedCacheManager.delete("sys_config:" + settingKey);
+                logger.info("已清除缓存: sys_config:{}", settingKey);
+            } catch (Exception e) {
+                logger.error("同步更新 sys_config 表失败", e);
+            }
+        }
+
+        return toAjax(result);
     }
 
     /**

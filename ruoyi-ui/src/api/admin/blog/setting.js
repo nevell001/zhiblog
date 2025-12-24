@@ -20,7 +20,7 @@ export function getSetting(id) {
 // 根据配置键查询配置值
 export function getConfigByKey(configKey) {
   return request({
-    url: '/system/setting/configKey/' + configKey,
+    url: '/system/setting/value/' + configKey,
     method: 'get'
   })
 }

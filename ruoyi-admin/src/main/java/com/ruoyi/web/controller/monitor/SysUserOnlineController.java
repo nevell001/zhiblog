@@ -17,7 +17,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.common.cache.UnifiedCacheManager;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.SysUserOnline;
@@ -36,17 +36,17 @@ public class SysUserOnlineController extends BaseController
     private ISysUserOnlineService userOnlineService;
 
     @Autowired
-    private RedisCache redisCache;
+    private UnifiedCacheManager unifiedCacheManager;
 
     @PreAuthorize("@ss.hasPermi('monitor:online:list')")
     @GetMapping("/list")
     public TableDataInfo list(String ipaddr, String userName)
     {
-        Collection<String> keys = redisCache.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
+        Collection<String> keys = unifiedCacheManager.keys(CacheConstants.LOGIN_TOKEN_KEY + "*");
         List<SysUserOnline> userOnlineList = new ArrayList<SysUserOnline>();
         for (String key : keys)
         {
-            LoginUser user = redisCache.getCacheObject(key);
+            LoginUser user = unifiedCacheManager.get(key, LoginUser.class);
             if (StringUtils.isNotEmpty(ipaddr) && StringUtils.isNotEmpty(userName))
             {
                 userOnlineList.add(userOnlineService.selectOnlineByInfo(ipaddr, userName, user));
@@ -77,7 +77,7 @@ public class SysUserOnlineController extends BaseController
     @DeleteMapping("/{tokenId}")
     public AjaxResult forceLogout(@PathVariable String tokenId)
     {
-        redisCache.deleteObject(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
+        unifiedCacheManager.delete(CacheConstants.LOGIN_TOKEN_KEY + tokenId);
         return success();
     }
 }

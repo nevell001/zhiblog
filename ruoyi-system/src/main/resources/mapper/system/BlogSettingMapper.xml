@@ -13,6 +13,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
+    <!-- 兼容前端传参格式的ResultMap -->
+    <resultMap type="BlogSetting" id="BlogSettingResultWithConfigFields">
+        <result property="id"    column="id"    />
+        <result property="settingKey"    column="config_key"    />
+        <result property="settingValue"    column="config_value"    />
+        <result property="description"    column="description"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
     <sql id="selectBlogSettingVo">
         select id, config_key, config_value, description, create_time, update_time from blog_setting
     </sql>

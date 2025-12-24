@@ -97,7 +97,7 @@ export function getHotArticles(query) {
   return request({
     url: '/blog/article/hot',
     method: 'get',
-    params: query,
+    params: { ...query, pageSize: query.pageSize || 5 },
     headers: { isToken: false }
   })
 }

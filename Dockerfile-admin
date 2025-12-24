@@ -3,8 +3,8 @@ FROM maven:3.8.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY . .
 
-# 编译项目
-RUN mvn clean package -DskipTests
+# 编译项目，跳过测试编译
+RUN mvn clean package -Dmaven.test.skip=true
 
 FROM eclipse-temurin:17-jre
 
@@ -12,6 +12,9 @@ WORKDIR /app
 
 # 复制编译好的JAR包
 COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
+
+# 创建上传目录
+RUN mkdir -p /app/uploadPath && chmod 755 /app/uploadPath
 
 # 设置时区
 ENV TZ=Asia/Shanghai

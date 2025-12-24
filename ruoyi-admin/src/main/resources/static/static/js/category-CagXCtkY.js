@@ -1,1 +1,0 @@
-import{A as e}from"./index-yMJUDHgO.js";function o(t){return e({url:"/system/category/list",method:"get",params:t})}function a(t){return e({url:"/blog/category/list",method:"get",params:t})}function g(t){return e({url:"/blog/category/"+t,method:"get"})}export{g as a,a as g,o as l};

@@ -16,13 +16,18 @@
       <el-form-item prop="password">
         <el-input
           v-model="loginForm.password"
-          type="password"
+          :type="showPassword ? 'text' : 'password'"
           size="large"
           auto-complete="off"
           placeholder="密码"
           @keyup.enter="handleLogin"
         >
           <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>
+          <template #suffix>
+            <span class="password-eye" @click="showPassword = !showPassword" style="cursor: pointer; color: #909399;">
+              <svg-icon :icon-class="showPassword ? 'eye-open' : 'eye'" />
+            </span>
+          </template>
         </el-input>
       </el-form-item>
       <el-form-item prop="code" v-if="captchaEnabled">
@@ -33,11 +38,18 @@
           placeholder="验证码"
           style="width: 63%"
           @keyup.enter="handleLogin"
+          clearable
         >
           <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>
         </el-input>
         <div class="login-code">
-          <img :src="codeUrl" @click="getCode" class="login-code-img"/>
+          <img 
+            :src="codeUrl" 
+            @click="getCode" 
+            class="login-code-img"
+            :style="{ opacity: codeLoading ? 0.5 : 1, cursor: codeLoading ? 'not-allowed' : 'pointer' }"
+            :title="codeLoading ? '验证码加载中...' : '点击刷新验证码'"
+          />
         </div>
       </el-form-item>
       <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>
@@ -88,18 +100,31 @@ const loginForm = ref({
 })
 
 const loginRules = {
-  username: [{ required: true, trigger: "blur", message: "请输入您的账号" }],
-  password: [{ required: true, trigger: "blur", message: "请输入您的密码" }],
-  code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+  username: [
+    { required: true, trigger: "blur", message: "请输入您的账号", whitespace: true },
+    { min: 2, max: 20, trigger: "blur", message: "账号长度在 2 到 20 个字符" }
+  ],
+  password: [
+    { required: true, trigger: "blur", message: "请输入您的密码", whitespace: true },
+    { min: 5, max: 20, trigger: "blur", message: "密码长度在 5 到 20 个字符" }
+  ],
+  code: [
+    { required: true, trigger: "blur", message: "请输入验证码" },
+    { min: 4, max: 6, trigger: "blur", message: "验证码长度为 4-6 个字符" }
+  ]
 }
 
 const codeUrl = ref("")
 const loading = ref(false)
 // 验证码开关
 const captchaEnabled = ref(true)
+// 验证码加载状态
+const codeLoading = ref(false)
 // 注册开关
 const register = ref(false)
 const redirect = ref(undefined)
+// 显示密码开关
+const showPassword = ref(false)
 
 watch(route, (newRoute) => {
     redirect.value = newRoute.query && newRoute.query.redirect
@@ -130,11 +155,19 @@ function handleLogin() {
           return acc
         }, {})
         // 使用 window.location.href 而不是 router.push 避免路由循环
-        const targetPath = redirect.value && redirect.value !== '/login' && redirect.value !== '/' && redirect.value !== '/index' ? redirect.value : "/blog"
+        let targetPath
+        if (redirect.value && redirect.value !== '/login') {
+          targetPath = redirect.value
+        } else {
+          // 默认跳转到管理后台首页
+          targetPath = "/admin/dashboard"
+        }
         const queryString = Object.keys(otherQueryParams).length > 0 ? '?' + new URLSearchParams(otherQueryParams).toString() : ''
         window.location.href = targetPath + queryString
-      }).catch(() => {
+      }).catch((error) => {
         loading.value = false
+        // 显示详细的错误信息
+        ElMessage.error(error.message || '登录失败，请检查账号密码或验证码是否正确')
         // 重新获取验证码
         if (captchaEnabled.value) {
           getCode()
@@ -145,16 +178,21 @@ function handleLogin() {
 }
 
 function getCode() {
+  codeLoading.value = true
   getCodeImg().then(res => {
     captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
     if (captchaEnabled.value) {
       // 后端返回的是 jpg 格式，使用 image/jpeg
       codeUrl.value = "data:image/jpeg;base64," + res.img
       loginForm.value.uuid = res.uuid
+      // 清空验证码输入框
+      loginForm.value.code = ''
     }
   }).catch(error => {
     console.error('获取验证码失败:', error)
-    ElMessage.error('获取验证码失败，请刷新页面重试')
+    ElMessage.error('获取验证码失败，请点击图片重试')
+  }).finally(() => {
+    codeLoading.value = false
   })
 }
 

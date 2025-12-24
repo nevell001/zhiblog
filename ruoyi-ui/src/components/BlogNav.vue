@@ -1,20 +1,20 @@
 <template>
   <div class="blog-nav">
-    <router-link 
-      v-for="menu in frontendMenus" 
+    <router-link
+      v-for="menu in frontendMenus"
       :key="menu.path"
-      :to="menu.path" 
+      :to="menu.path"
       class="nav-item"
     >
-      <i :class="getMenuIcon(menu.icon)"></i>
+      <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle;" />
       <span>{{ menu.name }}</span>
     </router-link>
-    
+
     <div class="nav-item admin-link" @click="goToAdmin">
-      <i class="el-icon-setting"></i>
+      <el-icon :size="16"><Setting /></el-icon>
       <span>后台管理</span>
     </div>
-    
+
     <div class="nav-actions">
       <el-button
         link
@@ -22,7 +22,10 @@
         class="theme-toggle"
         title="切换主题"
       >
-        <i :class="isDarkTheme ? 'el-icon-sunny' : 'el-icon-moon'"></i>
+        <el-icon :size="18">
+          <Sunny v-if="isDarkTheme" />
+          <Moon v-else />
+        </el-icon>
       </el-button>
       <el-button
         link
@@ -30,7 +33,7 @@
         class="scroll-top"
         title="回到顶部"
       >
-        <i class="el-icon-top"></i>
+        <el-icon :size="18"><Top /></el-icon>
       </el-button>
     </div>
   </div>
@@ -40,6 +43,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getFilteredMenus } from '@/config/menu'
+import { Setting, Sunny, Moon, Top, House, FolderOpened, PriceTag, Calendar, InfoFilled, Document } from '@element-plus/icons-vue'
 
 // 路由实例
 const router = useRouter()
@@ -56,13 +60,13 @@ const frontendMenus = computed(() => {
 // 获取菜单图标
 const getMenuIcon = (icon) => {
   const iconMap = {
-    home: 'el-icon-house',
-    category: 'el-icon-folder-opened',
-    tag: 'el-icon-price-tag',
-    archive: 'el-icon-date',
-    info: 'el-icon-info'
+    home: House,
+    category: FolderOpened,
+    tag: PriceTag,
+    archive: Calendar,
+    info: InfoFilled
   }
-  return iconMap[icon] || 'el-icon-document'
+  return iconMap[icon] || Document
 }
 
 // 切换主题
