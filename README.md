@@ -107,6 +107,7 @@ mysql -u root -p newblog < sql/ry_20250522.sql
 ### 3. 后端启动
 ```bash
 # 编译项目
+cd ruoyi-admin
 mvn clean install
 
 # 启动后端服务
