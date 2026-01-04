@@ -10,6 +10,44 @@
 - 🔒 **权限完善**：基于 Spring Security 的细粒度权限控制
 - 📊 **功能丰富**：文章、评论、标签、分类、统计等完整功能
 - 🐳 **容器化部署**：Docker + Docker Compose 一键部署
+- 🛡️ **安全加固**：多层安全防护，XSS、CSRF、SQL注入防护
+
+## 📝 版本历史
+
+### v3.9.1 (2026-01-04)
+**升级内容**：
+- ✅ 升级到 RuoYi-Vue 3.9.1 官方版本
+- ✅ 升级 Spring Security 5.7.12 → 5.7.14
+- ✅ 升级 Druid 1.2.23 → 1.2.27
+- ✅ 升级 Element Plus 2.8.2 → 2.10.7
+- ✅ 新增 YAUAA 7.32.0 替代 BitWalker
+- ✅ 新增 UserAgentUtils 工具类（支持多种浏览器和操作系统检测）
+- ✅ 新增 RefererFilter 防盗链过滤器
+- ✅ 新增文件上传 UUID 命名功能
+- ✅ 新增 JsonSanitizer JSON XSS 防护
+- ✅ 修复用户管理 Bug（部门ID、状态更新等问题）
+- ✅ 为用户密码字段添加 @JsonIgnore 注解
+- ✅ 优化 Docker 配置（统一使用 curl 健康检查）
+
+**安全增强**：
+- 🔒 密码字段 JSON 序列化保护
+- 🔒 JSON XSS 防护（字段级清理）
+- 🔒 防盗链功能（白名单控制）
+- 🔒 UserAgent 解析增强（正则表达式备用方案）
+
+**依赖更新**：
+- Tomcat: 9.0.106 → 9.0.112
+- FastJSON: 2.0.57 → 2.0.60
+- OSHI: 6.8.2 → 6.9.1
+- Commons IO: 2.19.0 → 2.21.0
+- Apache POI: 4.1.2 → 5.4.0
+
+### v3.9.0 (2025-05-28)
+- ✅ 初始版本，基于 RuoYi-Vue 3.9.0
+- ✅ 完整的博客功能（文章、评论、标签、分类、友链）
+- ✅ 前后端分离架构
+- ✅ Docker 容器化部署
+- ✅ 图片压缩功能
 
 ## 主要功能模块
 
@@ -43,6 +81,10 @@
 - Markdown 编辑器
 - 统计分析（文章、用户、访问量等）
 - 第三方登录（如 GitHub、微信等，后续可扩展）
+- 图片压缩（智能压缩、头像、缩略图）
+- 防盗链保护（白名单控制）
+- JSON XSS 防护
+- UserAgent 解析（浏览器和操作系统检测）
 
 
 
@@ -106,6 +148,7 @@ mysql -u root -p newblog < sql/ry_20250522.sql
 ### 3. 后端启动
 ```bash
 # 编译项目
+cd ruoyi-admin
 mvn clean install
 
 # 启动后端服务
@@ -308,16 +351,17 @@ newblog /
 - **ORM**: MyBatis
 - **数据库**: MySQL 8.4
 - **缓存**: Redis 6.2
-- **安全**: Spring Security 5.7.12
-- **连接池**: Druid 1.2.23
+- **安全**: Spring Security 5.7.14
+- **连接池**: Druid 1.2.27
 - **定时任务**: Quartz
 - **API文档**: Swagger 3.0.0
+- **UserAgent解析**: YAUAA 7.32.0
 - **Java版本**: 1.8
 
 ### 前端技术栈
 - **框架**: Vue 3.5.16
 - **构建工具**: Vite 6.3.6
-- **UI组件**: Element Plus 2.8.2
+- **UI组件**: Element Plus 2.10.7
 - **状态管理**: Pinia 3.0.2
 - **路由**: Vue Router 4.5.1
 - **富文本编辑器**: TinyMCE 8.1.2
@@ -488,12 +532,17 @@ chore: 构建/工具
 
 ## 📊 项目统计信息
 
+### 版本信息
+- **当前版本**: v3.9.1
+- **基于框架**: RuoYi-Vue 3.9.1
+- **最后更新**: 2026-01-04
+
 ### 代码统计
-- **Java代码**: ~15,000 行
+- **Java代码**: ~15,500 行
 - **Vue代码**: ~12,000 行
 - **数据库表**: 22个 (15个系统表 + 7个博客表)
-- **API接口**: 50+ 个
-- **前端页面**: 25+ 个
+- **API接口**: 60+ 个
+- **前端页面**: 30+ 个
 
 ### 功能完成度
 | 模块 | 完成度 | 说明 |
@@ -524,7 +573,31 @@ SPRING_REDIS_PASSWORD=
 # JWT配置
 JWT_SECRET=your-secret-key
 JWT_EXPIRATION=7200
+
+# 防盗链配置
+REFERER_ENABLED=true
+REFERER_ALLOWED_DOMAINS=yourdomain.com,localhost
 ```
+
+### 防盗链配置说明
+防盗链功能用于保护静态资源不被外部网站直接引用。
+
+**配置参数**：
+- `referer.enabled`: 是否启用防盗链（true/false）
+- `referer.allowed-domains`: 允许的域名列表（逗号分隔）
+
+**使用方法**：
+```yaml
+# application.yml
+referer:
+  enabled: true
+  allowed-domains: yourdomain.com,localhost,127.0.0.1
+```
+
+**注意事项**：
+- 启用后，所有静态资源请求必须携带有效的 Referer 头
+- 建议在开发环境关闭，生产环境开启
+- 白名单域名应包含所有允许访问的域名
 
 ### 生产环境建议
 1. **安全配置**:

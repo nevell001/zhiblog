@@ -31,7 +31,16 @@ public class ResourcesConfig implements WebMvcConfigurer
     {
         /** 本地文件上传路径 */
         registry.addResourceHandler(Constants.RESOURCE_PREFIX + "/**")
-                .addResourceLocations("file:" + RuoYiConfig.getProfile() + "/");
+                .addResourceLocations("file:" + RuoYiConfig.getProfile() + "/")
+                .setCacheControl(CacheControl.maxAge(1, TimeUnit.HOURS).cachePublic())
+                .resourceChain(true)
+                .addResolver(new org.springframework.web.servlet.resource.PathResourceResolver() {
+                    @Override
+                    protected org.springframework.core.io.Resource getResource(String resourcePath, org.springframework.core.io.Resource location) throws java.io.IOException {
+                        org.springframework.core.io.Resource requestedResource = location.createRelative(resourcePath);
+                        return requestedResource.exists() && requestedResource.isReadable() ? requestedResource : null;
+                    }
+                });
 
         /** swagger配置 */
         registry.addResourceHandler("/swagger-ui/**")

@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.html.EscapeUtil;
+import com.ruoyi.common.utils.json.JsonSanitizer;
 
 /**
  * XSS过滤处理
@@ -61,8 +62,8 @@ public class XssHttpServletRequestWrapper extends HttpServletRequestWrapper
             return super.getInputStream();
         }
 
-        // xss过滤
-        json = EscapeUtil.clean(json).trim();
+        // 对 JSON 内容逐字段做清理，保留 JSON 结构
+        json = JsonSanitizer.sanitize(json).trim();
         byte[] jsonBytes = json.getBytes("utf-8");
         final ByteArrayInputStream bis = new ByteArrayInputStream(jsonBytes);
         return new ServletInputStream()

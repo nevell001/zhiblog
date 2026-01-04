@@ -132,7 +132,7 @@
     </update>
 
     <update id="addViewCount" parameterType="Long">
-        update blog_article set view_count = view_count + 1 where id = #{id}
+        update blog_article set view_count = IFNULL(view_count, 0) + 1 where id = #{id}
     </update>
 
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">

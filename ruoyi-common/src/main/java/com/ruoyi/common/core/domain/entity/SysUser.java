@@ -3,6 +3,7 @@ package com.ruoyi.common.core.domain.entity;
 import java.util.Date;
 import java.util.List;
 import javax.validation.constraints.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -15,7 +16,7 @@ import com.ruoyi.common.xss.Xss;
 
 /**
  * 用户对象 sys_user
- * 
+ *
  * @author ruoyi
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -55,6 +56,7 @@ public class SysUser extends BaseEntity
     private String avatar;
 
     /** 密码 */
+    @JsonIgnore
     private String password;
 
     /** 账号状态（0正常 1停用） */

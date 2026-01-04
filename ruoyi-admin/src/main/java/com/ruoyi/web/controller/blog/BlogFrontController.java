@@ -277,14 +277,23 @@ public class BlogFrontController extends BaseController
     {
         logger.info("请求文章详情，ID: {}", id);
 
+        // 先增加浏览量（异步执行，不阻塞返回）
+        try {
+            blogArticleService.addViewCount(id);
+            logger.info("文章浏览量已增加，ID: {}", id);
+        } catch (Exception e) {
+            logger.error("增加浏览量失败，ID: {}, 错误: {}", id, e.getMessage());
+            // 即使增加浏览量失败，也继续返回文章详情
+        }
+
         BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
         if (blogArticle == null) {
             logger.warn("文章不存在，ID: {}", id);
             return error("文章不存在");
         }
 
-        logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}",
-            id, blogArticle.getStatus(), blogArticle.getDelFlag());
+        logger.info("找到文章，ID: {}, 状态: {}, 删除标记: {}, 浏览量: {}",
+            id, blogArticle.getStatus(), blogArticle.getDelFlag(), blogArticle.getViewCount());
         
         // 确保所有字段都有值，避免null
         if (blogArticle.getStatus() == null) {

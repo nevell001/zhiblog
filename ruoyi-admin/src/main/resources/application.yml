@@ -3,7 +3,7 @@ ruoyi:
   # 名称
   name: RuoYi
   # 版本
-  version: 3.9.0
+  version: 3.9.1
   # 版权年份
   copyrightYear: 2025
   # 文件路径 - 本地路径
@@ -211,16 +211,33 @@ image:
     # 压缩阈值（超过此大小才压缩）
     threshold-size: 2MB
     # 默认最大宽度
-    max-width: 1920
+    max-width: 2560
     # 默认最大高度
-    max-height: 1080
-    # 默认压缩质量 (0.0-1.0)
-    default-quality: 0.85
+    max-height: 1440
+    # 默认压缩质量 (0.0-1.0) - 提高到0.9保持更好质量
+    default-quality: 0.9
     # 头像压缩尺寸
     avatar-size: 200
     # 缩略图压缩尺寸
     thumbnail-size: 400
     # 头像压缩质量
     avatar-quality: 0.9
-    # 缩略图压缩质量
-    thumbnail-quality: 0.8
+    # 缩略图压缩质量 - 提高到0.85
+    thumbnail-quality: 0.85
+    # 文章封面图宽度 - 提高到1200以支持更清晰的封面
+    article-cover-width: 1200
+    # 文章封面图高度 - 提高到675
+    article-cover-height: 675
+    # 文章封面图压缩质量 - 提高到0.9
+    article-cover-quality: 0.9
+    # 移动端最大宽度
+    mobile-max-width: 750
+    # 移动端压缩质量 - 提高到0.85
+    mobile-quality: 0.85
+
+# 防盗链配置
+referer:
+  # 是否启用防盗链
+  enabled: false
+  # 允许的域名列表（逗号分隔）
+  allowed-domains: localhost,127.0.0.1

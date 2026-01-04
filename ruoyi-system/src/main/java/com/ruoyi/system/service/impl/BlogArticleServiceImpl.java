@@ -39,12 +39,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 查询博客文章
-     * 
+     *
      * @param id 博客文章主键
      * @return 博客文章
      */
     @Override
-    @BlogCacheable(key = "blog:article:#id", ttl = 30, timeUnit = TimeUnit.MINUTES)
     public BlogArticle selectBlogArticleById(Long id)
     {
         BlogArticle article = blogArticleMapper.selectBlogArticleById(id);
@@ -126,6 +125,16 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         // 确保delFlag有默认值
         if (blogArticle.getDelFlag() == null) {
             blogArticle.setDelFlag(0L);
+        }
+        // 设置默认值
+        if (blogArticle.getViewCount() == null) {
+            blogArticle.setViewCount(0L);
+        }
+        if (blogArticle.getLikeCount() == null) {
+            blogArticle.setLikeCount(0L);
+        }
+        if (blogArticle.getCommentCount() == null) {
+            blogArticle.setCommentCount(0L);
         }
         try {
             int result = blogArticleMapper.insertBlogArticle(blogArticle);

@@ -173,8 +173,14 @@ function handleExceed() {
 // 上传成功回调
 function handleUploadSuccess(res, file) {
   if (res.code === 200) {
-    // 保存完整的URL，而不是相对路径
-    uploadList.value.push({ name: res.fileName, url: res.url || res.fileName })
+    // 保存完整的URL用于显示（包含baseUrl），文件名使用原始路径
+    const fullUrl = (res.url || res.fileName)
+    // 如果URL不包含baseUrl，添加baseUrl
+    const displayUrl = fullUrl.indexOf(baseUrl) === 0 ? fullUrl : (baseUrl + fullUrl)
+    uploadList.value.push({
+      name: res.fileName || res.url,
+      url: displayUrl
+    })
     uploadedSuccessfully()
   } else {
     number.value--
@@ -224,7 +230,12 @@ function listToString(list, separator) {
   separator = separator || ","
   for (let i in list) {
     if (undefined !== list[i].url && list[i].url.indexOf("blob:") !== 0) {
-      strs += list[i].url.replace(baseUrl, "") + separator
+      let url = list[i].url
+      // 如果URL包含baseUrl，移除它，保存相对路径到数据库
+      if (url.indexOf(baseUrl) === 0) {
+        url = url.substring(baseUrl.length)
+      }
+      strs += url + separator
     }
   }
   return strs != "" ? strs.substr(0, strs.length - 1) : ""
