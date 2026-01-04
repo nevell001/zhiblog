@@ -241,3 +241,37 @@ referer:
   enabled: false
   # 允许的域名列表（逗号分隔）
   allowed-domains: localhost,127.0.0.1
+
+# Spring Boot Actuator 监控配置
+management:
+  # 启用所有端点
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,env,configprops,prometheus
+      base-path: /manage/actuator
+  # 健康检查配置
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  # 端点详情
+  endpoint:
+    health:
+      show-details: when-authorized
+      show-components: always
+    metrics:
+      enabled: true
+      tags:
+        application: ${spring.application.name}
+  # Metrics 配置
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: ${spring.profiles.active}

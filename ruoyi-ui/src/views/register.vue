@@ -70,7 +70,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-register-footer">
-      <span>Copyright © 2025 博客管理系统 All Rights Reserved.</span>
+      <span>Copyright © 2026 博客管理系统 All Rights Reserved.</span>
     </div>
   </div>
 </template>

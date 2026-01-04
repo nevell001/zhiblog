@@ -56,8 +56,22 @@ public class ResourcesConfig implements WebMvcConfigurer
     {
         registry.addInterceptor(repeatSubmitInterceptor)
                 .addPathPatterns("/**")
+                .excludePathPatterns("/actuator/**")
+                .excludePathPatterns("/manage/actuator/**")
                 .excludePathPatterns("/system/article/**")
                 .excludePathPatterns("/blog/article/**");
+    }
+
+    /**
+     * 配置视图控制器
+     * 将根路径映射到 index.html，但排除 actuator 端点
+     */
+    @Override
+    public void addViewControllers(org.springframework.web.servlet.config.annotation.ViewControllerRegistry registry)
+    {
+        // 不需要配置根路径映射到 index.html
+        // Spring Boot 默认会处理静态资源的 index.html
+        // actuator 端点由 Actuator 框架处理，不需要在这里配置
     }
 
     /**

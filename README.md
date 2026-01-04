@@ -191,8 +191,14 @@ cd newblog
 mysql -u root -p
 CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-# 导入数据表和示例数据
-mysql -u root -p newblog < sql/ry_20250522.sql
+# 导入完整数据库（包含系统表、Quartz表、博客表和示例数据）
+mysql -u root -p newblog < sql/init_database.sql
+
+# （可选）执行权限设置
+mysql -u root -p < sql/00_setup_permissions.sql
+
+# （可选）添加性能优化索引
+mysql -u root -p newblog < sql/performance_indexes.sql
 ```
 
 ### 3. 后端启动
@@ -233,14 +239,14 @@ docker compose -f docker-compose.dev.yml logs -f
 ## 📁 项目结构
 ```
 newblog /
-├── ruoyi-admin/              # 后端主模块 ✅
+├── ruoyi-admin/              # 后端主模块 
 │   ├── src/main/java/
 │   │   └── com/ruoyi/
 │   │       ├── RuoYiApplication.java    # 启动类
 │   │       └── web/controller/          # 控制器
 │   └── src/main/resources/
 │       └── application.yml             # 配置文件
-├── ruoyi-system/             # 系统模块(含博客功能) ✅
+├── ruoyi-system/             # 系统模块(含博客功能) 
 │   ├── src/main/java/
 │   │   └── com/ruoyi/system/
 │   │       ├── controller/             # 控制器 (8个博客相关)
@@ -249,7 +255,7 @@ newblog /
 │   │       └── service/                # 业务逻辑层
 │   └── src/main/resources/
 │       └── mapper/system/              # MyBatis XML (22个)
-├── ruoyi-framework/          # 框架核心 ✅
+├── ruoyi-framework/          # 框架核心 
 │   ├── src/main/java/
 │   │   └── com/ruoyi/framework/
 │   │       ├── config/                 # 配置类
@@ -257,7 +263,7 @@ newblog /
 │   │       ├── aspectj/                # 切面
 │   │       ├── manager/                # 异步工厂
 │   │       └── web/service/            # Web服务
-├── ruoyi-common/             # 通用工具 ✅
+├── ruoyi-common/             # 通用工具 
 │   ├── src/main/java/
 │   │   └── com/ruoyi/common/
 │   │       ├── utils/                  # 工具类 (13个)
@@ -265,10 +271,10 @@ newblog /
 │   │       ├── constant/               # 常量
 │   │       └── core/domain/            # 核心领域对象
 │   ├── src/main/java/com/ruoyi/common/utils/json/  # JSON工具
-│   └── src/main/java/com/ruoyi/common/utils/http/   # HTTP工具
-├── ruoyi-quartz/             # 定时任务 ✅
-├── ruoyi-generator/          # 代码生成 ✅
-├── ruoyi-ui/                # Vue3前端项目 ✅
+│   └── src/main/java/com/ruoyi/common/utils/http/  # HTTP工具
+├── ruoyi-quartz/             # 定时任务 
+├── ruoyi-generator/          # 代码生成 
+├── ruoyi-ui/                # Vue3前端项目 
 │   ├── src/
 │   │   ├── views/            # 页面 (58个)
 │   │   │   ├── blog/        # 博客前台 (6个)
@@ -300,18 +306,17 @@ newblog /
 │   │   ├── directive/        # 指令
 │   │   └── utils/            # 工具函数
 │   └── package.json
-├── sql/                     # 数据库脚本 ✅
+├── sql/                     # 数据库脚本 
 │   ├── init_database.sql    # 初始化脚本
-│   ├── ry_20250522.sql      # 主数据库脚本
 │   ├── quartz.sql           # 定时任务脚本
 │   ├── 00_setup_permissions.sql  # 权限设置
 │   └── performance_indexes.sql   # 性能索引
-├── docker-compose.dev.yml   # Docker编排(开发) ✅
-├── docker-compose.prod.yml  # Docker编排(生产) ✅
-├── Dockerfile-admin         # 后端Docker文件 ✅
-├── Dockerfile.dev           # 前端Docker文件(开发) ✅
-├── Dockerfile.prod          # 前端Docker文件(生产) ✅
-├── pom.xml                  # Maven主配置 ✅
+├── docker-compose.dev.yml   # Docker编排(开发) 
+├── docker-compose.prod.yml  # Docker编排(生产) 
+├── Dockerfile-admin         # 后端Docker文件 
+├── Dockerfile.dev           # 前端Docker文件(开发) 
+├── Dockerfile.prod          # 前端Docker文件(生产) 
+├── pom.xml                  # Maven主配置 
 └── README.md                # 项目文档
 ```
 
@@ -558,89 +563,6 @@ newblog /
 
 ---
 
-
-
-## 🔍 项目优化建议
-
-### 🎨 前端架构
-**页面组件** (20+个):
-```
-views/
-├── blog/              # 博客前台 (5个)
-├── system/            # 系统管理 (3个博客相关)
-├── admin/             # 后台管理
-└── error/             # 错误页面
-```
-
-**公共组件** (15+个):
-```
-components/
-├── BlogNav.vue        # 博客导航
-├── TagCategorySelector.vue  # 标签分类选择器
-├── TinyMCE/          # 富文本编辑器
-├── ImageUpload/      # 图片上传
-└── ...
-```
-
-**状态管理**:
-```javascript
-1. user.js        - 用户状态 ✅
-2. permission.js  - 权限路由 ✅
-3. app.js         - 应用配置 ✅
-4. settings.js    - 系统设置 ✅
-5. tagsView.js    - 标签视图 ✅
-```
-
-### 🗄️ 数据库优化
-**表结构概览** (22个表):
-- **博客相关表** (7个): blog_article, blog_category, blog_tag, blog_article_tag, blog_comment, blog_friend_link, blog_setting
-- **系统表** (15个): sys_user, sys_role, sys_menu 等
-
-**索引优化建议**:
-```sql
--- 文章表
-ALTER TABLE blog_article ADD INDEX idx_category_id (category_id);
-ALTER TABLE blog_article ADD INDEX idx_status (status);
-ALTER TABLE blog_article ADD INDEX idx_create_time (create_time);
-
--- 标签关联表
-ALTER TABLE blog_article_tag ADD INDEX idx_article_id (article_id);
-ALTER TABLE blog_article_tag ADD INDEX idx_tag_id (tag_id);
-```
-
-### ⚡ 性能优化
-**后端优化**:
-- 分页查询避免全表扫描
-- Redis缓存热门内容 (TTL: 1-24小时)
-- 使用DTO减少数据传输
-- 添加接口缓存和限流
-
-**前端优化**:
-- 路由懒加载 ✅ (已实现)
-- 图片懒加载和CDN加速
-- 组件按需加载
-- Vite打包优化配置
-
-### 📊 监控与日志
-**日志配置建议**:
-```yaml
-logging:
-  level:
-    com.ruoyi: info
-    org.springframework: warn
-  file:
-    path: /var/log/ruoyi
-    max-size: 100MB
-    max-history: 30
-```
-
-**监控工具推荐**:
-- Spring Boot Actuator ✅ (已集成)
-- Prometheus + Grafana (推荐)
-- ELK Stack (日志分析)
-
----
-
 ## 📋 开发规范
 
 ### 📝 代码规范
@@ -684,60 +606,6 @@ refactor: 重构
 test: 测试
 chore: 构建/工具
 ```
-
-### 🎓 技术债务管理
-
-**高优先级**:
-1. 安全配置不完善 (Token密钥、Redis密码等)
-2. 数据库SQL脚本重复定义
-
-**中优先级**:
-1. 缺少单元测试和集成测试
-2. API文档不完整
-3. 错误处理不统一
-
-**低优先级**:
-1. 代码注释不完整
-2. 部分组件可复用性差
-3. 日志级别已优化 ✅
-
-**已解决**:
-- ✅ BitWalker → YAUAA 替代
-- ✅ UserAgent 解析功能完善
-- ✅ 防盗链功能实现
-- ✅ XSS 防护增强
-- ✅ 密码字段保护
-- ✅ 用户管理 Bug 修复
-- ✅ 图片压缩功能完善
-- ✅ Docker 配置优化
-
-## 📊 项目统计信息
-
-### 代码统计
-- **Java文件**: 328 个
-- **Vue文件**: 108 个
-- **JavaScript文件**: 101 个
-- **数据库表**: 29个 (22个系统表 + 7个博客表)
-- **API接口**: 73 个
-- **前端页面**: 58 个
-- **组件**: 36 个
-- **工具类**: 13 个
-- **API文件**: 38 个
-
-### 功能完成度
-| 模块 | 完成度 | 说明 |
-|------|--------|------|
-| 文章管理 | ✅ 100% | CRUD、状态管理、搜索、图片压缩等 |
-| 分类管理 | ✅ 100% | 完整分类体系 |
-| 标签管理 | ✅ 100% | 多对多关联、颜色支持 |
-| 评论系统 | ✅ 100% | 审核、回复、匿名支持 |
-| 友链管理 | ✅ 100% | 状态控制、Logo支持 |
-| 博客设置 | ✅ 100% | 键值配置、系统参数 |
-| 统计分析 | ✅ 100% | 文章、用户、访问量统计 |
-| 权限系统 | ✅ 100% | 菜单权限、按钮权限 |
-| 前台展示 | ✅ 100% | 现代化UI设计，响应式布局 |
-| 图片处理 | ✅ 100% | 智能压缩、头像、缩略图、封面图 |
-| 安全防护 | ✅ 100% | XSS防护、防盗链、密码保护 |
 
 ## 🔧 配置说明
 

@@ -28,6 +28,20 @@
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
 -- - 示例标签：19个
+--
+-- ⚠️ 重要提示：
+-- 本脚本已整合所有必要的表结构和数据，完整的数据库初始化只需执行此脚本即可
+-- 
+-- 🚫 不要同时执行以下脚本，会导致重复定义错误：
+-- - ry_20250522.sql.bak（已整合到本脚本）
+-- - quartz.sql（已整合到本脚本）
+-- - backups/ 目录下的文件（仅用于备份）
+--
+-- ✅ 正确的初始化步骤：
+-- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 导入本脚本：mysql -u root -p newblog < init_database.sql
+-- 3. （可选）执行权限设置：mysql -u root -p < 00_setup_permissions.sql
+-- 4. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
 -- - 友情链接：10个
 -- 
 -- 🎯 使用方法：
