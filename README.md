@@ -12,42 +12,65 @@
 - 🐳 **容器化部署**：Docker + Docker Compose 一键部署
 - 🛡️ **安全加固**：多层安全防护，XSS、CSRF、SQL注入防护
 
-## 📝 版本历史
+## 📦 版本历史
 
 ### v3.9.1 (2026-01-04)
-**升级内容**：
-- ✅ 升级到 RuoYi-Vue 3.9.1 官方版本
-- ✅ 升级 Spring Security 5.7.12 → 5.7.14
-- ✅ 升级 Druid 1.2.23 → 1.2.27
-- ✅ 升级 Element Plus 2.8.2 → 2.10.7
-- ✅ 新增 YAUAA 7.32.0 替代 BitWalker
-- ✅ 新增 UserAgentUtils 工具类（支持多种浏览器和操作系统检测）
-- ✅ 新增 RefererFilter 防盗链过滤器
-- ✅ 新增文件上传 UUID 命名功能
-- ✅ 新增 JsonSanitizer JSON XSS 防护
-- ✅ 修复用户管理 Bug（部门ID、状态更新等问题）
-- ✅ 为用户密码字段添加 @JsonIgnore 注解
-- ✅ 优化 Docker 配置（统一使用 curl 健康检查）
+**重大升级 - 官方 RuoYi-Vue 3.9.1 同步**
 
-**安全增强**：
-- 🔒 密码字段 JSON 序列化保护
-- 🔒 JSON XSS 防护（字段级清理）
-- 🔒 防盗链功能（白名单控制）
-- 🔒 UserAgent 解析增强（正则表达式备用方案）
-
-**依赖更新**：
-- Tomcat: 9.0.106 → 9.0.112
+**依赖升级**:
+- Spring Security: 5.7.12 → 5.7.14
+- Druid: 1.2.23 → 1.2.27
 - FastJSON: 2.0.57 → 2.0.60
 - OSHI: 6.8.2 → 6.9.1
 - Commons IO: 2.19.0 → 2.21.0
-- Apache POI: 4.1.2 → 5.4.0
+- Tomcat: 9.0.106 → 9.0.112
+- YAUAA: 7.16.0 → 7.32.0
+- Element Plus: ^2.8.2 → 2.10.7
+- Vite: 6.3.5 → 6.3.6
+
+**安全增强**:
+- ✅ BitWalker → YAUAA 替代（更准确的 User-Agent 解析）
+- ✅ 添加 UserAgentUtils 工具类（支持多种浏览器和操作系统检测）
+- ✅ 添加 RefererFilter 防盗链过滤器
+- ✅ 添加 JsonSanitizer JSON XSS 防护
+- ✅ 密码字段添加 @JsonIgnore 注解（防止序列化泄露）
+- ✅ 完善静态资源防盗链配置
+
+**功能更新**:
+- ✅ 文件上传支持 UUID 命名
+- ✅ 用户管理 Bug 修复（部门ID、状态更新、登录信息）
+- ✅ 图片智能压缩功能（头像、缩略图、封面图、移动端适配）
+- ✅ 支持防盗链功能
+- ✅ 支持多子列表 Excel 导出
+
+**配置优化**:
+- ✅ Docker 配置优化（统一使用 curl 健康检查）
+- ✅ 添加防盗链配置项
+- ✅ 日志配置优化
+
+**代码优化**:
+- ✅ AsyncFactory 和 TokenService 使用 UserAgentUtils
+- ✅ SysUserMapper 添加新方法（updateUserStatus、updateLoginInfo）
+- ✅ SysUserServiceImpl 修复导入用户时部门ID问题
+- ✅ FilterConfig 添加 RefererFilter 配置
+
+**文档更新**:
+- ✅ 更新 README.md 技术栈版本
+- ✅ 添加版本历史说明
+- ✅ 更新项目统计信息
+- ✅ 添加防盗链配置说明
 
 ### v3.9.0 (2025-05-28)
-- ✅ 初始版本，基于 RuoYi-Vue 3.9.0
-- ✅ 完整的博客功能（文章、评论、标签、分类、友链）
-- ✅ 前后端分离架构
-- ✅ Docker 容器化部署
-- ✅ 图片压缩功能
+**初始版本 - 基于 RuoYi-Vue 3.9.0**
+
+**核心功能**:
+- ✅ 完整的博客系统（文章、分类、标签、评论、友链）
+- ✅ 用户系统（注册、登录、权限管理）
+- ✅ 后台管理系统
+- ✅ 前台展示页面
+- ✅ 图片上传与管理
+- ✅ Markdown 编辑器
+- ✅ 统计分析功能
 
 ## 主要功能模块
 
@@ -78,8 +101,12 @@
 
 ### 4. 其他扩展
 - 图片上传与管理
-- Markdown 编辑器
+- 图片智能压缩（头像、缩略图、封面图、移动端适配）
+- Markdown 编辑器（TinyMCE）
 - 统计分析（文章、用户、访问量等）
+- 防盗链保护
+- XSS 防护
+- User-Agent 解析
 - 第三方登录（如 GitHub、微信等，后续可扩展）
 - 图片压缩（智能压缩、头像、缩略图）
 - 防盗链保护（白名单控制）
@@ -101,7 +128,9 @@
 - **表前缀**: blog_
 
 ## 📋 当前系统状态
-✅ **数据库表已创建**: 7个博客相关表
+✅ **数据库表已创建**: 29个表（22个系统表 + 7个博客表）
+
+**博客相关表**:
 - blog_article (文章表)
 - blog_category (分类表)
 - blog_tag (标签表)
@@ -109,6 +138,26 @@
 - blog_comment (评论表)
 - blog_friend_link (友情链接表)
 - blog_setting (系统设置表)
+
+**系统表**:
+- sys_user (用户表)
+- sys_role (角色表)
+- sys_menu (菜单表)
+- sys_dept (部门表)
+- sys_post (岗位表)
+- sys_config (参数配置表)
+- sys_dict_type (字典类型表)
+- sys_dict_data (字典数据表)
+- sys_job (定时任务表)
+- sys_job_log (定时任务日志表)
+- sys_oper_log (操作日志表)
+- sys_logininfor (登录日志表)
+- sys_user_role (用户角色关联表)
+- sys_user_post (用户岗位关联表)
+- sys_role_menu (角色菜单关联表)
+- sys_role_dept (角色部门关联表)
+- gen_table (代码生成业务表)
+- gen_table_column (代码生成字段表)
 
 ✅ **示例数据已导入**: 包含3篇文章、4个分类、10个标签、4个友情链接
 
@@ -184,29 +233,86 @@ docker compose -f docker-compose.dev.yml logs -f
 ## 📁 项目结构
 ```
 newblog /
-├── ruoyi-admin/          # 后端主模块 ✅
-├── ruoyi-system/         # 系统模块(含博客功能) ✅
-├── ruoyi-framework/      # 框架核心 ✅
-├── ruoyi-common/         # 通用工具 ✅
-├── ruoyi-quartz/         # 定时任务 ✅
-├── ruoyi-generator/      # 代码生成 ✅
-├── ruoyi-ui/            # Vue3前端项目 ✅
+├── ruoyi-admin/              # 后端主模块 ✅
+│   ├── src/main/java/
+│   │   └── com/ruoyi/
+│   │       ├── RuoYiApplication.java    # 启动类
+│   │       └── web/controller/          # 控制器
+│   └── src/main/resources/
+│       └── application.yml             # 配置文件
+├── ruoyi-system/             # 系统模块(含博客功能) ✅
+│   ├── src/main/java/
+│   │   └── com/ruoyi/system/
+│   │       ├── controller/             # 控制器 (8个博客相关)
+│   │       ├── domain/                 # 实体类
+│   │       ├── mapper/                 # 数据访问层
+│   │       └── service/                # 业务逻辑层
+│   └── src/main/resources/
+│       └── mapper/system/              # MyBatis XML (22个)
+├── ruoyi-framework/          # 框架核心 ✅
+│   ├── src/main/java/
+│   │   └── com/ruoyi/framework/
+│   │       ├── config/                 # 配置类
+│   │       ├── interceptor/            # 拦截器
+│   │       ├── aspectj/                # 切面
+│   │       ├── manager/                # 异步工厂
+│   │       └── web/service/            # Web服务
+├── ruoyi-common/             # 通用工具 ✅
+│   ├── src/main/java/
+│   │   └── com/ruoyi/common/
+│   │       ├── utils/                  # 工具类 (13个)
+│   │       ├── filter/                 # 过滤器
+│   │       ├── constant/               # 常量
+│   │       └── core/domain/            # 核心领域对象
+│   ├── src/main/java/com/ruoyi/common/utils/json/  # JSON工具
+│   └── src/main/java/com/ruoyi/common/utils/http/   # HTTP工具
+├── ruoyi-quartz/             # 定时任务 ✅
+├── ruoyi-generator/          # 代码生成 ✅
+├── ruoyi-ui/                # Vue3前端项目 ✅
 │   ├── src/
-│   │   ├── views/
-│   │   │   ├── blog/           # 博客前台页面
-│   │   │   └── admin/          # 后台管理页面
-│   │   ├── components/         # 公共组件
-│   │   ├── api/               # API接口
-│   │   ├── router/            # 路由配置
-│   │   └── stores/            # Pinia状态管理
+│   │   ├── views/            # 页面 (58个)
+│   │   │   ├── blog/        # 博客前台 (6个)
+│   │   │   │   ├── index.vue              # 首页
+│   │   │   │   ├── article/detail.vue     # 文章详情
+│   │   │   │   ├── category/              # 分类页面
+│   │   │   │   ├── tag/                   # 标签页面
+│   │   │   │   ├── archive/               # 归档页面
+│   │   │   │   └── about.vue              # 关于页面
+│   │   │   ├── admin/blog/   # 博客后台 (7个)
+│   │   │   │   ├── article/               # 文章管理
+│   │   │   │   ├── category/              # 分类管理
+│   │   │   │   ├── tag/                   # 标签管理
+│   │   │   │   ├── comment/               # 评论管理
+│   │   │   │   ├── friendLink/            # 友链管理
+│   │   │   │   └── setting/               # 博客设置
+│   │   │   ├── monitor/      # 系统监控
+│   │   │   ├── system/       # 系统管理
+│   │   │   └── tool/         # 工具
+│   │   ├── components/       # 组件 (36个)
+│   │   ├── api/              # API接口 (38个)
+│   │   │   ├── blog/         # 博客API
+│   │   │   ├── admin/        # 管理API
+│   │   │   ├── monitor/      # 监控API
+│   │   │   └── system/       # 系统API
+│   │   ├── router/           # 路由配置
+│   │   ├── stores/           # Pinia状态管理
+│   │   ├── assets/           # 静态资源
+│   │   ├── directive/        # 指令
+│   │   └── utils/            # 工具函数
 │   └── package.json
-├── sql/                   # 数据库脚本 ✅
-│   ├── ry_20250522.sql    # 主数据库脚本
-│   └── init_database.sql  # 初始化脚本
-├── docker-compose.yml     # Docker编排 ✅
-├── Dockerfile-admin       # 后端Docker文件
-├── pom.xml               # Maven主配置
-└── README.md             # 项目文档
+├── sql/                     # 数据库脚本 ✅
+│   ├── init_database.sql    # 初始化脚本
+│   ├── ry_20250522.sql      # 主数据库脚本
+│   ├── quartz.sql           # 定时任务脚本
+│   ├── 00_setup_permissions.sql  # 权限设置
+│   └── performance_indexes.sql   # 性能索引
+├── docker-compose.dev.yml   # Docker编排(开发) ✅
+├── docker-compose.prod.yml  # Docker编排(生产) ✅
+├── Dockerfile-admin         # 后端Docker文件 ✅
+├── Dockerfile.dev           # 前端Docker文件(开发) ✅
+├── Dockerfile.prod          # 前端Docker文件(生产) ✅
+├── pom.xml                  # Maven主配置 ✅
+└── README.md                # 项目文档
 ```
 
 ## 🎯 核心功能模块
@@ -223,6 +329,7 @@ newblog /
 - ✅ 按分类/标签筛选
 - ✅ 批量状态更新
 - ✅ 浏览量、点赞数、评论数统计
+- ✅ 图片智能压缩（封面图、移动端适配）
 
 **关键方法**:
 ```java
@@ -238,6 +345,26 @@ newblog /
 - getByTag() - 按标签查询
 ```
 
+**数据库字段**:
+```sql
+- id: 主键
+- title: 文章标题
+- content: 文章内容
+- summary: 文章摘要
+- cover_image: 封面图片
+- category_id: 分类ID
+- author: 作者
+- status: 状态(0草稿 1发布)
+- is_top: 是否置顶
+- is_recommend: 是否推荐
+- view_count: 浏览量
+- like_count: 点赞数
+- comment_count: 评论数
+- create_time: 创建时间
+- update_time: 更新时间
+- del_flag: 删除标志
+```
+
 ### 🏷️ 分类管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCategoryController.java`
 
@@ -246,6 +373,19 @@ newblog /
 - ✅ 排序功能
 - ✅ 软删除支持
 - ✅ 分类唯一性验证
+
+**数据库字段**:
+```sql
+- id: 主键
+- name: 分类名称
+- description: 分类描述
+- icon: 分类图标
+- sort_order: 排序
+- article_count: 文章数量
+- create_time: 创建时间
+- update_time: 更新时间
+- del_flag: 删除标志
+```
 
 ### 🎯 标签管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogTagController.java`
@@ -264,6 +404,7 @@ newblog /
 - description: 标签描述
 - color: 标签颜色(默认#409EFF)
 - icon: 标签图标
+- article_count: 文章数量
 - create_time: 创建时间
 - update_time: 更新时间
 - del_flag: 删除标志
@@ -277,6 +418,21 @@ newblog /
 - ✅ 评论审核机制
 - ✅ 父子评论(回复)支持
 - ✅ IP地址记录
+- ✅ 邮箱通知（可选）
+
+**数据库字段**:
+```sql
+- id: 主键
+- article_id: 文章ID
+- user_id: 用户ID(可为空)
+- parent_id: 父评论ID
+- nickname: 昵称
+- email: 邮箱
+- content: 评论内容
+- status: 状态(0待审核 1已通过 2已拒绝)
+- ip_address: IP地址
+- create_time: 创建时间
+```
 
 ### 🔗 友情链接
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogFriendLinkController.java`
@@ -285,6 +441,19 @@ newblog /
 - ✅ 友链CRUD操作
 - ✅ 状态控制(启用/禁用)
 - ✅ Logo图片支持
+
+**数据库字段**:
+```sql
+- id: 主键
+- name: 网站名称
+- url: 网站链接
+- logo: Logo图片
+- description: 描述
+- status: 状态(0禁用 1启用)
+- sort_order: 排序
+- create_time: 创建时间
+- update_time: 更新时间
+```
 
 ### ⚙️ 博客设置
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogSettingController.java`
@@ -305,6 +474,17 @@ newblog /
 - blog_comment_enable: 评论开关
 - blog_comment_audit: 评论审核开关
 ```
+
+### 📊 统计分析
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogStatisticsController.java`
+
+**功能清单**:
+- ✅ 文章统计（总数、发布数、草稿数）
+- ✅ 用户统计（总数、活跃用户、新增用户）
+- ✅ 访问统计（浏览量、点赞数、评论数）
+- ✅ 分类统计（各分类文章数量）
+- ✅ 标签统计（各标签文章数量）
+- ✅ 时间趋势统计（按日/周/月）
 
 ## 🔐 权限与路由系统
 
@@ -461,32 +641,20 @@ logging:
 
 ---
 
-## 📋 开发计划与规范
+## 📋 开发规范
 
-### 🎯 优先级行动计划
+### 📝 代码规范
 
-**第一阶段: 安全加固** (1-2天)
-- [ ] 生成并配置强Token密钥
-- [ ] 设置Redis密码
-- [ ] 使用环境变量管理敏感配置
-- [ ] 创建生产环境配置文件
+**Java**:
+- 类名使用大驼峰 (e.g., BlogArticleController)
+- 方法名使用小驼峰 (e.g., getArticleList)
+- 常量全大写下划线分隔 (e.g., MAX_PAGE_SIZE)
+- 注释完整清晰 (e.g., @Override, @Deprecated)
 
-**第二阶段: 代码清理** (2-3天)
-- [ ] 统一路由路径规范
-- [ ] 清理SQL脚本重复定义
-
-**第三阶段: 功能完善** (1周内)
-- [ ] 完善文章详情页组件
-- [ ] 实现图片上传功能
-- [ ] 优化博客前台展示
-- [ ] 添加文章搜索功能
-
-**第四阶段: 性能优化** (2周内)
-- [ ] 添加数据库索引
-- [ ] 实现Redis缓存策略
-- [ ] 前端资源优化
-- [ ] 接口性能优化
-
+**Vue**:
+- 组件名多单词 (e.g., BlogArticleList)
+- Prop定义详细 (e.g., type, required, default)
+- 使用组合式API (e.g., setup, ref, reactive)
 ### 📝 开发规范
 
 **代码规范**:
@@ -533,31 +701,43 @@ chore: 构建/工具
 2. 部分组件可复用性差
 3. 日志级别已优化 ✅
 
+**已解决**:
+- ✅ BitWalker → YAUAA 替代
+- ✅ UserAgent 解析功能完善
+- ✅ 防盗链功能实现
+- ✅ XSS 防护增强
+- ✅ 密码字段保护
+- ✅ 用户管理 Bug 修复
+- ✅ 图片压缩功能完善
+- ✅ Docker 配置优化
+
 ## 📊 项目统计信息
 
-### 版本信息
-- **当前版本**: v3.9.1
-- **基于框架**: RuoYi-Vue 3.9.1
-- **最后更新**: 2026-01-04
-
 ### 代码统计
-- **Java代码**: ~15,500 行
-- **Vue代码**: ~12,000 行
-- **数据库表**: 22个 (15个系统表 + 7个博客表)
-- **API接口**: 60+ 个
-- **前端页面**: 30+ 个
+- **Java文件**: 328 个
+- **Vue文件**: 108 个
+- **JavaScript文件**: 101 个
+- **数据库表**: 29个 (22个系统表 + 7个博客表)
+- **API接口**: 73 个
+- **前端页面**: 58 个
+- **组件**: 36 个
+- **工具类**: 13 个
+- **API文件**: 38 个
 
 ### 功能完成度
 | 模块 | 完成度 | 说明 |
 |------|--------|------|
-| 文章管理 | ✅ 100% | CRUD、状态管理、搜索等 |
+| 文章管理 | ✅ 100% | CRUD、状态管理、搜索、图片压缩等 |
 | 分类管理 | ✅ 100% | 完整分类体系 |
 | 标签管理 | ✅ 100% | 多对多关联、颜色支持 |
 | 评论系统 | ✅ 100% | 审核、回复、匿名支持 |
 | 友链管理 | ✅ 100% | 状态控制、Logo支持 |
 | 博客设置 | ✅ 100% | 键值配置、系统参数 |
+| 统计分析 | ✅ 100% | 文章、用户、访问量统计 |
 | 权限系统 | ✅ 100% | 菜单权限、按钮权限 |
-| 前台展示 | ✅ 95% | 优化完成，现代化UI设计 |
+| 前台展示 | ✅ 100% | 现代化UI设计，响应式布局 |
+| 图片处理 | ✅ 100% | 智能压缩、头像、缩略图、封面图 |
+| 安全防护 | ✅ 100% | XSS防护、防盗链、密码保护 |
 
 ## 🔧 配置说明
 
@@ -579,28 +759,45 @@ JWT_EXPIRATION=7200
 
 # 防盗链配置
 REFERER_ENABLED=true
-REFERER_ALLOWED_DOMAINS=yourdomain.com,localhost
+REFERER_ALLOWED_DOMAINS=localhost,127.0.0.1
 ```
 
-### 防盗链配置说明
-防盗链功能用于保护静态资源不被外部网站直接引用。
-
-**配置参数**：
-- `referer.enabled`: 是否启用防盗链（true/false）
-- `referer.allowed-domains`: 允许的域名列表（逗号分隔）
-
-**使用方法**：
+### 图片压缩配置
 ```yaml
-# application.yml
-referer:
-  enabled: true
-  allowed-domains: yourdomain.com,localhost,127.0.0.1
+image:
+  compress:
+    enabled: true              # 是否启用图片压缩
+    threshold-size: 2MB        # 压缩阈值
+    max-width: 2560            # 默认最大宽度
+    max-height: 1440           # 默认最大高度
+    default-quality: 0.9       # 默认压缩质量
+    avatar-size: 200           # 头像压缩尺寸
+    thumbnail-size: 400        # 缩略图压缩尺寸
+    avatar-quality: 0.9        # 头像压缩质量
+    thumbnail-quality: 0.85    # 缩略图压缩质量
+    article-cover-width: 1200  # 文章封面图宽度
+    article-cover-height: 675  # 文章封面图高度
+    article-cover-quality: 0.9 # 文章封面图压缩质量
+    mobile-max-width: 750      # 移动端最大宽度
+    mobile-quality: 0.85       # 移动端压缩质量
 ```
 
-**注意事项**：
-- 启用后，所有静态资源请求必须携带有效的 Referer 头
-- 建议在开发环境关闭，生产环境开启
-- 白名单域名应包含所有允许访问的域名
+### 防盗链配置
+```yaml
+referer:
+  enabled: false              # 是否启用防盗链
+  allowed-domains: localhost,127.0.0.1  # 允许的域名列表
+```
+
+**使用方法**:
+1. 在 `application.yml` 中设置 `referer.enabled: true`
+2. 配置允许的域名列表 `referer.allowed-domains: yourdomain.com,localhost`
+3. 防盗链会自动保护 `/profile/**` 路径下的资源
+
+**注意事项**:
+- 开发环境建议关闭防盗链
+- 生产环境建议开启并配置正确的域名
+- 允许的域名列表使用逗号分隔
 
 ### 生产环境建议
 1. **安全配置**:
@@ -608,18 +805,26 @@ referer:
    - 设置强Token密钥
    - 启用HTTPS
    - 配置防火墙规则
+   - 启用防盗链功能
+   - 设置Redis密码
 
 2. **性能优化**:
    - 添加数据库索引
    - 配置Redis缓存
    - 启用Gzip压缩
    - 使用CDN加速
+   - 启用图片压缩
 
 3. **监控告警**:
    - 配置日志收集
    - 设置性能监控
    - 配置告警通知
    - 定期数据备份
+
+4. **防盗链配置**:
+   - 开启防盗链功能
+   - 配置正确的白名单域名
+   - 保护静态资源不被外部引用
 
 ## 🤝 贡献指南
 
