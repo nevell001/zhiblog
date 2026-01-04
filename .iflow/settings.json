@@ -1,0 +1,33 @@
+{
+  "outputStyle": "Default",
+  "mcpServers": {
+    "cloudbase": {
+      "description": "云开发 CloudBase 是专为 AI Coding 提供的 AI 原生后端服务，通过 MCP 可以获得数据库、登录认证、云函数、容器托管、网站托管等一站式的后端集成和部署\n",
+      "command": "npx",
+      "args": [
+        "@cloudbase/cloudbase-mcp@latest"
+      ],
+      "env": {
+        "INTEGRATION_IDE": "iFlow"
+      }
+    },
+    "iflow-mcp_docker-mcp": {
+      "description": "提供Docker容器创建、管理、日志查看和Compose栈部署功能的MCP工具集",
+      "command": "uvx",
+      "args": [
+        "--from",
+        "iflow-mcp_docker-mcp",
+        "docker-mcp"
+      ]
+    },
+    "filesystem": {
+      "description": "提供完整的文件系统操作功能，包括文件读写、目录管理、文件搜索等，支持安全的路径验证和权限控制",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@iflow-mcp/server-filesystem@0.6.2",
+        "mcp_files"
+      ]
+    }
+  }
+}
