@@ -69,9 +69,10 @@ public class ResourcesConfig implements WebMvcConfigurer
     @Override
     public void addViewControllers(org.springframework.web.servlet.config.annotation.ViewControllerRegistry registry)
     {
-        // 不需要配置根路径映射到 index.html
-        // Spring Boot 默认会处理静态资源的 index.html
-        // actuator 端点由 Actuator 框架处理，不需要在这里配置
+        // 将根路径映射到 index.html
+        registry.addViewController("/").setViewName("forward:/index.html");
+        
+        // 不配置 actuator 端点，让 Actuator 框架自己处理
     }
 
     /**

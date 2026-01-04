@@ -116,19 +116,32 @@ public class SecurityConfig
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // 注解标记允许匿名访问的url
             .authorizeHttpRequests((requests) -> {
-                permitAllUrl.getUrls().forEach(url -> requests.antMatchers(url).permitAll());
+                permitAllUrl.getUrls().forEach(url -> {
+                    System.out.println("PermitAll URL: " + url);
+                    requests.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher(url)).permitAll();
+                });
                 // 对于登录login 注册register 验证码captchaImage 允许匿名访问
-                requests.antMatchers("/login", "/register", "/captchaImage").permitAll()
+                requests.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/login"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/register"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/captchaImage")).permitAll()
                     // 静态资源，可匿名访问
-                    .antMatchers(HttpMethod.GET, "/", "/*.html", "/**/*.html", "/**/*.css", "/**/*.js", "/profile/**").permitAll();
+                    .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/*.html"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.html"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.css"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.js"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
                 
-                // 开发环境允许访问Swagger和Druid
+                // 开发环境允许访问Swagger、Druid和Actuator
                 if (!"prod".equals(activeProfile)) {
-                    requests.antMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs", "/druid/**").permitAll();
+                    requests.requestMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs", "/druid/**",
+                            "/manage/actuator/health", "/manage/actuator/info",
+                            "/manage/actuator/metrics", "/manage/actuator/env",
+                            "/manage/actuator/prometheus").permitAll();
                 }
-                
+
                 // 博客前台接口允许匿名访问
-                requests.antMatchers("/blog/**", "/index", "/about").permitAll()
+                requests.requestMatchers("/blog/**", "/index", "/about").permitAll()
                     // 除上面外的所有请求全部需要鉴权认证
                     .anyRequest().authenticated();
             })

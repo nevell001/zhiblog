@@ -123,6 +123,17 @@ spring:
       max-file-size: 10MB
       # 设置总上传的文件大小
       max-request-size: 20MB
+  # MVC 配置
+  mvc:
+    static-path-pattern: /static/**
+  # Web 资源配置
+  web:
+    resources:
+      add-mappings: true
+      static-locations: classpath:/static/
+  # 欢迎页面配置
+  main:
+    banner-mode: off
   # 服务模块
   devtools:
     restart:
