@@ -14,6 +14,63 @@
 
 ## 📦 版本历史
 
+### v4.0.0 (2026-01-04)
+**重大升级 - Spring Boot 3.3.0 + Java 17**
+
+**框架升级**:
+- Spring Boot: 2.5.15 → 3.3.0
+- Java: 1.8 → 17
+- Spring Security: 5.7.14 → 6.1.5
+- Spring Framework: 5.3.39 → 6.1.6
+- Tomcat: 9.0.112 → 10.1.24
+- MyBatis Spring Boot: 2.2.2 → 3.0.3
+- MySQL Connector: 8.0.33 → 8.4.0
+- SLF4J: 1.7.36 → 2.0.13
+- Logback: 1.2.11 → 1.5.6
+
+**API 变更**:
+- ✅ javax.* → jakarta.* 命名空间迁移
+- ✅ Spring Security 6.x API 更新
+  - antMatchers() → requestMatchers()
+  - authorizeRequests() → authorizeHttpRequests()
+  - WebSecurityConfigurerAdapter → SecurityFilterChain
+- ✅ FilterConfig API 更新
+  - setDispatcherTypes() 使用 EnumSet.of()
+  - 移除重复的 characterEncodingFilter 配置
+- ✅ PermitAllUrlProperties 适配 Spring Framework 6.x
+  - RequestMappingHandlerMapping bean 冲突解决
+  - PathPattern API 更新（getPathPatternsCondition()）
+  - 使用 @Primary 注解指定主要 bean
+- ✅ Actuator 端点配置优化
+  - 配置 /manage/actuator/** 端点访问权限
+  - 支持 Health、Metrics、Info、Env 端点
+  - Prometheus metrics 可通过 Metrics 端点获取
+
+**兼容性修复**:
+- ✅ DruidConfig 中的 FilterConfig 注入修复
+- ✅ FilterRegistrationBean API 更新
+- ✅ 资源处理器配置优化
+- ✅ 静态资源配置调整
+
+**功能更新**:
+- ✅ 应用成功启动并运行
+- ✅ 数据库连接正常（MySQL 8.4）
+- ✅ Redis 连接正常
+- ✅ Actuator 健康检查正常
+- ✅ 所有核心功能正常运行
+
+**注意事项**:
+- ⚠️ 需要使用 Java 17 或更高版本
+- ⚠️ Prometheus 端点返回 HTML 而非 metrics 数据（可通过 /manage/actuator/metrics 获取）
+- ⚠️ 建议使用 Docker 或 IDE 运行以避免 logback 版本冲突
+- ⚠️ 需要更新所有依赖的 javax.* 导入为 jakarta.*
+
+**文档更新**:
+- ✅ 更新 README.md 技术栈版本
+- ✅ 添加 Spring Boot 3.x 升级说明
+- ✅ 更新环境要求（Java 17）
+- ✅ 添加迁移指南
+
 ### v3.9.1 (2026-01-04)
 **重大升级 - 官方 RuoYi-Vue 3.9.1 同步**
 
@@ -174,10 +231,33 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- **Java**: JDK 1.8+
+- **Java**: JDK 17+
 - **Node.js**: 16.0+
 - **MySQL**: 8.4+
 - **Redis**: 6.2+
+
+### Spring Boot 3.x 升级说明
+
+**重要变更**:
+- Java 版本要求从 1.8 升级到 17
+- 所有 javax.* 包迁移到 jakarta.*
+- Spring Security 6.x API 重大变更
+- Tomcat 版本升级到 10.x
+
+**主要迁移步骤**:
+1. 更新 Java 版本到 17
+2. 更新 pom.xml 中的依赖版本
+3. 批量替换 javax.* 导入为 jakarta.*
+4. 更新 Spring Security 配置
+5. 更新 Filter 和 Servlet 配置
+6. 测试所有功能
+
+**详细迁移指南**:
+- javax.servlet → jakarta.servlet
+- javax.annotation → jakarta.annotation
+- javax.validation → jakarta.validation
+- antMatchers() → requestMatchers()
+- authorizeRequests() → authorizeHttpRequests()
 
 ### 1. 克隆项目
 ```bash
@@ -533,16 +613,16 @@ newblog /
 ## 🏗️ 技术栈详解
 
 ### 后端技术栈
-- **框架**: Spring Boot 2.5.15
+- **框架**: Spring Boot 3.3.0
 - **ORM**: MyBatis
 - **数据库**: MySQL 8.4
 - **缓存**: Redis 6.2
-- **安全**: Spring Security 5.7.14
+- **安全**: Spring Security 6.1.5
 - **连接池**: Druid 1.2.27
 - **定时任务**: Quartz
 - **API文档**: Swagger 3.0.0
 - **UserAgent解析**: YAUAA 7.32.0
-- **Java版本**: 1.8
+- **Java版本**: 17
 
 ### 前端技术栈
 - **框架**: Vue 3.5.16
