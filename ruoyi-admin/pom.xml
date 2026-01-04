@@ -5,7 +5,8 @@
     <parent>
         <artifactId>ruoyi</artifactId>
         <groupId>com.ruoyi</groupId>
-        <version>3.9.0</version>
+        <version>3.9.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <packaging>jar</packaging>
@@ -66,7 +67,7 @@
         <dependency>
             <groupId>com.ruoyi</groupId>
             <artifactId>ruoyi-system</artifactId>
-            <version>3.9.0</version>
+            <version>3.9.1</version>
         </dependency>
 
     </dependencies>
