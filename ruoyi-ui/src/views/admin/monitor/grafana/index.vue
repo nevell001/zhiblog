@@ -8,5 +8,5 @@
 import { ref } from 'vue'
 import iFrame from '@/components/iFrame/index.vue'
 
-const url = ref(import.meta.env.VITE_APP_BASE_API + '/druid/login.html')
+const url = ref('http://localhost:3001')
 </script>

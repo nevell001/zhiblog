@@ -71,6 +71,11 @@ const usePermissionStore = defineStore(
                       path: 'setting',
                       name: 'BlogSetting',
                       meta: { title: '博客设置', icon: 'edit' }
+                    },
+                    {
+                      path: 'friendLink',
+                      name: 'BlogFriendLink',
+                      meta: { title: '友链管理', icon: 'link' }
                     }
                   ]
                 },
@@ -119,9 +124,54 @@ const usePermissionStore = defineStore(
                   meta: { title: '系统监控', icon: 'monitor' },
                   children: [
                     {
+                      path: 'actuator',
+                      name: 'MonitorActuator',
+                      meta: { title: 'Actuator监控', icon: 'monitor' }
+                    },
+                    {
+                      path: 'prometheus',
+                      name: 'MonitorPrometheus',
+                      meta: { title: 'Prometheus监控', icon: 'chart' }
+                    },
+                    {
+                      path: 'grafana',
+                      name: 'MonitorGrafana',
+                      meta: { title: 'Grafana监控', icon: 'dashboard' }
+                    },
+                    {
+                      path: 'online',
+                      name: 'MonitorOnline',
+                      meta: { title: '在线用户', icon: 'online' }
+                    },
+                    {
+                      path: 'logininfor',
+                      name: 'MonitorLoginLog',
+                      meta: { title: '登录日志', icon: 'logininfor' }
+                    },
+                    {
+                      path: 'operlog',
+                      name: 'MonitorOperLog',
+                      meta: { title: '操作日志', icon: 'form' }
+                    },
+                    {
+                      path: 'druid',
+                      name: 'MonitorDruid',
+                      meta: { title: '数据监控', icon: 'druid' }
+                    },
+                    {
                       path: 'server',
                       name: 'Server',
                       meta: { title: '服务监控', icon: 'server' }
+                    },
+                    {
+                      path: 'cache',
+                      name: 'MonitorCache',
+                      meta: { title: '缓存监控', icon: 'redis' }
+                    },
+                    {
+                      path: 'job',
+                      name: 'MonitorJob',
+                      meta: { title: '定时任务', icon: 'job' }
                     }
                   ]
                 }

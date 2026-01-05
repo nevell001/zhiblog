@@ -76,15 +76,15 @@ export const menuConfig = {
           permissions: ['admin', 'editor']
         },
         {
-          name: '友链管理',
-          path: '/admin/blog/friendLink',
-          icon: 'link',
-          permissions: ['admin']
-        },
-        {
           name: '博客设置',
           path: '/admin/blog/setting',
           icon: 'setting',
+          permissions: ['admin']
+        },
+        {
+          name: '友链管理',
+          path: '/admin/blog/friendLink',
+          icon: 'link',
           permissions: ['admin']
         }
       ]
@@ -151,6 +151,24 @@ export const menuConfig = {
       permissions: ['admin'],
       type: 'backend',
       children: [
+        {
+          name: 'Actuator监控',
+          path: '/admin/monitor/actuator',
+          icon: 'monitor',
+          permissions: ['admin']
+        },
+        {
+          name: 'Prometheus监控',
+          path: '/admin/monitor/prometheus',
+          icon: 'chart',
+          permissions: ['admin']
+        },
+        {
+          name: 'Grafana监控',
+          path: '/admin/monitor/grafana',
+          icon: 'dashboard',
+          permissions: ['admin']
+        },
         {
           name: '在线用户',
           path: '/admin/monitor/online',
