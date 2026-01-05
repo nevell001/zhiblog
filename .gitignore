@@ -51,3 +51,6 @@ cypress/downloads/
 .cursor
 dump.rdb
 *.rdb
+
+# 项目文档
+IFLOW.md

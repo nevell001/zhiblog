@@ -58,7 +58,7 @@ public class BlogSettingController extends BaseController
      * 通过设置键查询设置值
      */
     @GetMapping("/value/{settingKey}")
-    public AjaxResult getSettingValueByKey(@PathVariable String settingKey)
+    public AjaxResult getSettingValueByKey(@PathVariable("settingKey") String settingKey)
     {
         String value = blogSettingService.selectSettingValueByKey(settingKey);
         return success(value);
@@ -202,7 +202,7 @@ public class BlogSettingController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:setting:remove')")
     @Log(title = "博客设置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogSettingService.deleteBlogSettingByIds(ids));
     }

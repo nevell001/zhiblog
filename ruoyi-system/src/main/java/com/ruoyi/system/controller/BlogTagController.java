@@ -105,7 +105,7 @@ public class BlogTagController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
     @Log(title = "博客标签", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tagIds}")
-    public AjaxResult remove(@PathVariable Long[] tagIds)
+    public AjaxResult remove(@PathVariable("tagIds") Long[] tagIds)
     {
         for (Long tagId : tagIds)
         {

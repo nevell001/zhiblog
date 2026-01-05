@@ -155,7 +155,7 @@ public class BlogArticleController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:article:remove')")
     @Log(title = "文章管理", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogArticleService.deleteBlogArticleByIds(ids));
     }

@@ -101,7 +101,7 @@ public class BlogArticleController extends BaseController {
      */
     @ApiOperation("增加文章浏览量")
     @GetMapping("/view/{id}")
-    public AjaxResult addViewCount(@PathVariable Long id) {
+    public AjaxResult addViewCount(@PathVariable("id") Long id) {
         try {
             BlogArticle article = blogArticleService.selectBlogArticleById(id);
             if (article == null) {

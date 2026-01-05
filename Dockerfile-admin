@@ -3,8 +3,8 @@ FROM maven:3.8.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY . .
 
-# 编译项目，跳过测试编译
-RUN mvn clean package -Dmaven.test.skip=true
+# 编译项目，跳过测试编译，并保留参数名称
+RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true
 
 FROM eclipse-temurin:17-jre
 

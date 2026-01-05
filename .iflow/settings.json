@@ -1,5 +1,5 @@
 {
-  "outputStyle": "Default",
+  "outputStyle": "Explanatory",
   "mcpServers": {
     "cloudbase": {
       "description": "云开发 CloudBase 是专为 AI Coding 提供的 AI 原生后端服务，通过 MCP 可以获得数据库、登录认证、云函数、容器托管、网站托管等一站式的后端集成和部署\n",

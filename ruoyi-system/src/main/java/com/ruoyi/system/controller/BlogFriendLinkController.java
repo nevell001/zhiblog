@@ -107,7 +107,7 @@ public class BlogFriendLinkController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:friendLink:remove')")
     @Log(title = "友情链接", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogFriendLinkService.deleteBlogFriendLinkByIds(ids));
     }

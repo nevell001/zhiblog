@@ -114,8 +114,6 @@ spring:
   messages:
     # 国际化资源文件路径
     basename: i18n/messages
-  profiles:
-    active: dev
   # 文件上传
   servlet:
     multipart:
@@ -141,6 +139,8 @@ spring:
       enabled: true
   # redis 配置
   redis:
+    # Redis URL（优先级最高，覆盖 host 和 port 配置）
+    url: redis://${REDIS_PASSWORD:}@${REDIS_HOST:redis}:${REDIS_PORT:6379}
     # 地址
     host: ${REDIS_HOST:redis}
     # 端口，默认为6379
@@ -149,7 +149,7 @@ spring:
     database: 0
     # 密码
     # 警告：生产环境强烈建议设置Redis密码
-    password: ${REDIS_PASSWORD:} 
+    password: ${REDIS_PASSWORD:}
     # 连接超时时间
     timeout: 10s
     lettuce:

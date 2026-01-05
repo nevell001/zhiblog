@@ -48,7 +48,7 @@ public class BlogArticleTagController extends BaseController
      * 通过文章ID查询标签ID列表
      */
     @GetMapping("/tags/{articleId}")
-    public AjaxResult getTagIdsByArticleId(@PathVariable Long articleId)
+    public AjaxResult getTagIdsByArticleId(@PathVariable("articleId") Long articleId)
     {
         return success(blogArticleTagService.selectTagIdsByArticleId(articleId));
     }
@@ -57,7 +57,7 @@ public class BlogArticleTagController extends BaseController
      * 通过标签ID查询文章ID列表
      */
     @GetMapping("/articles/{tagId}")
-    public AjaxResult getArticleIdsByTagId(@PathVariable Long tagId)
+    public AjaxResult getArticleIdsByTagId(@PathVariable("tagId") Long tagId)
     {
         return success(blogArticleTagService.selectArticleIdsByTagId(tagId));
     }
@@ -111,7 +111,7 @@ public class BlogArticleTagController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:articleTag:remove')")
     @Log(title = "文章标签关联", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogArticleTagService.deleteBlogArticleTagByIds(ids));
     }
@@ -122,7 +122,7 @@ public class BlogArticleTagController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:articleTag:remove')")
     @Log(title = "文章标签关联", businessType = BusinessType.DELETE)
     @DeleteMapping("/article/{articleId}")
-    public AjaxResult removeByArticleId(@PathVariable Long articleId)
+    public AjaxResult removeByArticleId(@PathVariable("articleId") Long articleId)
     {
         return toAjax(blogArticleTagService.deleteByArticleId(articleId));
     }
