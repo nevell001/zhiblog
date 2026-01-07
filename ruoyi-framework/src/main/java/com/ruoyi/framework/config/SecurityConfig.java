@@ -135,9 +135,7 @@ public class SecurityConfig
                 // 开发环境允许访问Swagger、Druid和Actuator
                 if (!"prod".equals(activeProfile)) {
                     requests.requestMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs", "/druid/**",
-                            "/manage/actuator/health", "/manage/actuator/info",
-                            "/manage/actuator/metrics", "/manage/actuator/env",
-                            "/manage/actuator/prometheus").permitAll();
+                            "/manage/actuator/**").permitAll();
                 }
 
                 // 博客前台接口允许匿名访问

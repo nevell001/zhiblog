@@ -110,7 +110,7 @@ const loginRules = {
   ],
   code: [
     { required: true, trigger: "blur", message: "请输入验证码" },
-    { min: 4, max: 6, trigger: "blur", message: "验证码长度为 4-6 个字符" }
+    { min: 1, max: 6, trigger: "blur", message: "验证码长度为 1-6 个字符" }
   ]
 }
 

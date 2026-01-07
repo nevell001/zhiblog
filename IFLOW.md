@@ -6,7 +6,7 @@
 **项目类型**: 前后端分离的企业级博客系统
 **当前版本**: v4.0.0
 **开发语言**: Java 17 + Vue 3.5.16
-**最后更新**: 2026-01-04
+**最后更新**: 2026-01-07
 
 ### 项目简介
 
@@ -24,6 +24,8 @@
 - **定时任务**: Quartz
 - **API文档**: Swagger 3.0.0
 - **UserAgent解析**: YAUAA 7.32.0
+- **图片处理**: Thumbnailator 0.4.20
+- **监控**: Spring Boot Actuator + Prometheus
 - **Java版本**: 17
 
 #### 前端技术栈
@@ -36,6 +38,7 @@
 - **代码高亮**: highlight.js 11.11.1
 - **HTTP客户端**: Axios 1.9.0
 - **图表**: ECharts 5.6.0
+- **图片裁剪**: vue-cropper 1.1.1
 
 ## 项目结构
 
@@ -77,11 +80,15 @@ newblog/
 ├── ruoyi-ui/                 # Vue3前端项目
 │   ├── src/
 │   │   ├── views/            # 页面
+│   │   │   ├── blog/         # 博客前台
+│   │   │   └── admin/        # 管理后台
 │   │   ├── components/       # 组件
 │   │   ├── api/              # API接口
 │   │   ├── router/           # 路由配置
 │   │   ├── stores/           # Pinia状态管理
 │   │   └── utils/            # 工具函数
+│   ├── Dockerfile.dev        # 开发环境Docker文件
+│   ├── Dockerfile.prod       # 生产环境Docker文件
 │   └── package.json
 ├── sql/                      # 数据库脚本
 │   ├── init_database.sql    # 初始化脚本
@@ -91,6 +98,10 @@ newblog/
 ├── docker-compose.dev.yml   # Docker编排(开发)
 ├── docker-compose.prod.yml  # Docker编排(生产)
 ├── Dockerfile-admin         # 后端Docker文件
+├── prometheus/              # Prometheus配置
+│   └── prometheus.yml
+├── grafana/                 # Grafana配置
+│   └── provisioning/
 ├── pom.xml                  # Maven主配置
 └── README.md                # 项目文档
 ```
@@ -98,7 +109,7 @@ newblog/
 ## 核心功能模块
 
 ### 1. 文章管理
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogArticleController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogArticleController.java`
 
 **功能清单**:
 - 文章CRUD操作
@@ -124,7 +135,7 @@ newblog/
 - `getByTag()` - 按标签查询
 
 ### 2. 分类管理
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogCategoryController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCategoryController.java`
 
 **功能清单**:
 - 分类CRUD操作
@@ -133,7 +144,7 @@ newblog/
 - 分类唯一性验证
 
 ### 3. 标签管理
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogTagController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogTagController.java`
 
 **功能清单**:
 - 标签CRUD操作
@@ -143,7 +154,7 @@ newblog/
 - 标签导出功能
 
 ### 4. 评论系统
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogCommentController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCommentController.java`
 
 **功能清单**:
 - 支持用户评论和匿名评论
@@ -153,7 +164,7 @@ newblog/
 - 邮箱通知（可选）
 
 ### 5. 友情链接
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogFriendLinkController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogFriendLinkController.java`
 
 **功能清单**:
 - 友链CRUD操作
@@ -161,7 +172,7 @@ newblog/
 - Logo图片支持
 
 ### 6. 博客设置
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/blog/BlogSettingController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogSettingController.java`
 
 **功能清单**:
 - 键值对配置存储
@@ -179,7 +190,7 @@ newblog/
 - `blog_comment_audit`: 评论审核开关
 
 ### 7. 统计分析
-**控制器**: `ruoyi-admin/src/main/java/com/ruoyi/web/controller/statistics/StatisticsController.java`
+**控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogStatisticsController.java`
 
 **功能清单**:
 - 文章统计（总数、发布数、草稿数）
@@ -243,7 +254,7 @@ newblog/
 
 ```bash
 # 编译项目
-cd /Users/nevell/code/newblog
+cd /home/nevell/code/newblog
 mvn clean install -DskipTests
 
 # 启动后端服务
@@ -255,7 +266,7 @@ mvn spring-boot:run
 
 ```bash
 # 安装依赖
-cd /Users/nevell/code/newblog/ruoyi-ui
+cd /home/nevell/code/newblog/ruoyi-ui
 npm install
 
 # 启动开发服务器
@@ -263,13 +274,16 @@ npm run dev
 
 # 生产环境构建
 npm run build:prod
+
+# 预发布环境构建
+npm run build:stage
 ```
 
 ### Docker 一键部署
 
 ```bash
 # 开发环境
-cd /Users/nevell/code/newblog
+cd /home/nevell/code/newblog
 docker compose -f docker-compose.dev.yml up -d
 
 # 生产环境
@@ -280,6 +294,12 @@ docker compose -f docker-compose.dev.yml ps
 
 # 查看日志
 docker compose -f docker-compose.dev.yml logs -f
+
+# 停止服务
+docker compose -f docker-compose.dev.yml down
+
+# 重启服务
+docker compose -f docker-compose.dev.yml restart
 ```
 
 ### 数据库初始化
@@ -308,6 +328,8 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 | http://localhost:8080 | 后端API | 后端服务 |
 | http://localhost:8080/swagger-ui.html | API文档 | Swagger文档 |
 | http://localhost:8080/druid | 数据库监控 | Druid监控台 |
+| http://localhost:9090 | Prometheus | 监控数据 |
+| http://localhost:3001 | Grafana | 可视化监控 |
 
 **默认账号**: admin / admin123
 
@@ -324,6 +346,7 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 - 图片压缩配置: 已启用
 - 防盗链配置: 默认关闭
 - Actuator监控: 已启用
+- Prometheus监控: 已集成
 
 ### 前端配置
 **配置文件**: `ruoyi-ui/vite.config.js`, `ruoyi-ui/.env.development`, `ruoyi-ui/.env.production`
@@ -332,6 +355,20 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 - 开发服务器端口: 3000
 - API代理: /dev-api → http://localhost:8080
 - 构建输出: dist/
+- Docker环境支持: 自动检测并切换后端地址
+
+### 监控配置
+
+**Prometheus配置**: `prometheus/prometheus.yml`
+- 采集频率: 15秒
+- 数据保留: 15天
+- 监控目标: Spring Boot Actuator 端点
+
+**Grafana配置**: `grafana/provisioning/`
+- 默认用户: admin
+- 默认密码: admin
+- 数据源: Prometheus
+- 自动导入仪表板
 
 ## 开发规范
 
@@ -387,6 +424,12 @@ chore: 构建/工具
 - /about - 关于页面
 ```
 
+**后台管理路由**:
+- `/admin` - 后台管理系统
+- 基于权限动态加载路由
+- 路由守卫权限验证
+- 组件懒加载优化
+
 ## Spring Boot 3.x 升级说明
 
 ### 重要变更
@@ -416,21 +459,37 @@ chore: 构建/工具
 - 支持头像、缩略图、封面图、移动端适配
 - 可配置压缩阈值和质量
 - 自动调整图片尺寸
+- 基于 Thumbnailator 库
+- 三种压缩策略：智能压缩、头像压缩、缩略图压缩
+
+**压缩接口**:
+- `POST /common/upload/compressed` - 智能压缩
+- `POST /common/upload/avatar` - 头像压缩 (200x200)
+- `POST /common/upload/thumbnail` - 缩略图压缩 (400x400)
 
 ### 2. 防盗链保护
 - 白名单控制
 - 保护静态资源
 - 可配置启用/禁用
+- 保护 `/profile/**` 路径下的资源
 
 ### 3. JSON XSS 防护
 - 使用 JsonSanitizer
 - 自动过滤恶意代码
 - 保护数据安全
+- 可配置排除路径
 
 ### 4. User-Agent 解析
 - 使用 YAUAA 库
 - 支持多种浏览器和操作系统检测
 - 精确的设备识别
+- 替代了旧的 BitWalker 库
+
+### 5. 监控与告警
+- Spring Boot Actuator 集成
+- Prometheus 指标采集
+- Grafana 可视化仪表板
+- 健康检查、性能监控、日志管理
 
 ## 监控与运维
 
@@ -441,11 +500,27 @@ chore: 构建/工具
 - `/manage/actuator/metrics` - 指标数据
 - `/manage/actuator/env` - 环境变量
 - `/manage/actuator/prometheus` - Prometheus 指标
+- `/manage/actuator/configprops` - 配置属性
 
 ### Prometheus 集成
 - 已集成 micrometer-registry-prometheus
 - 支持应用指标收集
 - 可配合 Grafana 进行可视化
+- 15秒采集间隔
+- 15天数据保留
+
+### Grafana 仪表板
+- 预配置数据源
+- 自动导入仪表板
+- 实时监控展示
+- 告警通知支持
+
+### 日志管理
+- 日志级别配置
+- MyBatis SQL 日志
+- 操作日志记录
+- 登录日志记录
+- 定时任务日志
 
 ## 常见问题
 
@@ -469,6 +544,38 @@ chore: 构建/工具
 **问题**: 用户无法访问某些功能
 **解决**: 检查角色权限配置，菜单权限是否正确分配
 
+### 6. Docker 部署问题
+**问题**: 容器启动失败
+**解决**: 检查 docker-compose.yml 配置，确保端口未被占用，网络配置正确
+
+### 7. 图片上传问题
+**问题**: 图片上传失败或压缩不生效
+**解决**: 检查 uploadPath 目录权限，确认图片压缩配置已启用
+
+## Docker 服务说明
+
+### 开发环境服务 (`docker-compose.dev.yml`)
+- **ruoyi-admin**: 后端服务 (8080端口)
+- **ruoyi-ui**: 前端开发服务器 (3000端口)
+- **mysql**: MySQL 8.4 数据库 (3306端口)
+- **redis**: Redis 6.2 缓存 (6379端口)
+- **prometheus**: 监控数据采集 (9090端口)
+- **grafana**: 可视化监控 (3001端口)
+
+### 生产环境服务 (`docker-compose.prod.yml`)
+- **ruoyi-admin**: 后端服务 (8080端口)
+- **ruoyi-ui**: Nginx 静态文件服务 (80/443端口)
+- **mysql**: MySQL 8.4 数据库 (3306端口)
+- **redis**: Redis 6.2 缓存 (6379端口)
+- **prometheus**: 监控数据采集 (9090端口)
+- **grafana**: 可视化监控 (3001端口)
+
+### 数据持久化
+- MySQL 数据: `mysql_data` volume
+- Prometheus 数据: `prometheus_data` volume
+- Grafana 数据: `grafana_data` volume
+- 上传文件: `./uploadPath` 目录挂载
+
 ## 项目优势
 
 1. **企业级架构**: 基于成熟的 RuoYi-Vue 框架，稳定可靠
@@ -478,6 +585,9 @@ chore: 构建/工具
 5. **功能丰富**: 文章、评论、标签、分类、统计等完整功能
 6. **容器化部署**: Docker + Docker Compose 一键部署
 7. **安全加固**: 多层安全防护，XSS、CSRF、SQL注入防护
+8. **性能优化**: 图片压缩、Redis缓存、数据库索引
+9. **监控完善**: Prometheus + Grafana 全链路监控
+10. **开发友好**: 热部署、自动重启、详细日志
 
 ## 相关文档
 
@@ -485,10 +595,13 @@ chore: 构建/工具
 - **项目检查报告**: [docs/项目检查报告.md](docs/项目检查报告.md)
 - **图片压缩功能**: [docs/图片压缩功能使用指南.md](docs/图片压缩功能使用指南.md)
 - **项目优化建议**: [docs/项目优化建议.md](docs/项目优化建议.md)
+- **PR描述**: [docs/PR_DESCRIPTION.md](docs/PR_DESCRIPTION.md)
 - **RuoYi官方文档**: http://doc.ruoyi.vip/
 - **Vue 3文档**: https://cn.vuejs.org/
 - **Element Plus文档**: https://element-plus.org/
 - **Spring Boot文档**: https://spring.io/projects/spring-boot
+- **Prometheus文档**: https://prometheus.io/docs/
+- **Grafana文档**: https://grafana.com/docs/
 
 ## 许可证
 
@@ -496,6 +609,6 @@ chore: 构建/工具
 
 ---
 
-**最后更新**: 2026-01-04
+**最后更新**: 2026-01-07
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog

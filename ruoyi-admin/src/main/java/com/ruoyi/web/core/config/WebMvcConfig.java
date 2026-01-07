@@ -22,8 +22,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         // 配置静态资源处理，支持SPA应用history模式
+        // 只对 /blog 和 /admin 路径应用 SPA 路由支持
         // 注意：排除 /profile 路径，该路径由 ResourcesConfig 处理上传文件
-        registry.addResourceHandler("/**")
+        registry.addResourceHandler("/blog/**", "/admin/**")
                 .addResourceLocations("classpath:/META-INF/resources/")
                 .addResourceLocations("classpath:/resources/")
                 .addResourceLocations("classpath:/static/")
@@ -42,9 +43,18 @@ public class WebMvcConfig implements WebMvcConfigurer {
         protected Resource getResource(String resourcePath, Resource location) throws IOException {
             Resource resource = super.getResource(resourcePath, location);
 
-            // 如果资源不存在，且不是API请求（不包含/api和不以下划线开头），且不是静态资源路径，且不是profile路径，返回index.html
-            if (resource == null && !resourcePath.contains("/api") && !resourcePath.startsWith("/")
-                && !resourcePath.contains(".") && !resourcePath.startsWith("profile")) {
+            // 如果资源不存在，且不是以下路径，返回index.html：
+            // 1. API 请求（包含 /api）
+            // 2. Actuator 监控端点（包含 /manage/actuator）
+            // 3. 静态资源（包含 .）
+            // 4. Profile 路径（包含 /profile）
+            // 5. Swagger 相关路径（包含 /swagger）
+            if (resource == null &&
+                !resourcePath.contains("/api") &&
+                !resourcePath.contains("/manage/actuator") &&
+                !resourcePath.contains("/swagger") &&
+                !resourcePath.contains(".") &&
+                !resourcePath.startsWith("profile")) {
                 return super.getResource("index.html", location);
             }
 

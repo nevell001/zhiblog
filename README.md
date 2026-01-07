@@ -1,7 +1,7 @@
 # 基于 RuoYi-Vue 的博客系统
 
 ## 🚀 项目简介
-本项目基于 RuoYi-Vue 快速开发平台，打造一个现代化、支持多用户、前后端分离的企业级博客系统。采用 Spring Boot + Vue 3 + Element Plus 技术栈，集成文章发布、评论互动、标签分类、友情链接、后台管理等完整博客功能，适合个人或团队搭建高效、可扩展的博客平台。
+本项目基于 RuoYi-Vue 快速开发平台，打造一个现代化、支持多用户、前后端分离的企业级博客系统。采用 Spring Boot 3.3.0 + Vue 3 + Element Plus 技术栈，集成文章发布、评论互动、标签分类、友情链接、后台管理等完整博客功能，适合个人或团队搭建高效、可扩展的博客平台。
 
 **项目特色**：
 - 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架，稳定可靠
@@ -11,11 +11,14 @@
 - 📊 **功能丰富**：文章、评论、标签、分类、统计等完整功能
 - 🐳 **容器化部署**：Docker + Docker Compose 一键部署
 - 🛡️ **安全加固**：多层安全防护，XSS、CSRF、SQL注入防护
+- 📈 **监控完善**：Prometheus + Grafana 全链路监控
+- 🖼️ **图片优化**：智能压缩、防盗链保护
+- ⚡ **性能优化**：Redis缓存、数据库索引、懒加载
 
 ## 📦 版本历史
 
-### v4.0.0 (2026-01-04)
-**重大升级 - Spring Boot 3.3.0 + Java 17**
+### v4.0.0 (2026-01-07)
+**重大升级 - Spring Boot 3.3.0 + Java 17 + 监控体系**
 
 **框架升级**:
 - Spring Boot: 2.5.15 → 3.3.0
@@ -27,6 +30,14 @@
 - MySQL Connector: 8.0.33 → 8.4.0
 - SLF4J: 1.7.36 → 2.0.13
 - Logback: 1.2.11 → 1.5.6
+
+**新增功能**:
+- ✅ 集成 Prometheus 监控系统
+- ✅ 集成 Grafana 可视化监控
+- ✅ 完善 Docker 健康检查机制
+- ✅ 优化生产环境 Docker 配置
+- ✅ 添加 Redis 数据持久化
+- ✅ 完善服务重启策略
 
 **API 变更**:
 - ✅ javax.* → jakarta.* 命名空间迁移
@@ -57,6 +68,8 @@
 - ✅ 数据库连接正常（MySQL 8.4）
 - ✅ Redis 连接正常
 - ✅ Actuator 健康检查正常
+- ✅ Prometheus 指标采集正常
+- ✅ Grafana 仪表板自动配置
 - ✅ 所有核心功能正常运行
 
 **注意事项**:
@@ -64,12 +77,15 @@
 - ⚠️ Prometheus 端点返回 HTML 而非 metrics 数据（可通过 /manage/actuator/metrics 获取）
 - ⚠️ 建议使用 Docker 或 IDE 运行以避免 logback 版本冲突
 - ⚠️ 需要更新所有依赖的 javax.* 导入为 jakarta.*
+- ⚠️ 生产环境建议配置 Redis 密码
 
 **文档更新**:
 - ✅ 更新 README.md 技术栈版本
 - ✅ 添加 Spring Boot 3.x 升级说明
 - ✅ 更新环境要求（Java 17）
 - ✅ 添加迁移指南
+- ✅ 添加监控配置说明
+- ✅ 完善 Docker 部署文档
 
 ### v3.9.1 (2026-01-04)
 **重大升级 - 官方 RuoYi-Vue 3.9.1 同步**
@@ -165,16 +181,7 @@
 - XSS 防护
 - User-Agent 解析
 - 第三方登录（如 GitHub、微信等，后续可扩展）
-- 图片压缩（智能压缩、头像、缩略图）
-- 防盗链保护（白名单控制）
-- JSON XSS 防护
-- UserAgent 解析（浏览器和操作系统检测）
-
-
-
----
-
-
+- 监控告警（Prometheus + Grafana）
 
 ## 🗄️ 数据库配置
 - **数据库版本**: MySQL 8.4
@@ -226,7 +233,10 @@
 1. **博客前台**: http://localhost:3000/blog
 2. **管理后台**: http://localhost:3000/admin
 3. **API文档**: http://localhost:8080/swagger-ui.html
-4. **默认账号**: admin / admin123
+4. **数据库监控**: http://localhost:8080/druid
+5. **Prometheus监控**: http://localhost:9090
+6. **Grafana可视化**: http://localhost:3001
+7. **默认账号**: admin / admin123
 
 ## 🚀 快速开始
 
@@ -235,6 +245,8 @@
 - **Node.js**: 16.0+
 - **MySQL**: 8.4+
 - **Redis**: 6.2+
+- **Maven**: 3.6+
+- **Docker**: 20.10+ (可选，用于容器化部署)
 
 ### Spring Boot 3.x 升级说明
 
@@ -284,8 +296,7 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 ### 3. 后端启动
 ```bash
 # 编译项目
-cd ruoyi-admin
-mvn clean install
+mvn clean install -DskipTests
 
 # 启动后端服务
 cd ruoyi-admin
@@ -300,33 +311,73 @@ npm install
 
 # 启动开发服务器
 npm run dev
+
+# 生产环境构建
+npm run build:prod
+
+# 预发布环境构建
+npm run build:stage
 ```
 
 ### 5. Docker 一键部署
-```bash
-# 构建并启动所有服务
-docker compose -f docker-compose.dev.yml up -d  //开发环境
 
-docker compose -f docker-compose.prod.yml up -d  //生产环境
+#### 开发环境部署
+```bash
+# 启动所有服务（包含前端开发服务器）
+docker compose -f docker-compose.dev.yml up -d
 
 # 查看服务状态
 docker compose -f docker-compose.dev.yml ps
 
 # 查看日志
 docker compose -f docker-compose.dev.yml logs -f
+
+# 停止服务
+docker compose -f docker-compose.dev.yml down
 ```
+
+#### 生产环境部署
+```bash
+# 启动所有服务（包含 Nginx 静态文件服务）
+docker compose -f docker-compose.prod.yml up -d
+
+# 查看服务状态
+docker compose -f docker-compose.prod.yml ps
+
+# 查看日志
+docker compose -f docker-compose.prod.yml logs -f
+
+# 停止服务
+docker compose -f docker-compose.prod.yml down
+
+# 重启服务
+docker compose -f docker-compose.prod.yml restart
+```
+
+### 6. 监控系统访问
+
+#### Prometheus
+- 访问地址: http://localhost:9090
+- 功能: 指标数据采集和查询
+- 配置文件: `prometheus/prometheus.yml`
+
+#### Grafana
+- 访问地址: http://localhost:3001
+- 默认账号: admin / admin
+- 功能: 可视化监控仪表板
+- 配置目录: `grafana/provisioning/`
 
 ## 📁 项目结构
 ```
-newblog /
-├── ruoyi-admin/              # 后端主模块 
+newblog/
+├── ruoyi-admin/              # 后端主模块
 │   ├── src/main/java/
 │   │   └── com/ruoyi/
 │   │       ├── RuoYiApplication.java    # 启动类
 │   │       └── web/controller/          # 控制器
 │   └── src/main/resources/
 │       └── application.yml             # 配置文件
-├── ruoyi-system/             # 系统模块(含博客功能) 
+├── ruoyi-system/             # 系统模块(含博客功能)
 │   ├── src/main/java/
 │   │   └── com/ruoyi/system/
 │   │       ├── controller/             # 控制器 (8个博客相关)
@@ -335,7 +386,7 @@ newblog /
 │   │       └── service/                # 业务逻辑层
 │   └── src/main/resources/
 │       └── mapper/system/              # MyBatis XML (22个)
-├── ruoyi-framework/          # 框架核心 
+├── ruoyi-framework/          # 框架核心
 │   ├── src/main/java/
 │   │   └── com/ruoyi/framework/
 │   │       ├── config/                 # 配置类
@@ -343,7 +394,7 @@ newblog /
 │   │       ├── aspectj/                # 切面
 │   │       ├── manager/                # 异步工厂
 │   │       └── web/service/            # Web服务
-├── ruoyi-common/             # 通用工具 
+├── ruoyi-common/             # 通用工具
 │   ├── src/main/java/
 │   │   └── com/ruoyi/common/
 │   │       ├── utils/                  # 工具类 (13个)
@@ -352,51 +403,42 @@ newblog /
 │   │       └── core/domain/            # 核心领域对象
 │   ├── src/main/java/com/ruoyi/common/utils/json/  # JSON工具
 │   └── src/main/java/com/ruoyi/common/utils/http/  # HTTP工具
-├── ruoyi-quartz/             # 定时任务 
-├── ruoyi-generator/          # 代码生成 
-├── ruoyi-ui/                # Vue3前端项目 
+├── ruoyi-quartz/             # 定时任务
+├── ruoyi-generator/          # 代码生成
+├── ruoyi-ui/                # Vue3前端项目
 │   ├── src/
-│   │   ├── views/            # 页面 (58个)
-│   │   │   ├── blog/        # 博客前台 (6个)
+│   │   ├── views/            # 页面
+│   │   │   ├── blog/        # 博客前台
 │   │   │   │   ├── index.vue              # 首页
 │   │   │   │   ├── article/detail.vue     # 文章详情
 │   │   │   │   ├── category/              # 分类页面
 │   │   │   │   ├── tag/                   # 标签页面
 │   │   │   │   ├── archive/               # 归档页面
 │   │   │   │   └── about.vue              # 关于页面
-│   │   │   ├── admin/blog/   # 博客后台 (7个)
-│   │   │   │   ├── article/               # 文章管理
-│   │   │   │   ├── category/              # 分类管理
-│   │   │   │   ├── tag/                   # 标签管理
-│   │   │   │   ├── comment/               # 评论管理
-│   │   │   │   ├── friendLink/            # 友链管理
-│   │   │   │   └── setting/               # 博客设置
-│   │   │   ├── monitor/      # 系统监控
-│   │   │   ├── system/       # 系统管理
-│   │   │   └── tool/         # 工具
-│   │   ├── components/       # 组件 (36个)
-│   │   ├── api/              # API接口 (38个)
-│   │   │   ├── blog/         # 博客API
-│   │   │   ├── admin/        # 管理API
-│   │   │   ├── monitor/      # 监控API
-│   │   │   └── system/       # 系统API
+│   │   │   └── admin/       # 管理后台
+│   │   ├── components/       # 组件
+│   │   ├── api/              # API接口
 │   │   ├── router/           # 路由配置
 │   │   ├── stores/           # Pinia状态管理
 │   │   ├── assets/           # 静态资源
 │   │   ├── directive/        # 指令
 │   │   └── utils/            # 工具函数
+│   ├── Dockerfile.dev        # 开发环境Docker文件
+│   ├── Dockerfile.prod       # 生产环境Docker文件
 │   └── package.json
-├── sql/                     # 数据库脚本 
+├── sql/                     # 数据库脚本
 │   ├── init_database.sql    # 初始化脚本
 │   ├── quartz.sql           # 定时任务脚本
 │   ├── 00_setup_permissions.sql  # 权限设置
 │   └── performance_indexes.sql   # 性能索引
-├── docker-compose.dev.yml   # Docker编排(开发) 
-├── docker-compose.prod.yml  # Docker编排(生产) 
-├── Dockerfile-admin         # 后端Docker文件 
-├── Dockerfile.dev           # 前端Docker文件(开发) 
-├── Dockerfile.prod          # 前端Docker文件(生产) 
-├── pom.xml                  # Maven主配置 
+├── prometheus/              # Prometheus配置
+│   └── prometheus.yml       # 监控配置文件
+├── grafana/                 # Grafana配置
+│   └── provisioning/        # 仪表板配置
+├── docker-compose.dev.yml   # Docker编排(开发)
+├── docker-compose.prod.yml  # Docker编排(生产)
+├── Dockerfile-admin         # 后端Docker文件
+├── pom.xml                  # Maven主配置
 └── README.md                # 项目文档
 ```
 
@@ -430,26 +472,6 @@ newblog /
 - getByTag() - 按标签查询
 ```
 
-**数据库字段**:
-```sql
-- id: 主键
-- title: 文章标题
-- content: 文章内容
-- summary: 文章摘要
-- cover_image: 封面图片
-- category_id: 分类ID
-- author: 作者
-- status: 状态(0草稿 1发布)
-- is_top: 是否置顶
-- is_recommend: 是否推荐
-- view_count: 浏览量
-- like_count: 点赞数
-- comment_count: 评论数
-- create_time: 创建时间
-- update_time: 更新时间
-- del_flag: 删除标志
-```
-
 ### 🏷️ 分类管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCategoryController.java`
 
@@ -458,19 +480,6 @@ newblog /
 - ✅ 排序功能
 - ✅ 软删除支持
 - ✅ 分类唯一性验证
-
-**数据库字段**:
-```sql
-- id: 主键
-- name: 分类名称
-- description: 分类描述
-- icon: 分类图标
-- sort_order: 排序
-- article_count: 文章数量
-- create_time: 创建时间
-- update_time: 更新时间
-- del_flag: 删除标志
-```
 
 ### 🎯 标签管理
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogTagController.java`
@@ -482,19 +491,6 @@ newblog /
 - ✅ 关联文章检查
 - ✅ 标签导出功能
 
-**数据库字段**:
-```sql
-- id: 主键
-- name: 标签名称
-- description: 标签描述
-- color: 标签颜色(默认#409EFF)
-- icon: 标签图标
-- article_count: 文章数量
-- create_time: 创建时间
-- update_time: 更新时间
-- del_flag: 删除标志
-```
-
 ### 💬 评论系统
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogCommentController.java`
 
@@ -505,20 +501,6 @@ newblog /
 - ✅ IP地址记录
 - ✅ 邮箱通知（可选）
 
-**数据库字段**:
-```sql
-- id: 主键
-- article_id: 文章ID
-- user_id: 用户ID(可为空)
-- parent_id: 父评论ID
-- nickname: 昵称
-- email: 邮箱
-- content: 评论内容
-- status: 状态(0待审核 1已通过 2已拒绝)
-- ip_address: IP地址
-- create_time: 创建时间
-```
-
 ### 🔗 友情链接
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogFriendLinkController.java`
 
@@ -526,19 +508,6 @@ newblog /
 - ✅ 友链CRUD操作
 - ✅ 状态控制(启用/禁用)
 - ✅ Logo图片支持
-
-**数据库字段**:
-```sql
-- id: 主键
-- name: 网站名称
-- url: 网站链接
-- logo: Logo图片
-- description: 描述
-- status: 状态(0禁用 1启用)
-- sort_order: 排序
-- create_time: 创建时间
-- update_time: 更新时间
-```
 
 ### ⚙️ 博客设置
 **控制器**: `ruoyi-system/src/main/java/com/ruoyi/system/controller/BlogSettingController.java`
@@ -585,14 +554,6 @@ newblog /
 └── 友链管理 (2006) - blog:friendLink:list
 ```
 
-**按钮权限** (22个):
-- 文章管理: query, add, edit, remove (4个)
-- 分类管理: query, add, edit, remove (4个)
-- 标签管理: query, add, edit, remove, export (5个)
-- 评论管理: query, approve, remove (3个)
-- 博客设置: query, edit (2个)
-- 友链管理: query, add, edit, remove (4个)
-
 ### 路由配置
 **前台博客路由** (`ruoyi-ui/src/router/index.js`):
 ```javascript
@@ -604,24 +565,20 @@ newblog /
 - /about - 关于页面
 ```
 
-**后台管理路由**:
-- `/admin` - 后台管理系统
-- 基于权限动态加载路由
-- 路由守卫权限验证
-- 组件懒加载优化
-
 ## 🏗️ 技术栈详解
 
 ### 后端技术栈
 - **框架**: Spring Boot 3.3.0
-- **ORM**: MyBatis
-- **数据库**: MySQL 8.4
+- **ORM**: MyBatis 3.0.3
+- **数据库**: MySQL 8.4.0
 - **缓存**: Redis 6.2
 - **安全**: Spring Security 6.1.5
 - **连接池**: Druid 1.2.27
 - **定时任务**: Quartz
 - **API文档**: Swagger 3.0.0
 - **UserAgent解析**: YAUAA 7.32.0
+- **图片处理**: Thumbnailator 0.4.20
+- **监控**: Spring Boot Actuator + Prometheus
 - **Java版本**: 17
 
 ### 前端技术栈
@@ -634,6 +591,14 @@ newblog /
 - **代码高亮**: highlight.js 11.11.1
 - **HTTP客户端**: Axios 1.9.0
 - **图表**: ECharts 5.6.0
+- **图片裁剪**: vue-cropper 1.1.1
+
+### 监控技术栈
+- **监控采集**: Prometheus
+- **可视化**: Grafana
+- **数据源**: Spring Boot Actuator
+- **指标格式**: Prometheus metrics
+- **数据保留**: 15天
 
 ### 开发工具
 - **容器化**: Docker + Docker Compose
@@ -641,38 +606,25 @@ newblog /
 - **版本控制**: Git
 - **API调试**: Swagger UI
 
----
-
 ## 📋 开发规范
 
-### 📝 代码规范
+### 代码规范
 
 **Java**:
+```java
+// 遵循阿里巴巴Java开发手册
 - 类名使用大驼峰 (e.g., BlogArticleController)
 - 方法名使用小驼峰 (e.g., getArticleList)
 - 常量全大写下划线分隔 (e.g., MAX_PAGE_SIZE)
 - 注释完整清晰 (e.g., @Override, @Deprecated)
+```
 
 **Vue**:
+```javascript
+// 遵循Vue官方风格指南
 - 组件名多单词 (e.g., BlogArticleList)
 - Prop定义详细 (e.g., type, required, default)
 - 使用组合式API (e.g., setup, ref, reactive)
-### 📝 开发规范
-
-**代码规范**:
-```java
-// Java - 遵循阿里巴巴Java开发手册
-- 类名使用大驼峰
-- 方法名使用小驼峰
-- 常量全大写下划线分隔
-- 注释完整清晰
-```
-
-```javascript
-// Vue - 遵循Vue官方风格指南
-- 组件名多单词
-- Prop定义详细
-- 使用组合式API
 - 统一代码格式
 ```
 
@@ -692,22 +644,24 @@ chore: 构建/工具
 ### 环境变量配置
 ```bash
 # 数据库配置
-SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3306/newblog
-SPRING_DATASOURCE_USERNAME=root
-SPRING_DATASOURCE_PASSWORD=root
+DB_HOST=localhost
+DB_USERNAME=root
+DB_PASSWORD=root
 
 # Redis配置
-SPRING_REDIS_HOST=localhost
-SPRING_REDIS_PORT=6379
-SPRING_REDIS_PASSWORD=
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
 
 # JWT配置
-JWT_SECRET=your-secret-key
-JWT_EXPIRATION=7200
+R_TOKEN_SECRET=your-very-long-and-secure-random-string-here
 
 # 防盗链配置
-REFERER_ENABLED=true
+REFERER_ENABLED=false
 REFERER_ALLOWED_DOMAINS=localhost,127.0.0.1
+
+# 验证码配置
+CAPTCHA_ENABLED=false
 ```
 
 ### 图片压缩配置
@@ -737,17 +691,29 @@ referer:
   allowed-domains: localhost,127.0.0.1  # 允许的域名列表
 ```
 
-**使用方法**:
-1. 在 `application.yml` 中设置 `referer.enabled: true`
-2. 配置允许的域名列表 `referer.allowed-domains: yourdomain.com,localhost`
-3. 防盗链会自动保护 `/profile/**` 路径下的资源
+### 监控配置
 
-**注意事项**:
-- 开发环境建议关闭防盗链
-- 生产环境建议开启并配置正确的域名
-- 允许的域名列表使用逗号分隔
+**Prometheus配置** (`prometheus/prometheus.yml`):
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: 'spring-boot'
+    metrics_path: '/manage/actuator/prometheus'
+    static_configs:
+      - targets: ['ruoyi-admin:8080']
+```
+
+**Grafana配置**:
+- 默认用户: admin
+- 默认密码: admin
+- 数据源: Prometheus
+- 自动导入仪表板
 
 ### 生产环境建议
+
 1. **安全配置**:
    - 修改默认密码
    - 设置强Token密钥
@@ -768,11 +734,48 @@ referer:
    - 设置性能监控
    - 配置告警通知
    - 定期数据备份
+   - 监控系统健康状态
 
 4. **防盗链配置**:
    - 开启防盗链功能
    - 配置正确的白名单域名
    - 保护静态资源不被外部引用
+
+## 🐳 Docker 部署说明
+
+### 开发环境服务
+- **ruoyi-admin**: 后端服务 (8080端口)
+- **ruoyi-ui**: 前端开发服务器 (3000端口)
+- **mysql**: MySQL 8.4 数据库 (3306端口)
+- **redis**: Redis 6.2 缓存 (6379端口)
+- **prometheus**: 监控数据采集 (9090端口)
+- **grafana**: 可视化监控 (3001端口)
+
+### 生产环境服务
+- **ruoyi-admin**: 后端服务 (8080端口)
+- **ruoyi-ui**: Nginx 静态文件服务 (80/443端口)
+- **mysql**: MySQL 8.4 数据库 (3306端口)
+- **redis**: Redis 6.2 缓存 (6379端口)
+- **prometheus**: 监控数据采集 (9090端口)
+- **grafana**: 可视化监控 (3001端口)
+
+### 数据持久化
+- MySQL 数据: `mysql_data` volume
+- Redis 数据: `redis_data` volume
+- Prometheus 数据: `prometheus_data` volume
+- Grafana 数据: `grafana_data` volume
+- 上传文件: `./uploadPath` 目录挂载
+
+### 健康检查
+所有服务都配置了健康检查机制：
+- MySQL: mysqladmin ping
+- Redis: redis-cli ping
+- 后端: /actuator/health 端点
+- 前端: /health 端点
+
+### 重启策略
+- 开发环境: 默认重启策略
+- 生产环境: unless-stopped（除非手动停止，否则自动重启）
 
 ## 🤝 贡献指南
 
@@ -782,19 +785,23 @@ referer:
 3. **分支策略**: Git Flow工作流
 4. **测试要求**: 新功能需包含单元测试
 
-# 📞 技术支持
+## 📞 技术支持
 
 ### 相关文档
 - **项目文档**: [本README](README.md)
+- **项目上下文**: [IFLOW.md](IFLOW.md)
+- **项目检查报告**: [docs/项目检查报告.md](docs/项目检查报告.md)
+- **图片压缩功能**: [docs/图片压缩功能使用指南.md](docs/图片压缩功能使用指南.md)
+- **项目优化建议**: [docs/项目优化建议.md](docs/项目优化建议.md)
 - **RuoYi官方文档**: http://doc.ruoyi.vip/
 - **Vue 3文档**: https://cn.vuejs.org/
 - **Element Plus文档**: https://element-plus.org/
 - **Spring Boot文档**: https://spring.io/projects/spring-boot
+- **Prometheus文档**: https://prometheus.io/docs/
+- **Grafana文档**: https://grafana.com/docs/
 
 ### 许可证
 本项目基于 [MIT许可证](LICENSE) 开源
-
----
 
 ## 🎉 致谢
 感谢以下开源项目的支持：
@@ -802,3 +809,11 @@ referer:
 - [Vue.js](https://vuejs.org/) - 渐进式JavaScript框架
 - [Element Plus](https://element-plus.org/) - Vue 3组件库
 - [Spring Boot](https://spring.io/projects/spring-boot) - Java企业级开发框架
+- [Prometheus](https://prometheus.io/) - 开源监控告警系统
+- [Grafana](https://grafana.com/) - 开源可视化平台
+
+---
+
+**最后更新**: 2026-01-07
+**维护者**: nevell
+**项目地址**: https://gitee.com/nevell/newblog

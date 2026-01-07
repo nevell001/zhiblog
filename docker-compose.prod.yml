@@ -105,6 +105,7 @@ services:
       DOCKER: "true"
       VUE_APP_BASE_API: http://localhost
       VUE_APP_ENV: production
+      VITE_GRAFANA_URL: http://localhost:3001
       # 生产环境配置
       NGINX_HOST: localhost
       NGINX_PORT: 80

@@ -15,11 +15,6 @@ scrape_configs:
           environment: 'dev'
     scrape_interval: 10s
     scrape_timeout: 10s
-    # 添加认证信息
-    authorization:
-      credentials: 'admin'
-    # 添加 bearer token（需要动态获取）
-    # bearer_token_file: /etc/prometheus/token.txt
 
   # 监控 Prometheus 自身
   - job_name: 'prometheus'
