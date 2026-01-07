@@ -1418,6 +1418,7 @@ defineExpose({
   gap: 30px;
   margin-bottom: 20px;
   animation: fadeInUp 0.6s ease-out;
+  align-items: stretch;
 }
 
 @keyframes fadeInUp {
@@ -1443,6 +1444,7 @@ defineExpose({
   position: relative;
   animation: cardFadeIn 0.6s ease-out backwards;
   backdrop-filter: blur(10px);
+  min-height: 480px;
 }
 
 .article-item:nth-child(1) { animation-delay: 0.1s; }
@@ -1492,6 +1494,7 @@ defineExpose({
   height: 200px;
   overflow: hidden;
   background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+  flex-shrink: 0;
 }
 
 .article-cover img {
@@ -1543,6 +1546,7 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .article-title {
@@ -1550,6 +1554,7 @@ defineExpose({
   font-size: 1.5rem;
   line-height: 1.4;
   font-weight: 600;
+  min-height: 2.8rem;
 }
 
 .article-title a {
@@ -1613,6 +1618,7 @@ defineExpose({
   overflow: hidden;
   flex: 1;
   font-size: 0.95rem;
+  min-height: 4.8rem;
 }
 
 .article-tags {
@@ -1620,7 +1626,6 @@ defineExpose({
   gap: 8px;
   margin-bottom: 18px;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
 .tag-badge {
@@ -1658,9 +1663,9 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
   padding-top: 15px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: auto;
 }
 
 .read-more {
@@ -2324,8 +2329,18 @@ defineExpose({
     min-height: 200px;
   }
 
+  .article-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .article-item {
     margin-bottom: 20px;
+    min-height: 420px;
+  }
+
+  .article-cover {
+    height: 180px;
   }
 
   .article-content {
@@ -2334,6 +2349,7 @@ defineExpose({
 
   .article-title {
     font-size: 1.4rem;
+    min-height: 2.5rem;
   }
 
   .article-meta {
@@ -2346,6 +2362,7 @@ defineExpose({
   .article-summary {
     font-size: 0.9rem;
     line-height: 1.5;
+    min-height: 4.5rem;
   }
 
   .article-tags {
@@ -2426,20 +2443,47 @@ defineExpose({
   .search-container {
     margin: 20px auto 0;
     max-width: 100%;
+    padding: 0 10px;
   }
 
-  .search-input :deep(.el-input__inner) {
-    font-size: 16px; /* 防止iOS Safari缩放 */
-  }
-
-  .search-button {
-    width: 40px;
-    right: 2px;
-    border-radius: 0 40px 40px 0;
+  .search-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .search-input :deep(.el-input__wrapper) {
-    padding: 4px 16px 4px 16px;
+    padding: 12px 50px 12px 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 24px;
+  }
+
+  .search-input :deep(.el-input__inner) {
+    font-size: 16px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .search-input :deep(.el-input__inner::placeholder) {
+    font-size: 15px;
+  }
+
+  .search-button {
+    width: 44px;
+    height: 44px;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 22px;
+  }
+
+  .search-button .el-icon {
+    font-size: 20px;
+  }
+
+  .search-wrapper:hover .search-input :deep(.el-input__wrapper),
+  .search-input :deep(.el-input__wrapper.is-focus) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   }
 
   .blog-main {
@@ -2587,12 +2631,25 @@ defineExpose({
     padding: 10px 8px;
   }
 
+  .article-item {
+    min-height: 400px;
+  }
+
+  .article-cover {
+    height: 160px;
+  }
+
   .article-content {
     padding: 15px;
   }
 
   .article-title {
     font-size: 1.1rem;
+    min-height: 2.2rem;
+  }
+
+  .article-summary {
+    min-height: 4.2rem;
   }
 
   .sidebar-widget {
