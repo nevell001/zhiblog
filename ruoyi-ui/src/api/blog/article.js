@@ -102,6 +102,26 @@ export function getHotArticles(query) {
   })
 }
 
+// 获取置顶文章
+export function getTopArticles(query) {
+  return request({
+    url: '/blog/article/top',
+    method: 'get',
+    params: { ...query, pageSize: query.pageSize || 5 },
+    headers: { isToken: false }
+  })
+}
+
+// 获取推荐文章
+export function getRecommendArticles(query) {
+  return request({
+    url: '/blog/article/recommend',
+    method: 'get',
+    params: { ...query, pageSize: query.pageSize || 5 },
+    headers: { isToken: false }
+  })
+}
+
 // 获取文章详情（前台用，包含完整内容和上下篇文章信息）
 export function getArticleDetail(id) {
   return request({

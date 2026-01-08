@@ -89,6 +89,70 @@
           </div>
         </div>
 
+        <!-- 置顶文章模块 -->
+        <div v-if="topArticles.length > 0 && !searchKeyword" class="special-articles-section">
+          <div class="section-header">
+            <el-icon :size="20" color="#67C23A"><Top /></el-icon>
+            <h3 class="section-title">置顶文章</h3>
+          </div>
+          <div class="special-articles-grid">
+            <div v-for="article in topArticles" :key="article.id" class="special-article-card">
+              <div class="special-article-cover" v-if="article.coverUrl || article.coverImage">
+                <img :src="article.coverUrl || article.coverImage" :alt="article.title" loading="lazy" />
+              </div>
+              <div class="special-article-content">
+                <h4 class="special-article-title">
+                  <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }">
+                    {{ article.title }}
+                  </router-link>
+                </h4>
+                <div class="special-article-meta">
+                  <span class="meta-item">
+                    <el-icon :size="12"><Calendar /></el-icon>
+                    {{ formatDate(article.createTime) }}
+                  </span>
+                  <span class="meta-item">
+                    <el-icon :size="12"><View /></el-icon>
+                    {{ article.viewCount || 0 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 推荐文章模块 -->
+        <div v-if="recommendArticles.length > 0 && !searchKeyword" class="special-articles-section">
+          <div class="section-header">
+            <el-icon :size="20" color="#E6A23C"><Star /></el-icon>
+            <h3 class="section-title">推荐文章</h3>
+          </div>
+          <div class="special-articles-grid">
+            <div v-for="article in recommendArticles" :key="article.id" class="special-article-card">
+              <div class="special-article-cover" v-if="article.coverUrl || article.coverImage">
+                <img :src="article.coverUrl || article.coverImage" :alt="article.title" loading="lazy" />
+              </div>
+              <div class="special-article-content">
+                <h4 class="special-article-title">
+                  <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }">
+                    {{ article.title }}
+                  </router-link>
+                </h4>
+                <div class="special-article-meta">
+                  <span class="meta-item">
+                    <el-icon :size="12"><Calendar /></el-icon>
+                    {{ formatDate(article.createTime) }}
+                  </span>
+                  <span class="meta-item">
+                    <el-icon :size="12"><View /></el-icon>
+                    {{ article.viewCount || 0 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 文章列表 -->
         <div v-else class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
@@ -373,7 +437,7 @@ import {
   DocumentCopy, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
   FolderOpened, CollectionTag, ArrowUp
 } from '@element-plus/icons-vue'
-import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
+import { getArticleList, getArticleListAnonymous, getHotArticles, getTopArticles, getRecommendArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
@@ -390,6 +454,8 @@ const route = useRoute()
 
 // 响应式数据
 const articleList = ref([])
+const topArticles = ref([])
+const recommendArticles = ref([])
 const categoryList = ref([])
 const hotArticles = ref([])
 // 直接使用store中的数据，避免数据不一致
@@ -543,6 +609,34 @@ const loadArticleList = async (append = false) => {
   } finally {
     loading.value = false
     loadingMore.value = false
+  }
+}
+
+// 获取置顶文章
+const loadTopArticles = async () => {
+  try {
+    const response = await getTopArticles({ pageNum: 1, pageSize: 5 })
+    if (response && response.code === 200) {
+      topArticles.value = response.rows || response.data || []
+      console.log('置顶文章:', topArticles.value)
+    }
+  } catch (error) {
+    console.error('获取置顶文章失败:', error)
+    topArticles.value = []
+  }
+}
+
+// 获取推荐文章
+const loadRecommendArticles = async () => {
+  try {
+    const response = await getRecommendArticles({ pageNum: 1, pageSize: 5 })
+    if (response && response.code === 200) {
+      recommendArticles.value = response.rows || response.data || []
+      console.log('推荐文章:', recommendArticles.value)
+    }
+  } catch (error) {
+    console.error('获取推荐文章失败:', error)
+    recommendArticles.value = []
   }
 }
 
@@ -996,6 +1090,8 @@ const handleVisibilityChange = () => {
 onMounted(() => {
   console.log('首页组件已挂载，开始加载数据...')
   loadArticleList()
+  loadTopArticles()
+  loadRecommendArticles()
   loadCategoryList()
   loadHotArticles()
   loadBlogSettings()
@@ -2700,5 +2796,156 @@ defineExpose({
 
 .hot-article-item:nth-child(3) .rank-top {
   background: linear-gradient(135deg, #cd7f32, #b8860b) !important;
+}
+
+/* 置顶文章和推荐文章模块 */
+.special-articles-section {
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+.special-articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.special-article-card {
+  background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
+}
+
+.special-article-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: #409eff;
+}
+
+.special-article-cover {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.special-article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.special-article-card:hover .special-article-cover img {
+  transform: scale(1.05);
+}
+
+.special-article-content {
+  padding: 16px;
+}
+
+.special-article-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.special-article-title a {
+  color: #303133;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.special-article-title a:hover {
+  color: #409eff;
+}
+
+.special-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #909399;
+}
+
+.special-article-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .special-articles-section {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .special-articles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .special-article-cover {
+    height: 140px;
+  }
+
+  .special-article-content {
+    padding: 12px;
+  }
+
+  .special-article-title {
+    font-size: 0.9rem;
+  }
+
+  .special-article-meta {
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .special-articles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .special-article-cover {
+    height: 120px;
+  }
 }
 </style>

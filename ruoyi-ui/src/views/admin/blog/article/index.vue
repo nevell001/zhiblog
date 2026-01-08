@@ -64,7 +64,13 @@
     <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文章ID" align="center" prop="id" width="80" />
-      <el-table-column label="文章标题" align="center" prop="title" min-width="150" :show-overflow-tooltip="true" />
+      <el-table-column label="文章标题" align="left" prop="title" min-width="150" :show-overflow-tooltip="true">
+        <template #default="scope">
+          <span>{{ scope.row.title }}</span>
+          <el-tag v-if="scope.row.isTop === 1 || scope.row.isTop === '1'" type="danger" size="small" class="ml-2 article-top-tag">置顶</el-tag>
+          <el-tag v-if="scope.row.isRecommend === 1 || scope.row.isRecommend === '1'" type="warning" size="small" class="ml-1 article-recommend-tag">推荐</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column label="分类" align="center" prop="categoryName" width="120">
         <template #default="scope">
           <el-tag v-if="scope.row.categoryName" type="info" size="small" class="category-tag">
@@ -710,6 +716,22 @@ onMounted(async () => {
   font-weight: 500;
 }
 
+/* 置顶标签样式优化 */
+.article-top-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+/* 推荐标签样式优化 */
+.article-recommend-tag {
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
 /* 未分类文本样式 */
 .text-muted {
   color: var(--el-text-color-placeholder, #999);
@@ -719,6 +741,14 @@ onMounted(async () => {
 /* 标签样式优化 */
 .mr-1 {
   margin-right: 4px;
+}
+
+.ml-1 {
+  margin-left: 4px;
+}
+
+.ml-2 {
+  margin-left: 8px;
 }
 
 /* 分类下拉选择框样式优化 */
@@ -810,8 +840,19 @@ onMounted(async () => {
     padding: 2px 6px;
   }
 
+  .article-top-tag,
+  .article-recommend-tag {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+
   .text-muted {
     font-size: 11px;
+  }
+
+  .ml-1,
+  .ml-2 {
+    margin-left: 2px;
   }
 }
 
@@ -860,8 +901,19 @@ onMounted(async () => {
     padding: 2px 5px;
   }
 
+  .article-top-tag,
+  .article-recommend-tag {
+    font-size: 9px;
+    padding: 1px 3px;
+  }
+
   .text-muted {
     font-size: 10px;
+  }
+
+  .ml-1,
+  .ml-2 {
+    margin-left: 1px;
   }
 }
 </style>

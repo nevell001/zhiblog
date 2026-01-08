@@ -9,6 +9,7 @@
         <result property="content"    column="content"    />
         <result property="coverUrl"    column="cover_url"    />
         <result property="categoryId"    column="category_id"    />
+        <result property="categoryName"    column="category_name"    />
         <result property="authorId"    column="author_id"    />
         <result property="authorName"    column="author_name"    />
         <result property="isTop"    column="is_top"    />
