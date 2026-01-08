@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
+    <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px" class="search-form">
       <el-form-item label="友链名称" prop="name">
         <el-input
           v-model="queryParams.name"
@@ -70,7 +70,7 @@
           class="btn-full-width"
         >导出</el-button>
       </el-col>
-      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+      <right-toolbar v-model:showSearch="showSearch" @queryTable="getList" class="top-right-btn"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="friendLinkList" @selection-change="handleSelectionChange" :height="tableHeight" stripe border>
@@ -378,22 +378,70 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+/* 搜索表单样式优化 */
+.search-form {
+  margin-bottom: 12px;
+  padding: 16px 16px 4px 16px;
+  background-color: var(--el-bg-color-page, #f5f7fa);
+  border-radius: 4px;
+}
+
+.search-form :deep(.el-form-item) {
+  margin-bottom: 12px;
+}
+
+.search-form :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: var(--el-text-color-regular, #606266);
+}
+
+/* 查询输入框样式 */
+.query-input {
+  width: 200px;
+}
+
 /* 响应式样式 */
 @media (max-width: 768px) {
   .app-container {
     padding: 8px;
   }
   
-  .btn-full-width {
+  .search-form {
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  
+  .search-form :deep(.el-form-item) {
+    margin-bottom: 10px;
+    display: block;
+  }
+  
+  .search-form :deep(.el-form-item__label) {
+    display: block;
+    margin-bottom: 4px;
+    text-align: left;
+    width: 100% !important;
+  }
+  
+  .search-form :deep(.el-form-item__content) {
     width: 100%;
   }
   
   .query-input {
-    width: 120px;
+    width: 100%;
+  }
+  
+  .btn-full-width {
+    width: 100%;
+    margin-bottom: 8px;
   }
 }
 
 @media (max-width: 480px) {
+  .search-form {
+    padding: 10px;
+  }
+  
   .query-input {
     width: 100%;
   }
@@ -422,6 +470,10 @@ onUnmounted(() => {
   .hidden-sm-and-down {
     display: table-cell;
   }
+  
+  .search-form :deep(.el-form-item) {
+    display: inline-flex;
+  }
 }
 
 @media (min-width: 992px) {
@@ -443,5 +495,15 @@ onUnmounted(() => {
     padding: 8px 2px;
     font-size: 12px;
   }
+}
+
+/* 按钮区域样式 */
+.mb8 {
+  margin-bottom: 12px;
+}
+
+/* 右侧工具栏样式 */
+.top-right-btn {
+  margin-left: auto;
 }
 </style>
