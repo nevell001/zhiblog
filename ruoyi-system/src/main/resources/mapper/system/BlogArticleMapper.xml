@@ -231,7 +231,7 @@
     <select id="selectBlogArticleCount" parameterType="BlogArticle" resultType="Long">
         select count(1) from blog_article
         where del_flag = 0
-        <if test="status != null and status != ''">
+        <if test="status != null">
             and status = #{status}
         </if>
     </select>
@@ -241,6 +241,18 @@
     </select>
 
     <select id="selectAverageViewCount" resultType="Double">
-        select avg(view_count) from blog_article where del_flag = 0 and status = '1'
+        select avg(view_count) from blog_article where del_flag = 0 and status = 1
+    </select>
+
+    <!-- 获取文章发布趋势（按月统计） -->
+    <select id="selectArticleTrend" resultType="map">
+        SELECT
+            DATE_FORMAT(create_time, '%Y-%m') as month,
+            COUNT(*) as count
+        FROM blog_article
+        WHERE del_flag = 0
+        GROUP BY DATE_FORMAT(create_time, '%Y-%m')
+        ORDER BY month DESC
+        LIMIT 12
     </select>
 </mapper>

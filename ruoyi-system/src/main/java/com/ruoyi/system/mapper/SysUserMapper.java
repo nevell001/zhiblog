@@ -175,4 +175,12 @@ public interface SysUserMapper
      * @return 管理员数量
      */
     Long selectAdminUserCount();
+
+    /**
+     * 获取在线用户数量（最近指定分钟内有登录记录的用户）
+     * 
+     * @param minutes 分钟数
+     * @return 在线用户数量
+     */
+    Long selectOnlineUserCount(Integer minutes);
 }

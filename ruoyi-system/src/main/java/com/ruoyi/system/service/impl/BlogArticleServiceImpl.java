@@ -433,7 +433,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 获取文章平均浏览量
-     * 
+     *
      * @return 平均浏览量
      */
     @Override
@@ -443,8 +443,19 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
+     * 获取文章发布趋势（按月统计）
+     *
+     * @return 文章发布趋势数据
+     */
+    @Override
+    public List<Map<String, Object>> selectArticleTrend()
+    {
+        return blogArticleMapper.selectArticleTrend();
+    }
+
+    /**
      * 查询博客文章列表（带缓存，用于热门文章）
-     * 
+     *
      * @param blogArticle 博客文章
      * @return 博客文章集合
      */

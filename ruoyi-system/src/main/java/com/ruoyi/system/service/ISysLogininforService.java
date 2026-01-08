@@ -37,4 +37,18 @@ public interface ISysLogininforService
      * 清空系统登录日志
      */
     public void cleanLogininfor();
+
+    /**
+     * 获取用户活跃度（按月统计登录次数）
+     *
+     * @return 用户活跃度数据
+     */
+    List<java.util.Map<String, Object>> selectUserActivity();
+
+    /**
+     * 获取今日登录次数
+     *
+     * @return 今日登录次数
+     */
+    Long selectTodayLoginCount();
 }

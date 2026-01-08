@@ -261,5 +261,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			join sys_role r on ur.role_id = r.role_id 
 			where r.role_key = 'admin')
 	</select>
-	
+
+	<select id="selectOnlineUserCount" parameterType="Integer" resultType="Long">
+		select count(1) from sys_user u
+		where u.del_flag = '0'
+		and u.status = '0'
+		and u.login_date >= date_sub(now(), interval #{minutes} minute)
+	</select>
+
 </mapper> 

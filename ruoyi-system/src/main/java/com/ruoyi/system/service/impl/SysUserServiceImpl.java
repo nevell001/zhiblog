@@ -609,4 +609,16 @@ public class SysUserServiceImpl implements ISysUserService
     {
         return userMapper.selectAdminUserCount();
     }
+
+    /**
+     * 查询在线用户数量（最近指定分钟内有登录记录的用户）
+     * 
+     * @param minutes 分钟数
+     * @return 在线用户数量
+     */
+    @Override
+    public Long selectOnlineUserCount(Integer minutes)
+    {
+        return userMapper.selectOnlineUserCount(minutes);
+    }
 }

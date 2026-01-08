@@ -89,9 +89,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteBlogCommentByIds" parameterType="String">
-        delete from blog_comment where id in 
+        delete from blog_comment where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <!-- 统计评论数量 -->
+    <select id="selectBlogCommentCount" parameterType="BlogComment" resultType="Long">
+        select count(1) from blog_comment
+        <where>
+            <if test="articleId != null"> and article_id = #{articleId}</if>
+            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="status != null"> and status = #{status}</if>
+        </where>
+    </select>
 </mapper>

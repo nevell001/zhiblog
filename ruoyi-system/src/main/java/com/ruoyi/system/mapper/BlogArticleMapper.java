@@ -133,8 +133,15 @@ public interface BlogArticleMapper
 
     /**
      * 获取文章平均浏览量
-     * 
+     *
      * @return 平均浏览量
      */
     Double selectAverageViewCount();
+
+    /**
+     * 获取文章发布趋势（按月统计）
+     *
+     * @return 文章发布趋势数据
+     */
+    List<Map<String, Object>> selectArticleTrend();
 }
