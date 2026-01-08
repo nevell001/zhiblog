@@ -178,4 +178,20 @@ public interface IBlogArticleService
      * @return 文章发布趋势数据
      */
     public List<Map<String, Object>> selectArticleTrend();
+
+    /**
+     * 获取热门文章（按浏览量降序排序）
+     *
+     * @param blogArticle 查询条件
+     * @return 热门文章列表
+     */
+    public List<BlogArticle> selectHotArticles(BlogArticle blogArticle);
+
+    /**
+     * 根据归档月份获取文章列表
+     *
+     * @param blogArticle 查询条件（包含archiveDate）
+     * @return 文章列表
+     */
+    public List<BlogArticle> selectArticlesByArchive(BlogArticle blogArticle);
 }

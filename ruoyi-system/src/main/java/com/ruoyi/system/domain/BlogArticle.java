@@ -88,6 +88,9 @@ public class BlogArticle extends BaseEntity
     /** 删除标志（0代表存在 2代表删除） */
     private Long delFlag;
 
+    /** 归档日期（非数据库字段，用于查询） */
+    private String archiveDate;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -279,18 +282,28 @@ public class BlogArticle extends BaseEntity
         return tags;
     }
 
-    public void setDelFlag(Long delFlag) 
+    public void setDelFlag(Long delFlag)
     {
         this.delFlag = delFlag;
     }
 
-    public Long getDelFlag() 
+    public Long getDelFlag()
     {
         if (delFlag == null) {
             // 如果字段为null，设置默认值并返回
             this.delFlag = 0L;
         }
         return delFlag;
+    }
+
+    public void setArchiveDate(String archiveDate)
+    {
+        this.archiveDate = archiveDate;
+    }
+
+    public String getArchiveDate()
+    {
+        return archiveDate;
     }
 
     @Override

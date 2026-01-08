@@ -149,6 +149,16 @@ export function getArticleArchive() {
   })
 }
 
+// 根据归档月份获取文章列表
+export function getArticlesByArchive(year, month, query) {
+  return request({
+    url: `/blog/article/archive-month/${year}/${month}`,
+    method: 'get',
+    params: query,
+    headers: { isToken: false }
+  })
+}
+
 // 搜索文章（支持分页）
 export function searchArticles(keyword, query) {
   return request({

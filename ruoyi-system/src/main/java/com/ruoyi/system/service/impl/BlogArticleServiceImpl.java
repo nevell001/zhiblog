@@ -465,4 +465,28 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     {
         return selectBlogArticleList(blogArticle);
     }
+
+    /**
+     * 获取热门文章（按浏览量降序排序）
+     *
+     * @param blogArticle 查询条件
+     * @return 热门文章列表
+     */
+    @Override
+    public List<BlogArticle> selectHotArticles(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectHotArticles(blogArticle);
+    }
+
+    /**
+     * 根据归档月份获取文章列表
+     *
+     * @param blogArticle 查询条件（包含archiveDate）
+     * @return 文章列表
+     */
+    @Override
+    public List<BlogArticle> selectArticlesByArchive(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectArticlesByArchive(blogArticle);
+    }
 }

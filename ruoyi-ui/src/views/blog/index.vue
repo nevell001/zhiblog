@@ -100,12 +100,21 @@
               <div class="special-article-cover" v-if="article.coverUrl || article.coverImage">
                 <img :src="article.coverUrl || article.coverImage" :alt="article.title" loading="lazy" />
               </div>
+              <div class="special-article-cover special-article-cover-no-image special-article-cover-top" v-else>
+                <div class="placeholder-content">
+                  <el-icon :size="48" color="#ffffff" class="placeholder-icon"><Document /></el-icon>
+                  <span class="placeholder-text">置顶文章</span>
+                </div>
+              </div>
               <div class="special-article-content">
                 <h4 class="special-article-title">
                   <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }">
                     {{ article.title }}
                   </router-link>
                 </h4>
+                <p class="special-article-summary">
+                  {{ article.summary || (article.content ? stripHtmlTags(article.content).substring(0, 150) + '...' : '暂无摘要') }}
+                </p>
                 <div class="special-article-meta">
                   <span class="meta-item">
                     <el-icon :size="12"><Calendar /></el-icon>
@@ -132,12 +141,21 @@
               <div class="special-article-cover" v-if="article.coverUrl || article.coverImage">
                 <img :src="article.coverUrl || article.coverImage" :alt="article.title" loading="lazy" />
               </div>
+              <div class="special-article-cover special-article-cover-no-image special-article-cover-recommend" v-else>
+                <div class="placeholder-content">
+                  <el-icon :size="48" color="#ffffff" class="placeholder-icon"><Star /></el-icon>
+                  <span class="placeholder-text">推荐文章</span>
+                </div>
+              </div>
               <div class="special-article-content">
                 <h4 class="special-article-title">
                   <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }">
                     {{ article.title }}
                   </router-link>
                 </h4>
+                <p class="special-article-summary">
+                  {{ article.summary || (article.content ? stripHtmlTags(article.content).substring(0, 150) + '...' : '暂无摘要') }}
+                </p>
                 <div class="special-article-meta">
                   <span class="meta-item">
                     <el-icon :size="12"><Calendar /></el-icon>
@@ -154,7 +172,7 @@
         </div>
 
         <!-- 文章列表 -->
-        <div v-else class="article-list">
+        <div v-if="articleList.length > 0" class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
             <div class="article-cover" v-if="article.coverUrl || article.coverImage">
               <img :src="article.coverUrl || article.coverImage || 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'" :alt="article.title" loading="lazy" @error="handleImageError" />
@@ -434,8 +452,8 @@ import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
   Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
-  DocumentCopy, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
-  FolderOpened, CollectionTag, ArrowUp
+  DocumentCopy, Document, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
+  FolderOpened, CollectionTag, ArrowUp, Top
 } from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, getTopArticles, getRecommendArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
@@ -2078,10 +2096,12 @@ defineExpose({
   font-size: 0.9rem;
   line-height: 1.4;
   transition: color 0.3s ease;
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-height: 2.8em;
 }
 
 .hot-article-link:hover {
@@ -2861,8 +2881,107 @@ defineExpose({
   transform: scale(1.05);
 }
 
+.special-article-cover-no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.special-article-cover-top {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.special-article-cover-recommend {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.special-article-cover-no-image::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+.special-article-cover-no-image::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+}
+
+.placeholder-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.placeholder-icon {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.placeholder-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
 .special-article-content {
   padding: 16px;
+}
+
+.special-article-summary {
+  font-size: 0.875rem;
+  color: #606266;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .special-article-title {

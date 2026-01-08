@@ -58,20 +58,42 @@
           @click="handleDelete"
         >删除</el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="Top"
+          :disabled="multiple"
+          @click="handleBatchTop"
+          v-hasPermi="['blog:article:edit']"
+        >批量置顶</el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
+          type="warning"
+          plain
+          icon="Star"
+          :disabled="multiple"
+          @click="handleBatchRecommend"
+          v-hasPermi="['blog:article:edit']"
+        >批量推荐</el-button>
+      </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文章ID" align="center" prop="id" width="80" />
-      <el-table-column label="文章标题" align="left" prop="title" min-width="150" :show-overflow-tooltip="true">
+      <el-table-column label="文章ID" align="center" prop="id" width="60" />
+      <el-table-column label="文章标题" align="left" prop="title" width="200" :show-overflow-tooltip="true">
         <template #default="scope">
-          <span>{{ scope.row.title }}</span>
-          <el-tag v-if="scope.row.isTop === 1 || scope.row.isTop === '1'" type="danger" size="small" class="ml-2 article-top-tag">置顶</el-tag>
-          <el-tag v-if="scope.row.isRecommend === 1 || scope.row.isRecommend === '1'" type="warning" size="small" class="ml-1 article-recommend-tag">推荐</el-tag>
+          <div class="article-title-wrapper">
+            <el-tag v-if="scope.row.isTop === 1 || scope.row.isTop === '1'" type="danger" size="small" class="mr-1 article-top-tag">置顶</el-tag>
+            <el-tag v-if="scope.row.isRecommend === 1 || scope.row.isRecommend === '1'" type="warning" size="small" class="mr-1 article-recommend-tag">推荐</el-tag>
+            <span class="article-title-text">{{ scope.row.title }}</span>
+          </div>
         </template>
       </el-table-column>
-      <el-table-column label="分类" align="center" prop="categoryName" width="120">
+      <el-table-column label="分类" align="center" prop="categoryName" width="100">
         <template #default="scope">
           <el-tag v-if="scope.row.categoryName" type="info" size="small" class="category-tag">
             {{ scope.row.categoryName }}
@@ -79,9 +101,9 @@
           <span v-else class="text-muted">未分类</span>
         </template>
       </el-table-column>
-      <el-table-column label="作者" align="center" prop="authorName" width="100" />
+      <el-table-column label="作者" align="center" prop="authorName" width="80" />
 
-      <el-table-column label="标签" align="center" prop="tags" min-width="120">
+      <el-table-column label="标签" align="center" prop="tags" min-width="100">
         <template #default="scope">
           <el-tag v-for="(tag, index) in formatTagList(scope.row.tags)" :key="index" size="small" class="mr-1">
             {{ tag }}
@@ -89,20 +111,20 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="状态" align="center" prop="status" width="100">
+      <el-table-column label="状态" align="center" prop="status" width="80">
         <template #default="scope">
           <el-tag :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'" effect="dark" class="article-status-tag">
             {{ scope.row.status === '1' || scope.row.status === 1 ? '已发布' : '草稿' }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="浏览量" align="center" prop="viewCount" width="90" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="120">
+      <el-table-column label="浏览量" align="center" prop="viewCount" width="70" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" width="280" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
             link
@@ -113,7 +135,21 @@
           >修改</el-button>
           <el-button
             link
+            type="danger"
+            icon="Top"
+            @click="handleTop(scope.row)"
+            v-hasPermi="['blog:article:edit']"
+          >{{ scope.row.isTop === 1 || scope.row.isTop === '1' ? '取消置顶' : '置顶' }}</el-button>
+          <el-button
+            link
             type="warning"
+            icon="Star"
+            @click="handleRecommend(scope.row)"
+            v-hasPermi="['blog:article:edit']"
+          >{{ scope.row.isRecommend === 1 || scope.row.isRecommend === '1' ? '取消推荐' : '推荐' }}</el-button>
+          <el-button
+            link
+            type="info"
             icon="Refresh"
             @click="handleStatusChange(scope.row)"
             v-hasPermi="['blog:article:edit']"
@@ -669,6 +705,178 @@ async function handleStatusChange(row) {
   }
 }
 
+/** 置顶/取消置顶 */
+async function handleTop(row) {
+  try {
+    const newIsTop = row.isTop === 1 || row.isTop === '1' ? 0 : 1;
+    const actionText = newIsTop === 1 ? '置顶' : '取消置顶';
+    const articleTitle = row.title || '(无标题文章)';
+
+    await ElMessageBox.confirm(
+      `是否确认将文章《${articleTitle}》${actionText}？`,
+      '置顶确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    loading.value = true
+    await updateArticle({
+      id: row.id,
+      isTop: Number(newIsTop),
+      title: row.title || '(无标题文章)',
+      categoryId: row.categoryId,
+      content: row.content,
+      summary: row.summary,
+      coverUrl: row.coverUrl,
+      authorId: row.authorId,
+      authorName: row.authorName,
+      status: row.status,
+      isRecommend: row.isRecommend,
+      tagIds: row.tagIds
+    })
+    ElMessage.success(`${actionText}成功`)
+    await getList()
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('置顶操作失败:', error)
+      const errorMsg = error.response?.data?.msg || error.message || '置顶操作失败';
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 推荐/取消推荐 */
+async function handleRecommend(row) {
+  try {
+    const newIsRecommend = row.isRecommend === 1 || row.isRecommend === '1' ? 0 : 1;
+    const actionText = newIsRecommend === 1 ? '推荐' : '取消推荐';
+    const articleTitle = row.title || '(无标题文章)';
+
+    await ElMessageBox.confirm(
+      `是否确认将文章《${articleTitle}》${actionText}？`,
+      '推荐确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    loading.value = true
+    await updateArticle({
+      id: row.id,
+      isRecommend: Number(newIsRecommend),
+      title: row.title || '(无标题文章)',
+      categoryId: row.categoryId,
+      content: row.content,
+      summary: row.summary,
+      coverUrl: row.coverUrl,
+      authorId: row.authorId,
+      authorName: row.authorName,
+      status: row.status,
+      isTop: row.isTop,
+      tagIds: row.tagIds
+    })
+    ElMessage.success(`${actionText}成功`)
+    await getList()
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('推荐操作失败:', error)
+      const errorMsg = error.response?.data?.msg || error.message || '推荐操作失败';
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 批量置顶 */
+async function handleBatchTop() {
+  if (ids.value.length === 0) {
+    ElMessage.warning('请选择要置顶的文章')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `是否确认将选中的 ${ids.value.length} 篇文章置顶？`,
+      '批量置顶确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    loading.value = true
+    // 批量更新置顶状态
+    for (const id of ids.value) {
+      await updateArticle({
+        id: id,
+        isTop: 1
+      })
+    }
+    ElMessage.success('批量置顶成功')
+    await getList()
+    // 清空选择
+    ids.value = []
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('批量置顶失败:', error)
+      const errorMsg = error.response?.data?.msg || error.message || '批量置顶失败';
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
+/** 批量推荐 */
+async function handleBatchRecommend() {
+  if (ids.value.length === 0) {
+    ElMessage.warning('请选择要推荐的文章')
+    return
+  }
+
+  try {
+    await ElMessageBox.confirm(
+      `是否确认将选中的 ${ids.value.length} 篇文章推荐？`,
+      '批量推荐确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'info'
+      }
+    )
+
+    loading.value = true
+    // 批量更新推荐状态
+    for (const id of ids.value) {
+      await updateArticle({
+        id: id,
+        isRecommend: 1
+      })
+    }
+    ElMessage.success('批量推荐成功')
+    await getList()
+    // 清空选择
+    ids.value = []
+  } catch (error) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('批量推荐失败:', error)
+      const errorMsg = error.response?.data?.msg || error.message || '批量推荐失败';
+      ElMessage.error(errorMsg)
+    }
+  } finally {
+    loading.value = false
+  }
+}
+
 /** 获取封面图片URL */
 function getCoverUrl(coverUrl) {
   if (!coverUrl) return '';
@@ -749,6 +957,49 @@ onMounted(async () => {
 
 .ml-2 {
   margin-left: 8px;
+}
+
+/* 文章标题包装器样式 */
+.article-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.article-title-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 响应式优化 */
+@media (max-width: 1400px) {
+  .article-title-text {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .article-title-text {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 992px) {
+  .article-title-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .article-title-text {
+    font-size: 12px;
+  }
 }
 
 /* 分类下拉选择框样式优化 */

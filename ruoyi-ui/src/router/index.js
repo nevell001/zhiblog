@@ -25,6 +25,11 @@ const routes = [
     name: 'PublicBlogTag'
   },
   {
+    path: '/blog/archive',
+    component: () => import('@/views/blog/archive/index.vue'),
+    name: 'PublicBlogArchive'
+  },
+  {
     path: '/login',
     component: () => import('@/views/login.vue')
   },
