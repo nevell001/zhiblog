@@ -1407,31 +1407,64 @@ html.dark .blog-setting-card {
   color: var(--el-text-color-primary, #303133);
 }
 
-/* 标签页样式修复 */
+/* 标签页样式优化 */
+.blog-setting-tabs {
+  margin-top: 16px;
+}
+
 :deep(.el-tabs__header) {
-  background-color: var(--el-bg-color-overlay, #ffffff);
-  border-bottom: 1px solid var(--el-border-color-light, #e4e7ed);
+  background-color: var(--el-bg-color-page, #f5f7fa);
+  border-radius: 8px 8px 0 0;
+  padding: 0 16px;
   margin: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 :deep(.el-tabs__nav-wrap) {
-  background-color: var(--el-bg-color-overlay, #ffffff);
+  background-color: transparent;
+  padding: 8px 0;
+}
+
+:deep(.el-tabs__nav-wrap::after) {
+  display: none;
 }
 
 :deep(.el-tabs__item) {
   color: var(--el-text-color-regular, #606266);
+  background-color: transparent;
+  border: none;
+  padding: 0 20px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  margin-right: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+:deep(.el-tabs__item:hover) {
+  color: var(--el-color-primary, #409EFF);
   background-color: var(--el-bg-color-overlay, #ffffff);
-  border-right: 1px solid var(--el-border-color-light, #e4e7ed);
 }
 
 :deep(.el-tabs__item.is-active) {
   color: var(--el-color-primary, #409EFF);
-  background-color: var(--el-bg-color-page, #f5f5f5);
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+}
+
+:deep(.el-tabs__active-bar) {
+  display: none;
 }
 
 :deep(.el-tabs__content) {
-  background-color: var(--el-bg-color-page, #f5f5f5);
-  padding: 0;
+  background-color: var(--el-bg-color-overlay, #ffffff);
+  padding: 24px;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 /* 图片压缩功能样式 */
@@ -1565,14 +1598,14 @@ html.dark .blog-setting-card {
 
 /* 表单样式优化 */
 .el-form {
-  padding: 20px;
-  background-color: var(--el-bg-color-page);
-  border-radius: 8px;
+  padding: 0;
+  background-color: transparent;
+  border-radius: 0;
 }
 
 /* 暗色主题下的表单背景 */
 html.dark .el-form {
-  background-color: var(--el-bg-color-page, #141414);
+  background-color: transparent;
 }
 
 /* 表单项标签和输入框样式修复 */
@@ -1623,6 +1656,45 @@ html.dark .el-form {
 
   .avatar-input {
     width: 100%;
+  }
+
+  .blog-setting-tabs {
+    margin-top: 12px;
+  }
+
+  :deep(.el-tabs__header) {
+    padding: 0 8px;
+  }
+
+  :deep(.el-tabs__item) {
+    padding: 0 12px;
+    font-size: 13px;
+    height: 36px;
+    line-height: 36px;
+  }
+
+  :deep(.el-tabs__content) {
+    padding: 16px;
+  }
+
+  :deep(.el-form-item__label) {
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.el-tabs__item) {
+    padding: 0 8px;
+    font-size: 12px;
+  }
+
+  :deep(.el-tabs__content) {
+    padding: 12px;
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 16px;
   }
 }
 </style>
