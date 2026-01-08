@@ -18,7 +18,7 @@
         />
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="评论状态" clearable>
+        <el-select v-model="queryParams.status" placeholder="评论状态" clearable class="status-select">
           <el-option label="待审核" value="0" />
           <el-option label="已审核" value="1" />
           <el-option label="已删除" value="2" />
@@ -233,8 +233,55 @@ getList();
   line-height: 1.4;
 }
 
+/* 状态下拉选择框样式优化 */
+.status-select {
+  width: 120px;
+}
+
+:deep(.status-select .el-input__wrapper) {
+  height: 32px;
+  font-size: 13px;
+}
+
+:deep(.status-select .el-select__placeholder) {
+  font-size: 13px;
+}
+
+:deep(.status-select .el-input__inner) {
+  font-size: 13px;
+}
+
+/* 下拉选项样式优化 */
+:deep(.el-select-dropdown__item) {
+  font-size: 13px;
+  padding: 8px 12px;
+  line-height: 1.4;
+}
+
 /* 响应式样式 */
 @media (max-width: 768px) {
+  .status-select {
+    width: 100px;
+  }
+
+  :deep(.status-select .el-input__wrapper) {
+    height: 30px;
+    font-size: 12px;
+  }
+
+  :deep(.status-select .el-select__placeholder) {
+    font-size: 12px;
+  }
+
+  :deep(.status-select .el-input__inner) {
+    font-size: 12px;
+  }
+
+  :deep(.el-select-dropdown__item) {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
   :deep(.dict-tag) {
     font-size: 12px;
     padding: 3px 6px;
@@ -242,6 +289,28 @@ getList();
 }
 
 @media (max-width: 480px) {
+  .status-select {
+    width: 90px;
+  }
+
+  :deep(.status-select .el-input__wrapper) {
+    height: 28px;
+    font-size: 11px;
+  }
+
+  :deep(.status-select .el-select__placeholder) {
+    font-size: 11px;
+  }
+
+  :deep(.status-select .el-input__inner) {
+    font-size: 11px;
+  }
+
+  :deep(.el-select-dropdown__item) {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
   :deep(.dict-tag) {
     font-size: 11px;
     padding: 2px 5px;
