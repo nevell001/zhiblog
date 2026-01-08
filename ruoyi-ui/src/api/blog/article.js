@@ -105,7 +105,7 @@ export function getHotArticles(query) {
 // 获取置顶文章
 export function getTopArticles(query) {
   return request({
-    url: '/blog/article/top',
+    url: '/common/blog/article/top',
     method: 'get',
     params: { ...query, pageSize: query.pageSize || 5 },
     headers: { isToken: false }
@@ -115,7 +115,7 @@ export function getTopArticles(query) {
 // 获取推荐文章
 export function getRecommendArticles(query) {
   return request({
-    url: '/blog/article/recommend',
+    url: '/common/blog/article/recommend',
     method: 'get',
     params: { ...query, pageSize: query.pageSize || 5 },
     headers: { isToken: false }
