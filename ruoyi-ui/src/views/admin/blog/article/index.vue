@@ -63,10 +63,17 @@
 
     <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="文章ID" align="center" prop="id" />
-      <el-table-column label="文章标题" align="center" prop="title" :show-overflow-tooltip="true" />
-      <el-table-column label="分类" align="center" prop="categoryName" width="120" />
-      <el-table-column label="作者" align="center" prop="authorName" />
+      <el-table-column label="文章ID" align="center" prop="id" width="80" />
+      <el-table-column label="文章标题" align="center" prop="title" min-width="150" :show-overflow-tooltip="true" />
+      <el-table-column label="分类" align="center" prop="categoryName" width="120">
+        <template #default="scope">
+          <el-tag v-if="scope.row.categoryName" type="info" size="small" class="category-tag">
+            {{ scope.row.categoryName }}
+          </el-tag>
+          <span v-else class="text-muted">未分类</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="作者" align="center" prop="authorName" width="100" />
 
       <el-table-column label="标签" align="center" prop="tags" min-width="120">
         <template #default="scope">
@@ -83,8 +90,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="浏览量" align="center" prop="viewCount" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column label="浏览量" align="center" prop="viewCount" width="90" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="120">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -695,6 +702,20 @@ onMounted(async () => {
   font-weight: 500;
 }
 
+/* 分类标签样式优化 */
+.category-tag {
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+/* 未分类文本样式 */
+.text-muted {
+  color: var(--el-text-color-placeholder, #999);
+  font-size: 12px;
+}
+
 /* 标签样式优化 */
 .mr-1 {
   margin-right: 4px;
@@ -783,6 +804,15 @@ onMounted(async () => {
     font-size: 12px;
     padding: 3px 8px;
   }
+
+  .category-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .text-muted {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -823,6 +853,15 @@ onMounted(async () => {
   .article-status-tag {
     font-size: 11px;
     padding: 2px 6px;
+  }
+
+  .category-tag {
+    font-size: 10px;
+    padding: 2px 5px;
+  }
+
+  .text-muted {
+    font-size: 10px;
   }
 }
 </style>
