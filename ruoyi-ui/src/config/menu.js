@@ -188,12 +188,6 @@ export const menuConfig = {
           permissions: ['admin']
         },
         {
-          name: '数据监控',
-          path: '/admin/monitor/druid',
-          icon: 'druid',
-          permissions: ['admin']
-        },
-        {
           name: '服务监控',
           path: '/admin/monitor/server',
           icon: 'server',

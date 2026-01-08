@@ -17,6 +17,65 @@
 
 ## 📦 版本历史
 
+### v4.0.1 (2026-01-08)
+**功能优化 - 博客前台增强**
+
+**新增功能**:
+- ✅ 文章目录导航（ArticleTOC组件）
+  - 自动提取文章标题生成目录
+  - 支持平滑滚动
+  - 当前阅读位置高亮
+  - 可折叠/展开
+  - 固定定位显示
+- ✅ 热门文章排名优化
+  - Top 3 文章使用特殊渐变样式（金、银、铜）
+  - 排名徽章显示
+  - 悬停动画效果
+- ✅ 深色主题适配
+  - 全站深色主题支持
+  - 响应式主题切换
+  - CSS 变量管理
+  - 完善的深色主题样式
+
+**功能完善**:
+- ✅ 快速链接功能增强
+  - 添加"关于"链接
+  - 添加 RSS 订阅链接
+  - RSS 链接自动适配环境（Docker/本地）
+- ✅ 友链管理修复
+  - 修复状态逻辑（status='0'=启用）
+  - 前台友链 API 支持匿名访问
+  - 首页侧边栏显示友链
+
+**Bug 修复**:
+- ✅ 修复路由配置无限重定向问题
+  - 添加 404 路由定义
+  - 修复 catch-all 路由配置
+- ✅ 修复 RSS 图标问题
+  - Element Plus icons-vue 不包含 RSS 图标
+  - 改为纯文本 RSS 订阅链接
+- ✅ 修复数据库表缺失问题
+  - 添加 sys_logininfor 表（登录日志）
+  - 添加 sys_oper_log 表（操作日志）
+  - 更新 init_database.sql
+
+**数据库更新**:
+- ✅ 添加系统日志表（2个）
+  - sys_logininfor - 系统访问记录
+  - sys_oper_log - 操作日志记录
+- ✅ 完善表索引和约束
+
+**前端组件**:
+- ✅ 新增 ArticleTOC.vue - 文章目录组件
+- ✅ 优化 BlogFooter.vue - 博客页脚
+- ✅ 优化 BlogNav.vue - 博客导航
+- ✅ 优化 blog/index.vue - 博客首页
+
+**文档更新**:
+- ✅ 更新 README.md 版本历史
+- ✅ 添加新功能说明
+- ✅ 更新组件列表
+
 ### v4.0.0 (2026-01-07)
 **重大升级 - Spring Boot 3.3.0 + Java 17 + 监控体系**
 
@@ -149,13 +208,17 @@
 
 ### 1. 前台展示
 - 文章列表与详情页
+- 文章目录导航（自动提取标题、平滑滚动、高亮显示）
 - 分类、标签浏览
 - 文章搜索
 - 归档、时间轴
-- 友链展示
+- 热门文章排行（Top 3 特殊样式）
+- 友链展示（侧边栏显示）
 - 关于我页面
 - 评论功能（支持匿名/登录评论、回复、审核）
 - 文章点赞、浏览量统计
+- 深色主题支持（响应式切换）
+- RSS 订阅功能
 
 ### 2. 用户系统
 - 注册、登录、找回密码
@@ -192,9 +255,9 @@
 - **表前缀**: blog_
 
 ## 📋 当前系统状态
-✅ **数据库表已创建**: 29个表（22个系统表 + 7个博客表）
+✅ **数据库表已创建**: 31个表（23个系统表 + 7个博客表 + 1个日志表）
 
-**博客相关表**:
+**博客相关表** (7个):
 - blog_article (文章表)
 - blog_category (分类表)
 - blog_tag (标签表)
@@ -203,7 +266,7 @@
 - blog_friend_link (友情链接表)
 - blog_setting (系统设置表)
 
-**系统表**:
+**系统表** (23个):
 - sys_user (用户表)
 - sys_role (角色表)
 - sys_menu (菜单表)
@@ -222,6 +285,11 @@
 - sys_role_dept (角色部门关联表)
 - gen_table (代码生成业务表)
 - gen_table_column (代码生成字段表)
+- sys_user_auth (用户认证表)
+- sys_user_online (用户在线表)
+- sys_notice (通知公告表)
+- sys_post (岗位表)
+- sys_dept (部门表)
 
 ✅ **示例数据已导入**: 包含3篇文章、4个分类、10个标签、4个友情链接
 
@@ -236,7 +304,8 @@
 4. **数据库监控**: http://localhost:8080/druid
 5. **Prometheus监控**: http://localhost:9090
 6. **Grafana可视化**: http://localhost:3001
-7. **默认账号**: admin / admin123
+7. **RSS订阅**: http://localhost:8080/blog/rss
+8. **默认账号**: admin / admin123
 
 ## 🚀 快速开始
 
@@ -410,19 +479,64 @@ newblog/
 │   │   ├── views/            # 页面
 │   │   │   ├── blog/        # 博客前台
 │   │   │   │   ├── index.vue              # 首页
-│   │   │   │   ├── article/detail.vue     # 文章详情
-│   │   │   │   ├── category/              # 分类页面
-│   │   │   │   ├── tag/                   # 标签页面
+│   │   │   │   ├── about.vue              # 关于页面
 │   │   │   │   ├── archive/               # 归档页面
-│   │   │   │   └── about.vue              # 关于页面
+│   │   │   │   ├── article/               # 文章详情
+│   │   │   │   ├── category/              # 分类页面
+│   │   │   │   └── tag/                   # 标签页面
 │   │   │   └── admin/       # 管理后台
 │   │   ├── components/       # 组件
+│   │   │   ├── ArticleTOC.vue            # 文章目录组件
+│   │   │   ├── AvatarUpload.vue          # 头像上传组件
+│   │   │   ├── BlogFooter.vue            # 博客页脚
+│   │   │   ├── BlogNav.vue               # 博客导航
+│   │   │   ├── LinkIcon.vue              # 链接图标组件
+│   │   │   ├── TagCategorySelector.vue   # 标签分类选择器
+│   │   │   ├── Breadcrumb/               # 面包屑
+│   │   │   ├── Crontab/                  # 定时任务
+│   │   │   ├── DictTag/                  # 字典标签
+│   │   │   ├── Editor/                   # 富文本编辑器
+│   │   │   ├── FileUpload/               # 文件上传
+│   │   │   ├── Hamburger/                # 汉堡菜单
+│   │   │   ├── HeaderSearch/             # 头部搜索
+│   │   │   ├── IconSelect/               # 图标选择
+│   │   │   ├── iFrame/                   # 内嵌页面
+│   │   │   ├── ImagePreview/             # 图片预览
+│   │   │   ├── ImageUpload/              # 图片上传
+│   │   │   ├── InfiniteScroll/           # 无限滚动
+│   │   │   ├── Pagination/               # 分页
+│   │   │   ├── ParentView/               # 父视图
+│   │   │   ├── RightPanel/               # 右侧面板
+│   │   │   ├── RightToolbar/             # 右侧工具栏
+│   │   │   ├── RuoYi/                    # 若依组件
+│   │   │   ├── Screenfull/               # 全屏
+│   │   │   ├── SizeSelect/               # 尺寸选择
+│   │   │   ├── SvgIcon/                  # SVG图标
+│   │   │   ├── TinyMCE/                  # TinyMCE编辑器
+│   │   │   └── TopNav/                   # 顶部导航
 │   │   ├── api/              # API接口
+│   │   │   ├── blog/         # 博客API
+│   │   │   │   ├── article.js            # 文章API
+│   │   │   │   ├── author.js             # 作者API
+│   │   │   │   ├── avatar.js             # 头像API
+│   │   │   │   ├── category.js           # 分类API
+│   │   │   │   ├── comment.js            # 评论API
+│   │   │   │   ├── friendLink.js         # 友链API
+│   │   │   │   ├── index.js              # 博客首页API
+│   │   │   │   ├── setting.js            # 设置API
+│   │   │   │   ├── tag.js                # 标签API
+│   │   │   │   └── upload.js             # 上传API
+│   │   │   ├── setting/      # 设置API
+│   │   │   ├── admin/        # 后台管理API
+│   │   │   ├── monitor/      # 监控API
+│   │   │   ├── system/       # 系统API
+│   │   │   └── tool/         # 工具API
 │   │   ├── router/           # 路由配置
 │   │   ├── stores/           # Pinia状态管理
+│   │   ├── utils/            # 工具函数
 │   │   ├── assets/           # 静态资源
 │   │   ├── directive/        # 指令
-│   │   └── utils/            # 工具函数
+│   │   └── composables/      # 组合式函数
 │   ├── Dockerfile.dev        # 开发环境Docker文件
 │   ├── Dockerfile.prod       # 生产环境Docker文件
 │   └── package.json
@@ -698,12 +812,25 @@ referer:
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
+  external_labels:
+    monitor: 'newblog-monitor'
 
 scrape_configs:
-  - job_name: 'spring-boot'
+  # 监控 Spring Boot Actuator
+  - job_name: 'spring-boot-actuator'
     metrics_path: '/manage/actuator/prometheus'
     static_configs:
       - targets: ['ruoyi-admin:8080']
+        labels:
+          application: 'newblog'
+          environment: 'dev'
+    scrape_interval: 10s
+    scrape_timeout: 10s
+
+  # 监控 Prometheus 自身
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
 ```
 
 **Grafana配置**:
@@ -711,6 +838,37 @@ scrape_configs:
 - 默认密码: admin
 - 数据源: Prometheus
 - 自动导入仪表板
+
+### Vite 代理配置
+
+**开发环境代理** (`ruoyi-ui/vite.config.js`):
+```javascript
+// 自动检测 Docker 环境
+const inDocker = process.env.DOCKER === 'true'
+const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
+
+// 代理配置
+proxy: {
+  '/dev-api': {
+    target: baseUrl,
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/dev-api/, '')
+  },
+  '/blog/api/': {
+    target: baseUrl,
+    changeOrigin: true,
+    rewrite: (path) => path.replace(/^\/blog\/api/, '/blog')
+  },
+  '/profile': {
+    target: baseUrl,
+    changeOrigin: true
+  },
+  '/manage': {
+    target: baseUrl,
+    changeOrigin: true
+  }
+}
+```
 
 ### 生产环境建议
 
@@ -745,19 +903,43 @@ scrape_configs:
 
 ### 开发环境服务
 - **ruoyi-admin**: 后端服务 (8080端口)
+  - 健康检查: 等待 MySQL 就绪
+  - 环境变量: Docker 自动配置
+  - 依赖: mysql, redis
 - **ruoyi-ui**: 前端开发服务器 (3000端口)
+  - 支持热重载
+  - 自动检测 Docker 环境
+  - 依赖: ruoyi-admin
 - **mysql**: MySQL 8.4 数据库 (3306端口)
+  - 健康检查: mysqladmin ping
+  - 数据持久化: mysql_data volume
+  - 自动初始化: sql 目录
 - **redis**: Redis 6.2 缓存 (6379端口)
+  - 数据持久化: redis_data volume
 - **prometheus**: 监控数据采集 (9090端口)
+  - 数据持久化: prometheus_data volume
+  - 配置文件: prometheus.yml
 - **grafana**: 可视化监控 (3001端口)
+  - 数据持久化: grafana_data volume
+  - 自动配置: provisioning 目录
+  - 默认账号: admin/admin
 
 ### 生产环境服务
 - **ruoyi-admin**: 后端服务 (8080端口)
+  - 生产环境优化配置
+  - 依赖: mysql, redis
 - **ruoyi-ui**: Nginx 静态文件服务 (80/443端口)
+  - 高性能静态文件服务
+  - 支持 HTTPS
 - **mysql**: MySQL 8.4 数据库 (3306端口)
+  - 生产环境配置
+  - 数据持久化
 - **redis**: Redis 6.2 缓存 (6379端口)
+  - 数据持久化
 - **prometheus**: 监控数据采集 (9090端口)
+  - 数据持久化
 - **grafana**: 可视化监控 (3001端口)
+  - 数据持久化
 
 ### 数据持久化
 - MySQL 数据: `mysql_data` volume
@@ -766,12 +948,11 @@ scrape_configs:
 - Grafana 数据: `grafana_data` volume
 - 上传文件: `./uploadPath` 目录挂载
 
-### 健康检查
-所有服务都配置了健康检查机制：
-- MySQL: mysqladmin ping
-- Redis: redis-cli ping
-- 后端: /actuator/health 端点
-- 前端: /health 端点
+### 健康检查机制
+- **MySQL**: mysqladmin ping (20秒超时，20次重试)
+- **Redis**: redis-cli ping
+- **后端**: /actuator/health 端点
+- **前端**: /health 端点
 
 ### 重启策略
 - 开发环境: 默认重启策略
@@ -814,6 +995,6 @@ scrape_configs:
 
 ---
 
-**最后更新**: 2026-01-07
+**最后更新**: 2026-01-08
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog

@@ -200,12 +200,6 @@ const routes = [
         meta: { title: '操作日志', icon: 'form' }
       },
       {
-        path: 'druid',
-        name: 'MonitorDruid',
-        component: () => import('@/views/admin/monitor/druid/index.vue'),
-        meta: { title: '数据监控', icon: 'druid' }
-      },
-      {
         path: 'server',
         name: 'Server',
         component: () => import('@/views/admin/monitor/server/index.vue'),
@@ -237,6 +231,11 @@ const routes = [
         meta: { title: '表单构建', icon: 'build' }
       }
     ]
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/error/404.vue'),
+    hidden: true
   },
   {
     path: '/:pathMatch(.*)*',

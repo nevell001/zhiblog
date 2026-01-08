@@ -417,6 +417,29 @@
             </div>
           </div>
         </div>
+
+        <!-- 友情链接 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">
+            <el-icon :size="18"><Link /></el-icon>
+            友情链接
+          </h3>
+          <ul class="friend-link-list" v-if="friendLinkList.length > 0">
+            <li v-for="link in friendLinkList" :key="link.id" class="friend-link-item">
+              <a :href="link.url" :title="link.description" target="_blank" rel="noopener" class="friend-link">
+                <img v-if="link.logo" :src="link.logo" :alt="link.name" class="friend-link-logo" />
+                <div class="friend-link-info">
+                  <span class="friend-link-name">{{ link.name }}</span>
+                  <span class="friend-link-desc">{{ link.description }}</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <div v-else class="no-data">
+            <el-icon :size="40"><Link /></el-icon>
+            <p>暂无友链</p>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -453,12 +476,13 @@ import { ElMessage } from 'element-plus'
 import {
   Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
   DocumentCopy, Document, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
-  FolderOpened, CollectionTag, ArrowUp, Top
+  FolderOpened, CollectionTag, ArrowUp, Top, Link
 } from '@element-plus/icons-vue'
 import { getArticleList, getArticleListAnonymous, getHotArticles, getTopArticles, getRecommendArticles, getArticleArchive } from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
+import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
@@ -485,6 +509,7 @@ const searchKeyword = ref('')
 const tagCloud = ref([])
 const archiveList = ref([])
 const recentComments = ref([])
+const friendLinkList = ref([])
 const loading = ref(false)
 const loadingMore = ref(false)
 const showBackToTop = ref(false)
@@ -922,6 +947,26 @@ const loadArchiveData = async () => {
   }
 }
 
+// 获取友情链接
+const loadFriendLinks = async () => {
+  try {
+    const response = await getFrontFriendLinkList()
+    console.log('友链列表响应:', response)
+    
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      friendLinkList.value = response.data || []
+    } else if (response && Array.isArray(response)) {
+      friendLinkList.value = response
+    } else if (response && response.data) {
+      friendLinkList.value = Array.isArray(response.data) ? response.data : []
+    }
+  } catch (error) {
+    console.error('获取友链列表失败:', error)
+    friendLinkList.value = []
+  }
+}
+
 // 搜索处理
 const handleSearch = () => {
   // 重置页码为第一页
@@ -1115,6 +1160,7 @@ onMounted(() => {
   loadBlogSettings()
   loadTagCloud()
   loadArchiveData()
+  loadFriendLinks()
 
   // 启动定期刷新
   startSettingsRefresh()
@@ -1679,7 +1725,7 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: linear-gradient(135deg, #1a1a1a, #333);
+  background: linear-gradient(135deg, #2c3e50, #3498db);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2253,25 +2299,87 @@ defineExpose({
 }
 
 .article-rank {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  background: #409eff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #409eff, #337ecc);
   color: white;
-  border-radius: 50%;
+  border-radius: 8px;
   text-align: center;
-  line-height: 20px;
-  font-size: 0.8rem;
-  margin-right: 10px;
+  line-height: 26px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: 12px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.article-rank::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.article-rank:hover::before {
+  left: 100%;
+}
+
+/* 前三名特殊样式 */
+.article-rank.rank-top {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  animation: rankPulse 2s ease-in-out infinite;
+}
+
+.article-rank.rank-top:nth-child(1) {
+  background: linear-gradient(135deg, #ffd700, #ffb700);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+}
+
+.article-rank.rank-top:nth-child(2) {
+  background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.5);
+}
+
+.article-rank.rank-top:nth-child(3) {
+  background: linear-gradient(135deg, #cd7f32, #b87333);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.5);
+}
+
+@keyframes rankPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .hot-article-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 12px;
-  padding-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
   border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.hot-article-item:hover {
+  background: #f8f9fa;
+  transform: translateX(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .hot-article-item:last-child {
@@ -2283,7 +2391,8 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  min-width: 0;
 }
 
 .hot-article-meta {
@@ -2332,6 +2441,83 @@ defineExpose({
   font-size: 2rem;
   margin-bottom: 10px;
   display: block;
+}
+
+/* 友情链接样式 */
+.friend-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friend-link-item {
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.friend-link-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.friend-link-item:hover {
+  padding-left: 5px;
+  border-left: 3px solid #409eff;
+}
+
+.friend-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.friend-link:hover {
+  background: #f5f5f5;
+  color: #409eff;
+}
+
+.friend-link-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+
+.friend-link-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-link-name {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.friend-link:hover .friend-link-name {
+  color: #409eff;
+}
+
+.friend-link-desc {
+  display: block;
+  font-size: 0.8rem;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-more-container {
@@ -3066,5 +3252,221 @@ defineExpose({
   .special-article-cover {
     height: 120px;
   }
+}
+
+/* 深色主题适配 */
+html.dark .blog-container {
+  background: #1a1a1a;
+}
+
+html.dark .blog-header {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border-bottom-color: #333;
+}
+
+html.dark .blog-title {
+  color: #e0e0e0;
+}
+
+html.dark .blog-description {
+  color: #b0b0b0;
+}
+
+html.dark .blog-stats {
+  color: #999;
+}
+
+html.dark .blog-stats .stat-item {
+  background: rgba(255, 255, 255, 0.05);
+  color: #b0b0b0;
+}
+
+html.dark .search-input :deep(.el-input__wrapper) {
+  background: #2a2a2a;
+  box-shadow: 0 0 0 1px #333 inset;
+}
+
+html.dark .search-input :deep(.el-input__inner) {
+  color: #e0e0e0;
+}
+
+html.dark .search-input :deep(.el-input__inner::placeholder) {
+  color: #666;
+}
+
+html.dark .search-button {
+  background: #409eff;
+  color: white;
+}
+
+html.dark .article-item {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+html.dark .article-title a {
+  color: #e0e0e0;
+}
+
+html.dark .article-title a:hover {
+  color: #409eff;
+}
+
+html.dark .article-meta {
+  color: #999;
+}
+
+html.dark .article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .article-footer .read-more {
+  color: #409eff;
+}
+
+html.dark .sidebar-widget {
+  background: #2a2a2a;
+  border-color: #333;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .widget-title {
+  color: #e0e0e0;
+  border-bottom-color: #333;
+}
+
+html.dark .category-link {
+  color: #b0b0b0;
+}
+
+html.dark .category-link:hover {
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.1);
+}
+
+html.dark .category-count {
+  color: #666;
+}
+
+html.dark .tag-cloud .tag-item {
+  background: #409eff;
+  color: white;
+}
+
+html.dark .hot-article-item {
+  border-bottom-color: #333;
+}
+
+html.dark .hot-article-item:hover {
+  background: #333;
+}
+
+html.dark .hot-article-link {
+  color: #b0b0b0;
+}
+
+html.dark .hot-article-link:hover {
+  color: #409eff;
+}
+
+html.dark .hot-article-meta {
+  color: #666;
+}
+
+html.dark .archive-link {
+  color: #b0b0b0;
+}
+
+html.dark .archive-link:hover {
+  color: #409eff;
+}
+
+html.dark .archive-count {
+  color: #666;
+}
+
+html.dark .comment-item {
+  border-bottom-color: #333;
+}
+
+html.dark .comment-text {
+  color: #b0b0b0;
+}
+
+html.dark .comment-meta {
+  color: #666;
+}
+
+html.dark .friend-link-item {
+  border-bottom-color: #333;
+}
+
+html.dark .friend-link {
+  color: #e0e0e0;
+}
+
+html.dark .friend-link:hover {
+  background: #333;
+  color: #409eff;
+}
+
+html.dark .friend-link-name {
+  color: #e0e0e0;
+}
+
+html.dark .friend-link-desc {
+  color: #999;
+}
+
+html.dark .back-to-top {
+  background: #409eff;
+  color: white;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+html.dark .back-to-top:hover {
+  background: #337ecc;
+}
+
+html.dark .special-articles-section {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+html.dark .section-title {
+  color: #e0e0e0;
+}
+
+html.dark .special-article-card {
+  background: #333;
+  border-color: #444;
+}
+
+html.dark .special-article-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .special-article-title a {
+  color: #e0e0e0;
+}
+
+html.dark .special-article-title a:hover {
+  color: #409eff;
+}
+
+html.dark .special-article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .special-article-meta {
+  color: #666;
+}
+
+html.dark .no-data {
+  color: #666;
+}
+
+html.dark .no-data p {
+  color: #666;
 }
 </style>

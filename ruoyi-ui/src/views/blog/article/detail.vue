@@ -93,7 +93,10 @@
         </div>
 
         <!-- 文章内容 -->
-        <div class="content-body" v-html="article.content"></div>
+        <div class="content-body" v-html="processedContent"></div>
+
+        <!-- 文章目录导航 -->
+        <ArticleTOC v-if="article && article.content" :content="article.content" @toc-ready="handleTOCReady" />
       </div>
 
       <!-- 文章操作 -->
@@ -262,12 +265,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+import { ref, reactive, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import useUserStore from '@/store/modules/user'
 import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
+import ArticleTOC from '@/components/ArticleTOC.vue'
 import { getArticleDetail, getArticleComments, submitComment as apiSubmitComment } from '@/api/blog/article'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 
@@ -287,6 +291,39 @@ const likeLoading = ref(false)
 const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
 const blogSettings = ref({})
+const tocItems = ref([])
+
+// 处理文章内容，为标题添加ID
+const processedContent = computed(() => {
+  if (!article.value || !article.value.content) return ''
+  
+  let content = article.value.content
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = content
+  
+  const headingElements = tempDiv.querySelectorAll('h1, h2, h3, h4, h5, h6')
+  const idSet = new Set()
+  
+  headingElements.forEach((heading, index) => {
+    let id = `heading-${index}`
+    if (idSet.has(id)) {
+      let counter = 1
+      while (idSet.has(`${id}-${counter}`)) {
+        counter++
+      }
+      id = `${id}-${counter}`
+    }
+    idSet.add(id)
+    heading.id = id
+  })
+  
+  return tempDiv.innerHTML
+})
+
+// 处理目录就绪事件
+const handleTOCReady = (items) => {
+  tocItems.value = items
+}
 
 // 评论表单
 const commentForm = reactive({
@@ -710,14 +747,14 @@ watch(() => route.params.id, (newId, oldId) => {
 }
 
 .article-title {
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 700;
   line-height: 1.3;
   margin: 25px 0;
   color: #1a1a1a;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, #1a1a1a, #333);
+  background: linear-gradient(135deg, #2c3e50, #3498db);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1499,5 +1536,212 @@ watch(() => route.params.id, (newId, oldId) => {
     padding: 4px 8px;
     font-size: 0.75rem;
   }
+}
+
+/* 深色主题适配 */
+html.dark .article-detail-container {
+  background: #1a1a1a;
+}
+
+html.dark .article-detail {
+  background: #2a2a2a;
+  border-color: #333;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .article-header {
+  background: linear-gradient(135deg, #333, #2a2a2a);
+  border-bottom-color: #333;
+}
+
+html.dark .article-title {
+  background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .meta-info {
+  color: #999;
+}
+
+html.dark .meta-item {
+  background: rgba(255, 255, 255, 0.05);
+  color: #b0b0b0;
+}
+
+html.dark .meta-item:hover {
+  background: rgba(64, 158, 255, 0.15);
+  color: #409eff;
+}
+
+html.dark .content-body {
+  color: #e0e0e0;
+}
+
+html.dark .content-body :deep(h1),
+html.dark .content-body :deep(h2),
+html.dark .content-body :deep(h3),
+html.dark .content-body :deep(h4),
+html.dark .content-body :deep(h5),
+html.dark .content-body :deep(h6) {
+  color: #e0e0e0;
+}
+
+html.dark .content-body :deep(p) {
+  color: #b0b0b0;
+}
+
+html.dark .content-body :deep(blockquote) {
+  background: linear-gradient(135deg, #333, #2a2a2a);
+  border-left-color: #409eff;
+  color: #b0b0b0;
+}
+
+html.dark .content-body :deep(table) {
+  background: #2a2a2a;
+}
+
+html.dark .content-body :deep(th) {
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  color: white;
+}
+
+html.dark .content-body :deep(tr:nth-child(even)) {
+  background: #333;
+}
+
+html.dark .content-body :deep(tr:hover) {
+  background: rgba(64, 158, 255, 0.1);
+}
+
+html.dark .content-body :deep(a) {
+  color: #409eff;
+}
+
+html.dark .content-body :deep(a):hover {
+  color: #66b3ff;
+}
+
+html.dark .content-body :deep(code) {
+  background: linear-gradient(135deg, #333, #2a2a2a);
+  color: #ff79c6;
+  border-color: #444;
+}
+
+html.dark .content-body :deep(pre) {
+  background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
+  border: 1px solid #444;
+}
+
+html.dark .content-body :deep(pre) code {
+  color: #abb2bf;
+}
+
+  html.dark .article-actions {
+  border-top-color: #333;
+  border-bottom-color: #333;
+}
+
+html.dark .article-navigation {
+  background: #333;
+}
+
+html.dark .nav-link {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #b0b0b0;
+}
+
+html.dark .nav-link:hover {
+  background: #444;
+  color: #409eff;
+}
+
+html.dark .nav-label {
+  color: #666;
+}
+
+html.dark .related-articles {
+  border-top-color: #333;
+}
+
+html.dark .section-title {
+  color: #e0e0e0;
+}
+
+html.dark .related-item {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+html.dark .related-link {
+  color: #b0b0b0;
+}
+
+html.dark .related-title {
+  color: #e0e0e0;
+}
+
+html.dark .related-meta {
+  color: #666;
+}
+
+html.dark .comment-section {
+  border-top-color: #333;
+}
+
+html.dark .comment-item {
+  border-bottom-color: #333;
+}
+
+html.dark .comment-author {
+  color: #e0e0e0;
+}
+
+html.dark .comment-time {
+  color: #666;
+}
+
+html.dark .comment-text {
+  color: #b0b0b0;
+}
+
+html.dark .reply-item {
+  background: #333;
+}
+
+html.dark .reply-author {
+  color: #e0e0e0;
+}
+
+html.dark .reply-time {
+  color: #666;
+}
+
+html.dark .reply-text {
+  color: #b0b0b0;
+}
+
+html.dark .comment-form {
+  background: #333;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+html.dark .form-header h4 {
+  color: #e0e0e0;
+}
+
+html.dark .not-found-container {
+  background: #1a1a1a;
+}
+
+html.dark .not-found-content h2 {
+  color: #e0e0e0;
+}
+
+html.dark .not-found-content p {
+  color: #999;
 }
 </style>

@@ -6,7 +6,7 @@
 **项目类型**: 前后端分离的企业级博客系统
 **当前版本**: v4.0.0
 **开发语言**: Java 17 + Vue 3.5.16
-**最后更新**: 2026-01-07
+**最后更新**: 2026-01-08
 
 ### 项目简介
 
@@ -39,6 +39,13 @@
 - **HTTP客户端**: Axios 1.9.0
 - **图表**: ECharts 5.6.0
 - **图片裁剪**: vue-cropper 1.1.1
+
+#### 监控技术栈
+- **监控采集**: Prometheus
+- **可视化**: Grafana
+- **数据源**: Spring Boot Actuator
+- **指标格式**: Prometheus metrics
+- **数据保留**: 15天
 
 ## 项目结构
 
@@ -81,12 +88,64 @@ newblog/
 │   ├── src/
 │   │   ├── views/            # 页面
 │   │   │   ├── blog/         # 博客前台
+│   │   │   │   ├── index.vue              # 博客首页
+│   │   │   │   ├── about.vue              # 关于页面
+│   │   │   │   ├── archive/               # 归档页面
+│   │   │   │   ├── article/               # 文章详情
+│   │   │   │   ├── category/              # 分类页面
+│   │   │   │   └── tag/                   # 标签页面
 │   │   │   └── admin/        # 管理后台
 │   │   ├── components/       # 组件
+│   │   │   ├── AvatarUpload.vue          # 头像上传组件
+│   │   │   ├── BlogFooter.vue            # 博客页脚
+│   │   │   ├── BlogNav.vue               # 博客导航
+│   │   │   ├── LinkIcon.vue              # 链接图标组件
+│   │   │   ├── TagCategorySelector.vue   # 标签分类选择器
+│   │   │   ├── Breadcrumb/               # 面包屑
+│   │   │   ├── Crontab/                  # 定时任务
+│   │   │   ├── DictTag/                  # 字典标签
+│   │   │   ├── Editor/                   # 富文本编辑器
+│   │   │   ├── FileUpload/               # 文件上传
+│   │   │   ├── Hamburger/                # 汉堡菜单
+│   │   │   ├── HeaderSearch/             # 头部搜索
+│   │   │   ├── IconSelect/               # 图标选择
+│   │   │   ├── iFrame/                   # 内嵌页面
+│   │   │   ├── ImagePreview/             # 图片预览
+│   │   │   ├── ImageUpload/              # 图片上传
+│   │   │   ├── InfiniteScroll/           # 无限滚动
+│   │   │   ├── Pagination/               # 分页
+│   │   │   ├── ParentView/               # 父视图
+│   │   │   ├── RightPanel/               # 右侧面板
+│   │   │   ├── RightToolbar/             # 右侧工具栏
+│   │   │   ├── RuoYi/                    # 若依组件
+│   │   │   ├── Screenfull/               # 全屏
+│   │   │   ├── SizeSelect/               # 尺寸选择
+│   │   │   ├── SvgIcon/                  # SVG图标
+│   │   │   ├── TinyMCE/                  # TinyMCE编辑器
+│   │   │   └── TopNav/                   # 顶部导航
 │   │   ├── api/              # API接口
+│   │   │   ├── blog/         # 博客API
+│   │   │   │   ├── article.js            # 文章API
+│   │   │   │   ├── author.js             # 作者API
+│   │   │   │   ├── avatar.js             # 头像API
+│   │   │   │   ├── category.js           # 分类API
+│   │   │   │   ├── comment.js            # 评论API
+│   │   │   │   ├── friendLink.js         # 友链API
+│   │   │   │   ├── index.js              # 博客首页API
+│   │   │   │   ├── setting.js            # 设置API
+│   │   │   │   ├── tag.js                # 标签API
+│   │   │   │   └── upload.js             # 上传API
+│   │   │   ├── setting/      # 设置API
+│   │   │   ├── admin/        # 后台管理API
+│   │   │   ├── monitor/      # 监控API
+│   │   │   ├── system/       # 系统API
+│   │   │   └── tool/         # 工具API
 │   │   ├── router/           # 路由配置
 │   │   ├── stores/           # Pinia状态管理
-│   │   └── utils/            # 工具函数
+│   │   ├── utils/            # 工具函数
+│   │   ├── assets/           # 静态资源
+│   │   ├── directive/        # 指令
+│   │   └── composables/      # 组合式函数
 │   ├── Dockerfile.dev        # 开发环境Docker文件
 │   ├── Dockerfile.prod       # 生产环境Docker文件
 │   └── package.json
@@ -249,12 +308,13 @@ newblog/
 - **MySQL**: 8.4+
 - **Redis**: 6.2+
 - **Maven**: 3.6+
+- **Docker**: 20.10+ (可选)
 
 ### 后端启动
 
 ```bash
 # 编译项目
-cd /home/nevell/code/newblog
+cd /Users/nevell/code/newblog
 mvn clean install -DskipTests
 
 # 启动后端服务
@@ -266,7 +326,7 @@ mvn spring-boot:run
 
 ```bash
 # 安装依赖
-cd /home/nevell/code/newblog/ruoyi-ui
+cd /Users/nevell/code/newblog/ruoyi-ui
 npm install
 
 # 启动开发服务器
@@ -283,7 +343,7 @@ npm run build:stage
 
 ```bash
 # 开发环境
-cd /home/nevell/code/newblog
+cd /Users/nevell/code/newblog
 docker compose -f docker-compose.dev.yml up -d
 
 # 生产环境
@@ -357,12 +417,57 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 - 构建输出: dist/
 - Docker环境支持: 自动检测并切换后端地址
 
+**Vite 代理配置**:
+```javascript
+// 接口代理 - RuoYi 默认 API 前缀
+'/dev-api': {
+  target: baseUrl,  // Docker环境: http://ruoyi-admin:8080, 本地: http://localhost:8080
+  changeOrigin: true,
+  rewrite: (path) => path.replace(/^\/dev-api/, '')
+}
+// 博客前台接口代理
+'/blog/api/': {
+  target: baseUrl,
+  changeOrigin: true,
+  rewrite: (path) => path.replace(/^\/blog\/api/, '/blog')
+}
+// 静态资源代理
+'/profile': {
+  target: baseUrl,
+  changeOrigin: true
+}
+// 监控端点代理
+'/manage': {
+  target: baseUrl,
+  changeOrigin: true
+}
+```
+
 ### 监控配置
 
 **Prometheus配置**: `prometheus/prometheus.yml`
-- 采集频率: 15秒
-- 数据保留: 15天
-- 监控目标: Spring Boot Actuator 端点
+```yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # 监控 Spring Boot Actuator
+  - job_name: 'spring-boot-actuator'
+    metrics_path: '/manage/actuator/prometheus'
+    static_configs:
+      - targets: ['ruoyi-admin:8080']
+        labels:
+          application: 'newblog'
+          environment: 'dev'
+    scrape_interval: 10s
+    scrape_timeout: 10s
+
+  # 监控 Prometheus 自身
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+```
 
 **Grafana配置**: `grafana/provisioning/`
 - 默认用户: admin
@@ -467,11 +572,38 @@ chore: 构建/工具
 - `POST /common/upload/avatar` - 头像压缩 (200x200)
 - `POST /common/upload/thumbnail` - 缩略图压缩 (400x400)
 
+**压缩配置**:
+```yaml
+image:
+  compress:
+    enabled: true              # 是否启用图片压缩
+    threshold-size: 2MB        # 压缩阈值
+    max-width: 2560            # 默认最大宽度
+    max-height: 1440           # 默认最大高度
+    default-quality: 0.9       # 默认压缩质量
+    avatar-size: 200           # 头像压缩尺寸
+    thumbnail-size: 400        # 缩略图压缩尺寸
+    avatar-quality: 0.9        # 头像压缩质量
+    thumbnail-quality: 0.85    # 缩略图压缩质量
+    article-cover-width: 1200  # 文章封面图宽度
+    article-cover-height: 675  # 文章封面图高度
+    article-cover-quality: 0.9 # 文章封面图压缩质量
+    mobile-max-width: 750      # 移动端最大宽度
+    mobile-quality: 0.85       # 移动端压缩质量
+```
+
 ### 2. 防盗链保护
 - 白名单控制
 - 保护静态资源
 - 可配置启用/禁用
 - 保护 `/profile/**` 路径下的资源
+
+**防盗链配置**:
+```yaml
+referer:
+  enabled: false              # 是否启用防盗链
+  allowed-domains: localhost,127.0.0.1  # 允许的域名列表
+```
 
 ### 3. JSON XSS 防护
 - 使用 JsonSanitizer
@@ -508,6 +640,11 @@ chore: 构建/工具
 - 可配合 Grafana 进行可视化
 - 15秒采集间隔
 - 15天数据保留
+
+**Prometheus 监控任务**:
+- Spring Boot Actuator 监控: 10秒采集间隔
+- Prometheus 自身监控
+- 支持外部标签和自定义标签
 
 ### Grafana 仪表板
 - 预配置数据源
@@ -552,29 +689,68 @@ chore: 构建/工具
 **问题**: 图片上传失败或压缩不生效
 **解决**: 检查 uploadPath 目录权限，确认图片压缩配置已启用
 
+### 8. 监控数据问题
+**问题**: Prometheus 无法采集指标
+**解决**: 检查 Actuator 端点是否启用，Prometheus 配置是否正确
+
 ## Docker 服务说明
 
 ### 开发环境服务 (`docker-compose.dev.yml`)
 - **ruoyi-admin**: 后端服务 (8080端口)
+  - 健康检查: 等待 MySQL 就绪
+  - 环境变量: Docker 自动配置
+  - 依赖: mysql, redis
 - **ruoyi-ui**: 前端开发服务器 (3000端口)
+  - 支持热重载
+  - 自动检测 Docker 环境
+  - 依赖: ruoyi-admin
 - **mysql**: MySQL 8.4 数据库 (3306端口)
+  - 健康检查: mysqladmin ping
+  - 数据持久化: mysql_data volume
+  - 自动初始化: sql 目录
 - **redis**: Redis 6.2 缓存 (6379端口)
+  - 数据持久化: redis_data volume
 - **prometheus**: 监控数据采集 (9090端口)
+  - 数据持久化: prometheus_data volume
+  - 配置文件: prometheus.yml
 - **grafana**: 可视化监控 (3001端口)
+  - 数据持久化: grafana_data volume
+  - 自动配置: provisioning 目录
+  - 默认账号: admin/admin
 
 ### 生产环境服务 (`docker-compose.prod.yml`)
 - **ruoyi-admin**: 后端服务 (8080端口)
+  - 生产环境优化配置
+  - 依赖: mysql, redis
 - **ruoyi-ui**: Nginx 静态文件服务 (80/443端口)
+  - 高性能静态文件服务
+  - 支持 HTTPS
 - **mysql**: MySQL 8.4 数据库 (3306端口)
+  - 生产环境配置
+  - 数据持久化
 - **redis**: Redis 6.2 缓存 (6379端口)
+  - 数据持久化
 - **prometheus**: 监控数据采集 (9090端口)
+  - 数据持久化
 - **grafana**: 可视化监控 (3001端口)
+  - 数据持久化
 
 ### 数据持久化
 - MySQL 数据: `mysql_data` volume
+- Redis 数据: `redis_data` volume
 - Prometheus 数据: `prometheus_data` volume
 - Grafana 数据: `grafana_data` volume
 - 上传文件: `./uploadPath` 目录挂载
+
+### 健康检查机制
+- **MySQL**: mysqladmin ping (20秒超时，20次重试)
+- **Redis**: redis-cli ping
+- **后端**: /actuator/health 端点
+- **前端**: /health 端点
+
+### 重启策略
+- 开发环境: 默认重启策略
+- 生产环境: unless-stopped（除非手动停止，否则自动重启）
 
 ## 项目优势
 
@@ -609,6 +785,6 @@ chore: 构建/工具
 
 ---
 
-**最后更新**: 2026-01-07
+**最后更新**: 2026-01-08
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog

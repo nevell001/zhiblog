@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.ruoyi.common.annotation.Log;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
@@ -49,6 +50,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 查询前台展示的友情链接列表
      */
+    @Anonymous
     @GetMapping("/front/list")
     public AjaxResult frontList()
     {

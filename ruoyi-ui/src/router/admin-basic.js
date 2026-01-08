@@ -153,16 +153,6 @@ export const adminRoutes = [
         }
       },
       {
-        path: 'druid',
-        component: () => import('@/views/admin/monitor/druid/index.vue'),
-        name: 'MonitorDruid',
-        meta: {
-          title: '数据监控',
-          icon: 'druid',
-          roles: ['admin']
-        }
-      },
-      {
         path: 'server',
         component: () => import('@/views/admin/monitor/server/index.vue'),
         name: 'MonitorServer',

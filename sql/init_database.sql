@@ -7,23 +7,23 @@
 -- 🚀 版本：v2.0.0 (完整版)
 -- 
 -- 📋 包含内容：
--- ✅ 若依系统基础表结构和数据 (19个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice)
+-- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
 -- ✅ Quartz定时任务表结构 (11个表)
 -- ✅ 博客系统表结构和数据 (7个表)
 -- ✅ 性能优化索引 (20+个索引)
 -- ✅ 数据完整性约束和触发器
 -- ✅ 完整的示例数据 (文章6篇、分类14个、标签19个、友链10个)
 -- ✅ 博客管理菜单和权限配置
--- 
+--
 -- 🔧 技术栈：
 -- - MySQL 8.0+
 -- - Spring Boot 2.5.15
 -- - Vue.js 3.x
 -- - MyBatis
 -- - Redis
--- 
+--
 -- 📊 数据库统计：
--- - 总表数：37个（包含完整的若依系统表、Quartz表和博客系统表）
+-- - 总表数：39个（包含完整的若依系统表、Quartz表和博客系统表）
 -- - 总设置项：35个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
@@ -339,6 +339,49 @@ CREATE TABLE sys_notice (
   remark            VARCHAR(255)   DEFAULT NULL               COMMENT '备注',
   PRIMARY KEY (notice_id)
 ) ENGINE=INNODB AUTO_INCREMENT=10 COMMENT = '通知公告表';
+
+-- 9、系统访问记录表
+DROP TABLE IF EXISTS `sys_logininfor`;
+CREATE TABLE `sys_logininfor` (
+  `info_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `user_name` VARCHAR(50) DEFAULT '' COMMENT '用户账号',
+  `ipaddr` VARCHAR(128) DEFAULT '' COMMENT '登录IP地址',
+  `login_location` VARCHAR(255) DEFAULT '' COMMENT '登录地点',
+  `browser` VARCHAR(50) DEFAULT '' COMMENT '浏览器类型',
+  `os` VARCHAR(50) DEFAULT '' COMMENT '操作系统',
+  `status` CHAR(1) DEFAULT '0' COMMENT '登录状态（0成功 1失败）',
+  `msg` VARCHAR(255) DEFAULT '' COMMENT '提示消息',
+  `login_time` DATETIME DEFAULT NULL COMMENT '登录时间',
+  PRIMARY KEY (`info_id`),
+  KEY `idx_user_name` (`user_name`),
+  KEY `idx_login_time` (`login_time`)
+) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统访问记录';
+
+-- 10、操作日志记录表
+DROP TABLE IF EXISTS `sys_oper_log`;
+CREATE TABLE `sys_oper_log` (
+  `oper_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `title` VARCHAR(50) DEFAULT '' COMMENT '模块标题',
+  `business_type` INT(2) DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `method` VARCHAR(100) DEFAULT '' COMMENT '方法名称',
+  `request_method` VARCHAR(10) DEFAULT '' COMMENT '请求方式',
+  `operator_type` INT(1) DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `oper_name` VARCHAR(50) DEFAULT '' COMMENT '操作人员',
+  `dept_name` VARCHAR(50) DEFAULT '' COMMENT '部门名称',
+  `oper_url` VARCHAR(255) DEFAULT '' COMMENT '请求URL',
+  `oper_ip` VARCHAR(128) DEFAULT '' COMMENT '主机地址',
+  `oper_location` VARCHAR(255) DEFAULT '' COMMENT '操作地点',
+  `oper_param` VARCHAR(2000) DEFAULT '' COMMENT '请求参数',
+  `json_result` VARCHAR(2000) DEFAULT '' COMMENT '返回参数',
+  `status` INT(1) DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
+  `error_msg` VARCHAR(2000) DEFAULT '' COMMENT '错误消息',
+  `oper_time` DATETIME DEFAULT NULL COMMENT '操作时间',
+  `cost_time` BIGINT(20) DEFAULT 0 COMMENT '消耗时间',
+  PRIMARY KEY (`oper_id`),
+  KEY `idx_oper_time` (`oper_time`),
+  KEY `idx_oper_name` (`oper_name`),
+  KEY `idx_business_type` (`business_type`)
+) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='操作日志记录';
 
 -- ========== 导入Quartz定时任务表结构 ==========
 

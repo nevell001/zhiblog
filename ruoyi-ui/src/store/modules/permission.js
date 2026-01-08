@@ -154,11 +154,6 @@ const usePermissionStore = defineStore(
                       meta: { title: '操作日志', icon: 'form' }
                     },
                     {
-                      path: 'druid',
-                      name: 'MonitorDruid',
-                      meta: { title: '数据监控', icon: 'druid' }
-                    },
-                    {
                       path: 'server',
                       name: 'Server',
                       meta: { title: '服务监控', icon: 'server' }

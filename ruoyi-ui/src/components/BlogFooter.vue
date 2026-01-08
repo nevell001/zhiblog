@@ -16,9 +16,11 @@
           <h4>快速链接</h4>
           <ul class="footer-links">
             <li><router-link to="/blog">首页</router-link></li>
+            <li><router-link to="/blog/about">关于</router-link></li>
             <li><router-link to="/blog/category">分类</router-link></li>
             <li><router-link to="/blog/tag">标签</router-link></li>
             <li><router-link to="/blog/archive">归档</router-link></li>
+            <li><a :href="rssUrl" target="_blank" title="RSS订阅">RSS订阅</a></li>
           </ul>
         </div>
 
@@ -73,6 +75,23 @@ const props = defineProps({
     type: Number,
     default: 0
   }
+})
+
+// 计算RSS URL
+const rssUrl = computed(() => {
+  // 根据当前环境构建RSS URL
+  // 在浏览器中，需要使用localhost而不是Docker内部地址
+  let baseUrl = 'http://localhost:8080'
+
+  // 如果当前在localhost:3000，使用localhost:8080
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    baseUrl = 'http://localhost:8080'
+  } else {
+    // 否则使用当前域名，但端口改为8080
+    baseUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+  }
+
+  return `${baseUrl}/blog/rss`
 })
 
 // 计算当前年份
@@ -173,6 +192,12 @@ const shouldShowCopyright = computed(() => {
 .footer-links a:hover {
   color: #3498db;
   transform: translateX(5px);
+}
+
+.footer-links a .el-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+  vertical-align: middle;
 }
 
 .footer-contact p {

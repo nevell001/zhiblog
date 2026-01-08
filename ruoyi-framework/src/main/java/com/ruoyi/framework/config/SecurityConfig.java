@@ -139,7 +139,7 @@ public class SecurityConfig
                 }
 
                 // 博客前台接口允许匿名访问
-                requests.requestMatchers("/blog/**", "/common/blog/**", "/index", "/about").permitAll()
+                requests.requestMatchers("/blog/**", "/common/blog/**", "/index", "/about", "/system/friendLink/front/**").permitAll()
                     // 除上面外的所有请求全部需要鉴权认证
                     .anyRequest().authenticated();
             })

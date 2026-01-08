@@ -93,7 +93,11 @@ const getMenuIcon = (icon) => {
 // 切换主题
 const toggleTheme = () => {
   isDarkTheme.value = !isDarkTheme.value
-  document.documentElement.setAttribute('data-theme', isDarkTheme.value ? 'dark' : 'light')
+  if (isDarkTheme.value) {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
   localStorage.setItem('blog-theme', isDarkTheme.value ? 'dark' : 'light')
 }
 
@@ -136,7 +140,11 @@ const handleScroll = () => {
 onMounted(() => {
   const savedTheme = localStorage.getItem('blog-theme') || 'light'
   isDarkTheme.value = savedTheme === 'dark'
-  document.documentElement.setAttribute('data-theme', savedTheme)
+  if (savedTheme === 'dark') {
+    document.documentElement.classList.add('dark')
+  } else {
+    document.documentElement.classList.remove('dark')
+  }
 
   // 添加滚动监听
   scrollHandler = handleScroll
