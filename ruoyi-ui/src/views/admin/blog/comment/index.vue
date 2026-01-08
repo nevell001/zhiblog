@@ -81,9 +81,9 @@
       <el-table-column label="评论人" align="center" prop="authorName" />
       <el-table-column label="邮箱" align="center" prop="email" />
       <el-table-column label="IP地址" align="center" prop="ipAddress" />
-      <el-table-column label="状态" align="center" prop="status">
+      <el-table-column label="状态" align="center" prop="status" width="100">
         <template #default="scope">
-          <dict-tag :options="comment_status" :value="scope.row.status" />
+          <dict-tag :options="comment_status" :value="scope.row.status" class="comment-status-tag" />
         </template>
       </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
@@ -214,3 +214,37 @@ function handleExport() {
 
 getList();
 </script>
+
+<style scoped>
+/* 评论状态标签样式优化 */
+.comment-status-tag {
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 状态标签深度样式控制 */
+:deep(.dict-tag) {
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  :deep(.dict-tag) {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.dict-tag) {
+    font-size: 11px;
+    padding: 2px 5px;
+  }
+}
+</style>
