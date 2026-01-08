@@ -65,7 +65,7 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="文章ID" align="center" prop="id" />
       <el-table-column label="文章标题" align="center" prop="title" :show-overflow-tooltip="true" />
-      <el-table-column label="分类" align="center" prop="categoryName" />
+      <el-table-column label="分类" align="center" prop="categoryName" width="120" />
       <el-table-column label="作者" align="center" prop="authorName" />
 
       <el-table-column label="标签" align="center" prop="tags" min-width="120">
@@ -76,9 +76,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="状态" align="center" prop="status" min-width="80">
+      <el-table-column label="状态" align="center" prop="status" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'" effect="dark">
+          <el-tag :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'" effect="dark" class="article-status-tag">
             {{ scope.row.status === '1' || scope.row.status === 1 ? '已发布' : '草稿' }}
           </el-tag>
         </template>
@@ -685,3 +685,43 @@ onMounted(async () => {
   }
 });
 </script>
+
+<style scoped>
+/* 文章状态标签样式优化 */
+.article-status-tag {
+  font-size: 13px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 标签样式优化 */
+.mr-1 {
+  margin-right: 4px;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  :deep(.el-tag) {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+
+  .article-status-tag {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.el-tag) {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+
+  .article-status-tag {
+    font-size: 11px;
+    padding: 2px 6px;
+  }
+}
+</style>
