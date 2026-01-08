@@ -25,7 +25,7 @@
           <el-option label="发布" value="1" />
         </el-select>
       </el-form-item>
-      <el-form-item>
+      <el-form-item label="">
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
