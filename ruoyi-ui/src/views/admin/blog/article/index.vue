@@ -10,7 +10,7 @@
         />
       </el-form-item>
       <el-form-item label="分类" prop="categoryId">
-        <el-select v-model="queryParams.categoryId" placeholder="请选择分类" clearable>
+        <el-select v-model="queryParams.categoryId" placeholder="请选择分类" clearable class="category-select">
           <el-option
             v-for="category in categoryOptions"
             :key="category.id"
@@ -20,7 +20,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
-        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable>
+        <el-select v-model="queryParams.status" placeholder="请选择状态" clearable class="status-select">
           <el-option label="草稿" value="0" />
           <el-option label="发布" value="1" />
         </el-select>
@@ -700,8 +700,80 @@ onMounted(async () => {
   margin-right: 4px;
 }
 
+/* 分类下拉选择框样式优化 */
+.category-select {
+  width: 150px;
+}
+
+:deep(.category-select .el-input__wrapper) {
+  height: 32px;
+  font-size: 13px;
+}
+
+:deep(.category-select .el-select__placeholder) {
+  font-size: 13px;
+}
+
+:deep(.category-select .el-input__inner) {
+  font-size: 13px;
+}
+
+/* 状态下拉选择框样式优化 */
+.status-select {
+  width: 120px;
+}
+
+:deep(.status-select .el-input__wrapper) {
+  height: 32px;
+  font-size: 13px;
+}
+
+:deep(.status-select .el-select__placeholder) {
+  font-size: 13px;
+}
+
+:deep(.status-select .el-input__inner) {
+  font-size: 13px;
+}
+
+/* 下拉选项样式优化 */
+:deep(.el-select-dropdown__item) {
+  font-size: 13px;
+  padding: 8px 12px;
+  line-height: 1.4;
+}
+
 /* 响应式样式 */
 @media (max-width: 768px) {
+  .category-select {
+    width: 120px;
+  }
+
+  .status-select {
+    width: 100px;
+  }
+
+  :deep(.category-select .el-input__wrapper),
+  :deep(.status-select .el-input__wrapper) {
+    height: 30px;
+    font-size: 12px;
+  }
+
+  :deep(.category-select .el-select__placeholder),
+  :deep(.status-select .el-select__placeholder) {
+    font-size: 12px;
+  }
+
+  :deep(.category-select .el-input__inner),
+  :deep(.status-select .el-input__inner) {
+    font-size: 12px;
+  }
+
+  :deep(.el-select-dropdown__item) {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
   :deep(.el-tag) {
     font-size: 12px;
     padding: 3px 8px;
@@ -714,6 +786,35 @@ onMounted(async () => {
 }
 
 @media (max-width: 480px) {
+  .category-select {
+    width: 100px;
+  }
+
+  .status-select {
+    width: 90px;
+  }
+
+  :deep(.category-select .el-input__wrapper),
+  :deep(.status-select .el-input__wrapper) {
+    height: 28px;
+    font-size: 11px;
+  }
+
+  :deep(.category-select .el-select__placeholder),
+  :deep(.status-select .el-select__placeholder) {
+    font-size: 11px;
+  }
+
+  :deep(.category-select .el-input__inner),
+  :deep(.status-select .el-input__inner) {
+    font-size: 11px;
+  }
+
+  :deep(.el-select-dropdown__item) {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
   :deep(.el-tag) {
     font-size: 11px;
     padding: 2px 6px;
