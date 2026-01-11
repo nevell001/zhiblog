@@ -15,6 +15,19 @@ target/
 # iFlow CLI 个人配置（不应提交）
 .iflow/
 
+# SonarLint 个人配置（不应提交）
+.sonarlint/
+
+# 备份文件
+*.bak
+*.bak2
+*.bak3
+
+# 前端临时测试文件
+cookies.txt
+test-*.html
+test-*.js
+
 
 # 构建产物与依赖
 node_modules/
