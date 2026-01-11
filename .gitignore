@@ -28,6 +28,15 @@ cookies.txt
 test-*.html
 test-*.js
 
+# 测试覆盖率报告
+coverage-report.json
+coverage/
+.nyc_output/
+
+# iFlow CLI 自动生成的文档
+IFLOW.md
+CLAUDE.md
+
 
 # 构建产物与依赖
 node_modules/
