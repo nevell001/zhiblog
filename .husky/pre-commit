@@ -1,0 +1,56 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "🔍 运行代码规范检查..."
+
+# 检查是否有前端代码变更
+FRONTEND_CHANGED=$(git diff --cached --name-only | grep -E "^(ruoyi-ui/)" | wc -l)
+BACKEND_CHANGED=$(git diff --cached --name-only | grep -E "\.(java)$" | wc -l)
+
+# 如果有前端代码变更，运行前端检查
+if [ "$FRONTEND_CHANGED" -gt 0 ]; then
+  echo "📦 检查前端代码..."
+  cd ruoyi-ui
+
+  # 运行 ESLint 检查（不自动修复）
+  npm run lint:check
+  LINT_STATUS=$?
+
+  # 运行 Prettier 格式检查
+  npm run format:check
+  FORMAT_STATUS=$?
+
+  cd ..
+
+  if [ $LINT_STATUS -ne 0 ] || [ $FORMAT_STATUS -ne 0 ]; then
+    echo ""
+    echo "❌ 前端代码检查失败！"
+    echo "请运行以下命令修复："
+    echo "  cd ruoyi-ui && npm run lint && npm run format"
+    echo ""
+    exit 1
+  fi
+
+  echo "✅ 前端代码检查通过"
+fi
+
+# 如果有后端代码变更，运行后端检查
+if [ "$BACKEND_CHANGED" -gt 0 ]; then
+  echo "☕ 检查后端代码..."
+
+  # 运行 Checkstyle 检查
+  mvn checkstyle:check -q
+  CHECKSTYLE_STATUS=$?
+
+  if [ $CHECKSTYLE_STATUS -ne 0 ]; then
+    echo ""
+    echo "❌ 后端代码检查失败！"
+    echo "请运行 'mvn checkstyle:check' 查看详细信息并修复"
+    echo ""
+    exit 1
+  fi
+
+  echo "✅ 后端代码检查通过"
+fi
+
+echo "✅ 代码规范检查通过，可以提交！"

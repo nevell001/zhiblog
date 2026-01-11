@@ -4,9 +4,9 @@
 
 **项目名称**: newblog (基于 RuoYi-Vue 的博客系统)
 **项目类型**: 前后端分离的企业级博客系统
-**当前版本**: v4.0.0
+**当前版本**: v4.0.1
 **开发语言**: Java 17 + Vue 3.5.16
-**最后更新**: 2026-01-08
+**最后更新**: 2026-01-11
 
 ### 项目简介
 
@@ -26,7 +26,12 @@
 - **UserAgent解析**: YAUAA 7.32.0
 - **图片处理**: Thumbnailator 0.4.20
 - **监控**: Spring Boot Actuator + Prometheus
+- **环境变量**: spring-dotenv 4.0.0
 - **Java版本**: 17
+- **测试框架**: JUnit 5.11.4 + Mockito 5.14.2
+- **代码规范**: Checkstyle 10.12.5
+- **测试覆盖率**: JaCoCo 0.8.12
+- **代码质量**: SonarQube 集成
 
 #### 前端技术栈
 - **框架**: Vue 3.5.16
@@ -39,6 +44,11 @@
 - **HTTP客户端**: Axios 1.9.0
 - **图表**: ECharts 5.6.0
 - **图片裁剪**: vue-cropper 1.1.1
+- **XSS防护**: DOMPurify 3.3.1
+- **测试框架**: Vitest 2.1.8 + Vue Test Utils 2.4.6
+- **代码规范**: ESLint 9.18.0 (Flat Config) + Prettier 3.4.2
+- **测试覆盖率**: Vitest Coverage v8
+- **代码质量**: SonarLint 集成
 
 #### 监控技术栈
 - **监控采集**: Prometheus
@@ -46,6 +56,7 @@
 - **数据源**: Spring Boot Actuator
 - **指标格式**: Prometheus metrics
 - **数据保留**: 15天
+- **代码质量分析**: SonarQube
 
 ## 项目结构
 
@@ -96,6 +107,7 @@ newblog/
 │   │   │   │   └── tag/                   # 标签页面
 │   │   │   └── admin/        # 管理后台
 │   │   ├── components/       # 组件
+│   │   │   ├── ArticleTOC.vue            # 文章目录组件
 │   │   │   ├── AvatarUpload.vue          # 头像上传组件
 │   │   │   ├── BlogFooter.vue            # 博客页脚
 │   │   │   ├── BlogNav.vue               # 博客导航
@@ -145,15 +157,19 @@ newblog/
 │   │   ├── utils/            # 工具函数
 │   │   ├── assets/           # 静态资源
 │   │   ├── directive/        # 指令
-│   │   └── composables/      # 组合式函数
+│   │   ├── composables/      # 组合式函数
+│   │   └── tests/            # 测试文件
 │   ├── Dockerfile.dev        # 开发环境Docker文件
 │   ├── Dockerfile.prod       # 生产环境Docker文件
+│   ├── vitest.config.ts      # Vitest测试配置
 │   └── package.json
 ├── sql/                      # 数据库脚本
 │   ├── init_database.sql    # 初始化脚本
 │   ├── quartz.sql           # 定时任务脚本
 │   ├── 00_setup_permissions.sql  # 权限设置
+│   ├── 01_add_system_log_tables.sql # 系统日志表
 │   └── performance_indexes.sql   # 性能索引
+├── docker-compose.yml       # Docker编排(默认配置)
 ├── docker-compose.dev.yml   # Docker编排(开发)
 ├── docker-compose.prod.yml  # Docker编排(生产)
 ├── Dockerfile-admin         # 后端Docker文件
@@ -161,6 +177,24 @@ newblog/
 │   └── prometheus.yml
 ├── grafana/                 # Grafana配置
 │   └── provisioning/
+├── checkstyle.xml           # Checkstyle代码规范配置
+├── sonar-project.properties # SonarQube配置
+├── .env.example             # 环境变量模板
+├── .husky/                  # Git Hooks
+│   ├── pre-commit          # 提交前检查
+│   └── commit-msg          # 提交信息检查
+├── .sonarlint/              # SonarLint配置
+│   └── connectedMode.json
+├── docs/                    # 项目文档
+│   ├── CODE_REVIEW_GUIDE.md      # 代码审查指南
+│   ├── CODE_STANDARDS.md         # 代码规范
+│   ├── CODE_STANDARDS_SETUP.md   # 代码规范设置
+│   ├── TESTING_GUIDE.md          # 测试指南
+│   ├── TESTING_SETUP.md         # 测试环境设置
+│   ├── TEST_REPORT.md            # 测试报告
+│   ├── TEST_STATUS.md            # 测试状态
+│   ├── 图片压缩功能使用指南.md
+│   └── 项目优化建议.md
 ├── pom.xml                  # Maven主配置
 └── README.md                # 项目文档
 ```
@@ -180,6 +214,7 @@ newblog/
 - 批量状态更新
 - 浏览量、点赞数、评论数统计
 - 图片智能压缩（封面图、移动端适配）
+- 文章目录导航（ArticleTOC组件）
 
 **关键方法**:
 - `list()` - 分页查询文章列表
@@ -279,7 +314,7 @@ newblog/
 - `blog_friend_link` - 友情链接表
 - `blog_setting` - 系统设置表
 
-**系统表** (22个):
+**系统表** (24个):
 - `sys_user` - 用户表
 - `sys_role` - 角色表
 - `sys_menu` - 菜单表
@@ -342,24 +377,27 @@ npm run build:stage
 ### Docker 一键部署
 
 ```bash
-# 开发环境
+# 默认配置（推荐）
 cd /Users/nevell/code/newblog
+docker compose up -d
+
+# 开发环境
 docker compose -f docker-compose.dev.yml up -d
 
 # 生产环境
 docker compose -f docker-compose.prod.yml up -d
 
 # 查看服务状态
-docker compose -f docker-compose.dev.yml ps
+docker compose ps
 
 # 查看日志
-docker compose -f docker-compose.dev.yml logs -f
+docker compose logs -f
 
 # 停止服务
-docker compose -f docker-compose.dev.yml down
+docker compose down
 
 # 重启服务
-docker compose -f docker-compose.dev.yml restart
+docker compose restart
 ```
 
 ### 数据库初始化
@@ -374,6 +412,9 @@ mysql -u root -p newblog < sql/init_database.sql
 
 # （可选）执行权限设置
 mysql -u root -p < sql/00_setup_permissions.sql
+
+# （可选）添加系统日志表
+mysql -u root -p < sql/01_add_system_log_tables.sql
 
 # （可选）添加性能优化索引
 mysql -u root -p newblog < sql/performance_indexes.sql
@@ -390,8 +431,64 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 | http://localhost:8080/druid | 数据库监控 | Druid监控台 |
 | http://localhost:9090 | Prometheus | 监控数据 |
 | http://localhost:3001 | Grafana | 可视化监控 |
+| http://localhost:9000 | SonarQube | 代码质量分析 |
 
 **默认账号**: admin / admin123
+
+## 环境变量配置
+
+项目使用 `.env` 文件管理环境变量，已提供 `.env.example` 模板文件。后端通过 spring-dotenv 4.0.0 自动加载 `.env` 文件。
+
+### 环境变量模板
+
+```bash
+# 复制模板文件
+cp .env.example .env
+
+# 编辑 .env 文件，填入实际配置值
+# 注意：.env 文件包含敏感信息，不要提交到版本控制系统
+```
+
+### 主要环境变量
+
+**数据库配置**:
+- `DB_HOST`: 数据库主机地址
+- `DB_PORT`: 数据库端口
+- `DB_NAME`: 数据库名称
+- `DB_USERNAME`: 数据库用户名
+- `DB_PASSWORD`: 数据库密码
+
+**Redis配置**:
+- `REDIS_HOST`: Redis主机地址
+- `REDIS_PORT`: Redis端口
+- `REDIS_PASSWORD`: Redis密码
+- `REDIS_DATABASE`: Redis数据库索引
+
+**JWT配置**:
+- `R_TOKEN_SECRET`: JWT密钥（必须修改为随机字符串，至少64位）
+- `TOKEN_EXPIRE_TIME`: Token过期时间（分钟）
+
+**Druid监控配置**:
+- `DRUID_USERNAME`: Druid监控用户名
+- `DRUID_PASSWORD`: Druid监控密码
+
+**Grafana配置**:
+- `GF_SECURITY_ADMIN_PASSWORD`: Grafana管理员密码
+
+**SonarQube配置**:
+- `SONAR_HOST_URL`: SonarQube 服务器地址
+- `SONAR_LOGIN`: SonarQube 认证令牌
+
+**应用配置**:
+- `SERVER_PORT`: 应用端口
+- `SPRING_PROFILES_ACTIVE`: 环境配置（dev/prod）
+- `CAPTCHA_ENABLED`: 验证码开关
+
+**Docker标识**:
+- `DOCKER`: 设置为true表示在Docker环境中运行
+- `VITE_API_BASE_URL`: 前端 API 基础地址（Docker 环境）
+
+详细配置说明请参考 `.env.example` 文件。
 
 ## 配置文件
 
@@ -402,11 +499,16 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 - 服务端口: 8080
 - 数据库连接: MySQL 8.4
 - Redis配置: localhost:6379
-- Token配置: 默认密钥（生产环境需更换）
+- Token配置: 必须通过环境变量 R_TOKEN_SECRET 设置
 - 图片压缩配置: 已启用
+- DOMPurify XSS 防护: 已启用
 - 防盗链配置: 默认关闭
 - Actuator监控: 已启用
 - Prometheus监控: 已集成
+- 验证码开关: 默认关闭（开发环境）
+- 文件上传: 单文件 10MB，总请求 20MB
+- Redis 缓存: 默认 10 分钟
+- 环境变量: 通过 spring-dotenv 自动加载 .env 文件
 
 ### 前端配置
 **配置文件**: `ruoyi-ui/vite.config.js`, `ruoyi-ui/.env.development`, `ruoyi-ui/.env.production`
@@ -419,6 +521,10 @@ mysql -u root -p newblog < sql/performance_indexes.sql
 
 **Vite 代理配置**:
 ```javascript
+// 自动检测 Docker 环境
+const inDocker = process.env.DOCKER === 'true'
+const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
+
 // 接口代理 - RuoYi 默认 API 前缀
 '/dev-api': {
   target: baseUrl,  // Docker环境: http://ruoyi-admin:8080, 本地: http://localhost:8080
@@ -426,7 +532,7 @@ mysql -u root -p newblog < sql/performance_indexes.sql
   rewrite: (path) => path.replace(/^\/dev-api/, '')
 }
 // 博客前台接口代理
-'/blog/api/': {
+'^/blog/api/': {
   target: baseUrl,
   changeOrigin: true,
   rewrite: (path) => path.replace(/^\/blog\/api/, '/blog')
@@ -475,6 +581,184 @@ scrape_configs:
 - 数据源: Prometheus
 - 自动导入仪表板
 
+## 测试
+
+### 前端测试
+
+**测试框架**: Vitest + Vue Test Utils
+
+**运行测试**:
+```bash
+cd ruoyi-ui
+
+# 运行所有测试
+npm run test
+
+# 运行测试并生成覆盖率报告
+npm run test:coverage
+
+# 运行测试 UI
+npm run test:ui
+```
+
+**测试覆盖率目标**:
+- 行覆盖率: ≥ 70%
+- 分支覆盖率: ≥ 70%
+- 函数覆盖率: ≥ 70%
+- 语句覆盖率: ≥ 70%
+
+**测试文件结构**:
+```
+ruoyi-ui/src/
+├── utils/
+│   ├── validate.ts          # 源文件
+│   └── validate.test.ts     # 测试文件
+├── composables/
+│   ├── useArticleList.ts    # 源文件
+│   └── useArticleList.test.ts # 测试文件
+└── tests/
+    └── setup.ts            # 测试设置
+```
+
+**测试配置**: `ruoyi-ui/vitest.config.ts`
+
+### 后端测试
+
+**测试框架**: JUnit 5 + Mockito + Spring Boot Test
+
+**运行测试**:
+```bash
+# 运行所有测试
+mvn test
+
+# 运行指定模块的测试
+mvn test -pl ruoyi-system
+
+# 运行单个测试类
+mvn test -Dtest=BlogArticleServiceTest
+
+# 运行单个测试方法
+mvn test -Dtest=BlogArticleServiceTest#testInsertArticle
+
+# 生成测试覆盖率报告
+mvn test jacoco:report
+```
+
+**测试覆盖率目标**:
+- 行覆盖率: ≥ 60%
+- 分支覆盖率: ≥ 60%
+
+**测试文件结构**:
+```
+ruoyi-system/src/test/java/com/ruoyi/system/
+├── controller/
+│   └── BlogArticleControllerTest.java
+├── service/
+│   └── impl/
+│       └── BlogArticleServiceImplTest.java
+└── mapper/
+    └── BlogArticleMapperTest.java
+```
+
+**测试数据库**: H2 内存数据库（测试环境）
+
+详细测试指南请参考 [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+
+## 代码规范
+
+### 前端代码规范
+
+**工具**:
+- **ESLint 9.18.0**: 代码质量检查（Flat Config 格式）
+- **Prettier 3.4.2**: 代码格式化
+- **SonarLint**: 代码质量分析
+
+**配置文件**:
+- `ruoyi-ui/eslint.config.js` - ESLint Flat Config 配置
+- `ruoyi-ui/.prettierrc.json` - Prettier 配置
+- `ruoyi-ui/.prettierignore` - Prettier 忽略文件
+
+**ESLint 规则**:
+- 基于 Vue 3 Flat Config 推荐配置
+- 自动导入 Vue Composition API、Vue Router、Pinia、Element Plus 组件
+- 代码风格：单引号、无分号、2 空格缩进
+- 生产环境禁止 console 和 debugger
+
+**使用方法**:
+```bash
+cd ruoyi-ui
+
+# 检查代码规范
+npm run lint:check
+
+# 自动修复代码规范问题
+npm run lint
+
+# 格式化所有代码
+npm run format
+
+# 检查代码格式
+npm run format:check
+```
+
+### 后端代码规范
+
+**工具**:
+- **Checkstyle 10.12.5**: Java 代码规范检查
+- **SonarLint**: 代码质量分析
+
+**配置文件**:
+- `checkstyle.xml` - Checkstyle 配置（基于 Google Java Style Guide）
+
+**Checkstyle 规则**:
+- 行长度限制：120 字符
+- 方法长度限制：150 行
+- 参数数量限制：7 个
+- 圈复杂度限制：15
+- 命名规范：驼峰命名（类名大驼峰、方法/变量小驼峰、常量全大写）
+
+**使用方法**:
+```bash
+# 检查代码规范
+mvn checkstyle:check
+
+# 生成检查报告
+mvn checkstyle:checkstyle
+
+# 报告生成在: target/checkstyle-result.xml
+```
+
+### Git Hooks
+
+项目配置了 Git Hooks 来自动检查代码规范：
+
+**配置的 Hooks**:
+1. **pre-commit**: 提交前检查代码规范
+2. **commit-msg**: 检查提交信息格式
+
+**提交信息格式**:
+```
+type(scope): subject
+
+body
+
+footer
+```
+
+**类型（type）**:
+- `feat`: 新功能
+- `fix`: 修复bug
+- `docs`: 文档
+- `style`: 格式
+- `refactor`: 重构
+- `perf`: 性能
+- `test`: 测试
+- `chore`: 构建/工具
+- `build`: 构建系统
+- `ci`: CI配置
+
+详细代码规范说明请参考 [docs/CODE_STANDARDS.md](docs/CODE_STANDARDS.md)
+
 ## 开发规范
 
 ### 代码规范
@@ -502,6 +786,8 @@ style: 代码格式
 refactor: 重构
 test: 测试
 chore: 构建/工具
+build: 构建系统
+ci: CI配置
 ```
 
 ## 权限与路由系统
@@ -605,13 +891,28 @@ referer:
   allowed-domains: localhost,127.0.0.1  # 允许的域名列表
 ```
 
-### 3. JSON XSS 防护
+### 3. DOMPurify XSS 防护
+- 使用 DOMPurify 3.3.1 库
+- 自动过滤恶意 HTML/JS 代码
+- 保护富文本内容安全
+- 支持自定义白名单配置
+- 与 TinyMCE 编辑器集成
+
+**配置**:
+```yaml
+xss:
+  enabled: true
+  excludes: /system/notice,/system/article,/manage/**
+  urlPatterns: /system/*,/monitor/*,/tool/*
+```
+
+### 4. JSON XSS 防护
 - 使用 JsonSanitizer
 - 自动过滤恶意代码
 - 保护数据安全
 - 可配置排除路径
 
-### 4. User-Agent 解析
+### 5. User-Agent 解析
 - 使用 YAUAA 库
 - 支持多种浏览器和操作系统检测
 - 精确的设备识别
@@ -622,6 +923,30 @@ referer:
 - Prometheus 指标采集
 - Grafana 可视化仪表板
 - 健康检查、性能监控、日志管理
+
+### 6. 文章目录导航
+- 自动提取文章标题生成目录
+- 支持平滑滚动
+- 当前阅读位置高亮
+- 可折叠/展开
+- 固定定位显示
+
+### 7. 热门文章排名
+- Top 3 文章使用特殊渐变样式（金、银、铜）
+- 排名徽章显示
+- 悬停动画效果
+
+### 8. 深色主题适配
+- 全站深色主题支持
+- 响应式主题切换
+- CSS 变量管理
+- 完善的深色主题样式
+
+### 9. 环境变量自动加载
+- 使用 spring-dotenv 4.0.0
+- 自动加载 .env 文件
+- 简化配置管理
+- 支持开发/生产环境切换
 
 ## 监控与运维
 
@@ -659,6 +984,35 @@ referer:
 - 登录日志记录
 - 定时任务日志
 
+### SonarQube 代码质量分析
+- 已集成 SonarQube 代码质量分析平台
+- 支持 7 种编程语言的代码分析
+- 提供代码重复率、复杂度、安全漏洞等指标
+- 集成 SonarLint IDE 插件实时检查
+
+**配置文件**: `sonar-project.properties`
+```properties
+sonar.projectKey=your-project-key
+sonar.projectName=newblog
+sonar.sources=.
+sonar.host.url=http://localhost:9000
+sonar.login=sqp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+**SonarLint 配置**: `.sonarlint/connectedMode.json`
+- 支持 VS Code、IntelliJ IDEA 等 IDE
+- 实时代码质量检查
+- 与 SonarQube 服务器同步规则
+
+**运行分析**:
+```bash
+# 使用 SonarScanner CLI
+sonar-scanner
+
+# 或使用 Maven 插件
+mvn sonar:sonar
+```
+
 ## 常见问题
 
 ### 1. 编译问题
@@ -693,7 +1047,31 @@ referer:
 **问题**: Prometheus 无法采集指标
 **解决**: 检查 Actuator 端点是否启用，Prometheus 配置是否正确
 
+### 9. 测试失败问题
+**问题**: 测试运行失败
+**解决**: 检查测试环境配置，确保依赖已正确安装，查看详细错误日志
+
+### 10. 代码规范检查失败
+**问题**: Checkstyle 或 ESLint 检查失败
+**解决**: 运行自动修复命令，手动修复无法自动修复的问题
+
 ## Docker 服务说明
+
+### 默认配置服务 (`docker-compose.yml`)
+- **ruoyi-admin**: 后端服务 (8080端口)
+  - 健康检查: curl -f http://localhost:8080
+  - 环境变量: Docker 自动配置
+  - 依赖: mysql, redis
+- **mysql**: MySQL 8.4 数据库 (3306端口)
+  - 健康检查: mysqladmin ping
+  - 数据持久化: mysql_data volume
+  - 自动初始化: sql 目录
+- **redis**: Redis 6.2 缓存 (6379端口)
+  - 健康检查: redis-cli ping
+- **ruoyi-ui**: 前端开发服务器 (3000端口)
+  - 支持热重载
+  - 自动检测 Docker 环境
+  - 依赖: mysql, redis, ruoyi-admin
 
 ### 开发环境服务 (`docker-compose.dev.yml`)
 - **ruoyi-admin**: 后端服务 (8080端口)
@@ -760,15 +1138,26 @@ referer:
 4. **权限完善**: 基于 Spring Security 的细粒度权限控制
 5. **功能丰富**: 文章、评论、标签、分类、统计等完整功能
 6. **容器化部署**: Docker + Docker Compose 一键部署
-7. **安全加固**: 多层安全防护，XSS、CSRF、SQL注入防护
+7. **安全加固**: 多层安全防护，XSS、CSRF、SQL注入防护，DOMPurify 过滤
 8. **性能优化**: 图片压缩、Redis缓存、数据库索引
 9. **监控完善**: Prometheus + Grafana 全链路监控
-10. **开发友好**: 热部署、自动重启、详细日志
+10. **代码质量**: SonarQube + SonarLint 代码质量分析平台
+11. **开发友好**: 热部署、自动重启、详细日志
+12. **测试完善**: 前后端测试框架，测试覆盖率监控
+13. **代码规范**: ESLint 9 Flat Config、Prettier、Checkstyle 自动检查
+14. **环境管理**: 环境变量模板，Git Hooks 自动检查
+15. **配置简化**: spring-dotenv 自动加载环境变量
 
 ## 相关文档
 
 - **项目文档**: [README.md](README.md)
-- **项目检查报告**: [docs/项目检查报告.md](docs/项目检查报告.md)
+- **代码规范**: [docs/CODE_STANDARDS.md](docs/CODE_STANDARDS.md)
+- **代码规范设置**: [docs/CODE_STANDARDS_SETUP.md](docs/CODE_STANDARDS_SETUP.md)
+- **代码审查指南**: [docs/CODE_REVIEW_GUIDE.md](docs/CODE_REVIEW_GUIDE.md)
+- **测试指南**: [docs/TESTING_GUIDE.md](docs/TESTING_GUIDE.md)
+- **测试环境设置**: [docs/TESTING_SETUP.md](docs/TESTING_SETUP.md)
+- **测试报告**: [docs/TEST_REPORT.md](docs/TEST_REPORT.md)
+- **测试状态**: [docs/TEST_STATUS.md](docs/TEST_STATUS.md)
 - **图片压缩功能**: [docs/图片压缩功能使用指南.md](docs/图片压缩功能使用指南.md)
 - **项目优化建议**: [docs/项目优化建议.md](docs/项目优化建议.md)
 - **PR描述**: [docs/PR_DESCRIPTION.md](docs/PR_DESCRIPTION.md)
@@ -778,6 +1167,10 @@ referer:
 - **Spring Boot文档**: https://spring.io/projects/spring-boot
 - **Prometheus文档**: https://prometheus.io/docs/
 - **Grafana文档**: https://grafana.com/docs/
+- **SonarQube文档**: https://docs.sonarqube.org/
+- **SonarLint文档**: https://docs.sonarsource.com/sonarlint/
+- **Vitest文档**: https://vitest.dev/
+- **JUnit 5文档**: https://junit.org/junit5/docs/current/user-guide/
 
 ## 许可证
 
@@ -785,6 +1178,6 @@ referer:
 
 ---
 
-**最后更新**: 2026-01-08
+**最后更新**: 2026-01-11
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog
