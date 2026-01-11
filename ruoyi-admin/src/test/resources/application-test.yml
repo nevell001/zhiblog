@@ -1,0 +1,37 @@
+# 测试环境配置
+server:
+  port: 8080
+
+spring:
+  # 使用 H2 内存数据库进行测试
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  # H2 控制台
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Redis 使用测试配置（可选）
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 15  # 使用独立的测试数据库
+
+# MyBatis 配置
+mybatis:
+  mapperLocations: classpath*:mapper/**/*Mapper.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
+
+# 日志配置
+logging:
+  level:
+    com.ruoyi: DEBUG
+    org.springframework: INFO
+    org.springframework.test: INFO
