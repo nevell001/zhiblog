@@ -74,3 +74,8 @@ coverage/
 # 项目文档
 IFLOW.md
 CLAUDE.md
+
+# SonarQube 配置（包含敏感信息）
+sonar-project.properties
+# SonarQube 配置模板（需要提交）
+!sonar-project.properties.example
