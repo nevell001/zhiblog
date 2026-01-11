@@ -14,8 +14,50 @@
 - 📈 **监控完善**：Prometheus + Grafana 全链路监控
 - 🖼️ **图片优化**：智能压缩、防盗链保护
 - ⚡ **性能优化**：Redis缓存、数据库索引、懒加载
+- ✅ **测试完善**：656个测试用例，覆盖率≥60%，质量保证
 
 ## 📦 版本历史
+
+### v4.0.2 (2026-01-11)
+**质量提升 - 测试覆盖率优化**
+
+**测试增强**:
+- ✅ 新增 9 个测试文件，提升代码覆盖率
+  - BlogArticleTest.java - 博客文章实体测试（9个测试方法）
+  - BlogCategoryTest.java - 文章分类实体测试（7个测试方法）
+  - BlogCommentTest.java - 博客评论实体测试（6个测试方法）
+  - BlogFriendLinkTest.java - 友情链接实体测试（5个测试方法）
+  - BlogSettingTest.java - 博客设置实体测试（6个测试方法）
+  - BlogArticleTagTest.java - 文章标签关联测试（5个测试方法）
+  - SysConfigServiceImplTest.java - 参数配置服务测试（19个测试方法）
+  - SysDictDataServiceImplTest.java - 字典数据服务测试（10个测试方法）
+  - SysDictTypeServiceImplTest.java - 字典类型服务测试（17个测试方法）
+
+**测试成果**:
+- ✅ 测试数量: 572 → 656（新增 84 个测试用例）
+- ✅ 测试文件: 35 → 44（新增 9 个测试文件）
+- ✅ 测试通过率: 100%（656 个测试全部通过）
+- ✅ 覆盖率达标: ✅ All coverage checks have been met
+  - com.ruoyi.system.domain: 行覆盖率 ≥60% ✅
+  - com.ruoyi.system.service.impl: 分支覆盖率 ≥60% ✅
+
+**依赖修复**:
+- ✅ 修复 Micrometer 依赖缺失问题
+  - 添加 micrometer-observation:1.13.0（测试依赖）
+  - 添加 context-propagation:1.1.1（测试依赖）
+  - 解决 Spring Boot Test 的 MicrometerObservationRegistryTestExecutionListener 依赖需求
+  - SonarQube 分析正常运行
+
+**测试覆盖范围**:
+- ✅ 实体类测试（getter/setter、兼容性方法、特殊逻辑）
+- ✅ 服务层测试（CRUD操作、缓存操作、唯一性校验、异常处理）
+- ✅ 控制器测试（API接口、参数验证、权限控制）
+- ✅ Mapper测试（数据库操作、SQL查询）
+
+**文档更新**:
+- ✅ 更新 README.md 版本历史
+- ✅ 更新测试覆盖率说明
+- ✅ 添加测试文件列表
 
 ### v4.0.1 (2026-01-08)
 **功能优化 - 博客前台增强**
@@ -256,6 +298,10 @@
 
 ## 📋 当前系统状态
 ✅ **数据库表已创建**: 31个表（23个系统表 + 7个博客表 + 1个日志表）
+✅ **测试文件已完善**: 44个测试文件（8个控制器测试 + 7个Mapper测试 + 20个服务测试 + 9个实体测试）
+✅ **测试用例覆盖**: 656个测试用例，覆盖率≥60%
+✅ **构建状态**: ✅ BUILD SUCCESS
+✅ **覆盖率检查**: ✅ All coverage checks have been met
 
 **博客相关表** (7个):
 - blog_article (文章表)
@@ -453,8 +499,13 @@ newblog/
 │   │       ├── domain/                 # 实体类
 │   │       ├── mapper/                 # 数据访问层
 │   │       └── service/                # 业务逻辑层
-│   └── src/main/resources/
-│       └── mapper/system/              # MyBatis XML (22个)
+│   ├── src/main/resources/
+│   │   └── mapper/system/              # MyBatis XML (22个)
+│   └── src/test/java/          # 测试文件 (44个)
+│       ├── controller/             # 控制器测试 (8个)
+│       ├── domain/                 # 实体类测试 (9个)
+│       ├── mapper/                 # 数据访问层测试 (7个)
+│       └── service/impl/           # 业务逻辑层测试 (20个)
 ├── ruoyi-framework/          # 框架核心
 │   ├── src/main/java/
 │   │   └── com/ruoyi/framework/
@@ -995,6 +1046,6 @@ proxy: {
 
 ---
 
-**最后更新**: 2026-01-08
+**最后更新**: 2026-01-11
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog
