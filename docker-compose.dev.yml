@@ -59,7 +59,7 @@ services:
       # 验证码开关 - 从 .env 文件读取
       CAPTCHA_ENABLED: ${CAPTCHA_ENABLED:-false}
     networks:
-      - dev_network
+      - ruoyi-network
 
   mysql:
     image: mysql:8.4
@@ -143,7 +143,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - dev_network
+      - ruoyi-network
 
   ruoyi-ui:
     build:
