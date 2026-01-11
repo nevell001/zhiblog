@@ -3,6 +3,7 @@ package com.ruoyi.framework.config;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -19,19 +20,54 @@ import java.io.IOException;
 public class DruidServletConfig {
 
     /**
+     * Druid监控用户名（从环境变量读取）
+     */
+    @Value("${spring.datasource.druid.statViewServlet.loginUsername:ruoyi}")
+    private String druidUsername;
+
+    /**
+     * Druid监控密码（从环境变量读取，生产环境必须设置）
+     */
+    @Value("${spring.datasource.druid.statViewServlet.loginPassword:#{null}}")
+    private String druidPassword;
+
+    /**
      * 注册 DruidStatViewServlet
      * 用于启用 Druid 数据库监控页面
      */
     @Bean
     @ConditionalOnProperty(name = "spring.datasource.druid.statViewServlet.enabled", havingValue = "true")
     public ServletRegistrationBean<HttpServlet> druidStatViewServlet() {
+        // 如果没有设置密码，使用强随机密码并记录警告
+        if (druidPassword == null || druidPassword.isEmpty()) {
+            druidPassword = generateSecurePassword();
+            System.err.println("========================================");
+            System.err.println("警告: Druid监控密码未配置！");
+            System.err.println("已自动生成临时密码: " + druidPassword);
+            System.err.println("请在环境变量中设置 DRUID_PASSWORD");
+            System.err.println("========================================");
+        }
+
         ServletRegistrationBean<HttpServlet> registrationBean = new ServletRegistrationBean<>();
         registrationBean.setServlet(new DruidStatViewServlet());
         registrationBean.addUrlMappings("/druid/*");
-        registrationBean.addInitParameter("loginUsername", "ruoyi");
-        registrationBean.addInitParameter("loginPassword", "123456");
+        registrationBean.addInitParameter("loginUsername", druidUsername);
+        registrationBean.addInitParameter("loginPassword", druidPassword);
         registrationBean.addInitParameter("resetEnable", "false");
         return registrationBean;
+    }
+
+    /**
+     * 生成安全的随机密码
+     */
+    private String generateSecurePassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            int index = (int) (Math.random() * chars.length());
+            password.append(chars.charAt(index));
+        }
+        return password.toString();
     }
 
     /**

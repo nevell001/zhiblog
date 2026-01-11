@@ -1388,15 +1388,12 @@ CREATE TRIGGER `tr_article_update_time`
 BEFORE UPDATE ON `blog_article`
 FOR EACH ROW
 BEGIN
-    DECLARE old_valid_articles INT DEFAULT 0;
-    DECLARE new_valid_articles INT DEFAULT 0;
-
+    -- 更新时间总是设置
     SET NEW.update_time = NOW();
 
-    -- 如果禁用了触发器（用于批量更新），直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
+    -- 如果禁用了触发器（用于批量更新），直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 只有在未禁用触发器时才执行分类统计更新
 
     -- 检查旧文章状态是否有效（未删除且已发布）
     IF OLD.del_flag = '0' AND OLD.status = 1 AND OLD.category_id IS NOT NULL THEN
@@ -1425,6 +1422,7 @@ BEGIN
             CALL update_category_article_count(OLD.category_id, new_valid_articles - old_valid_articles);
         END IF;
     END IF;
+    END IF;
 END$$
 
 -- 文章插入前触发器
@@ -1438,14 +1436,12 @@ BEGIN
     END IF;
     SET NEW.update_time = NOW();
 
-    -- 如果禁用了触发器（用于批量更新），直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
-
-    -- 自动增加分类文章数（仅在文章有效时）
-    IF NEW.category_id IS NOT NULL AND NEW.del_flag = '0' AND NEW.status = 1 THEN
-        CALL update_category_article_count(NEW.category_id, 1);
+    -- 如果禁用了触发器（用于批量更新），直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 自动增加分类文章数（仅在文章有效时）
+        IF NEW.category_id IS NOT NULL AND NEW.del_flag = '0' AND NEW.status = 1 THEN
+            CALL update_category_article_count(NEW.category_id, 1);
+        END IF;
     END IF;
 END$$
 
@@ -1454,14 +1450,12 @@ CREATE TRIGGER `tr_article_delete_physical`
 AFTER DELETE ON `blog_article`
 FOR EACH ROW
 BEGIN
-    -- 如果禁用了触发器，直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
-
-    -- 物理删除时减少分类文章数（仅在文章有效时）
-    IF OLD.category_id IS NOT NULL AND OLD.del_flag = '0' AND OLD.status = 1 THEN
-        CALL update_category_article_count(OLD.category_id, -1);
+    -- 如果禁用了触发器，直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 物理删除时减少分类文章数（仅在文章有效时）
+        IF OLD.category_id IS NOT NULL AND OLD.del_flag = '0' AND OLD.status = 1 THEN
+            CALL update_category_article_count(OLD.category_id, -1);
+        END IF;
     END IF;
 END$$
 

@@ -9,6 +9,9 @@ target/
 *.iml
 *.class
 
+# Git Hooks (husky 需要提交)
+!.husky/**
+
 
 # 构建产物与依赖
 node_modules/
@@ -37,7 +40,8 @@ cypress/downloads/
 # IDE及系统文件
 .DS_Store
 .idea/
-.vscode/
+# .vscode/ 需要提交（包含项目配置）
+!.vscode/
 .claude/
 .trae/
 *.swp
@@ -46,11 +50,27 @@ cypress/downloads/
 
 # 其它配置文件
 .env
+# .env.example 需要提交到版本控制系统（作为配置模板）
+!.env.example
 .npmrc
-.prettierignore
+# .prettierignore 需要提交
+!.prettierignore
 .cursor
 dump.rdb
 *.rdb
 
+# 代码规范工具生成文件
+target/checkstyle-result.xml
+target/checkstyle-result.html
+target/checkstyle-checker.xml
+.eslintcache
+
+# 测试覆盖率报告
+target/jacoco.exec
+target/jacoco/
+coverage/
+.nyc_output/
+
 # 项目文档
 IFLOW.md
+CLAUDE.md

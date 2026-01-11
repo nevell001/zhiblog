@@ -54,9 +54,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             
             // 设置标签ID列表
             List<Long> tagIds = new ArrayList<>();
-            for (BlogTag tag : tags) {
-                if (tag != null && tag.getId() != null) {
-                    tagIds.add(tag.getId());
+            if (tags != null) {
+                for (BlogTag tag : tags) {
+                    if (tag != null && tag.getId() != null) {
+                        tagIds.add(tag.getId());
+                    }
                 }
             }
             article.setTagIds(tagIds);
@@ -84,9 +86,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
                     // 设置标签ID列表
                     List<Long> tagIds = new ArrayList<>();
-                    for (BlogTag tag : tags) {
-                        if (tag != null && tag.getId() != null) {
-                            tagIds.add(tag.getId());
+                    if (tags != null) {
+                        for (BlogTag tag : tags) {
+                            if (tag != null && tag.getId() != null) {
+                                tagIds.add(tag.getId());
+                            }
                         }
                     }
                     article.setTagIds(tagIds);

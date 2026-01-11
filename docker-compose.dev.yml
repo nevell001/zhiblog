@@ -1,3 +1,7 @@
+# Docker Compose 开发环境配置
+# 警告：在使用前，请复制 .env.example 为 .env 并设置所有必需的环境变量
+# 特别注意修改所有默认密码
+
 services:
   ruoyi-admin:
     build:
@@ -14,29 +18,46 @@ services:
         for i in {1..60}; do
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done
-        java -jar /app/ruoyi-admin.jar --spring.redis.host=redis --spring.redis.port=6379
+        java -Xms512m -Xmx1024m -jar /app/ruoyi-admin.jar \
+          --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/newblog?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
+          --spring.datasource.druid.master.username=$DB_USERNAME \
+          --spring.datasource.druid.master.password=$DB_PASSWORD \
+          --spring.redis.host=redis \
+          --spring.redis.port=6379 \
+          --spring.redis.password=$REDIS_PASSWORD
     ports:
       - "8080:8080"
     volumes:
       - ./uploadPath:/app/uploadPath
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_started
+    env_file:
+      - .env
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       DB_HOST: mysql
-      DB_USERNAME: root
-      DB_PASSWORD: root
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      # 验证码开关 - 开发环境关闭
-      CAPTCHA_ENABLED: "false"
+      R_TOKEN_SECRET: ${R_TOKEN_SECRET}
+      DRUID_USERNAME: ${DRUID_USERNAME:-ruoyi}
+      DRUID_PASSWORD: ${DRUID_PASSWORD}
+      # 验证码开关 - 从 .env 文件读取
+      CAPTCHA_ENABLED: ${CAPTCHA_ENABLED:-false}
     networks:
       - ruoyi-network
 
@@ -44,19 +65,21 @@ services:
     image: mysql:8.4
     container_name: mysql
     restart: always
+    env_file:
+      - .env
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: newblog
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-newblog}
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./sql:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
       timeout: 20s
       retries: 20
       interval: 10s
@@ -68,8 +91,18 @@ services:
     image: redis:6.2
     container_name: redis
     restart: always
+    command: >
+      sh -c '
+        if [ -n "${REDIS_PASSWORD:-}" ]; then
+          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes
+        else
+          redis-server --appendonly yes
+        fi
+      '
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
       - ruoyi-network
 
@@ -95,14 +128,16 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     restart: always
+    env_file:
+      - .env
     ports:
       - "3001:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
-      GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_PROVISIONING_ENABLED: "true"
     depends_on:
@@ -137,6 +172,7 @@ services:
 
 volumes:
   mysql_data:
+  redis_data:
   prometheus_data:
   grafana_data:
 
