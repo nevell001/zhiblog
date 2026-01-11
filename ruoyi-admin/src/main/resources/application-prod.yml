@@ -16,6 +16,13 @@ spring:
   devtools:
     restart:
       enabled: false
+  # 生产环境文件上传限制
+  servlet:
+    multipart:
+      # 单个文件大小限制
+      max-file-size: 5MB
+      # 总上传文件大小限制
+      max-request-size: 10MB
 
 # Swagger配置 - 生产环境关闭Swagger
 swagger:
@@ -36,18 +43,9 @@ server:
   #   key-store-type: PKCS12
   #   key-alias: tomcat
   # port: 8443
-  
-  # 生产环境建议设置服务器头信息
-  server-header: 
 
-# 生产环境文件上传限制
-spring:
-  servlet:
-    multipart:
-      # 单个文件大小限制
-      max-file-size: 5MB
-      # 总上传文件大小限制
-      max-request-size: 10MB
+  # 生产环境建议设置服务器头信息
+  server-header:
 
 # 生产环境安全配置
 ruoyi:
