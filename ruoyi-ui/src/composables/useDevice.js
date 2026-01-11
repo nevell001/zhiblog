@@ -4,10 +4,10 @@ export function useDevice() {
   const isMobile = ref(false)
   const isTablet = ref(false)
   const isDesktop = ref(true)
-  
+
   const updateDevice = () => {
     const width = window.innerWidth || document.documentElement.clientWidth
-    
+
     if (width < 768) {
       isMobile.value = true
       isTablet.value = false
@@ -22,16 +22,16 @@ export function useDevice() {
       isDesktop.value = true
     }
   }
-  
+
   onMounted(() => {
     updateDevice()
     window.addEventListener('resize', updateDevice)
   })
-  
+
   onUnmounted(() => {
     window.removeEventListener('resize', updateDevice)
   })
-  
+
   return {
     isMobile: computed(() => isMobile.value),
     isTablet: computed(() => isTablet.value),

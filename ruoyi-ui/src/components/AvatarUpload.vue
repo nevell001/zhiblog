@@ -5,9 +5,9 @@
       <img
         :src="processedAvatarUrl"
         :alt="alt || '用户头像'"
+        :style="{ width: previewSize + 'px', height: previewSize + 'px' }"
         @error="handleAvatarError"
         @load="handleAvatarLoad"
-        :style="{ width: previewSize + 'px', height: previewSize + 'px' }"
       />
       <!-- 上传进度 -->
       <div v-if="uploading" class="upload-overlay">
@@ -30,8 +30,8 @@
       ref="fileInput"
       type="file"
       accept="image/*"
-      @change="handleFileChange"
       style="display: none"
+      @change="handleFileChange"
     />
 
     <!-- 头像信息 -->
@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import { Camera, Warning } from '@element-plus/icons-vue'
 import { uploadAvatar, processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
 import { formatFileSize } from '@/utils/imageUtils'
@@ -113,22 +113,25 @@ const processedAvatarUrl = computed(() => {
 })
 
 // Watchers
-watch(() => props.modelValue, (newVal) => {
-  if (props.autoCheck && newVal && !newVal.startsWith('data:')) {
-    checkAvatarExists(newVal).then(exists => {
-      if (!exists) {
-        console.warn('头像文件不存在:', newVal)
-      }
-    })
+watch(
+  () => props.modelValue,
+  newVal => {
+    if (props.autoCheck && newVal && !newVal.startsWith('data:')) {
+      checkAvatarExists(newVal).then(exists => {
+        if (!exists) {
+          console.warn('头像文件不存在:', newVal)
+        }
+      })
+    }
   }
-})
+)
 
 // Methods
 const triggerUpload = () => {
   fileInput.value?.click()
 }
 
-const handleFileChange = async (event) => {
+const handleFileChange = async event => {
   const file = event.target.files[0]
   if (!file) return
 
@@ -141,7 +144,7 @@ const handleFileChange = async (event) => {
     uploadProgress.value = 0
 
     const result = await uploadAvatar(file, {
-      onProgress: (progress) => {
+      onProgress: progress => {
         uploadProgress.value = Math.round(progress * 100)
       }
     })
@@ -179,7 +182,7 @@ const handleFileChange = async (event) => {
   }
 }
 
-const handleAvatarError = (e) => {
+const handleAvatarError = e => {
   console.warn('头像加载失败，使用默认头像')
   const defaultAvatar = processAvatarUrl('')
 
@@ -194,7 +197,7 @@ const handleAvatarLoad = () => {
   errorMessage.value = ''
 }
 
-const validateFile = (file) => {
+const validateFile = file => {
   // 检查文件类型
   if (!file.type.startsWith('image/')) {
     throw new Error('请选择图片文件')

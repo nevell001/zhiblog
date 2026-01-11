@@ -43,7 +43,6 @@ export function delCategory(ids) {
   })
 }
 
-
 // 获取分类下拉树
 export function categoryTreeSelect() {
   return request({
@@ -51,4 +50,3 @@ export function categoryTreeSelect() {
     method: 'get'
   })
 }
-

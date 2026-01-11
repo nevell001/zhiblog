@@ -16,7 +16,12 @@
           style="margin-bottom: 20px"
         />
         <el-row :gutter="20">
-          <el-col :span="12" v-for="(endpoint, key) in endpoints" :key="key" style="margin-bottom: 15px">
+          <el-col
+            v-for="(endpoint, key) in endpoints"
+            :key="key"
+            :span="12"
+            style="margin-bottom: 15px"
+          >
             <el-card shadow="hover" class="endpoint-card">
               <template #header>
                 <div class="endpoint-header">
@@ -25,7 +30,9 @@
                 </div>
               </template>
               <div class="endpoint-content">
-                <p class="endpoint-url">{{ endpoint.href }}</p>
+                <p class="endpoint-url">
+                  {{ endpoint.href }}
+                </p>
                 <el-button type="primary" size="small" @click="viewEndpoint(endpoint.href, key)">
                   查看详情
                 </el-button>
@@ -48,11 +55,7 @@
         <div v-if="detailData" class="detail-content">
           <!-- 搜索框 -->
           <div v-if="isEnvEndpoint" style="margin-bottom: 15px">
-            <el-input
-              v-model="searchText"
-              placeholder="搜索配置项..."
-              clearable
-            >
+            <el-input v-model="searchText" placeholder="搜索配置项..." clearable>
               <template #prefix>
                 <el-icon><Search /></el-icon>
               </template>
@@ -62,8 +65,8 @@
           <el-button
             type="primary"
             size="small"
-            @click="copyToClipboard"
             style="margin-bottom: 10px"
+            @click="copyToClipboard"
           >
             <el-icon><CopyDocument /></el-icon>
             复制数据
@@ -71,8 +74,8 @@
           <el-button
             type="success"
             size="small"
-            @click="openInNewWindow"
             style="margin-bottom: 10px"
+            @click="openInNewWindow"
           >
             <el-icon><View /></el-icon>
             在新窗口打开
@@ -81,14 +84,13 @@
           <!-- 如果是 health 端点，显示为折叠面板 -->
           <div v-if="isHealthEndpoint" class="health-display">
             <el-collapse v-model="activeNames">
-              <el-collapse-item
-                v-for="(component, key) in healthComponents"
-                :key="key"
-                :name="key"
-              >
+              <el-collapse-item v-for="(component, key) in healthComponents" :key="key" :name="key">
                 <template #title>
                   <div class="health-component-title">
-                    <el-icon><CircleCheck v-if="component.status === 'UP'" /><CircleClose v-else /></el-icon>
+                    <el-icon>
+                      <CircleCheck v-if="component.status === 'UP'" />
+                      <CircleClose v-else />
+                    </el-icon>
                     <span class="component-name">{{ formatHealthComponentName(key) }}</span>
                     <el-tag size="small" :type="component.status === 'UP' ? 'success' : 'danger'">
                       {{ component.status }}
@@ -105,11 +107,7 @@
           <!-- 如果是 info 端点，显示为折叠面板 -->
           <div v-if="isInfoEndpoint" class="info-display">
             <el-collapse v-model="activeNames">
-              <el-collapse-item
-                v-for="(value, key) in infoData"
-                :key="key"
-                :name="key"
-              >
+              <el-collapse-item v-for="(value, key) in infoData" :key="key" :name="key">
                 <template #title>
                   <div class="info-item-title">
                     <el-icon><Document /></el-icon>
@@ -136,11 +134,7 @@
               </template>
             </el-input>
             <el-collapse v-model="activeNames">
-              <el-collapse-item
-                v-for="(config, key) in filteredConfigProps"
-                :key="key"
-                :name="key"
-              >
+              <el-collapse-item v-for="(config, key) in filteredConfigProps" :key="key" :name="key">
                 <template #title>
                   <div class="configprops-title">
                     <el-icon><Document /></el-icon>
@@ -149,9 +143,24 @@
                   </div>
                 </template>
                 <div class="configprops-detail">
-                  <el-table :data="getPropertyList(config)" style="width: 100%" max-height="400" size="small">
-                    <el-table-column prop="key" label="属性名" min-width="250" show-overflow-tooltip />
-                    <el-table-column prop="value" label="属性值" min-width="200" show-overflow-tooltip />
+                  <el-table
+                    :data="getPropertyList(config)"
+                    style="width: 100%"
+                    max-height="400"
+                    size="small"
+                  >
+                    <el-table-column
+                      prop="key"
+                      label="属性名"
+                      min-width="250"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="value"
+                      label="属性值"
+                      min-width="200"
+                      show-overflow-tooltip
+                    />
                   </el-table>
                 </div>
               </el-collapse-item>
@@ -180,14 +189,36 @@
                   <div class="env-source-title">
                     <el-icon><Document /></el-icon>
                     <span class="source-name">{{ source.name }}</span>
-                    <el-tag size="small" type="info">{{ getPropertyCount(source) }} 个配置项</el-tag>
+                    <el-tag size="small" type="info">
+                      {{ getPropertyCount(source) }} 个配置项
+                    </el-tag>
                   </div>
                 </template>
                 <div v-if="source.properties && Object.keys(source.properties).length > 0">
-                  <el-table :data="getPropertyList(source)" style="width: 100%" max-height="400" size="small">
-                    <el-table-column prop="key" label="配置键" min-width="250" show-overflow-tooltip />
-                    <el-table-column prop="value" label="配置值" min-width="200" show-overflow-tooltip />
-                    <el-table-column prop="origin" label="来源" min-width="150" show-overflow-tooltip />
+                  <el-table
+                    :data="getPropertyList(source)"
+                    style="width: 100%"
+                    max-height="400"
+                    size="small"
+                  >
+                    <el-table-column
+                      prop="key"
+                      label="配置键"
+                      min-width="250"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="value"
+                      label="配置值"
+                      min-width="200"
+                      show-overflow-tooltip
+                    />
+                    <el-table-column
+                      prop="origin"
+                      label="来源"
+                      min-width="150"
+                      show-overflow-tooltip
+                    />
                   </el-table>
                 </div>
                 <div v-else class="empty-properties">
@@ -203,11 +234,7 @@
               <el-table-column prop="name" label="指标名称" min-width="200" />
               <el-table-column label="操作" width="200">
                 <template #default="scope">
-                  <el-button
-                    size="small"
-                    type="primary"
-                    @click="viewMetricDetail(scope.row.name)"
-                  >
+                  <el-button size="small" type="primary" @click="viewMetricDetail(scope.row.name)">
                     查看详情
                   </el-button>
                 </template>
@@ -225,7 +252,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
-import { Link, CopyDocument, View, Document, Search, CircleCheck, CircleClose } from '@element-plus/icons-vue'
+import {
+  Link,
+  CopyDocument,
+  View,
+  Document,
+  Search,
+  CircleCheck,
+  CircleClose
+} from '@element-plus/icons-vue'
 
 const loading = ref(true)
 const endpoints = ref({})
@@ -268,10 +303,12 @@ const formattedData = computed(() => {
 
 // 判断是否为 metrics 列表
 const isMetricsList = computed(() => {
-  return detailData.value &&
-         typeof detailData.value === 'object' &&
-         detailData.value.names &&
-         Array.isArray(detailData.value.names)
+  return (
+    detailData.value &&
+    typeof detailData.value === 'object' &&
+    detailData.value.names &&
+    Array.isArray(detailData.value.names)
+  )
 })
 
 // metrics 列表数据
@@ -285,10 +322,12 @@ const metricsListData = computed(() => {
 
 // 判断是否为 health 端点
 const isHealthEndpoint = computed(() => {
-  return detailData.value &&
-         typeof detailData.value === 'object' &&
-         detailData.value.status &&
-         (detailData.value.components || detailData.value.details)
+  return (
+    detailData.value &&
+    typeof detailData.value === 'object' &&
+    detailData.value.status &&
+    (detailData.value.components || detailData.value.details)
+  )
 })
 
 // 健康检查组件数据
@@ -299,12 +338,14 @@ const healthComponents = computed(() => {
 
 // 判断是否为 info 端点
 const isInfoEndpoint = computed(() => {
-  return detailData.value &&
-         typeof detailData.value === 'object' &&
-         !detailData.value.status &&
-         !detailData.value.names &&
-         !detailData.value.propertySources &&
-         !detailData.value.contexts
+  return (
+    detailData.value &&
+    typeof detailData.value === 'object' &&
+    !detailData.value.status &&
+    !detailData.value.names &&
+    !detailData.value.propertySources &&
+    !detailData.value.contexts
+  )
 })
 
 // info 端点数据
@@ -315,9 +356,7 @@ const infoData = computed(() => {
 
 // 判断是否为 configprops 端点
 const isConfigPropsEndpoint = computed(() => {
-  return detailData.value &&
-         typeof detailData.value === 'object' &&
-         detailData.value.contexts
+  return detailData.value && typeof detailData.value === 'object' && detailData.value.contexts
 })
 
 // 配置属性数据
@@ -355,10 +394,12 @@ const filteredConfigProps = computed(() => {
 
 // 判断是否为 env 端点
 const isEnvEndpoint = computed(() => {
-  return detailData.value &&
-         typeof detailData.value === 'object' &&
-         detailData.value.propertySources &&
-         Array.isArray(detailData.value.propertySources)
+  return (
+    detailData.value &&
+    typeof detailData.value === 'object' &&
+    detailData.value.propertySources &&
+    Array.isArray(detailData.value.propertySources)
+  )
 })
 
 // 过滤后的环境变量源
@@ -369,27 +410,29 @@ const filteredEnvSources = computed(() => {
   if (!searchText.value) return sources
 
   const searchLower = searchText.value.toLowerCase()
-  return sources.map(source => {
-    const filteredProperties = {}
-    Object.keys(source.properties || {}).forEach(key => {
-      if (key.toLowerCase().includes(searchLower)) {
-        filteredProperties[key] = source.properties[key]
+  return sources
+    .map(source => {
+      const filteredProperties = {}
+      Object.keys(source.properties || {}).forEach(key => {
+        if (key.toLowerCase().includes(searchLower)) {
+          filteredProperties[key] = source.properties[key]
+        }
+      })
+      return {
+        name: source.name,
+        properties: filteredProperties
       }
     })
-    return {
-      name: source.name,
-      properties: filteredProperties
-    }
-  }).filter(source => Object.keys(source.properties).length > 0)
+    .filter(source => Object.keys(source.properties).length > 0)
 })
 
 // 获取配置项数量
-const getPropertyCount = (source) => {
+const getPropertyCount = source => {
   return source.properties ? Object.keys(source.properties).length : 0
 }
 
 // 获取配置项列表
-const getPropertyList = (source) => {
+const getPropertyList = source => {
   if (!source.properties) return []
   return Object.keys(source.properties).map(key => ({
     key: key,
@@ -399,43 +442,43 @@ const getPropertyList = (source) => {
 }
 
 // 格式化端点名称
-const formatEndpointName = (key) => {
+const formatEndpointName = key => {
   const nameMap = {
-    'self': '根端点',
-    'health': '健康检查',
+    self: '根端点',
+    health: '健康检查',
     'health-path': '健康检查路径',
-    'info': '应用信息',
-    'configprops': '配置属性',
+    info: '应用信息',
+    configprops: '配置属性',
     'configprops-prefix': '配置属性前缀',
-    'env': '环境变量',
+    env: '环境变量',
     'env-toMatch': '环境变量匹配',
     'metrics-requiredMetricName': '指标详情',
-    'metrics': '所有指标',
-    'prometheus': 'Prometheus指标'
+    metrics: '所有指标',
+    prometheus: 'Prometheus指标'
   }
   return nameMap[key] || key
 }
 
 // 格式化 health 组件名称
-const formatHealthComponentName = (key) => {
+const formatHealthComponentName = key => {
   const nameMap = {
-    'db': '数据库',
-    'diskSpace': '磁盘空间',
-    'ping': 'Ping',
-    'redis': 'Redis',
-    'dynamicDataSource': '动态数据源',
-    'masterDataSource': '主数据源'
+    db: '数据库',
+    diskSpace: '磁盘空间',
+    ping: 'Ping',
+    redis: 'Redis',
+    dynamicDataSource: '动态数据源',
+    masterDataSource: '主数据源'
   }
   return nameMap[key] || key
 }
 
 // 格式化 info 名称
-const formatInfoName = (key) => {
+const formatInfoName = key => {
   const nameMap = {
-    'app': '应用信息',
-    'build': '构建信息',
-    'java': 'Java信息',
-    'os': '操作系统信息'
+    app: '应用信息',
+    build: '构建信息',
+    java: 'Java信息',
+    os: '操作系统信息'
   }
   return nameMap[key] || key
 }
@@ -511,7 +554,7 @@ const openInNewWindow = () => {
 }
 
 // 查看指标详情
-const viewMetricDetail = (metricName) => {
+const viewMetricDetail = metricName => {
   const metricUrl = `http://localhost:8080/manage/actuator/metrics/${metricName}`
   window.open(metricUrl, '_blank')
 }

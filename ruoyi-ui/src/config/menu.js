@@ -259,36 +259,36 @@ export const menuConfig = {
 // 根据用户权限过滤菜单
 export const getFilteredMenus = (userRole, menuType = 'backend') => {
   const menus = menuConfig[menuType] || []
-  
-  const filterMenus = (menuList) => {
+
+  const filterMenus = menuList => {
     return menuList.filter(menu => {
       if (menu.permissions && !menu.permissions.includes(userRole)) {
         return false
       }
-      
+
       if (menu.children) {
         menu.children = filterMenus(menu.children)
         // 如果子菜单为空，则过滤掉父菜单
         return menu.children.length > 0
       }
-      
+
       return true
     })
   }
-  
+
   return filterMenus(menus)
 }
 
 // 获取面包屑导航
 export const getBreadcrumb = (path, menuType = 'backend') => {
   const menus = menuConfig[menuType] || []
-  
+
   const findPath = (menuList, breadcrumb = []) => {
     for (const menu of menuList) {
       if (menu.path === path) {
         return [...breadcrumb, menu]
       }
-      
+
       if (menu.children) {
         const result = findPath(menu.children, [...breadcrumb, menu])
         if (result) return result
@@ -296,7 +296,7 @@ export const getBreadcrumb = (path, menuType = 'backend') => {
     }
     return null
   }
-  
+
   return findPath(menus) || []
 }
 

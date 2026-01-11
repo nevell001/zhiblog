@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-upload
+      v-if="type === 'url'"
       :action="uploadUrl"
       :before-upload="handleBeforeUpload"
       :on-success="handleUploadSuccess"
@@ -9,7 +10,6 @@
       :show-file-list="false"
       :headers="headers"
       class="editor-img-uploader"
-      v-if="type == 'url'"
     >
       <i ref="uploadRef" class="editor-img-uploader"></i>
     </el-upload>
@@ -18,92 +18,92 @@
     <quill-editor
       ref="quillEditorRef"
       v-model:content="content"
-      contentType="html"
-      @textChange="(e) => $emit('update:modelValue', content)"
+      content-type="html"
       :options="options"
       :style="styles"
+      @text-change="e => $emit('update:modelValue', content)"
     />
   </div>
 </template>
 
 <script setup>
 import axios from 'axios'
-import { QuillEditor } from "@vueup/vue-quill"
-import "@vueup/vue-quill/dist/vue-quill.snow.css"
-import { getToken } from "@/utils/auth"
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { getToken } from '@/utils/auth'
 
 const { proxy } = getCurrentInstance()
 
 const quillEditorRef = ref()
-const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + "/common/upload/compressed") // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案
+const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + '/common/upload/compressed') // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案
 const headers = ref({
-  Authorization: "Bearer " + getToken()
+  Authorization: 'Bearer ' + getToken()
 })
 
 const props = defineProps({
   /* 编辑器的内容 */
   modelValue: {
-    type: String,
+    type: String
   },
   /* 高度 */
   height: {
     type: Number,
-    default: null,
+    default: null
   },
   /* 最小高度 */
   minHeight: {
     type: Number,
-    default: null,
+    default: null
   },
   /* 只读 */
   readOnly: {
     type: Boolean,
-    default: false,
+    default: false
   },
   /* 上传文件大小限制(MB) */
   fileSize: {
     type: Number,
-    default: 5,
+    default: 5
   },
   /* 类型（base64格式、url格式） */
   type: {
     type: String,
-    default: "url",
+    default: 'url'
   }
 })
 
 const options = ref({
-  theme: "snow",
+  theme: 'snow',
   bounds: document.body,
-  debug: "warn",
+  debug: 'warn',
   modules: {
     // 工具栏配置
     toolbar: {
       container: [
-        [{ 'font': [] }, { 'size': ['small', false, 'large', 'huge'] }],  // 字体和大小
-        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],                       // 标题
-        ['bold', 'italic', 'underline', 'strike'],                       // 加粗 斜体 下划线 删除线
-        [{ 'color': [] }, { 'background': [] }],                         // 字体颜色、背景色
-        [{ 'script': 'sub'}, { 'script': 'super' }],                      // 上标/下标
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],                     // 有序、无序列表
-        [{ 'indent': '-1'}, { 'indent': '+1' }],                         // 缩进
-        [{ 'direction': 'rtl' }],                                         // 文本方向
-        [{ 'align': [] }],                                                // 对齐方式
-        ['blockquote', 'code-block'],                                    // 引用、代码块
-        ['link', 'image', 'video', 'file'],                              // 链接、图片、视频、文件
-        [{ 'table': true }],                                              // 表格
-        ['clean']                                                        // 清除格式
+        [{ font: [] }, { size: ['small', false, 'large', 'huge'] }], // 字体和大小
+        [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
+        ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
+        [{ color: [] }, { background: [] }], // 字体颜色、背景色
+        [{ script: 'sub' }, { script: 'super' }], // 上标/下标
+        [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表
+        [{ indent: '-1' }, { indent: '+1' }], // 缩进
+        [{ direction: 'rtl' }], // 文本方向
+        [{ align: [] }], // 对齐方式
+        ['blockquote', 'code-block'], // 引用、代码块
+        ['link', 'image', 'video', 'file'], // 链接、图片、视频、文件
+        [{ table: true }], // 表格
+        ['clean'] // 清除格式
       ],
       handlers: {
-        'image': function() {
+        image: function () {
           // 图片上传处理
           proxy.$refs.uploadRef.click()
         },
-        'link': function(value) {
+        link: function (value) {
           // 增强链接功能
           const quill = quillEditorRef.value.getQuill()
           if (value) {
-            let href = prompt('请输入链接URL:')
+            const href = prompt('请输入链接URL:')
             if (href) {
               // 检查是否选中了文本
               const range = quill.getSelection()
@@ -123,14 +123,17 @@ const options = ref({
             quill.format('link', false)
           }
         },
-        'video': function() {
+        video: function () {
           // 增强视频功能
           const quill = quillEditorRef.value.getQuill()
           const range = quill.getSelection()
-          
+
           // 提供选项：上传本地视频或插入在线视频
-          const choice = prompt('请选择视频插入方式:\n1. 上传本地视频\n2. 插入在线视频\n请输入1或2:', '2')
-          
+          const choice = prompt(
+            '请选择视频插入方式:\n1. 上传本地视频\n2. 插入在线视频\n请输入1或2:',
+            '2'
+          )
+
           if (choice === '1') {
             // 上传本地视频
             proxy.$refs.uploadRef.click()
@@ -142,7 +145,9 @@ const options = ref({
               let embedUrl = url
               if (url.includes('youtube.com') || url.includes('youtu.be')) {
                 // YouTube链接处理
-                const videoId = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/)
+                const videoId = url.match(
+                  /(?:youtube\.com\/(?:[^/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?/\s]{11})/
+                )
                 if (videoId && videoId[1]) {
                   embedUrl = `https://www.youtube.com/embed/${videoId[1]}`
                 }
@@ -153,19 +158,22 @@ const options = ref({
                   embedUrl = `https://player.bilibili.com/player.html?bvid=${videoId[1]}`
                 }
               }
-              
+
               quill.insertEmbed(range.index, 'video', embedUrl)
               quill.setSelection(range.index + 1)
             }
           }
         },
-        'file': function() {
+        file: function () {
           // 文件链接插入功能
           const quill = quillEditorRef.value.getQuill()
           const range = quill.getSelection()
-          
-          const choice = prompt('请选择文件插入方式:\n1. 上传本地文件\n2. 插入文件链接\n请输入1或2:', '1')
-          
+
+          const choice = prompt(
+            '请选择文件插入方式:\n1. 上传本地文件\n2. 插入文件链接\n请输入1或2:',
+            '1'
+          )
+
           if (choice === '1') {
             // 上传本地文件
             proxy.$refs.uploadRef.click()
@@ -185,20 +193,18 @@ const options = ref({
       }
     },
     syntax: false,
-    table: true,    // 启用表格功能
+    table: true, // 启用表格功能
     clipboard: {
       // 增强粘贴功能
-      matchers: [
-        ['img', handleImagePaste]
-      ]
+      matchers: [['img', handleImagePaste]]
     }
   },
-  placeholder: "请输入内容...支持插入超链接、图片、视频和文件链接",
+  placeholder: '请输入内容...支持插入超链接、图片、视频和文件链接',
   readOnly: props.readOnly
 })
 
 const styles = computed(() => {
-  let style = {}
+  const style = {}
   if (props.minHeight) {
     style.minHeight = `${props.minHeight}px`
   }
@@ -208,23 +214,27 @@ const styles = computed(() => {
   return style
 })
 
-const content = ref("")
-watch(() => props.modelValue, (v) => {
-  if (v !== content.value) {
-    content.value = v == undefined ? "<p></p>" : v
-  }
-}, { immediate: true })
+const content = ref('')
+watch(
+  () => props.modelValue,
+  v => {
+    if (v !== content.value) {
+      content.value = v === undefined ? '<p></p>' : v
+    }
+  },
+  { immediate: true }
+)
 
 // 如果设置了上传地址则自定义图片上传事件
 onMounted(() => {
-  if (props.type == 'url') {
-    let quill = quillEditorRef.value.getQuill()
-    let toolbar = quill.getModule("toolbar")
-    toolbar.addHandler("image", (value) => {
+  if (props.type === 'url') {
+    const quill = quillEditorRef.value.getQuill()
+    const toolbar = quill.getModule('toolbar')
+    toolbar.addHandler('image', value => {
       if (value) {
         proxy.$refs.uploadRef.click()
       } else {
-        quill.format("image", false)
+        quill.format('image', false)
       }
     })
     quill.root.addEventListener('paste', handlePasteCapture, true)
@@ -240,25 +250,32 @@ function handleImagePaste(node, delta) {
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
   // 支持的文件类型
-  const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
-  const videoTypes = ["video/mp4", "video/webm", "video/ogg", "video/quicktime"]
-  const fileTypes = [
-    "application/pdf", 
-    "application/msword", 
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "application/vnd.ms-excel",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    "application/vnd.ms-powerpoint",
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-    "text/plain",
-    "application/zip",
-    "application/x-rar-compressed"
+  const imageTypes = [
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'image/svg+xml'
   ]
-  
+  const videoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime']
+  const fileTypes = [
+    'application/pdf',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'text/plain',
+    'application/zip',
+    'application/x-rar-compressed'
+  ]
+
   const isImage = imageTypes.includes(file.type)
   const isVideo = videoTypes.includes(file.type)
   const isFile = fileTypes.includes(file.type) || file.type.startsWith('application/')
-  
+
   // 检验文件格式
   if (!isImage && !isVideo && !isFile) {
     proxy.$modal.msgError(`文件格式不支持! 支持格式: 
@@ -267,7 +284,7 @@ function handleBeforeUpload(file) {
 文档: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, RAR`)
     return false
   }
-  
+
   // 校检文件大小
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize
@@ -276,39 +293,39 @@ function handleBeforeUpload(file) {
       return false
     }
   }
-  
+
   return true
 }
 
 // 上传成功处理
 function handleUploadSuccess(res, file) {
   // 如果上传成功
-  if (res.code == 200) {
+  if (res.code === 200) {
     // 获取富文本实例
-    let quill = toRaw(quillEditorRef.value).getQuill()
+    const quill = toRaw(quillEditorRef.value).getQuill()
     // 获取光标位置
-    let length = quill.selection.savedRange.index
-    
+    const length = quill.selection.savedRange.index
+
     // 判断文件类型
     const fileType = file.type
     if (fileType.startsWith('image/')) {
       // 插入图片
-      quill.insertEmbed(length, "image", import.meta.env.VITE_APP_BASE_API + res.fileName)
+      quill.insertEmbed(length, 'image', import.meta.env.VITE_APP_BASE_API + res.fileName)
     } else if (fileType.startsWith('video/')) {
       // 插入视频
-      quill.insertEmbed(length, "video", import.meta.env.VITE_APP_BASE_API + res.fileName)
+      quill.insertEmbed(length, 'video', import.meta.env.VITE_APP_BASE_API + res.fileName)
     }
-    
+
     // 调整光标到最后
     quill.setSelection(length + 1)
   } else {
-    proxy.$modal.msgError("文件插入失败")
+    proxy.$modal.msgError('文件插入失败')
   }
 }
 
 // 上传失败处理
 function handleUploadError() {
-  proxy.$modal.msgError("图片插入失败")
+  proxy.$modal.msgError('图片插入失败')
 }
 
 // 复制粘贴图片处理
@@ -328,10 +345,14 @@ function handlePasteCapture(e) {
 
 function insertImage(file) {
   const formData = new FormData()
-  formData.append("file", file)
-  axios.post(uploadUrl.value, formData, { headers: { "Content-Type": "multipart/form-data", Authorization: headers.value.Authorization } }).then(res => {
-    handleUploadSuccess(res.data)
-  })
+  formData.append('file', file)
+  axios
+    .post(uploadUrl.value, formData, {
+      headers: { 'Content-Type': 'multipart/form-data', Authorization: headers.value.Authorization }
+    })
+    .then(res => {
+      handleUploadSuccess(res.data)
+    })
 }
 </script>
 
@@ -367,78 +388,78 @@ function insertImage(file) {
 
 <style>
 /* 全局样式 */
-.ql-snow .ql-tooltip[data-mode="link"]::before {
-  content: "请输入链接地址:";
+.ql-snow .ql-tooltip[data-mode='link']::before {
+  content: '请输入链接地址:';
 }
 .ql-snow .ql-tooltip.ql-editing a.ql-action::after {
   border-right: 0px;
-  content: "保存";
+  content: '保存';
   padding-right: 0px;
 }
-.ql-snow .ql-tooltip[data-mode="video"]::before {
-  content: "请输入视频地址:";
+.ql-snow .ql-tooltip[data-mode='video']::before {
+  content: '请输入视频地址:';
 }
 
 /* 字体大小选择器 */
 .ql-snow .ql-picker.ql-size .ql-picker-label::before,
 .ql-snow .ql-picker.ql-size .ql-picker-item::before {
-  content: "14px";
+  content: '14px';
 }
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="small"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="small"]::before {
-  content: "10px";
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='small']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='small']::before {
+  content: '10px';
 }
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="large"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="large"]::before {
-  content: "18px";
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='large']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='large']::before {
+  content: '18px';
 }
-.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="huge"]::before,
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="huge"]::before {
-  content: "32px";
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value='huge']::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='huge']::before {
+  content: '32px';
 }
 
 /* 标题选择器 */
 .ql-snow .ql-picker.ql-header .ql-picker-label::before,
 .ql-snow .ql-picker.ql-header .ql-picker-item::before {
-  content: "文本";
+  content: '文本';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="1"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="1"]::before {
-  content: "标题1";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='1']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='1']::before {
+  content: '标题1';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="2"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="2"]::before {
-  content: "标题2";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='2']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='2']::before {
+  content: '标题2';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="3"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="3"]::before {
-  content: "标题3";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='3']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='3']::before {
+  content: '标题3';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="4"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="4"]::before {
-  content: "标题4";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='4']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='4']::before {
+  content: '标题4';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="5"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="5"]::before {
-  content: "标题5";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='5']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='5']::before {
+  content: '标题5';
 }
-.ql-snow .ql-picker.ql-header .ql-picker-label[data-value="6"]::before,
-.ql-snow .ql-picker.ql-header .ql-picker-item[data-value="6"]::before {
-  content: "标题6";
+.ql-snow .ql-picker.ql-header .ql-picker-label[data-value='6']::before,
+.ql-snow .ql-picker.ql-header .ql-picker-item[data-value='6']::before {
+  content: '标题6';
 }
 
 /* 字体选择器 */
 .ql-snow .ql-picker.ql-font .ql-picker-label::before,
 .ql-snow .ql-picker.ql-font .ql-picker-item::before {
-  content: "标准字体";
+  content: '标准字体';
 }
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="serif"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="serif"]::before {
-  content: "衬线字体";
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='serif']::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='serif']::before {
+  content: '衬线字体';
 }
-.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
-.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
-  content: "等宽字体";
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value='monospace']::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value='monospace']::before {
+  content: '等宽字体';
 }
 
 /* 代码块样式 */
@@ -457,7 +478,8 @@ function insertImage(file) {
   width: 100%;
   margin: 10px 0;
 }
-.ql-editor table td, .ql-editor table th {
+.ql-editor table td,
+.ql-editor table th {
   border: 1px solid #ddd;
   padding: 8px;
 }
@@ -480,7 +502,7 @@ function insertImage(file) {
   max-width: 100%;
   height: auto;
   border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 视频样式 */

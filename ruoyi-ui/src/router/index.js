@@ -37,7 +37,7 @@ const routes = [
     path: '/index',
     redirect: '/blog'
   },
-    // 后台管理路由 - 简化版
+  // 后台管理路由 - 简化版
   {
     path: '/admin',
     component: () => import('@/layout/index.vue'),

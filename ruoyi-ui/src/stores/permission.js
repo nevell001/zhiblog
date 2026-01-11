@@ -17,7 +17,7 @@ const usePermissionStore = defineStore('permission', {
     topbarRouters: [],
     sidebarRouters: []
   }),
-  
+
   actions: {
     setRoutes(routes) {
       this.addRoutes = routes
@@ -71,7 +71,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
         route.component = loadView(route.component)
       }
     }
-    if (route.children != null && route.children && route.children.length) {
+    if (route.children !== null && route.children && route.children.length) {
       route.children = filterAsyncRouter(route.children, route, type)
     } else {
       delete route['children']
@@ -82,7 +82,7 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
 }
 
 function filterChildren(childrenMap, lastRouter = false) {
-  var children = []
+  let children = []
   childrenMap.forEach((el, index) => {
     if (el.children && el.children.length) {
       if (el.component === 'ParentView' && !lastRouter) {
@@ -105,15 +105,15 @@ function filterChildren(childrenMap, lastRouter = false) {
   return children
 }
 
-export const loadView = (view) => {
-  let res;
+export const loadView = view => {
+  let res
   for (const path in modules) {
-    const dir = path.split('views/')[1].split('.vue')[0];
+    const dir = path.split('views/')[1].split('.vue')[0]
     if (dir === view) {
-      res = () => modules[path]();
+      res = () => modules[path]()
     }
   }
-  return res;
+  return res
 }
 
 // 动态路由遍历，验证是否具备权限
@@ -135,14 +135,14 @@ export function filterDynamicRoutes(routes) {
 
 // 验证是否有权限
 function hasPermission(requiredPermissions) {
-  const all_permission = "*:*:*";
+  const all_permission = '*:*:*'
   const userPermissions = useUserStore().permissions
-  
+
   // 如果没有设置权限要求，默认允许访问
   if (!requiredPermissions || requiredPermissions.length === 0) {
     return true
   }
-  
+
   if (userPermissions && userPermissions.length > 0) {
     return userPermissions.some(v => {
       return all_permission === v || requiredPermissions.includes(v)
@@ -155,14 +155,14 @@ function hasPermission(requiredPermissions) {
 
 // 验证是否有角色
 function hasRole(requiredRoles) {
-  const super_admin = "admin";
+  const super_admin = 'admin'
   const userRoles = useUserStore().roles
-  
+
   // 如果没有设置角色要求，默认允许访问
   if (!requiredRoles || requiredRoles.length === 0) {
     return true
   }
-  
+
   if (userRoles && userRoles.length > 0) {
     return userRoles.some(v => {
       return super_admin === v || requiredRoles.includes(v)

@@ -1,4 +1,3 @@
-
 <template>
   <div class="app-container">
     <el-card class="box-card">
@@ -20,7 +19,11 @@
             </el-form-item>
 
             <el-form-item label="职位标题" prop="author_title">
-              <el-input v-model="form.author_title" placeholder="请输入职位标题，如：全栈开发工程师" maxlength="100" />
+              <el-input
+                v-model="form.author_title"
+                placeholder="请输入职位标题，如：全栈开发工程师"
+                maxlength="100"
+              />
             </el-form-item>
 
             <el-form-item label="个人简介" prop="blog_desc">
@@ -53,8 +56,8 @@
                 v-for="(skill, index) in skillsList"
                 :key="index"
                 closable
+                style="margin-right: 10px; margin-bottom: 10px"
                 @close="removeSkill(index)"
-                style="margin-right: 10px; margin-bottom: 10px;"
               >
                 {{ skill }}
               </el-tag>
@@ -72,12 +75,7 @@
               </el-button>
             </el-form-item>
 
-            <el-alert
-              title="提示"
-              type="info"
-              :closable="false"
-              style="margin-top: 20px;"
-            >
+            <el-alert title="提示" type="info" :closable="false" style="margin-top: 20px">
               技能标签将在"关于博主"模块中展示，建议添加 4-8 个核心技能
             </el-alert>
           </el-tab-pane>
@@ -119,7 +117,11 @@
             </el-form-item>
 
             <el-form-item label="博客副标题" prop="blog_subtitle">
-              <el-input v-model="form.blog_subtitle" placeholder="请输入博客副标题" maxlength="200" />
+              <el-input
+                v-model="form.blog_subtitle"
+                placeholder="请输入博客副标题"
+                maxlength="200"
+              />
             </el-form-item>
 
             <el-form-item label="关键词" prop="blog_keywords">
@@ -137,8 +139,8 @@
           </el-tab-pane>
         </el-tabs>
 
-        <el-form-item style="margin-top: 20px;">
-          <el-button type="primary" @click="submitForm" :loading="loading">
+        <el-form-item style="margin-top: 20px">
+          <el-button type="primary" :loading="loading" @click="submitForm">
             <i class="el-icon-check"></i>
             保存设置
           </el-button>
@@ -164,7 +166,10 @@
         :before-upload="beforeAvatarUpload"
       >
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__text">
+          将文件拖到此处，或
+          <em>点击上传</em>
+        </div>
         <template #tip>
           <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
         </template>
@@ -181,7 +186,10 @@
         :before-upload="beforeQRUpload"
       >
         <i class="el-icon-upload"></i>
-        <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+        <div class="el-upload__text">
+          将文件拖到此处，或
+          <em>点击上传</em>
+        </div>
         <template #tip>
           <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
         </template>
@@ -222,12 +230,8 @@ const form = reactive({
 const skillsList = ref([])
 
 const rules = {
-  blog_author: [
-    { required: true, message: '请输入博主姓名', trigger: 'blur' }
-  ],
-  email: [
-    { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }
-  ]
+  blog_author: [{ required: true, message: '请输入博主姓名', trigger: 'blur' }],
+  email: [{ type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' }]
 }
 
 // 加载设置
@@ -243,7 +247,7 @@ const loadSettings = async () => {
           } catch (e) {
             skillsList.value = []
           }
-        } else if (form.hasOwnProperty(item.settingKey)) {
+        } else if (Object.hasOwn(form, item.settingKey)) {
           form[item.settingKey] = item.settingValue || ''
         }
       })
@@ -262,7 +266,7 @@ const submitForm = async () => {
 
     // 准备要保存的设置
     const settings = []
-    
+
     // 基本信息
     Object.keys(form).forEach(key => {
       if (form[key]) {
@@ -312,7 +316,7 @@ const submitForm = async () => {
 }
 
 // 获取设置描述
-const getDescription = (key) => {
+const getDescription = key => {
   const descriptions = {
     blog_author: '博主姓名',
     author_title: '职位标题',
@@ -336,11 +340,13 @@ const resetForm = () => {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    formRef.value.resetFields()
-    skillsList.value = []
-    loadSettings()
-  }).catch(() => {})
+  })
+    .then(() => {
+      formRef.value.resetFields()
+      skillsList.value = []
+      loadSettings()
+    })
+    .catch(() => {})
 }
 
 // 预览效果
@@ -349,7 +355,7 @@ const previewSettings = () => {
 }
 
 // 技能标签相关
-const removeSkill = (index) => {
+const removeSkill = index => {
   skillsList.value.splice(index, 1)
 }
 
@@ -369,7 +375,7 @@ const handleInputConfirm = () => {
 }
 
 // 头像上传
-const handleAvatarSuccess = (response) => {
+const handleAvatarSuccess = response => {
   if (response.code === 200) {
     form.blog_avatar = response.url
     showImageUpload.value = false
@@ -379,7 +385,7 @@ const handleAvatarSuccess = (response) => {
   }
 }
 
-const beforeAvatarUpload = (file) => {
+const beforeAvatarUpload = file => {
   const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
   const isLt2M = file.size / 1024 / 1024 < 2
 
@@ -393,7 +399,7 @@ const beforeAvatarUpload = (file) => {
 }
 
 // 二维码上传
-const handleQRSuccess = (response) => {
+const handleQRSuccess = response => {
   if (response.code === 200) {
     form.wechat_qr = response.url
     showQRUpload.value = false

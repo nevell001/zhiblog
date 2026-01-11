@@ -4,7 +4,7 @@
 export const apiConfig = {
   // 基础URL
   baseURL: process.env.NODE_ENV === 'production' ? '/prod-api' : '/dev-api',
-  
+
   // 博客前台API
   blog: {
     // 文章相关
@@ -16,7 +16,7 @@ export const apiConfig = {
       delete: '/blog/article/',
       search: '/blog/article/search'
     },
-    
+
     // 分类相关
     category: {
       list: '/blog/category/list',
@@ -25,7 +25,7 @@ export const apiConfig = {
       update: '/blog/category',
       delete: '/blog/category/'
     },
-    
+
     // 标签相关
     tag: {
       list: '/blog/tag/list',
@@ -35,7 +35,7 @@ export const apiConfig = {
       delete: '/blog/tag/',
       cloud: '/blog/tag/cloud'
     },
-    
+
     // 评论相关
     comment: {
       list: '/blog/comment/list',
@@ -43,7 +43,7 @@ export const apiConfig = {
       delete: '/blog/comment/',
       reply: '/blog/comment/reply'
     },
-    
+
     // 友链相关
     friendLink: {
       list: '/blog/friendLink/list',
@@ -51,14 +51,14 @@ export const apiConfig = {
       update: '/blog/friendLink',
       delete: '/blog/friendLink/'
     },
-    
+
     // 博客设置
     setting: {
       get: '/blog/setting',
       update: '/blog/setting'
     }
   },
-  
+
   // 后台管理API
   admin: {
     // 系统管理
@@ -73,7 +73,7 @@ export const apiConfig = {
         resetPwd: '/system/user/resetPwd',
         changeStatus: '/system/user/changeStatus'
       },
-      
+
       // 角色管理
       role: {
         list: '/system/role/list',
@@ -83,7 +83,7 @@ export const apiConfig = {
         delete: '/system/role/',
         changeStatus: '/system/role/changeStatus'
       },
-      
+
       // 菜单管理
       menu: {
         list: '/system/menu/list',
@@ -93,7 +93,7 @@ export const apiConfig = {
         delete: '/system/menu/',
         tree: '/system/menu/treeselect'
       },
-      
+
       // 部门管理
       dept: {
         list: '/system/dept/list',
@@ -103,7 +103,7 @@ export const apiConfig = {
         delete: '/system/dept/',
         tree: '/system/dept/treeselect'
       },
-      
+
       // 岗位管理
       post: {
         list: '/system/post/list',
@@ -112,7 +112,7 @@ export const apiConfig = {
         update: '/system/post',
         delete: '/system/post/'
       },
-      
+
       // 字典管理
       dict: {
         list: '/system/dict/type/list',
@@ -126,7 +126,7 @@ export const apiConfig = {
         dataUpdate: '/system/dict/data',
         dataDelete: '/system/dict/data/'
       },
-      
+
       // 参数设置
       config: {
         list: '/system/config/list',
@@ -136,7 +136,7 @@ export const apiConfig = {
         delete: '/system/config/',
         refreshCache: '/system/config/refreshCache'
       },
-      
+
       // 通知公告
       notice: {
         list: '/system/notice/list',
@@ -146,7 +146,7 @@ export const apiConfig = {
         delete: '/system/notice/'
       }
     },
-    
+
     // 系统监控
     monitor: {
       // 在线用户
@@ -154,14 +154,14 @@ export const apiConfig = {
         list: '/monitor/online/list',
         forceLogout: '/monitor/online/'
       },
-      
+
       // 登录日志
       logininfor: {
         list: '/monitor/logininfor/list',
         delete: '/monitor/logininfor/',
         clean: '/monitor/logininfor/clean'
       },
-      
+
       // 操作日志
       operlog: {
         list: '/monitor/operlog/list',
@@ -169,7 +169,7 @@ export const apiConfig = {
         clean: '/monitor/operlog/clean',
         detail: '/monitor/operlog/'
       },
-      
+
       // 定时任务
       job: {
         list: '/monitor/job/list',
@@ -182,7 +182,7 @@ export const apiConfig = {
         logList: '/monitor/job/log/list',
         logDetail: '/monitor/job/log/'
       },
-      
+
       // 缓存监控
       cache: {
         getNames: '/monitor/cache/getNames',
@@ -192,7 +192,7 @@ export const apiConfig = {
         clearCacheKey: '/monitor/cache/clearCacheKey'
       }
     },
-    
+
     // 系统工具
     tool: {
       // 代码生成
@@ -209,19 +209,19 @@ export const apiConfig = {
       }
     }
   },
-  
+
   // 通用API
   common: {
     // 文件上传
     upload: '/common/upload',
-    
+
     // 用户相关
     user: {
       profile: '/system/user/profile',
       updatePwd: '/system/user/profile/updatePwd',
       updateAvatar: '/system/user/profile/avatar'
     },
-    
+
     // 权限相关
     auth: {
       login: '/auth/login',
@@ -237,10 +237,10 @@ export const apiConfig = {
 // API工具函数
 export const apiUtils = {
   // 构建完整URL
-  buildURL: (endpoint) => {
+  buildURL: endpoint => {
     return apiConfig.baseURL + endpoint
   },
-  
+
   // 构建带参数的URL
   buildURLWithParams: (endpoint, params) => {
     let url = apiConfig.baseURL + endpoint
@@ -252,7 +252,7 @@ export const apiUtils = {
     }
     return url
   },
-  
+
   // 获取API配置
   getApi: (module, submodule, action) => {
     if (!apiConfig[module]) return null

@@ -3,11 +3,10 @@
     <el-row :gutter="20">
       <el-col :sm="24" :lg="12" style="padding-left: 20px">
         <h2>博客后台管理系统</h2>
+        <p>欢迎使用博客后台管理系统，这里可以管理您的博客内容、用户、系统设置等。</p>
         <p>
-          欢迎使用博客后台管理系统，这里可以管理您的博客内容、用户、系统设置等。
-        </p>
-        <p>
-          <b>当前版本:</b> <span>v{{ version }}</span>
+          <b>当前版本:</b>
+          <span>v{{ version }}</span>
         </p>
         <p>
           <el-tag type="success">博客管理</el-tag>
@@ -20,20 +19,15 @@
             icon="Document"
             plain
             @click="$router.push('/admin/blog/article')"
-            >文章管理</el-button
           >
-          <el-button
-            icon="User"
-            plain
-            @click="$router.push('/admin/system/user')"
-            >用户管理</el-button
-          >
-          <el-button
-            icon="Setting"
-            plain
-            @click="$router.push('/admin/blog/setting')"
-            >博客设置</el-button
-          >
+            文章管理
+          </el-button>
+          <el-button icon="User" plain @click="$router.push('/admin/system/user')">
+            用户管理
+          </el-button>
+          <el-button icon="Setting" plain @click="$router.push('/admin/blog/setting')">
+            博客设置
+          </el-button>
         </p>
       </el-col>
 
@@ -73,7 +67,9 @@
           <template #header>
             <div class="card-header">
               <span>文章管理</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/article')">管理</el-button>
+              <el-button type="primary" text @click="$router.push('/admin/blog/article')">
+                管理
+              </el-button>
             </div>
           </template>
           <div class="card-content">
@@ -86,7 +82,9 @@
           <template #header>
             <div class="card-header">
               <span>分类标签</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/category')">管理</el-button>
+              <el-button type="primary" text @click="$router.push('/admin/blog/category')">
+                管理
+              </el-button>
             </div>
           </template>
           <div class="card-content">
@@ -99,7 +97,9 @@
           <template #header>
             <div class="card-header">
               <span>评论管理</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/comment')">管理</el-button>
+              <el-button type="primary" text @click="$router.push('/admin/blog/comment')">
+                管理
+              </el-button>
             </div>
           </template>
           <div class="card-content">
@@ -112,7 +112,9 @@
           <template #header>
             <div class="card-header">
               <span>系统设置</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/setting')">设置</el-button>
+              <el-button type="primary" text @click="$router.push('/admin/blog/setting')">
+                设置
+              </el-button>
             </div>
           </template>
           <div class="card-content">

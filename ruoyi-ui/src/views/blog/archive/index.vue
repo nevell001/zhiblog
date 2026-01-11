@@ -7,7 +7,9 @@
 
     <div v-loading="loading" class="archive-content">
       <div v-if="archiveList.length === 0 && !loading" class="no-data">
-        <el-icon :size="60"><Calendar /></el-icon>
+        <el-icon :size="60">
+          <Calendar />
+        </el-icon>
         <p>暂无归档数据</p>
       </div>
 
@@ -16,7 +18,9 @@
           <div class="archive-header" @click="toggleArchive(archive.archive_date)">
             <h2 class="archive-date">
               <el-icon :size="20" class="toggle-icon">
-                <component :is="expandedArchives.includes(archive.archive_date) ? 'ArrowDown' : 'ArrowRight'" />
+                <component
+                  :is="expandedArchives.includes(archive.archive_date) ? 'ArrowDown' : 'ArrowRight'"
+                />
               </el-icon>
               {{ formatArchiveDate(archive.archive_date) }}
             </h2>
@@ -25,21 +29,38 @@
 
           <div v-show="expandedArchives.includes(archive.archive_date)" class="archive-articles">
             <div v-if="loadingArticles[archive.archive_date]" class="loading-articles">
-              <el-icon :size="24" class="is-loading"><Loading /></el-icon>
+              <el-icon :size="24" class="is-loading">
+                <Loading />
+              </el-icon>
               <span>加载中...</span>
             </div>
 
-            <div v-else-if="articlesByArchive[archive.archive_date] && articlesByArchive[archive.archive_date].length > 0" class="article-list">
-              <div v-for="article in articlesByArchive[archive.archive_date]" :key="article.id" class="article-item">
-                <div class="article-cover" v-if="article.coverUrl || article.coverImage">
+            <div
+              v-else-if="
+                articlesByArchive[archive.archive_date] &&
+                articlesByArchive[archive.archive_date].length > 0
+              "
+              class="article-list"
+            >
+              <div
+                v-for="article in articlesByArchive[archive.archive_date]"
+                :key="article.id"
+                class="article-item"
+              >
+                <div v-if="article.coverUrl || article.coverImage" class="article-cover">
                   <img :src="article.coverUrl || article.coverImage" :alt="article.title" />
                 </div>
                 <div class="article-info">
-                  <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }" class="article-title">
+                  <router-link
+                    :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }"
+                    class="article-title"
+                  >
                     {{ article.title }}
                   </router-link>
                   <p class="article-summary">
-                    {{ article.summary || stripHtmlTags(article.content).substring(0, 120) + '...' }}
+                    {{
+                      article.summary || stripHtmlTags(article.content).substring(0, 120) + '...'
+                    }}
                   </p>
                   <div class="article-meta">
                     <span class="meta-item">
@@ -72,7 +93,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { getArticleArchive, getArticlesByArchive } from '@/api/blog/article'
-import { Calendar, ArrowDown, ArrowRight, Loading, View, ChatDotRound } from '@element-plus/icons-vue'
+import {
+  Calendar,
+  ArrowDown,
+  ArrowRight,
+  Loading,
+  View,
+  ChatDotRound
+} from '@element-plus/icons-vue'
 
 // 响应式数据
 const archiveList = ref([])
@@ -90,7 +118,10 @@ const loadArchiveData = async () => {
     archiveList.value = response.data || []
 
     // 计算总文章数
-    totalArticles.value = archiveList.value.reduce((total, item) => total + (item.article_count || 0), 0)
+    totalArticles.value = archiveList.value.reduce(
+      (total, item) => total + (item.article_count || 0),
+      0
+    )
 
     // 默认展开第一个归档
     if (archiveList.value.length > 0) {
@@ -105,7 +136,7 @@ const loadArchiveData = async () => {
 }
 
 // 根据归档月份获取文章列表
-const loadArticlesByArchive = async (archiveDate) => {
+const loadArticlesByArchive = async archiveDate => {
   try {
     loadingArticles.value[archiveDate] = true
     const [year, month] = archiveDate.split('-')
@@ -123,7 +154,7 @@ const loadArticlesByArchive = async (archiveDate) => {
 }
 
 // 切换归档展开/收起
-const toggleArchive = async (archiveDate) => {
+const toggleArchive = async archiveDate => {
   const index = expandedArchives.value.indexOf(archiveDate)
 
   if (index > -1) {
@@ -141,23 +172,35 @@ const toggleArchive = async (archiveDate) => {
 }
 
 // 格式化归档日期
-const formatArchiveDate = (dateString) => {
+const formatArchiveDate = dateString => {
   if (!dateString) return ''
   const [year, month] = dateString.split('-')
-  const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月',
-                     '七月', '八月', '九月', '十月', '十一月', '十二月']
+  const monthNames = [
+    '一月',
+    '二月',
+    '三月',
+    '四月',
+    '五月',
+    '六月',
+    '七月',
+    '八月',
+    '九月',
+    '十月',
+    '十一月',
+    '十二月'
+  ]
   return `${year}年 ${monthNames[parseInt(month) - 1]}`
 }
 
 // 格式化日期
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return ''
   const date = new Date(dateString)
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
 // 去除HTML标签
-const stripHtmlTags = (html) => {
+const stripHtmlTags = html => {
   if (!html) return ''
   return html.replace(/<[^>]*>/g, '')
 }

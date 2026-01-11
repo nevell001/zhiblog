@@ -1,6 +1,6 @@
 <template>
-  <div ref="rightPanel" :class="{show: show}" class="rightPanel-container">
-    <div class="rightPanel-background"/>
+  <div ref="rightPanel" :class="{ show: show }" class="rightPanel-container">
+    <div class="rightPanel-background"></div>
     <div class="rightPanel">
       <div class="rightPanel-items">
         <slot></slot>
@@ -74,8 +74,8 @@ defineExpose({
   top: 0;
   left: 0;
   opacity: 0;
-  transition: opacity .3s cubic-bezier(.7, .3, .1, 1);
-  background: rgba(0, 0, 0, .2);
+  transition: opacity 0.3s cubic-bezier(0.7, 0.3, 0.1, 1);
+  background: rgba(0, 0, 0, 0.2);
   z-index: -1;
 }
 
@@ -87,14 +87,14 @@ defineExpose({
   width: 320px;
   max-width: 100%;
   height: 100vh;
-  box-shadow: 0 0 15px 0 rgba(0, 0, 0, .05);
-  transition: all .25s cubic-bezier(.7, .3, .1, 1);
+  box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.05);
+  transition: all 0.25s cubic-bezier(0.7, 0.3, 0.1, 1);
   transform: translate(100%);
   background: #fff;
 }
 
 .rightPanel-container {
-  transition: all .25s cubic-bezier(.7, .3, .1, 1);
+  transition: all 0.25s cubic-bezier(0.7, 0.3, 0.1, 1);
   position: relative;
   z-index: 2000;
 }

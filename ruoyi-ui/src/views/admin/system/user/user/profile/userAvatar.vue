@@ -1,20 +1,27 @@
 <template>
   <div class="user-info-head" @click="editCropper()">
     <img :src="options.img" title="点击上传头像" class="img-circle img-lg" />
-    <el-dialog :title="title" v-model="open" width="800px" append-to-body @opened="modalOpened" @close="closeDialog">
+    <el-dialog
+      v-model="open"
+      :title="title"
+      width="800px"
+      append-to-body
+      @opened="modalOpened"
+      @close="closeDialog"
+    >
       <el-row>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
           <vue-cropper
+            v-if="visible"
             ref="cropper"
             :img="options.img"
             :info="true"
-            :autoCrop="options.autoCrop"
-            :autoCropWidth="options.autoCropWidth"
-            :autoCropHeight="options.autoCropHeight"
-            :fixedBox="options.fixedBox"
-            :outputType="options.outputType"
-            @realTime="realTime"
-            v-if="visible"
+            :auto-crop="options.autoCrop"
+            :auto-crop-width="options.autoCropWidth"
+            :auto-crop-height="options.autoCropHeight"
+            :fixed-box="options.fixedBox"
+            :output-type="options.outputType"
+            @real-time="realTime"
           />
         </el-col>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
@@ -34,21 +41,23 @@
           >
             <el-button>
               选择
-              <el-icon class="el-icon--right"><Upload /></el-icon>
+              <el-icon class="el-icon--right">
+                <Upload />
+              </el-icon>
             </el-button>
           </el-upload>
         </el-col>
         <el-col :lg="{ span: 1, offset: 2 }" :md="2">
-          <el-button icon="Plus" @click="changeScale(1)"></el-button>
+          <el-button icon="Plus" @click="changeScale(1)" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="Minus" @click="changeScale(-1)"></el-button>
+          <el-button icon="Minus" @click="changeScale(-1)" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshLeft" @click="rotateLeft()"></el-button>
+          <el-button icon="RefreshLeft" @click="rotateLeft()" />
         </el-col>
         <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshRight" @click="rotateRight()"></el-button>
+          <el-button icon="RefreshRight" @click="rotateRight()" />
         </el-col>
         <el-col :lg="{ span: 2, offset: 6 }" :md="2">
           <el-button type="primary" @click="uploadImg()">提 交</el-button>
@@ -59,11 +68,11 @@
 </template>
 
 <script setup>
-import "vue-cropper/dist/index.css"
-import { VueCropper } from "vue-cropper"
-import { uploadAvatar } from "@/api/system/user"
-import useUserStore from "@/store/modules/user"
-import { useBlogSettingsStore } from "@/stores/blogSettings"
+import 'vue-cropper/dist/index.css'
+import { VueCropper } from 'vue-cropper'
+import { uploadAvatar } from '@/api/system/user'
+import useUserStore from '@/store/modules/user'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 const userStore = useUserStore()
 const blogSettingsStore = useBlogSettingsStore()
@@ -71,18 +80,18 @@ const { proxy } = getCurrentInstance()
 
 const open = ref(false)
 const visible = ref(false)
-const title = ref("修改头像")
+const title = ref('修改头像')
 
 //图片裁剪数据
 const options = reactive({
-  img: userStore.avatar,     // 裁剪图片的地址
-  autoCrop: true,            // 是否默认生成截图框
-  autoCropWidth: 200,        // 默认生成截图框宽度
-  autoCropHeight: 200,       // 默认生成截图框高度
-  fixedBox: true,            // 固定截图框大小 不允许改变
-  outputType: "png",         // 默认生成截图为PNG格式
-  filename: 'avatar',        // 文件名称
-  previews: {}               //预览数据
+  img: userStore.avatar, // 裁剪图片的地址
+  autoCrop: true, // 是否默认生成截图框
+  autoCropWidth: 200, // 默认生成截图框宽度
+  autoCropHeight: 200, // 默认生成截图框高度
+  fixedBox: true, // 固定截图框大小 不允许改变
+  outputType: 'png', // 默认生成截图为PNG格式
+  filename: 'avatar', // 文件名称
+  previews: {} //预览数据
 })
 
 /** 编辑头像 */
@@ -116,8 +125,8 @@ function changeScale(num) {
 
 /** 上传预处理 */
 function beforeUpload(file) {
-  if (file.type.indexOf("image/") == -1) {
-    proxy.$modal.msgError("文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。")
+  if (file.type.indexOf('image/') === -1) {
+    proxy.$modal.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
   } else {
     const reader = new FileReader()
     reader.readAsDataURL(file)
@@ -131,15 +140,15 @@ function beforeUpload(file) {
 /** 上传图片 */
 function uploadImg() {
   proxy.$refs.cropper.getCropBlob(data => {
-    let formData = new FormData()
-    formData.append("avatarfile", data, options.filename)
+    const formData = new FormData()
+    formData.append('avatarfile', data, options.filename)
     uploadAvatar(formData).then(response => {
       open.value = false
       options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl
       userStore.avatar = options.img
       // 同时更新博客设置中的头像，确保前台首页显示最新头像
       blogSettingsStore.updateBlogAvatar(response.imgUrl)
-      proxy.$modal.msgSuccess("修改成功")
+      proxy.$modal.msgSuccess('修改成功')
       visible.value = false
     })
   })
@@ -157,7 +166,7 @@ function closeDialog() {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .user-info-head {
   position: relative;
   display: inline-block;
@@ -165,7 +174,7 @@ function closeDialog() {
 }
 
 .user-info-head:hover:after {
-  content: "+";
+  content: '+';
   position: absolute;
   left: 0;
   right: 0;

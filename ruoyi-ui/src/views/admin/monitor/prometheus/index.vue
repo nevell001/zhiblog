@@ -25,10 +25,12 @@
                 </div>
               </template>
               <div class="metric-content">
-                <el-button type="primary" @click="viewMetrics" style="width: 100%">
+                <el-button type="primary" style="width: 100%" @click="viewMetrics">
                   查看指标数据
                 </el-button>
-                <p class="metric-url">{{ metricsUrl }}</p>
+                <p class="metric-url">
+                  {{ metricsUrl }}
+                </p>
               </div>
             </el-card>
           </el-col>
@@ -41,7 +43,7 @@
                 </div>
               </template>
               <div class="metric-content">
-                <el-button type="success" @click="openPrometheus" style="width: 100%">
+                <el-button type="success" style="width: 100%" @click="openPrometheus">
                   访问 Prometheus UI
                 </el-button>
                 <p class="metric-url">http://localhost:9090</p>
@@ -62,11 +64,7 @@
               <el-table-column prop="query" label="PromQL 查询" />
               <el-table-column label="操作" width="150">
                 <template #default="scope">
-                  <el-button
-                    size="small"
-                    type="primary"
-                    @click="runQuery(scope.row.query)"
-                  >
+                  <el-button size="small" type="primary" @click="runQuery(scope.row.query)">
                     在 Prometheus 中运行
                   </el-button>
                 </template>
@@ -87,20 +85,15 @@
     >
       <div v-loading="metricsLoading">
         <div v-if="metricsData" class="metrics-content">
-          <el-button
-            type="primary"
-            size="small"
-            @click="copyMetrics"
-            style="margin-bottom: 10px"
-          >
+          <el-button type="primary" size="small" style="margin-bottom: 10px" @click="copyMetrics">
             <el-icon><CopyDocument /></el-icon>
             复制数据
           </el-button>
           <el-button
             type="success"
             size="small"
-            @click="openMetricsInNewWindow"
             style="margin-bottom: 10px"
+            @click="openMetricsInNewWindow"
           >
             <el-icon><View /></el-icon>
             在新窗口打开
@@ -136,7 +129,8 @@ const metricExamples = ref([
   },
   {
     name: 'HTTP 请求平均响应时间',
-    query: 'rate(http_server_requests_seconds_sum[5m]) / rate(http_server_requests_seconds_count[5m])'
+    query:
+      'rate(http_server_requests_seconds_sum[5m]) / rate(http_server_requests_seconds_count[5m])'
   },
   {
     name: '系统 CPU 使用率',
@@ -193,7 +187,7 @@ const openPrometheus = () => {
 }
 
 // 在 Prometheus 中运行查询
-const runQuery = (query) => {
+const runQuery = query => {
   const encodedQuery = encodeURIComponent(query)
   window.open(`http://localhost:9090/graph?g0.expr=${encodedQuery}&g0.tab=0`, '_blank')
 }

@@ -45,7 +45,7 @@ export const useTagsViewStore = defineStore('tags-view', {
       return new Promise(resolve => {
         this.delVisitedView(view)
         this.delCachedView(view)
-        resolve({ 
+        resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews]
         })
@@ -71,7 +71,7 @@ export const useTagsViewStore = defineStore('tags-view', {
       return new Promise(resolve => {
         this.delOthersVisitedViews(view)
         this.delOthersCachedViews(view)
-        resolve({ 
+        resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews]
         })
@@ -79,7 +79,7 @@ export const useTagsViewStore = defineStore('tags-view', {
     },
     delOthersVisitedViews(view) {
       this.visitedViews = this.visitedViews.filter(v => {
-        return v.meta && v.meta.affix || v.path === view.path
+        return (v.meta && v.meta.affix) || v.path === view.path
       })
       // 同步删除iframe
       const affixPath = this.visitedViews.map(v => v.path)
@@ -97,7 +97,7 @@ export const useTagsViewStore = defineStore('tags-view', {
       return new Promise(resolve => {
         this.delAllVisitedViews()
         this.delAllCachedViews()
-        resolve({ 
+        resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews]
         })
@@ -125,25 +125,24 @@ export const useTagsViewStore = defineStore('tags-view', {
       return new Promise(resolve => {
         const index = this.visitedViews.findIndex(v => v.path === view.path)
         if (index === -1) {
-          resolve({ 
+          resolve({
             visitedViews: [...this.visitedViews],
             cachedViews: [...this.cachedViews]
           })
           return
         }
         this.visitedViews = this.visitedViews.filter((item, idx) => {
-          return (idx <= index) || (item.meta && item.meta.affix)
+          return idx <= index || (item.meta && item.meta.affix)
         })
         // 同步删除iframe
         const newVisitPaths = this.visitedViews.map(v => v.path)
         this.iframeViews = this.iframeViews.filter(v => newVisitPaths.includes(v.path))
 
-        const newCachedNames = this.visitedViews.map(item => item.name)
-          .filter(name => name)
+        const newCachedNames = this.visitedViews.map(item => item.name).filter(name => name)
         this.cachedViews = this.cachedViews.filter(name => {
           return newCachedNames.includes(name)
         })
-        resolve({ 
+        resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews]
         })
@@ -153,25 +152,24 @@ export const useTagsViewStore = defineStore('tags-view', {
       return new Promise(resolve => {
         const index = this.visitedViews.findIndex(v => v.path === view.path)
         if (index === -1) {
-          resolve({ 
+          resolve({
             visitedViews: [...this.visitedViews],
             cachedViews: [...this.cachedViews]
           })
           return
         }
         this.visitedViews = this.visitedViews.filter((item, idx) => {
-          return (idx >= index) || (item.meta && item.meta.affix)
+          return idx >= index || (item.meta && item.meta.affix)
         })
         // 同步删除iframe
         const newVisitPaths = this.visitedViews.map(v => v.path)
         this.iframeViews = this.iframeViews.filter(v => newVisitPaths.includes(v.path))
 
-        const newCachedNames = this.visitedViews.map(item => item.name)
-          .filter(name => name)
+        const newCachedNames = this.visitedViews.map(item => item.name).filter(name => name)
         this.cachedViews = this.cachedViews.filter(name => {
           return newCachedNames.includes(name)
         })
-        resolve({ 
+        resolve({
           visitedViews: [...this.visitedViews],
           cachedViews: [...this.cachedViews]
         })

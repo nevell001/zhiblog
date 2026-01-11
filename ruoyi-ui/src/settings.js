@@ -23,7 +23,7 @@ export default {
    * 是否显示 tagsView
    */
   tagsView: true,
-  
+
   /**
    * 显示页签图标
    */
@@ -54,4 +54,3 @@ export default {
    */
   footerContent: 'Copyright © 2018-2025 RuoYi. All Rights Reserved.'
 }
-

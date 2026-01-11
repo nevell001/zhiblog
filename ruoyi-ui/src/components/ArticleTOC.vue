@@ -13,7 +13,7 @@
         @click="toggleExpand"
       />
     </div>
-    
+
     <transition name="slide-fade">
       <div v-show="isExpanded" class="toc-content">
         <ul v-if="tocItems.length > 0" class="toc-list">
@@ -32,7 +32,9 @@
           </li>
         </ul>
         <div v-else class="toc-empty">
-          <el-icon :size="32"><DocumentCopy /></el-icon>
+          <el-icon :size="32">
+            <DocumentCopy />
+          </el-icon>
           <p>暂无目录</p>
         </div>
       </div>
@@ -106,7 +108,7 @@ const extractHeadings = () => {
   })
 
   tocItems.value = items
-  
+
   // 通知父组件目录已生成
   nextTick(() => {
     emit('toc-ready', items)
@@ -114,7 +116,7 @@ const extractHeadings = () => {
 }
 
 // 滚动到指定标题
-const scrollToHeading = (id) => {
+const scrollToHeading = id => {
   const element = document.getElementById(id)
   if (element) {
     const offset = 100 // 顶部偏移量
@@ -154,7 +156,7 @@ const checkFixedPosition = () => {
 
   const articleRect = articleContent.getBoundingClientRect()
   const tocElement = document.querySelector('.article-toc')
-  
+
   if (!tocElement) return
 
   const tocRect = tocElement.getBoundingClientRect()
@@ -187,17 +189,21 @@ const getHeadingElements = () => {
 }
 
 // 监听内容变化
-watch(() => props.content, () => {
-  extractHeadings()
-  nextTick(() => {
-    getHeadingElements()
-  })
-}, { immediate: true })
+watch(
+  () => props.content,
+  () => {
+    extractHeadings()
+    nextTick(() => {
+      getHeadingElements()
+    })
+  },
+  { immediate: true }
+)
 
 // 组件挂载
 onMounted(() => {
   extractHeadings()
-  
+
   nextTick(() => {
     getHeadingElements()
     checkFixedPosition()

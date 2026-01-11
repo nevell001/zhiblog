@@ -1,31 +1,30 @@
 <template>
-  <el-menu
-    :default-active="activeMenu"
-    mode="horizontal"
-    @select="handleSelect"
-    :ellipsis="false"
-  >
+  <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
     <template v-for="(item, index) in topMenus">
-      <el-menu-item :style="{'--theme': theme}" :index="item.path" :key="index" v-if="index < visibleNumber">
+      <el-menu-item
+        v-if="index < visibleNumber"
+        :key="index"
+        :style="{ '--theme': theme }"
+        :index="item.path"
+      >
         <svg-icon
-        v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
-        :icon-class="item.meta.icon"/>
+          v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
+          :icon-class="item.meta.icon"
+        />
         {{ item.meta.title }}
       </el-menu-item>
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu :style="{'--theme': theme}" index="more" v-if="topMenus.length > visibleNumber">
+    <el-sub-menu v-if="topMenus.length > visibleNumber" :style="{ '--theme': theme }" index="more">
       <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
-        <el-menu-item
-          :index="item.path"
-          :key="index"
-          v-if="index >= visibleNumber">
-        <svg-icon
-          v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
-          :icon-class="item.meta.icon"/>
-        {{ item.meta.title }}
+        <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path">
+          <svg-icon
+            v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
+            :icon-class="item.meta.icon"
+          />
+          {{ item.meta.title }}
         </el-menu-item>
       </template>
     </el-sub-menu>
@@ -33,7 +32,7 @@
 </template>
 
 <script setup>
-import { constantRoutes } from "@/router"
+import { constantRoutes } from '@/router'
 import { isHttp } from '@/utils/validate'
 import useAppStore from '@/store/modules/app'
 import { useSettingsStore } from '@/store/modules/settings'
@@ -59,14 +58,14 @@ const routers = computed(() => permissionStore.topbarRouters)
 
 // 顶部显示菜单
 const topMenus = computed(() => {
-  let topMenus = []
-  routers.value.map((menu) => {
+  const topMenus = []
+  routers.value.map(menu => {
     if (menu.hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
       if (menu.path === '/' && menu.children) {
-          topMenus.push(menu.children[0])
+        topMenus.push(menu.children[0])
       } else {
-          topMenus.push(menu)
+        topMenus.push(menu)
       }
     }
   })
@@ -75,15 +74,15 @@ const topMenus = computed(() => {
 
 // 设置子路由
 const childrenMenus = computed(() => {
-  let childrenMenus = []
-  routers.value.map((router) => {
-    for (let item in router.children) {
+  const childrenMenus = []
+  routers.value.map(router => {
+    for (const item in router.children) {
       if (router.children[item].parentPath === undefined) {
-        if(router.path === "/") {
-          router.children[item].path = "/" + router.children[item].path
+        if (router.path === '/') {
+          router.children[item].path = '/' + router.children[item].path
         } else {
-          if(!isHttp(router.children[item].path)) {
-            router.children[item].path = router.path + "/" + router.children[item].path
+          if (!isHttp(router.children[item].path)) {
+            router.children[item].path = router.path + '/' + router.children[item].path
           }
         }
         router.children[item].parentPath = router.path
@@ -98,13 +97,13 @@ const childrenMenus = computed(() => {
 const activeMenu = computed(() => {
   const path = route.path
   let activePath = path
-  if (path !== undefined && path.lastIndexOf("/") > 0 && hideList.indexOf(path) === -1) {
+  if (path !== undefined && path.lastIndexOf('/') > 0 && hideList.indexOf(path) === -1) {
     const tmpPath = path.substring(1, path.length)
     if (!route.meta.link) {
-      activePath = "/" + tmpPath.substring(0, tmpPath.indexOf("/"))
+      activePath = '/' + tmpPath.substring(0, tmpPath.indexOf('/'))
       appStore.toggleSideBarHide(false)
     }
-  } else if(!route.children) {
+  } else if (!route.children) {
     activePath = path
     appStore.toggleSideBarHide(true)
   }
@@ -122,12 +121,12 @@ function handleSelect(key, keyPath) {
   const route = routers.value.find(item => item.path === key)
   if (isHttp(key)) {
     // http(s):// 路径新窗口打开
-    window.open(key, "_blank")
+    window.open(key, '_blank')
   } else if (!route || !route.children) {
     // 没有子路由路径内部打开
     const routeMenu = childrenMenus.value.find(item => item.path === key)
     if (routeMenu && routeMenu.query) {
-      let query = JSON.parse(routeMenu.query)
+      const query = JSON.parse(routeMenu.query)
       router.push({ path: key, query: query })
     } else {
       router.push({ path: key })
@@ -141,15 +140,15 @@ function handleSelect(key, keyPath) {
 }
 
 function activeRoutes(key) {
-  let routes = []
+  const routes = []
   if (childrenMenus.value && childrenMenus.value.length > 0) {
-    childrenMenus.value.map((item) => {
-      if (key == item.parentPath || (key == "index" && "" == item.path)) {
+    childrenMenus.value.map(item => {
+      if (key === item.parentPath || (key === 'index' && '' === item.path)) {
         routes.push(item)
       }
     })
   }
-  if(routes.length > 0) {
+  if (routes.length > 0) {
     permissionStore.setSidebarRouters(routes)
   } else {
     appStore.toggleSideBarHide(true)
@@ -180,7 +179,8 @@ onMounted(() => {
   margin: 0 10px !important;
 }
 
-.topmenu-container.el-menu--horizontal > .el-menu-item.is-active, .el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
+.topmenu-container.el-menu--horizontal > .el-menu-item.is-active,
+.el-menu--horizontal > .el-sub-menu.is-active .el-submenu__title {
   border-bottom: 2px solid #{'var(--theme)'} !important;
   color: #303133;
 }
@@ -196,7 +196,9 @@ onMounted(() => {
 }
 
 /* 背景色隐藏 */
-.topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):focus, .topmenu-container.el-menu--horizontal>.el-menu-item:not(.is-disabled):hover, .topmenu-container.el-menu--horizontal>.el-submenu .el-submenu__title:hover {
+.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
+.topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+.topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
   background-color: #ffffff;
 }
 
@@ -212,6 +214,4 @@ onMounted(() => {
   margin-left: 8px;
   margin-top: 0px;
 }
-
-
 </style>

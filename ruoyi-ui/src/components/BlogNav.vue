@@ -1,8 +1,8 @@
 <template>
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
-    <div class="hamburger-menu" @click="toggleMobileMenu" v-if="isMobile">
-      <div class="hamburger-icon" :class="{ 'active': isMobileMenuOpen }">
+    <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">
+      <div class="hamburger-icon" :class="{ active: isMobileMenuOpen }">
         <span></span>
         <span></span>
         <span></span>
@@ -18,52 +18,53 @@
         class="nav-item"
         @click="closeMobileMenu"
       >
-        <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle;" />
+        <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle" />
         <span>{{ menu.name }}</span>
       </router-link>
 
       <div class="nav-item admin-link" @click="goToAdmin">
-        <el-icon :size="16"><Setting /></el-icon>
+        <el-icon :size="16">
+          <Setting />
+        </el-icon>
         <span>后台管理</span>
       </div>
     </div>
 
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
-      <el-button
-        link
-        @click="toggleTheme"
-        class="theme-toggle"
-        title="切换主题"
-      >
+      <el-button link class="theme-toggle" title="切换主题" @click="toggleTheme">
         <el-icon :size="18">
           <Sunny v-if="isDarkTheme" />
           <Moon v-else />
         </el-icon>
       </el-button>
-      <el-button
-        link
-        @click="scrollToTop"
-        class="scroll-top"
-        title="回到顶部"
-      >
-        <el-icon :size="18"><Top /></el-icon>
+      <el-button link class="scroll-top" title="回到顶部" @click="scrollToTop">
+        <el-icon :size="18">
+          <Top />
+        </el-icon>
       </el-button>
     </div>
 
     <!-- 遮罩层（移动端菜单打开时显示） -->
-    <div class="overlay" v-if="isMobileMenuOpen" @click="closeMobileMenu"></div>
+    <div v-if="isMobileMenuOpen" class="overlay" @click="closeMobileMenu"></div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
-import { useRouter } from 'vue-router'
 import { getFilteredMenus } from '@/config/menu'
-import { Setting, Sunny, Moon, Top, House, FolderOpened, PriceTag, Calendar, InfoFilled, Document } from '@element-plus/icons-vue'
-
-// 路由实例
-const router = useRouter()
+import {
+  Setting,
+  Sunny,
+  Moon,
+  Top,
+  House,
+  FolderOpened,
+  PriceTag,
+  Calendar,
+  InfoFilled,
+  Document
+} from '@element-plus/icons-vue'
 
 // 主题状态
 const isDarkTheme = ref(false)
@@ -79,7 +80,7 @@ const frontendMenus = computed(() => {
 })
 
 // 获取菜单图标
-const getMenuIcon = (icon) => {
+const getMenuIcon = icon => {
   const iconMap = {
     home: House,
     category: FolderOpened,
@@ -322,30 +323,30 @@ onUnmounted(() => {
 }
 
 /* 深色主题 */
-[data-theme="dark"] .blog-nav .nav-item {
+[data-theme='dark'] .blog-nav .nav-item {
   background: rgba(30, 30, 30, 0.95);
   color: #e0e0e0;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"] .blog-nav .nav-item:hover {
+[data-theme='dark'] .blog-nav .nav-item:hover {
   background: #409eff;
   color: white;
 }
 
-[data-theme="dark"] .theme-toggle,
-[data-theme="dark"] .scroll-top,
-[data-theme="dark"] .hamburger-menu {
+[data-theme='dark'] .theme-toggle,
+[data-theme='dark'] .scroll-top,
+[data-theme='dark'] .hamburger-menu {
   background: rgba(30, 30, 30, 0.95);
   color: #e0e0e0;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"] .hamburger-icon span {
+[data-theme='dark'] .hamburger-icon span {
   background: #e0e0e0;
 }
 
-[data-theme="dark"] .hamburger-menu:hover .hamburger-icon span {
+[data-theme='dark'] .hamburger-menu:hover .hamburger-icon span {
   background: white;
 }
 

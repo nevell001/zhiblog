@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps } from 'vue'
 
 const props = defineProps({
   iconClass: {
@@ -16,9 +16,9 @@ const props = defineProps({
     type: String,
     required: true
   }
-});
+})
 
 function goto() {
-  window.open(props.url);
+  window.open(props.url)
 }
 </script>

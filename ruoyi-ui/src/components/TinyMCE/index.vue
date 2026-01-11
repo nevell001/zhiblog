@@ -1,6 +1,6 @@
 <template>
   <div class="tinymce-container">
-    <textarea :id="id" style="visibility: hidden;"></textarea>
+    <textarea :id="id" style="visibility: hidden"></textarea>
   </div>
 </template>
 
@@ -95,50 +95,51 @@ const initEditor = () => {
     link_title: false,
     nonbreaking_force_tab: true,
     paste_data_images: true,
-    images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
-      // 图片上传处理
-      const xhr = new XMLHttpRequest()
-      xhr.withCredentials = false
-      xhr.open('POST', '/dev-api/common/upload')
-      
-      xhr.upload.onprogress = (e) => {
-        progress(e.loaded / e.total * 100)
-      }
-      
-      xhr.onload = () => {
-        if (xhr.status === 200) {
-          const json = JSON.parse(xhr.responseText)
-          if (json.code === 200) {
-            resolve(json.fileName)
+    images_upload_handler: (blobInfo, progress) =>
+      new Promise((resolve, reject) => {
+        // 图片上传处理
+        const xhr = new XMLHttpRequest()
+        xhr.withCredentials = false
+        xhr.open('POST', '/dev-api/common/upload')
+
+        xhr.upload.onprogress = e => {
+          progress((e.loaded / e.total) * 100)
+        }
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const json = JSON.parse(xhr.responseText)
+            if (json.code === 200) {
+              resolve(json.fileName)
+            } else {
+              reject('上传失败: ' + json.msg)
+            }
           } else {
-            reject('上传失败: ' + json.msg)
+            reject('上传失败')
           }
-        } else {
+        }
+
+        xhr.onerror = () => {
           reject('上传失败')
         }
-      }
-      
-      xhr.onerror = () => {
-        reject('上传失败')
-      }
-      
-      const formData = new FormData()
-      formData.append('file', blobInfo.blob(), blobInfo.filename())
-      xhr.send(formData)
-    }),
-    setup: (editor) => {
+
+        const formData = new FormData()
+        formData.append('file', blobInfo.blob(), blobInfo.filename())
+        xhr.send(formData)
+      }),
+    setup: editor => {
       editorRef.value = editor
-      
+
       editor.on('init', () => {
         inited.value = true
         editor.setContent(props.modelValue)
       })
-      
+
       editor.on('input change undo redo', () => {
         const content = editor.getContent()
         emit('update:modelValue', content)
       })
-      
+
       editor.on('blur', () => {
         const content = editor.getContent()
         emit('update:modelValue', content)
@@ -165,21 +166,27 @@ onUnmounted(() => {
   destroyEditor()
 })
 
-watch(() => props.modelValue, (newValue) => {
-  if (inited.value && editorRef.value && newValue !== editorRef.value.getContent()) {
-    editorRef.value.setContent(newValue || '')
+watch(
+  () => props.modelValue,
+  newValue => {
+    if (inited.value && editorRef.value && newValue !== editorRef.value.getContent()) {
+      editorRef.value.setContent(newValue || '')
+    }
   }
-})
+)
 
-watch(() => props.height, (newHeight) => {
-  if (editorRef.value) {
-    editorRef.value.getContainer().style.height = `${newHeight}px`
+watch(
+  () => props.height,
+  newHeight => {
+    if (editorRef.value) {
+      editorRef.value.getContainer().style.height = `${newHeight}px`
+    }
   }
-})
+)
 
 defineExpose({
-  getContent: () => editorRef.value ? editorRef.value.getContent() : '',
-  setContent: (content) => {
+  getContent: () => (editorRef.value ? editorRef.value.getContent() : ''),
+  setContent: content => {
     if (editorRef.value) {
       editorRef.value.setContent(content)
     }

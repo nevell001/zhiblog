@@ -59,36 +59,36 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
   }),
 
   getters: {
-    getBlogAvatar: (state) => {
-      const avatar = state.blogSettings.blog_avatar;
+    getBlogAvatar: state => {
+      const avatar = state.blogSettings.blog_avatar
 
       // 如果没有设置头像，返回默认头像
       if (!avatar || !avatar.trim()) {
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E";
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E"
       }
 
       // 引入processAvatarUrl函数处理头像URL
-      const { processAvatarUrl } = require('@/api/blog/avatar');
-      
+      const { processAvatarUrl } = require('@/api/blog/avatar')
+
       // 添加时间戳避免缓存
-      const timestamp = state.lastUpdate || Date.now();
-      let finalUrl = processAvatarUrl(avatar);
-      
+      const timestamp = state.lastUpdate || Date.now()
+      let finalUrl = processAvatarUrl(avatar)
+
       // 如果URL已经包含查询参数，添加时间戳参数
-      const separator = finalUrl.includes('?') ? '&' : '?';
-      finalUrl = `${finalUrl}${separator}t=${timestamp}`;
+      const separator = finalUrl.includes('?') ? '&' : '?'
+      finalUrl = `${finalUrl}${separator}t=${timestamp}`
 
       console.log('🔗 构建头像URL:', {
         originalAvatar: avatar,
         timestamp: timestamp,
         lastUpdate: state.lastUpdate,
         finalUrl: finalUrl
-      });
+      })
 
-      return finalUrl;
+      return finalUrl
     },
-    getBlogAuthor: (state) => state.blogSettings.blog_author || 'nevell',
-    getBlogName: (state) => state.blogSettings.blog_name || '我的博客'
+    getBlogAuthor: state => state.blogSettings.blog_author || 'nevell',
+    getBlogName: state => state.blogSettings.blog_name || '我的博客'
   },
 
   actions: {

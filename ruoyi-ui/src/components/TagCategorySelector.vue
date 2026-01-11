@@ -1,14 +1,14 @@
 <template>
   <div class="tag-category-selector">
     <!-- 分类选择 -->
-    <el-form-item label="分类" prop="categoryId" v-if="showCategory">
+    <el-form-item v-if="showCategory" label="分类" prop="categoryId">
       <el-select
         v-model="localSelectedCategory"
         placeholder="请选择分类"
         clearable
         filterable
+        style="width: 100%"
         @change="handleCategoryChange"
-        style="width: 100%;"
       >
         <el-option
           v-for="category in categoryOptions"
@@ -16,9 +16,9 @@
           :label="category.name"
           :value="category.id"
         >
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; justify-content: space-between; align-items: center">
             <span>{{ category.name }}</span>
-            <el-tag size="small" type="info" v-if="category.articleCount">
+            <el-tag v-if="category.articleCount" size="small" type="info">
               {{ category.articleCount }}篇
             </el-tag>
           </div>
@@ -27,7 +27,7 @@
     </el-form-item>
 
     <!-- 标签选择 -->
-    <el-form-item label="标签" prop="tagIds" v-if="showTags">
+    <el-form-item v-if="showTags" label="标签" prop="tagIds">
       <div class="tag-selector-container">
         <!-- 标签选择器 -->
         <el-select
@@ -38,8 +38,8 @@
           filterable
           collapse-tags
           collapse-tags-tooltip
+          style="width: 100%; margin-bottom: 10px"
           @change="handleTagChange"
-          style="width: 100%; margin-bottom: 10px;"
         >
           <el-option
             v-for="tag in tagOptions"
@@ -47,22 +47,22 @@
             :label="tag.name || tag.tagName"
             :value="tag.id || tag.tagId"
           >
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <div style="display: flex; align-items: center;">
-                <el-tag 
-                  :style="{ 
-                    backgroundColor: tag.color || '#409EFF', 
-                    color: 'white', 
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <div style="display: flex; align-items: center">
+                <el-tag
+                  :style="{
+                    backgroundColor: tag.color || '#409EFF',
+                    color: 'white',
                     border: 'none',
                     marginRight: '8px'
-                  }" 
+                  }"
                   size="small"
                 >
-                  <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
+                  <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px"></i>
                   {{ tag.name || tag.tagName }}
                 </el-tag>
               </div>
-              <el-tag size="small" type="info" v-if="tag.articleCount">
+              <el-tag v-if="tag.articleCount" size="small" type="info">
                 {{ tag.articleCount }}篇
               </el-tag>
             </div>
@@ -70,42 +70,37 @@
         </el-select>
 
         <!-- 已选标签展示 -->
-        <div class="selected-tags" v-if="selectedTagsDisplay.length > 0">
+        <div v-if="selectedTagsDisplay.length > 0" class="selected-tags">
           <div class="selected-tags-label">已选标签：</div>
           <div class="selected-tags-list">
             <el-tag
               v-for="tag in selectedTagsDisplay"
               :key="tag.id || tag.tagId"
-              :style="{ 
-                backgroundColor: tag.color || '#409EFF', 
-                color: 'white', 
+              :style="{
+                backgroundColor: tag.color || '#409EFF',
+                color: 'white',
                 border: 'none',
                 margin: '2px 4px 2px 0'
               }"
               closable
               @close="removeTag(tag.id || tag.tagId)"
             >
-              <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px;"></i>
+              <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px"></i>
               {{ tag.name || tag.tagName }}
             </el-tag>
           </div>
         </div>
 
         <!-- 快速添加标签 -->
-        <div class="quick-add-tag" v-if="allowQuickAdd">
+        <div v-if="allowQuickAdd" class="quick-add-tag">
           <el-input
             v-model="newTagName"
             placeholder="输入新标签名称"
             size="small"
-            style="width: 200px; margin-right: 8px;"
+            style="width: 200px; margin-right: 8px"
             @keyup.enter="addNewTag"
           />
-          <el-button 
-            type="primary" 
-            size="small" 
-            @click="addNewTag"
-            :disabled="!newTagName.trim()"
-          >
+          <el-button type="primary" size="small" :disabled="!newTagName.trim()" @click="addNewTag">
             添加标签
           </el-button>
         </div>
@@ -116,8 +111,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { listCategory } from "@/api/admin/blog/category"
-import { listTag, addTag } from "@/api/admin/blog/tag"
+import { listCategory } from '@/api/admin/blog/category'
+import { listTag, addTag } from '@/api/admin/blog/tag'
 import { ElMessage } from 'element-plus'
 
 // Props
@@ -159,7 +154,7 @@ const newTagName = ref('')
 // 计算属性
 const localSelectedCategory = computed({
   get: () => props.selectedCategory,
-  set: (value) => {
+  set: value => {
     emit('update:selectedCategory', value)
     emit('change', { category: value, tags: props.selectedTags })
   }
@@ -167,7 +162,7 @@ const localSelectedCategory = computed({
 
 const localSelectedTags = computed({
   get: () => props.selectedTags,
-  set: (value) => {
+  set: value => {
     emit('update:selectedTags', value)
     emit('change', { category: props.selectedCategory, tags: value })
   }
@@ -175,21 +170,19 @@ const localSelectedTags = computed({
 
 // 计算属性
 const selectedTagsDisplay = computed(() => {
-  return tagOptions.value.filter(tag =>
-    localSelectedTags.value.includes(tag.id || tag.tagId)
-  )
+  return tagOptions.value.filter(tag => localSelectedTags.value.includes(tag.id || tag.tagId))
 })
 
 // 方法
-const handleCategoryChange = (value) => {
+const handleCategoryChange = value => {
   localSelectedCategory.value = value
 }
 
-const handleTagChange = (value) => {
+const handleTagChange = value => {
   localSelectedTags.value = value
 }
 
-const removeTag = (tagId) => {
+const removeTag = tagId => {
   const currentTags = [...localSelectedTags.value]
   const index = currentTags.indexOf(tagId)
   if (index > -1) {
@@ -205,10 +198,10 @@ const addNewTag = async () => {
   }
 
   // 检查标签是否已存在
-  const existingTag = tagOptions.value.find(tag => 
-    (tag.name || tag.tagName) === newTagName.value.trim()
+  const existingTag = tagOptions.value.find(
+    tag => (tag.name || tag.tagName) === newTagName.value.trim()
   )
-  
+
   if (existingTag) {
     ElMessage.warning('标签已存在')
     // 如果标签存在但未选中，则选中它
@@ -229,25 +222,25 @@ const addNewTag = async () => {
     }
 
     const response = await addTag(newTag)
-    
+
     if (response.code === 200) {
       ElMessage.success('标签创建成功')
-      
+
       // 重新加载标签列表
       await getTagList()
-      
+
       // 自动选中新创建的标签
-      const createdTag = tagOptions.value.find(tag => 
-        (tag.name || tag.tagName) === newTagName.value.trim()
+      const createdTag = tagOptions.value.find(
+        tag => (tag.name || tag.tagName) === newTagName.value.trim()
       )
-      
+
       if (createdTag) {
         const tagId = createdTag.id || createdTag.tagId
         if (!localSelectedTags.value.includes(tagId)) {
           localSelectedTags.value = [...localSelectedTags.value, tagId]
         }
       }
-      
+
       newTagName.value = ''
     } else {
       ElMessage.error(response.msg || '创建标签失败')
@@ -260,9 +253,18 @@ const addNewTag = async () => {
 
 const getRandomColor = () => {
   const colors = [
-    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
-    '#FECA57', '#FF9FF3', '#54A0FF', '#5F27CD',
-    '#00D2D3', '#FF9F43', '#10AC84', '#EE5A24'
+    '#FF6B6B',
+    '#4ECDC4',
+    '#45B7D1',
+    '#96CEB4',
+    '#FECA57',
+    '#FF9FF3',
+    '#54A0FF',
+    '#5F27CD',
+    '#00D2D3',
+    '#FF9F43',
+    '#10AC84',
+    '#EE5A24'
   ]
   return colors[Math.floor(Math.random() * colors.length)]
 }
@@ -300,8 +302,8 @@ defineExpose({
   refreshCategories: getCategoryList,
   refreshTags: getTagList,
   clearSelection: () => {
-    selectedCategory.value = null
-    selectedTags.value = []
+    localSelectedCategory.value = null
+    localSelectedTags.value = []
   }
 })
 </script>
@@ -357,7 +359,7 @@ defineExpose({
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .quick-add-tag .el-input {
     width: 100% !important;
     margin-right: 0 !important;

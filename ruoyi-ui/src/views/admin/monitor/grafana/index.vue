@@ -26,10 +26,12 @@
                 </div>
               </template>
               <div class="grafana-content">
-                <el-button type="primary" @click="openGrafana" style="width: 100%">
+                <el-button type="primary" style="width: 100%" @click="openGrafana">
                   打开 Grafana 界面
                 </el-button>
-                <p class="grafana-url">{{ grafanaUrl }}</p>
+                <p class="grafana-url">
+                  {{ grafanaUrl }}
+                </p>
               </div>
             </el-card>
           </el-col>
@@ -70,7 +72,11 @@
               <el-timeline-item timestamp="第二步" placement="top">
                 <el-card>
                   <h4>登录系统</h4>
-                  <p>使用默认账号 <strong>admin / admin</strong> 登录</p>
+                  <p>
+                    使用默认账号
+                    <strong>admin / admin</strong>
+                    登录
+                  </p>
                 </el-card>
               </el-timeline-item>
               <el-timeline-item timestamp="第三步" placement="top">

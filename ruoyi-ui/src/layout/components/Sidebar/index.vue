@@ -3,20 +3,20 @@
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
-      :default-active="activeMenu"
-      :collapse="isCollapse"
-      :background-color="getMenuBackground"
-      :text-color="getMenuTextColor"
-      :unique-opened="false"
-      :active-text-color="theme"
-      :collapse-transition="false"
-      :router="true"
-      mode="vertical"
-      :class="sideTheme"
-      @select="handleSelect"
-      @open="handleOpen"
-      @close="handleClose"
-    >
+        :default-active="activeMenu"
+        :collapse="isCollapse"
+        :background-color="getMenuBackground"
+        :text-color="getMenuTextColor"
+        :unique-opened="false"
+        :active-text-color="theme"
+        :collapse-transition="false"
+        :router="true"
+        mode="vertical"
+        :class="sideTheme"
+        @select="handleSelect"
+        @open="handleOpen"
+        @close="handleClose"
+      >
         <sidebar-item
           v-for="(route, index) in sidebarRouters.filter(r => r.meta && r.meta.title)"
           :key="route.path + index"
@@ -50,8 +50,8 @@ const sidebarRouters = computed(() => {
   console.log('📋 侧边栏路由数据:', permissionStore.sidebarRouters)
 
   // 检查博客管理菜单是否正确
-  const blogMenu = permissionStore.sidebarRouters?.find(route =>
-    route.meta?.title === '博客管理' || route.name === '博客管理'
+  const blogMenu = permissionStore.sidebarRouters?.find(
+    route => route.meta?.title === '博客管理' || route.name === '博客管理'
   )
   console.log('🔍 博客管理菜单:', blogMenu)
   if (blogMenu) {
@@ -95,12 +95,12 @@ function onlyOneChild(children) {
   if (!Array.isArray(children)) {
     return false
   }
-  
+
   const showChildren = children.filter(item => {
     // 确保item存在且未隐藏
     return item && !item.hidden
   })
-  
+
   if (showChildren.length === 1) {
     return showChildren[0]
   }
@@ -155,7 +155,7 @@ onMounted(() => {
 <style lang="scss" scoped>
 .sidebar-container {
   background-color: v-bind(getMenuBackground);
-  
+
   .scrollbar-wrapper {
     background-color: v-bind(getMenuBackground);
   }
@@ -164,8 +164,9 @@ onMounted(() => {
     border: none;
     height: 100%;
     width: 100% !important;
-    
-    .el-menu-item, .el-sub-menu__title {
+
+    .el-menu-item,
+    .el-sub-menu__title {
       &:hover {
         background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
       }
@@ -173,7 +174,7 @@ onMounted(() => {
 
     .el-menu-item {
       color: v-bind(getMenuTextColor);
-      
+
       &.is-active {
         color: var(--menu-active-text, #409eff);
         background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;

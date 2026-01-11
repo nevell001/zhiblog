@@ -25,7 +25,7 @@ export const useSettingsStore = defineStore('settings', {
   },
   actions: {
     changeSetting({ key, value }) {
-      if (this.hasOwnProperty(key)) {
+      if (Object.hasOwn(this, key)) {
         this[key] = value
       }
     },
