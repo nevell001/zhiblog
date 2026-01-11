@@ -102,7 +102,7 @@
         </el-form-item>
       </el-col>
 
-      <el-col :span="24" v-if="info.genType == '1'">
+      <el-col v-if="info.genType == '1'" :span="24">
         <el-form-item prop="genPath">
           <template #label>
             自定义路径
@@ -119,7 +119,9 @@
                 </el-button>
                 <template #dropdown>
                   <el-dropdown-menu>
-                    <el-dropdown-item @click="info.genPath = '/'">恢复默认的生成基础路径</el-dropdown-item>
+                    <el-dropdown-item @click="info.genPath = '/'">
+                      恢复默认的生成基础路径
+                    </el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
@@ -128,7 +130,7 @@
         </el-form-item>
       </el-col>
     </el-row>
-    
+
     <template v-if="info.tplCategory == 'tree'">
       <h4 class="form-header">其他信息</h4>
       <el-row v-show="info.tplCategory == 'tree'">
@@ -146,7 +148,7 @@
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -164,7 +166,7 @@
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -182,7 +184,7 @@
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -206,7 +208,7 @@
                 :key="index"
                 :label="table.tableName + '：' + table.tableComment"
                 :value="table.tableName"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -224,18 +226,17 @@
                 :key="index"
                 :label="column.columnName + '：' + column.columnComment"
                 :value="column.columnName"
-              ></el-option>
+              />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
     </template>
-
   </el-form>
 </template>
 
 <script setup>
-import { listMenu } from "@/api/system/menu"
+import { listMenu } from '@/api/system/menu'
 
 const subColumns = ref([])
 const menuOptions = ref([])
@@ -254,26 +255,26 @@ const props = defineProps({
 
 // 表单校验
 const rules = ref({
-  tplCategory: [{ required: true, message: "请选择生成模板", trigger: "blur" }],
-  packageName: [{ required: true, message: "请输入生成包路径", trigger: "blur" }],
-  moduleName: [{ required: true, message: "请输入生成模块名", trigger: "blur" }],
-  businessName: [{ required: true, message: "请输入生成业务名", trigger: "blur" }],
-  functionName: [{ required: true, message: "请输入生成功能名", trigger: "blur" }]
+  tplCategory: [{ required: true, message: '请选择生成模板', trigger: 'blur' }],
+  packageName: [{ required: true, message: '请输入生成包路径', trigger: 'blur' }],
+  moduleName: [{ required: true, message: '请输入生成模块名', trigger: 'blur' }],
+  businessName: [{ required: true, message: '请输入生成业务名', trigger: 'blur' }],
+  functionName: [{ required: true, message: '请输入生成功能名', trigger: 'blur' }]
 })
 
 function subSelectChange(value) {
-  props.info.subTableFkName = ""
+  props.info.subTableFkName = ''
 }
 
 function tplSelectChange(value) {
-  if (value !== "sub") {
-    props.info.subTableName = ""
-    props.info.subTableFkName = ""
+  if (value !== 'sub') {
+    props.info.subTableName = ''
+    props.info.subTableFkName = ''
   }
 }
 
 function setSubTableColumns(value) {
-  for (var item in props.tables) {
+  for (const item in props.tables) {
     const name = props.tables[item].tableName
     if (value === name) {
       subColumns.value = props.tables[item].columns
@@ -285,7 +286,7 @@ function setSubTableColumns(value) {
 /** 查询菜单下拉树结构 */
 function getMenuTreeselect() {
   listMenu().then(response => {
-    menuOptions.value = proxy.handleTree(response.data, "menuId")
+    menuOptions.value = proxy.handleTree(response.data, 'menuId')
   })
 }
 
@@ -293,13 +294,19 @@ onMounted(() => {
   getMenuTreeselect()
 })
 
-watch(() => props.info.subTableName, val => {
-  setSubTableColumns(val)
-})
-
-watch(() => props.info.tplWebType, val => {
-  if (val === '') {
-    props.info.tplWebType = "element-plus"
+watch(
+  () => props.info.subTableName,
+  val => {
+    setSubTableColumns(val)
   }
-})
+)
+
+watch(
+  () => props.info.tplWebType,
+  val => {
+    if (val === '') {
+      props.info.tplWebType = 'element-plus'
+    }
+  }
+)
 </script>

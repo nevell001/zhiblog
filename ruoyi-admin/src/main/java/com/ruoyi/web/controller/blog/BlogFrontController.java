@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 import java.io.PrintWriter;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -272,7 +272,7 @@ public class BlogFrontController extends BaseController
      * 获取文章详情（前台用）
      */
     @Anonymous
-    @GetMapping("/article/{id}")
+    @GetMapping("/article/{id:\\d+}")
     public AjaxResult getArticleDetail(@PathVariable("id") Long id)
     {
         logger.info("请求文章详情，ID: {}", id);
@@ -485,11 +485,30 @@ public class BlogFrontController extends BaseController
         // 设置查询条件
         blogArticle.setStatus(1L); // 只查询已发布的文章
         blogArticle.setDelFlag(0L); // 只查询未删除的文章
-        blogArticle.setIsRecommend(1L); // 推荐的文章
-        blogArticle.setIsTop(1L); // 置顶文章优先
-        
+
         startPage(); // 启用分页
-        List<BlogArticle> list = blogArticleService.selectBlogArticleListWithCache(blogArticle);
+        List<BlogArticle> list = blogArticleService.selectHotArticles(blogArticle);
+        return getDataTable(list);
+    }
+
+    /**
+     * 根据归档月份获取文章列表（前台用，支持分页）
+     */
+    @Anonymous
+    @GetMapping("/article/archive-month/{year}/{month}")
+    public TableDataInfo getArticlesByArchive(
+            @PathVariable("year") String year,
+            @PathVariable("month") String month,
+            BlogArticle blogArticle)
+    {
+        // 设置查询条件
+        String archiveDate = year + "-" + (month.length() == 1 ? "0" + month : month);
+        blogArticle.setArchiveDate(archiveDate);
+        blogArticle.setStatus(1L); // 只查询已发布的文章
+        blogArticle.setDelFlag(0L); // 只查询未删除的文章
+
+        startPage(); // 启用分页
+        List<BlogArticle> list = blogArticleService.selectArticlesByArchive(blogArticle);
         return getDataTable(list);
     }
 

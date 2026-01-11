@@ -6,8 +6,8 @@ export const useDictStore = defineStore('dict', {
     dict: {}
   }),
   getters: {
-    getDict: (state) => {
-      return (dictType) => {
+    getDict: state => {
+      return dictType => {
         return state.dict[dictType]
       }
     }

@@ -5,38 +5,46 @@
         <el-col :span="6">
           <div class="stat-item">
             <div class="stat-title">总用户数</div>
-            <div class="stat-value">{{ userStats.totalCount || 0 }}</div>
+            <div class="stat-value">
+              {{ userStats.totalCount || 0 }}
+            </div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
             <div class="stat-title">活跃用户</div>
-            <div class="stat-value">{{ userStats.activeCount || 0 }}</div>
+            <div class="stat-value">
+              {{ userStats.activeCount || 0 }}
+            </div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
             <div class="stat-title">新增用户</div>
-            <div class="stat-value">{{ userStats.newCount || 0 }}</div>
+            <div class="stat-value">
+              {{ userStats.newCount || 0 }}
+            </div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
             <div class="stat-title">管理员数</div>
-            <div class="stat-value">{{ userStats.adminCount || 0 }}</div>
+            <div class="stat-value">
+              {{ userStats.adminCount || 0 }}
+            </div>
           </div>
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" style="margin-top: 30px;">
+      <el-row :gutter="20" style="margin-top: 30px">
         <el-col :span="12">
           <el-card header="用户注册趋势">
-            <div id="registerChart" style="height: 300px;"></div>
+            <div id="registerChart" style="height: 300px"></div>
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card header="用户角色分布">
-            <div id="roleChart" style="height: 300px;"></div>
+            <div id="roleChart" style="height: 300px"></div>
           </el-card>
         </el-col>
       </el-row>
@@ -71,7 +79,7 @@ const loadChartData = async () => {
     if (registerRes.code === 200) {
       renderRegisterChart(registerRes.data)
     }
-    
+
     // 加载用户角色分布
     const roleRes = await getUserRoleDistribution()
     if (roleRes.code === 200) {
@@ -82,7 +90,7 @@ const loadChartData = async () => {
   }
 }
 
-const renderRegisterChart = (data) => {
+const renderRegisterChart = data => {
   nextTick(() => {
     const chart = echarts.init(document.getElementById('registerChart'))
     const option = {
@@ -91,25 +99,40 @@ const renderRegisterChart = (data) => {
       },
       xAxis: {
         type: 'category',
-        data: data.labels || ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+        data: data.labels || [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月'
+        ]
       },
       yAxis: {
         type: 'value'
       },
-      series: [{
-        data: data.data || [5, 8, 3, 2, 6, 4, 7, 9, 12, 15, 8, 6],
-        type: 'line',
-        smooth: true,
-        itemStyle: {
-          color: '#E6A23C'
+      series: [
+        {
+          data: data.data || [5, 8, 3, 2, 6, 4, 7, 9, 12, 15, 8, 6],
+          type: 'line',
+          smooth: true,
+          itemStyle: {
+            color: '#E6A23C'
+          }
         }
-      }]
+      ]
     }
     chart.setOption(option)
   })
 }
 
-const renderRoleChart = (data) => {
+const renderRoleChart = data => {
   nextTick(() => {
     const chart = echarts.init(document.getElementById('roleChart'))
     const option = {
@@ -121,39 +144,43 @@ const renderRoleChart = (data) => {
         right: 10,
         top: 'center'
       },
-      series: [{
-        name: '用户角色',
-        type: 'pie',
-        radius: ['40%', '70%'],
-        avoidLabelOverlap: false,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: '#fff',
-          borderWidth: 2
-        },
-        label: {
-          show: false,
-          position: 'center'
-        },
-        emphasis: {
+      series: [
+        {
+          name: '用户角色',
+          type: 'pie',
+          radius: ['40%', '70%'],
+          avoidLabelOverlap: false,
+          itemStyle: {
+            borderRadius: 10,
+            borderColor: '#fff',
+            borderWidth: 2
+          },
           label: {
-            show: true,
-            fontSize: 18,
-            fontWeight: 'bold'
-          }
-        },
-        labelLine: {
-          show: false
-        },
-        data: data.labels ? data.labels.map((label, index) => ({
-          value: data.data[index],
-          name: label
-        })) : [
-          { value: 3, name: '管理员' },
-          { value: 5, name: '编辑' },
-          { value: 42, name: '普通用户' }
-        ]
-      }]
+            show: false,
+            position: 'center'
+          },
+          emphasis: {
+            label: {
+              show: true,
+              fontSize: 18,
+              fontWeight: 'bold'
+            }
+          },
+          labelLine: {
+            show: false
+          },
+          data: data.labels
+            ? data.labels.map((label, index) => ({
+                value: data.data[index],
+                name: label
+              }))
+            : [
+                { value: 3, name: '管理员' },
+                { value: 5, name: '编辑' },
+                { value: 42, name: '普通用户' }
+              ]
+        }
+      ]
     }
     chart.setOption(option)
   })

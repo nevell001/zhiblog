@@ -5,7 +5,7 @@
     class="scroll-container"
     @wheel.prevent="handleScroll"
   >
-    <slot />
+    <slot></slot>
   </el-scrollbar>
 </template>
 
@@ -31,7 +31,7 @@ function handleScroll(e) {
   $scrollWrapper.scrollLeft = $scrollWrapper.scrollLeft + eventDelta / 4
 }
 
-const emits = defineEmits()
+const emits = defineEmits(['scroll'])
 const emitScroll = () => {
   emits('scroll')
 }
@@ -87,11 +87,11 @@ function moveToTarget(currentTag) {
 }
 
 defineExpose({
-  moveToTarget,
+  moveToTarget
 })
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .scroll-container {
   white-space: nowrap;
   position: relative;

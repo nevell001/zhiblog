@@ -1,18 +1,20 @@
 <template>
-  <div class="infinite-scroll-container" ref="scrollContainer">
-    <slot :items="items" :loading="loading" :has-more="hasMore" />
-    
+  <div ref="scrollContainer" class="infinite-scroll-container">
+    <slot :items="items" :loading="loading" :has-more="hasMore"></slot>
+
     <!-- 加载状态指示器 -->
     <div v-if="loading" class="loading-indicator">
-      <el-icon class="is-loading"><Loading /></el-icon>
+      <el-icon class="is-loading">
+        <Loading />
+      </el-icon>
       <span>加载中...</span>
     </div>
-    
+
     <!-- 没有更多内容 -->
     <div v-else-if="!hasMore && items.length > 0" class="no-more-indicator">
       <span>没有更多内容了</span>
     </div>
-    
+
     <!-- 空状态 -->
     <div v-else-if="!loading && items.length === 0" class="empty-indicator">
       <slot name="empty">
@@ -67,14 +69,14 @@ let observer = null
 // 处理滚动事件
 const handleScroll = () => {
   if (!props.enabled || props.loading || !props.hasMore) return
-  
+
   const container = scrollContainer.value
   if (!container) return
-  
+
   const scrollTop = container.scrollTop || window.pageYOffset || document.documentElement.scrollTop
   const scrollHeight = container.scrollHeight || document.documentElement.scrollHeight
   const clientHeight = container.clientHeight || window.innerHeight
-  
+
   // 当滚动到距离底部threshold像素时触发加载
   if (scrollTop + clientHeight >= scrollHeight - props.threshold) {
     emit('load-more')
@@ -84,7 +86,7 @@ const handleScroll = () => {
 // 使用Intersection Observer优化性能
 const setupIntersectionObserver = () => {
   if (!props.enabled || !window.IntersectionObserver) return
-  
+
   // 创建一个底部的哨兵元素
   const sentinel = document.createElement('div')
   sentinel.style.height = '1px'
@@ -94,17 +96,17 @@ const setupIntersectionObserver = () => {
   sentinel.style.left = '0'
   sentinel.style.visibility = 'hidden'
   sentinel.className = 'scroll-sentinel'
-  
+
   const container = scrollContainer.value
   if (container === document.documentElement) {
     document.body.appendChild(sentinel)
   } else {
     container.appendChild(sentinel)
   }
-  
+
   observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
+    entries => {
+      entries.forEach(entry => {
         if (entry.isIntersecting && props.enabled && !props.loading && props.hasMore) {
           emit('load-more')
         }
@@ -116,7 +118,7 @@ const setupIntersectionObserver = () => {
       threshold: 0.1
     }
   )
-  
+
   observer.observe(sentinel)
 }
 
@@ -126,7 +128,7 @@ const cleanupObserver = () => {
     observer.disconnect()
     observer = null
   }
-  
+
   // 移除哨兵元素
   const sentinel = document.querySelector('.scroll-sentinel')
   if (sentinel) {

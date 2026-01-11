@@ -25,6 +25,11 @@ const routes = [
     name: 'PublicBlogTag'
   },
   {
+    path: '/blog/archive',
+    component: () => import('@/views/blog/archive/index.vue'),
+    name: 'PublicBlogArchive'
+  },
+  {
     path: '/login',
     component: () => import('@/views/login.vue')
   },
@@ -32,7 +37,7 @@ const routes = [
     path: '/index',
     redirect: '/blog'
   },
-    // 后台管理路由 - 简化版
+  // 后台管理路由 - 简化版
   {
     path: '/admin',
     component: () => import('@/layout/index.vue'),
@@ -82,6 +87,12 @@ const routes = [
         name: 'BlogSetting',
         component: () => import('@/views/admin/blog/setting/index.vue'),
         meta: { title: '博客设置', icon: 'setting' }
+      },
+      {
+        path: 'friendLink',
+        name: 'BlogFriendLink',
+        component: () => import('@/views/admin/blog/friendLink/index.vue'),
+        meta: { title: '友链管理', icon: 'link' }
       }
     ]
   },
@@ -150,13 +161,61 @@ const routes = [
   {
     path: '/admin/monitor',
     component: () => import('@/layout/index.vue'),
-    redirect: '/admin/monitor/server',
+    redirect: '/admin/monitor/actuator',
     children: [
+      {
+        path: 'actuator',
+        name: 'MonitorActuator',
+        component: () => import('@/views/admin/monitor/actuator/index.vue'),
+        meta: { title: 'Actuator监控', icon: 'monitor' }
+      },
+      {
+        path: 'prometheus',
+        name: 'MonitorPrometheus',
+        component: () => import('@/views/admin/monitor/prometheus/index.vue'),
+        meta: { title: 'Prometheus监控', icon: 'chart' }
+      },
+      {
+        path: 'grafana',
+        name: 'MonitorGrafana',
+        component: () => import('@/views/admin/monitor/grafana/index.vue'),
+        meta: { title: 'Grafana监控', icon: 'dashboard' }
+      },
+      {
+        path: 'online',
+        name: 'MonitorOnline',
+        component: () => import('@/views/admin/monitor/online/index.vue'),
+        meta: { title: '在线用户', icon: 'online' }
+      },
+      {
+        path: 'logininfor',
+        name: 'MonitorLoginLog',
+        component: () => import('@/views/admin/monitor/logininfor/index.vue'),
+        meta: { title: '登录日志', icon: 'logininfor' }
+      },
+      {
+        path: 'operlog',
+        name: 'MonitorOperLog',
+        component: () => import('@/views/admin/monitor/operlog/index.vue'),
+        meta: { title: '操作日志', icon: 'form' }
+      },
       {
         path: 'server',
         name: 'Server',
         component: () => import('@/views/admin/monitor/server/index.vue'),
         meta: { title: '服务监控', icon: 'server' }
+      },
+      {
+        path: 'cache',
+        name: 'MonitorCache',
+        component: () => import('@/views/admin/monitor/cache/index.vue'),
+        meta: { title: '缓存监控', icon: 'redis' }
+      },
+      {
+        path: 'job',
+        name: 'MonitorJob',
+        component: () => import('@/views/admin/monitor/job/index.vue'),
+        meta: { title: '定时任务', icon: 'job' }
       }
     ]
   },
@@ -172,6 +231,11 @@ const routes = [
         meta: { title: '表单构建', icon: 'build' }
       }
     ]
+  },
+  {
+    path: '/404',
+    component: () => import('@/views/error/404.vue'),
+    hidden: true
   },
   {
     path: '/:pathMatch(.*)*',

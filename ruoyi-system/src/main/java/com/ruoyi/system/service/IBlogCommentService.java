@@ -68,9 +68,17 @@ public interface IBlogCommentService
     
     /**
      * 审核拒绝博客评论
-     * 
+     *
      * @param ids 需要审核拒绝的博客评论主键集合
      * @return 结果
      */
     public int rejectBlogCommentByIds(Long[] ids);
+
+    /**
+     * 统计博客评论数量
+     *
+     * @param blogComment 查询条件
+     * @return 评论数量
+     */
+    public Long selectBlogCommentCount(BlogComment blogComment);
 }

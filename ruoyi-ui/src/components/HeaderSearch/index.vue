@@ -1,42 +1,43 @@
 <template>
   <div class="header-search">
     <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
-    <el-dialog
-      v-model="show"
-      width="600"
-      @close="close"
-      :show-close="false"
-      append-to-body
-    >
+    <el-dialog v-model="show" width="600" :show-close="false" append-to-body @close="close">
       <el-input
-        v-model="search"
         ref="headerSearchSelectRef"
+        v-model="search"
         size="large"
-        @input="querySearch"
         prefix-icon="Search"
         placeholder="菜单搜索，支持标题、URL模糊查询"
         clearable
+        @input="querySearch"
         @keyup.enter="selectActiveResult"
         @keydown.up.prevent="navigateResult('up')"
         @keydown.down.prevent="navigateResult('down')"
-      >
-      </el-input>
+      />
 
       <div class="result-wrap">
         <el-scrollbar>
-          <div class="search-item" tabindex="1" v-for="(item, index) in options" :key="item.path" :style="activeStyle(index)" @mouseenter="activeIndex = index" @mouseleave="activeIndex = -1">
+          <div
+            v-for="(item, index) in options"
+            :key="item.path"
+            class="search-item"
+            tabindex="1"
+            :style="activeStyle(index)"
+            @mouseenter="activeIndex = index"
+            @mouseleave="activeIndex = -1"
+          >
             <div class="left">
               <svg-icon class="menu-icon" :icon-class="item.icon" />
             </div>
             <div class="search-info" @click="change(item)">
               <div class="menu-title">
-                {{ item.title.join(" / ") }}
+                {{ item.title.join(' / ') }}
               </div>
               <div class="menu-path">
                 {{ item.path }}
               </div>
             </div>
-            <svg-icon icon-class="enter" v-show="index === activeIndex"/>
+            <svg-icon v-show="index === activeIndex" icon-class="enter" />
           </div>
         </el-scrollbar>
       </div>
@@ -83,8 +84,8 @@ function change(val) {
   const query = val.query
   if (isHttp(path)) {
     // http(s):// 路径新窗口打开
-    const pindex = path.indexOf("http")
-    window.open(path.substr(pindex, path.length), "_blank")
+    const pindex = path.indexOf('http')
+    window.open(path.substr(pindex, path.length), '_blank')
   } else {
     if (query) {
       router.push({ path: path, query: JSON.parse(query) })
@@ -107,13 +108,16 @@ function initFuse(list) {
     location: 0,
     distance: 100,
     minMatchCharLength: 1,
-    keys: [{
-      name: 'title',
-      weight: 0.7
-    }, {
-      name: 'path',
-      weight: 0.3
-    }]
+    keys: [
+      {
+        name: 'title',
+        weight: 0.7
+      },
+      {
+        name: 'path',
+        weight: 0.3
+      }
+    ]
   })
 }
 
@@ -124,7 +128,9 @@ function generateRoutes(routes, basePath = '', prefixTitle = []) {
 
   for (const r of routes) {
     // skip hidden router
-    if (r.hidden) { continue }
+    if (r.hidden) {
+      continue
+    }
     const p = r.path.length > 0 && r.path[0] === '/' ? r.path : '/' + r.path
     const data = {
       path: !isHttp(r.path) ? getNormalPath(basePath + p) : r.path,
@@ -135,7 +141,7 @@ function generateRoutes(routes, basePath = '', prefixTitle = []) {
     if (r.meta && r.meta.title) {
       data.title = [...data.title, r.meta.title]
       data.icon = r.meta.icon
-      if (r.redirect !== "noRedirect") {
+      if (r.redirect !== 'noRedirect') {
         // only push the routes with title
         // special case: need to exclude parent router without redirect
         res.push(data)
@@ -159,7 +165,7 @@ function generateRoutes(routes, basePath = '', prefixTitle = []) {
 function querySearch(query) {
   activeIndex.value = -1
   if (query !== '') {
-    options.value = fuse.value.search(query).map((item) => item.item) ?? searchPool.value
+    options.value = fuse.value.search(query).map(item => item.item) ?? searchPool.value
   } else {
     options.value = searchPool.value
   }
@@ -168,15 +174,15 @@ function querySearch(query) {
 function activeStyle(index) {
   if (index !== activeIndex.value) return {}
   return {
-    "background-color": theme.value,
-    "color": "#fff"
+    'background-color': theme.value,
+    color: '#fff'
   }
 }
 
 function navigateResult(direction) {
-  if (direction === "up") {
+  if (direction === 'up') {
     activeIndex.value = activeIndex.value <= 0 ? options.value.length - 1 : activeIndex.value - 1
-  } else if (direction === "down") {
+  } else if (direction === 'down') {
     activeIndex.value = activeIndex.value >= options.value.length - 1 ? 0 : activeIndex.value + 1
   }
 }
@@ -191,12 +197,12 @@ onMounted(() => {
   searchPool.value = generateRoutes(routes.value)
 })
 
-watch(searchPool, (list) => {
+watch(searchPool, list => {
   initFuse(list)
 })
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .header-search {
   .search-icon {
     cursor: pointer;
@@ -205,7 +211,7 @@ watch(searchPool, (list) => {
   }
 }
 
-.result-wrap {	
+.result-wrap {
   height: 280px;
   margin: 6px 0;
 

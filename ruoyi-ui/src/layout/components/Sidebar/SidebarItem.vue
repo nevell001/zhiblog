@@ -1,7 +1,10 @@
 <template>
   <div v-if="!item.hidden">
     <!-- 调试信息 -->
-    <div v-if="false" style="color: red; font-size: 12px; margin-bottom: 10px; padding: 5px; border: 1px solid red;">
+    <div
+      v-if="false"
+      style="color: red; font-size: 12px; margin-bottom: 10px; padding: 5px; border: 1px solid red"
+    >
       <div>菜单标题: {{ (item.meta && item.meta.title) || '无标题' }}</div>
       <div>菜单路径: {{ item.path || '无路径' }}</div>
       <div>是否有子菜单: {{ item.children ? '有' : '无' }}</div>
@@ -10,21 +13,33 @@
       <div>hasOneShowingChild结果: {{ hasOneShowingChild(item.children, item) }}</div>
       <div>onlyOneChild: {{ onlyOneChild }}</div>
     </div>
-    
+
     <template v-if="false && hasOneShowingChild(item.children, item)">
       <div
         class="menu-item"
-        :class="{ 'submenu-title-noDropdown': !isNest, 'no-permission': !hasMenuPermission(onlyOneChild) }"
+        :class="{
+          'submenu-title-noDropdown': !isNest,
+          'no-permission': !hasMenuPermission(onlyOneChild)
+        }"
         @click="handleMenuClick(onlyOneChild, $event)"
       >
-        <svg-icon :icon-class="(onlyOneChild.meta && onlyOneChild.meta.icon) || (item.meta && item.meta.icon) || ''"/>
+        <svg-icon
+          :icon-class="
+            (onlyOneChild.meta && onlyOneChild.meta.icon) || (item.meta && item.meta.icon) || ''
+          "
+        />
         <span
           class="menu-title"
           :title="hasTitle(onlyOneChild.meta && onlyOneChild.meta.title)"
           :class="{ 'permission-denied': !hasMenuPermission(onlyOneChild) }"
         >
           {{ (onlyOneChild.meta && onlyOneChild.meta.title) || '' }}
-          <el-tag v-if="!hasMenuPermission(onlyOneChild)" size="small" type="warning" class="permission-tag">
+          <el-tag
+            v-if="!hasMenuPermission(onlyOneChild)"
+            size="small"
+            type="warning"
+            class="permission-tag"
+          >
             权限不足
           </el-tag>
         </span>
@@ -33,7 +48,7 @@
 
     <!-- 简单菜单项 -->
     <el-menu-item
-      v-if="item.path && (item.meta && item.meta.title) && !item.children"
+      v-if="item.path && item.meta && item.meta.title && !item.children"
       :index="resolvePath(item.path)"
       :class="{
         'no-permission': !hasMenuPermission(item)
@@ -41,10 +56,20 @@
       @click="handleMenuItemClick(item)"
     >
       <!-- 调试信息 -->
-      <div v-if="false" style="color: green; font-size: 10px; position: absolute; right: 20px; top: 2px; z-index: 100;">
+      <div
+        v-if="false"
+        style="
+          color: green;
+          font-size: 10px;
+          position: absolute;
+          right: 20px;
+          top: 2px;
+          z-index: 100;
+        "
+      >
         [{{ resolvePath(item.path) }}]
       </div>
-      <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'"/>
+      <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'" />
       <template #title>
         <span>{{ (item.meta && item.meta.title) || '' }}</span>
       </template>
@@ -58,7 +83,17 @@
       :class="{ 'no-permission': !hasMenuPermission(item) }"
     >
       <!-- 调试信息 -->
-      <div v-if="false" style="color: blue; font-size: 10px; position: absolute; right: 20px; top: 18px; z-index: 100;">
+      <div
+        v-if="false"
+        style="
+          color: blue;
+          font-size: 10px;
+          position: absolute;
+          right: 20px;
+          top: 18px;
+          z-index: 100;
+        "
+      >
         [{{ item.meta?.title }}:{{ item.children?.length }}]
       </div>
       <template v-if="item.meta" #title>
@@ -69,14 +104,19 @@
           :class="{ 'permission-denied': !hasMenuPermission(item) }"
         >
           {{ (item.meta && item.meta.title) || '' }}
-          <el-tag v-if="!hasMenuPermission(item)" size="small" type="warning" class="permission-tag">
+          <el-tag
+            v-if="!hasMenuPermission(item)"
+            size="small"
+            type="warning"
+            class="permission-tag"
+          >
             权限不足
           </el-tag>
         </span>
       </template>
 
       <sidebar-item
-        v-for="(child, index) in (item.children || [])"
+        v-for="(child, index) in item.children || []"
         :key="child.path + index"
         :is-nest="true"
         :item="child"
@@ -137,7 +177,7 @@ function hasMenuPermission(menuItem) {
   const roles = userStore.roles || []
   const permissions = userStore.permissions || []
 
-  console.log(`🔍 检查菜单权限:`, {
+  console.log('🔍 检查菜单权限:', {
     menuItem: menuItem.meta?.title,
     path: menuItem.path,
     userRoles: roles,
@@ -157,7 +197,9 @@ function hasMenuPermission(menuItem) {
 
   // 检查具体权限
   if (menuItem.meta?.permissions && menuItem.meta.permissions.length > 0) {
-    const hasPermission = menuItem.meta.permissions.some(permission => permissions.includes(permission))
+    const hasPermission = menuItem.meta.permissions.some(permission =>
+      permissions.includes(permission)
+    )
     if (!hasPermission) {
       console.log(`❌ 具体权限不足: ${menuItem.meta.title}`)
       return false
@@ -168,14 +210,13 @@ function hasMenuPermission(menuItem) {
   return true
 }
 
-
 function hasOneShowingChild(children = [], parent) {
   console.log('🔍 hasOneShowingChild被调用:', {
     parentTitle: (parent.meta && parent.meta.title) || '无标题',
     children: children,
     childrenCount: (children && children.length) || 0
   })
-  
+
   // 如果没有子菜单或子菜单为空数组，则使用父菜单
   if (!children || !Array.isArray(children) || children.length === 0) {
     console.log('📌 没有子菜单或子菜单为空，使用父菜单')
@@ -188,7 +229,7 @@ function hasOneShowingChild(children = [], parent) {
     if (!item || item.hidden) return false
     return true
   })
-  
+
   console.log('📌 可见的子菜单:', showingChildren)
 
   // 如果只有一个可见的子菜单，使用该子菜单
@@ -233,12 +274,12 @@ function resolvePath(routePath) {
 
 function hasTitle(title) {
   if (!title) {
-    return ""
+    return ''
   }
   if (title.length > 5) {
     return title
   } else {
-    return ""
+    return ''
   }
 }
 

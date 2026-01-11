@@ -128,7 +128,7 @@
     <select id="selectCategoryListForFront" parameterType="BlogCategory" resultMap="BlogCategoryWithArticleCountResult">
         <include refid="selectBlogCategoryWithArticleCountVo"/>
         <where>
-            c.del_flag = 0
+            c.del_flag = '0'
             <if test="name != null  and name != ''"> and c.name like concat('%', #{name}, '%')</if>
             <if test="alias != null  and alias != ''"> and c.alias like concat('%', #{alias}, '%')</if>
             <if test="parentId != null "> and c.parent_id = #{parentId}</if>

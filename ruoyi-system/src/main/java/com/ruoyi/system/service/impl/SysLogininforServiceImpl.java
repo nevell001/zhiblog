@@ -62,4 +62,26 @@ public class SysLogininforServiceImpl implements ISysLogininforService
     {
         logininforMapper.cleanLogininfor();
     }
+
+    /**
+     * 获取用户活跃度（按月统计登录次数）
+     *
+     * @return 用户活跃度数据
+     */
+    @Override
+    public List<java.util.Map<String, Object>> selectUserActivity()
+    {
+        return logininforMapper.selectUserActivity();
+    }
+
+    /**
+     * 获取今日登录次数
+     *
+     * @return 今日登录次数
+     */
+    @Override
+    public Long selectTodayLoginCount()
+    {
+        return logininforMapper.selectTodayLoginCount();
+    }
 }

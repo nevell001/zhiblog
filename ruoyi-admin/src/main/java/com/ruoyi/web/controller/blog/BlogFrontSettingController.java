@@ -185,7 +185,7 @@ public class BlogFrontSettingController extends BaseController {
     @Anonymous
     @ApiOperation("根据键获取设置值")
     @GetMapping("/value/{configKey}")
-    public AjaxResult getSettingValueByKey(@PathVariable String configKey) {
+    public AjaxResult getSettingValueByKey(@PathVariable("configKey") String configKey) {
         try {
             String configValue = configService.selectConfigByKey(configKey);
             if (StringUtils.isNotEmpty(configValue)) {

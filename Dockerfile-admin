@@ -3,8 +3,8 @@ FROM maven:3.8.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY . .
 
-# 编译项目，跳过测试编译
-RUN mvn clean package -Dmaven.test.skip=true
+# 编译项目，跳过测试编译，并保留参数名称
+RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true
 
 FROM eclipse-temurin:17-jre
 
@@ -22,5 +22,5 @@ RUN mkdir -p /app/uploadPath && chmod 755 /app/uploadPath
 # 设置时区
 ENV TZ=Asia/Shanghai
 
-# 启动命令 - 使用 curl 等待 MySQL 就绪
-CMD sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar"
+# 启动命令 - 使用 curl 等待 MySQL 就绪，并配置 Redis 连接
+CMD sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-redis} SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379} java -jar /app/ruoyi-admin.jar"

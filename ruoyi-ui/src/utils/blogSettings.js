@@ -1,4 +1,4 @@
-import { getConfigKey } from "@/api/system/config"
+import { getConfigKey } from '@/api/system/config'
 import { useSettingsStore } from '@/store/modules/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
@@ -14,7 +14,7 @@ export async function initBlogSettings() {
       console.log('未登录状态，使用博客默认配置')
       return
     }
-    
+
     // 获取博客个性化设置
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
       getConfigKey('blog.custom.themeColor').catch(() => ({ data: '' })),
@@ -22,30 +22,30 @@ export async function initBlogSettings() {
       getConfigKey('blog.custom.sidebarStyle').catch(() => ({ data: '' })),
       getConfigKey('blog.custom.customCss').catch(() => ({ data: '' }))
     ])
-    
+
     const settingsStore = useSettingsStore()
-    
+
     // 应用主题颜色
     if (themeColor.data && themeColor.data !== '') {
       settingsStore.changeSetting({ key: 'theme', value: themeColor.data })
       handleThemeStyle(themeColor.data)
     }
-    
+
     // 应用Logo
     if (logoUrl.data && logoUrl.data !== '') {
       applyLogo(logoUrl.data)
     }
-    
+
     // 应用侧边栏样式
     if (sidebarStyle.data && sidebarStyle.data !== '') {
       applySidebarStyle(sidebarStyle.data)
     }
-    
+
     // 应用自定义CSS
     if (customCss.data && customCss.data !== '') {
       applyCustomCss(customCss.data)
     }
-    
+
     console.log('博客个性化设置初始化完成')
   } catch (error) {
     // 静默处理错误，避免影响页面功能
@@ -80,7 +80,7 @@ function applySidebarStyle(style) {
       sidebarElement.classList.add('theme-light')
       sidebarElement.classList.remove('theme-dark')
     }
-    
+
     const settingsStore = useSettingsStore()
     settingsStore.changeSetting({ key: 'sideTheme', value: `theme-${style}` })
   }
@@ -106,7 +106,7 @@ function applyCustomCss(css) {
  */
 export async function reloadBlogSettings() {
   await initBlogSettings()
-  
+
   try {
     // 刷新SEO设置
     const { useDynamicTitle } = await import('./dynamicTitle')

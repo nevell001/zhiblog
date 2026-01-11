@@ -7,7 +7,9 @@
     <div class="category-header">
       <div class="header-content">
         <div class="category-info">
-          <h1 class="category-title">{{ categoryName || '文章分类' }}</h1>
+          <h1 class="category-title">
+            {{ categoryName || '文章分类' }}
+          </h1>
           <p class="category-description">
             {{ categoryDescription || `浏览分类"${categoryName}"下的所有文章` }}
           </p>
@@ -41,18 +43,18 @@
               <template #template>
                 <div class="article-item">
                   <div class="article-cover">
-                    <el-skeleton-item variant="image" style="width: 100%; height: 200px;" />
+                    <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
                   </div>
                   <div class="article-content">
-                    <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px;" />
-                    <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px;" />
-                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px;" />
-                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px;" />
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                      <el-skeleton-item variant="text" style="width: 60px; height: 24px;" />
-                      <el-skeleton-item variant="text" style="width: 50px; height: 24px;" />
+                    <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
+                    <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
+                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
+                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px">
+                      <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
+                      <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
                     </div>
-                    <el-skeleton-item variant="text" style="width: 80px; height: 20px;" />
+                    <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
                   </div>
                 </div>
               </template>
@@ -75,9 +77,9 @@
         <!-- 文章列表 -->
         <div v-else class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
-            <div class="article-cover" v-if="article.coverUrl">
+            <div v-if="article.coverUrl" class="article-cover">
               <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
-              <div class="article-category-badge" v-if="article.categoryName">
+              <div v-if="article.categoryName" class="article-category-badge">
                 {{ article.categoryName }}
               </div>
             </div>
@@ -96,24 +98,32 @@
                   <i class="el-icon-view"></i>
                   {{ article.viewCount || 0 }} 阅读
                 </span>
-                <span class="meta-item" v-if="article.likeCount">
+                <span v-if="article.likeCount" class="meta-item">
                   <i class="el-icon-star-off"></i>
                   {{ article.likeCount }} 点赞
                 </span>
-                <span class="meta-item" v-if="article.commentCount">
+                <span v-if="article.commentCount" class="meta-item">
                   <i class="el-icon-chat-line-round"></i>
                   {{ article.commentCount }} 评论
                 </span>
               </div>
-              <p class="article-summary">{{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}</p>
-              <div class="article-tags" v-if="article.tags && article.tags.length">
-                <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="tag-badge" :style="{ backgroundColor: tag.color || '#409EFF' }">
+              <p class="article-summary">
+                {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
+              </p>
+              <div v-if="article.tags && article.tags.length" class="article-tags">
+                <span
+                  v-for="tag in article.tags.slice(0, 3)"
+                  :key="tag.id"
+                  class="tag-badge"
+                  :style="{ backgroundColor: tag.color || '#409EFF' }"
+                >
                   {{ tag.name }}
                 </span>
               </div>
               <div class="article-footer">
                 <router-link :to="`/blog/article/${article.id}`" class="read-more">
-                  阅读全文 <i class="el-icon-arrow-right"></i>
+                  阅读全文
+                  <i class="el-icon-arrow-right"></i>
                 </router-link>
               </div>
             </div>
@@ -122,18 +132,13 @@
 
         <!-- 加载更多 -->
         <div v-if="articleList.length < total && !loading" class="load-more-container">
-          <el-button
-            type="primary"
-            @click="loadMoreArticles"
-            :loading="loadingMore"
-            round
-          >
+          <el-button type="primary" :loading="loadingMore" round @click="loadMoreArticles">
             {{ loadingMore ? '加载中...' : '加载更多' }}
           </el-button>
         </div>
 
         <!-- 分页 -->
-        <div class="pagination-container" v-if="total > queryParams.pageSize">
+        <div v-if="total > queryParams.pageSize" class="pagination-container">
           <el-pagination
             background
             layout="prev, pager, next"
@@ -157,8 +162,12 @@
             <div class="category-icon">
               <i class="el-icon-menu"></i>
             </div>
-            <h4 class="category-name">{{ categoryName || '未命名分类' }}</h4>
-            <p class="category-desc">{{ categoryDescription || '暂无描述' }}</p>
+            <h4 class="category-name">
+              {{ categoryName || '未命名分类' }}
+            </h4>
+            <p class="category-desc">
+              {{ categoryDescription || '暂无描述' }}
+            </p>
             <div class="category-meta">
               <span class="meta-item">
                 <i class="el-icon-document-copy"></i>
@@ -179,8 +188,16 @@
             相关分类
           </h3>
           <ul class="related-categories">
-            <li v-for="category in relatedCategories.slice(0, 8)" :key="category.id" class="category-item">
-              <router-link :to="`/blog/category/${category.id}`" class="category-link" :class="{ active: category.id === currentCategoryId }">
+            <li
+              v-for="category in relatedCategories.slice(0, 8)"
+              :key="category.id"
+              class="category-item"
+            >
+              <router-link
+                :to="`/blog/category/${category.id}`"
+                class="category-link"
+                :class="{ active: category.id === currentCategoryId }"
+              >
                 <span class="category-name">{{ category.name }}</span>
                 <span class="category-count">({{ category.articleCount || 0 }})</span>
               </router-link>
@@ -220,8 +237,16 @@
             最新文章
           </h3>
           <ul class="recent-articles">
-            <li v-for="article in recentArticles.slice(0, 8)" :key="article.id" class="article-item">
-              <router-link :to="`/blog/article/${article.id}`" class="article-link" :title="article.title">
+            <li
+              v-for="article in recentArticles.slice(0, 8)"
+              :key="article.id"
+              class="article-item"
+            >
+              <router-link
+                :to="`/blog/article/${article.id}`"
+                class="article-link"
+                :title="article.title"
+              >
                 <span class="article-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
                 <span class="article-title">{{ article.title }}</span>
               </router-link>
@@ -237,7 +262,7 @@
 import { ref, reactive, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
-import { getCategoryDetail } from '@/api/blog/category'
+import { getCategoryDetail, getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
 import { getArticleList } from '@/api/blog/article'
 
@@ -346,7 +371,7 @@ const loadMoreArticles = () => {
 }
 
 // 分页处理
-const handlePageChange = (page) => {
+const handlePageChange = page => {
   queryParams.pageNum = page
   loadCategoryArticles()
 }
@@ -371,7 +396,7 @@ const formatDate = (dateString, format = 'full') => {
 }
 
 // 根据文章数量计算标签字体大小
-const getTagFontSize = (count) => {
+const getTagFontSize = count => {
   if (count >= 10) return 16
   if (count >= 5) return 14
   if (count >= 2) return 12
@@ -379,7 +404,7 @@ const getTagFontSize = (count) => {
 }
 
 // 根据标签数量计算缩放比例
-const getTagScale = (count) => {
+const getTagScale = count => {
   if (count >= 10) return 1.1
   if (count >= 5) return 1.05
   if (count >= 2) return 1.0
@@ -387,22 +412,26 @@ const getTagScale = (count) => {
 }
 
 // 去除HTML标签
-const stripHtmlTags = (html) => {
+const stripHtmlTags = html => {
   if (!html) return ''
   return html.replace(/<[^>]*>/g, '')
 }
 
 // 监听路由变化
-watch(() => route.params.id, (newId) => {
-  if (newId) {
-    currentCategoryId.value = parseInt(newId)
-    queryParams.categoryId = parseInt(newId)
-    queryParams.pageNum = 1
-    loadCategoryDetail()
-    loadCategoryArticles()
-    loadRelatedCategories()
-  }
-}, { immediate: true })
+watch(
+  () => route.params.id,
+  newId => {
+    if (newId) {
+      currentCategoryId.value = parseInt(newId)
+      queryParams.categoryId = parseInt(newId)
+      queryParams.pageNum = 1
+      loadCategoryDetail()
+      loadCategoryArticles()
+      loadRelatedCategories()
+    }
+  },
+  { immediate: true }
+)
 
 // 组件挂载时加载数据
 onMounted(() => {
@@ -462,7 +491,7 @@ onMounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .category-description {

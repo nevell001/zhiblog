@@ -1,20 +1,20 @@
 import defaultSettings from '@/settings'
 import { useSettingsStore } from '@/store/modules/settings'
-import { getConfigKey } from "@/api/system/config"
+import { getConfigKey } from '@/api/system/config'
 
 /**
  * 动态修改标题和SEO元标签
  */
 export function useDynamicTitle() {
   const settingsStore = useSettingsStore()
-  
+
   // 设置页面标题
   if (settingsStore.dynamicTitle) {
     document.title = settingsStore.title + ' - ' + defaultSettings.title
   } else {
     document.title = defaultSettings.title
   }
-  
+
   // 异步获取并设置SEO元标签
   setSeoMetaTags()
 }
@@ -30,7 +30,7 @@ async function setSeoMetaTags() {
       getConfigKey('blog.seo.description'),
       getConfigKey('blog.seo.keywords')
     ])
-    
+
     // 设置title（如果有专门的SEO标题）
     if (seoTitle.data && seoTitle.data !== '') {
       const currentTitle = document.title
@@ -41,7 +41,7 @@ async function setSeoMetaTags() {
         document.title = seoTitle.data
       }
     }
-    
+
     // 设置description
     if (seoDescription.data && seoDescription.data !== '') {
       let metaDesc = document.querySelector('meta[name="description"]')
@@ -52,7 +52,7 @@ async function setSeoMetaTags() {
       }
       metaDesc.content = seoDescription.data
     }
-    
+
     // 设置keywords
     if (seoKeywords.data && seoKeywords.data !== '') {
       let metaKeywords = document.querySelector('meta[name="keywords"]')

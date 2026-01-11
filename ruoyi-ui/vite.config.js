@@ -91,6 +91,11 @@ export default defineConfig(({ mode, command }) => {
         '/profile': {
           target: baseUrl,
           changeOrigin: true
+        },
+        // 代理 Actuator 监控端点
+        '/manage': {
+          target: baseUrl,
+          changeOrigin: true
         }
         // 解决 SPA 应用 history 模式下刷新404问题
         // 在Vite中，默认支持SPA history模式，无需额外配置

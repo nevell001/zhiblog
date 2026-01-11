@@ -1,7 +1,10 @@
 <template>
   <footer v-if="shouldShowFooter" class="blog-footer">
     <div class="footer-content">
-      <div class="footer-info" v-if="blogSettings.footer_enabled === 'true' || blogSettings.footer_enabled === true">
+      <div
+        v-if="blogSettings.footer_enabled === 'true' || blogSettings.footer_enabled === true"
+        class="footer-info"
+      >
         <div class="footer-section">
           <h4>关于博客</h4>
           <p>{{ blogSettings.blog_desc || '一个基于RuoYi-Vue的博客系统' }}</p>
@@ -15,10 +18,24 @@
         <div class="footer-section">
           <h4>快速链接</h4>
           <ul class="footer-links">
-            <li><router-link to="/blog">首页</router-link></li>
-            <li><router-link to="/blog/category">分类</router-link></li>
-            <li><router-link to="/blog/tag">标签</router-link></li>
-            <li><router-link to="/blog/archive">归档</router-link></li>
+            <li>
+              <router-link to="/blog">首页</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/about">关于</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/category">分类</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/tag">标签</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/archive">归档</router-link>
+            </li>
+            <li>
+              <a :href="rssUrl" target="_blank" title="RSS订阅">RSS订阅</a>
+            </li>
           </ul>
         </div>
 
@@ -37,14 +54,19 @@
         </div>
       </div>
 
-      <div class="footer-copyright" v-if="shouldShowCopyright">
+      <div v-if="shouldShowCopyright" class="footer-copyright">
         <div class="copyright-content">
           <p>
             <span v-if="blogSettings.blog_copyright">{{ blogSettings.blog_copyright }}</span>
-            <span v-else>© {{ currentYear }} {{ blogSettings.blog_author || '博客作者' }}. All rights reserved.</span>
+            <span v-else>
+              © {{ currentYear }} {{ blogSettings.blog_author || '博客作者' }}. All rights reserved.
+            </span>
           </p>
           <p class="tech-info">
-            Powered by <a href="#" target="_blank">RuoYi-Vue</a> & <a href="#" target="_blank">Element Plus</a>
+            Powered by
+            <a href="#" target="_blank">RuoYi-Vue</a>
+            &
+            <a href="#" target="_blank">Element Plus</a>
           </p>
         </div>
       </div>
@@ -75,6 +97,23 @@ const props = defineProps({
   }
 })
 
+// 计算RSS URL
+const rssUrl = computed(() => {
+  // 根据当前环境构建RSS URL
+  // 在浏览器中，需要使用localhost而不是Docker内部地址
+  let baseUrl = 'http://localhost:8080'
+
+  // 如果当前在localhost:3000，使用localhost:8080
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    baseUrl = 'http://localhost:8080'
+  } else {
+    // 否则使用当前域名，但端口改为8080
+    baseUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+  }
+
+  return `${baseUrl}/blog/rss`
+})
+
 // 计算当前年份
 const currentYear = computed(() => {
   return new Date().getFullYear()
@@ -87,7 +126,9 @@ const shouldShowFooter = computed(() => {
 
 // 是否显示版权
 const shouldShowCopyright = computed(() => {
-  return props.blogSettings.copyright_enabled === 'true' || props.blogSettings.copyright_enabled === true
+  return (
+    props.blogSettings.copyright_enabled === 'true' || props.blogSettings.copyright_enabled === true
+  )
 })
 </script>
 
@@ -173,6 +214,12 @@ const shouldShowCopyright = computed(() => {
 .footer-links a:hover {
   color: #3498db;
   transform: translateX(5px);
+}
+
+.footer-links a .el-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+  vertical-align: middle;
 }
 
 .footer-contact p {
@@ -274,53 +321,53 @@ const shouldShowCopyright = computed(() => {
 }
 
 /* 深色主题适配 */
-[data-theme="dark"] .blog-footer {
+[data-theme='dark'] .blog-footer {
   background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"] .footer-section h4 {
+[data-theme='dark'] .footer-section h4 {
   color: #64b5f6;
 }
 
-[data-theme="dark"] .footer-section h4::after {
+[data-theme='dark'] .footer-section h4::after {
   background: #64b5f6;
 }
 
-[data-theme="dark"] .footer-section p {
+[data-theme='dark'] .footer-section p {
   color: #9e9e9e;
 }
 
-[data-theme="dark"] .footer-stats span {
+[data-theme='dark'] .footer-stats span {
   background: rgba(100, 181, 246, 0.2);
   color: #64b5f6;
 }
 
-[data-theme="dark"] .footer-links a {
+[data-theme='dark'] .footer-links a {
   color: #9e9e9e;
 }
 
-[data-theme="dark"] .footer-links a:hover {
+[data-theme='dark'] .footer-links a:hover {
   color: #64b5f6;
 }
 
-[data-theme="dark"] .footer-contact i {
+[data-theme='dark'] .footer-contact i {
   color: #64b5f6;
 }
 
-[data-theme="dark"] .footer-copyright {
+[data-theme='dark'] .footer-copyright {
   border-top-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="dark"] .copyright-content p {
+[data-theme='dark'] .copyright-content p {
   color: #757575;
 }
 
-[data-theme="dark"] .tech-info a {
+[data-theme='dark'] .tech-info a {
   color: #64b5f6;
 }
 
-[data-theme="dark"] .tech-info a:hover {
+[data-theme='dark'] .tech-info a:hover {
   color: #42a5f5;
 }
 </style>

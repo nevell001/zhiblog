@@ -1,8 +1,9 @@
 package com.ruoyi.framework.config;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -38,7 +39,7 @@ public class FilterConfig
     public FilterRegistrationBean xssFilterRegistration()
     {
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setDispatcherTypes(DispatcherType.REQUEST);
+        registration.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
         registration.setFilter(new XssFilter());
         registration.addUrlPatterns(StringUtils.split(urlPatterns, ","));
         registration.setName("xssFilter");
@@ -49,20 +50,21 @@ public class FilterConfig
         return registration;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    @Bean
-    public FilterRegistrationBean characterEncodingFilterRegistration()
-    {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
-        characterEncodingFilter.setEncoding("UTF-8");
-        characterEncodingFilter.setForceEncoding(true);
-        registration.setFilter(characterEncodingFilter);
-        registration.addUrlPatterns("/*");
-        registration.setName("characterEncodingFilter");
-        registration.setOrder(FilterRegistrationBean.HIGHEST_PRECEDENCE + 1);
-        return registration;
-    }
+    // Spring Boot 3.x 默认已配置字符编码过滤器，无需重复注册
+//    @SuppressWarnings({ "rawtypes", "unchecked" })
+//    @Bean
+//    public FilterRegistrationBean characterEncodingFilterRegistration()
+//    {
+//        FilterRegistrationBean registration = new FilterRegistrationBean();
+//        CharacterEncodingFilter characterEncodingFilter = new CharacterEncodingFilter();
+//        characterEncodingFilter.setEncoding("UTF-8");
+//        characterEncodingFilter.setForceEncoding(true);
+//        registration.setFilter(characterEncodingFilter);
+//        registration.addUrlPatterns("/*");
+//        registration.setName("characterEncodingFilter");
+//        registration.setOrder(FilterRegistrationBean.HIGHEST_PRECEDENCE + 1);
+//        return registration;
+//    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Bean
@@ -70,7 +72,7 @@ public class FilterConfig
     public FilterRegistrationBean refererFilterRegistration()
     {
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setDispatcherTypes(DispatcherType.REQUEST);
+        registration.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
         registration.setFilter(new RefererFilter());
         registration.addUrlPatterns(Constants.RESOURCE_PREFIX + "/*");
         registration.setName("refererFilter");

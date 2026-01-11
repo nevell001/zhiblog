@@ -42,4 +42,3 @@ export function delTag(tagIds) {
     method: 'delete'
   })
 }
-

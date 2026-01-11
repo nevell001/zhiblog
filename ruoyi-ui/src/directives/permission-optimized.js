@@ -9,7 +9,7 @@ const hasPermi = {
   mounted(el, binding) {
     const { value } = binding
     const permissions = Array.isArray(value) ? value : [value]
-    
+
     if (permissions.length > 0) {
       const hasPermission = auth.hasPermiOr(permissions)
       if (!hasPermission) {
@@ -21,12 +21,12 @@ const hasPermi = {
   },
   updated(el, binding) {
     const { value, oldValue } = binding
-    
+
     // 权限值发生变化时重新检查
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       const permissions = Array.isArray(value) ? value : [value]
       const hasPermission = auth.hasPermiOr(permissions)
-      
+
       if (!hasPermission) {
         el.style.display = 'none'
       } else {
@@ -41,7 +41,7 @@ const hasRole = {
   mounted(el, binding) {
     const { value } = binding
     const roles = Array.isArray(value) ? value : [value]
-    
+
     if (roles.length > 0) {
       const hasRolePermission = auth.hasRoleOr(roles)
       if (!hasRolePermission) {
@@ -53,11 +53,11 @@ const hasRole = {
   },
   updated(el, binding) {
     const { value, oldValue } = binding
-    
+
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       const roles = Array.isArray(value) ? value : [value]
       const hasRolePermission = auth.hasRoleOr(roles)
-      
+
       if (!hasRolePermission) {
         el.style.display = 'none'
       } else {
@@ -72,11 +72,13 @@ const hasAction = {
   mounted(el, binding) {
     const { value } = binding
     const { resource, action } = value
-    
+
     if (!resource || !action) {
-      throw new Error('功能权限指令需要resource和action，如 v-has-action="{ resource: \'system:user\', action: \'add\' }"')
+      throw new Error(
+        "功能权限指令需要resource和action，如 v-has-action=\"{ resource: 'system:user', action: 'add' }\""
+      )
     }
-    
+
     const hasActionPermission = auth.hasAction(resource, action)
     if (!hasActionPermission) {
       el.parentNode && el.parentNode.removeChild(el)
@@ -84,11 +86,11 @@ const hasAction = {
   },
   updated(el, binding) {
     const { value, oldValue } = binding
-    
+
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       const { resource, action } = value
       const hasActionPermission = auth.hasAction(resource, action)
-      
+
       if (!hasActionPermission) {
         el.style.display = 'none'
       } else {
@@ -103,14 +105,16 @@ const hasAllPermi = {
   mounted(el, binding) {
     const { value } = binding
     const permissions = Array.isArray(value) ? value : [value]
-    
+
     if (permissions.length > 0) {
       const hasAllPermission = auth.hasPermiAnd(permissions)
       if (!hasAllPermission) {
         el.parentNode && el.parentNode.removeChild(el)
       }
     } else {
-      throw new Error('权限指令需要权限值，如 v-has-all-permi="[\'system:user:add\', \'system:user:edit\']"')
+      throw new Error(
+        "权限指令需要权限值，如 v-has-all-permi=\"['system:user:add', 'system:user:edit']\""
+      )
     }
   }
 }
@@ -120,13 +124,13 @@ const disabledPermi = {
   mounted(el, binding) {
     const { value } = binding
     const permissions = Array.isArray(value) ? value : [value]
-    
+
     if (permissions.length > 0) {
       const hasPermission = auth.hasPermiOr(permissions)
       if (!hasPermission) {
         el.disabled = true
         el.classList.add('is-disabled')
-        
+
         // 添加提示信息
         el.title = '权限不足，无法执行此操作'
       }
@@ -134,11 +138,11 @@ const disabledPermi = {
   },
   updated(el, binding) {
     const { value, oldValue } = binding
-    
+
     if (JSON.stringify(value) !== JSON.stringify(oldValue)) {
       const permissions = Array.isArray(value) ? value : [value]
       const hasPermission = auth.hasPermiOr(permissions)
-      
+
       if (!hasPermission) {
         el.disabled = true
         el.classList.add('is-disabled')
@@ -157,7 +161,7 @@ const readonlyPermi = {
   mounted(el, binding) {
     const { value } = binding
     const permissions = Array.isArray(value) ? value : [value]
-    
+
     if (permissions.length > 0) {
       const hasPermission = auth.hasPermiOr(permissions)
       if (!hasPermission) {
@@ -168,7 +172,7 @@ const readonlyPermi = {
           el.style.pointerEvents = 'none'
           el.style.opacity = '0.6'
         }
-        
+
         el.title = '权限不足，只读模式'
       }
     }
@@ -176,11 +180,11 @@ const readonlyPermi = {
 }
 
 // 权限检查工具函数
-export const checkPermission = (permissions) => {
+export const checkPermission = permissions => {
   return auth.hasPermiOr(Array.isArray(permissions) ? permissions : [permissions])
 }
 
-export const checkRole = (roles) => {
+export const checkRole = roles => {
   return auth.hasRoleOr(Array.isArray(roles) ? roles : [roles])
 }
 
@@ -188,7 +192,7 @@ export const checkAction = (resource, action) => {
   return auth.hasAction(resource, action)
 }
 
-export const checkAllPermissions = (permissions) => {
+export const checkAllPermissions = permissions => {
   return auth.hasPermiAnd(Array.isArray(permissions) ? permissions : [permissions])
 }
 
@@ -201,7 +205,7 @@ export default {
     app.directive('hasAllPermi', hasAllPermi)
     app.directive('disabledPermi', disabledPermi)
     app.directive('readonlyPermi', readonlyPermi)
-    
+
     // 全局属性
     app.config.globalProperties.$checkPermission = checkPermission
     app.config.globalProperties.$checkRole = checkRole

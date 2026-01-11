@@ -37,7 +37,7 @@ export function getImageFormat(file) {
  */
 export function getImageSizeMB(file) {
   if (!file) return 0
-  return Math.round(file.size / 1024 / 1024 * 100) / 100
+  return Math.round((file.size / 1024 / 1024) * 100) / 100
 }
 
 /**
@@ -48,9 +48,9 @@ export function getImageSizeMB(file) {
 export function formatFileSize(size) {
   if (!size) return '0 B'
   if (size < 1024) return size + ' B'
-  if (size < 1024 * 1024) return Math.round(size / 1024 * 100) / 100 + ' KB'
-  if (size < 1024 * 1024 * 1024) return Math.round(size / (1024 * 1024) * 100) / 100 + ' MB'
-  return Math.round(size / (1024 * 1024 * 1024) * 100) / 100 + ' GB'
+  if (size < 1024 * 1024) return Math.round((size / 1024) * 100) / 100 + ' KB'
+  if (size < 1024 * 1024 * 1024) return Math.round((size / (1024 * 1024)) * 100) / 100 + ' MB'
+  return Math.round((size / (1024 * 1024 * 1024)) * 100) / 100 + ' GB'
 }
 
 /**
@@ -107,12 +107,7 @@ export function readImageInfo(file) {
  */
 export function compressImage(file, options = {}) {
   return new Promise((resolve, reject) => {
-    const {
-      maxWidth = 1920,
-      maxHeight = 1080,
-      quality = 0.8,
-      format = 'image/jpeg'
-    } = options
+    const { maxWidth = 1920, maxHeight = 1080, quality = 0.8, format = 'image/jpeg' } = options
 
     const canvas = document.createElement('canvas')
     const ctx = canvas.getContext('2d')
@@ -120,7 +115,7 @@ export function compressImage(file, options = {}) {
 
     img.onload = () => {
       // 计算压缩后的尺寸
-      let { width, height } = calculateCompressedSize(img.width, img.height, maxWidth, maxHeight)
+      const { width, height } = calculateCompressedSize(img.width, img.height, maxWidth, maxHeight)
 
       // 设置canvas尺寸
       canvas.width = width
@@ -130,17 +125,21 @@ export function compressImage(file, options = {}) {
       ctx.drawImage(img, 0, 0, width, height)
 
       // 转换为Blob
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const compressedFile = new File([blob], file.name, {
-            type: format,
-            lastModified: Date.now()
-          })
-          resolve(compressedFile)
-        } else {
-          reject(new Error('图片压缩失败'))
-        }
-      }, format, quality)
+      canvas.toBlob(
+        blob => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: format,
+              lastModified: Date.now()
+            })
+            resolve(compressedFile)
+          } else {
+            reject(new Error('图片压缩失败'))
+          }
+        },
+        format,
+        quality
+      )
 
       // 释放预览URL
       revokePreviewUrl(img.src)
@@ -205,13 +204,13 @@ export function createUploadFormData(file, additionalFields = {}) {
  */
 export function getUploadApi(type) {
   const apiMap = {
-    'avatar': '/common/upload/avatar',
-    'thumbnail': '/common/upload/thumbnail',
+    avatar: '/common/upload/avatar',
+    thumbnail: '/common/upload/thumbnail',
     'article-cover': '/common/upload/article-cover',
-    'mobile': '/common/upload/mobile',
-    'watermark': '/common/upload/watermark',
-    'compressed': '/common/upload/compressed',
-    'default': '/common/upload'
+    mobile: '/common/upload/mobile',
+    watermark: '/common/upload/watermark',
+    compressed: '/common/upload/compressed',
+    default: '/common/upload'
   }
   return apiMap[type] || apiMap.default
 }
@@ -223,12 +222,7 @@ export function getUploadApi(type) {
  * @returns {Promise}
  */
 export async function uploadImage(file, options = {}) {
-  const {
-    type = 'default',
-    onProgress,
-    watermarkText,
-    targetFormat
-  } = options
+  const { type = 'default', onProgress, watermarkText, targetFormat } = options
 
   try {
     // 前端预压缩检查
@@ -254,7 +248,7 @@ export async function uploadImage(file, options = {}) {
     // 使用request上传
     const response = await fetch(apiUrl, {
       method: 'POST',
-      body: formData,
+      body: formData
       // 如果需要上传进度，可以在这里实现
     })
 

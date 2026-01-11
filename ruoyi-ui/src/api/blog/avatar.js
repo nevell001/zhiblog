@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import { uploadImage, validateImage } from '@/utils/imageUtils'
+import { validateImage } from '@/utils/imageUtils'
 
 /**
  * 上传头像
@@ -7,7 +7,7 @@ import { uploadImage, validateImage } from '@/utils/imageUtils'
  * @param {Object} options 上传选项
  * @returns {Promise}
  */
-export async function uploadAvatar(file, options = {}) {
+export async function uploadAvatar(file, _options = {}) {
   try {
     // 验证图片
     const validation = validateImage(file, {
@@ -210,7 +210,7 @@ export async function checkAvatarExists(avatarUrl) {
   try {
     const response = await fetch(avatarUrl, { method: 'HEAD' })
     return response.ok
-  } catch (error) {
+  } catch (_error) {
     return false
   }
 }

@@ -24,7 +24,10 @@ import io.swagger.annotations.ApiOperation;
 
 /**
  * swagger 用户测试方法
- * 
+ *
+ * 警告: 这是一个测试控制器，仅用于开发环境和API文档演示。
+ * 生产环境必须通过配置禁用此控制器（设置 swagger.enabled=false）
+ *
  * @author ruoyi
  */
 @Api("用户信息管理")
@@ -34,8 +37,11 @@ public class TestController extends BaseController
 {
     private final static Map<Integer, UserEntity> users = new LinkedHashMap<Integer, UserEntity>();
     {
-        users.put(1, new UserEntity(1, "admin", "admin123", "15888888888"));
-        users.put(2, new UserEntity(2, "ry", "admin123", "15666666666"));
+        // 注意: 这些是测试数据，仅用于开发环境演示
+        // 警告: 这些密码是明文的示例密码，仅用于API文档演示
+        // 生产环境中，此控制器应该被禁用
+        users.put(1, new UserEntity(1, "admin", "***PROTECTED***", "15888888888"));
+        users.put(2, new UserEntity(2, "ry", "***PROTECTED***", "15666666666"));
     }
 
     @ApiOperation("获取用户列表")
@@ -49,7 +55,7 @@ public class TestController extends BaseController
     @ApiOperation("获取用户详细")
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
     @GetMapping("/{userId}")
-    public R<UserEntity> getUser(@PathVariable Integer userId)
+    public R<UserEntity> getUser(@PathVariable("userId") Integer userId)
     {
         if (!users.isEmpty() && users.containsKey(userId))
         {
@@ -99,7 +105,7 @@ public class TestController extends BaseController
     @ApiOperation("删除用户信息")
     @ApiImplicitParam(name = "userId", value = "用户ID", required = true, dataType = "int", paramType = "path", dataTypeClass = Integer.class)
     @DeleteMapping("/{userId}")
-    public R<String> delete(@PathVariable Integer userId)
+    public R<String> delete(@PathVariable("userId") Integer userId)
     {
         if (!users.isEmpty() && users.containsKey(userId))
         {

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.validation.Validator;
+import jakarta.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -608,5 +608,17 @@ public class SysUserServiceImpl implements ISysUserService
     public Long selectAdminUserCount()
     {
         return userMapper.selectAdminUserCount();
+    }
+
+    /**
+     * 查询在线用户数量（最近指定分钟内有登录记录的用户）
+     * 
+     * @param minutes 分钟数
+     * @return 在线用户数量
+     */
+    @Override
+    public Long selectOnlineUserCount(Integer minutes)
+    {
+        return userMapper.selectOnlineUserCount(minutes);
     }
 }

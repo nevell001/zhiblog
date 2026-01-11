@@ -2,7 +2,7 @@
   <div class="blog-container">
     <!-- 滚动进度条 -->
     <div class="scroll-progress" :style="{ width: scrollProgress + '%' }"></div>
-    
+
     <!-- 博客导航 -->
     <BlogNav />
 
@@ -11,8 +11,12 @@
       <div class="header-content">
         <div class="blog-info">
           <div class="blog-text-info">
-            <h1 class="blog-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
-            <p class="blog-description">{{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}</p>
+            <h1 class="blog-title">
+              {{ blogSettings.blog_name || '我的博客' }}
+            </h1>
+            <p class="blog-description">
+              {{ blogSettings.blog_desc || '这是一个基于RuoYi-Vue的博客系统' }}
+            </p>
             <div class="blog-stats">
               <span class="stat-item">
                 <el-icon :size="16"><DocumentCopy /></el-icon>
@@ -37,8 +41,8 @@
               v-model="searchKeyword"
               placeholder="搜索文章标题或内容..."
               class="search-input"
-              @keyup.enter="handleSearch"
               clearable
+              @keyup.enter="handleSearch"
             />
             <button class="search-button" @click="handleSearch">
               <el-icon><Search /></el-icon>
@@ -58,18 +62,18 @@
               <template #template>
                 <div class="article-item">
                   <div class="article-cover">
-                    <el-skeleton-item variant="image" style="width: 100%; height: 200px;" />
+                    <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
                   </div>
                   <div class="article-content">
-                    <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px;" />
-                    <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px;" />
-                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px;" />
-                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px;" />
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px;">
-                      <el-skeleton-item variant="text" style="width: 60px; height: 24px;" />
-                      <el-skeleton-item variant="text" style="width: 50px; height: 24px;" />
+                    <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
+                    <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
+                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
+                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
+                    <div style="display: flex; gap: 8px; margin-bottom: 15px">
+                      <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
+                      <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
                     </div>
-                    <el-skeleton-item variant="text" style="width: 80px; height: 20px;" />
+                    <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
                   </div>
                 </div>
               </template>
@@ -80,28 +84,178 @@
         <!-- 空状态 -->
         <div v-else-if="articleList.length === 0" class="empty-state">
           <div class="empty-content">
-            <el-icon :size="60" class="empty-icon"><DocumentCopy /></el-icon>
+            <el-icon :size="60" class="empty-icon">
+              <DocumentCopy />
+            </el-icon>
             <h3>{{ searchKeyword ? '未找到相关文章' : '暂无文章' }}</h3>
-            <p>{{ searchKeyword ? `没有找到包含"${searchKeyword}"的文章，请尝试其他关键词` : '还没有发布任何文章，敬请期待...' }}</p>
-            <el-button v-if="searchKeyword" type="primary" @click="clearSearch" style="margin-top: 15px;">
+            <p>
+              {{
+                searchKeyword
+                  ? `没有找到包含"${searchKeyword}"的文章，请尝试其他关键词`
+                  : '还没有发布任何文章，敬请期待...'
+              }}
+            </p>
+            <el-button
+              v-if="searchKeyword"
+              type="primary"
+              style="margin-top: 15px"
+              @click="clearSearch"
+            >
               清除搜索
             </el-button>
           </div>
         </div>
 
+        <!-- 置顶文章模块 -->
+        <div v-if="topArticles.length > 0 && !searchKeyword" class="special-articles-section">
+          <div class="section-header">
+            <el-icon :size="20" color="#67C23A">
+              <Top />
+            </el-icon>
+            <h3 class="section-title">置顶文章</h3>
+          </div>
+          <div class="special-articles-grid">
+            <div v-for="article in topArticles" :key="article.id" class="special-article-card">
+              <div v-if="article.coverUrl || article.coverImage" class="special-article-cover">
+                <img
+                  :src="article.coverUrl || article.coverImage"
+                  :alt="article.title"
+                  loading="lazy"
+                />
+              </div>
+              <div
+                v-else
+                class="special-article-cover special-article-cover-no-image special-article-cover-top"
+              >
+                <div class="placeholder-content">
+                  <el-icon :size="48" color="#ffffff" class="placeholder-icon">
+                    <Document />
+                  </el-icon>
+                  <span class="placeholder-text">置顶文章</span>
+                </div>
+              </div>
+              <div class="special-article-content">
+                <h4 class="special-article-title">
+                  <router-link
+                    :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }"
+                  >
+                    {{ article.title }}
+                  </router-link>
+                </h4>
+                <p class="special-article-summary">
+                  {{
+                    article.summary ||
+                    (article.content
+                      ? stripHtmlTags(article.content).substring(0, 150) + '...'
+                      : '暂无摘要')
+                  }}
+                </p>
+                <div class="special-article-meta">
+                  <span class="meta-item">
+                    <el-icon :size="12"><Calendar /></el-icon>
+                    {{ formatDate(article.createTime) }}
+                  </span>
+                  <span class="meta-item">
+                    <el-icon :size="12"><View /></el-icon>
+                    {{ article.viewCount || 0 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 推荐文章模块 -->
+        <div v-if="recommendArticles.length > 0 && !searchKeyword" class="special-articles-section">
+          <div class="section-header">
+            <el-icon :size="20" color="#E6A23C">
+              <Star />
+            </el-icon>
+            <h3 class="section-title">推荐文章</h3>
+          </div>
+          <div class="special-articles-grid">
+            <div
+              v-for="article in recommendArticles"
+              :key="article.id"
+              class="special-article-card"
+            >
+              <div v-if="article.coverUrl || article.coverImage" class="special-article-cover">
+                <img
+                  :src="article.coverUrl || article.coverImage"
+                  :alt="article.title"
+                  loading="lazy"
+                />
+              </div>
+              <div
+                v-else
+                class="special-article-cover special-article-cover-no-image special-article-cover-recommend"
+              >
+                <div class="placeholder-content">
+                  <el-icon :size="48" color="#ffffff" class="placeholder-icon">
+                    <Star />
+                  </el-icon>
+                  <span class="placeholder-text">推荐文章</span>
+                </div>
+              </div>
+              <div class="special-article-content">
+                <h4 class="special-article-title">
+                  <router-link
+                    :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }"
+                  >
+                    {{ article.title }}
+                  </router-link>
+                </h4>
+                <p class="special-article-summary">
+                  {{
+                    article.summary ||
+                    (article.content
+                      ? stripHtmlTags(article.content).substring(0, 150) + '...'
+                      : '暂无摘要')
+                  }}
+                </p>
+                <div class="special-article-meta">
+                  <span class="meta-item">
+                    <el-icon :size="12"><Calendar /></el-icon>
+                    {{ formatDate(article.createTime) }}
+                  </span>
+                  <span class="meta-item">
+                    <el-icon :size="12"><View /></el-icon>
+                    {{ article.viewCount || 0 }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- 文章列表 -->
-        <div v-else class="article-list">
+        <div v-if="articleList.length > 0" class="article-list">
           <div v-for="article in articleList" :key="article.id" class="article-item">
-            <div class="article-cover" v-if="article.coverUrl || article.coverImage">
-              <img :src="article.coverUrl || article.coverImage || 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'" :alt="article.title" loading="lazy" @error="handleImageError" />
+            <div v-if="article.coverUrl || article.coverImage" class="article-cover">
+              <img
+                :src="
+                  article.coverUrl ||
+                  article.coverImage ||
+                  'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
+                "
+                :alt="article.title"
+                loading="lazy"
+                @error="handleImageError"
+              />
               <div class="cover-overlay"></div>
-              <div class="article-category-badge" v-if="article.tags && article.tags.length > 0">
+              <div v-if="article.tags && article.tags.length > 0" class="article-category-badge">
                 {{ article.tags[0].name }}
               </div>
             </div>
             <div class="article-content">
               <h2 class="article-title">
-                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" :title="article.title">
+                <router-link
+                  :to="{
+                    name: 'PublicBlogArticleDetail',
+                    params: { id: article.id ?? article.articleId ?? article.uuid }
+                  }"
+                  :title="article.title"
+                >
                   {{ article.title }}
                 </router-link>
               </h2>
@@ -114,24 +268,45 @@
                   <el-icon :size="14"><View /></el-icon>
                   {{ article.viewCount || 0 }} 阅读
                 </span>
-                <span class="meta-item" v-if="article.likeCount">
+                <span v-if="article.likeCount" class="meta-item">
                   <el-icon :size="14"><Star /></el-icon>
                   {{ article.likeCount }} 点赞
                 </span>
-                <span class="meta-item" v-if="article.commentCount">
+                <span v-if="article.commentCount" class="meta-item">
                   <el-icon :size="14"><ChatLineRound /></el-icon>
                   {{ article.commentCount }} 评论
                 </span>
               </div>
-              <p class="article-summary">{{ article.summary || (article.content ? stripHtmlTags(article.content).substring(0, 150) + '...' : '暂无摘要') }}</p>
-              <div class="article-tags" v-if="article.tags && article.tags.length">
-                <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="tag-badge" :style="{ backgroundColor: tag.color || '#409EFF' }">
+              <p class="article-summary">
+                {{
+                  article.summary ||
+                  (article.content
+                    ? stripHtmlTags(article.content).substring(0, 150) + '...'
+                    : '暂无摘要')
+                }}
+              </p>
+              <div v-if="article.tags && article.tags.length" class="article-tags">
+                <span
+                  v-for="tag in article.tags.slice(0, 3)"
+                  :key="tag.id"
+                  class="tag-badge"
+                  :style="{ backgroundColor: tag.color || '#409EFF' }"
+                >
                   {{ tag.name }}
                 </span>
               </div>
               <div class="article-footer">
-                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="read-more">
-                  阅读全文 <el-icon :size="14"><ArrowRight /></el-icon>
+                <router-link
+                  :to="{
+                    name: 'PublicBlogArticleDetail',
+                    params: { id: article.id ?? article.articleId ?? article.uuid }
+                  }"
+                  class="read-more"
+                >
+                  阅读全文
+                  <el-icon :size="14">
+                    <ArrowRight />
+                  </el-icon>
                 </router-link>
               </div>
             </div>
@@ -139,12 +314,7 @@
 
           <!-- 加载更多按钮 -->
           <div v-if="articleList.length < total && !loading" class="load-more-container">
-            <el-button
-              type="primary"
-              @click="loadMoreArticles"
-              :loading="loadingMore"
-              round
-            >
+            <el-button type="primary" :loading="loadingMore" round @click="loadMoreArticles">
               {{ loadingMore ? '加载中...' : '加载更多' }}
             </el-button>
           </div>
@@ -156,7 +326,9 @@
         <!-- 关于博主 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><User /></el-icon>
+            <el-icon :size="18">
+              <User />
+            </el-icon>
             关于博主
           </h3>
           <div class="about-content">
@@ -165,32 +337,44 @@
                 :key="'avatar-' + (blogSettings.blog_avatar || 'default')"
                 :src="getAvatarUrl()"
                 :alt="blogSettings.blog_author || 'nevell'"
-                @error="handleAvatarError"
                 :style="{ transition: 'all 0.3s ease' }"
+                @error="handleAvatarError"
               />
             </div>
-            <h4 class="author-name">{{ blogSettings.blog_author || 'nevell' }}</h4>
-            <p class="author-title">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
-            <p class="about-desc">{{ blogSettings.blog_desc || '热爱技术，热爱生活，记录学习成长路上的点点滴滴' }}</p>
-            
+            <h4 class="author-name">
+              {{ blogSettings.blog_author || 'nevell' }}
+            </h4>
+            <p class="author-title">
+              {{ blogSettings.author_title || '全栈开发工程师' }}
+            </p>
+            <p class="about-desc">
+              {{ blogSettings.blog_desc || '热爱技术，热爱生活，记录学习成长路上的点点滴滴' }}
+            </p>
+
             <!-- 统计信息 -->
             <div class="author-stats">
               <div class="stat-box">
-                <div class="stat-number">{{ totalArticles }}</div>
+                <div class="stat-number">
+                  {{ totalArticles }}
+                </div>
                 <div class="stat-label">文章</div>
               </div>
               <div class="stat-box">
-                <div class="stat-number">{{ categoryList.length }}</div>
+                <div class="stat-number">
+                  {{ categoryList.length }}
+                </div>
                 <div class="stat-label">分类</div>
               </div>
               <div class="stat-box">
-                <div class="stat-number">{{ tagCloud.length }}</div>
+                <div class="stat-number">
+                  {{ tagCloud.length }}
+                </div>
                 <div class="stat-label">标签</div>
               </div>
             </div>
 
             <!-- 技能标签 -->
-            <div class="skills-section" v-if="blogSettings.skills && blogSettings.skills.length">
+            <div v-if="blogSettings.skills && blogSettings.skills.length" class="skills-section">
               <div class="skills-title">技能专长</div>
               <div class="skills-tags">
                 <span v-for="(skill, index) in blogSettings.skills" :key="index" class="skill-tag">
@@ -201,43 +385,83 @@
 
             <!-- 社交链接 -->
             <div class="social-links">
-              <a v-if="blogSettings.github_url" :href="blogSettings.github_url" class="social-link" title="GitHub" target="_blank" rel="noopener">
+              <a
+                v-if="blogSettings.github_url"
+                :href="blogSettings.github_url"
+                class="social-link"
+                title="GitHub"
+                target="_blank"
+                rel="noopener"
+              >
                 <el-icon :size="18"><Promotion /></el-icon>
               </a>
-              <a v-if="blogSettings.blog_email" :href="`mailto:${blogSettings.blog_email}`" class="social-link" title="邮箱">
+              <a
+                v-if="blogSettings.blog_email"
+                :href="`mailto:${blogSettings.blog_email}`"
+                class="social-link"
+                title="邮箱"
+              >
                 <el-icon :size="18"><Message /></el-icon>
               </a>
-              <a v-if="blogSettings.wechat_qr" href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
+              <a
+                v-if="blogSettings.wechat_qr"
+                href="#"
+                class="social-link"
+                title="微信"
+                @click.prevent="showWechatQR = true"
+              >
                 <el-icon :size="18"><ChatDotRound /></el-icon>
               </a>
-              <a v-if="blogSettings.weibo_url" :href="blogSettings.weibo_url" class="social-link" title="微博" target="_blank" rel="noopener">
+              <a
+                v-if="blogSettings.weibo_url"
+                :href="blogSettings.weibo_url"
+                class="social-link"
+                title="微博"
+                target="_blank"
+                rel="noopener"
+              >
                 <el-icon :size="18"><Star /></el-icon>
               </a>
               <!-- 如果没有任何社交链接，显示默认提示 -->
-              <div v-if="!blogSettings.github_url && !blogSettings.blog_email && !blogSettings.wechat_qr && !blogSettings.weibo_url" class="no-social-links" style="color: #999; font-size: 0.9rem; margin-top: 10px;">
+              <div
+                v-if="
+                  !blogSettings.github_url &&
+                  !blogSettings.blog_email &&
+                  !blogSettings.wechat_qr &&
+                  !blogSettings.weibo_url
+                "
+                class="no-social-links"
+                style="color: #999; font-size: 0.9rem; margin-top: 10px"
+              >
                 暂未配置社交链接
               </div>
             </div>
-
-            </div>
+          </div>
         </div>
 
         <!-- 分类 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><Menu /></el-icon>
+            <el-icon :size="18">
+              <Menu />
+            </el-icon>
             文章分类
           </h3>
-          <ul class="category-list" v-if="categoryList.length > 0">
+          <ul v-if="categoryList.length > 0" class="category-list">
             <li v-for="category in categoryList" :key="category.id" class="category-item">
-              <router-link :to="{ name: 'PublicBlogCategory', params: { id: category.id } }" class="category-link">
+              <router-link
+                :to="{ name: 'PublicBlogCategory', params: { id: category.id } }"
+                class="category-link"
+              >
                 <span class="category-name">{{ category.name }}</span>
                 <span class="category-count">({{ category.articleCount || 0 }})</span>
               </router-link>
             </li>
           </ul>
           <div v-else class="no-data">
-            <el-icon :size="40"><FolderOpened /></el-icon>
+            <el-icon :size="40">
+              <FolderOpened />
+            </el-icon>
             <p>暂无分类</p>
           </div>
         </div>
@@ -245,7 +469,9 @@
         <!-- 标签云 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><CollectionTag /></el-icon>
+            <el-icon :size="18">
+              <CollectionTag />
+            </el-icon>
             标签云
           </h3>
           <div class="tag-cloud">
@@ -270,14 +496,27 @@
         <!-- 热门文章 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><StarFilled /></el-icon>
+            <el-icon :size="18">
+              <StarFilled />
+            </el-icon>
             热门文章
           </h3>
-          <ul class="hot-article-list" v-if="hotArticles.length > 0">
-            <li v-for="(article, index) in hotArticles.slice(0, 8)" :key="article.id" class="hot-article-item">
+          <ul v-if="hotArticles.length > 0" class="hot-article-list">
+            <li
+              v-for="(article, index) in hotArticles.slice(0, 8)"
+              :key="article.id"
+              class="hot-article-item"
+            >
               <span class="article-rank" :class="{ 'rank-top': index < 3 }">{{ index + 1 }}</span>
               <div class="hot-article-info">
-                <router-link :to="{ name: 'PublicBlogArticleDetail', params: { id: (article.id ?? article.articleId ?? article.uuid) } }" class="hot-article-link" :title="article.title">
+                <router-link
+                  :to="{
+                    name: 'PublicBlogArticleDetail',
+                    params: { id: article.id ?? article.articleId ?? article.uuid }
+                  }"
+                  class="hot-article-link"
+                  :title="article.title"
+                >
                   {{ article.title }}
                 </router-link>
                 <span class="hot-article-meta">
@@ -288,7 +527,9 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <el-icon :size="40"><StarFilled /></el-icon>
+            <el-icon :size="40">
+              <StarFilled />
+            </el-icon>
             <p>暂无热门文章</p>
           </div>
         </div>
@@ -296,11 +537,17 @@
         <!-- 文章归档 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><Calendar /></el-icon>
+            <el-icon :size="18">
+              <Calendar />
+            </el-icon>
             文章归档
           </h3>
-          <ul class="archive-list" v-if="archiveList.length > 0">
-            <li v-for="archive in archiveList.slice(0, 6)" :key="archive.archive_date" class="archive-item">
+          <ul v-if="archiveList.length > 0" class="archive-list">
+            <li
+              v-for="archive in archiveList.slice(0, 6)"
+              :key="archive.archive_date"
+              class="archive-item"
+            >
               <router-link to="/blog/archive" class="archive-link">
                 <span class="archive-date">{{ formatArchiveDate(archive.archive_date) }}</span>
                 <span class="archive-count">({{ archive.article_count }})</span>
@@ -308,7 +555,9 @@
             </li>
           </ul>
           <div v-else class="no-data">
-            <el-icon :size="40"><Calendar /></el-icon>
+            <el-icon :size="40">
+              <Calendar />
+            </el-icon>
             <p>暂无归档</p>
           </div>
         </div>
@@ -316,17 +565,27 @@
         <!-- 最新评论 -->
         <div class="sidebar-widget">
           <h3 class="widget-title">
-            <el-icon :size="18"><ChatDotRound /></el-icon>
+            <el-icon :size="18">
+              <ChatDotRound />
+            </el-icon>
             最新评论
           </h3>
           <div class="recent-comments">
             <div v-if="recentComments.length === 0" class="no-comments">
-              <el-icon :size="40"><ChatLineRound /></el-icon>
+              <el-icon :size="40">
+                <ChatLineRound />
+              </el-icon>
               <p>暂无评论</p>
             </div>
-            <div v-for="comment in recentComments.slice(0, 5)" :key="comment.id" class="comment-item">
+            <div
+              v-for="comment in recentComments.slice(0, 5)"
+              :key="comment.id"
+              class="comment-item"
+            >
               <div class="comment-content">
-                <p class="comment-text">{{ truncateText(comment.content, 30) }}</p>
+                <p class="comment-text">
+                  {{ truncateText(comment.content, 30) }}
+                </p>
                 <div class="comment-meta">
                   <span class="comment-author">{{ comment.nickname || '匿名' }}</span>
                   <span class="comment-time">{{ formatDate(comment.createTime) }}</span>
@@ -335,31 +594,71 @@
             </div>
           </div>
         </div>
+
+        <!-- 友情链接 -->
+        <div class="sidebar-widget">
+          <h3 class="widget-title">
+            <el-icon :size="18">
+              <Link />
+            </el-icon>
+            友情链接
+          </h3>
+          <ul v-if="friendLinkList.length > 0" class="friend-link-list">
+            <li v-for="link in friendLinkList" :key="link.id" class="friend-link-item">
+              <a
+                :href="link.url"
+                :title="link.description"
+                target="_blank"
+                rel="noopener"
+                class="friend-link"
+              >
+                <img v-if="link.logo" :src="link.logo" :alt="link.name" class="friend-link-logo" />
+                <div class="friend-link-info">
+                  <span class="friend-link-name">{{ link.name }}</span>
+                  <span class="friend-link-desc">{{ link.description }}</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+          <div v-else class="no-data">
+            <el-icon :size="40">
+              <Link />
+            </el-icon>
+            <p>暂无友链</p>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- 回到顶部按钮 -->
     <transition name="fade">
-      <div v-show="showBackToTop" class="back-to-top" @click="scrollToTop" title="回到顶部">
-        <el-icon :size="20"><ArrowUp /></el-icon>
+      <div v-show="showBackToTop" class="back-to-top" title="回到顶部" @click="scrollToTop">
+        <el-icon :size="20">
+          <ArrowUp />
+        </el-icon>
       </div>
     </transition>
 
     <!-- 微信二维码对话框 -->
     <el-dialog v-model="showWechatQR" title="微信二维码" width="300px" center>
       <div class="qr-code-container">
-        <img :src="blogSettings.wechat_qr || 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'" alt="微信二维码" />
+        <img
+          :src="
+            blogSettings.wechat_qr ||
+            'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
+          "
+          alt="微信二维码"
+        />
         <p>扫码添加微信</p>
       </div>
     </el-dialog>
 
-  
     <!-- 博客底部 -->
     <BlogFooter
-      :blogSettings="blogSettings"
-      :totalArticles="totalArticles"
-      :categoryCount="categoryList.length"
-      :tagCount="tagCloud.length"
+      :blog-settings="blogSettings"
+      :total-articles="totalArticles"
+      :category-count="categoryList.length"
+      :tag-count="tagCloud.length"
     />
   </div>
 </template>
@@ -369,14 +668,39 @@ import { ref, reactive, onMounted, onUnmounted, computed, nextTick, watch } from
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import {
-  Search, Promotion, Message, ChatDotRound, Star, StarFilled, Menu,
-  DocumentCopy, PriceTag, Calendar, View, ChatLineRound, ArrowRight, User,
-  FolderOpened, CollectionTag, ArrowUp
+  Search,
+  Promotion,
+  Message,
+  ChatDotRound,
+  Star,
+  StarFilled,
+  Menu,
+  DocumentCopy,
+  Document,
+  PriceTag,
+  Calendar,
+  View,
+  ChatLineRound,
+  ArrowRight,
+  User,
+  FolderOpened,
+  CollectionTag,
+  ArrowUp,
+  Top,
+  Link
 } from '@element-plus/icons-vue'
-import { getArticleList, getArticleListAnonymous, getHotArticles, getArticleArchive } from '@/api/blog/article'
+import {
+  getArticleList,
+  getArticleListAnonymous,
+  getHotArticles,
+  getTopArticles,
+  getRecommendArticles,
+  getArticleArchive
+} from '@/api/blog/article'
 import { getCategoryList } from '@/api/blog/category'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getTagCloud } from '@/api/blog/tag'
+import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
@@ -390,6 +714,8 @@ const route = useRoute()
 
 // 响应式数据
 const articleList = ref([])
+const topArticles = ref([])
+const recommendArticles = ref([])
 const categoryList = ref([])
 const hotArticles = ref([])
 // 直接使用store中的数据，避免数据不一致
@@ -401,6 +727,7 @@ const searchKeyword = ref('')
 const tagCloud = ref([])
 const archiveList = ref([])
 const recentComments = ref([])
+const friendLinkList = ref([])
 const loading = ref(false)
 const loadingMore = ref(false)
 const showBackToTop = ref(false)
@@ -424,7 +751,7 @@ const loadArticleList = async (append = false) => {
       console.log('开始加载文章列表, append:', append, 'searchKeyword:', searchKeyword.value)
     }
 
-    let response;
+    let response
     try {
       response = await getArticleList(queryParams)
     } catch (error) {
@@ -436,11 +763,11 @@ const loadArticleList = async (append = false) => {
     if (process.env.NODE_ENV === 'development') {
       console.log('文章列表响应:', response)
     }
-    
+
     // 处理不同的响应格式
     let newArticles = []
     let totalCount = 0
-    
+
     if (response && response.code === 200) {
       // RuoYi标准响应格式：{code: 200, msg: "", total: 0, rows: [...]}
       newArticles = response.rows || response.data || []
@@ -454,7 +781,7 @@ const loadArticleList = async (append = false) => {
       newArticles = Array.isArray(response.data) ? response.data : []
       totalCount = response.total || newArticles.length
     }
-    
+
     console.log('处理后的文章数据:', {
       newArticles: newArticles.length,
       totalCount,
@@ -484,7 +811,8 @@ const loadArticleList = async (append = false) => {
         {
           id: 1,
           title: '欢迎使用Thumbnailator图片处理博客系统',
-          summary: '这是一个基于RuoYi-Vue的现代化博客系统，集成了Thumbnailator专业图片处理库，支持高质量的图片压缩、格式转换和水印添加等功能。',
+          summary:
+            '这是一个基于RuoYi-Vue的现代化博客系统，集成了Thumbnailator专业图片处理库，支持高质量的图片压缩、格式转换和水印添加等功能。',
           content: '这是一个基于RuoYi-Vue的博客系统，集成了Thumbnailator图片处理库...',
           coverUrl: '/profile/upload/2025/12/18/7558113286dd4f65a03c9c6b6a32fdea.jpg',
           categoryName: '系统公告',
@@ -501,7 +829,8 @@ const loadArticleList = async (append = false) => {
         {
           id: 2,
           title: '如何使用Thumbnailator进行图片压缩',
-          summary: 'Thumbnailator是一个强大的Java图片处理库，本文将详细介绍如何在项目中集成和使用Thumbnailator进行图片压缩、格式转换等操作。',
+          summary:
+            'Thumbnailator是一个强大的Java图片处理库，本文将详细介绍如何在项目中集成和使用Thumbnailator进行图片压缩、格式转换等操作。',
           content: 'Thumbnailator是一个强大的Java图片处理库...',
           coverUrl: 'https://via.placeholder.com/400x200/67C23A/FFFFFF?text=图片压缩',
           categoryName: '技术分享',
@@ -517,7 +846,8 @@ const loadArticleList = async (append = false) => {
         {
           id: 3,
           title: 'Spring Boot最佳实践指南',
-          summary: '本文总结了Spring Boot开发中的最佳实践，包括项目结构设计、配置管理、异常处理等方面的经验分享。',
+          summary:
+            '本文总结了Spring Boot开发中的最佳实践，包括项目结构设计、配置管理、异常处理等方面的经验分享。',
           content: 'Spring Boot是Java开发中最流行的框架之一...',
           coverUrl: 'https://via.placeholder.com/400x200/6DB33F/FFFFFF?text=Spring Boot',
           categoryName: '技术分享',
@@ -546,12 +876,40 @@ const loadArticleList = async (append = false) => {
   }
 }
 
+// 获取置顶文章
+const loadTopArticles = async () => {
+  try {
+    const response = await getTopArticles({ pageNum: 1, pageSize: 5 })
+    if (response && response.code === 200) {
+      topArticles.value = response.rows || response.data || []
+      console.log('置顶文章:', topArticles.value)
+    }
+  } catch (error) {
+    console.error('获取置顶文章失败:', error)
+    topArticles.value = []
+  }
+}
+
+// 获取推荐文章
+const loadRecommendArticles = async () => {
+  try {
+    const response = await getRecommendArticles({ pageNum: 1, pageSize: 5 })
+    if (response && response.code === 200) {
+      recommendArticles.value = response.rows || response.data || []
+      console.log('推荐文章:', recommendArticles.value)
+    }
+  } catch (error) {
+    console.error('获取推荐文章失败:', error)
+    recommendArticles.value = []
+  }
+}
+
 // 获取分类列表
 const loadCategoryList = async () => {
   try {
     const response = await getCategoryList({})
     console.log('分类列表响应:', response)
-    
+
     // 处理不同的响应格式
     if (response && response.code === 200) {
       categoryList.value = response.data || response.rows || []
@@ -579,7 +937,7 @@ const loadHotArticles = async () => {
     // 获取前5个热门文章
     const response = await getHotArticles({ pageNum: 1, pageSize: 5 })
     console.log('热门文章响应:', response)
-    
+
     // 处理不同的响应格式
     if (response && response.code === 200) {
       hotArticles.value = response.rows || response.data || []
@@ -613,7 +971,7 @@ const loadBlogSettings = async () => {
     console.log('加载设置时间戳:', timestamp)
 
     // 优先使用匿名访问接口
-    let response;
+    let response
     try {
       response = await getBlogSettings()
     } catch (error) {
@@ -680,7 +1038,10 @@ const loadBlogSettings = async () => {
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
     console.error('获取博客设置失败:', error)
-    if (error.response && error.response.status === 404 || error.response && error.response.status === 401) {
+    if (
+      (error.response && error.response.status === 404) ||
+      (error.response && error.response.status === 401)
+    ) {
       console.warn('博客设置接口暂未实现或匿名访问失败，使用默认设置')
       const defaultSettings = {
         blog_name: '我的博客',
@@ -702,7 +1063,7 @@ const loadBlogSettings = async () => {
 }
 
 // 监听博客设置更新事件
-const handleBlogSettingsUpdate = (event) => {
+const handleBlogSettingsUpdate = event => {
   console.log('收到博客设置更新事件:', event.detail)
 
   // 直接更新全局状态，无需更新本地状态（因为使用computed）
@@ -725,7 +1086,7 @@ const handleBlogSettingsUpdate = (event) => {
 }
 
 // 处理跨标签页storage变化事件
-const handleStorageChange = (event) => {
+const handleStorageChange = event => {
   if (event.key === 'blog-settings-update') {
     try {
       const updateData = JSON.parse(event.newValue || event.oldValue || '{}')
@@ -751,7 +1112,7 @@ const loadTagCloud = async () => {
   try {
     const response = await getTagCloud()
     console.log('标签云响应:', response)
-    
+
     // 处理不同的响应格式
     if (response && response.code === 200) {
       tagCloud.value = response.data || []
@@ -779,7 +1140,7 @@ const loadArchiveData = async () => {
   try {
     const response = await getArticleArchive()
     console.log('归档数据响应:', response)
-    
+
     // 处理不同的响应格式
     let archiveData = []
     if (response && response.code === 200) {
@@ -789,7 +1150,7 @@ const loadArchiveData = async () => {
     } else if (response && response.data) {
       archiveData = Array.isArray(response.data) ? response.data : []
     }
-    
+
     archiveList.value = archiveData.slice(0, 10) // 只显示前10个归档
   } catch (error) {
     console.error('获取归档数据失败:', error)
@@ -810,6 +1171,26 @@ const loadArchiveData = async () => {
   }
 }
 
+// 获取友情链接
+const loadFriendLinks = async () => {
+  try {
+    const response = await getFrontFriendLinkList()
+    console.log('友链列表响应:', response)
+
+    // 处理不同的响应格式
+    if (response && response.code === 200) {
+      friendLinkList.value = response.data || []
+    } else if (response && Array.isArray(response)) {
+      friendLinkList.value = response
+    } else if (response && response.data) {
+      friendLinkList.value = Array.isArray(response.data) ? response.data : []
+    }
+  } catch (error) {
+    console.error('获取友链列表失败:', error)
+    friendLinkList.value = []
+  }
+}
+
 // 搜索处理
 const handleSearch = () => {
   // 重置页码为第一页
@@ -825,7 +1206,7 @@ const clearSearch = () => {
 }
 
 // 日期格式化
-const formatDate = (dateString) => {
+const formatDate = dateString => {
   if (!dateString) return ''
   const date = new Date(dateString)
   return date.toLocaleDateString('zh-CN', {
@@ -836,16 +1217,28 @@ const formatDate = (dateString) => {
 }
 
 // 格式化归档日期
-const formatArchiveDate = (dateString) => {
+const formatArchiveDate = dateString => {
   if (!dateString) return ''
   const [year, month] = dateString.split('-')
-  const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', 
-                     '七月', '八月', '九月', '十月', '十一月', '十二月']
+  const monthNames = [
+    '一月',
+    '二月',
+    '三月',
+    '四月',
+    '五月',
+    '六月',
+    '七月',
+    '八月',
+    '九月',
+    '十月',
+    '十一月',
+    '十二月'
+  ]
   return `${year}年 ${monthNames[parseInt(month) - 1]}`
 }
 
 // 根据文章数量计算标签字体大小
-const getTagFontSize = (count) => {
+const getTagFontSize = count => {
   if (count >= 10) return 16
   if (count >= 5) return 14
   if (count >= 2) return 12
@@ -853,7 +1246,7 @@ const getTagFontSize = (count) => {
 }
 
 // 根据标签数量计算缩放比例
-const getTagScale = (count) => {
+const getTagScale = count => {
   if (count >= 10) return 1.1
   if (count >= 5) return 1.05
   if (count >= 2) return 1.0
@@ -867,7 +1260,6 @@ const truncateText = (text, maxLength) => {
   return text.substring(0, maxLength) + '...'
 }
 
-
 // 优化的加载更多文章
 const loadMoreArticles = async () => {
   if (loadingMore.value || articleList.value.length >= total.value) {
@@ -877,10 +1269,10 @@ const loadMoreArticles = async () => {
     })
     return
   }
-  
+
   loadingMore.value = true
   queryParams.pageNum++
-  
+
   try {
     const response = await getArticleListAnonymous(queryParams)
     if (response.code === 200 && response.rows) {
@@ -890,10 +1282,10 @@ const loadMoreArticles = async () => {
         // 预处理图片懒加载
         content: article.content ? addLazyLoadToImages(article.content) : article.content
       }))
-      
+
       articleList.value = [...articleList.value, ...newArticles]
       total.value = response.total
-      
+
       // 更新URL和状态
       const url = new URL(window.location)
       url.searchParams.set('page', queryParams.pageNum)
@@ -909,8 +1301,11 @@ const loadMoreArticles = async () => {
 }
 
 // 为图片添加懒加载属性
-const addLazyLoadToImages = (content) => {
-  return content.replace(/<img([^>]+)src=/gi, '<img$1src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB2aWV3Qm94PSIwIDAgMSAxIiBmaWxsPSJ0cmFuc3BhcmVudCI+PC9zdmc+" loading="lazy" src=')
+const addLazyLoadToImages = content => {
+  return content.replace(
+    /<img([^>]+)src=/gi,
+    '<img$1src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMSIgaGVpZ2h0PSIxIiB2aWV3Qm94PSIwIDAgMSAxIiBmaWxsPSJ0cmFuc3BhcmVudCI+PC9zdmc+" loading="lazy" src='
+  )
 }
 
 // 回到顶部
@@ -922,59 +1317,61 @@ const scrollToTop = () => {
 const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
   const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight
-  
+
   // 计算滚动进度
   scrollProgress.value = (scrollTop / scrollHeight) * 100
-  
+
   // 显示/隐藏回到顶部按钮
   showBackToTop.value = scrollTop > 300
 }
 
 // 去除HTML标签
-const stripHtmlTags = (html) => {
+const stripHtmlTags = html => {
   if (!html) return ''
   return html.replace(/<[^>]*>/g, '')
 }
 
 // 图片加载错误处理
-const handleImageError = (e) => {
+const handleImageError = e => {
   e.target.src = 'https://via.placeholder.com/400x200/409EFF/FFFFFF?text=暂无图片'
 }
 
 // 获取头像URL（使用优化的处理函数）
 const getAvatarUrl = () => {
-  const avatarUrl = blogSettings.value.blog_avatar;
+  const avatarUrl = blogSettings.value.blog_avatar
   if (process.env.NODE_ENV === 'development') {
-    console.log('获取头像URL:', avatarUrl);
+    console.log('获取头像URL:', avatarUrl)
   }
-  const processedUrl = processAvatarUrl(avatarUrl);
+  const processedUrl = processAvatarUrl(avatarUrl)
   if (process.env.NODE_ENV === 'development') {
-    console.log('处理后的头像URL:', processedUrl);
+    console.log('处理后的头像URL:', processedUrl)
   }
-  return processedUrl;
+  return processedUrl
 }
 
 // 头像加载错误处理
-const handleAvatarError = (e) => {
-  console.warn('头像加载失败，使用默认头像');
-  const defaultAvatar = processAvatarUrl('');
+const handleAvatarError = e => {
+  console.warn('头像加载失败，使用默认头像')
+  const defaultAvatar = processAvatarUrl('')
 
   // 防止循环：如果已经是默认头像了，不要再设置
   if (!e.target.src.includes('data:image/svg+xml')) {
-    e.target.src = defaultAvatar;
+    e.target.src = defaultAvatar
   }
   // 移除错误监听器，防止无限循环
-  e.target.onerror = null;
+  e.target.onerror = null
 }
-
 
 // 定期刷新博客设置（每5分钟）
 let settingsRefreshTimer = null
 
 const startSettingsRefresh = () => {
-  settingsRefreshTimer = setInterval(() => {
-    loadBlogSettings()
-  }, 5 * 60 * 1000) // 5分钟
+  settingsRefreshTimer = setInterval(
+    () => {
+      loadBlogSettings()
+    },
+    5 * 60 * 1000
+  ) // 5分钟
 }
 
 const stopSettingsRefresh = () => {
@@ -996,11 +1393,14 @@ const handleVisibilityChange = () => {
 onMounted(() => {
   console.log('首页组件已挂载，开始加载数据...')
   loadArticleList()
+  loadTopArticles()
+  loadRecommendArticles()
   loadCategoryList()
   loadHotArticles()
   loadBlogSettings()
   loadTagCloud()
   loadArchiveData()
+  loadFriendLinks()
 
   // 启动定期刷新
   startSettingsRefresh()
@@ -1144,11 +1544,15 @@ defineExpose({
   transform: translateY(-3px);
 }
 
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+.fade-enter-active,
+.fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
   transform: translateY(20px);
 }
@@ -1182,18 +1586,27 @@ defineExpose({
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.1) 2px, transparent 3px),
-    radial-gradient(circle at 70% 65%, rgba(255,255,255,0.1) 1px, transparent 2px),
-    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.1) 1.5px, transparent 2.5px),
-    radial-gradient(circle at 90% 10%, rgba(255,255,255,0.1) 1px, transparent 2px),
-    radial-gradient(circle at 15% 85%, rgba(255,255,255,0.1) 1px, transparent 2px);
-  background-size: 100px 100px, 80px 80px, 120px 120px, 60px 60px, 90px 90px;
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 2px, transparent 3px),
+    radial-gradient(circle at 70% 65%, rgba(255, 255, 255, 0.1) 1px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.1) 1.5px, transparent 2.5px),
+    radial-gradient(circle at 90% 10%, rgba(255, 255, 255, 0.1) 1px, transparent 2px),
+    radial-gradient(circle at 15% 85%, rgba(255, 255, 255, 0.1) 1px, transparent 2px);
+  background-size:
+    100px 100px,
+    80px 80px,
+    120px 120px,
+    60px 60px,
+    90px 90px;
   animation: floatStars 20s linear infinite;
 }
 
 @keyframes floatStars {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-100px, -100px); }
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-100px, -100px);
+  }
 }
 
 .blog-header::after {
@@ -1222,7 +1635,6 @@ defineExpose({
   gap: 20px;
 }
 
-
 .blog-text-info {
   display: flex;
   flex-direction: column;
@@ -1230,7 +1642,6 @@ defineExpose({
   gap: 15px;
   text-align: center;
 }
-
 
 @keyframes rotate {
   from {
@@ -1249,7 +1660,7 @@ defineExpose({
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: titleSlideIn 1s ease-out 0.2s both;
   letter-spacing: -0.5px;
 }
@@ -1395,7 +1806,6 @@ defineExpose({
   font-weight: 400;
 }
 
-
 .blog-main {
   max-width: 1200px;
   margin: 0 auto;
@@ -1418,6 +1828,7 @@ defineExpose({
   gap: 30px;
   margin-bottom: 20px;
   animation: fadeInUp 0.6s ease-out;
+  align-items: stretch;
 }
 
 @keyframes fadeInUp {
@@ -1443,14 +1854,27 @@ defineExpose({
   position: relative;
   animation: cardFadeIn 0.6s ease-out backwards;
   backdrop-filter: blur(10px);
+  min-height: 480px;
 }
 
-.article-item:nth-child(1) { animation-delay: 0.1s; }
-.article-item:nth-child(2) { animation-delay: 0.2s; }
-.article-item:nth-child(3) { animation-delay: 0.3s; }
-.article-item:nth-child(4) { animation-delay: 0.4s; }
-.article-item:nth-child(5) { animation-delay: 0.5s; }
-.article-item:nth-child(6) { animation-delay: 0.6s; }
+.article-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.article-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.article-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.article-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.article-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.article-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
 
 @keyframes cardFadeIn {
   from {
@@ -1492,6 +1916,7 @@ defineExpose({
   height: 200px;
   overflow: hidden;
   background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+  flex-shrink: 0;
 }
 
 .article-cover img {
@@ -1543,6 +1968,7 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .article-title {
@@ -1550,6 +1976,7 @@ defineExpose({
   font-size: 1.5rem;
   line-height: 1.4;
   font-weight: 600;
+  min-height: 2.8rem;
 }
 
 .article-title a {
@@ -1560,7 +1987,7 @@ defineExpose({
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: linear-gradient(135deg, #1a1a1a, #333);
+  background: linear-gradient(135deg, #2c3e50, #3498db);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1613,6 +2040,7 @@ defineExpose({
   overflow: hidden;
   flex: 1;
   font-size: 0.95rem;
+  min-height: 4.8rem;
 }
 
 .article-tags {
@@ -1620,7 +2048,6 @@ defineExpose({
   gap: 8px;
   margin-bottom: 18px;
   flex-wrap: wrap;
-  margin-top: auto;
 }
 
 .tag-badge {
@@ -1658,9 +2085,9 @@ defineExpose({
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
   padding-top: 15px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: auto;
 }
 
 .read-more {
@@ -1719,12 +2146,24 @@ defineExpose({
   animation: slideInRight 0.6s ease-out backwards;
 }
 
-.sidebar-widget:nth-child(1) { animation-delay: 0.2s; }
-.sidebar-widget:nth-child(2) { animation-delay: 0.3s; }
-.sidebar-widget:nth-child(3) { animation-delay: 0.4s; }
-.sidebar-widget:nth-child(4) { animation-delay: 0.5s; }
-.sidebar-widget:nth-child(5) { animation-delay: 0.6s; }
-.sidebar-widget:nth-child(6) { animation-delay: 0.7s; }
+.sidebar-widget:nth-child(1) {
+  animation-delay: 0.2s;
+}
+.sidebar-widget:nth-child(2) {
+  animation-delay: 0.3s;
+}
+.sidebar-widget:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.sidebar-widget:nth-child(4) {
+  animation-delay: 0.5s;
+}
+.sidebar-widget:nth-child(5) {
+  animation-delay: 0.6s;
+}
+.sidebar-widget:nth-child(6) {
+  animation-delay: 0.7s;
+}
 
 @keyframes slideInRight {
   from {
@@ -1826,7 +2265,6 @@ defineExpose({
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
-
 .qr-code-container {
   text-align: center;
   padding: 20px;
@@ -1896,14 +2334,30 @@ defineExpose({
   animation: tagPop 0.5s ease-out backwards;
 }
 
-.tag-item:nth-child(1) { animation-delay: 0.1s; }
-.tag-item:nth-child(2) { animation-delay: 0.15s; }
-.tag-item:nth-child(3) { animation-delay: 0.2s; }
-.tag-item:nth-child(4) { animation-delay: 0.25s; }
-.tag-item:nth-child(5) { animation-delay: 0.3s; }
-.tag-item:nth-child(6) { animation-delay: 0.35s; }
-.tag-item:nth-child(7) { animation-delay: 0.4s; }
-.tag-item:nth-child(8) { animation-delay: 0.45s; }
+.tag-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.tag-item:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.tag-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.tag-item:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.tag-item:nth-child(5) {
+  animation-delay: 0.3s;
+}
+.tag-item:nth-child(6) {
+  animation-delay: 0.35s;
+}
+.tag-item:nth-child(7) {
+  animation-delay: 0.4s;
+}
+.tag-item:nth-child(8) {
+  animation-delay: 0.45s;
+}
 
 @keyframes tagPop {
   from {
@@ -1937,7 +2391,9 @@ defineExpose({
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   transform: translate(-50%, -50%);
-  transition: width 0.4s ease, height 0.4s ease;
+  transition:
+    width 0.4s ease,
+    height 0.4s ease;
 }
 
 .tag-item:hover {
@@ -1977,10 +2433,12 @@ defineExpose({
   font-size: 0.9rem;
   line-height: 1.4;
   transition: color 0.3s ease;
-  display: block;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  max-height: 2.8em;
 }
 
 .hot-article-link:hover {
@@ -2116,7 +2574,9 @@ defineExpose({
   border-radius: 50%;
   background: rgba(64, 158, 255, 0.1);
   transform: translate(-50%, -50%);
-  transition: width 0.4s ease, height 0.4s ease;
+  transition:
+    width 0.4s ease,
+    height 0.4s ease;
 }
 
 .social-link:hover {
@@ -2132,25 +2592,88 @@ defineExpose({
 }
 
 .article-rank {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  background: #409eff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #409eff, #337ecc);
   color: white;
-  border-radius: 50%;
+  border-radius: 8px;
   text-align: center;
-  line-height: 20px;
-  font-size: 0.8rem;
-  margin-right: 10px;
+  line-height: 26px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-right: 12px;
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.article-rank::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.article-rank:hover::before {
+  left: 100%;
+}
+
+/* 前三名特殊样式 */
+.article-rank.rank-top {
+  background: linear-gradient(135deg, #ff6b6b, #ee5a5a);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+  animation: rankPulse 2s ease-in-out infinite;
+}
+
+.article-rank.rank-top:nth-child(1) {
+  background: linear-gradient(135deg, #ffd700, #ffb700);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.5);
+}
+
+.article-rank.rank-top:nth-child(2) {
+  background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+  box-shadow: 0 4px 12px rgba(192, 192, 192, 0.5);
+}
+
+.article-rank.rank-top:nth-child(3) {
+  background: linear-gradient(135deg, #cd7f32, #b87333);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.5);
+}
+
+@keyframes rankPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 .hot-article-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 12px;
-  padding-bottom: 12px;
+  padding: 10px;
+  border-radius: 8px;
   border-bottom: 1px solid #f0f0f0;
+  transition: all 0.3s ease;
+  background: transparent;
+}
+
+.hot-article-item:hover {
+  background: #f8f9fa;
+  transform: translateX(-4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .hot-article-item:last-child {
@@ -2162,7 +2685,8 @@ defineExpose({
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  min-width: 0;
 }
 
 .hot-article-meta {
@@ -2211,6 +2735,83 @@ defineExpose({
   font-size: 2rem;
   margin-bottom: 10px;
   display: block;
+}
+
+/* 友情链接样式 */
+.friend-link-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.friend-link-item {
+  margin-bottom: 12px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: all 0.3s ease;
+}
+
+.friend-link-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.friend-link-item:hover {
+  padding-left: 5px;
+  border-left: 3px solid #409eff;
+}
+
+.friend-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.3s ease;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.friend-link:hover {
+  background: #f5f5f5;
+  color: #409eff;
+}
+
+.friend-link-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f0f0;
+}
+
+.friend-link-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-link-name {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+
+.friend-link:hover .friend-link-name {
+  color: #409eff;
+}
+
+.friend-link-desc {
+  display: block;
+  font-size: 0.8rem;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .load-more-container {
@@ -2282,7 +2883,6 @@ defineExpose({
     padding: 60px 0 40px 0;
   }
 
-  
   .blog-title {
     font-size: 2.2rem;
     line-height: 1.2;
@@ -2324,8 +2924,18 @@ defineExpose({
     min-height: 200px;
   }
 
+  .article-list {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
   .article-item {
     margin-bottom: 20px;
+    min-height: 420px;
+  }
+
+  .article-cover {
+    height: 180px;
   }
 
   .article-content {
@@ -2334,6 +2944,7 @@ defineExpose({
 
   .article-title {
     font-size: 1.4rem;
+    min-height: 2.5rem;
   }
 
   .article-meta {
@@ -2346,6 +2957,7 @@ defineExpose({
   .article-summary {
     font-size: 0.9rem;
     line-height: 1.5;
+    min-height: 4.5rem;
   }
 
   .article-tags {
@@ -2426,20 +3038,47 @@ defineExpose({
   .search-container {
     margin: 20px auto 0;
     max-width: 100%;
+    padding: 0 10px;
   }
 
-  .search-input :deep(.el-input__inner) {
-    font-size: 16px; /* 防止iOS Safari缩放 */
-  }
-
-  .search-button {
-    width: 40px;
-    right: 2px;
-    border-radius: 0 40px 40px 0;
+  .search-wrapper {
+    position: relative;
+    width: 100%;
   }
 
   .search-input :deep(.el-input__wrapper) {
-    padding: 4px 16px 4px 16px;
+    padding: 12px 50px 12px 18px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-radius: 24px;
+  }
+
+  .search-input :deep(.el-input__inner) {
+    font-size: 16px;
+    height: 24px;
+    line-height: 24px;
+  }
+
+  .search-input :deep(.el-input__inner::placeholder) {
+    font-size: 15px;
+  }
+
+  .search-button {
+    width: 44px;
+    height: 44px;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 22px;
+  }
+
+  .search-button .el-icon {
+    font-size: 20px;
+  }
+
+  .search-wrapper:hover .search-input :deep(.el-input__wrapper),
+  .search-input :deep(.el-input__wrapper.is-focus) {
+    transform: translateY(-1px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
   }
 
   .blog-main {
@@ -2587,12 +3226,25 @@ defineExpose({
     padding: 10px 8px;
   }
 
+  .article-item {
+    min-height: 400px;
+  }
+
+  .article-cover {
+    height: 160px;
+  }
+
   .article-content {
     padding: 15px;
   }
 
   .article-title {
     font-size: 1.1rem;
+    min-height: 2.2rem;
+  }
+
+  .article-summary {
+    min-height: 4.2rem;
   }
 
   .sidebar-widget {
@@ -2643,5 +3295,472 @@ defineExpose({
 
 .hot-article-item:nth-child(3) .rank-top {
   background: linear-gradient(135deg, #cd7f32, #b8860b) !important;
+}
+
+/* 置顶文章和推荐文章模块 */
+.special-articles-section {
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+.special-articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.special-article-card {
+  background: #fafafa;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
+}
+
+.special-article-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  border-color: #409eff;
+}
+
+.special-article-cover {
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.special-article-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.special-article-card:hover .special-article-cover img {
+  transform: scale(1.05);
+}
+
+.special-article-cover-no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.special-article-cover-top {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.special-article-cover-recommend {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.special-article-cover-no-image::before {
+  content: '';
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: rotate 20s linear infinite;
+}
+
+.special-article-cover-no-image::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+}
+
+.placeholder-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.placeholder-icon {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.placeholder-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+@keyframes rotate {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.special-article-content {
+  padding: 16px;
+}
+
+.special-article-summary {
+  font-size: 0.875rem;
+  color: #606266;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.special-article-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.special-article-title a {
+  color: #303133;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.special-article-title a:hover {
+  color: #409eff;
+}
+
+.special-article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #909399;
+}
+
+.special-article-meta .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 响应式优化 */
+@media (max-width: 768px) {
+  .special-articles-section {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+  }
+
+  .special-articles-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .special-article-cover {
+    height: 140px;
+  }
+
+  .special-article-content {
+    padding: 12px;
+  }
+
+  .special-article-title {
+    font-size: 0.9rem;
+  }
+
+  .special-article-meta {
+    font-size: 0.8rem;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .special-articles-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .special-article-cover {
+    height: 120px;
+  }
+}
+
+/* 深色主题适配 */
+html.dark .blog-container {
+  background: #1a1a1a;
+}
+
+html.dark .blog-header {
+  background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+  border-bottom-color: #333;
+}
+
+html.dark .blog-title {
+  color: #e0e0e0;
+}
+
+html.dark .blog-description {
+  color: #b0b0b0;
+}
+
+html.dark .blog-stats {
+  color: #999;
+}
+
+html.dark .blog-stats .stat-item {
+  background: rgba(255, 255, 255, 0.05);
+  color: #b0b0b0;
+}
+
+html.dark .search-input :deep(.el-input__wrapper) {
+  background: #2a2a2a;
+  box-shadow: 0 0 0 1px #333 inset;
+}
+
+html.dark .search-input :deep(.el-input__inner) {
+  color: #e0e0e0;
+}
+
+html.dark .search-input :deep(.el-input__inner::placeholder) {
+  color: #666;
+}
+
+html.dark .search-button {
+  background: #409eff;
+  color: white;
+}
+
+html.dark .article-item {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+html.dark .article-title a {
+  color: #e0e0e0;
+}
+
+html.dark .article-title a:hover {
+  color: #409eff;
+}
+
+html.dark .article-meta {
+  color: #999;
+}
+
+html.dark .article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .article-footer .read-more {
+  color: #409eff;
+}
+
+html.dark .sidebar-widget {
+  background: #2a2a2a;
+  border-color: #333;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .widget-title {
+  color: #e0e0e0;
+  border-bottom-color: #333;
+}
+
+html.dark .category-link {
+  color: #b0b0b0;
+}
+
+html.dark .category-link:hover {
+  color: #409eff;
+  background: rgba(64, 158, 255, 0.1);
+}
+
+html.dark .category-count {
+  color: #666;
+}
+
+html.dark .tag-cloud .tag-item {
+  background: #409eff;
+  color: white;
+}
+
+html.dark .hot-article-item {
+  border-bottom-color: #333;
+}
+
+html.dark .hot-article-item:hover {
+  background: #333;
+}
+
+html.dark .hot-article-link {
+  color: #b0b0b0;
+}
+
+html.dark .hot-article-link:hover {
+  color: #409eff;
+}
+
+html.dark .hot-article-meta {
+  color: #666;
+}
+
+html.dark .archive-link {
+  color: #b0b0b0;
+}
+
+html.dark .archive-link:hover {
+  color: #409eff;
+}
+
+html.dark .archive-count {
+  color: #666;
+}
+
+html.dark .comment-item {
+  border-bottom-color: #333;
+}
+
+html.dark .comment-text {
+  color: #b0b0b0;
+}
+
+html.dark .comment-meta {
+  color: #666;
+}
+
+html.dark .friend-link-item {
+  border-bottom-color: #333;
+}
+
+html.dark .friend-link {
+  color: #e0e0e0;
+}
+
+html.dark .friend-link:hover {
+  background: #333;
+  color: #409eff;
+}
+
+html.dark .friend-link-name {
+  color: #e0e0e0;
+}
+
+html.dark .friend-link-desc {
+  color: #999;
+}
+
+html.dark .back-to-top {
+  background: #409eff;
+  color: white;
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+html.dark .back-to-top:hover {
+  background: #337ecc;
+}
+
+html.dark .special-articles-section {
+  background: #2a2a2a;
+  border-color: #333;
+}
+
+html.dark .section-title {
+  color: #e0e0e0;
+}
+
+html.dark .special-article-card {
+  background: #333;
+  border-color: #444;
+}
+
+html.dark .special-article-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .special-article-title a {
+  color: #e0e0e0;
+}
+
+html.dark .special-article-title a:hover {
+  color: #409eff;
+}
+
+html.dark .special-article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .special-article-meta {
+  color: #666;
+}
+
+html.dark .no-data {
+  color: #666;
+}
+
+html.dark .no-data p {
+  color: #666;
 }
 </style>

@@ -1,6 +1,6 @@
 {
   "name": "ruoyi",
-  "version": "3.9.0",
+  "version": "4.0.1",
   "description": "若依管理系统",
   "author": "若依",
   "license": "MIT",
@@ -9,7 +9,14 @@
     "dev": "vite",
     "build:prod": "vite build",
     "build:stage": "vite build --mode staging",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
   },
   "repository": {
     "type": "git",
@@ -18,12 +25,14 @@
   "dependencies": {
     "@element-plus/icons-vue": "2.3.1",
     "@tinymce/tinymce-vue": "^6.3.0",
+    "@types/dompurify": "^3.0.5",
     "@vueup/vue-quill": "1.2.0",
     "@vueuse/core": "13.3.0",
     "axios": "1.9.0",
     "clipboard": "2.0.11",
+    "dompurify": "^3.3.1",
     "echarts": "5.6.0",
-    "element-plus": "^2.8.2",
+    "element-plus": "2.10.7",
     "file-saver": "2.0.5",
     "fuse.js": "6.6.2",
     "highlight.js": "^11.11.1",
@@ -42,12 +51,21 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "5.2.4",
+    "@vitest/coverage-v8": "^2.1.8",
+    "@vitest/ui": "^2.1.8",
+    "@vue/test-utils": "^2.4.6",
+    "eslint": "^9.18.0",
+    "eslint-plugin-vue": "^9.32.0",
+    "globals": "^17.0.0",
+    "jsdom": "^25.0.1",
+    "prettier": "^3.4.2",
     "sass-embedded": "1.89.1",
     "unplugin-auto-import": "0.18.6",
     "unplugin-vue-setup-extend-plus": "1.0.1",
     "vite": "6.3.6",
     "vite-plugin-compression": "0.5.1",
-    "vite-plugin-svg-icons": "2.0.1"
+    "vite-plugin-svg-icons": "2.0.1",
+    "vitest": "^2.1.8"
   },
   "overrides": {
     "quill": "2.0.2",

@@ -1,6 +1,8 @@
 package com.ruoyi.system.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +21,11 @@ import com.ruoyi.system.service.IBlogCategoryService;
 import com.ruoyi.system.service.IBlogTagService;
 import com.ruoyi.system.service.IBlogCommentService;
 import com.ruoyi.system.service.ISysUserService;
+import com.ruoyi.system.service.ISysLogininforService;
 
 /**
  * 博客统计Controller
- * 
+ *
  * @author nevell
  * @date 2025-11-15
  */
@@ -45,6 +48,9 @@ public class BlogStatisticsController extends BaseController
     @Autowired
     private ISysUserService userService;
 
+    @Autowired
+    private ISysLogininforService logininforService;
+
     /**
      * 获取数据概览统计
      */
@@ -62,15 +68,35 @@ public class BlogStatisticsController extends BaseController
             // 获取用户总数
             Long userCount = userService.selectUserCount(new SysUser());
             result.put("userCount", userCount != null ? userCount : 0);
-            
+
             // 获取评论总数
-            // 临时设置为0，实际应该调用正确的方法
-            Long commentCount = 0L;
-            result.put("commentCount", commentCount);
-            
+            Long commentCount = blogCommentService.selectBlogCommentCount(new BlogComment());
+            result.put("commentCount", commentCount != null ? commentCount : 0);
+
             // 获取总浏览量（需要从文章表中统计）
             Long viewCount = blogArticleService.selectTotalViewCount();
             result.put("viewCount", viewCount != null ? viewCount : 0);
+            
+            // 获取在线用户数（最近5分钟有登录记录的用户）
+            Long onlineUsers = userService.selectOnlineUserCount(5);
+            result.put("onlineUsers", onlineUsers != null ? onlineUsers : 0);
+            
+            // 获取今日访问次数（今日登录成功次数）
+            Long todayVisits = logininforService.selectTodayLoginCount();
+            result.put("todayVisits", todayVisits != null ? todayVisits : 0);
+            
+            // 获取系统运行时间（天数）
+            long systemUptime = getSystemUptimeDays();
+            result.put("systemUptime", systemUptime + "天");
+            
+            // 获取内存使用率（百分比）
+            Runtime runtime = Runtime.getRuntime();
+            long maxMemory = runtime.maxMemory();
+            long totalMemory = runtime.totalMemory();
+            long freeMemory = runtime.freeMemory();
+            long usedMemory = totalMemory - freeMemory;
+            double memoryUsage = (double) usedMemory / maxMemory * 100;
+            result.put("memoryUsage", String.format("%.1f%%", memoryUsage));
             
             return AjaxResult.success(result);
         } catch (Exception e) {
@@ -81,7 +107,34 @@ public class BlogStatisticsController extends BaseController
             defaultResult.put("userCount", 0);
             defaultResult.put("commentCount", 0);
             defaultResult.put("viewCount", 0);
+            defaultResult.put("onlineUsers", 0);
+            defaultResult.put("todayVisits", 0);
+            defaultResult.put("systemUptime", "0天");
+            defaultResult.put("memoryUsage", "0%");
             return AjaxResult.success(defaultResult);
+        }
+    }
+    
+    /**
+     * 获取系统运行时间（天数）
+     */
+    private long getSystemUptimeDays()
+    {
+        try {
+            // 使用 ManagementFactory 获取 JVM 启动时间
+            java.lang.management.RuntimeMXBean runtimeMXBean = java.lang.management.ManagementFactory.getRuntimeMXBean();
+            long startTime = runtimeMXBean.getStartTime();
+            long currentTime = System.currentTimeMillis();
+            
+            // 计算运行天数
+            long uptimeMillis = currentTime - startTime;
+            long uptimeDays = uptimeMillis / (1000 * 60 * 60 * 24);
+            
+            return uptimeDays;
+        } catch (Exception e) {
+            logger.error("获取系统运行时间失败:", e);
+            // 如果获取失败，返回0天
+            return 0;
         }
     }
 
@@ -95,10 +148,21 @@ public class BlogStatisticsController extends BaseController
         try {
             Map<String, Object> result = new HashMap<>();
             
-            // 简单地返回默认值，避免所有类型转换问题
-            result.put("publishedCount", 0);
-            result.put("draftCount", 0);
-            result.put("avgViews", 0);
+            // 统计已发布文章数（status = 1）
+            BlogArticle publishedArticle = new BlogArticle();
+            publishedArticle.setStatus(1L);
+            Long publishedCount = blogArticleService.selectBlogArticleCount(publishedArticle);
+            result.put("publishedCount", publishedCount != null ? publishedCount : 0);
+            
+            // 统计草稿文章数（status = 0）
+            BlogArticle draftArticle = new BlogArticle();
+            draftArticle.setStatus(0L);
+            Long draftCount = blogArticleService.selectBlogArticleCount(draftArticle);
+            result.put("draftCount", draftCount != null ? draftCount : 0);
+            
+            // 获取平均浏览量
+            Double avgViews = blogArticleService.selectAverageViewCount();
+            result.put("avgViews", avgViews != null ? Math.round(avgViews * 100) / 100.0 : 0);
             
             return AjaxResult.success(result);
         } catch (Exception e) {
@@ -159,14 +223,48 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getArticleTrend()
     {
         try {
-            // 返回模拟数据，实际项目中需要从数据库查询
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"});
-            result.put("data", new int[]{12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11});
+
+            // 从数据库查询文章发布趋势
+            List<Map<String, Object>> trendData = blogArticleService.selectArticleTrend();
+
+            if (trendData != null && !trendData.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+
+                // 数据是按月份降序排列的，需要反转成升序
+                for (int i = trendData.size() - 1; i >= 0; i--) {
+                    Map<String, Object> monthData = trendData.get(i);
+                    String month = (String) monthData.get("month");
+                    Long count = monthData.get("count") != null ? Long.parseLong(monthData.get("count").toString()) : 0;
+
+                    // 格式化月份标签（例如：2025-12 -> 12月）
+                    String[] parts = month.split("-");
+                    if (parts.length == 2) {
+                        labels.add(parts[1] + "月");
+                    } else {
+                        labels.add(month);
+                    }
+
+                    data.add(count.intValue());
+                }
+
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取文章发布趋势失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 
@@ -178,14 +276,47 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getUserActivity()
     {
         try {
-            // 返回模拟数据
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"});
-            result.put("data", new int[]{45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48});
+
+            // 从数据库查询用户活跃度
+            List<Map<String, Object>> activityData = logininforService.selectUserActivity();
+
+            if (activityData != null && !activityData.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+
+                // 数据是按月份升序排列的
+                for (Map<String, Object> monthData : activityData) {
+                    String month = (String) monthData.get("month");
+                    Long count = monthData.get("count") != null ? Long.parseLong(monthData.get("count").toString()) : 0;
+
+                    // 格式化月份标签（例如：2025-12 -> 12月）
+                    String[] parts = month.split("-");
+                    if (parts.length == 2) {
+                        labels.add(parts[1] + "月");
+                    } else {
+                        labels.add(month);
+                    }
+
+                    data.add(count.intValue());
+                }
+
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取用户活跃度失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 
@@ -235,14 +366,42 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getArticleCategoryDistribution()
     {
         try {
-            // 返回模拟数据
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"技术", "生活", "学习", "其他"});
-            result.put("data", new int[]{25, 18, 12, 8});
+            
+            // 查询分类列表（包含文章数量）
+            List<com.ruoyi.system.domain.BlogCategory> categoryList = blogCategoryService.selectCategoryListForFront(new com.ruoyi.system.domain.BlogCategory());
+            
+            if (categoryList != null && !categoryList.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+                
+                for (com.ruoyi.system.domain.BlogCategory category : categoryList) {
+                    String name = category.getName();
+                    Integer articleCount = category.getArticleCount() != null ? category.getArticleCount().intValue() : 0;
+                    
+                    // 只统计有文章的分类
+                    if (articleCount > 0) {
+                        labels.add(name);
+                        data.add(articleCount);
+                    }
+                }
+                
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+            
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取文章分类分布失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 
@@ -254,14 +413,50 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getHotTags()
     {
         try {
-            // 返回模拟数据
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"Java", "Spring", "Vue", "React", "数据库", "Linux"});
-            result.put("data", new int[]{15, 12, 8, 6, 9, 7});
+            
+            // 查询标签云（包含文章数量）
+            List<Map<String, Object>> tagList = blogTagService.getTagCloud();
+            
+            if (tagList != null && !tagList.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+                
+                // 取前10个热门标签
+                int count = 0;
+                for (Map<String, Object> tag : tagList) {
+                    if (count >= 10) {
+                        break;
+                    }
+                    
+                    String name = (String) tag.get("name");
+                    Integer articleCount = tag.get("article_count") != null ? 
+                        Integer.parseInt(tag.get("article_count").toString()) : 0;
+                    
+                    // 只统计有文章的标签
+                    if (articleCount > 0) {
+                        labels.add(name);
+                        data.add(articleCount);
+                        count++;
+                    }
+                }
+                
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+            
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取热门标签失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 }

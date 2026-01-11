@@ -1,7 +1,7 @@
 package com.ruoyi.system.controller;
 
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,7 +96,7 @@ public class BlogCommentController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:comment:remove')")
     @Log(title = "博客评论", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogCommentService.deleteBlogCommentByIds(ids));
     }
@@ -107,7 +107,7 @@ public class BlogCommentController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:comment:audit')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)
     @PutMapping("/audit/{ids}")
-    public AjaxResult audit(@PathVariable Long[] ids)
+    public AjaxResult audit(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogCommentService.auditBlogCommentByIds(ids));
     }
@@ -118,7 +118,7 @@ public class BlogCommentController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:comment:reject')")
     @Log(title = "博客评论", businessType = BusinessType.UPDATE)
     @PutMapping("/reject/{ids}")
-    public AjaxResult reject(@PathVariable Long[] ids)
+    public AjaxResult reject(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogCommentService.rejectBlogCommentByIds(ids));
     }

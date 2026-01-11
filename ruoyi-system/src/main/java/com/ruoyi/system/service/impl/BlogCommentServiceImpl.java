@@ -112,7 +112,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
 
     /**
      * 审核拒绝博客评论
-     * 
+     *
      * @param ids 需要审核拒绝的博客评论主键集合
      * @return 结果
      */
@@ -128,5 +128,17 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             count += blogCommentMapper.updateBlogComment(blogComment);
         }
         return count;
+    }
+
+    /**
+     * 统计博客评论数量
+     *
+     * @param blogComment 查询条件
+     * @return 评论数量
+     */
+    @Override
+    public Long selectBlogCommentCount(BlogComment blogComment)
+    {
+        return blogCommentMapper.selectBlogCommentCount(blogComment);
     }
 }

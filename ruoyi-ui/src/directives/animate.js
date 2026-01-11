@@ -55,31 +55,34 @@ const animateDirective = (el, binding) => {
   el.style.transform = animations[animationType]?.enter[0].transform || 'translateY(30px)'
 
   // 创建观察器
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // 延迟执行动画
-        setTimeout(() => {
-          const animation = animations[animationType]
-          if (animation) {
-            const [, to] = animation.enter
-            const { duration, easing } = animation.options
+  const observer = new IntersectionObserver(
+    entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // 延迟执行动画
+          setTimeout(() => {
+            const animation = animations[animationType]
+            if (animation) {
+              const [, to] = animation.enter
+              const { duration, easing } = animation.options
 
-            // 应用动画
-            el.style.transition = `all ${duration}s ${easing}`
-            el.style.opacity = to.opacity
-            el.style.transform = to.transform
-          }
-        }, delay * 1000)
+              // 应用动画
+              el.style.transition = `all ${duration}s ${easing}`
+              el.style.opacity = to.opacity
+              el.style.transform = to.transform
+            }
+          }, delay * 1000)
 
-        // 动画执行后停止观察
-        observer.unobserve(el)
-      }
-    })
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  })
+          // 动画执行后停止观察
+          observer.unobserve(el)
+        }
+      })
+    },
+    {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    }
+  )
 
   // 开始观察
   observer.observe(el)

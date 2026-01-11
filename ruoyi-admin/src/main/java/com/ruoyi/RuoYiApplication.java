@@ -2,6 +2,7 @@ package com.ruoyi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -12,7 +13,7 @@ import com.ruoyi.common.config.ImageCompressConfig;
  *
  * @author ruoyi
  */
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, RedisAutoConfiguration.class })
 @ComponentScan(basePackages = {"com.ruoyi", "com.ruoyi.system.controller"})
 @EnableConfigurationProperties({ImageCompressConfig.class})
 public class RuoYiApplication

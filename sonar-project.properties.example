@@ -1,0 +1,22 @@
+# SonarQube 项目配置模板
+# 复制此文件为 sonar-project.properties 并填入实际配置值
+# 注意：sonar-project.properties 包含敏感信息，不应提交到版本控制系统
+
+# SonarQube 项目唯一标识
+sonar.projectKey=your-project-key
+
+# SonarQube 项目名称
+sonar.projectName=newblog
+
+# 源代码目录
+sonar.sources=.
+
+# SonarQube 服务器地址
+sonar.host.url=http://localhost:9000
+
+# SonarQube 认证令牌（需要从 SonarQube 服务器获取）
+# 获取方式：SonarQube -> My Account -> Security -> Generate Token
+sonar.login=your-sonar-token-here
+
+# 可选：排除不需要分析的文件和目录
+# sonar.exclusions=**/test/**,**/node_modules/**,**/target/**

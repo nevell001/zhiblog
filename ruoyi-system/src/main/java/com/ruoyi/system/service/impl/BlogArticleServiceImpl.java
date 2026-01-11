@@ -54,9 +54,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             
             // 设置标签ID列表
             List<Long> tagIds = new ArrayList<>();
-            for (BlogTag tag : tags) {
-                if (tag != null && tag.getId() != null) {
-                    tagIds.add(tag.getId());
+            if (tags != null) {
+                for (BlogTag tag : tags) {
+                    if (tag != null && tag.getId() != null) {
+                        tagIds.add(tag.getId());
+                    }
                 }
             }
             article.setTagIds(tagIds);
@@ -84,9 +86,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
                     // 设置标签ID列表
                     List<Long> tagIds = new ArrayList<>();
-                    for (BlogTag tag : tags) {
-                        if (tag != null && tag.getId() != null) {
-                            tagIds.add(tag.getId());
+                    if (tags != null) {
+                        for (BlogTag tag : tags) {
+                            if (tag != null && tag.getId() != null) {
+                                tagIds.add(tag.getId());
+                            }
                         }
                     }
                     article.setTagIds(tagIds);
@@ -433,7 +437,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 获取文章平均浏览量
-     * 
+     *
      * @return 平均浏览量
      */
     @Override
@@ -443,8 +447,19 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
+     * 获取文章发布趋势（按月统计）
+     *
+     * @return 文章发布趋势数据
+     */
+    @Override
+    public List<Map<String, Object>> selectArticleTrend()
+    {
+        return blogArticleMapper.selectArticleTrend();
+    }
+
+    /**
      * 查询博客文章列表（带缓存，用于热门文章）
-     * 
+     *
      * @param blogArticle 博客文章
      * @return 博客文章集合
      */
@@ -453,5 +468,29 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public List<BlogArticle> selectBlogArticleListWithCache(BlogArticle blogArticle)
     {
         return selectBlogArticleList(blogArticle);
+    }
+
+    /**
+     * 获取热门文章（按浏览量降序排序）
+     *
+     * @param blogArticle 查询条件
+     * @return 热门文章列表
+     */
+    @Override
+    public List<BlogArticle> selectHotArticles(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectHotArticles(blogArticle);
+    }
+
+    /**
+     * 根据归档月份获取文章列表
+     *
+     * @param blogArticle 查询条件（包含archiveDate）
+     * @return 文章列表
+     */
+    @Override
+    public List<BlogArticle> selectArticlesByArchive(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectArticlesByArchive(blogArticle);
     }
 }

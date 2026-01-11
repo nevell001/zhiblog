@@ -1,7 +1,7 @@
 package com.ruoyi.system.controller;
 
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -105,7 +105,7 @@ public class BlogTagController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
     @Log(title = "博客标签", businessType = BusinessType.DELETE)
     @DeleteMapping("/{tagIds}")
-    public AjaxResult remove(@PathVariable Long[] tagIds)
+    public AjaxResult remove(@PathVariable("tagIds") Long[] tagIds)
     {
         for (Long tagId : tagIds)
         {

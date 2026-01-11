@@ -282,16 +282,6 @@ export const optimizedAdminRoutes = [
         }
       },
       {
-        path: 'druid',
-        component: () => import('@/views/admin/monitor/druid/index.vue'),
-        name: 'MonitorDruid',
-        meta: {
-          title: '数据监控',
-          icon: 'druid',
-          permissions: ['monitor:druid:list']
-        }
-      },
-      {
         path: 'server',
         component: () => import('@/views/admin/monitor/server/index.vue'),
         name: 'MonitorServer',

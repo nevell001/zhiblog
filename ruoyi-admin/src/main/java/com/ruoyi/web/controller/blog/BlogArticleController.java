@@ -101,7 +101,7 @@ public class BlogArticleController extends BaseController {
      */
     @ApiOperation("增加文章浏览量")
     @GetMapping("/view/{id}")
-    public AjaxResult addViewCount(@PathVariable Long id) {
+    public AjaxResult addViewCount(@PathVariable("id") Long id) {
         try {
             BlogArticle article = blogArticleService.selectBlogArticleById(id);
             if (article == null) {
@@ -123,6 +123,54 @@ public class BlogArticleController extends BaseController {
         } catch (Exception e) {
             logger.error("增加文章浏览量失败: {}", id, e);
             return error("增加文章浏览量失败");
+        }
+    }
+
+    /**
+     * 获取置顶文章列表
+     */
+    @ApiOperation("获取置顶文章列表")
+    @GetMapping("/top")
+    public TableDataInfo getTopArticles(
+            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer pageNum,
+            @ApiParam(value = "每页大小", defaultValue = "5") @RequestParam(defaultValue = "5") Integer pageSize) {
+        try {
+            startPage();
+            
+            // 构建查询条件：只查询置顶且已发布的文章
+            BlogArticle blogArticle = new BlogArticle();
+            blogArticle.setIsTop(1L);
+            blogArticle.setStatus(1L); // 只显示已发布的文章
+
+            List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+            return getDataTable(list);
+        } catch (Exception e) {
+            logger.error("获取置顶文章列表失败", e);
+            return getDataTable(new ArrayList<>());
+        }
+    }
+
+    /**
+     * 获取推荐文章列表
+     */
+    @ApiOperation("获取推荐文章列表")
+    @GetMapping("/recommend")
+    public TableDataInfo getRecommendArticles(
+            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer pageNum,
+            @ApiParam(value = "每页大小", defaultValue = "5") @RequestParam(defaultValue = "5") Integer pageSize) {
+        try {
+            startPage();
+            
+            // 构建查询条件：只查询推荐且已发布的文章
+            BlogArticle blogArticle = new BlogArticle();
+            blogArticle.setIsRecommend(1L);
+            blogArticle.setStatus(1L); // 只显示已发布的文章
+
+            List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+            return getDataTable(list);
+        } catch (Exception e) {
+            logger.error("获取推荐文章列表失败", e);
+            return getDataTable(new ArrayList<>());
         }
     }
 }

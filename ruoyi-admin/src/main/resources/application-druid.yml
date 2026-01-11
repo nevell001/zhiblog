@@ -5,17 +5,17 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: ${SPRING_DATASOURCE_URL}
-        username: ${SPRING_DATASOURCE_USERNAME}
-        password: ${SPRING_DATASOURCE_PASSWORD}
+        url: jdbc:mysql://${DB_HOST:localhost}:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+        username: ${DB_USERNAME:root}
+        password: ${DB_PASSWORD:root}
         driverClassName: com.mysql.cj.jdbc.Driver
       # 从库数据源
       slave:
         # 从数据源开关/默认关闭
         enabled: false
-        url: 
-        username: 
-        password: 
+        url:
+        username:
+        password:
       # 初始连接数
       initial-size: 10
       # 最小连接池数量
@@ -39,7 +39,7 @@ spring:
       testWhileIdle: true
       testOnBorrow: false
       testOnReturn: false
-      webStatFilter: 
+      webStatFilter:
         enabled: true
       statViewServlet:
         enabled: true

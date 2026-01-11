@@ -1,7 +1,7 @@
 package com.ruoyi.system.controller;
 
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -105,7 +105,7 @@ public class BlogCategoryController extends BaseController
     @PreAuthorize("@ss.hasPermi('blog:category:remove')")
     @Log(title = "文章分类", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogCategoryService.deleteBlogCategoryByIds(ids));
     }

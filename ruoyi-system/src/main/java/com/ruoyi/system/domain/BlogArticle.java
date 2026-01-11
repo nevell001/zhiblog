@@ -41,6 +41,9 @@ public class BlogArticle extends BaseEntity
     @Excel(name = "分类ID")
     private Long categoryId;
 
+    /** 分类名称（非数据库字段，用于显示） */
+    private String categoryName;
+
     /** 作者ID */
     @Excel(name = "作者ID")
     private Long authorId;
@@ -84,6 +87,9 @@ public class BlogArticle extends BaseEntity
 
     /** 删除标志（0代表存在 2代表删除） */
     private Long delFlag;
+
+    /** 归档日期（非数据库字段，用于查询） */
+    private String archiveDate;
 
     public void setId(Long id) 
     {
@@ -151,9 +157,19 @@ public class BlogArticle extends BaseEntity
         this.categoryId = categoryId;
     }
 
-    public Long getCategoryId() 
+    public Long getCategoryId()
     {
         return categoryId;
+    }
+
+    public void setCategoryName(String categoryName)
+    {
+        this.categoryName = categoryName;
+    }
+
+    public String getCategoryName()
+    {
+        return categoryName;
     }
 
     public void setAuthorId(Long authorId) 
@@ -266,18 +282,28 @@ public class BlogArticle extends BaseEntity
         return tags;
     }
 
-    public void setDelFlag(Long delFlag) 
+    public void setDelFlag(Long delFlag)
     {
         this.delFlag = delFlag;
     }
 
-    public Long getDelFlag() 
+    public Long getDelFlag()
     {
         if (delFlag == null) {
             // 如果字段为null，设置默认值并返回
             this.delFlag = 0L;
         }
         return delFlag;
+    }
+
+    public void setArchiveDate(String archiveDate)
+    {
+        this.archiveDate = archiveDate;
+    }
+
+    public String getArchiveDate()
+    {
+        return archiveDate;
     }
 
     @Override
@@ -289,6 +315,7 @@ public class BlogArticle extends BaseEntity
             .append("content", getContent())
             .append("coverUrl", getCoverUrl())
             .append("categoryId", getCategoryId())
+            .append("categoryName", getCategoryName())
             .append("authorId", getAuthorId())
             .append("author", getAuthor())
             .append("authorName", getAuthorName())

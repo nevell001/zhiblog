@@ -6,30 +6,67 @@
     <!-- 博主介绍头部 -->
     <div class="hero-section">
       <div class="hero-content">
-        <div class="hero-avatar" v-animate="'fade-in-up'">
-          <img :src="blogSettings.blog_avatar || 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=博主'" :alt="blogSettings.blog_author" />
+        <div v-animate="'fade-in-up'" class="hero-avatar">
+          <img
+            :src="
+              blogSettings.blog_avatar ||
+              'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=博主'
+            "
+            :alt="blogSettings.blog_author"
+          />
           <div class="avatar-decoration"></div>
         </div>
-        <div class="hero-info" v-animate="'fade-in-up'">
-          <h1 class="hero-title">{{ blogSettings.blog_author || 'Nevell' }}</h1>
-          <p class="hero-subtitle">{{ blogSettings.author_title || '全栈开发工程师' }}</p>
-          <p class="hero-description">{{ blogSettings.blog_desc || '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。' }}</p>
+        <div v-animate="'fade-in-up'" class="hero-info">
+          <h1 class="hero-title">
+            {{ blogSettings.blog_author || 'Nevell' }}
+          </h1>
+          <p class="hero-subtitle">
+            {{ blogSettings.author_title || '全栈开发工程师' }}
+          </p>
+          <p class="hero-description">
+            {{
+              blogSettings.blog_desc ||
+              '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。'
+            }}
+          </p>
 
           <!-- 社交链接 -->
-          <div class="hero-social" v-animate="'fade-in-up'">
-            <a :href="blogSettings.github_url || '#'" class="social-link" title="GitHub" target="_blank" rel="noopener">
+          <div v-animate="'fade-in-up'" class="hero-social">
+            <a
+              :href="blogSettings.github_url || '#'"
+              class="social-link"
+              title="GitHub"
+              target="_blank"
+              rel="noopener"
+            >
               <i class="el-icon-s-promotion"></i>
             </a>
-            <a :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'" class="social-link" title="邮箱">
+            <a
+              :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'"
+              class="social-link"
+              title="邮箱"
+            >
               <i class="el-icon-message"></i>
             </a>
             <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
               <i class="el-icon-chat-dot-round"></i>
             </a>
-            <a :href="blogSettings.weibo_url || '#'" class="social-link" title="微博" target="_blank" rel="noopener">
+            <a
+              :href="blogSettings.weibo_url || '#'"
+              class="social-link"
+              title="微博"
+              target="_blank"
+              rel="noopener"
+            >
               <i class="el-icon-star-off"></i>
             </a>
-            <a :href="blogSettings.zhihu_url || '#'" class="social-link" title="知乎" target="_blank" rel="noopener">
+            <a
+              :href="blogSettings.zhihu_url || '#'"
+              class="social-link"
+              title="知乎"
+              target="_blank"
+              rel="noopener"
+            >
               <i class="el-icon-reading"></i>
             </a>
           </div>
@@ -38,14 +75,16 @@
     </div>
 
     <!-- 统计数据 -->
-    <div class="stats-section" v-animate="'fade-in-up'">
+    <div v-animate="'fade-in-up'" class="stats-section">
       <div class="stats-container">
         <div class="stat-card">
           <div class="stat-icon">
             <i class="el-icon-document"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ stats.articleCount || 0 }}</div>
+            <div class="stat-number">
+              {{ stats.articleCount || 0 }}
+            </div>
             <div class="stat-label">篇文章</div>
           </div>
         </div>
@@ -54,7 +93,9 @@
             <i class="el-icon-folder-opened"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ stats.categoryCount || 0 }}</div>
+            <div class="stat-number">
+              {{ stats.categoryCount || 0 }}
+            </div>
             <div class="stat-label">个分类</div>
           </div>
         </div>
@@ -63,7 +104,9 @@
             <i class="el-icon-price-tag"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ stats.tagCount || 0 }}</div>
+            <div class="stat-number">
+              {{ stats.tagCount || 0 }}
+            </div>
             <div class="stat-label">个标签</div>
           </div>
         </div>
@@ -72,7 +115,9 @@
             <i class="el-icon-chat-dot-round"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ stats.commentCount || 0 }}</div>
+            <div class="stat-number">
+              {{ stats.commentCount || 0 }}
+            </div>
             <div class="stat-label">条评论</div>
           </div>
         </div>
@@ -81,7 +126,9 @@
             <i class="el-icon-view"></i>
           </div>
           <div class="stat-content">
-            <div class="stat-number">{{ formatNumber(stats.totalViews || 0) }}</div>
+            <div class="stat-number">
+              {{ formatNumber(stats.totalViews || 0) }}
+            </div>
             <div class="stat-label">总访问</div>
           </div>
         </div>
@@ -89,41 +136,62 @@
     </div>
 
     <!-- 技能专长 -->
-    <div class="skills-section" v-animate="'fade-in-up'">
+    <div v-animate="'fade-in-up'" class="skills-section">
       <h2 class="section-title">技能专长</h2>
       <div class="skills-container">
-        <div class="skill-item" v-for="(skill, index) in skills" :key="index" v-animate="'fade-in-up'">
+        <div
+          v-for="(skill, index) in skills"
+          :key="index"
+          v-animate="'fade-in-up'"
+          class="skill-item"
+        >
           <div class="skill-header">
             <span class="skill-name">{{ skill.name }}</span>
             <span class="skill-level">{{ skill.level }}%</span>
           </div>
           <div class="skill-bar">
-            <div class="skill-progress" :style="{ width: skill.level + '%', backgroundColor: skill.color }"></div>
+            <div
+              class="skill-progress"
+              :style="{ width: skill.level + '%', backgroundColor: skill.color }"
+            ></div>
           </div>
-          <div class="skill-description">{{ skill.description }}</div>
+          <div class="skill-description">
+            {{ skill.description }}
+          </div>
         </div>
       </div>
     </div>
 
     <!-- 工作经历 -->
-    <div class="timeline-section" v-animate="'fade-in-up'">
+    <div v-animate="'fade-in-up'" class="timeline-section">
       <h2 class="section-title">成长历程</h2>
       <div class="timeline">
-        <div class="timeline-item" v-for="(item, index) in timeline" :key="index" v-animate="'fade-in-up'">
+        <div
+          v-for="(item, index) in timeline"
+          :key="index"
+          v-animate="'fade-in-up'"
+          class="timeline-item"
+        >
           <div class="timeline-marker">
             <div class="timeline-dot"></div>
           </div>
           <div class="timeline-content">
-            <div class="timeline-date">{{ item.date }}</div>
-            <div class="timeline-title">{{ item.title }}</div>
-            <div class="timeline-description">{{ item.description }}</div>
+            <div class="timeline-date">
+              {{ item.date }}
+            </div>
+            <div class="timeline-title">
+              {{ item.title }}
+            </div>
+            <div class="timeline-description">
+              {{ item.description }}
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 联系方式 -->
-    <div class="contact-section" v-animate="'fade-in-up'">
+    <div v-animate="'fade-in-up'" class="contact-section">
       <h2 class="section-title">联系我</h2>
       <div class="contact-container">
         <div class="contact-info">
@@ -133,7 +201,9 @@
             </div>
             <div class="contact-details">
               <div class="contact-label">邮箱</div>
-              <div class="contact-value">{{ blogSettings.email || 'contact@example.com' }}</div>
+              <div class="contact-value">
+                {{ blogSettings.email || 'contact@example.com' }}
+              </div>
             </div>
           </div>
           <div class="contact-item">
@@ -142,7 +212,9 @@
             </div>
             <div class="contact-details">
               <div class="contact-label">位置</div>
-              <div class="contact-value">{{ blogSettings.author_location || '中国·北京' }}</div>
+              <div class="contact-value">
+                {{ blogSettings.author_location || '中国·北京' }}
+              </div>
             </div>
           </div>
           <div class="contact-item">
@@ -151,7 +223,9 @@
             </div>
             <div class="contact-details">
               <div class="contact-label">GitHub</div>
-              <div class="contact-value">{{ blogSettings.github_url ? 'github.com/nevell' : 'github.com/username' }}</div>
+              <div class="contact-value">
+                {{ blogSettings.github_url ? 'github.com/nevell' : 'github.com/username' }}
+              </div>
             </div>
           </div>
         </div>
@@ -180,10 +254,22 @@
               </el-input>
             </el-form-item>
             <el-form-item prop="message">
-              <el-input v-model="contactForm.message" type="textarea" :rows="4" placeholder="留言内容" resize="none" />
+              <el-input
+                v-model="contactForm.message"
+                type="textarea"
+                :rows="4"
+                placeholder="留言内容"
+                resize="none"
+              />
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" size="large" @click="submitContact" :loading="submitting" class="submit-btn">
+              <el-button
+                type="primary"
+                size="large"
+                :loading="submitting"
+                class="submit-btn"
+                @click="submitContact"
+              >
                 <i class="el-icon-s-promotion"></i>
                 发送消息
               </el-button>
@@ -196,7 +282,13 @@
     <!-- 微信二维码对话框 -->
     <el-dialog v-model="showWechatQR" title="微信二维码" width="300px" center>
       <div class="qr-code-container">
-        <img :src="blogSettings.wechat_qr || 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'" alt="微信二维码" />
+        <img
+          :src="
+            blogSettings.wechat_qr ||
+            'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
+          "
+          alt="微信二维码"
+        />
         <p>扫码添加微信</p>
       </div>
     </el-dialog>
@@ -260,24 +352,84 @@ const loadSkillsData = async () => {
     } else {
       // 使用默认数据
       skills.value = [
-        { name: 'Vue.js', level: 90, color: '#4FC08D', description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等' },
-        { name: 'React', level: 75, color: '#61DAFB', description: '了解 React 生态，能够进行 React 项目开发' },
-        { name: 'Node.js', level: 85, color: '#339933', description: '熟悉 Node.js 后端开发，Express、Koa 框架' },
-        { name: 'Java', level: 88, color: '#ED8B00', description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构' },
-        { name: 'Python', level: 70, color: '#3776AB', description: '掌握 Python 基础，能够进行脚本编写和数据分析' },
-        { name: 'MySQL', level: 85, color: '#4479A1', description: '熟练使用 MySQL 数据库设计、优化和集群部署' },
-        { name: 'Redis', level: 80, color: '#DC382D', description: '熟悉 Redis 缓存应用、数据结构和集群' },
-        { name: 'Docker', level: 82, color: '#2496ED', description: '掌握 Docker 容器化部署和 Docker Compose 编排' }
+        {
+          name: 'Vue.js',
+          level: 90,
+          color: '#4FC08D',
+          description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等'
+        },
+        {
+          name: 'React',
+          level: 75,
+          color: '#61DAFB',
+          description: '了解 React 生态，能够进行 React 项目开发'
+        },
+        {
+          name: 'Node.js',
+          level: 85,
+          color: '#339933',
+          description: '熟悉 Node.js 后端开发，Express、Koa 框架'
+        },
+        {
+          name: 'Java',
+          level: 88,
+          color: '#ED8B00',
+          description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构'
+        },
+        {
+          name: 'Python',
+          level: 70,
+          color: '#3776AB',
+          description: '掌握 Python 基础，能够进行脚本编写和数据分析'
+        },
+        {
+          name: 'MySQL',
+          level: 85,
+          color: '#4479A1',
+          description: '熟练使用 MySQL 数据库设计、优化和集群部署'
+        },
+        {
+          name: 'Redis',
+          level: 80,
+          color: '#DC382D',
+          description: '熟悉 Redis 缓存应用、数据结构和集群'
+        },
+        {
+          name: 'Docker',
+          level: 82,
+          color: '#2496ED',
+          description: '掌握 Docker 容器化部署和 Docker Compose 编排'
+        }
       ]
     }
   } catch (error) {
     console.error('加载技能数据失败:', error)
     // 使用默认数据
     skills.value = [
-      { name: 'Vue.js', level: 90, color: '#4FC08D', description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等' },
-      { name: 'React', level: 75, color: '#61DAFB', description: '了解 React 生态，能够进行 React 项目开发' },
-      { name: 'Node.js', level: 85, color: '#339933', description: '熟悉 Node.js 后端开发，Express、Koa 框架' },
-      { name: 'Java', level: 88, color: '#ED8B00', description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构' }
+      {
+        name: 'Vue.js',
+        level: 90,
+        color: '#4FC08D',
+        description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等'
+      },
+      {
+        name: 'React',
+        level: 75,
+        color: '#61DAFB',
+        description: '了解 React 生态，能够进行 React 项目开发'
+      },
+      {
+        name: 'Node.js',
+        level: 85,
+        color: '#339933',
+        description: '熟悉 Node.js 后端开发，Express、Koa 框架'
+      },
+      {
+        name: 'Java',
+        level: 88,
+        color: '#ED8B00',
+        description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构'
+      }
     ]
   }
 }
@@ -374,7 +526,7 @@ const loadStats = () => {
 }
 
 // 格式化数字
-const formatNumber = (num) => {
+const formatNumber = num => {
   if (num >= 10000) {
     return (num / 10000).toFixed(1) + 'W'
   } else if (num >= 1000) {
@@ -439,16 +591,23 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 3px, transparent 4px),
-    radial-gradient(circle at 70% 60%, rgba(255,255,255,0.08) 2px, transparent 3px),
-    radial-gradient(circle at 40% 80%, rgba(255,255,255,0.06) 4px, transparent 5px);
-  background-size: 150px 150px, 100px 100px, 200px 200px;
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 3px, transparent 4px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.08) 2px, transparent 3px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 4px, transparent 5px);
+  background-size:
+    150px 150px,
+    100px 100px,
+    200px 200px;
   animation: floatStars 25s linear infinite;
 }
 
 @keyframes floatStars {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-50px, -50px); }
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(-50px, -50px);
+  }
 }
 
 .hero-content {
@@ -492,8 +651,12 @@ onMounted(() => {
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .hero-info {
@@ -559,7 +722,7 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: left 0.5s ease;
 }
 

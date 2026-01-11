@@ -76,15 +76,15 @@ export const menuConfig = {
           permissions: ['admin', 'editor']
         },
         {
-          name: '友链管理',
-          path: '/admin/blog/friendLink',
-          icon: 'link',
-          permissions: ['admin']
-        },
-        {
           name: '博客设置',
           path: '/admin/blog/setting',
           icon: 'setting',
+          permissions: ['admin']
+        },
+        {
+          name: '友链管理',
+          path: '/admin/blog/friendLink',
+          icon: 'link',
           permissions: ['admin']
         }
       ]
@@ -152,6 +152,24 @@ export const menuConfig = {
       type: 'backend',
       children: [
         {
+          name: 'Actuator监控',
+          path: '/admin/monitor/actuator',
+          icon: 'monitor',
+          permissions: ['admin']
+        },
+        {
+          name: 'Prometheus监控',
+          path: '/admin/monitor/prometheus',
+          icon: 'chart',
+          permissions: ['admin']
+        },
+        {
+          name: 'Grafana监控',
+          path: '/admin/monitor/grafana',
+          icon: 'dashboard',
+          permissions: ['admin']
+        },
+        {
           name: '在线用户',
           path: '/admin/monitor/online',
           icon: 'online',
@@ -167,12 +185,6 @@ export const menuConfig = {
           name: '操作日志',
           path: '/admin/monitor/operlog',
           icon: 'form',
-          permissions: ['admin']
-        },
-        {
-          name: '数据监控',
-          path: '/admin/monitor/druid',
-          icon: 'druid',
           permissions: ['admin']
         },
         {
@@ -247,36 +259,36 @@ export const menuConfig = {
 // 根据用户权限过滤菜单
 export const getFilteredMenus = (userRole, menuType = 'backend') => {
   const menus = menuConfig[menuType] || []
-  
-  const filterMenus = (menuList) => {
+
+  const filterMenus = menuList => {
     return menuList.filter(menu => {
       if (menu.permissions && !menu.permissions.includes(userRole)) {
         return false
       }
-      
+
       if (menu.children) {
         menu.children = filterMenus(menu.children)
         // 如果子菜单为空，则过滤掉父菜单
         return menu.children.length > 0
       }
-      
+
       return true
     })
   }
-  
+
   return filterMenus(menus)
 }
 
 // 获取面包屑导航
 export const getBreadcrumb = (path, menuType = 'backend') => {
   const menus = menuConfig[menuType] || []
-  
+
   const findPath = (menuList, breadcrumb = []) => {
     for (const menu of menuList) {
       if (menu.path === path) {
         return [...breadcrumb, menu]
       }
-      
+
       if (menu.children) {
         const result = findPath(menu.children, [...breadcrumb, menu])
         if (result) return result
@@ -284,7 +296,7 @@ export const getBreadcrumb = (path, menuType = 'backend') => {
     }
     return null
   }
-  
+
   return findPath(menus) || []
 }
 

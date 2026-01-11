@@ -20,11 +20,11 @@ export * from './friendLink'
 export * from './setting'
 
 // 博客API使用示例：
-// import { 
-//   getArticleList, 
-//   getCategoryList, 
+// import {
+//   getArticleList,
+//   getCategoryList,
 //   getTagList,
-//   getBlogSettings 
+//   getBlogSettings
 // } from '@/api/blog'
 
 // 博客API模块说明：

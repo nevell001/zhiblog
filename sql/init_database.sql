@@ -7,27 +7,41 @@
 -- 🚀 版本：v2.0.0 (完整版)
 -- 
 -- 📋 包含内容：
--- ✅ 若依系统基础表结构和数据 (19个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice)
+-- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
 -- ✅ Quartz定时任务表结构 (11个表)
 -- ✅ 博客系统表结构和数据 (7个表)
 -- ✅ 性能优化索引 (20+个索引)
 -- ✅ 数据完整性约束和触发器
 -- ✅ 完整的示例数据 (文章6篇、分类14个、标签19个、友链10个)
 -- ✅ 博客管理菜单和权限配置
--- 
+--
 -- 🔧 技术栈：
 -- - MySQL 8.0+
 -- - Spring Boot 2.5.15
 -- - Vue.js 3.x
 -- - MyBatis
 -- - Redis
--- 
+--
 -- 📊 数据库统计：
--- - 总表数：37个（包含完整的若依系统表、Quartz表和博客系统表）
+-- - 总表数：39个（包含完整的若依系统表、Quartz表和博客系统表）
 -- - 总设置项：35个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
 -- - 示例标签：19个
+--
+-- ⚠️ 重要提示：
+-- 本脚本已整合所有必要的表结构和数据，完整的数据库初始化只需执行此脚本即可
+-- 
+-- 🚫 不要同时执行以下脚本，会导致重复定义错误：
+-- - ry_20250522.sql.bak（已整合到本脚本）
+-- - quartz.sql（已整合到本脚本）
+-- - backups/ 目录下的文件（仅用于备份）
+--
+-- ✅ 正确的初始化步骤：
+-- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 导入本脚本：mysql -u root -p newblog < init_database.sql
+-- 3. （可选）执行权限设置：mysql -u root -p < 00_setup_permissions.sql
+-- 4. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
 -- - 友情链接：10个
 -- 
 -- 🎯 使用方法：
@@ -326,6 +340,49 @@ CREATE TABLE sys_notice (
   PRIMARY KEY (notice_id)
 ) ENGINE=INNODB AUTO_INCREMENT=10 COMMENT = '通知公告表';
 
+-- 9、系统访问记录表
+DROP TABLE IF EXISTS `sys_logininfor`;
+CREATE TABLE `sys_logininfor` (
+  `info_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
+  `user_name` VARCHAR(50) DEFAULT '' COMMENT '用户账号',
+  `ipaddr` VARCHAR(128) DEFAULT '' COMMENT '登录IP地址',
+  `login_location` VARCHAR(255) DEFAULT '' COMMENT '登录地点',
+  `browser` VARCHAR(50) DEFAULT '' COMMENT '浏览器类型',
+  `os` VARCHAR(50) DEFAULT '' COMMENT '操作系统',
+  `status` CHAR(1) DEFAULT '0' COMMENT '登录状态（0成功 1失败）',
+  `msg` VARCHAR(255) DEFAULT '' COMMENT '提示消息',
+  `login_time` DATETIME DEFAULT NULL COMMENT '登录时间',
+  PRIMARY KEY (`info_id`),
+  KEY `idx_user_name` (`user_name`),
+  KEY `idx_login_time` (`login_time`)
+) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统访问记录';
+
+-- 10、操作日志记录表
+DROP TABLE IF EXISTS `sys_oper_log`;
+CREATE TABLE `sys_oper_log` (
+  `oper_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
+  `title` VARCHAR(50) DEFAULT '' COMMENT '模块标题',
+  `business_type` INT(2) DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
+  `method` VARCHAR(100) DEFAULT '' COMMENT '方法名称',
+  `request_method` VARCHAR(10) DEFAULT '' COMMENT '请求方式',
+  `operator_type` INT(1) DEFAULT 0 COMMENT '操作类别（0其它 1后台用户 2手机端用户）',
+  `oper_name` VARCHAR(50) DEFAULT '' COMMENT '操作人员',
+  `dept_name` VARCHAR(50) DEFAULT '' COMMENT '部门名称',
+  `oper_url` VARCHAR(255) DEFAULT '' COMMENT '请求URL',
+  `oper_ip` VARCHAR(128) DEFAULT '' COMMENT '主机地址',
+  `oper_location` VARCHAR(255) DEFAULT '' COMMENT '操作地点',
+  `oper_param` VARCHAR(2000) DEFAULT '' COMMENT '请求参数',
+  `json_result` VARCHAR(2000) DEFAULT '' COMMENT '返回参数',
+  `status` INT(1) DEFAULT 0 COMMENT '操作状态（0正常 1异常）',
+  `error_msg` VARCHAR(2000) DEFAULT '' COMMENT '错误消息',
+  `oper_time` DATETIME DEFAULT NULL COMMENT '操作时间',
+  `cost_time` BIGINT(20) DEFAULT 0 COMMENT '消耗时间',
+  PRIMARY KEY (`oper_id`),
+  KEY `idx_oper_time` (`oper_time`),
+  KEY `idx_oper_name` (`oper_name`),
+  KEY `idx_business_type` (`business_type`)
+) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='操作日志记录';
+
 -- ========== 导入Quartz定时任务表结构 ==========
 
 -- 按照正确的顺序删除表（先删除有外键约束的表）
@@ -491,6 +548,39 @@ CREATE TABLE QRTZ_SIMPROP_TRIGGERS (
 ) ENGINE=INNODB COMMENT = '同步机制的行锁表';
 
 -- ========== 导入博客系统完整表结构和数据 ==========
+
+-- 定时任务调度表
+DROP TABLE IF EXISTS sys_job;
+CREATE TABLE sys_job (
+    job_id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务ID',
+    job_name varchar(64) NOT NULL DEFAULT '' COMMENT '任务名称',
+    job_group varchar(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '任务组名',
+    invoke_target varchar(500) NOT NULL COMMENT '调用目标字符串',
+    cron_expression varchar(255) DEFAULT '' COMMENT 'cron执行表达式',
+    misfire_policy varchar(20) DEFAULT '3' COMMENT '计划执行错误策略（1立即执行 2执行一次 3放弃执行）',
+    concurrent char(1) DEFAULT '1' COMMENT '是否并发执行（0允许 1禁止）',
+    status char(1) DEFAULT '0' COMMENT '状态（0正常 1暂停）',
+    create_by varchar(64) DEFAULT '' COMMENT '创建者',
+    create_time datetime DEFAULT NULL COMMENT '创建时间',
+    update_by varchar(64) DEFAULT '' COMMENT '更新者',
+    update_time datetime DEFAULT NULL COMMENT '更新时间',
+    remark varchar(500) DEFAULT '' COMMENT '备注信息',
+    PRIMARY KEY (job_id)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务调度表';
+
+-- 定时任务执行日志表
+DROP TABLE IF EXISTS sys_job_log;
+CREATE TABLE sys_job_log (
+    job_log_id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
+    job_name varchar(64) NOT NULL COMMENT '任务名称',
+    job_group varchar(64) NOT NULL COMMENT '任务组名',
+    invoke_target varchar(500) NOT NULL COMMENT '调用目标字符串',
+    job_message varchar(500) DEFAULT NULL COMMENT '日志信息',
+    status char(1) DEFAULT '0' COMMENT '执行状态（0正常 1失败）',
+    exception_info varchar(2000) DEFAULT '' COMMENT '异常信息',
+    create_time datetime DEFAULT NULL COMMENT '创建时间',
+    PRIMARY KEY (job_log_id)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务执行日志表';
 
 -- 博客文章表
 DROP TABLE IF EXISTS `blog_article`;
@@ -1298,15 +1388,12 @@ CREATE TRIGGER `tr_article_update_time`
 BEFORE UPDATE ON `blog_article`
 FOR EACH ROW
 BEGIN
-    DECLARE old_valid_articles INT DEFAULT 0;
-    DECLARE new_valid_articles INT DEFAULT 0;
-
+    -- 更新时间总是设置
     SET NEW.update_time = NOW();
 
-    -- 如果禁用了触发器（用于批量更新），直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
+    -- 如果禁用了触发器（用于批量更新），直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 只有在未禁用触发器时才执行分类统计更新
 
     -- 检查旧文章状态是否有效（未删除且已发布）
     IF OLD.del_flag = '0' AND OLD.status = 1 AND OLD.category_id IS NOT NULL THEN
@@ -1335,6 +1422,7 @@ BEGIN
             CALL update_category_article_count(OLD.category_id, new_valid_articles - old_valid_articles);
         END IF;
     END IF;
+    END IF;
 END$$
 
 -- 文章插入前触发器
@@ -1348,14 +1436,12 @@ BEGIN
     END IF;
     SET NEW.update_time = NOW();
 
-    -- 如果禁用了触发器（用于批量更新），直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
-
-    -- 自动增加分类文章数（仅在文章有效时）
-    IF NEW.category_id IS NOT NULL AND NEW.del_flag = '0' AND NEW.status = 1 THEN
-        CALL update_category_article_count(NEW.category_id, 1);
+    -- 如果禁用了触发器（用于批量更新），直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 自动增加分类文章数（仅在文章有效时）
+        IF NEW.category_id IS NOT NULL AND NEW.del_flag = '0' AND NEW.status = 1 THEN
+            CALL update_category_article_count(NEW.category_id, 1);
+        END IF;
     END IF;
 END$$
 
@@ -1364,14 +1450,12 @@ CREATE TRIGGER `tr_article_delete_physical`
 AFTER DELETE ON `blog_article`
 FOR EACH ROW
 BEGIN
-    -- 如果禁用了触发器，直接返回
-    IF @DISABLE_TRIGGERS IS NOT NULL THEN
-        LEAVE;
-    END IF;
-
-    -- 物理删除时减少分类文章数（仅在文章有效时）
-    IF OLD.category_id IS NOT NULL AND OLD.del_flag = '0' AND OLD.status = 1 THEN
-        CALL update_category_article_count(OLD.category_id, -1);
+    -- 如果禁用了触发器，直接返回（不执行后续逻辑）
+    IF @DISABLE_TRIGGERS IS NULL THEN
+        -- 物理删除时减少分类文章数（仅在文章有效时）
+        IF OLD.category_id IS NOT NULL AND OLD.del_flag = '0' AND OLD.status = 1 THEN
+            CALL update_category_article_count(OLD.category_id, -1);
+        END IF;
     END IF;
 END$$
 

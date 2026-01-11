@@ -1,7 +1,16 @@
 <template>
   <div class="navbar">
-    <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-    <breadcrumb v-if="!settingsStore.topNav" id="breadcrumb-container" class="breadcrumb-container" />
+    <hamburger
+      id="hamburger-container"
+      :is-active="appStore.sidebar.opened"
+      class="hamburger-container"
+      @toggle-click="toggleSideBar"
+    />
+    <breadcrumb
+      v-if="!settingsStore.topNav"
+      id="breadcrumb-container"
+      class="breadcrumb-container"
+    />
     <top-nav v-if="settingsStore.topNav" id="topmenu-container" class="topmenu-container" />
 
     <div class="right-menu">
@@ -30,10 +39,14 @@
         </el-tooltip>
       </template>
 
-      <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
+      <el-dropdown
+        class="avatar-container right-menu-item hover-effect"
+        trigger="hover"
+        @command="handleCommand"
+      >
         <div class="avatar-wrapper">
           <img :src="userStore.avatar" class="user-avatar" />
-          <span class="user-nickname"> {{ userStore.nickName }} </span>
+          <span class="user-nickname">{{ userStore.nickName }}</span>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -46,7 +59,11 @@
           </el-dropdown-menu>
         </template>
       </el-dropdown>
-      <div class="right-menu-item hover-effect setting" @click="setLayout" v-if="settingsStore.showSettings">
+      <div
+        v-if="settingsStore.showSettings"
+        class="right-menu-item hover-effect setting"
+        @click="setLayout"
+      >
         <svg-icon icon-class="more-up" />
       </div>
     </div>
@@ -77,10 +94,10 @@ function toggleSideBar() {
 
 function handleCommand(command) {
   switch (command) {
-    case "setLayout":
+    case 'setLayout':
       setLayout()
       break
-    case "logout":
+    case 'logout':
       logout()
       break
     default:
@@ -93,11 +110,13 @@ function logout() {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
-  }).then(() => {
-    userStore.logOut().then(() => {
-      window.location.href = '/login'
+  })
+    .then(() => {
+      userStore.logOut().then(() => {
+        window.location.href = '/login'
+      })
     })
-  }).catch(() => { })
+    .catch(() => {})
 }
 
 const emits = defineEmits(['setLayout'])
@@ -110,7 +129,7 @@ function toggleTheme() {
 }
 </script>
 
-<style lang='scss' scoped>
+<style lang="scss" scoped>
 .navbar {
   height: 50px;
   overflow: hidden;
@@ -178,7 +197,7 @@ function toggleTheme() {
 
         svg {
           transition: transform 0.3s;
-          
+
           &:hover {
             transform: scale(1.15);
           }
@@ -202,7 +221,7 @@ function toggleTheme() {
           border-radius: 50%;
         }
 
-        .user-nickname{
+        .user-nickname {
           position: relative;
           left: 5px;
           bottom: 10px;

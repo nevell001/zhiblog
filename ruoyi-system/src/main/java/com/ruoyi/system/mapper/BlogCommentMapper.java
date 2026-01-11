@@ -57,4 +57,12 @@ public interface BlogCommentMapper
      * @return 结果
      */
     public int deleteBlogCommentById(Long id);
+
+    /**
+     * 统计博客评论数量
+     * 
+     * @param blogComment 查询条件
+     * @return 评论数量
+     */
+    public Long selectBlogCommentCount(BlogComment blogComment);
 }

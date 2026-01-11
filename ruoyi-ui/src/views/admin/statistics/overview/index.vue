@@ -8,7 +8,9 @@
               <svg-icon icon-class="documentation" />
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats.articleCount || 0 }}</div>
+              <div class="stat-value">
+                {{ stats.articleCount || 0 }}
+              </div>
               <div class="stat-label">文章总数</div>
             </div>
           </div>
@@ -21,7 +23,9 @@
               <svg-icon icon-class="user" />
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats.userCount || 0 }}</div>
+              <div class="stat-value">
+                {{ stats.userCount || 0 }}
+              </div>
               <div class="stat-label">用户总数</div>
             </div>
           </div>
@@ -34,7 +38,9 @@
               <svg-icon icon-class="message" />
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats.commentCount || 0 }}</div>
+              <div class="stat-value">
+                {{ stats.commentCount || 0 }}
+              </div>
               <div class="stat-label">评论总数</div>
             </div>
           </div>
@@ -47,7 +53,9 @@
               <svg-icon icon-class="eye" />
             </div>
             <div class="stat-info">
-              <div class="stat-value">{{ stats.viewCount || 0 }}</div>
+              <div class="stat-value">
+                {{ stats.viewCount || 0 }}
+              </div>
               <div class="stat-label">总浏览量</div>
             </div>
           </div>
@@ -55,15 +63,15 @@
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px;">
+    <el-row :gutter="20" style="margin-top: 20px">
       <el-col :span="12">
         <el-card header="文章发布趋势">
-          <div id="articleChart" style="height: 300px;"></div>
+          <div id="articleChart" style="height: 300px"></div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card header="用户活跃度">
-          <div id="userChart" style="height: 300px;"></div>
+          <div id="userChart" style="height: 300px"></div>
         </el-card>
       </el-col>
     </el-row>
@@ -117,7 +125,20 @@ const loadChartData = async () => {
       } else {
         // 使用模拟数据
         renderArticleChart({
-          labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+          labels: [
+            '1月',
+            '2月',
+            '3月',
+            '4月',
+            '5月',
+            '6月',
+            '7月',
+            '8月',
+            '9月',
+            '10月',
+            '11月',
+            '12月'
+          ],
           data: [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11]
         })
       }
@@ -125,7 +146,20 @@ const loadChartData = async () => {
       console.warn('文章趋势数据加载失败，使用模拟数据:', error)
       // 使用模拟数据
       renderArticleChart({
-        labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        labels: [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月'
+        ],
         data: [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11]
       })
     }
@@ -138,7 +172,20 @@ const loadChartData = async () => {
       } else {
         // 使用模拟数据
         renderUserChart({
-          labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+          labels: [
+            '1月',
+            '2月',
+            '3月',
+            '4月',
+            '5月',
+            '6月',
+            '7月',
+            '8月',
+            '9月',
+            '10月',
+            '11月',
+            '12月'
+          ],
           data: [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48]
         })
       }
@@ -146,7 +193,20 @@ const loadChartData = async () => {
       console.warn('用户活跃度数据加载失败，使用模拟数据:', error)
       // 使用模拟数据
       renderUserChart({
-        labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+        labels: [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月'
+        ],
         data: [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48]
       })
     }
@@ -155,7 +215,7 @@ const loadChartData = async () => {
   }
 }
 
-const renderArticleChart = (data) => {
+const renderArticleChart = data => {
   nextTick(() => {
     const chart = echarts.init(document.getElementById('articleChart'))
     const option = {
@@ -164,25 +224,40 @@ const renderArticleChart = (data) => {
       },
       xAxis: {
         type: 'category',
-        data: data.labels || ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+        data: data.labels || [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月'
+        ]
       },
       yAxis: {
         type: 'value'
       },
-      series: [{
-        data: data.data || [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11],
-        type: 'line',
-        smooth: true,
-        itemStyle: {
-          color: '#409EFF'
+      series: [
+        {
+          data: data.data || [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11],
+          type: 'line',
+          smooth: true,
+          itemStyle: {
+            color: '#409EFF'
+          }
         }
-      }]
+      ]
     }
     chart.setOption(option)
   })
 }
 
-const renderUserChart = (data) => {
+const renderUserChart = data => {
   nextTick(() => {
     const chart = echarts.init(document.getElementById('userChart'))
     const option = {
@@ -191,18 +266,33 @@ const renderUserChart = (data) => {
       },
       xAxis: {
         type: 'category',
-        data: data.labels || ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+        data: data.labels || [
+          '1月',
+          '2月',
+          '3月',
+          '4月',
+          '5月',
+          '6月',
+          '7月',
+          '8月',
+          '9月',
+          '10月',
+          '11月',
+          '12月'
+        ]
       },
       yAxis: {
         type: 'value'
       },
-      series: [{
-        data: data.data || [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48],
-        type: 'bar',
-        itemStyle: {
-          color: '#67C23A'
+      series: [
+        {
+          data: data.data || [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48],
+          type: 'bar',
+          itemStyle: {
+            color: '#67C23A'
+          }
         }
-      }]
+      ]
     }
     chart.setOption(option)
   })
@@ -225,7 +315,7 @@ onMounted(() => {
 
 .stat-icon {
   font-size: 48px;
-  color: #409EFF;
+  color: #409eff;
   margin-right: 20px;
 }
 

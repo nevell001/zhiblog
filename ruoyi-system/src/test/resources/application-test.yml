@@ -1,0 +1,35 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test_db?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: localhost
+    port: 6379
+    password:
+    database: 0
+  jpa:
+    hibernate:
+      ddl-auto: none
+  sql:
+    init:
+      mode: always
+
+# MyBatis 配置
+mybatis:
+  mapper-locations: classpath:mapper/system/**/*.xml
+  type-aliases-package: com.ruoyi.system.domain
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    log-prefix: test.
+
+# 日志配置
+logging:
+  level:
+    com.ruoyi.system.mapper: DEBUG
+    org.springframework.test: DEBUG
+    org.testcontainers: INFO
+    org.apache.ibatis: DEBUG
