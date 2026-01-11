@@ -27,6 +27,9 @@ ruoyi-admin/src/main/resources/static/static/
 !ruoyi-admin/src/main/resources/static/favicon.ico
 !ruoyi-admin/src/main/resources/static/index.html
 
+# 测试输出目录
+ruoyi-system/null/
+
 
 
 # Cypress自动生成文件（如果你用在前端）
