@@ -12,6 +12,9 @@ target/
 # Git Hooks (husky 需要提交)
 !.husky/**
 
+# iFlow CLI 个人配置（不应提交）
+.iflow/
+
 
 # 构建产物与依赖
 node_modules/
