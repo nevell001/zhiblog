@@ -6,7 +6,7 @@
 	
     <groupId>com.ruoyi</groupId>
     <artifactId>ruoyi</artifactId>
-    <version>4.0.1</version>
+    <version>4.0.2</version>
 
     <name>newblog</name>
     <url>http://www.gitee.com/nevell/newblog</url>
@@ -14,7 +14,7 @@
     
     <properties>
     
-            <ruoyi.version>4.0.1</ruoyi.version>
+            <ruoyi.version>4.0.2</ruoyi.version>
     
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
