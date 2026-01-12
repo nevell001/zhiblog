@@ -299,6 +299,8 @@
 </template>
 
 <script setup name="Role">
+import { ref, reactive, toRefs, getCurrentInstance, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import {
   addRole,
   changeRoleStatus,
@@ -472,7 +474,7 @@ function getDeptAllCheckedKeys() {
 
 /** 重置新增的表单以及其他数据  */
 function reset() {
-  if (menuRef.value !== undefined) {
+  if (menuRef.value) {
     menuRef.value.setCheckedKeys([])
   }
   menuExpand.value = false
