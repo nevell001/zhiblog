@@ -451,6 +451,7 @@
 </template>
 
 <script setup name="User">
+import { nextTick } from 'vue'
 import { getToken } from '@/utils/auth'
 import useAppStore from '@/store/modules/app'
 import {
@@ -767,7 +768,9 @@ function handleAdd() {
     roleOptions.value = response.roles
     open.value = true
     title.value = '添加用户'
-    form.value.password = initPassword.value
+    // 确保使用初始密码，如果未获取到则使用默认值
+    form.value.password = initPassword.value || '123456'
+    console.log('handleAdd - 设置密码:', form.value.password)
   })
 }
 
@@ -798,6 +801,13 @@ function submitForm() {
           getList()
         })
       } else {
+        // 新增用户时，确保 password 字段存在且不为空
+        console.log('submitForm - 提交前检查 password:', form.value.password)
+        if (!form.value.password || form.value.password === undefined || form.value.password === '') {
+          form.value.password = initPassword.value || '123456'
+          console.log('submitForm - 设置默认密码:', form.value.password)
+        }
+        console.log('submitForm - 提交的数据:', JSON.stringify(form.value))
         addUser(form.value).then(response => {
           proxy.$modal.msgSuccess('新增成功')
           open.value = false
@@ -812,7 +822,7 @@ onMounted(() => {
   getDeptTree()
   getList()
   proxy.getConfigKey('sys.user.initPassword').then(response => {
-    initPassword.value = response.msg
+    initPassword.value = response.data
   })
 })
 </script>

@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile-admin
     container_name: ruoyi-admin
     working_dir: /app
-    command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar --spring.redis.url=redis://@redis:6379 --spring.redis.host=redis --spring.redis.port=6379 --logging.level.org.springframework.data.redis=DEBUG"
+    command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar --spring.redis.url=redis://@redis:6379 --spring.redis.host=redis --spring.redis.port=6379 --logging.level.org.springframework.data.redis=DEBUG --xss.excludes=/system/notice,/system/article,/system/user,/manage/**"
     ports:
       - "8080:8080"
     volumes:
@@ -15,17 +15,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+    env_file:
+      - .env
     environment:
-      TZ: Asia/Shanghai
-      LANG: C.UTF-8
-      LC_ALL: C.UTF-8
       DB_HOST: mysql
-      DB_USERNAME: root
       DB_PASSWORD: root
       REDIS_HOST: redis
-      REDIS_PORT: 6379
-      # 验证码开关 - 生产环境建议开启
-      CAPTCHA_ENABLED: "false"
+      REDIS_PASSWORD: ""
     networks:
       - ruoyi-network
     restart: unless-stopped
