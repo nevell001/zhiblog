@@ -6,9 +6,9 @@ import createVitePlugins from './vite/plugins'
 // 通过环境变量 DOCKER 来控制（docker-compose.yml 中设置）
 const inDocker = process.env.DOCKER === 'true'
 
-// 如果在容器内 → 用 host.docker.internal 访问宿主机上的后端服务
+// 如果在容器内 → 用 ruoyi-admin 访问同网络下的后端服务
 // 如果在本机开发 → 用 localhost 访问后端
-const baseUrl = inDocker ? 'http://host.docker.internal:8080' : 'http://localhost:8080'
+const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {

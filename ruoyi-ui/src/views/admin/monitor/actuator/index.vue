@@ -497,7 +497,9 @@ const viewEndpoint = async (url, key) => {
 
   try {
     // 将容器内地址转换为本地访问地址
-    const localUrl = url.replace('http://ruoyi-admin:8080', 'http://localhost:8080')
+    const localUrl = url
+      .replace('http://ruoyi-admin:8080', 'http://localhost:8080')
+      .replace('http://host.docker.internal:8080', 'http://localhost:8080')
 
     const response = await fetch(localUrl)
     if (!response.ok) {
