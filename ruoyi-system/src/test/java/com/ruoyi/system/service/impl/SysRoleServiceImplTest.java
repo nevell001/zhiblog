@@ -339,9 +339,18 @@ class SysRoleServiceImplTest {
     void testInsertAuthUsers() {
         Long[] userIds = new Long[]{1L, 2L};
 
+        // 创建一个非管理员角色用于测试
+        SysRole normalRole = new SysRole();
+        normalRole.setRoleId(2L);
+        normalRole.setRoleName("普通角色");
+        normalRole.setRoleKey("common");
+        normalRole.setStatus("0");
+
+        // Mock 角色查询返回有效的非管理员角色对象
+        when(roleMapper.selectRoleById(2L)).thenReturn(normalRole);
         when(userRoleMapper.batchUserRole(anyList())).thenReturn(2);
 
-        int result = roleService.insertAuthUsers(1L, userIds);
+        int result = roleService.insertAuthUsers(2L, userIds);
 
         assertEquals(2, result);
         verify(userRoleMapper).batchUserRole(anyList());
