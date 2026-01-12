@@ -15,6 +15,9 @@ public class UserAgentUtils
 {
     public static final String UNKNOWN = "";
 
+    // 是否启用 Yauaa 分析器（默认禁用以减少内存使用）
+    private static final boolean ENABLE_YAUAA = false;
+
     // 浏览器正则表达式模式
     private static final Pattern CHROME_PATTERN = Pattern.compile("Chrome/(\\d+)(?:\\.\\d+)*");
     private static final Pattern FIREFOX_PATTERN = Pattern.compile("Firefox/(\\d+)(?:\\.\\d+)*");
@@ -36,26 +39,33 @@ public class UserAgentUtils
     private static final Pattern LINUX_PATTERN = Pattern.compile("Linux");
     private static final Pattern CHROMEOS_PATTERN = Pattern.compile("CrOS");
 
-    private static final UserAgentAnalyzer userAgentAnalyzer = UserAgentAnalyzer
-            .newBuilder().hideMatcherLoadStats()
-            .withCache(5000)
-            .showMinimalVersion()
-            .withField(UserAgent.AGENT_NAME_VERSION)
-            .withField(UserAgent.OPERATING_SYSTEM_NAME_VERSION)
-            .build();
+    // 延迟初始化 Yauaa 分析器（仅在启用时加载）
+    private static UserAgentAnalyzer userAgentAnalyzer = null;
 
     /**
      * 获取客户端浏览器
      */
     public static String getBrowser(String userAgent)
     {
-        UserAgent.ImmutableUserAgent iua = userAgentAnalyzer.parse(userAgent);
-        String agentNameVersion = iua.get(UserAgent.AGENT_NAME_VERSION).getValue();
-        if (StringUtils.isBlank(agentNameVersion) || agentNameVersion.contains("??"))
+        // 如果启用了 Yauaa，优先使用 Yauaa 解析
+        if (ENABLE_YAUAA)
         {
-            return formatBrowser(userAgent);
+            try
+            {
+                UserAgent.ImmutableUserAgent iua = getUserAgentAnalyzer().parse(userAgent);
+                String agentNameVersion = iua.get(UserAgent.AGENT_NAME_VERSION).getValue();
+                if (StringUtils.isNotBlank(agentNameVersion) && !agentNameVersion.contains("??"))
+                {
+                    return agentNameVersion;
+                }
+            }
+            catch (Exception e)
+            {
+                // Yauaa 解析失败，降级到正则表达式
+            }
         }
-        return agentNameVersion;
+        // 使用正则表达式解析
+        return formatBrowser(userAgent);
     }
 
     /**
@@ -63,13 +73,44 @@ public class UserAgentUtils
      */
     public static String getOperatingSystem(String userAgent)
     {
-        UserAgent.ImmutableUserAgent iua = userAgentAnalyzer.parse(userAgent);
-        String operatingSystemNameVersion = iua.get(UserAgent.OPERATING_SYSTEM_NAME_VERSION).getValue();
-        if (StringUtils.isBlank(operatingSystemNameVersion) || operatingSystemNameVersion.contains("??"))
+        // 如果启用了 Yauaa，优先使用 Yauaa 解析
+        if (ENABLE_YAUAA)
         {
-            return formatOperatingSystem(userAgent);
+            try
+            {
+                UserAgent.ImmutableUserAgent iua = getUserAgentAnalyzer().parse(userAgent);
+                String operatingSystemNameVersion = iua.get(UserAgent.OPERATING_SYSTEM_NAME_VERSION).getValue();
+                if (StringUtils.isNotBlank(operatingSystemNameVersion) && !operatingSystemNameVersion.contains("??"))
+                {
+                    return operatingSystemNameVersion;
+                }
+            }
+            catch (Exception e)
+            {
+                // Yauaa 解析失败，降级到正则表达式
+            }
         }
-        return operatingSystemNameVersion;
+        // 使用正则表达式解析
+        return formatOperatingSystem(userAgent);
+    }
+
+    /**
+     * 获取 Yauaa 分析器实例（延迟初始化）
+     */
+    private static synchronized UserAgentAnalyzer getUserAgentAnalyzer()
+    {
+        if (userAgentAnalyzer == null)
+        {
+            userAgentAnalyzer = UserAgentAnalyzer
+                    .newBuilder()
+                    .hideMatcherLoadStats()
+                    .withCache(5000)
+                    .showMinimalVersion()
+                    .withField(UserAgent.AGENT_NAME_VERSION)
+                    .withField(UserAgent.OPERATING_SYSTEM_NAME_VERSION)
+                    .build();
+        }
+        return userAgentAnalyzer;
     }
 
     /**

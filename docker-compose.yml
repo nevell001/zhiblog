@@ -5,11 +5,17 @@ services:
       dockerfile: Dockerfile-admin
     container_name: ruoyi-admin
     working_dir: /app
-    command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -jar /app/ruoyi-admin.jar --spring.redis.url=redis://@redis:6379 --spring.redis.host=redis --spring.redis.port=6379 --logging.level.org.springframework.data.redis=DEBUG --xss.excludes=/system/notice,/system/article,/system/user,/manage/**"
+    command: sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do nc -z mysql 3306 && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && java -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/ruoyi-admin.jar --spring.redis.url=redis://@redis:6379 --spring.redis.host=redis --spring.redis.port=6379 --logging.level.org.springframework.data.redis=DEBUG --xss.excludes=/system/notice,/system/article,/system/user,/manage/**"
     ports:
       - "8080:8080"
     volumes:
       - ./uploadPath:/app/uploadPath
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+        reservations:
+          memory: 512M
     depends_on:
       mysql:
         condition: service_healthy
@@ -19,9 +25,10 @@ services:
       - .env
     environment:
       DB_HOST: mysql
-      DB_PASSWORD: root
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD}
       REDIS_HOST: redis
-      REDIS_PASSWORD: ""
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
     networks:
       - ruoyi-network
     restart: unless-stopped
@@ -35,12 +42,14 @@ services:
     image: mysql:8.4
     container_name: mysql
     restart: always
+    env_file:
+      - .env
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: newblog
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-newblog}
       MYSQL_CHARSET: utf8mb4
       MYSQL_COLLATION: utf8mb4_unicode_ci
     ports:

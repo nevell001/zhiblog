@@ -18,7 +18,7 @@ services:
         for i in {1..60}; do
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done
-        java -Xms512m -Xmx1024m -jar /app/ruoyi-admin.jar \
+        java -Xms512m -Xmx2048m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/ruoyi-admin.jar \
           --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/newblog?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
           --spring.datasource.druid.master.username=$DB_USERNAME \
           --spring.datasource.druid.master.password=$DB_PASSWORD \
@@ -32,7 +32,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 2G
+          memory: 4G
         reservations:
           memory: 512M
     depends_on:
@@ -157,6 +157,12 @@ services:
       - /app/node_modules
     ports:
       - "3000:3000"
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
     depends_on:
       ruoyi-admin:
         condition: service_started

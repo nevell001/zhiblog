@@ -6,9 +6,9 @@ import createVitePlugins from './vite/plugins'
 // 通过环境变量 DOCKER 来控制（docker-compose.yml 中设置）
 const inDocker = process.env.DOCKER === 'true'
 
-// 如果在容器内 → 用容器间网络访问后端
+// 如果在容器内 → 用 host.docker.internal 访问宿主机上的后端服务
 // 如果在本机开发 → 用 localhost 访问后端
-const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
+const baseUrl = inDocker ? 'http://host.docker.internal:8080' : 'http://localhost:8080'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => {
@@ -19,6 +19,11 @@ export default defineConfig(({ mode, command }) => {
     // 部署生产环境和开发环境下的URL
     base: VITE_APP_ENV === 'production' ? '/' : '/',
     plugins: createVitePlugins(env, command === 'build'),
+    esbuild: {
+      target: 'es2015',
+      logLevel: 'error',
+      legalComments: 'none'
+    },
     resolve: {
       // 设置路径别名
       alias: {

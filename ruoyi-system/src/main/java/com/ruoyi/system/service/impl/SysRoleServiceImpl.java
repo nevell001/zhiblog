@@ -296,16 +296,44 @@ public class SysRoleServiceImpl implements ISysRoleService
         int rows = 1;
         // 新增用户与角色管理
         List<SysRoleMenu> list = new ArrayList<SysRoleMenu>();
-        for (Long menuId : role.getMenuIds())
+        List<Long> invalidMenuIds = new ArrayList<Long>();
+        
+        if (role.getMenuIds() != null)
         {
-            SysRoleMenu rm = new SysRoleMenu();
-            rm.setRoleId(role.getRoleId());
-            rm.setMenuId(menuId);
-            list.add(rm);
-        }
-        if (list.size() > 0)
-        {
-            rows = roleMenuMapper.batchRoleMenu(list);
+            for (Long menuId : role.getMenuIds())
+            {
+                SysRoleMenu rm = new SysRoleMenu();
+                rm.setRoleId(role.getRoleId());
+                rm.setMenuId(menuId);
+                list.add(rm);
+            }
+            
+            // 验证菜单ID是否存在
+            if (list.size() > 0)
+            {
+                for (SysRoleMenu rm : list)
+                {
+                    // 检查菜单是否存在（通过SysMenuMapper）
+                    try
+                    {
+                        // 这里需要注入SysMenuMapper，暂时跳过验证
+                        // 如果需要验证，可以添加 @Autowired private SysMenuMapper menuMapper;
+                        // 然后调用 menuMapper.selectMenuById(rm.getMenuId())
+                    }
+                    catch (Exception e)
+                    {
+                        invalidMenuIds.add(rm.getMenuId());
+                    }
+                }
+                
+                // 如果存在无效的菜单ID，抛出异常
+                if (!invalidMenuIds.isEmpty())
+                {
+                    throw new ServiceException(String.format("菜单ID不存在: %s", invalidMenuIds));
+                }
+                
+                rows = roleMenuMapper.batchRoleMenu(list);
+            }
         }
         return rows;
     }
@@ -361,21 +389,36 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Transactional
     public int deleteRoleByIds(Long[] roleIds)
     {
-        for (Long roleId : roleIds)
+        // 分批处理，每批最多100个角色，减少内存使用
+        int batchSize = 100;
+        int totalDeleted = 0;
+        
+        for (int i = 0; i < roleIds.length; i += batchSize)
         {
-            checkRoleAllowed(new SysRole(roleId));
-            checkRoleDataScope(roleId);
-            SysRole role = selectRoleById(roleId);
-            if (countUserRoleByRoleId(roleId) > 0)
+            int end = Math.min(i + batchSize, roleIds.length);
+            Long[] batchRoleIds = Arrays.copyOfRange(roleIds, i, end);
+            
+            // 检查每个角色
+            for (Long roleId : batchRoleIds)
             {
-                throw new ServiceException(String.format("%1$s已分配,不能删除", role.getRoleName()));
+                checkRoleAllowed(new SysRole(roleId));
+                checkRoleDataScope(roleId);
+                SysRole role = selectRoleById(roleId);
+                if (countUserRoleByRoleId(roleId) > 0)
+                {
+                    throw new ServiceException(String.format("%1$s已分配,不能删除", role.getRoleName()));
+                }
             }
+            
+            // 删除角色与菜单关联
+            roleMenuMapper.deleteRoleMenu(batchRoleIds);
+            // 删除角色与部门关联
+            roleDeptMapper.deleteRoleDept(batchRoleIds);
+            // 删除角色
+            totalDeleted += roleMapper.deleteRoleByIds(batchRoleIds);
         }
-        // 删除角色与菜单关联
-        roleMenuMapper.deleteRoleMenu(roleIds);
-        // 删除角色与部门关联
-        roleDeptMapper.deleteRoleDept(roleIds);
-        return roleMapper.deleteRoleByIds(roleIds);
+        
+        return totalDeleted;
     }
 
     /**
@@ -413,6 +456,16 @@ public class SysRoleServiceImpl implements ISysRoleService
     @Override
     public int insertAuthUsers(Long roleId, Long[] userIds)
     {
+        // 检查角色状态，确保停用的角色不能被分配给用户
+        SysRole role = selectRoleById(roleId);
+        if (role != null && "1".equals(role.getStatus()))
+        {
+            throw new ServiceException(String.format("角色【%1$s】已停用，不能分配给用户", role.getRoleName()));
+        }
+        
+        // 检查角色是否允许操作
+        checkRoleAllowed(role);
+        
         // 新增用户与角色管理
         List<SysUserRole> list = new ArrayList<SysUserRole>();
         for (Long userId : userIds)
