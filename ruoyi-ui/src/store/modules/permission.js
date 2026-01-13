@@ -118,28 +118,34 @@ export const loadView = (view) => {
   let res;
   for (const path in modules) {
     const dir = path.split('views/')[1].split('.vue')[0];
+
     // 尝试直接匹配
     if (dir === view) {
       res = () => modules[path]();
       break;
     }
-    // 尝试添加 admin/ 前缀匹配（博客管理）
+
+    // 尝试添加 admin/ 前缀匹配（博客管理、系统管理等）
     if (dir === `admin/${view}`) {
       res = () => modules[path]();
       break;
     }
-    // 尝试添加 admin/ 并重复最后一层目录（系统管理、系统工具等）
-    // 例如：system/user/index -> admin/system/user/user/index
-    const parts = view.split('/');
-    if (parts.length >= 2) {
-      const lastPart = parts[parts.length - 1];
-      const adminPath = `admin/${view.replace(lastPart, '')}${lastPart}/${lastPart}`;
-      if (dir === adminPath) {
+
+    // 特殊处理：博客管理的文章页面路径是 blog/article/article/index
+    if (view === 'blog/article/article/index') {
+      if (dir === 'admin/blog/article/index') {
         res = () => modules[path]();
         break;
       }
     }
   }
+
+  // 调试输出
+  if (!res) {
+    console.warn('[loadView] Failed to load view:', view);
+    console.warn('[loadView] Available paths:', Object.keys(modules).map(p => p.split('views/')[1]?.split('.vue')[0]).filter(Boolean));
+  }
+
   return res;
 }
 

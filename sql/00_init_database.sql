@@ -2,18 +2,23 @@
 -- 🌟 博客系统完整数据库初始化脚本
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
--- 🔧 最后更新：2025-12-22
+-- 🔧 最后更新：2026-01-13
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
--- 🚀 版本：v2.0.0 (完整版)
+-- 🚀 版本：v2.1.0 (完整版)
 -- 
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
 -- ✅ Quartz定时任务表结构 (11个表)
 -- ✅ 博客系统表结构和数据 (7个表)
+-- ✅ 代码生成器表结构 (2个表：gen_table、gen_table_column)
 -- ✅ 性能优化索引 (20+个索引)
 -- ✅ 数据完整性约束和触发器
 -- ✅ 完整的示例数据 (文章6篇、分类14个、标签19个、友链10个)
 -- ✅ 博客管理菜单和权限配置
+-- ✅ 系统管理菜单和权限配置
+-- ✅ 系统监控菜单和权限配置（包含Actuator、Prometheus、Grafana、登录日志、操作日志）
+-- ✅ 数据统计菜单和权限配置
+-- ✅ 系统工具菜单和权限配置
 --
 -- 🔧 技术栈：
 -- - MySQL 8.0+
@@ -23,26 +28,21 @@
 -- - Redis
 --
 -- 📊 数据库统计：
--- - 总表数：39个（包含完整的若依系统表、Quartz表和博客系统表）
+-- - 总表数：41个（包含完整的若依系统表、Quartz表、博客系统表和代码生成器表）
 -- - 总设置项：35个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
--- - 示例标签：19个
+-- - 示例标签：26个
+-- - 友情链接：10个
 --
 -- ⚠️ 重要提示：
 -- 本脚本已整合所有必要的表结构和数据，完整的数据库初始化只需执行此脚本即可
--- 
--- 🚫 不要同时执行以下脚本，会导致重复定义错误：
--- - ry_20250522.sql.bak（已整合到本脚本）
--- - quartz.sql（已整合到本脚本）
--- - backups/ 目录下的文件（仅用于备份）
+-- 所有相关SQL文件已整合，包括系统管理、系统监控、数据统计、代码生成器等模块
 --
 -- ✅ 正确的初始化步骤：
 -- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- 2. 导入本脚本：mysql -u root -p newblog < init_database.sql
--- 3. （可选）执行权限设置：mysql -u root -p < 00_setup_permissions.sql
--- 4. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
--- - 友情链接：10个
+-- 3. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
 -- 
 -- 🎯 使用方法：
 -- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -231,9 +231,9 @@ CREATE TABLE sys_menu (
 ) ENGINE=INNODB AUTO_INCREMENT=2000 COMMENT = '菜单权限表';
 
 -- 初始化-菜单信息表数据
-INSERT INTO sys_menu VALUES('1', '系统管理', '0', '1', 'system',           NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
-INSERT INTO sys_menu VALUES('2', '系统监控', '0', '2', 'monitor',          NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
-INSERT INTO sys_menu VALUES('3', '系统工具', '0', '3', 'tool',             NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
+INSERT INTO sys_menu VALUES('1', '系统管理', '0', '1', 'admin/system',    NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
+INSERT INTO sys_menu VALUES('2', '系统监控', '0', '2', 'admin/monitor',   NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
+INSERT INTO sys_menu VALUES('3', '系统工具', '0', '3', 'admin/tool',      NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
 INSERT INTO sys_menu VALUES('4', '日志管理', '2', '9', 'log',      '', '', '', 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '', NULL, '日志管理菜单');
 
 -- 7、用户和角色关联表（用户N-1角色）
@@ -243,6 +243,11 @@ CREATE TABLE sys_user_role (
   role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (user_id, role_id)
 ) ENGINE=INNODB COMMENT = '用户和角色关联表';
+
+-- 初始化-用户和角色关联表数据（admin用户分配超级管理员角色，普通用户分配普通角色）
+INSERT INTO sys_user_role (user_id, role_id) VALUES
+(1, 1),
+(2, 2);
 
 -- 8、角色和菜单关联表（角色1-N菜单）
 DROP TABLE IF EXISTS sys_role_menu;
@@ -707,7 +712,62 @@ CREATE TABLE `blog_setting` (
   UNIQUE KEY `uk_config_key` (`config_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客系统设置表';
 
+-- ========== 代码生成器表 ==========
 
+-- 代码生成业务表
+DROP TABLE IF EXISTS gen_table;
+CREATE TABLE gen_table (
+  table_id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT 'id',
+  table_name        VARCHAR(200)    DEFAULT ''                 COMMENT '表名称',
+  table_comment     VARCHAR(500)    DEFAULT ''                 COMMENT '表描述',
+  sub_table_name    VARCHAR(64)     DEFAULT NULL               COMMENT '关联子表的表名',
+  sub_table_fk_name VARCHAR(64)     DEFAULT NULL               COMMENT '子表关联的外键名',
+  class_name        VARCHAR(100)    DEFAULT ''                 COMMENT '实体类名称',
+  tpl_category      VARCHAR(200)    DEFAULT 'crud'              COMMENT '使用的模板（crud单表 tree树表）',
+  tpl_web_type      VARCHAR(30)     DEFAULT 'element-plus'      COMMENT '前端模板类型（element-plus element-ui）',
+  package_name      VARCHAR(100)    DEFAULT NULL               COMMENT '生成包路径',
+  module_name       VARCHAR(30)     DEFAULT NULL               COMMENT '生成模块名',
+  business_name     VARCHAR(30)     DEFAULT NULL               COMMENT '生成业务名',
+  function_name     VARCHAR(50)     DEFAULT NULL               COMMENT '生成功能名',
+  function_author   VARCHAR(50)     DEFAULT NULL               COMMENT '生成功能作者',
+  gen_type          CHAR(1)         DEFAULT '0'                COMMENT '生成代码方式（0zip压缩包 1自定义路径）',
+  gen_path          VARCHAR(200)    DEFAULT '/'                 COMMENT '生成路径（不填默认项目路径）',
+  options           VARCHAR(1000)   DEFAULT NULL               COMMENT '其它生成选项',
+  create_by         VARCHAR(64)     DEFAULT ''                 COMMENT '创建者',
+  create_time       DATETIME                                   COMMENT '创建时间',
+  update_by         VARCHAR(64)     DEFAULT ''                 COMMENT '更新者',
+  update_time       DATETIME                                   COMMENT '更新时间',
+  remark            VARCHAR(500)    DEFAULT NULL               COMMENT '备注',
+  PRIMARY KEY (table_id)
+) ENGINE=INNODB AUTO_INCREMENT=1 COMMENT = '代码生成业务表';
+
+-- 代码生成字段表
+DROP TABLE IF EXISTS gen_table_column;
+CREATE TABLE gen_table_column (
+  column_id         BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '列id',
+  table_id          BIGINT(20)      DEFAULT NULL               COMMENT '归属表id',
+  column_name       VARCHAR(200)    DEFAULT NULL               COMMENT '列名称',
+  column_comment    VARCHAR(500)    DEFAULT NULL               COMMENT '列描述',
+  column_type       VARCHAR(100)    DEFAULT NULL               COMMENT '列类型',
+  java_type         VARCHAR(500)    DEFAULT NULL               COMMENT 'Java类型',
+  java_field        VARCHAR(200)    DEFAULT NULL               COMMENT 'Java字段名',
+  is_pk             CHAR(1)         DEFAULT NULL               COMMENT '是否主键（1是）',
+  is_increment      CHAR(1)         DEFAULT NULL               COMMENT '是否自增（1是）',
+  is_required       CHAR(1)         DEFAULT NULL               COMMENT '是否必填（1是）',
+  is_insert         CHAR(1)         DEFAULT NULL               COMMENT '是否为插入字段（1是）',
+  is_edit           CHAR(1)         DEFAULT NULL               COMMENT '是否编辑字段（1是）',
+  is_list           CHAR(1)         DEFAULT NULL               COMMENT '是否列表字段（1是）',
+  is_query          CHAR(1)         DEFAULT NULL               COMMENT '是否查询字段（1是）',
+  query_type        VARCHAR(200)    DEFAULT 'EQ'               COMMENT '查询方式（等于、不等于、大于、小于、范围）',
+  html_type         VARCHAR(200)    DEFAULT 'input'             COMMENT '显示类型（文本框、文本域、下拉框、复选框、单选框、日期控件）',
+  dict_type         VARCHAR(200)    DEFAULT ''                 COMMENT '字典类型',
+  sort              INT(4)          DEFAULT NULL               COMMENT '排序',
+  create_by         VARCHAR(64)     DEFAULT ''                 COMMENT '创建者',
+  create_time       DATETIME                                   COMMENT '创建时间',
+  update_by         VARCHAR(64)     DEFAULT ''                 COMMENT '更新者',
+  update_time       DATETIME                                   COMMENT '更新时间',
+  PRIMARY KEY (column_id)
+) ENGINE=INNODB AUTO_INCREMENT=1 COMMENT = '代码生成字段表';
 
 -- ========== 初始化博客系统数据 ==========
 
@@ -1330,7 +1390,7 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 
 -- 1、用户管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (100, '用户管理', 1, 1, 'user', 'system/user/index', '', '', 1, 0, 'C', '0', '0', 'system:user:list', 'user', 'admin', NOW(), '', NULL, '用户管理菜单');
+VALUES (100, '用户管理', 1, 1, 'user', 'system/user/user/index', '', '', 1, 0, 'C', '0', '0', 'system:user:list', 'user', 'admin', NOW(), '', NULL, '用户管理菜单');
 
 -- 用户管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1344,7 +1404,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 2、角色管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (101, '角色管理', 1, 2, 'role', 'system/role/index', '', '', 1, 0, 'C', '0', '0', 'system:role:list', 'peoples', 'admin', NOW(), '', NULL, '角色管理菜单');
+VALUES (101, '角色管理', 1, 2, 'role', 'system/role/role/index', '', '', 1, 0, 'C', '0', '0', 'system:role:list', 'peoples', 'admin', NOW(), '', NULL, '角色管理菜单');
 
 -- 角色管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1356,7 +1416,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 3、菜单管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/index', '', '', 1, 0, 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', NOW(), '', NULL, '菜单管理菜单');
+VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/menu/index', '', '', 1, 0, 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', NOW(), '', NULL, '菜单管理菜单');
 
 -- 菜单管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1367,7 +1427,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 4、部门管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (103, '部门管理', 1, 4, 'dept', 'system/dept/index', '', '', 1, 0, 'C', '0', '0', 'system:dept:list', 'tree', 'admin', NOW(), '', NULL, '部门管理菜单');
+VALUES (103, '部门管理', 1, 4, 'dept', 'system/dept/dept/index', '', '', 1, 0, 'C', '0', '0', 'system:dept:list', 'tree', 'admin', NOW(), '', NULL, '部门管理菜单');
 
 -- 部门管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1378,7 +1438,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 5、岗位管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (104, '岗位管理', 1, 5, 'post', 'system/post/index', '', '', 1, 0, 'C', '0', '0', 'system:post:list', 'post', 'admin', NOW(), '', NULL, '岗位管理菜单');
+VALUES (104, '岗位管理', 1, 5, 'post', 'system/post/post/index', '', '', 1, 0, 'C', '0', '0', 'system:post:list', 'post', 'admin', NOW(), '', NULL, '岗位管理菜单');
 
 -- 岗位管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1390,7 +1450,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 6、字典管理菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/index', '', '', 1, 0, 'C', '0', '0', 'system:dict:list', 'dict', 'admin', NOW(), '', NULL, '字典管理菜单');
+VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/dict/index', '', '', 1, 0, 'C', '0', '0', 'system:dict:list', 'dict', 'admin', NOW(), '', NULL, '字典管理菜单');
 
 -- 字典管理按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1402,7 +1462,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 7、参数设置菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (106, '参数设置', 1, 7, 'config', 'system/config/index', '', '', 1, 0, 'C', '0', '0', 'system:config:list', 'edit', 'admin', NOW(), '', NULL, '参数设置菜单');
+VALUES (106, '参数设置', 1, 7, 'config', 'system/config/config/index', '', '', 1, 0, 'C', '0', '0', 'system:config:list', 'edit', 'admin', NOW(), '', NULL, '参数设置菜单');
 
 -- 参数设置按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1414,7 +1474,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 8、通知公告菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/index', '', '', 1, 0, 'C', '0', '0', 'system:notice:list', 'message', 'admin', NOW(), '', NULL, '通知公告菜单');
+VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/notice/index', '', '', 1, 0, 'C', '0', '0', 'system:notice:list', 'message', 'admin', NOW(), '', NULL, '通知公告菜单');
 
 -- 通知公告按钮权限
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1498,6 +1558,84 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (117, '系统接口', 3, 3, 'swagger', 'tool/swagger/index', '', '', 1, 0, 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', NOW(), '', NULL, '系统接口菜单');
 
+-- ========== 系统监控补充菜单 ==========
+
+-- 1、Actuator监控菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5000, 'Actuator监控', 2, 10, 'actuator', 'monitor/actuator/index', '', '', 1, 0, 'C', '0', '0', 'monitor:actuator:list', 'monitor', 'admin', NOW(), '', NULL, 'Actuator监控菜单');
+
+-- Actuator监控按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(5001, 'Actuator查询', 5000, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:actuator:query', '#', 'admin', NOW(), '', NULL, '');
+
+-- 2、Prometheus监控菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5002, 'Prometheus监控', 2, 11, 'prometheus', 'monitor/prometheus/index', '', '', 1, 0, 'C', '0', '0', 'monitor:prometheus:list', 'chart', 'admin', NOW(), '', NULL, 'Prometheus监控菜单');
+
+-- Prometheus监控按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(5003, 'Prometheus查询', 5002, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:prometheus:query', '#', 'admin', NOW(), '', NULL, '');
+
+-- 3、Grafana监控菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5004, 'Grafana监控', 2, 12, 'grafana', 'monitor/grafana/index', '', '', 1, 0, 'C', '0', '0', 'monitor:grafana:list', 'dashboard', 'admin', NOW(), '', NULL, 'Grafana监控菜单');
+
+-- Grafana监控按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(5005, 'Grafana查询', 5004, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:grafana:query', '#', 'admin', NOW(), '', NULL, '');
+
+-- 4、登录日志菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5006, '登录日志', 2, 7, 'logininfor', 'monitor/logininfor/index', '', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', NOW(), '', NULL, '登录日志菜单');
+
+-- 登录日志按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(5007, '登录日志查询', 5006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:query', '#', 'admin', NOW(), '', NULL, ''),
+(5008, '登录日志删除', 5006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove', '#', 'admin', NOW(), '', NULL, ''),
+(5009, '登录日志导出', 5006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export', '#', 'admin', NOW(), '', NULL, '');
+
+-- 5、操作日志菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5010, '操作日志', 2, 8, 'operlog', 'monitor/operlog/index', '', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', NOW(), '', NULL, '操作日志菜单');
+
+-- 操作日志按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(5011, '操作日志查询', 5010, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:query', '#', 'admin', NOW(), '', NULL, ''),
+(5012, '操作日志删除', 5010, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:remove', '#', 'admin', NOW(), '', NULL, ''),
+(5013, '操作日志导出', 5010, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:export', '#', 'admin', NOW(), '', NULL, '');
+
+-- ========== 数据统计菜单配置 ==========
+
+-- 1、数据统计一级菜单（注意：visible='0' 表示显示，'1' 表示隐藏）
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (5, '数据统计', 0, 2, 'admin/statistics', NULL, '', '', 1, 0, 'M', '0', '0', '', 'chart', 'admin', NOW(), '', NULL, '数据统计目录');
+
+-- 2、数据概览菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (6001, '数据概览', 5, 1, 'overview', 'statistics/overview/index', '', '', 1, 0, 'C', '0', '0', 'statistics:overview:list', 'overview', 'admin', NOW(), '', NULL, '数据概览菜单');
+
+-- 数据概览按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(6002, '数据概览查询', 6001, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:overview:query', '#', 'admin', NOW(), '', NULL, '');
+
+-- 3、文章统计菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (6003, '文章统计', 5, 2, 'article', 'statistics/article/index', '', '', 1, 0, 'C', '0', '0', 'statistics:article:list', 'documentation', 'admin', NOW(), '', NULL, '文章统计菜单');
+
+-- 文章统计按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(6004, '文章统计查询', 6003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:query', '#', 'admin', NOW(), '', NULL, ''),
+(6005, '文章统计导出', 6003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:export', '#', 'admin', NOW(), '', NULL, '');
+
+-- 4、用户统计菜单
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (6006, '用户统计', 5, 3, 'user', 'statistics/user/index', '', '', 1, 0, 'C', '0', '0', 'statistics:user:list', 'user', 'admin', NOW(), '', NULL, '用户统计菜单');
+
+-- 用户统计按钮权限
+INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(6007, '用户统计查询', 6006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:query', '#', 'admin', NOW(), '', NULL, ''),
+(6008, '用户统计导出', 6006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:export', '#', 'admin', NOW(), '', NULL, '');
+
 -- ========== 为管理员角色分配系统管理、监控和工具菜单权限 ==========
 
 -- 系统管理菜单权限
@@ -1516,11 +1654,23 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 109), (1, 1091), (1, 1092), (1, 1093),
 (1, 110), (1, 1101), (1, 1102), (1, 1103), (1, 1104), (1, 1105), (1, 1106), (1, 1107), (1, 1108),
 (1, 111), (1, 112), (1, 113),
-(1, 114), (1, 1141), (1, 1142), (1, 1143), (1, 1144), (1, 1145);
+(1, 114), (1, 1141), (1, 1142), (1, 1143), (1, 1144), (1, 1145),
+(1, 5000), (1, 5001),
+(1, 5002), (1, 5003),
+(1, 5004), (1, 5005),
+(1, 5006), (1, 5007), (1, 5008), (1, 5009),
+(1, 5010), (1, 5011), (1, 5012), (1, 5013);
 
 -- 系统工具菜单权限
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 115), (1, 116), (1, 1161), (1, 1162), (1, 1163), (1, 1164), (1, 1165), (1, 1166), (1, 1167), (1, 117);
+
+-- 数据统计菜单权限
+INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+(1, 5),
+(1, 6001), (1, 6002),
+(1, 6003), (1, 6004), (1, 6005),
+(1, 6006), (1, 6007), (1, 6008);
 
 -- ========== 创建性能优化索引 ==========
 
@@ -1832,9 +1982,11 @@ SELECT '🎉 数据库初始化完成！' AS result;
 SELECT '✅ 若依系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'sys_%';
 SELECT '✅ 博客系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'blog_%';
 SELECT '✅ Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'QRTZ_%';
+SELECT '✅ 代码生成器表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'gen_%';
 SELECT '✅ 博客管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '博客管理' OR parent_id = 2000;
 SELECT '✅ 系统管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 100 AND 107;
-SELECT '✅ 系统监控菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 109 AND 114;
+SELECT '✅ 系统监控菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 109 AND 114 OR menu_id BETWEEN 5000 AND 5013;
+SELECT '✅ 数据统计菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id = 5 OR parent_id = 5;
 SELECT '✅ 系统工具菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 115 AND 117;
 
 -- ========== 执行分类数量验证和修复 ==========

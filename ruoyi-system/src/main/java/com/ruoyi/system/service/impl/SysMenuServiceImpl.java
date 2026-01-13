@@ -8,6 +8,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.common.constant.Constants;
@@ -33,6 +35,8 @@ import com.ruoyi.system.service.ISysMenuService;
 @Service
 public class SysMenuServiceImpl implements ISysMenuService
 {
+    private static final Logger log = LoggerFactory.getLogger(SysMenuServiceImpl.class);
+
     public static final String PREMISSION_STRING = "perms[\"{0}\"]";
 
     @Autowired
@@ -130,6 +134,7 @@ public class SysMenuServiceImpl implements ISysMenuService
     @Override
     public List<SysMenu> selectMenuTreeByUserId(Long userId)
     {
+        log.info("selectMenuTreeByUserId - userId={}", userId);
         List<SysMenu> menus = null;
         if (SecurityUtils.isAdmin(userId))
         {
@@ -139,7 +144,10 @@ public class SysMenuServiceImpl implements ISysMenuService
         {
             menus = menuMapper.selectMenuTreeByUserId(userId);
         }
-        return getChildPerms(menus, 0);
+        log.info("selectMenuTreeByUserId - menus size={}", menus != null ? menus.size() : "null");
+        List<SysMenu> result = getChildPerms(menus, 0);
+        log.info("selectMenuTreeByUserId - result size={}", result != null ? result.size() : "null");
+        return result;
     }
 
     /**
@@ -175,6 +183,8 @@ public class SysMenuServiceImpl implements ISysMenuService
             router.setQuery(menu.getQuery());
             router.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache()), menu.getPath()));
             List<SysMenu> cMenus = menu.getChildren();
+            // 调试日志：输出菜单信息和子菜单数量
+            log.info("buildMenus - menuName={}, menuType={}, parentId={}, children={}", menu.getMenuName(), menu.getMenuType(), menu.getParentId(), cMenus != null ? cMenus.size() : "null");
             if (StringUtils.isNotEmpty(cMenus) && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
@@ -192,6 +202,8 @@ public class SysMenuServiceImpl implements ISysMenuService
                     router.setRedirect("/admin/tool/gen");
                 } else if ("博客管理".equals(menu.getMenuName())) {
                     router.setRedirect("/admin/blog/article");
+                } else if ("数据统计".equals(menu.getMenuName())) {
+                    router.setRedirect("/admin/statistics/overview");
                 } else if ("分类管理".equals(menu.getMenuName())) {
                     router.setRedirect("/admin/blog/category");
                 } else {
@@ -208,7 +220,10 @@ public class SysMenuServiceImpl implements ISysMenuService
                 }
                 // 如果有子菜单，设置 children
                 if (StringUtils.isNotEmpty(cMenus)) {
+                    log.info("buildMenus - Setting children for menu: {}, children count: {}", menu.getMenuName(), cMenus.size());
                     router.setChildren(buildMenus(cMenus));
+                } else {
+                    log.warn("buildMenus - No children found for menu: {}", menu.getMenuName());
                 }
             }
             else if (StringUtils.isNotEmpty(cMenus) && UserConstants.TYPE_MENU.equals(menu.getMenuType()))
@@ -492,6 +507,7 @@ public class SysMenuServiceImpl implements ISysMenuService
      */
     public List<SysMenu> getChildPerms(List<SysMenu> list, int parentId)
     {
+        log.info("getChildPerms - parentId={}, list size={}", parentId, list.size());
         List<SysMenu> returnList = new ArrayList<SysMenu>();
         for (Iterator<SysMenu> iterator = list.iterator(); iterator.hasNext();)
         {
@@ -500,9 +516,11 @@ public class SysMenuServiceImpl implements ISysMenuService
             if (t.getParentId() == parentId)
             {
                 recursionFn(list, t);
+                log.info("getChildPerms - found menu: menuName={}, menuType={}, parentId={}, children size={}", t.getMenuName(), t.getMenuType(), t.getParentId(), t.getChildren() != null ? t.getChildren().size() : "null");
                 returnList.add(t);
             }
         }
+        log.info("getChildPerms - returnList size={}", returnList.size());
         return returnList;
     }
 

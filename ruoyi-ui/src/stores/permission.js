@@ -130,14 +130,27 @@ export const loadView = (view) => {
       break;
     }
     // 尝试添加 admin/ 并重复最后一层目录（系统管理、系统工具等）
-    // 例如：system/user/index -> admin/system/user/user/index
+    // 例如：system/user/user/index -> admin/system/user/user/index
     const parts = view.split('/');
-    if (parts.length >= 2) {
+    if (parts.length >= 3) {
       const lastPart = parts[parts.length - 1];
-      const adminPath = `admin/${view.replace(lastPart, '')}${lastPart}/${lastPart}`;
-      if (dir === adminPath) {
-        res = () => modules[path]();
-        break;
+      const secondLastPart = parts[parts.length - 2];
+      // 如果倒数两部分相同，说明已经是正确的格式
+      if (secondLastPart === lastPart) {
+        const adminPath = `admin/${view}`;
+        if (dir === adminPath) {
+          res = () => modules[path]();
+          break;
+        }
+      } else if (lastPart === 'index') {
+        // 如果是 index，需要在倒数第二层前再添加一层
+        // 例如：system/user/index -> admin/system/user/user/index
+        const basePath = view.substring(0, view.lastIndexOf('/'));
+        const adminPath = `admin/${basePath}/${basePath.split('/').pop()}/index`;
+        if (dir === adminPath) {
+          res = () => modules[path]();
+          break;
+        }
       }
     }
   }

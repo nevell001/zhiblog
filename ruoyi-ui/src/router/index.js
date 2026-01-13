@@ -124,6 +124,36 @@ const routes = [
         meta: { title: '菜单管理', icon: 'tree-table' }
       },
       {
+        path: 'dept',
+        name: 'SystemDept',
+        component: () => import('@/views/admin/system/dept/dept/index.vue'),
+        meta: { title: '部门管理', icon: 'tree' }
+      },
+      {
+        path: 'post',
+        name: 'SystemPost',
+        component: () => import('@/views/admin/system/post/post/index.vue'),
+        meta: { title: '岗位管理', icon: 'post' }
+      },
+      {
+        path: 'dict',
+        name: 'SystemDict',
+        component: () => import('@/views/admin/system/dict/dict/index.vue'),
+        meta: { title: '字典管理', icon: 'dict' }
+      },
+      {
+        path: 'config',
+        name: 'SystemConfig',
+        component: () => import('@/views/admin/system/config/config/index.vue'),
+        meta: { title: '参数设置', icon: 'edit' }
+      },
+      {
+        path: 'notice',
+        name: 'SystemNotice',
+        component: () => import('@/views/admin/system/notice/notice/index.vue'),
+        meta: { title: '通知公告', icon: 'message' }
+      },
+      {
         path: 'dict-data',
         component: () => import('@/layout/index.vue'),
         hidden: true,
