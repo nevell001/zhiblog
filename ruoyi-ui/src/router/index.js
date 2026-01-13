@@ -56,6 +56,7 @@ const routes = [
     path: '/admin/blog',
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/blog/article',
+    hidden: true,
     meta: { title: '博客管理', icon: 'documentation' },
     children: [
       {
@@ -101,6 +102,7 @@ const routes = [
     path: '/admin/system',
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/system/user',
+    hidden: true,
     meta: { title: '系统管理', icon: 'system' },
     children: [
       {
@@ -142,6 +144,7 @@ const routes = [
     path: '/admin/statistics',
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/statistics/overview',
+    hidden: true,
     meta: { title: '数据统计', icon: 'chart' },
     children: [
       {
@@ -162,6 +165,7 @@ const routes = [
     path: '/admin/monitor',
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/monitor/actuator',
+    hidden: true,
     children: [
       {
         path: 'actuator',
@@ -223,6 +227,7 @@ const routes = [
     path: '/admin/tool',
     component: () => import('@/layout/index.vue'),
     redirect: '/admin/tool/build',
+    hidden: true,
     children: [
       {
         path: 'build',

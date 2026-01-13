@@ -347,6 +347,8 @@
 import { addMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu'
 import SvgIcon from '@/components/SvgIcon'
 import IconSelect from '@/components/IconSelect'
+import usePermissionStore from '@/store/modules/permission'
+import router from '@/router'
 
 const { proxy } = getCurrentInstance()
 const { sys_show_hide, sys_normal_disable } = proxy.useDict('sys_show_hide', 'sys_normal_disable')
@@ -481,12 +483,16 @@ function submitForm() {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false
           getList()
+          // 提示用户刷新页面以查看最新菜单
+          proxy.$modal.msgWarning('菜单已修改，请刷新页面以查看最新菜单')
         })
       } else {
         addMenu(form.value).then(response => {
           proxy.$modal.msgSuccess('新增成功')
           open.value = false
           getList()
+          // 提示用户刷新页面以查看最新菜单
+          proxy.$modal.msgWarning('菜单已新增，请刷新页面以查看最新菜单')
         })
       }
     }
@@ -503,6 +509,8 @@ function handleDelete(row) {
     .then(() => {
       getList()
       proxy.$modal.msgSuccess('删除成功')
+      // 提示用户刷新页面以查看最新菜单
+      proxy.$modal.msgWarning('菜单已删除，请刷新页面以查看最新菜单')
     })
     .catch(() => {})
 }

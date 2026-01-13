@@ -30,153 +30,170 @@ const usePermissionStore = defineStore('permission', {
     },
     generateRoutes(_roles) {
       return new Promise(resolve => {
-        // 🔥 使用简化的前端菜单配置，直接提供菜单结构用于侧边栏显示
-        console.log('🔧 使用前端菜单配置，直接提供菜单结构用于侧边栏显示')
-
-        // 简化的菜单配置，不包含复杂的组件路径
-        const frontendRoutes = [
-          {
-            path: '/admin/dashboard',
-            name: 'AdminDashboard',
-            meta: { title: '后台首页', icon: 'dashboard' }
-          },
-          {
-            path: '/admin/blog',
-            name: 'Blog',
-            meta: { title: '博客管理', icon: 'documentation' },
-            children: [
-              {
-                path: 'article',
-                name: 'BlogArticle',
-                meta: { title: '文章管理', icon: 'documentation' }
-              },
-              {
-                path: 'category',
-                name: 'BlogCategory',
-                meta: { title: '分类管理', icon: 'component' }
-              },
-              {
-                path: 'tag',
-                name: 'BlogTag',
-                meta: { title: '标签管理', icon: 'tag' }
-              },
-              {
-                path: 'comment',
-                name: 'BlogComment',
-                meta: { title: '评论管理', icon: 'message' }
-              },
-              {
-                path: 'setting',
-                name: 'BlogSetting',
-                meta: { title: '博客设置', icon: 'edit' }
-              },
-              {
-                path: 'friendLink',
-                name: 'BlogFriendLink',
-                meta: { title: '友链管理', icon: 'link' }
-              }
-            ]
-          },
-          {
-            path: '/admin/system',
-            name: 'System',
-            meta: { title: '系统管理', icon: 'system' },
-            children: [
-              {
-                path: 'user',
-                name: 'User',
-                meta: { title: '用户管理', icon: 'user' }
-              },
-              {
-                path: 'role',
-                name: 'Role',
-                meta: { title: '角色管理', icon: 'peoples' }
-              },
-              {
-                path: 'menu',
-                name: 'Menu',
-                meta: { title: '菜单管理', icon: 'tree-table' }
-              }
-            ]
-          },
-          {
-            path: '/admin/statistics',
-            name: 'Statistics',
-            meta: { title: '数据统计', icon: 'chart' },
-            children: [
-              {
-                path: 'overview',
-                name: 'StatisticsOverview',
-                meta: { title: '数据概览', icon: 'overview' }
-              },
-              {
-                path: 'article',
-                name: 'StatisticsArticle',
-                meta: { title: '文章统计', icon: 'documentation' }
-              }
-            ]
-          },
-          {
-            path: '/admin/monitor',
-            name: 'Monitor',
-            meta: { title: '系统监控', icon: 'monitor' },
-            children: [
-              {
-                path: 'actuator',
-                name: 'MonitorActuator',
-                meta: { title: 'Actuator监控', icon: 'monitor' }
-              },
-              {
-                path: 'prometheus',
-                name: 'MonitorPrometheus',
-                meta: { title: 'Prometheus监控', icon: 'chart' }
-              },
-              {
-                path: 'grafana',
-                name: 'MonitorGrafana',
-                meta: { title: 'Grafana监控', icon: 'dashboard' }
-              },
-              {
-                path: 'online',
-                name: 'MonitorOnline',
-                meta: { title: '在线用户', icon: 'online' }
-              },
-              {
-                path: 'logininfor',
-                name: 'MonitorLoginLog',
-                meta: { title: '登录日志', icon: 'logininfor' }
-              },
-              {
-                path: 'operlog',
-                name: 'MonitorOperLog',
-                meta: { title: '操作日志', icon: 'form' }
-              },
-              {
-                path: 'server',
-                name: 'Server',
-                meta: { title: '服务监控', icon: 'server' }
-              },
-              {
-                path: 'cache',
-                name: 'MonitorCache',
-                meta: { title: '缓存监控', icon: 'redis' }
-              },
-              {
-                path: 'job',
-                name: 'MonitorJob',
-                meta: { title: '定时任务', icon: 'job' }
-              }
-            ]
-          }
-        ]
-
-        // 直接设置侧边栏路由，不需要复杂的组件解析
-        this.setSidebarRouters(frontendRoutes)
-        console.log('✅ 前端菜单配置完成，包含博客管理菜单:', frontendRoutes)
-        resolve([]) // 不添加动态路由，使用静态路由
+        // 向后端请求路由数据
+        getRouters().then(res => {
+          const sdata = JSON.parse(JSON.stringify(res.data))
+          const rdata = JSON.parse(JSON.stringify(res.data))
+          const sidebarRoutes = filterAsyncRouter(sdata)
+          const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+          const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
+          rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
+          this.setRoutes(constantRoutes)
+          this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+          this.setDefaultRoutes(sidebarRoutes)
+          this.setTopbarRoutes(rewriteRoutes)
+          resolve(rewriteRoutes)
+        })
       })
     }
   }
 })
+
+// 遍历后台传来的路由字符串，转换为组件对象
+function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
+  return asyncRouterMap.filter(route => {
+    // 过滤隐藏的路由
+    if (route.hidden) {
+      return false
+    }
+
+    if (type && route.children) {
+      route.children = filterChildren(route.children)
+    }
+    if (route.component) {
+      // Layout ParentView 组件特殊处理
+      if (route.component === 'Layout') {
+        route.component = Layout
+      } else if (route.component === 'ParentView') {
+        route.component = ParentView
+      } else if (route.component === 'InnerLink') {
+        route.component = InnerLink
+      } else {
+        route.component = loadView(route.component)
+      }
+    }
+    if (route.children != null && route.children && route.children.length) {
+      route.children = filterAsyncRouter(route.children, route, type)
+    } else {
+      delete route['children']
+      delete route['redirect']
+    }
+    return true
+  })
+}
+
+function filterChildren(childrenMap, lastRouter = false) {
+  var children = []
+  childrenMap.forEach((el, index) => {
+    // 过滤隐藏的子路由
+    if (el.hidden) {
+      return
+    }
+
+    if (el.children && el.children.length) {
+      if (el.component === 'ParentView' && !lastRouter) {
+        el.children.forEach(c => {
+          c.path = el.path + '/' + c.path
+          if (c.children && c.children.length) {
+            children = children.concat(filterChildren(c.children, c))
+            return
+          }
+          children.push(c)
+        })
+        return
+      }
+    }
+    if (lastRouter) {
+      el.path = lastRouter.path + '/' + el.path
+    }
+    children = children.concat(el)
+  })
+  return children
+}
+
+// 匹配views里面所有的.vue文件
+const modules = import.meta.glob('./../../views/**/*.vue')
+
+export const loadView = (view) => {
+  let res;
+  for (const path in modules) {
+    const dir = path.split('views/')[1].split('.vue')[0];
+    // 尝试直接匹配
+    if (dir === view) {
+      res = () => modules[path]();
+      break;
+    }
+    // 尝试添加 admin/ 前缀匹配（博客管理）
+    if (dir === `admin/${view}`) {
+      res = () => modules[path]();
+      break;
+    }
+    // 尝试添加 admin/ 并重复最后一层目录（系统管理、系统工具等）
+    // 例如：system/user/index -> admin/system/user/user/index
+    const parts = view.split('/');
+    if (parts.length >= 2) {
+      const lastPart = parts[parts.length - 1];
+      const adminPath = `admin/${view.replace(lastPart, '')}${lastPart}/${lastPart}`;
+      if (dir === adminPath) {
+        res = () => modules[path]();
+        break;
+      }
+    }
+  }
+  return res;
+}
+
+// 动态路由遍历，验证是否具备权限
+export function filterDynamicRoutes(routes) {
+  const res = []
+  routes.forEach(route => {
+    if (route.permissions) {
+      if (hasPermission(route.permissions)) {
+        res.push(route)
+      }
+    } else if (route.roles) {
+      if (hasRole(route.roles)) {
+        res.push(route)
+      }
+    }
+  })
+  return res
+}
+
+// 验证是否有权限
+function hasPermission(requiredPermissions) {
+  const all_permission = "*:*:*";
+  const permissions = auth.permissions
+
+  if (!requiredPermissions || requiredPermissions.length === 0) {
+    return true
+  }
+
+  if (permissions && permissions.length > 0) {
+    return permissions.some(v => {
+      return all_permission === v || requiredPermissions.includes(v)
+    })
+  } else {
+    return false
+  }
+}
+
+// 验证是否有角色
+function hasRole(requiredRoles) {
+  const super_admin = "admin";
+  const roles = auth.roles
+
+  if (!requiredRoles || requiredRoles.length === 0) {
+    return true
+  }
+
+  if (roles && roles.length > 0) {
+    return roles.some(v => {
+      return super_admin === v || requiredRoles.includes(v)
+    })
+  } else {
+    return false
+  }
+}
 
 export default usePermissionStore

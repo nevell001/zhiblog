@@ -43,7 +43,7 @@ const usePermissionStore = defineStore('permission', {
           const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
           rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
           this.setRoutes(constantRoutes)
-          this.setSidebarRouters(constantRoutes.concat(sidebarRoutes))
+          this.setSidebarRouters(sidebarRoutes)
           this.setDefaultRoutes(sidebarRoutes)
           this.setTopbarRoutes(rewriteRoutes)
           resolve(rewriteRoutes)
@@ -56,6 +56,11 @@ const usePermissionStore = defineStore('permission', {
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
   return asyncRouterMap.filter(route => {
+    // 过滤隐藏的路由
+    if (route.hidden) {
+      return false
+    }
+    
     if (type && route.children) {
       route.children = filterChildren(route.children)
     }
@@ -84,6 +89,11 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
 function filterChildren(childrenMap, lastRouter = false) {
   var children = []
   childrenMap.forEach((el, index) => {
+    // 过滤隐藏的子路由
+    if (el.hidden) {
+      return
+    }
+    
     if (el.children && el.children.length) {
       if (el.component === 'ParentView' && !lastRouter) {
         el.children.forEach(c => {
@@ -108,9 +118,27 @@ function filterChildren(childrenMap, lastRouter = false) {
 export const loadView = (view) => {
   let res;
   for (const path in modules) {
-    const dir = path.split('views/')[1].split('.vue')[0];
+    const dir = path.replace('../../views/', '').replace('.vue', '');
+    // 尝试直接匹配
     if (dir === view) {
       res = () => modules[path]();
+      break;
+    }
+    // 尝试添加 admin/ 前缀匹配（博客管理）
+    if (dir === `admin/${view}`) {
+      res = () => modules[path]();
+      break;
+    }
+    // 尝试添加 admin/ 并重复最后一层目录（系统管理、系统工具等）
+    // 例如：system/user/index -> admin/system/user/user/index
+    const parts = view.split('/');
+    if (parts.length >= 2) {
+      const lastPart = parts[parts.length - 1];
+      const adminPath = `admin/${view.replace(lastPart, '')}${lastPart}/${lastPart}`;
+      if (dir === adminPath) {
+        res = () => modules[path]();
+        break;
+      }
     }
   }
   return res;

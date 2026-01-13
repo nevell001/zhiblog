@@ -96,22 +96,29 @@ service.interceptors.response.use(res => {
     if (code === 401) {
       // 检查当前访问的路径是否为博客前台页面
       const currentPath = window.location.pathname
-      const isBlogPath = currentPath.startsWith('/blog') || 
-                         currentPath === '/' || 
+      const isBlogPath = currentPath.startsWith('/blog') ||
+                         currentPath === '/' ||
                          currentPath === '/index' ||
                          currentPath.startsWith('/blog/article/') ||
                          currentPath.startsWith('/blog/category/') ||
                          currentPath.startsWith('/blog/tag/')
-      
+
       // 如果是博客前台页面，不显示登录提示，直接返回数据或空结果
       if (isBlogPath) {
         console.warn('匿名用户访问博客页面，返回空数据或默认数据')
         // 对于博客前台页面，返回空数据而不是强制登录
         return Promise.resolve({ code: 200, data: null, msg: '匿名访问' })
       }
-      
-      // 对于后台管理页面，静默处理401错误，不显示重新登录弹窗
-      console.warn('登录状态已过期，但未显示重新登录弹窗')
+
+      // 对于后台管理页面，清除用户状态并重定向到登录页
+      console.warn('登录状态已过期，清除用户状态并重定向到登录页')
+      const userStore = useUserStore()
+      userStore.token = ''
+      userStore.roles = []
+      userStore.permissions = []
+      removeToken()
+      // 使用 window.location.replace 避免重复历史记录
+      window.location.replace('/login')
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     } else if (code === 500) {
       console.error('服务器错误:', {

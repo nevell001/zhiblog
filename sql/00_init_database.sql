@@ -17,7 +17,7 @@
 --
 -- 🔧 技术栈：
 -- - MySQL 8.0+
--- - Spring Boot 2.5.15
+-- - Spring Boot 3.3.0
 -- - Vue.js 3.x
 -- - MyBatis
 -- - Redis
@@ -834,11 +834,11 @@ INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `categor
 '# Spring Boot + Vue.js 全栈开发实战
 
 ## 📋 项目介绍
-本项目是基于Spring Boot 2.5.15和Vue.js 3.x构建的现代化博客系统，采用前后端分离架构，提供完整的内容管理功能。
+本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化博客系统，采用前后端分离架构，提供完整的内容管理功能。
 
 ## 🛠️ 技术栈详解
 ### 后端技术栈
-- **Spring Boot 2.5.15** - 核心框架
+- **Spring Boot 3.3.0** - 核心框架
 - **MyBatis** - 持久层框架
 - **MySQL 8.0** - 关系型数据库
 - **Redis** - 缓存和会话存储

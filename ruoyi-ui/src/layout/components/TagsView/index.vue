@@ -56,7 +56,7 @@ import ScrollPane from './ScrollPane'
 import { getNormalPath } from '@/utils/ruoyi'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { useSettingsStore } from '@/stores/settings'
-import usePermissionStore from '@/stores/permission'
+import usePermissionStore from '@/store/modules/permission'
 
 const visible = ref(false)
 const top = ref(0)

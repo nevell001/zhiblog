@@ -181,7 +181,7 @@ public class SysMenuServiceImpl implements ISysMenuService
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
             }
-            else if (menu.getParentId() == 0 && isMenuFrame(menu))
+            else if (menu.getParentId() == 0 && (isMenuFrame(menu) || UserConstants.TYPE_DIR.equals(menu.getMenuType())))
             {
                 // 为主要一级菜单设置正确的重定向
                 if ("系统管理".equals(menu.getMenuName())) {
@@ -206,6 +206,10 @@ public class SysMenuServiceImpl implements ISysMenuService
                     childrenList.add(children);
                     router.setChildren(childrenList);
                 }
+                // 如果有子菜单，设置 children
+                if (StringUtils.isNotEmpty(cMenus)) {
+                    router.setChildren(buildMenus(cMenus));
+                }
             }
             else if (StringUtils.isNotEmpty(cMenus) && UserConstants.TYPE_MENU.equals(menu.getMenuType()))
             {
@@ -216,6 +220,13 @@ public class SysMenuServiceImpl implements ISysMenuService
             else if (StringUtils.isNotEmpty(cMenus) && menu.getParentId() != 0 && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
+                router.setRedirect("noRedirect");
+                router.setChildren(buildMenus(cMenus));
+            }
+            // 处理目录类型（M）的菜单，确保子菜单被正确设置
+            else if (StringUtils.isNotEmpty(cMenus) && UserConstants.TYPE_DIR.equals(menu.getMenuType()))
+            {
+                router.setAlwaysShow(true);
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
             }
