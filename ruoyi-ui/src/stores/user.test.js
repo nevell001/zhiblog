@@ -1,13 +1,42 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-// 模拟 require 函数
+import { setActivePinia, createPinia } from 'pinia'
+
+// Mock the require function globally before any imports
+const originalRequire = global.require
 global.require = vi.fn((path) => {
   if (path === '@/assets/images/profile.jpg') {
     return '/assets/images/profile.jpg'
   }
-  return null
+  // For other paths, try to use the original require or return null
+  try {
+    return originalRequire ? originalRequire(path) : null
+  } catch (e) {
+    return null
+  }
 })
 
-import { setActivePinia, createPinia } from 'pinia'
+// Mock API
+vi.mock('@/api/login', () => ({
+  login: vi.fn(),
+  logout: vi.fn(),
+  getInfo: vi.fn()
+}))
+
+// Mock auth
+vi.mock('@/utils/auth', () => ({
+  getToken: vi.fn(),
+  setToken: vi.fn(),
+  removeToken: vi.fn()
+}))
+
+// 获取模拟的函数
+import { login as mockLogin, logout as mockLogout, getInfo as mockGetInfo } from '@/api/login'
+import { getToken as mockGetToken, setToken as mockSetToken, removeToken as mockRemoveToken } from '@/utils/auth'
+
+// 设置 mockGetToken 的默认返回值
+mockGetToken.mockReturnValue('initial-token')
+
+// Import the store after mocking
 import { useUserStore } from '@/stores/user'
 
 // Mock API

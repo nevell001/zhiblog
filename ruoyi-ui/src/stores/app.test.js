@@ -3,14 +3,15 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useAppStore } from '@/stores/app'
 
 // Mock js-cookie
-const mockCookies = {
-  get: vi.fn(),
-  set: vi.fn()
-}
-
 vi.mock('js-cookie', () => ({
-  default: mockCookies
+  default: {
+    get: vi.fn(),
+    set: vi.fn()
+  }
 }))
+
+// Get the mocked module
+const mockCookies = vi.mocked(require('js-cookie'))
 
 describe('App Store 测试', () => {
   let appStore

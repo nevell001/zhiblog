@@ -37,8 +37,11 @@ vi.mock('@/layout/index.vue', () => ({
 }))
 
 // Mock ParentView 组件
-vi.mock('@/components/ParentView', () => ({
-  default: 'ParentView'
+vi.mock('@/components/ParentView/index.vue', () => ({
+  default: {
+    template: '<router-view />',
+    name: 'ParentView'
+  }
 }))
 
 // Mock InnerLink 组件
