@@ -1,12 +1,22 @@
 <template>
   <div class="archive-page">
     <div class="page-header">
-      <h1 class="page-title">文章归档</h1>
-      <p class="page-description">共 {{ totalArticles }} 篇文章</p>
+      <h1 class="page-title">
+        文章归档
+      </h1>
+      <p class="page-description">
+        共 {{ totalArticles }} 篇文章
+      </p>
     </div>
 
-    <div v-loading="loading" class="archive-content">
-      <div v-if="archiveList.length === 0 && !loading" class="no-data">
+    <div
+      v-loading="loading"
+      class="archive-content"
+    >
+      <div
+        v-if="archiveList.length === 0 && !loading"
+        class="no-data"
+      >
         <el-icon :size="60">
           <Calendar />
         </el-icon>
@@ -14,10 +24,20 @@
       </div>
 
       <div v-else>
-        <div v-for="archive in archiveList" :key="archive.archive_date" class="archive-item">
-          <div class="archive-header" @click="toggleArchive(archive.archive_date)">
+        <div
+          v-for="archive in archiveList"
+          :key="archive.archive_date"
+          class="archive-item"
+        >
+          <div
+            class="archive-header"
+            @click="toggleArchive(archive.archive_date)"
+          >
             <h2 class="archive-date">
-              <el-icon :size="20" class="toggle-icon">
+              <el-icon
+                :size="20"
+                class="toggle-icon"
+              >
                 <component
                   :is="expandedArchives.includes(archive.archive_date) ? 'ArrowDown' : 'ArrowRight'"
                 />
@@ -27,9 +47,18 @@
             <span class="archive-count">{{ archive.article_count }} 篇文章</span>
           </div>
 
-          <div v-show="expandedArchives.includes(archive.archive_date)" class="archive-articles">
-            <div v-if="loadingArticles[archive.archive_date]" class="loading-articles">
-              <el-icon :size="24" class="is-loading">
+          <div
+            v-show="expandedArchives.includes(archive.archive_date)"
+            class="archive-articles"
+          >
+            <div
+              v-if="loadingArticles[archive.archive_date]"
+              class="loading-articles"
+            >
+              <el-icon
+                :size="24"
+                class="is-loading"
+              >
                 <Loading />
               </el-icon>
               <span>加载中...</span>
@@ -38,7 +67,7 @@
             <div
               v-else-if="
                 articlesByArchive[archive.archive_date] &&
-                articlesByArchive[archive.archive_date].length > 0
+                  articlesByArchive[archive.archive_date].length > 0
               "
               class="article-list"
             >
@@ -47,8 +76,14 @@
                 :key="article.id"
                 class="article-item"
               >
-                <div v-if="article.coverUrl || article.coverImage" class="article-cover">
-                  <img :src="article.coverUrl || article.coverImage" :alt="article.title" />
+                <div
+                  v-if="article.coverUrl || article.coverImage"
+                  class="article-cover"
+                >
+                  <img
+                    :src="article.coverUrl || article.coverImage"
+                    :alt="article.title"
+                  />
                 </div>
                 <div class="article-info">
                   <router-link
@@ -80,7 +115,10 @@
               </div>
             </div>
 
-            <div v-else-if="!loadingArticles[archive.archive_date]" class="no-articles">
+            <div
+              v-else-if="!loadingArticles[archive.archive_date]"
+              class="no-articles"
+            >
               <p>该月份暂无文章</p>
             </div>
           </div>
@@ -90,7 +128,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getArticleArchive, getArticlesByArchive } from '@/api/blog/article'
 import {

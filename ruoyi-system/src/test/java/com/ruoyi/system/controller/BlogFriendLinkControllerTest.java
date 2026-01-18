@@ -185,4 +185,95 @@ class BlogFriendLinkControllerTest {
 
         verify(blogFriendLinkService).deleteBlogFriendLinkByIds(any(Long[].class));
     }
+
+    /**
+     * 测试导出友情链接接口
+     */
+    @Test
+    void testExportFriendLink() throws Exception {
+        // 模拟数据
+        List<com.ruoyi.system.domain.BlogFriendLink> linkList = new ArrayList<>();
+        com.ruoyi.system.domain.BlogFriendLink link = new com.ruoyi.system.domain.BlogFriendLink();
+        link.setId(1L);
+        link.setName("测试友情链接");
+        link.setUrl("https://example.com");
+        linkList.add(link);
+
+        when(blogFriendLinkService.selectBlogFriendLinkList(any(com.ruoyi.system.domain.BlogFriendLink.class)))
+            .thenReturn(linkList);
+
+        // 执行测试
+        mockMvc.perform(post("/system/friendLink/export")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(blogFriendLinkService).selectBlogFriendLinkList(any(com.ruoyi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试新增友情链接接口 - 失败
+     */
+    @Test
+    void testAddFriendLink_Failure() throws Exception {
+        // 模拟添加失败
+        when(blogFriendLinkService.insertBlogFriendLink(any(com.ruoyi.system.domain.BlogFriendLink.class)))
+            .thenReturn(0);
+
+        // 准备请求体
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "测试友情链接");
+        params.put("url", "https://example.com");
+        params.put("status", "0");
+
+        // 执行测试
+        mockMvc.perform(post("/system/friendLink")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogFriendLinkService).insertBlogFriendLink(any(com.ruoyi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试更新友情链接接口 - 失败
+     */
+    @Test
+    void testEditFriendLink_Failure() throws Exception {
+        // 模拟更新失败
+        when(blogFriendLinkService.updateBlogFriendLink(any(com.ruoyi.system.domain.BlogFriendLink.class)))
+            .thenReturn(0);
+
+        // 准备请求体
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", 1L);
+        params.put("name", "修改后的友情链接");
+        params.put("url", "https://example.com");
+
+        // 执行测试
+        mockMvc.perform(put("/system/friendLink")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogFriendLinkService).updateBlogFriendLink(any(com.ruoyi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试删除友情链接接口 - 失败
+     */
+    @Test
+    void testRemoveFriendLink_Failure() throws Exception {
+        // 模拟删除失败
+        when(blogFriendLinkService.deleteBlogFriendLinkByIds(any(Long[].class))).thenReturn(0);
+
+        // 执行测试
+        mockMvc.perform(delete("/system/friendLink/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogFriendLinkService).deleteBlogFriendLinkByIds(any(Long[].class));
+    }
 }

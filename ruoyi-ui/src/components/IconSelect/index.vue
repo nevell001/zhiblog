@@ -21,7 +21,11 @@
           @click="selectedIcon(item)"
         >
           <div :class="['icon-item', { active: activeIcon === item }]">
-            <svg-icon :icon-class="item" class-name="icon" style="height: 25px; width: 16px" />
+            <svg-icon
+              :icon-class="item"
+              class-name="icon"
+              style="height: 25px; width: 16px"
+            />
             <span>{{ item }}</span>
           </div>
         </div>
@@ -30,7 +34,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import icons from './requireIcons'
 
 const props = defineProps({

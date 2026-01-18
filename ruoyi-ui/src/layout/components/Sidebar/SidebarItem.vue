@@ -96,7 +96,10 @@
       >
         [{{ item.meta?.title }}:{{ item.children?.length }}]
       </div>
-      <template v-if="item.meta" #title>
+      <template
+        v-if="item.meta"
+        #title
+      >
         <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'" />
         <span
           class="menu-title"
@@ -131,7 +134,7 @@
 import { ref, onMounted } from 'vue'
 import { ElNotification } from 'element-plus'
 import { getNormalPath } from '@/utils/ruoyi'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -177,20 +180,10 @@ function hasMenuPermission(menuItem) {
   const roles = userStore.roles || []
   const permissions = userStore.permissions || []
 
-  console.log('🔍 检查菜单权限:', {
-    menuItem: menuItem.meta?.title,
-    path: menuItem.path,
-    userRoles: roles,
-    userPermissions: permissions,
-    requiredRoles: menuItem.meta?.roles,
-    requiredPermissions: menuItem.meta?.permissions
-  })
-
   // 检查角色权限
   if (menuItem.meta?.roles && menuItem.meta.roles.length > 0) {
     const hasRole = menuItem.meta.roles.some(role => roles.includes(role))
     if (!hasRole) {
-      console.log(`❌ 角色权限不足: ${menuItem.meta.title}`)
       return false
     }
   }
@@ -201,25 +194,15 @@ function hasMenuPermission(menuItem) {
       permissions.includes(permission)
     )
     if (!hasPermission) {
-      console.log(`❌ 具体权限不足: ${menuItem.meta.title}`)
       return false
     }
   }
-
-  console.log(`✅ 菜单权限验证通过: ${menuItem.meta?.title}`)
   return true
 }
 
 function hasOneShowingChild(children = [], parent) {
-  console.log('🔍 hasOneShowingChild被调用:', {
-    parentTitle: (parent.meta && parent.meta.title) || '无标题',
-    children: children,
-    childrenCount: (children && children.length) || 0
-  })
-
   // 如果没有子菜单或子菜单为空数组，则使用父菜单
   if (!children || !Array.isArray(children) || children.length === 0) {
-    console.log('📌 没有子菜单或子菜单为空，使用父菜单')
     onlyOneChild.value = { ...parent }
     return true
   }
@@ -230,24 +213,17 @@ function hasOneShowingChild(children = [], parent) {
     return true
   })
 
-  console.log('📌 可见的子菜单:', showingChildren)
-
   // 如果只有一个可见的子菜单，使用该子菜单
   if (showingChildren.length === 1) {
-    console.log('📌 只有一个可见的子菜单，使用该子菜单')
     onlyOneChild.value = showingChildren[0]
     return true
   }
 
   // 如果没有可见的子菜单，使用父菜单
   if (showingChildren.length === 0) {
-    console.log('📌 没有可见的子菜单，使用父菜单')
     onlyOneChild.value = { ...parent }
     return true
   }
-
-  // 如果有多个可见的子菜单，不使用hasOneShowingChild逻辑
-  console.log('📌 有多个可见的子菜单，不使用hasOneShowingChild逻辑')
   return false
 }
 
@@ -285,10 +261,7 @@ function hasTitle(title) {
 
 // 菜单项点击处理 - 强制路由跳转
 function handleMenuItemClick(menuItem) {
-  console.log('🖱️ 菜单项点击:', menuItem)
-
   const targetPath = resolvePath(menuItem.path)
-  console.log('🎯 目标路径:', targetPath)
 
   // 权限检查
   if (!hasMenuPermission(menuItem)) {
@@ -306,7 +279,6 @@ function handleMenuItemClick(menuItem) {
 
   // 强制路由跳转
   if (targetPath && targetPath !== '/') {
-    console.log('🚀 强制路由跳转到:', targetPath)
     router.push(targetPath).catch(err => {
       console.error('路由跳转失败:', err)
     })

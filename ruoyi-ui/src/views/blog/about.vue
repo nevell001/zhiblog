@@ -6,17 +6,20 @@
     <!-- 博主介绍头部 -->
     <div class="hero-section">
       <div class="hero-content">
-        <div v-animate="'fade-in-up'" class="hero-avatar">
+        <div
+          v-animate="'fade-in-up'"
+          class="hero-avatar"
+        >
           <img
-            :src="
-              blogSettings.blog_avatar ||
-              'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=博主'
-            "
+            :src="blogSettings.blog_avatar || '/src/assets/images/profile.jpg'"
             :alt="blogSettings.blog_author"
           />
           <div class="avatar-decoration"></div>
         </div>
-        <div v-animate="'fade-in-up'" class="hero-info">
+        <div
+          v-animate="'fade-in-up'"
+          class="hero-info"
+        >
           <h1 class="hero-title">
             {{ blogSettings.blog_author || 'Nevell' }}
           </h1>
@@ -26,12 +29,15 @@
           <p class="hero-description">
             {{
               blogSettings.blog_desc ||
-              '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。'
+                '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。'
             }}
           </p>
 
           <!-- 社交链接 -->
-          <div v-animate="'fade-in-up'" class="hero-social">
+          <div
+            v-animate="'fade-in-up'"
+            class="hero-social"
+          >
             <a
               :href="blogSettings.github_url || '#'"
               class="social-link"
@@ -48,7 +54,12 @@
             >
               <i class="el-icon-message"></i>
             </a>
-            <a href="#" class="social-link" title="微信" @click.prevent="showWechatQR = true">
+            <a
+              href="#"
+              class="social-link"
+              title="微信"
+              @click.prevent="showWechatQR = true"
+            >
               <i class="el-icon-chat-dot-round"></i>
             </a>
             <a
@@ -75,7 +86,10 @@
     </div>
 
     <!-- 统计数据 -->
-    <div v-animate="'fade-in-up'" class="stats-section">
+    <div
+      v-animate="'fade-in-up'"
+      class="stats-section"
+    >
       <div class="stats-container">
         <div class="stat-card">
           <div class="stat-icon">
@@ -85,7 +99,9 @@
             <div class="stat-number">
               {{ stats.articleCount || 0 }}
             </div>
-            <div class="stat-label">篇文章</div>
+            <div class="stat-label">
+              篇文章
+            </div>
           </div>
         </div>
         <div class="stat-card">
@@ -96,7 +112,9 @@
             <div class="stat-number">
               {{ stats.categoryCount || 0 }}
             </div>
-            <div class="stat-label">个分类</div>
+            <div class="stat-label">
+              个分类
+            </div>
           </div>
         </div>
         <div class="stat-card">
@@ -107,7 +125,9 @@
             <div class="stat-number">
               {{ stats.tagCount || 0 }}
             </div>
-            <div class="stat-label">个标签</div>
+            <div class="stat-label">
+              个标签
+            </div>
           </div>
         </div>
         <div class="stat-card">
@@ -118,7 +138,9 @@
             <div class="stat-number">
               {{ stats.commentCount || 0 }}
             </div>
-            <div class="stat-label">条评论</div>
+            <div class="stat-label">
+              条评论
+            </div>
           </div>
         </div>
         <div class="stat-card">
@@ -129,15 +151,22 @@
             <div class="stat-number">
               {{ formatNumber(stats.totalViews || 0) }}
             </div>
-            <div class="stat-label">总访问</div>
+            <div class="stat-label">
+              总访问
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 技能专长 -->
-    <div v-animate="'fade-in-up'" class="skills-section">
-      <h2 class="section-title">技能专长</h2>
+    <div
+      v-animate="'fade-in-up'"
+      class="skills-section"
+    >
+      <h2 class="section-title">
+        技能专长
+      </h2>
       <div class="skills-container">
         <div
           v-for="(skill, index) in skills"
@@ -163,8 +192,13 @@
     </div>
 
     <!-- 工作经历 -->
-    <div v-animate="'fade-in-up'" class="timeline-section">
-      <h2 class="section-title">成长历程</h2>
+    <div
+      v-animate="'fade-in-up'"
+      class="timeline-section"
+    >
+      <h2 class="section-title">
+        成长历程
+      </h2>
       <div class="timeline">
         <div
           v-for="(item, index) in timeline"
@@ -191,8 +225,13 @@
     </div>
 
     <!-- 联系方式 -->
-    <div v-animate="'fade-in-up'" class="contact-section">
-      <h2 class="section-title">联系我</h2>
+    <div
+      v-animate="'fade-in-up'"
+      class="contact-section"
+    >
+      <h2 class="section-title">
+        联系我
+      </h2>
       <div class="contact-container">
         <div class="contact-info">
           <div class="contact-item">
@@ -200,7 +239,9 @@
               <i class="el-icon-message"></i>
             </div>
             <div class="contact-details">
-              <div class="contact-label">邮箱</div>
+              <div class="contact-label">
+                邮箱
+              </div>
               <div class="contact-value">
                 {{ blogSettings.email || 'contact@example.com' }}
               </div>
@@ -211,7 +252,9 @@
               <i class="el-icon-location"></i>
             </div>
             <div class="contact-details">
-              <div class="contact-label">位置</div>
+              <div class="contact-label">
+                位置
+              </div>
               <div class="contact-value">
                 {{ blogSettings.author_location || '中国·北京' }}
               </div>
@@ -222,7 +265,9 @@
               <i class="el-icon-link"></i>
             </div>
             <div class="contact-details">
-              <div class="contact-label">GitHub</div>
+              <div class="contact-label">
+                GitHub
+              </div>
               <div class="contact-value">
                 {{ blogSettings.github_url ? 'github.com/nevell' : 'github.com/username' }}
               </div>
@@ -231,23 +276,40 @@
         </div>
 
         <div class="contact-form">
-          <el-form ref="contactFormRef" :model="contactForm" :rules="contactRules" label-width="0">
+          <el-form
+            ref="contactFormRef"
+            :model="contactForm"
+            :rules="contactRules"
+            label-width="0"
+          >
             <el-form-item prop="name">
-              <el-input v-model="contactForm.name" placeholder="您的姓名" size="large">
+              <el-input
+                v-model="contactForm.name"
+                placeholder="您的姓名"
+                size="large"
+              >
                 <template #prefix>
                   <i class="el-icon-user"></i>
                 </template>
               </el-input>
             </el-form-item>
             <el-form-item prop="email">
-              <el-input v-model="contactForm.email" placeholder="您的邮箱" size="large">
+              <el-input
+                v-model="contactForm.email"
+                placeholder="您的邮箱"
+                size="large"
+              >
                 <template #prefix>
                   <i class="el-icon-message"></i>
                 </template>
               </el-input>
             </el-form-item>
             <el-form-item prop="subject">
-              <el-input v-model="contactForm.subject" placeholder="主题" size="large">
+              <el-input
+                v-model="contactForm.subject"
+                placeholder="主题"
+                size="large"
+              >
                 <template #prefix>
                   <i class="el-icon-edit"></i>
                 </template>
@@ -280,22 +342,28 @@
     </div>
 
     <!-- 微信二维码对话框 -->
-    <el-dialog v-model="showWechatQR" title="微信二维码" width="300px" center>
+    <el-dialog
+      v-model="showWechatQR"
+      title="微信二维码"
+      width="300px"
+      center
+    >
       <div class="qr-code-container">
         <img
-          :src="
-            blogSettings.wechat_qr ||
-            'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
-          "
+          v-if="blogSettings.wechat_qr"
+          :src="blogSettings.wechat_qr"
           alt="微信二维码"
         />
+        <div v-else class="qr-placeholder">
+          暂无微信二维码
+        </div>
         <p>扫码添加微信</p>
       </div>
     </el-dialog>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
@@ -303,7 +371,15 @@ import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getSkillsList, getExperienceList } from '@/api/blog/author'
 
 // 响应式数据
-const blogSettings = ref({})
+interface BlogSettings {
+  email?: string
+  weibo_url?: string
+  github_url?: string
+  wechat_qr?: string
+  [key: string]: any
+}
+
+const blogSettings = ref<BlogSettings>({})
 const stats = ref({})
 const showWechatQR = ref(false)
 const submitting = ref(false)
@@ -508,7 +584,7 @@ const loadBlogSettings = async () => {
       email: 'contact@example.com',
       github_url: 'https://github.com',
       weibo_url: 'https://weibo.com',
-      wechat_qr: 'https://via.placeholder.com/200x200/409EFF/FFFFFF?text=微信二维码'
+      wechat_qr: ''
     }
   }
 }
@@ -1061,6 +1137,20 @@ onMounted(() => {
   height: 200px;
   border-radius: 10px;
   margin-bottom: 15px;
+}
+
+.qr-placeholder {
+  width: 200px;
+  height: 200px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  color: #999;
+  font-size: 0.95rem;
+  border: 2px dashed #ddd;
 }
 
 .qr-code-container p {

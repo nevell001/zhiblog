@@ -1,5 +1,10 @@
 <template>
-  <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
+  <el-menu
+    :default-active="activeMenu"
+    mode="horizontal"
+    :ellipsis="false"
+    @select="handleSelect"
+  >
     <template v-for="(item, index) in topMenus">
       <el-menu-item
         v-if="index < visibleNumber"
@@ -16,10 +21,20 @@
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu v-if="topMenus.length > visibleNumber" :style="{ '--theme': theme }" index="more">
-      <template #title>更多菜单</template>
+    <el-sub-menu
+      v-if="topMenus.length > visibleNumber"
+      :style="{ '--theme': theme }"
+      index="more"
+    >
+      <template #title>
+        更多菜单
+      </template>
       <template v-for="(item, index) in topMenus">
-        <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path">
+        <el-menu-item
+          v-if="index >= visibleNumber"
+          :key="index"
+          :index="item.path"
+        >
           <svg-icon
             v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
             :icon-class="item.meta.icon"
@@ -31,12 +46,12 @@
   </el-menu>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { constantRoutes } from '@/router'
 import { isHttp } from '@/utils/validate'
-import useAppStore from '@/store/modules/app'
-import { useSettingsStore } from '@/store/modules/settings'
-import usePermissionStore from '@/store/modules/permission'
+import { useAppStore } from '@/stores/app'
+import { useSettingsStore } from '@/stores/settings'
+import { usePermissionStore } from '@/stores/permission'
 
 // 顶部栏初始数
 const visibleNumber = ref(null)
@@ -60,7 +75,7 @@ const routers = computed(() => permissionStore.topbarRouters)
 const topMenus = computed(() => {
   const topMenus = []
   routers.value.map(menu => {
-    if (menu.hidden !== true) {
+    if ((menu as any).hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
       if (menu.path === '/' && menu.children) {
         topMenus.push(menu.children[0])

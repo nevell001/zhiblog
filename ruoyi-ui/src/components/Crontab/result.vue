@@ -1,18 +1,27 @@
 <template>
   <div class="popup-result">
-    <p class="title">最近5次运行时间</p>
+    <p class="title">
+      最近5次运行时间
+    </p>
     <ul class="popup-result-scroll">
       <template v-if="isShow">
-        <li v-for="item in resultList" :key="item">
+        <li
+          v-for="item in resultList"
+          :key="item"
+        >
           {{ item }}
         </li>
       </template>
-      <li v-else>计算结果中...</li>
+      <li v-else>
+        计算结果中...
+      </li>
     </ul>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, watch, onUnmounted } from 'vue'
+
 const props = defineProps({
   ex: {
     type: String,
@@ -20,10 +29,12 @@ const props = defineProps({
   }
 })
 const dayRule = ref('')
-const dayRuleSup = ref('')
+const dayRuleSup = ref<string | number | number[]>([])
 const dateArr = ref([])
 const resultList = ref([])
 const isShow = ref(false)
+
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   () => props.ex,
   () => expressionChange()
@@ -193,7 +204,7 @@ function expressionChange() {
             }
           } else if (thisWeek === 7) {
             // 当星期6时只需判断不是1号就可进行操作
-            if (dayRuleSup.value !== 1) {
+            if (Number(dayRuleSup.value) !== 1) {
               DD--
             } else {
               DD += 2
@@ -204,7 +215,8 @@ function expressionChange() {
           // 获取当前日期是属于星期几
           const thisWeek = formatDate(new Date(YY + '-' + MM + '-' + DD + ' 00:00:00'), 'week')
           // 校验当前星期是否在星期池（dayRuleSup）中
-          if (dayRuleSup.value.indexOf(thisWeek) < 0) {
+          const supValue = dayRuleSup.value as number[]
+          if (supValue.indexOf(thisWeek) < 0) {
             // 如果到达最大值时
             if (Di === DDate.length - 1) {
               resetDay()
@@ -220,10 +232,11 @@ function expressionChange() {
           // 如果指定了是第几周的星期几
           // 获取每月1号是属于星期几
           const thisWeek = formatDate(new Date(YY + '-' + MM + '-' + DD + ' 00:00:00'), 'week')
-          if (dayRuleSup.value[1] >= thisWeek) {
-            DD = (dayRuleSup.value[0] - 1) * 7 + dayRuleSup.value[1] - thisWeek + 1
+          const supValue = dayRuleSup.value as number[]
+          if (supValue[1] >= thisWeek) {
+            DD = (supValue[0] - 1) * 7 + supValue[1] - thisWeek + 1
           } else {
-            DD = dayRuleSup.value[0] * 7 + dayRuleSup.value[1] - thisWeek + 1
+            DD = supValue[0] * 7 + supValue[1] - thisWeek + 1
           }
         } else if (dayRule.value === 'lastWeek') {
           // 如果指定了每月最后一个星期几
@@ -236,11 +249,12 @@ function expressionChange() {
           }
           // 获取月末最后一天是星期几
           const thisWeek = formatDate(new Date(YY + '-' + MM + '-' + thisDD + ' 00:00:00'), 'week')
+          const supValue = Number(dayRuleSup.value)
           // 找到要求中最近的那个星期几
-          if (dayRuleSup.value < thisWeek) {
-            DD -= thisWeek - dayRuleSup.value
-          } else if (dayRuleSup.value > thisWeek) {
-            DD -= 7 - (dayRuleSup.value - thisWeek)
+          if (supValue < thisWeek) {
+            DD -= thisWeek - supValue
+          } else if (supValue > thisWeek) {
+            DD -= 7 - (supValue - thisWeek)
           }
         }
         // 判断时间值是否小于10置换成“05”这种格式
@@ -386,14 +400,15 @@ function getWeekArr(rule) {
       const matchRule = rule.match(/[0-9]{1}/g)
       dayRuleSup.value = [Number(matchRule[1]), Number(matchRule[0])]
       dateArr.value[3] = [1]
-      if (dayRuleSup.value[1] === 7) {
-        dayRuleSup.value[1] = 0
+      const supValue = dayRuleSup.value as number[]
+      if (supValue[1] === 7) {
+        supValue[1] = 0
       }
     } else if (rule.indexOf('L') >= 0) {
       dayRule.value = 'lastWeek'
       dayRuleSup.value = Number(rule.match(/[0-9]{1,2}/g)[0])
       dateArr.value[3] = [31]
-      if (dayRuleSup.value === 7) {
+      if (Number(dayRuleSup.value) === 7) {
         dayRuleSup.value = 0
       }
     } else if (rule !== '*' && rule !== '?') {
@@ -553,7 +568,7 @@ function formatDate(value, type) {
 // 检查日期是否存在
 function checkDate(value) {
   const time = new Date(value)
-  const format = formatDate(time)
+  const format = formatDate(time, undefined)
   return value === format
 }
 onMounted(() => {

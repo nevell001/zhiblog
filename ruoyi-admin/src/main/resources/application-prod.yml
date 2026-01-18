@@ -36,7 +36,7 @@ logging:
 
 # 生产环境安全配置
 server:
-  # 生产环境建议使用HTTPS
+  # HTTPS 配置（根据需要启用）
   # ssl:
   #   key-store: classpath:keystore.p12
   #   key-store-password: your-password
@@ -44,26 +44,26 @@ server:
   #   key-alias: tomcat
   # port: 8443
 
-  # 生产环境建议设置服务器头信息
+  # 服务器头信息配置
   server-header:
 
-# 生产环境安全配置
+# 安全配置
 ruoyi:
-  # 生产环境关闭获取IP地址
+  # 关闭获取IP地址
   addressEnabled: false
-  # 生产环境使用字符验证码
+  # 使用字符验证码
   captchaType: char
 
-# 生产环境Token配置
+# Token配置
 token:
-  # 生产环境缩短Token有效期
+  # 缩短Token有效期
   expireTime: 15
 
-# 生产环境XSS防护配置
+# XSS防护配置
 xss:
-  # 生产环境启用XSS过滤
+  # 启用XSS过滤
   enabled: true
-  # 生产环境排除链接
+  # 排除链接
   excludes: /blog/**,/api/**,/index
-  # 生产环境匹配链接
+  # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*,/admin/*

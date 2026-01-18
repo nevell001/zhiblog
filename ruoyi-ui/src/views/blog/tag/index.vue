@@ -4,7 +4,10 @@
     <BlogNav />
 
     <!-- 标签头部 -->
-    <div class="tag-header" :style="{ backgroundColor: tagColor }">
+    <div
+      class="tag-header"
+      :style="{ backgroundColor: tagColor }"
+    >
       <div class="header-content">
         <div class="tag-info">
           <div class="tag-icon-large">
@@ -26,8 +29,14 @@
 
         <!-- 返回按钮 -->
         <div class="back-button">
-          <router-link to="/" class="back-link">
-            <el-button type="default" plain>
+          <router-link
+            to="/"
+            class="back-link"
+          >
+            <el-button
+              type="default"
+              plain
+            >
               <i class="el-icon-arrow-left"></i>
               返回首页
             </el-button>
@@ -40,24 +49,57 @@
     <div class="tag-main">
       <div class="main-content">
         <!-- 加载状态 -->
-        <div v-if="loading" class="loading-container">
+        <div
+          v-if="loading"
+          class="loading-container"
+        >
           <div class="loading-grid">
-            <el-skeleton v-for="i in 6" :key="i" :loading="loading" animated class="skeleton-item">
+            <el-skeleton
+              v-for="i in 6"
+              :key="i"
+              :loading="loading"
+              animated
+              class="skeleton-item"
+            >
               <template #template>
                 <div class="article-item">
                   <div class="article-cover">
-                    <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
+                    <el-skeleton-item
+                      variant="image"
+                      style="width: 100%; height: 200px"
+                    />
                   </div>
                   <div class="article-content">
-                    <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
-                    <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
-                    <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
-                    <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
+                    <el-skeleton-item
+                      variant="h3"
+                      style="width: 70%; margin-bottom: 15px"
+                    />
+                    <el-skeleton-item
+                      variant="text"
+                      style="width: 100%; margin-bottom: 10px"
+                    />
+                    <el-skeleton-item
+                      variant="text"
+                      style="width: 90%; margin-bottom: 10px"
+                    />
+                    <el-skeleton-item
+                      variant="text"
+                      style="width: 60%; margin-bottom: 15px"
+                    />
                     <div style="display: flex; gap: 8px; margin-bottom: 15px">
-                      <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
-                      <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
+                      <el-skeleton-item
+                        variant="text"
+                        style="width: 60px; height: 24px"
+                      />
+                      <el-skeleton-item
+                        variant="text"
+                        style="width: 50px; height: 24px"
+                      />
                     </div>
-                    <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
+                    <el-skeleton-item
+                      variant="text"
+                      style="width: 80px; height: 20px"
+                    />
                   </div>
                 </div>
               </template>
@@ -66,29 +108,57 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-else-if="articleList.length === 0" class="empty-state">
+        <div
+          v-else-if="articleList.length === 0"
+          class="empty-state"
+        >
           <div class="empty-content">
             <i class="el-icon-price-tag empty-icon"></i>
             <h3>暂无文章</h3>
             <p>该标签下还没有文章，敬请期待...</p>
-            <router-link to="/" class="back-home-btn">
-              <el-button type="primary">返回首页</el-button>
+            <router-link
+              to="/"
+              class="back-home-btn"
+            >
+              <el-button type="primary">
+                返回首页
+              </el-button>
             </router-link>
           </div>
         </div>
 
         <!-- 文章列表 -->
-        <div v-else class="article-list">
-          <div v-for="article in articleList" :key="article.id" class="article-item">
-            <div v-if="article.coverUrl" class="article-cover">
-              <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
-              <div v-if="article.categoryName" class="article-category-badge">
+        <div
+          v-else
+          class="article-list"
+        >
+          <div
+            v-for="article in articleList"
+            :key="article.id"
+            class="article-item"
+          >
+            <div
+              v-if="article.coverUrl"
+              class="article-cover"
+            >
+              <img
+                :src="article.coverUrl"
+                :alt="article.title"
+                loading="lazy"
+              />
+              <div
+                v-if="article.categoryName"
+                class="article-category-badge"
+              >
                 {{ article.categoryName }}
               </div>
             </div>
             <div class="article-content">
               <h2 class="article-title">
-                <router-link :to="`/blog/article/${article.id}`" :title="article.title">
+                <router-link
+                  :to="`/blog/article/${article.id}`"
+                  :title="article.title"
+                >
                   {{ article.title }}
                 </router-link>
               </h2>
@@ -101,11 +171,17 @@
                   <i class="el-icon-view"></i>
                   {{ article.viewCount || 0 }} 阅读
                 </span>
-                <span v-if="article.likeCount" class="meta-item">
+                <span
+                  v-if="article.likeCount"
+                  class="meta-item"
+                >
                   <i class="el-icon-star-off"></i>
                   {{ article.likeCount }} 点赞
                 </span>
-                <span v-if="article.commentCount" class="meta-item">
+                <span
+                  v-if="article.commentCount"
+                  class="meta-item"
+                >
                   <i class="el-icon-chat-line-round"></i>
                   {{ article.commentCount }} 评论
                 </span>
@@ -113,7 +189,10 @@
               <p class="article-summary">
                 {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
               </p>
-              <div v-if="article.tags && article.tags.length" class="article-tags">
+              <div
+                v-if="article.tags && article.tags.length"
+                class="article-tags"
+              >
                 <span
                   v-for="tag in article.tags.slice(0, 3)"
                   :key="tag.id"
@@ -124,7 +203,10 @@
                 </span>
               </div>
               <div class="article-footer">
-                <router-link :to="`/blog/article/${article.id}`" class="read-more">
+                <router-link
+                  :to="`/blog/article/${article.id}`"
+                  class="read-more"
+                >
                   阅读全文
                   <i class="el-icon-arrow-right"></i>
                 </router-link>
@@ -134,14 +216,25 @@
         </div>
 
         <!-- 加载更多 -->
-        <div v-if="articleList.length < total && !loading" class="load-more-container">
-          <el-button type="primary" :loading="loadingMore" round @click="loadMoreArticles">
+        <div
+          v-if="articleList.length < total && !loading"
+          class="load-more-container"
+        >
+          <el-button
+            type="primary"
+            :loading="loadingMore"
+            round
+            @click="loadMoreArticles"
+          >
             {{ loadingMore ? '加载中...' : '加载更多' }}
           </el-button>
         </div>
 
         <!-- 分页 -->
-        <div v-if="total > queryParams.pageSize" class="pagination-container">
+        <div
+          v-if="total > queryParams.pageSize"
+          class="pagination-container"
+        >
           <el-pagination
             background
             layout="prev, pager, next"
@@ -162,7 +255,10 @@
             关于这个标签
           </h3>
           <div class="tag-about">
-            <div class="tag-icon" :style="{ backgroundColor: tagColor }">
+            <div
+              class="tag-icon"
+              :style="{ backgroundColor: tagColor }"
+            >
               <i class="el-icon-price-tag"></i>
             </div>
             <h4 class="tag-name">
@@ -216,8 +312,14 @@
             热门标签
           </h3>
           <div class="popular-tags">
-            <div v-for="tag in popularTags.slice(0, 10)" :key="tag.id" class="popular-tag-item">
-              <div class="tag-rank">#{{ popularTags.indexOf(tag) + 1 }}</div>
+            <div
+              v-for="tag in popularTags.slice(0, 10)"
+              :key="tag.id"
+              class="popular-tag-item"
+            >
+              <div class="tag-rank">
+                #{{ popularTags.indexOf(tag) + 1 }}
+              </div>
               <router-link
                 :to="`/blog/tag/${tag.id}`"
                 class="tag-link"
@@ -225,7 +327,9 @@
               >
                 {{ tag.name }}
               </router-link>
-              <div class="tag-article-count">{{ tag.article_count }}篇</div>
+              <div class="tag-article-count">
+                {{ tag.article_count }}篇
+              </div>
             </div>
           </div>
         </div>
@@ -258,8 +362,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, watch } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
@@ -298,8 +402,6 @@ const loadTagArticles = async (append = false) => {
     if (append) loadingMore.value = true
 
     const response = await getArticlesByTag(queryParams.tagId, queryParams)
-    console.log('标签文章列表完整响应:', JSON.stringify(response, null, 2))
-    console.log('查询参数:', queryParams.tagId, queryParams)
 
     // 处理不同的响应格式
     let newArticles = []
@@ -323,9 +425,6 @@ const loadTagArticles = async (append = false) => {
       totalCount = 0
     }
 
-    console.log('处理后的文章数量:', newArticles.length)
-    console.log('处理后的总数:', totalCount)
-    console.log('第一篇文章内容:', newArticles[0] ? '有内容' : '无内容')
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
     } else {
@@ -336,8 +435,6 @@ const loadTagArticles = async (append = false) => {
     if (!append && totalCount > 0) {
       total.value = totalCount
     }
-
-    console.log('文章列表长度:', articleList.value.length, '总数:', total.value)
   } catch (error) {
     console.error('获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
@@ -351,7 +448,6 @@ const loadTagArticles = async (append = false) => {
 const loadTagDetail = async () => {
   try {
     const response = await getTagDetail(queryParams.tagId)
-    console.log('标签详情响应:', response)
     const tag = response.data || response
 
     tagName.value = tag.name || ''
@@ -362,7 +458,6 @@ const loadTagDetail = async () => {
     // 更新页面显示的文章数量
     if (tag.articleCount !== undefined && tag.articleCount !== null) {
       total.value = tag.articleCount
-      console.log('标签文章数量:', tag.articleCount)
     }
   } catch (error) {
     console.error('获取标签详情失败:', error)
@@ -373,8 +468,7 @@ const loadTagDetail = async () => {
 const loadRelatedTags = async () => {
   try {
     const response = await getTagCloud()
-    console.log('相关标签响应:', response)
-    const tags = response.data || []
+    const tags = response || []
     relatedTags.value = tags.filter(tag => tag.id !== currentTagId.value).slice(0, 12)
   } catch (error) {
     console.error('获取相关标签失败:', error)
@@ -385,8 +479,7 @@ const loadRelatedTags = async () => {
 const loadPopularTags = async () => {
   try {
     const response = await getTagCloud()
-    console.log('热门标签响应:', response)
-    popularTags.value = (response.data || []).slice(0, 10)
+    popularTags.value = (response || []).slice(0, 10)
   } catch (error) {
     console.error('获取热门标签失败:', error)
   }
@@ -396,7 +489,6 @@ const loadPopularTags = async () => {
 const loadRecentArticles = async () => {
   try {
     const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
-    console.log('最新文章响应:', response)
     recentArticles.value = response.rows || []
   } catch (error) {
     console.error('获取最新文章失败:', error)
@@ -457,7 +549,7 @@ const stripHtmlTags = html => {
   return html.replace(/<[^>]*>/g, '')
 }
 
-// 监听路由变化
+// 监听路由变化，Vue 3 会自动清理
 watch(
   () => route.params.id,
   newId => {

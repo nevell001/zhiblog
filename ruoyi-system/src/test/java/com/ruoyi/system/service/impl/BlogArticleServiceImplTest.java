@@ -1025,4 +1025,110 @@ class BlogArticleServiceImplTest {
         assertThrows(NullPointerException.class, 
                 () -> blogArticleService.updateBlogArticle(testArticle));
     }
+
+    /**
+     * 测试根据标签ID查询文章 - 文章列表为空
+     */
+    @Test
+    void testSelectArticlesByTagId_EmptyList() {
+        // 模拟返回空列表
+        when(blogArticleMapper.selectArticlesByTagId(1L)).thenReturn(Collections.emptyList());
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectArticlesByTagId(1L);
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(blogArticleMapper).selectArticlesByTagId(1L);
+    }
+
+    /**
+     * 测试根据标签ID查询文章 - 文章列表为 null
+     */
+    @Test
+    void testSelectArticlesByTagId_NullList() {
+        // 模拟返回 null
+        when(blogArticleMapper.selectArticlesByTagId(1L)).thenReturn(null);
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectArticlesByTagId(1L);
+
+        // 验证结果
+        assertNull(result);
+        verify(blogArticleMapper).selectArticlesByTagId(1L);
+    }
+
+    /**
+     * 测试根据标签ID查询文章 - 标签为空列表
+     */
+    @Test
+    void testSelectArticlesByTagId_TagsEmpty() {
+        // 模拟返回文章列表，但标签为空列表
+        when(blogArticleMapper.selectArticlesByTagId(1L)).thenReturn(Arrays.asList(testArticle));
+        when(blogTagMapper.selectTagsByArticleId(1L)).thenReturn(Collections.emptyList());
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectArticlesByTagId(1L);
+
+        // 验证结果
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertNotNull(result.get(0).getTags());
+        assertTrue(result.get(0).getTags().isEmpty());
+        verify(blogArticleMapper).selectArticlesByTagId(1L);
+        verify(blogTagMapper).selectTagsByArticleId(1L);
+    }
+
+    /**
+     * 测试查询文章列表 - 文章列表为空
+     */
+    @Test
+    void testSelectBlogArticleList_EmptyList() {
+        // 模拟返回空列表
+        when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class))).thenReturn(Collections.emptyList());
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
+
+        // 验证结果
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
+    }
+
+    /**
+     * 测试查询文章列表 - 文章列表为 null
+     */
+    @Test
+    void testSelectBlogArticleList_NullList() {
+        // 模拟返回 null
+        when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class))).thenReturn(null);
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
+
+        // 验证结果
+        assertNull(result);
+        verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
+    }
+
+    /**
+     * 测试查询文章列表 - 文章为 null
+     */
+    @Test
+    void testSelectBlogArticleList_ArticleNull() {
+        // 模拟返回包含 null 的列表
+        BlogArticle nullArticle = null;
+        when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class))).thenReturn(Arrays.asList(nullArticle));
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
+
+        // 验证结果
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertNull(result.get(0));
+        verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
+    }
 }

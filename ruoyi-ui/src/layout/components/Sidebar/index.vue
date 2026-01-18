@@ -1,6 +1,12 @@
 <template>
-  <div :class="{ 'has-logo': showLogo }" class="sidebar-container">
-    <logo v-if="showLogo" :collapse="isCollapse" />
+  <div
+    :class="{ 'has-logo': showLogo }"
+    class="sidebar-container"
+  >
+    <logo
+      v-if="showLogo"
+      :collapse="isCollapse"
+    />
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
         :default-active="activeMenu"
@@ -18,10 +24,10 @@
         @close="handleClose"
       >
         <sidebar-item
-          v-for="(route, index) in sidebarRouters.filter(r => r.meta && r.meta.title && !r.hidden)"
-          :key="route.path + index"
-          :item="route"
-          :base-path="route.path"
+          v-for="(sidebarRoute, index) in sidebarRouters.filter(r => r.meta && r.meta.title && !r.hidden)"
+          :key="sidebarRoute.path + index"
+          :item="sidebarRoute"
+          :base-path="sidebarRoute.path"
         />
       </el-menu>
     </el-scrollbar>
@@ -32,10 +38,9 @@
 import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/assets/styles/variables.module.scss'
-import useAppStore from '@/store/modules/app'
-import useSettingsStore from '@/store/modules/settings'
-import usePermissionStore from '@/store/modules/permission'
-import _Layout from '@/layout/index.vue'
+import { useAppStore } from '@/stores/app'
+import { useSettingsStore } from '@/stores/settings'
+import { usePermissionStore } from '@/stores/permission'
 import { computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import router from '@/router'
@@ -47,17 +52,6 @@ const permissionStore = usePermissionStore()
 
 // 使用动态生成的路由数据
 const sidebarRouters = computed(() => {
-  console.log('📋 侧边栏路由数据:', permissionStore.sidebarRouters)
-
-  // 检查博客管理菜单是否正确
-  const blogMenu = permissionStore.sidebarRouters?.find(
-    route => route.meta?.title === '博客管理' || route.name === '博客管理'
-  )
-  console.log('🔍 博客管理菜单:', blogMenu)
-  if (blogMenu) {
-    console.log('✅ 博客管理子菜单数量:', blogMenu.children?.length || 0)
-  }
-
   return permissionStore.sidebarRouters || []
 })
 const showLogo = computed(() => settingsStore.sidebarLogo)
@@ -125,30 +119,23 @@ function onlyOneChild(children) {
 // }
 
 // 处理菜单选择事件
-function handleSelect(key, keyPath) {
-  if (key && key.trim()) {
-    console.log('菜单选中:', key, keyPath)
-    // Element Plus的:router="true"会自动处理路由跳转
-    // 这里只需要做日志记录和额外的处理逻辑
-  }
+function handleSelect(_key, _keyPath) {
+  // Element Plus的:router="true"会自动处理路由跳转
 }
 
 // 处理子菜单展开事件
-function handleOpen(key, keyPath) {
-  console.log('📂 菜单展开:', key, keyPath)
+function handleOpen(_key, _keyPath) {
+  // 子菜单展开处理
 }
 
 // 处理子菜单关闭事件
-function handleClose(key, keyPath) {
-  console.log('📁 菜单关闭:', key, keyPath)
+function handleClose(_key, _keyPath) {
+  // 子菜单关闭处理
 }
 
 // 组件挂载后执行初始化
 onMounted(() => {
-  console.log('Sidebar组件挂载完成')
-
-  // 🚫 移除事件委托，避免干扰Element Plus原生菜单行为
-  // 让Element Plus的el-menu和el-sub-menu组件正常工作
+  // 初始化完成
 })
 </script>
 

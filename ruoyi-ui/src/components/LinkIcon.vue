@@ -1,10 +1,13 @@
 <template>
   <div>
-    <svg-icon :icon-class="iconClass" @click="goto" />
+    <svg-icon
+      :icon-class="iconClass"
+      @click="goto"
+    />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineProps } from 'vue'
 
 const props = defineProps({

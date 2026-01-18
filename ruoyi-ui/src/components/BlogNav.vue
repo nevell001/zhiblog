@@ -1,8 +1,15 @@
 <template>
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
-    <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">
-      <div class="hamburger-icon" :class="{ active: isMobileMenuOpen }">
+    <div
+      v-if="isMobile"
+      class="hamburger-menu"
+      @click="toggleMobileMenu"
+    >
+      <div
+        class="hamburger-icon"
+        :class="{ active: isMobileMenuOpen }"
+      >
         <span></span>
         <span></span>
         <span></span>
@@ -10,7 +17,10 @@
     </div>
 
     <!-- 导航菜单 -->
-    <div class="nav-menu" :class="{ 'mobile-open': isMobileMenuOpen }">
+    <div
+      class="nav-menu"
+      :class="{ 'mobile-open': isMobileMenuOpen }"
+    >
       <router-link
         v-for="menu in frontendMenus"
         :key="menu.path"
@@ -18,11 +28,18 @@
         class="nav-item"
         @click="closeMobileMenu"
       >
-        <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle" />
+        <component
+          :is="getMenuIcon(menu.icon)"
+          :size="16"
+          style="vertical-align: middle"
+        />
         <span>{{ menu.name }}</span>
       </router-link>
 
-      <div class="nav-item admin-link" @click="goToAdmin">
+      <div
+        class="nav-item admin-link"
+        @click="goToAdmin"
+      >
         <el-icon :size="16">
           <Setting />
         </el-icon>
@@ -32,13 +49,23 @@
 
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
-      <el-button link class="theme-toggle" title="切换主题" @click="toggleTheme">
+      <el-button
+        link
+        class="theme-toggle"
+        title="切换主题"
+        @click="toggleTheme"
+      >
         <el-icon :size="18">
           <Sunny v-if="isDarkTheme" />
           <Moon v-else />
         </el-icon>
       </el-button>
-      <el-button link class="scroll-top" title="回到顶部" @click="scrollToTop">
+      <el-button
+        link
+        class="scroll-top"
+        title="回到顶部"
+        @click="scrollToTop"
+      >
         <el-icon :size="18">
           <Top />
         </el-icon>
@@ -46,11 +73,15 @@
     </div>
 
     <!-- 遮罩层（移动端菜单打开时显示） -->
-    <div v-if="isMobileMenuOpen" class="overlay" @click="closeMobileMenu"></div>
+    <div
+      v-if="isMobileMenuOpen"
+      class="overlay"
+      @click="closeMobileMenu"
+    ></div>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { getFilteredMenus } from '@/config/menu'
 import {
@@ -76,7 +107,7 @@ const isMobileMenuOpen = ref(false)
 
 // 获取前台菜单
 const frontendMenus = computed(() => {
-  return getFilteredMenus('frontend', 'guest')
+  return getFilteredMenus('guest', 'frontend')
 })
 
 // 获取菜单图标
@@ -131,7 +162,7 @@ const checkMobile = () => {
 // 显示/隐藏回到顶部按钮
 const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-  const scrollTopBtn = document.querySelector('.scroll-top')
+  const scrollTopBtn = document.querySelector('.scroll-top') as HTMLElement
   if (scrollTopBtn) {
     scrollTopBtn.style.opacity = scrollTop > 300 ? '1' : '0'
   }
@@ -148,8 +179,7 @@ onMounted(() => {
   }
 
   // 添加滚动监听
-  scrollHandler = handleScroll
-  window.addEventListener('scroll', scrollHandler)
+  window.addEventListener('scroll', handleScroll)
 
   // 检测移动端
   checkMobile()
@@ -157,9 +187,8 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  if (scrollHandler) {
-    window.removeEventListener('scroll', scrollHandler)
-  }
+  // 移除滚动监听
+  window.removeEventListener('scroll', handleScroll)
   window.removeEventListener('resize', checkMobile)
 })
 </script>

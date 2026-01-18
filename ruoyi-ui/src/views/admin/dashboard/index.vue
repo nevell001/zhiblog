@@ -1,7 +1,11 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-      <el-col :sm="24" :lg="12" style="padding-left: 20px">
+      <el-col
+        :sm="24"
+        :lg="12"
+        style="padding-left: 20px"
+      >
         <h2>博客后台管理系统</h2>
         <p>欢迎使用博客后台管理系统，这里可以管理您的博客内容、用户、系统设置等。</p>
         <p>
@@ -9,9 +13,15 @@
           <span>v{{ version }}</span>
         </p>
         <p>
-          <el-tag type="success">博客管理</el-tag>
-          <el-tag type="primary">用户管理</el-tag>
-          <el-tag type="warning">系统监控</el-tag>
+          <el-tag type="success">
+            博客管理
+          </el-tag>
+          <el-tag type="primary">
+            用户管理
+          </el-tag>
+          <el-tag type="warning">
+            系统监控
+          </el-tag>
         </p>
         <p>
           <el-button
@@ -22,16 +32,28 @@
           >
             文章管理
           </el-button>
-          <el-button icon="User" plain @click="$router.push('/admin/system/user')">
+          <el-button
+            icon="User"
+            plain
+            @click="$router.push('/admin/system/user')"
+          >
             用户管理
           </el-button>
-          <el-button icon="Setting" plain @click="$router.push('/admin/blog/setting')">
+          <el-button
+            icon="Setting"
+            plain
+            @click="$router.push('/admin/blog/setting')"
+          >
             博客设置
           </el-button>
         </p>
       </el-col>
 
-      <el-col :sm="24" :lg="12" style="padding-left: 50px">
+      <el-col
+        :sm="24"
+        :lg="12"
+        style="padding-left: 50px"
+      >
         <el-row>
           <el-col :span="12">
             <h2>系统信息</h2>
@@ -61,13 +83,27 @@
     </el-row>
 
     <!-- 快速操作卡片 -->
-    <el-row :gutter="20" style="margin-top: 30px">
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card class="quick-card" shadow="hover">
+    <el-row
+      :gutter="20"
+      style="margin-top: 30px"
+    >
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
+        <el-card
+          class="quick-card"
+          shadow="hover"
+        >
           <template #header>
             <div class="card-header">
               <span>文章管理</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/article')">
+              <el-button
+                type="primary"
+                text
+                @click="$router.push('/admin/blog/article')"
+              >
                 管理
               </el-button>
             </div>
@@ -77,12 +113,23 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card class="quick-card" shadow="hover">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
+        <el-card
+          class="quick-card"
+          shadow="hover"
+        >
           <template #header>
             <div class="card-header">
               <span>分类标签</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/category')">
+              <el-button
+                type="primary"
+                text
+                @click="$router.push('/admin/blog/category')"
+              >
                 管理
               </el-button>
             </div>
@@ -92,12 +139,23 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card class="quick-card" shadow="hover">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
+        <el-card
+          class="quick-card"
+          shadow="hover"
+        >
           <template #header>
             <div class="card-header">
               <span>评论管理</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/comment')">
+              <el-button
+                type="primary"
+                text
+                @click="$router.push('/admin/blog/comment')"
+              >
                 管理
               </el-button>
             </div>
@@ -107,12 +165,23 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
-        <el-card class="quick-card" shadow="hover">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
+        <el-card
+          class="quick-card"
+          shadow="hover"
+        >
           <template #header>
             <div class="card-header">
               <span>系统设置</span>
-              <el-button type="primary" text @click="$router.push('/admin/blog/setting')">
+              <el-button
+                type="primary"
+                text
+                @click="$router.push('/admin/blog/setting')"
+              >
                 设置
               </el-button>
             </div>
@@ -126,13 +195,24 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElRow, ElCol, ElTag, ElButton, ElCard } from 'element-plus'
 import request from '@/utils/request'
 
 const version = ref('1.0.0')
-const stats = ref({})
+interface DashboardStats {
+  articleCount: number
+  userCount: number
+  commentCount: number
+  viewCount: number
+  onlineUsers: number
+  todayVisits: number
+  systemUptime: string
+  memoryUsage: string
+}
+
+const stats = ref<DashboardStats>({} as DashboardStats)
 
 onMounted(() => {
   // 初始化统计数据
@@ -141,7 +221,7 @@ onMounted(() => {
 
 const loadStats = async () => {
   try {
-    const response = await request.get('/statistics/overview')
+    const response = await request.get('/statistics/overview') as any
     if (response.code === 200 && response.data) {
       stats.value = response.data
     } else {

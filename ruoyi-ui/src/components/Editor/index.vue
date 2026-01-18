@@ -21,16 +21,23 @@
       content-type="html"
       :options="options"
       :style="styles"
-      @text-change="e => $emit('update:modelValue', content)"
+      @text-change="() => $emit('update:modelValue', content)"
     />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+/* eslint-disable no-alert */
+import { ref, computed, watch, onMounted, onUnmounted, toRaw } from 'vue'
+import { getCurrentInstance } from 'vue'
 import axios from 'axios'
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import { getToken } from '@/utils/auth'
+
+defineOptions({
+  name: 'RichTextEditor'
+})
 
 const { proxy } = getCurrentInstance()
 
@@ -97,7 +104,7 @@ const options = ref({
       handlers: {
         image: function () {
           // 图片上传处理
-          proxy.$refs.uploadRef.click()
+          ;(proxy.$refs.uploadRef as any).click()
         },
         link: function (value) {
           // 增强链接功能
@@ -136,7 +143,7 @@ const options = ref({
 
           if (choice === '1') {
             // 上传本地视频
-            proxy.$refs.uploadRef.click()
+            ;(proxy.$refs.uploadRef as any).click()
           } else if (choice === '2') {
             // 插入在线视频
             const url = prompt('请输入视频URL (支持YouTube、Bilibili等平台):')
@@ -176,7 +183,7 @@ const options = ref({
 
           if (choice === '1') {
             // 上传本地文件
-            proxy.$refs.uploadRef.click()
+            ;(proxy.$refs.uploadRef as any).click()
           } else if (choice === '2') {
             // 插入文件链接
             const url = prompt('请输入文件链接URL:')
@@ -204,7 +211,7 @@ const options = ref({
 })
 
 const styles = computed(() => {
-  const style = {}
+  const style: Record<string, string> = {}
   if (props.minHeight) {
     style.minHeight = `${props.minHeight}px`
   }
@@ -215,6 +222,8 @@ const styles = computed(() => {
 })
 
 const content = ref('')
+
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   () => props.modelValue,
   v => {
@@ -225,27 +234,44 @@ watch(
   { immediate: true }
 )
 
-// 如果设置了上传地址则自定义图片上传事件
-onMounted(() => {
-  if (props.type === 'url') {
-    const quill = quillEditorRef.value.getQuill()
-    const toolbar = quill.getModule('toolbar')
-    toolbar.addHandler('image', value => {
-      if (value) {
-        proxy.$refs.uploadRef.click()
-      } else {
-        quill.format('image', false)
-      }
-    })
-    quill.root.addEventListener('paste', handlePasteCapture, true)
-  }
-})
-
 // 图片粘贴处理函数
-function handleImagePaste(node, delta) {
+function handleImagePaste(_node: any, delta: any) {
   // 处理粘贴的图片
   return delta
 }
+
+// 如果设置了上传地址则自定义图片上传事件
+onMounted(() => {
+  if (props.type === 'url' && quillEditorRef.value) {
+    try {
+      const quill = quillEditorRef.value.getQuill()
+      const toolbar = quill.getModule('toolbar')
+      if (toolbar) {
+        toolbar.addHandler('image', value => {
+          if (value) {
+            ;(proxy.$refs.uploadRef as any)?.click()
+          } else {
+            quill.format('image', false)
+          }
+        })
+      }
+      quill.root.addEventListener('paste', handlePasteCapture, true)
+    } catch (error) {
+      console.error('初始化编辑器上传处理失败:', error)
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (props.type === 'url' && quillEditorRef.value) {
+    try {
+      const quill = quillEditorRef.value.getQuill()
+      quill.root.removeEventListener('paste', handlePasteCapture, true)
+    } catch (error) {
+      console.error('清理编辑器上传处理失败:', error)
+    }
+  }
+})
 
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
@@ -278,7 +304,7 @@ function handleBeforeUpload(file) {
 
   // 检验文件格式
   if (!isImage && !isVideo && !isFile) {
-    proxy.$modal.msgError(`文件格式不支持! 支持格式: 
+    ;(proxy as any).$modal.msgError(`文件格式不支持! 支持格式:
 图片: JPG, PNG, GIF, WebP, SVG
 视频: MP4, WebM, OGG, MOV
 文档: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, ZIP, RAR`)
@@ -289,7 +315,7 @@ function handleBeforeUpload(file) {
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize
     if (!isLt) {
-      proxy.$modal.msgError(`上传文件大小不能超过 ${props.fileSize} MB!`)
+      ;(proxy as any).$modal.msgError(`上传文件大小不能超过 ${props.fileSize} MB!`)
       return false
     }
   }
@@ -319,18 +345,18 @@ function handleUploadSuccess(res, file) {
     // 调整光标到最后
     quill.setSelection(length + 1)
   } else {
-    proxy.$modal.msgError('文件插入失败')
+    ;(proxy as any).$modal.msgError('文件插入失败')
   }
 }
 
 // 上传失败处理
 function handleUploadError() {
-  proxy.$modal.msgError('图片插入失败')
+  ;(proxy as any).$modal.msgError('图片插入失败')
 }
 
 // 复制粘贴图片处理
-function handlePasteCapture(e) {
-  const clipboard = e.clipboardData || window.clipboardData
+function handlePasteCapture(e: any) {
+  const clipboard = e.clipboardData || (window as any).clipboardData
   if (clipboard && clipboard.items) {
     for (let i = 0; i < clipboard.items.length; i++) {
       const item = clipboard.items[i]
@@ -343,7 +369,7 @@ function handlePasteCapture(e) {
   }
 }
 
-function insertImage(file) {
+function insertImage(file: File) {
   const formData = new FormData()
   formData.append('file', file)
   axios
@@ -351,7 +377,7 @@ function insertImage(file) {
       headers: { 'Content-Type': 'multipart/form-data', Authorization: headers.value.Authorization }
     })
     .then(res => {
-      handleUploadSuccess(res.data)
+      handleUploadSuccess(res.data, file)
     })
 }
 </script>

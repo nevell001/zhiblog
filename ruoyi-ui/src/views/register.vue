@@ -1,6 +1,11 @@
 <template>
   <div class="register">
-    <el-form ref="registerRef" :model="registerForm" :rules="registerRules" class="register-form">
+    <el-form
+      ref="registerRef"
+      :model="registerForm"
+      :rules="registerRules"
+      class="register-form"
+    >
       <h3 class="title">
         {{ title }}
       </h3>
@@ -13,7 +18,10 @@
           placeholder="账号"
         >
           <template #prefix>
-            <svg-icon icon-class="user" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="user"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
       </el-form-item>
@@ -27,7 +35,10 @@
           @keyup.enter="handleRegister"
         >
           <template #prefix>
-            <svg-icon icon-class="password" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="password"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
       </el-form-item>
@@ -41,11 +52,17 @@
           @keyup.enter="handleRegister"
         >
           <template #prefix>
-            <svg-icon icon-class="password" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="password"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item v-if="captchaEnabled" prop="code">
+      <el-form-item
+        v-if="captchaEnabled"
+        prop="code"
+      >
         <el-input
           v-model="registerForm.code"
           size="large"
@@ -55,11 +72,18 @@
           @keyup.enter="handleRegister"
         >
           <template #prefix>
-            <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="validCode"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
         <div class="register-code">
-          <img :src="codeUrl" class="register-code-img" @click="getCode" />
+          <img
+            :src="codeUrl"
+            class="register-code-img"
+            @click="getCode"
+          />
         </div>
       </el-form-item>
       <el-form-item style="width: 100%">
@@ -74,7 +98,12 @@
           <span v-else>注 册 中...</span>
         </el-button>
         <div style="float: right">
-          <router-link class="link-type" :to="'/login'">使用已有账户登录</router-link>
+          <router-link
+            class="link-type"
+            :to="'/login'"
+          >
+            使用已有账户登录
+          </router-link>
         </div>
       </el-form-item>
     </el-form>
@@ -117,7 +146,7 @@ const registerRules = {
   password: [
     { required: true, trigger: 'blur', message: '请输入您的密码' },
     { min: 5, max: 20, message: '用户密码长度必须介于 5 和 20 之间', trigger: 'blur' },
-    { pattern: /^[^<>"'|\\]+$/, message: '不能包含非法字符：< > " \' \\\ |', trigger: 'blur' }
+    { pattern: /^[^<>"'|\\]+$/, message: '不能包含非法字符：< > " \' \\ |', trigger: 'blur' }
   ],
   confirmPassword: [
     { required: true, trigger: 'blur', message: '请再次输入您的密码' },

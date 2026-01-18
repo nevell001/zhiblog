@@ -11,7 +11,9 @@
               <div class="stat-value">
                 {{ stats.articleCount || 0 }}
               </div>
-              <div class="stat-label">文章总数</div>
+              <div class="stat-label">
+                文章总数
+              </div>
             </div>
           </div>
         </el-card>
@@ -26,7 +28,9 @@
               <div class="stat-value">
                 {{ stats.userCount || 0 }}
               </div>
-              <div class="stat-label">用户总数</div>
+              <div class="stat-label">
+                用户总数
+              </div>
             </div>
           </div>
         </el-card>
@@ -41,7 +45,9 @@
               <div class="stat-value">
                 {{ stats.commentCount || 0 }}
               </div>
-              <div class="stat-label">评论总数</div>
+              <div class="stat-label">
+                评论总数
+              </div>
             </div>
           </div>
         </el-card>
@@ -56,29 +62,40 @@
               <div class="stat-value">
                 {{ stats.viewCount || 0 }}
               </div>
-              <div class="stat-label">总浏览量</div>
+              <div class="stat-label">
+                总浏览量
+              </div>
             </div>
           </div>
         </el-card>
       </el-col>
     </el-row>
 
-    <el-row :gutter="20" style="margin-top: 20px">
+    <el-row
+      :gutter="20"
+      style="margin-top: 20px"
+    >
       <el-col :span="12">
         <el-card header="文章发布趋势">
-          <div id="articleChart" style="height: 300px"></div>
+          <div
+            id="articleChart"
+            style="height: 300px"
+          ></div>
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card header="用户活跃度">
-          <div id="userChart" style="height: 300px"></div>
+          <div
+            id="userChart"
+            style="height: 300px"
+          ></div>
         </el-card>
       </el-col>
     </el-row>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import { getStatisticsOverview, getArticleTrend, getUserActivity } from '@/api/statistics'
 import * as echarts from 'echarts'

@@ -1,5 +1,8 @@
 <template>
-  <footer v-if="shouldShowFooter" class="blog-footer">
+  <footer
+    v-if="shouldShowFooter"
+    class="blog-footer"
+  >
     <div class="footer-content">
       <div
         v-if="blogSettings.footer_enabled === 'true' || blogSettings.footer_enabled === true"
@@ -19,22 +22,36 @@
           <h4>快速链接</h4>
           <ul class="footer-links">
             <li>
-              <router-link to="/blog">首页</router-link>
+              <router-link to="/blog">
+                首页
+              </router-link>
             </li>
             <li>
-              <router-link to="/blog/about">关于</router-link>
+              <router-link to="/blog/about">
+                关于
+              </router-link>
             </li>
             <li>
-              <router-link to="/blog/category">分类</router-link>
+              <router-link to="/blog/category">
+                分类
+              </router-link>
             </li>
             <li>
-              <router-link to="/blog/tag">标签</router-link>
+              <router-link to="/blog/tag">
+                标签
+              </router-link>
             </li>
             <li>
-              <router-link to="/blog/archive">归档</router-link>
+              <router-link to="/blog/archive">
+                归档
+              </router-link>
             </li>
             <li>
-              <a :href="rssUrl" target="_blank" title="RSS订阅">RSS订阅</a>
+              <a
+                :href="rssUrl"
+                target="_blank"
+                title="RSS订阅"
+              >RSS订阅</a>
             </li>
           </ul>
         </div>
@@ -54,7 +71,10 @@
         </div>
       </div>
 
-      <div v-if="shouldShowCopyright" class="footer-copyright">
+      <div
+        v-if="shouldShowCopyright"
+        class="footer-copyright"
+      >
         <div class="copyright-content">
           <p>
             <span v-if="blogSettings.blog_copyright">{{ blogSettings.blog_copyright }}</span>
@@ -64,9 +84,15 @@
           </p>
           <p class="tech-info">
             Powered by
-            <a href="#" target="_blank">RuoYi-Vue</a>
+            <a
+              href="#"
+              target="_blank"
+            >RuoYi-Vue</a>
             &
-            <a href="#" target="_blank">Element Plus</a>
+            <a
+              href="#"
+              target="_blank"
+            >Element Plus</a>
           </p>
         </div>
       </div>
@@ -74,7 +100,7 @@
   </footer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 
 // 定义props

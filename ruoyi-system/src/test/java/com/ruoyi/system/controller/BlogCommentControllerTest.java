@@ -190,4 +190,127 @@ class BlogCommentControllerTest {
 
         verify(blogCommentService).rejectBlogCommentByIds(any(Long[].class));
     }
+
+    /**
+     * 测试导出评论接口
+     */
+    @Test
+    void testExportComment() throws Exception {
+        // 模拟数据
+        List<com.ruoyi.system.domain.BlogComment> commentList = new ArrayList<>();
+        com.ruoyi.system.domain.BlogComment comment = new com.ruoyi.system.domain.BlogComment();
+        comment.setId(1L);
+        comment.setContent("测试评论");
+        commentList.add(comment);
+
+        when(blogCommentService.selectBlogCommentList(any(com.ruoyi.system.domain.BlogComment.class)))
+            .thenReturn(commentList);
+
+        // 执行测试
+        mockMvc.perform(post("/system/comment/export")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(blogCommentService).selectBlogCommentList(any(com.ruoyi.system.domain.BlogComment.class));
+    }
+
+    /**
+     * 测试新增评论接口 - 失败
+     */
+    @Test
+    void testAddComment_Failure() throws Exception {
+        // 模拟添加失败
+        when(blogCommentService.insertBlogComment(any(com.ruoyi.system.domain.BlogComment.class)))
+            .thenReturn(0);
+
+        // 准备请求体
+        Map<String, Object> params = new HashMap<>();
+        params.put("articleId", 1L);
+        params.put("content", "测试评论");
+        params.put("userId", 1L);
+
+        // 执行测试
+        mockMvc.perform(post("/system/comment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogCommentService).insertBlogComment(any(com.ruoyi.system.domain.BlogComment.class));
+    }
+
+    /**
+     * 测试更新评论接口 - 失败
+     */
+    @Test
+    void testEditComment_Failure() throws Exception {
+        // 模拟更新失败
+        when(blogCommentService.updateBlogComment(any(com.ruoyi.system.domain.BlogComment.class)))
+            .thenReturn(0);
+
+        // 准备请求体
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", 1L);
+        params.put("content", "修改后的评论");
+
+        // 执行测试
+        mockMvc.perform(put("/system/comment")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogCommentService).updateBlogComment(any(com.ruoyi.system.domain.BlogComment.class));
+    }
+
+    /**
+     * 测试删除评论接口 - 失败
+     */
+    @Test
+    void testRemoveComment_Failure() throws Exception {
+        // 模拟删除失败
+        when(blogCommentService.deleteBlogCommentByIds(any(Long[].class))).thenReturn(0);
+
+        // 执行测试
+        mockMvc.perform(delete("/system/comment/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogCommentService).deleteBlogCommentByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试审核通过评论接口 - 失败
+     */
+    @Test
+    void testAuditComment_Failure() throws Exception {
+        // 模拟审核失败
+        when(blogCommentService.auditBlogCommentByIds(any(Long[].class))).thenReturn(0);
+
+        // 执行测试
+        mockMvc.perform(put("/system/comment/audit/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogCommentService).auditBlogCommentByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试审核拒绝评论接口 - 失败
+     */
+    @Test
+    void testRejectComment_Failure() throws Exception {
+        // 模拟拒绝失败
+        when(blogCommentService.rejectBlogCommentByIds(any(Long[].class))).thenReturn(0);
+
+        // 执行测试
+        mockMvc.perform(put("/system/comment/reject/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogCommentService).rejectBlogCommentByIds(any(Long[].class));
+    }
 }

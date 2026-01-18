@@ -40,7 +40,11 @@
     </el-form-item>
   </el-form>
 </template>
-<script setup>
+<script setup lang="ts">
+import { ref, watch, onUnmounted, computed } from 'vue'
+
+// 存储 watch 的返回值，用于清理
+
 const emit = defineEmits(['update'])
 const props = defineProps({
   cron: {
@@ -69,6 +73,18 @@ const average01 = ref(0)
 const average02 = ref(1)
 const checkboxList = ref([])
 const checkCopy = ref([0])
+
+// 监听 cron.min 变化
+watch(
+  () => props.cron.min,
+  value => changeRadioValue(value)
+)
+
+// 监听相关值变化
+watch(
+  [radioValue, cycleTotal, averageTotal, checkboxString],
+  () => onRadioChange()
+)
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, 0, 58)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, 59)
@@ -82,11 +98,6 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
-watch(
-  () => props.cron.min,
-  value => changeRadioValue(value)
-)
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 function changeRadioValue(value) {
   if (value === '*') {
     radioValue.value = 1
@@ -126,6 +137,7 @@ function onRadioChange() {
       break
   }
 }
+
 </script>
 
 <style lang="scss" scoped>

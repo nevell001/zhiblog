@@ -1,11 +1,11 @@
 <template>
   <div>
     <template v-for="(item, index) in options">
-      <template v-if="values.includes(item.value)">
+      <template v-if="values.includes(String(item.value))">
         <span
           v-if="
             (item.elTagType === 'default' || item.elTagType === '') &&
-            (item.elTagClass === '' || item.elTagClass === null)
+              (item.elTagClass === '' || item.elTagClass === null)
           "
           :key="item.value"
           :index="index"
@@ -26,19 +26,28 @@
       </template>
     </template>
     <template v-if="unmatch && showValue">
-      {{ unmatchArray | handleArray }}
+      {{ handleArray(unmatchArray) }}
     </template>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
 // 记录未匹配的项
 const unmatchArray = ref([])
+
+interface DictTagOption {
+  value: string | number
+  label: string
+  elTagType?: string
+  elTagClass?: string
+}
 
 const props = defineProps({
   // 数据
   options: {
-    type: Array,
+    type: Array as () => DictTagOption[],
     default: null
   },
   // 当前的值
@@ -83,7 +92,7 @@ const unmatch = computed(() => {
   return unmatch // 返回标志的值
 })
 
-function handleArray(array) {
+function handleArray(array: string[]): string {
   if (array.length === 0) return ''
   return array.reduce((pre, cur) => {
     return pre + ' ' + cur

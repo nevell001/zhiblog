@@ -26,7 +26,11 @@
                 </div>
               </template>
               <div class="grafana-content">
-                <el-button type="primary" style="width: 100%" @click="openGrafana">
+                <el-button
+                  type="primary"
+                  style="width: 100%"
+                  @click="openGrafana"
+                >
                   打开 Grafana 界面
                 </el-button>
                 <p class="grafana-url">
@@ -44,17 +48,29 @@
                 </div>
               </template>
               <div class="login-info">
-                <el-descriptions :column="1" border>
-                  <el-descriptions-item label="用户名">admin</el-descriptions-item>
-                  <el-descriptions-item label="密码">admin</el-descriptions-item>
-                  <el-descriptions-item label="端口">3001</el-descriptions-item>
+                <el-descriptions
+                  :column="1"
+                  border
+                >
+                  <el-descriptions-item label="用户名">
+                    admin
+                  </el-descriptions-item>
+                  <el-descriptions-item label="密码">
+                    admin
+                  </el-descriptions-item>
+                  <el-descriptions-item label="端口">
+                    3001
+                  </el-descriptions-item>
                 </el-descriptions>
               </div>
             </el-card>
           </el-col>
         </el-row>
 
-        <el-card shadow="hover" style="margin-top: 20px">
+        <el-card
+          shadow="hover"
+          style="margin-top: 20px"
+        >
           <template #header>
             <div class="card-header-item">
               <el-icon><InfoFilled /></el-icon>
@@ -63,13 +79,19 @@
           </template>
           <div class="usage-info">
             <el-timeline>
-              <el-timeline-item timestamp="第一步" placement="top">
+              <el-timeline-item
+                timestamp="第一步"
+                placement="top"
+              >
                 <el-card>
                   <h4>打开 Grafana 界面</h4>
                   <p>点击"打开 Grafana 界面"按钮，访问 Grafana 监控平台</p>
                 </el-card>
               </el-timeline-item>
-              <el-timeline-item timestamp="第二步" placement="top">
+              <el-timeline-item
+                timestamp="第二步"
+                placement="top"
+              >
                 <el-card>
                   <h4>登录系统</h4>
                   <p>
@@ -79,7 +101,10 @@
                   </p>
                 </el-card>
               </el-timeline-item>
-              <el-timeline-item timestamp="第三步" placement="top">
+              <el-timeline-item
+                timestamp="第三步"
+                placement="top"
+              >
                 <el-card>
                   <h4>添加数据源</h4>
                   <p>在 Grafana 中添加 Prometheus 作为数据源（如果尚未配置）</p>
@@ -93,7 +118,10 @@
                   </el-alert>
                 </el-card>
               </el-timeline-item>
-              <el-timeline-item timestamp="第四步" placement="top">
+              <el-timeline-item
+                timestamp="第四步"
+                placement="top"
+              >
                 <el-card>
                   <h4>查看仪表板</h4>
                   <p>浏览和创建各种监控仪表板，查看应用程序的实时指标</p>
@@ -107,7 +135,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { DataBoard, User, InfoFilled } from '@element-plus/icons-vue'
 

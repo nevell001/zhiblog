@@ -56,7 +56,18 @@
     </el-form-item>
   </el-form>
 </template>
-<script setup>
+<script setup lang="ts">
+import { ref, watch, computed, onUnmounted } from 'vue'
+
+// 监听 cron.day 变化
+watch(
+  () => props.cron.day,
+  value => changeRadioValue(value)
+)
+
+// 监听相关值变化
+watch([radioValue, cycleTotal, averageTotal, workdayTotal, checkboxString], () => onRadioChange())
+
 const emit = defineEmits(['update'])
 const props = defineProps({
   cron: {
@@ -103,11 +114,6 @@ const workdayTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
-watch(
-  () => props.cron.day,
-  value => changeRadioValue(value)
-)
-watch([radioValue, cycleTotal, averageTotal, workdayTotal, checkboxString], () => onRadioChange())
 function changeRadioValue(value) {
   if (value === '*') {
     radioValue.value = 1

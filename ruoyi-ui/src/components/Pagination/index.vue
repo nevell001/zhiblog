@@ -1,5 +1,8 @@
 <template>
-  <div :class="{ hidden: hidden }" class="pagination-container">
+  <div
+    :class="{ hidden: hidden }"
+    class="pagination-container"
+  >
     <el-pagination
       v-model:current-page="currentPage"
       v-model:page-size="pageSize"
@@ -14,9 +17,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { scrollTo } from '@/utils/scroll-to'
+
+defineOptions({
+  name: 'PaginationComponent'
+})
 
 const props = defineProps({
   total: {

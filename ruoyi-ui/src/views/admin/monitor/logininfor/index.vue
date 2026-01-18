@@ -7,7 +7,10 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="登录地址" prop="ipaddr">
+      <el-form-item
+        label="登录地址"
+        prop="ipaddr"
+      >
         <el-input
           v-model="queryParams.ipaddr"
           placeholder="请输入登录地址"
@@ -16,7 +19,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="用户名称" prop="userName">
+      <el-form-item
+        label="用户名称"
+        prop="userName"
+      >
         <el-input
           v-model="queryParams.userName"
           placeholder="请输入用户名称"
@@ -25,7 +31,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="状态" prop="status">
+      <el-form-item
+        label="状态"
+        prop="status"
+      >
         <el-select
           v-model="queryParams.status"
           placeholder="登录状态"
@@ -40,7 +49,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="登录时间" style="width: 308px">
+      <el-form-item
+        label="登录时间"
+        style="width: 308px"
+      >
         <el-date-picker
           v-model="dateRange"
           value-format="YYYY-MM-DD HH:mm:ss"
@@ -52,12 +64,26 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="Search"
+          @click="handleQuery"
+        >
+          搜索
+        </el-button>
+        <el-button
+          icon="Refresh"
+          @click="resetQuery"
+        >
+          重置
+        </el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <el-row
+      :gutter="10"
+      class="mb8"
+    >
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['monitor:logininfor:remove']"
@@ -104,7 +130,10 @@
           导出
         </el-button>
       </el-col>
-      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
+      <right-toolbar
+        v-model:show-search="showSearch"
+        @query-table="getList"
+      />
     </el-row>
 
     <el-table
@@ -115,8 +144,16 @@
       @selection-change="handleSelectionChange"
       @sort-change="handleSortChange"
     >
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="访问编号" align="center" prop="infoId" />
+      <el-table-column
+        type="selection"
+        width="55"
+        align="center"
+      />
+      <el-table-column
+        label="访问编号"
+        align="center"
+        prop="infoId"
+      />
       <el-table-column
         label="用户名称"
         align="center"
@@ -125,21 +162,48 @@
         sortable="custom"
         :sort-orders="['descending', 'ascending']"
       />
-      <el-table-column label="地址" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
+      <el-table-column
+        label="地址"
+        align="center"
+        prop="ipaddr"
+        :show-overflow-tooltip="true"
+      />
       <el-table-column
         label="登录地点"
         align="center"
         prop="loginLocation"
         :show-overflow-tooltip="true"
       />
-      <el-table-column label="操作系统" align="center" prop="os" :show-overflow-tooltip="true" />
-      <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
-      <el-table-column label="登录状态" align="center" prop="status">
+      <el-table-column
+        label="操作系统"
+        align="center"
+        prop="os"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        label="浏览器"
+        align="center"
+        prop="browser"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        label="登录状态"
+        align="center"
+        prop="status"
+      >
         <template #default="scope">
-          <dict-tag :options="sys_common_status" :value="scope.row.status" />
+          <dict-tag
+            :options="sys_common_status"
+            :value="scope.row.status"
+          />
         </template>
       </el-table-column>
-      <el-table-column label="描述" align="center" prop="msg" :show-overflow-tooltip="true" />
+      <el-table-column
+        label="描述"
+        align="center"
+        prop="msg"
+        :show-overflow-tooltip="true"
+      />
       <el-table-column
         label="访问时间"
         align="center"

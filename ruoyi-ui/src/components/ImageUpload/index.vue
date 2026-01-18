@@ -43,7 +43,9 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, computed, watch, getCurrentInstance, onMounted, onUnmounted, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
 import { getToken } from '@/utils/auth'
 import { isExternal } from '@/utils/validate'
 import Sortable from 'sortablejs'
@@ -103,6 +105,7 @@ const headers = ref({ Authorization: 'Bearer ' + getToken() })
 const fileList = ref([])
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize))
 
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   () => props.modelValue,
   val => {
@@ -145,31 +148,33 @@ function handleBeforeUpload(file) {
     isImg = file.type.indexOf('image') > -1
   }
   if (!isImg) {
-    proxy.$modal.msgError(`文件格式不正确，请上传${props.fileType.join('/')}图片格式文件!`)
+    ;(proxy as any).$modal.msgError(
+      `文件格式不正确，请上传${props.fileType.join('/')}图片格式文件!`
+    )
     return false
   }
   if (file.name.includes(',')) {
-    proxy.$modal.msgError('文件名不正确，不能包含英文逗号!')
+    ;(proxy as any).$modal.msgError('文件名不正确，不能包含英文逗号!')
     return false
   }
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize
     if (!isLt) {
-      proxy.$modal.msgError(`上传头像图片大小不能超过 ${props.fileSize} MB!`)
+      ;(proxy as any).$modal.msgError(`上传头像图片大小不能超过 ${props.fileSize} MB!`)
       return false
     }
   }
-  proxy.$modal.loading('正在上传图片，请稍候...')
+  ;(proxy as any).$modal.loading('正在上传图片，请稍候...')
   number.value++
 }
 
 // 文件个数超出
 function handleExceed() {
-  proxy.$modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`)
+  ;(proxy as any).$modal.msgError(`上传文件数量不能超过 ${props.limit} 个!`)
 }
 
 // 上传成功回调
-function handleUploadSuccess(res, file) {
+function handleUploadSuccess(res: any, file: any) {
   if (res.code === 200) {
     // 保存完整的URL用于显示（包含baseUrl），文件名使用原始路径
     const fullUrl = res.url || res.fileName
@@ -182,9 +187,9 @@ function handleUploadSuccess(res, file) {
     uploadedSuccessfully()
   } else {
     number.value--
-    proxy.$modal.closeLoading()
-    proxy.$modal.msgError(res.msg)
-    proxy.$refs.imageUpload.handleRemove(file)
+    ;(proxy as any).$modal.closeLoading()
+    ;(proxy as any).$modal.msgError(res.msg)
+    ;(proxy.$refs.imageUpload as any).handleRemove(file)
     uploadedSuccessfully()
   }
 }
@@ -194,7 +199,7 @@ function handleDelete(file) {
   const findex = fileList.value.map(f => f.name).indexOf(file.name)
   if (findex > -1 && uploadList.value.length === number.value) {
     fileList.value.splice(findex, 1)
-    emit('update:modelValue', listToString(fileList.value))
+    emit('update:modelValue', listToString(fileList.value, ','))
     return false
   }
 }
@@ -205,15 +210,15 @@ function uploadedSuccessfully() {
     fileList.value = fileList.value.filter(f => f.url !== undefined).concat(uploadList.value)
     uploadList.value = []
     number.value = 0
-    emit('update:modelValue', listToString(fileList.value))
-    proxy.$modal.closeLoading()
+    emit('update:modelValue', listToString(fileList.value, ','))
+    ;(proxy as any).$modal.closeLoading()
   }
 }
 
 // 上传失败
 function handleUploadError() {
-  proxy.$modal.msgError('上传图片失败')
-  proxy.$modal.closeLoading()
+  ;(proxy as any).$modal.msgError('上传图片失败')
+  ;(proxy as any).$modal.closeLoading()
 }
 
 // 预览
@@ -248,7 +253,7 @@ onMounted(() => {
         onEnd: evt => {
           const movedItem = fileList.value.splice(evt.oldIndex, 1)[0]
           fileList.value.splice(evt.newIndex, 0, movedItem)
-          emit('update:modelValue', listToString(fileList.value))
+          emit('update:modelValue', listToString(fileList.value, ','))
         }
       })
     })

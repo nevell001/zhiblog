@@ -1,21 +1,32 @@
 <template>
-  <el-breadcrumb class="app-breadcrumb" separator="/">
+  <el-breadcrumb
+    class="app-breadcrumb"
+    separator="/"
+  >
     <transition-group name="breadcrumb">
-      <el-breadcrumb-item v-for="(item, index) in levelList" :key="item.path">
+      <el-breadcrumb-item
+        v-for="(item, index) in levelList"
+        :key="item.path"
+      >
         <span
           v-if="item.redirect === 'noRedirect' || index === levelList.length - 1"
           class="no-redirect"
         >
           {{ item.meta.title }}
         </span>
-        <a v-else @click.prevent="handleLink(item)">{{ item.meta.title }}</a>
+        <a
+          v-else
+          @click.prevent="handleLink(item)"
+        >{{ item.meta.title }}</a>
       </el-breadcrumb-item>
     </transition-group>
   </el-breadcrumb>
 </template>
 
-<script setup>
-import usePermissionStore from '@/store/modules/permission'
+<script setup lang="ts">
+import { ref, watchEffect, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { usePermissionStore } from '@/stores/permission'
 
 const route = useRoute()
 const router = useRouter()
@@ -82,7 +93,8 @@ function handleLink(item) {
   router.push(path)
 }
 
-watchEffect(() => {
+// 存储 watchEffect 的返回值，用于清理
+const stopWatchEffect: () => void = watchEffect(() => {
   // if you go to the redirect page, do not update the breadcrumbs
   if (route.path.startsWith('/redirect/')) {
     return
@@ -90,6 +102,13 @@ watchEffect(() => {
   getBreadcrumb()
 })
 getBreadcrumb()
+
+// 组件卸载时清理
+onUnmounted(() => {
+  if (stopWatchEffect) {
+    stopWatchEffect()
+  }
+})
 </script>
 
 <style lang="scss" scoped>

@@ -1,0 +1,239 @@
+/**
+ * 全局类型定义
+ *
+ * 为 RuoYi-Vue 项目提供通用类型定义
+ */
+
+// 导出 API 模块类型
+export * from './api'
+
+/**
+ * Ajax 响应结果
+ */
+export interface AjaxResult {
+  code: number
+  msg: string
+  data?: any
+}
+
+/**
+ * 分页信息
+ */
+export interface PageQuery {
+  pageNum?: number
+  pageSize?: number
+  orderByColumn?: string
+  isAsc?: string | boolean
+}
+
+/**
+ * 表格数据信息
+ */
+export interface TableDataInfo<T = any> {
+  total: number
+  rows: T[]
+  code: number
+  msg: string
+}
+
+/**
+ * 树形表格数据
+ */
+export interface TreeSelectNode {
+  id: number | string
+  label: string
+  children?: TreeSelectNode[]
+}
+
+/**
+ * 字典数据
+ */
+export interface DictData {
+  dictCode: string
+  dictValue: string
+  dictLabel: string
+  dictType: string
+  cssClass?: string
+  listClass?: string
+  isDefault?: boolean
+}
+
+/**
+ * 字典类型
+ */
+export interface DictType {
+  dictId?: number
+  dictName: string
+  dictType: string
+  status?: string
+  remark?: string
+}
+
+/**
+ * 登录用户信息
+ */
+export interface LoginUser {
+  username: string
+  password: string
+  code?: string
+  uuid?: string
+}
+
+/**
+ * 上传文件响应
+ */
+export interface UploadResult {
+  url: string
+  fileName: string
+  newFileName: string
+  originalFilename: string
+}
+
+/**
+ * 文章数据
+ */
+export interface Article {
+  id?: number
+  title: string
+  summary?: string
+  content: string
+  coverUrl?: string
+  categoryId?: number
+  status?: number
+  isTop?: number
+  isRecommend?: number
+  tagIds?: number[]
+  tags?: Tag[]
+}
+
+/**
+ * 标签数据
+ */
+export interface Tag {
+  id?: number
+  tagName: string
+  color?: string
+  icon?: string
+  articleCount?: number
+}
+
+/**
+ * 分类数据
+ */
+export interface Category {
+  id?: number
+  categoryName: string
+  orderNum?: number
+  status?: number
+  articleCount?: number
+}
+
+/**
+ * 评论数据
+ */
+export interface Comment {
+  id?: number
+  content: string
+  articleId?: number
+  userId?: number
+  nickname?: string
+  status?: number
+  parentId?: number
+}
+
+/**
+ * 友情链接
+ */
+export interface FriendLink {
+  id?: number
+  linkName: string
+  linkUrl: string
+  logo?: string
+  status?: number
+  orderNum?: number
+}
+
+/**
+ * 博客设置
+ */
+export interface BlogSetting {
+  id?: number
+  settingKey: string
+  settingValue: string
+}
+
+/**
+ * 用户信息
+ */
+export interface UserInfo {
+  userId?: number
+  userName: string
+  nickName?: string
+  email?: string
+  phonenumber?: string
+  sex?: string
+  avatar?: string
+  deptId?: number
+  roles?: Role[]
+  roleIds?: number[]
+  postIds?: number[]
+}
+
+/**
+ * 角色信息
+ */
+export interface Role {
+  roleId?: number
+  roleName: string
+  roleKey?: string
+  roleSort?: number
+  status?: string
+  remark?: string
+}
+
+/**
+ * 部门信息
+ */
+export interface Dept {
+  deptId?: number
+  parentId?: number
+  deptName?: string
+  orderNum?: number
+  leader?: string
+  phone?: string
+  email?: string
+  status?: string
+  children?: Dept[]
+}
+
+/**
+ * 菜单信息
+ */
+export interface Menu {
+  menuId?: number
+  menuName?: string
+  parentId?: number
+  orderNum?: number
+  path?: string
+  component?: string
+  query?: string
+  isFrame?: number
+  isCache?: number
+  menuType?: string
+  visible?: string
+  status?: string
+  icon?: string
+  children?: Menu[]
+}
+
+/**
+ * 岗位信息
+ */
+export interface Post {
+  postId?: number
+  postCode?: string
+  postName?: string
+  postSort?: number
+  status?: string
+  remark?: string
+}

@@ -4,15 +4,34 @@
     <BlogNav />
 
     <!-- 加载状态 -->
-    <div v-if="loading" class="loading-container">
+    <div
+      v-if="loading"
+      class="loading-container"
+    >
       <div class="loading-skeleton">
-        <el-skeleton :loading="loading" animated class="article-skeleton">
+        <el-skeleton
+          :loading="loading"
+          animated
+          class="article-skeleton"
+        >
           <template #template>
             <div class="skeleton-content">
-              <el-skeleton-item variant="h1" style="width: 60%; margin-bottom: 20px" />
-              <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
-              <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
-              <el-skeleton-item variant="text" style="width: 80%; margin-bottom: 20px" />
+              <el-skeleton-item
+                variant="h1"
+                style="width: 60%; margin-bottom: 20px"
+              />
+              <el-skeleton-item
+                variant="text"
+                style="width: 100%; margin-bottom: 10px"
+              />
+              <el-skeleton-item
+                variant="text"
+                style="width: 90%; margin-bottom: 10px"
+              />
+              <el-skeleton-item
+                variant="text"
+                style="width: 80%; margin-bottom: 20px"
+              />
               <el-skeleton-item
                 variant="rect"
                 style="width: 100%; height: 400px; margin-bottom: 20px"
@@ -36,35 +55,62 @@
     </div>
 
     <!-- 文章不存在 -->
-    <div v-else-if="!article" class="not-found-container">
+    <div
+      v-else-if="!article"
+      class="not-found-container"
+    >
       <div class="not-found-content">
         <i class="el-icon-document-copy not-found-icon"></i>
         <h2>文章不存在</h2>
         <p>抱歉，您访问的文章不存在或已被删除。</p>
-        <router-link to="/" class="back-home-btn">
-          <el-button type="primary" size="large">返回首页</el-button>
+        <router-link
+          to="/"
+          class="back-home-btn"
+        >
+          <el-button
+            type="primary"
+            size="large"
+          >
+            返回首页
+          </el-button>
         </router-link>
       </div>
     </div>
 
     <!-- 文章详情 -->
-    <div v-else class="article-detail">
+    <div
+      v-else
+      class="article-detail"
+    >
       <!-- 文章头部 -->
       <div class="article-header">
         <!-- 分类标签 -->
-        <div v-if="article.categoryName" class="article-category">
+        <div
+          v-if="article.categoryName"
+          class="article-category"
+        >
           <span class="category-badge">{{ article.categoryName }}</span>
         </div>
 
         <!-- 文章标题 -->
-        <h1 v-animate="'fade-in-up'" class="article-title">
+        <h1
+          v-animate="'fade-in-up'"
+          class="article-title"
+        >
           {{ article.title }}
         </h1>
 
         <!-- 文章元信息 -->
-        <div v-animate="'fade-in-up'" class="article-meta">
+        <div
+          v-animate="'fade-in-up'"
+          class="article-meta"
+        >
           <div class="meta-info">
-            <router-link to="/" class="meta-item back-home-link" title="返回首页">
+            <router-link
+              to="/"
+              class="meta-item back-home-link"
+              title="返回首页"
+            >
               <i class="el-icon-house"></i>
               <span>返回首页</span>
             </router-link>
@@ -80,11 +126,17 @@
               <i class="el-icon-view"></i>
               <span>{{ article.viewCount || 0 }} 阅读</span>
             </span>
-            <span v-if="article.likeCount" class="meta-item">
+            <span
+              v-if="article.likeCount"
+              class="meta-item"
+            >
               <i class="el-icon-star-off"></i>
               <span>{{ article.likeCount }} 点赞</span>
             </span>
-            <span v-if="article.commentCount" class="meta-item">
+            <span
+              v-if="article.commentCount"
+              class="meta-item"
+            >
               <i class="el-icon-chat-line-round"></i>
               <span>{{ article.commentCount }} 评论</span>
             </span>
@@ -111,12 +163,21 @@
 
       <div class="article-content">
         <!-- 封面图片 -->
-        <div v-if="article.coverUrl" class="article-cover">
-          <img :src="article.coverUrl" :alt="article.title" />
+        <div
+          v-if="article.coverUrl"
+          class="article-cover"
+        >
+          <img
+            :src="article.coverUrl"
+            :alt="article.title"
+          />
         </div>
 
         <!-- 文章内容 -->
-        <div class="content-body" v-html="processedContent"></div>
+        <div
+          class="content-body"
+          v-html="processedContent"
+        ></div>
 
         <!-- 文章目录导航 -->
         <ArticleTOC
@@ -138,7 +199,11 @@
             <i class="el-icon-star-off"></i>
             点赞 {{ article.likeCount || 0 }}
           </el-button>
-          <el-button type="default" plain @click="handleShare">
+          <el-button
+            type="default"
+            plain
+            @click="handleShare"
+          >
             <i class="el-icon-share"></i>
             分享
           </el-button>
@@ -154,8 +219,14 @@
       </div>
 
       <!-- 上下篇文章 -->
-      <div v-if="prevArticle || nextArticle" class="article-navigation">
-        <div v-if="prevArticle" class="nav-item prev-article">
+      <div
+        v-if="prevArticle || nextArticle"
+        class="article-navigation"
+      >
+        <div
+          v-if="prevArticle"
+          class="nav-item prev-article"
+        >
           <router-link
             :to="{
               name: 'PublicBlogArticleDetail',
@@ -167,14 +238,19 @@
               <i class="el-icon-arrow-left"></i>
             </div>
             <div class="nav-content">
-              <div class="nav-label">上一篇</div>
+              <div class="nav-label">
+                上一篇
+              </div>
               <div class="nav-title">
                 {{ prevArticle.title }}
               </div>
             </div>
           </router-link>
         </div>
-        <div v-if="nextArticle" class="nav-item next-article">
+        <div
+          v-if="nextArticle"
+          class="nav-item next-article"
+        >
           <router-link
             :to="{
               name: 'PublicBlogArticleDetail',
@@ -183,7 +259,9 @@
             class="nav-link"
           >
             <div class="nav-content">
-              <div class="nav-label">下一篇</div>
+              <div class="nav-label">
+                下一篇
+              </div>
               <div class="nav-title">
                 {{ nextArticle.title }}
               </div>
@@ -196,7 +274,10 @@
       </div>
 
       <!-- 相关文章 -->
-      <div v-if="relatedArticles.length > 0" class="related-articles">
+      <div
+        v-if="relatedArticles.length > 0"
+        class="related-articles"
+      >
         <h3 class="section-title">
           <i class="el-icon-document-copy"></i>
           相关文章
@@ -214,8 +295,14 @@
               }"
               class="related-link"
             >
-              <div v-if="related.coverUrl" class="related-cover">
-                <img :src="related.coverUrl" :alt="related.title" />
+              <div
+                v-if="related.coverUrl"
+                class="related-cover"
+              >
+                <img
+                  :src="related.coverUrl"
+                  :alt="related.title"
+                />
               </div>
               <div class="related-info">
                 <h4 class="related-title">
@@ -239,8 +326,15 @@
         </h3>
 
         <!-- 评论列表 -->
-        <div v-if="commentList.length > 0" class="comment-list">
-          <div v-for="comment in commentList" :key="comment.id" class="comment-item">
+        <div
+          v-if="commentList.length > 0"
+          class="comment-list"
+        >
+          <div
+            v-for="comment in commentList"
+            :key="comment.id"
+            class="comment-item"
+          >
             <div class="comment-avatar">
               <img
                 :src="comment.avatar || '/src/assets/images/profile.jpg'"
@@ -256,16 +350,33 @@
                 {{ comment.content }}
               </div>
               <div class="comment-actions">
-                <el-button size="mini" type="link" @click="handleReply(comment)">回复</el-button>
-                <el-button size="mini" type="link" @click="handleLikeComment(comment)">
+                <el-button
+                  size="mini"
+                  type="link"
+                  @click="handleReply(comment)"
+                >
+                  回复
+                </el-button>
+                <el-button
+                  size="mini"
+                  type="link"
+                  @click="handleLikeComment(comment)"
+                >
                   <i class="el-icon-star-off"></i>
                   {{ comment.likeCount || 0 }}
                 </el-button>
               </div>
 
               <!-- 回复列表 -->
-              <div v-if="comment.replies && comment.replies.length > 0" class="comment-replies">
-                <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
+              <div
+                v-if="comment.replies && comment.replies.length > 0"
+                class="comment-replies"
+              >
+                <div
+                  v-for="reply in comment.replies"
+                  :key="reply.id"
+                  class="reply-item"
+                >
                   <div class="reply-avatar">
                     <img
                       :src="reply.avatar || '/src/assets/images/profile.jpg'"
@@ -292,11 +403,26 @@
           <div class="form-header">
             <h4>发表评论</h4>
           </div>
-          <el-form ref="commentFormRef" :model="commentForm" :rules="commentRules" label-width="0">
-            <el-form-item v-if="!isLoggedIn" prop="nickname">
-              <el-input v-model="commentForm.nickname" placeholder="请输入您的昵称" size="large" />
+          <el-form
+            ref="commentFormRef"
+            :model="commentForm"
+            :rules="commentRules"
+            label-width="0"
+          >
+            <el-form-item
+              v-if="!isLoggedIn"
+              prop="nickname"
+            >
+              <el-input
+                v-model="commentForm.nickname"
+                placeholder="请输入您的昵称"
+                size="large"
+              />
             </el-form-item>
-            <el-form-item v-if="!isLoggedIn" prop="email">
+            <el-form-item
+              v-if="!isLoggedIn"
+              prop="email"
+            >
               <el-input
                 v-model="commentForm.email"
                 placeholder="请输入您的邮箱（可选）"
@@ -339,19 +465,17 @@
   </div>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, watch, computed } from 'vue'
+<script setup lang="ts">
+import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
-import {
-  getArticleDetail,
-  getArticleComments,
-  submitComment as apiSubmitComment
-} from '@/api/blog/article'
+import { getArticleDetail } from '@/api/blog/article'
+
+import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 
@@ -431,8 +555,6 @@ const loadArticleDetail = async () => {
     loading.value = true
     const articleId = route.params.id
 
-    console.log('准备请求文章详情，ID:', articleId, '类型:', typeof articleId)
-
     // 验证文章ID
     if (!articleId) {
       console.error('文章ID为空')
@@ -448,12 +570,9 @@ const loadArticleDetail = async () => {
       return
     }
 
-    console.log('使用数字ID:', numericId)
-
     // 获取文章详情
     const response = await getArticleDetail(numericId)
-    console.log('文章详情响应:', response)
-    console.log('文章详情响应结构:', {
+    console.log({
       code: response.code,
       message: response.msg,
       data: response.data,
@@ -475,7 +594,6 @@ const loadArticleDetail = async () => {
     if (response.data.article) {
       // 提取文章主体数据
       article.value = response.data.article
-      console.log('文章数据获取成功:', article.value)
 
       // 提取上下篇文章数据
       if (response.data.extraInfo) {
@@ -528,7 +646,6 @@ const loadComments = async () => {
   try {
     const articleId = route.params.id
     const response = await getArticleComments(articleId)
-    console.log('评论列表响应:', response)
 
     // 处理响应数据格式
     let comments = []
@@ -688,20 +805,17 @@ const loadBlogSettings = async () => {
 
 // 组件挂载时加载数据
 onMounted(() => {
-  console.log('文章详情页组件已挂载，路由ID:', route.params.id)
   loadArticleDetail()
   loadComments()
   loadBlogSettings()
   isLoggedIn.value = !!userStore.token
 })
 
-// 监听路由参数变化，当文章ID变化时重新加载
+// 监听路由参数变化，当文章ID变化时重新加载，Vue 3 会自动清理
 watch(
   () => route.params.id,
   (newId, oldId) => {
-    console.log('路由参数变化:', { oldId, newId })
     if (newId && newId !== oldId && newId !== oldId?.toString()) {
-      console.log('文章ID变化，重新加载文章详情')
       // 滚动到顶部
       window.scrollTo({ top: 0, behavior: 'smooth' })
       // 重置文章数据

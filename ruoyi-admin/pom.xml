@@ -99,6 +99,17 @@
                 <version>3.3.0</version>
                 <configuration>
                     <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
+                    <!-- 启用分层 JAR 构建，提高启动速度和构建效率 -->
+                    <layers>
+                        <enabled>true</enabled>
+                    </layers>
+                    <!-- 启用压缩，减小 JAR 文件大小 -->
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

@@ -1,6 +1,11 @@
 <template>
   <div class="login">
-    <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
+    <el-form
+      ref="loginRef"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+    >
       <h3 class="title">
         {{ title }}
       </h3>
@@ -13,7 +18,10 @@
           placeholder="账号"
         >
           <template #prefix>
-            <svg-icon icon-class="user" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="user"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
       </el-form-item>
@@ -27,7 +35,10 @@
           @keyup.enter="handleLogin"
         >
           <template #prefix>
-            <svg-icon icon-class="password" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="password"
+              class="el-input__icon input-icon"
+            />
           </template>
           <template #suffix>
             <span
@@ -40,7 +51,10 @@
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item v-if="captchaEnabled" prop="code">
+      <el-form-item
+        v-if="captchaEnabled"
+        prop="code"
+      >
         <el-input
           v-model="loginForm.code"
           size="large"
@@ -51,7 +65,10 @@
           @keyup.enter="handleLogin"
         >
           <template #prefix>
-            <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="validCode"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
         <div class="login-code">
@@ -67,7 +84,10 @@
           />
         </div>
       </el-form-item>
-      <el-checkbox v-model="loginForm.rememberMe" style="margin: 0px 0px 25px 0px">
+      <el-checkbox
+        v-model="loginForm.rememberMe"
+        style="margin: 0px 0px 25px 0px"
+      >
         记住密码
       </el-checkbox>
       <el-form-item style="width: 100%">
@@ -87,8 +107,16 @@
           <span v-if="!loading">登 录</span>
           <span v-else>登 录 中...</span>
         </el-button>
-        <div v-if="register" style="float: right">
-          <router-link class="link-type" :to="'/register'">立即注册</router-link>
+        <div
+          v-if="register"
+          style="float: right"
+        >
+          <router-link
+            class="link-type"
+            :to="'/register'"
+          >
+            立即注册
+          </router-link>
         </div>
       </el-form-item>
     </el-form>
@@ -99,16 +127,16 @@
   </div>
 </template>
 
-<script setup>
-import { ref, watch, getCurrentInstance } from 'vue'
+<script setup lang="ts">
+import { ref, watch, getCurrentInstance, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
 import { encrypt, decrypt } from '@/utils/jsencrypt'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 
-const title = import.meta.env.VITE_APP_TITLE
+const title = import.meta.env?.VITE_APP_TITLE || '博客管理系统'
 const userStore = useUserStore()
 const route = useRoute()
 const router = useRouter()
@@ -149,6 +177,7 @@ const redirect = ref(undefined)
 // 显示密码开关
 const showPassword = ref(false)
 
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   route,
   newRoute => {

@@ -115,7 +115,7 @@ public class SwaggerConfig
                 // 设置标题
                 .title("标题：若依管理系统_接口文档")
                 // 描述
-                .description("描述：用于管理集团旗下公司的人员信息,具体包括XXX,XXX模块...")
+                .description("描述：基于 RuoYi-Vue 的博客管理系统，包括文章管理、分类标签、评论互动、友情链接等完整功能模块")
                 // 作者信息
                 .contact(new Contact(ruoyiConfig.getName(), null, null))
                 // 版本

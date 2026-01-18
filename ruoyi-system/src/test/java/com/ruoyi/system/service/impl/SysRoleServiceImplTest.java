@@ -368,4 +368,84 @@ class SysRoleServiceImplTest {
         assertEquals(5L, result);
         verify(userRoleMapper).countUserRoleByRoleId(1L);
     }
+
+    /**
+     * 测试新增角色 - 包含菜单ID
+     */
+    @Test
+    void testInsertRole_WithMenuIds() {
+        SysRole newRole = new SysRole();
+        newRole.setRoleName("测试角色");
+        newRole.setRoleKey("test");
+        newRole.setMenuIds(new Long[]{1L, 2L, 3L});
+
+        when(roleMapper.insertRole(newRole)).thenReturn(1);
+        when(roleMenuMapper.batchRoleMenu(anyList())).thenReturn(3);
+
+        int result = roleService.insertRole(newRole);
+
+        assertEquals(3, result);
+        verify(roleMapper).insertRole(newRole);
+        verify(roleMenuMapper).batchRoleMenu(anyList());
+    }
+
+    /**
+     * 测试新增角色 - 不包含菜单ID
+     */
+    @Test
+    void testInsertRole_WithoutMenuIds() {
+        SysRole newRole = new SysRole();
+        newRole.setRoleName("测试角色");
+        newRole.setRoleKey("test");
+        newRole.setMenuIds(null);
+
+        when(roleMapper.insertRole(newRole)).thenReturn(1);
+
+        int result = roleService.insertRole(newRole);
+
+        assertEquals(1, result);
+        verify(roleMapper).insertRole(newRole);
+        verify(roleMenuMapper, never()).batchRoleMenu(anyList());
+    }
+
+    /**
+     * 测试修改角色数据权限 - 包含部门ID
+     */
+    @Test
+    void testAuthDataScope_WithDeptIds() {
+        SysRole role = new SysRole();
+        role.setRoleId(2L);
+        role.setDeptIds(new Long[]{1L, 2L});
+
+        when(roleMapper.updateRole(role)).thenReturn(1);
+        when(roleDeptMapper.deleteRoleDeptByRoleId(2L)).thenReturn(2);
+        when(roleDeptMapper.batchRoleDept(anyList())).thenReturn(2);
+
+        int result = roleService.authDataScope(role);
+
+        assertEquals(2, result);
+        verify(roleMapper).updateRole(role);
+        verify(roleDeptMapper).deleteRoleDeptByRoleId(2L);
+        verify(roleDeptMapper).batchRoleDept(anyList());
+    }
+
+    /**
+     * 测试修改角色数据权限 - 不包含部门ID
+     */
+    @Test
+    void testAuthDataScope_WithoutDeptIds() {
+        SysRole role = new SysRole();
+        role.setRoleId(2L);
+        role.setDeptIds(new Long[0]);
+
+        when(roleMapper.updateRole(role)).thenReturn(1);
+        when(roleDeptMapper.deleteRoleDeptByRoleId(2L)).thenReturn(0);
+
+        int result = roleService.authDataScope(role);
+
+        assertEquals(1, result);
+        verify(roleMapper).updateRole(role);
+        verify(roleDeptMapper).deleteRoleDeptByRoleId(2L);
+        verify(roleDeptMapper, never()).batchRoleDept(anyList());
+    }
 }

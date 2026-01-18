@@ -51,12 +51,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, computed, watch, getCurrentInstance, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ScrollPane from './ScrollPane'
 import { getNormalPath } from '@/utils/ruoyi'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { useSettingsStore } from '@/stores/settings'
-import usePermissionStore from '@/store/modules/permission'
+import { usePermissionStore } from '@/stores/permission'
 
 const visible = ref(false)
 const top = ref(0)
@@ -74,6 +76,7 @@ const routes = computed(() => usePermissionStore().routes)
 const theme = computed(() => useSettingsStore().theme)
 const tagsIcon = computed(() => useSettingsStore().tagsIcon)
 
+// 设置 watch 监听器，返回的清理函数会自动处理
 watch(route, () => {
   addTags()
   moveToCurrentTag()
@@ -90,6 +93,10 @@ watch(visible, value => {
 onMounted(() => {
   initTags()
   addTags()
+})
+
+onUnmounted(() => {
+  // Watchers will be automatically cleaned up by Vue 3
 })
 
 function isActive(r) {

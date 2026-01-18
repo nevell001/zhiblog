@@ -1,12 +1,22 @@
 <template>
-  <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
+  <div
+    :class="classObj"
+    class="app-wrapper"
+    :style="{ '--current-color': theme }"
+  >
     <div
       v-if="device === 'mobile' && sidebar.opened"
       class="drawer-bg"
       @click="handleClickOutside"
     ></div>
-    <sidebar v-if="!sidebar.hide" class="sidebar-container" />
-    <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
+    <sidebar
+      v-if="!sidebar.hide"
+      class="sidebar-container"
+    />
+    <div
+      :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }"
+      class="main-container"
+    >
       <div :class="{ 'fixed-header': fixedHeader }">
         <navbar @set-layout="setLayout" />
         <tags-view v-if="needTagsView" />
@@ -17,13 +27,13 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref, watch, watchEffect, onMounted } from 'vue'
+<script setup lang="ts">
+import { computed, ref, watch, watchEffect, onMounted, onUnmounted } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import Sidebar from './components/Sidebar/index.vue'
 import { AppMain, Navbar, Settings, TagsView } from './components'
-import useAppStore from '@/store/modules/app'
-import useSettingsStore from '@/store/modules/settings'
+import { useAppStore } from '@/stores/app'
+import { useSettingsStore } from '@/stores/settings'
 
 const settingsStore = useSettingsStore()
 const theme = computed(() => settingsStore.theme)
@@ -43,6 +53,7 @@ const classObj = computed(() => ({
 const { width, height } = useWindowSize()
 const WIDTH = 992 // refer to Bootstrap's responsive design
 
+// 设置 watch 监听器
 watch(
   () => device.value,
   () => {
@@ -52,14 +63,15 @@ watch(
   }
 )
 
-watchEffect(() => {
-  if (width.value - 1 < WIDTH) {
-    useAppStore().toggleDevice('mobile')
-    useAppStore().closeSideBar({ withoutAnimation: true })
-  } else {
-    useAppStore().toggleDevice('desktop')
-  }
-})
+// 暂时禁用 watchEffect 以排查问题
+// watchEffect(() => {
+//   if (width.value - 1 < WIDTH) {
+//     useAppStore().toggleDevice('mobile')
+//     useAppStore().closeSideBar({ withoutAnimation: true })
+//   } else {
+//     useAppStore().toggleDevice('desktop')
+//   }
+// })
 
 function handleClickOutside() {
   useAppStore().closeSideBar({ withoutAnimation: false })
@@ -72,7 +84,11 @@ function setLayout() {
 
 // 组件挂载后执行初始化
 onMounted(() => {
-  console.log('🎯 Layout组件挂载完成')
+})
+
+// 组件卸载时清理
+onUnmounted(() => {
+  // Watchers will be automatically cleaned up by Vue 3
 })
 
 defineOptions({

@@ -1,9 +1,16 @@
 <template>
   <section class="app-main">
-    <router-view v-slot="{ Component, route }">
-      <transition name="fade-transform" mode="out-in">
+    <router-view v-slot="{ Component, route: currentRoute }">
+      <transition
+        name="fade-transform"
+        mode="out-in"
+      >
         <keep-alive :include="tagsViewStore.cachedViews">
-          <component v-if="!route.meta.link" :is="Component" :key="route.path"/>
+          <component
+            :is="Component"
+            v-if="!currentRoute.meta.link"
+            :key="currentRoute.path"
+          />
         </keep-alive>
       </transition>
     </router-view>
@@ -12,29 +19,39 @@
   </section>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { onMounted, watchEffect } from 'vue'
-import copyright from "./Copyright/index"
-import iframeToggle from "./IframeToggle/index"
-import useTagsViewStore from '@/store/modules/tagsView'
+import { onMounted, watch, onUnmounted } from 'vue'
+import copyright from './Copyright/index'
+import iframeToggle from './IframeToggle/index'
+import { useTagsViewStore } from '@/stores/tagsView'
 
 const route = useRoute()
 const tagsViewStore = useTagsViewStore()
-
-onMounted(() => {
-  addIframe()
-})
-
-watchEffect(() => {
-  addIframe()
-})
 
 function addIframe() {
   if (route.meta.link) {
     useTagsViewStore().addIframeView(route)
   }
 }
+
+// 在组件挂载时调用
+onMounted(() => {
+  addIframe()
+})
+
+// 监听路由变化
+watch(
+  () => route.meta.link,
+  () => {
+    addIframe()
+  }
+)
+
+// 组件卸载时清理
+onUnmounted(() => {
+  // Watchers will be automatically cleaned up by Vue 3
+})
 </script>
 
 <style lang="scss" scoped>

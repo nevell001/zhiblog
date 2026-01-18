@@ -2,6 +2,6 @@
   <ArticlePage />
 </template>
 
-<script setup>
-import ArticlePage from '@/views/admin/blog/article/article/index.vue'
+<script setup lang="ts">
+import ArticlePage from '@/views/admin/blog/article/index.vue'
 </script>

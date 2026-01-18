@@ -1,7 +1,17 @@
 <template>
   <div class="header-search">
-    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
-    <el-dialog v-model="show" width="600" :show-close="false" append-to-body @close="close">
+    <svg-icon
+      class-name="search-icon"
+      icon-class="search"
+      @click.stop="click"
+    />
+    <el-dialog
+      v-model="show"
+      width="600"
+      :show-close="false"
+      append-to-body
+      @close="close"
+    >
       <el-input
         ref="headerSearchSelectRef"
         v-model="search"
@@ -27,9 +37,15 @@
             @mouseleave="activeIndex = -1"
           >
             <div class="left">
-              <svg-icon class="menu-icon" :icon-class="item.icon" />
+              <svg-icon
+                class="menu-icon"
+                :icon-class="item.icon"
+              />
             </div>
-            <div class="search-info" @click="change(item)">
+            <div
+              class="search-info"
+              @click="change(item)"
+            >
               <div class="menu-title">
                 {{ item.title.join(' / ') }}
               </div>
@@ -37,7 +53,10 @@
                 {{ item.path }}
               </div>
             </div>
-            <svg-icon v-show="index === activeIndex" icon-class="enter" />
+            <svg-icon
+              v-show="index === activeIndex"
+              icon-class="enter"
+            />
           </div>
         </el-scrollbar>
       </div>
@@ -45,12 +64,14 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import Fuse from 'fuse.js'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getNormalPath } from '@/utils/ruoyi'
 import { isHttp } from '@/utils/validate'
-import useSettingsStore from '@/store/modules/settings'
-import usePermissionStore from '@/store/modules/permission'
+import { useSettingsStore } from '@/stores/settings'
+import { usePermissionStore } from '@/stores/permission'
 
 const search = ref('')
 const options = ref([])
@@ -193,10 +214,12 @@ function selectActiveResult() {
   }
 }
 
+// 初始化路由池
 onMounted(() => {
   searchPool.value = generateRoutes(routes.value)
 })
 
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(searchPool, list => {
   initFuse(list)
 })

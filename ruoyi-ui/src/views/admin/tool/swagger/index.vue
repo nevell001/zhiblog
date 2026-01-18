@@ -2,7 +2,7 @@
   <i-frame v-model:src="url" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import iFrame from '@/components/iFrame/index.vue'
 

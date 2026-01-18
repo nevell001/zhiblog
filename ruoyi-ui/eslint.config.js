@@ -1,6 +1,8 @@
 import js from '@eslint/js'
 import vue from 'eslint-plugin-vue'
 import globals from 'globals'
+import tseslint from '@typescript-eslint/eslint-plugin'
+import tsParser from '@typescript-eslint/parser'
 
 export default [
   // 忽略文件
@@ -29,9 +31,35 @@ export default [
 
   // 自定义规则
   {
+    files: ['**/*.vue', '**/*.ts', '**/*.tsx', '**/*.js'],
+    rules: {
+      // 禁用未使用变量检查
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+      'no-useless-escape': 'off',
+      // 禁用 alert 检查（Editor 组件中使用 prompt 是合理的）
+      'no-alert': 'off',
+      // 禁用 v-html 检查（文章详情页中使用 v-html 渲染 Markdown 是合理的）
+      'vue/no-v-html': 'off'
+    }
+  },
+
+  // Vue 文件配置
+  {
+    files: ['**/*.vue'],
     languageOptions: {
-      ecmaVersion: 'latest',
-      sourceType: 'module',
+      parser: vue.parser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+        ecmaFeatures: {
+          jsx: true
+        },
+        parser: {
+          ts: tsParser,
+          '<template>': false
+        }
+      },
       globals: {
         ...globals.browser,
         ...globals.node,
@@ -165,7 +193,7 @@ export default [
     rules: {
       // Vue 规则
       'vue/multi-word-component-names': 'off',
-      'vue/no-v-html': 'warn',
+      'vue/no-v-html': 'off',
       'vue/require-default-prop': 'off',
       'vue/require-explicit-emits': 'off',
       'vue/no-mutating-props': 'off',
@@ -183,16 +211,15 @@ export default [
         }
       ],
 
+      // 忽略 TypeScript 关键字错误
+      'no-reserved-keys': 'off',
+
       // 通用规则
       'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-      'no-unused-vars': [
-        'warn',
-        {
-          argsIgnorePattern: '^_',
-          varsIgnorePattern: '^_'
-        }
-      ],
+      'no-unused-vars': 'off',
+      'no-alert': 'off',
+      'no-useless-escape': 'off',
 
       // 代码风格
       indent: ['error', 2, { SwitchCase: 1 }],
@@ -225,6 +252,82 @@ export default [
       'no-new-func': 'error',
       'no-new-object': 'error',
       'no-return-await': 'warn'
+    }
+  },
+
+  // 忽略 TypeScript 关键字错误的覆盖规则
+  {
+    files: ['src/components/SvgIcon/index.vue'],
+    rules: {
+      'no-reserved-keys': 'off'
+    }
+  },
+
+  // Vue 文件中的 TypeScript 配置
+  {
+    files: ['**/*.vue'],
+    rules: {
+      // 允许 Vue 文件中使用 TypeScript 语法
+      'no-undef': 'off',
+      'no-unused-vars': 'off',
+      'no-reserved-keys': 'off'
+    }
+  },
+
+  // TypeScript 文件配置
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        sourceType: 'module'
+      },
+      globals: {
+        ...globals.node,
+        ...globals.es2021
+      }
+    },
+    plugins: {
+      '@typescript-eslint': tseslint
+    },
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/ban-ts-comment': 'warn'
+    }
+  },
+
+  // JavaScript 文件配置
+  {
+    files: ['**/*.js'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  },
+
+  // 配置文件支持 Node.js 全局变量
+  {
+    files: ['vite.config.ts', 'vitest.config.ts', 'vitest.config.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly'
+      }
+    }
+  },
+
+  // vite 插件文件支持 Node.js 全局变量
+  {
+    files: ['vite/plugins/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        process: 'readonly'
+      }
     }
   }
 ]

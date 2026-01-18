@@ -283,4 +283,68 @@ class BlogCategoryControllerTest {
 
         verify(blogCategoryService).updateBlogCategory(any(com.ruoyi.system.domain.BlogCategory.class));
     }
+
+    /**
+     * 测试导出分类接口
+     */
+    @Test
+    void testExportCategory() throws Exception {
+        // 模拟数据
+        List<com.ruoyi.system.domain.BlogCategory> categoryList = new ArrayList<>();
+        com.ruoyi.system.domain.BlogCategory category = new com.ruoyi.system.domain.BlogCategory();
+        category.setId(1L);
+        category.setName("测试分类");
+        categoryList.add(category);
+
+        when(blogCategoryService.selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class)))
+            .thenReturn(categoryList);
+
+        // 执行测试
+        mockMvc.perform(post("/system/category/export")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(blogCategoryService).selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class));
+    }
+
+    /**
+     * 测试导出分类接口 - 带参数
+     */
+    @Test
+    void testExportCategory_WithParams() throws Exception {
+        // 模拟数据
+        List<com.ruoyi.system.domain.BlogCategory> categoryList = new ArrayList<>();
+        com.ruoyi.system.domain.BlogCategory category = new com.ruoyi.system.domain.BlogCategory();
+        category.setId(1L);
+        category.setName("测试分类");
+        categoryList.add(category);
+
+        when(blogCategoryService.selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class)))
+            .thenReturn(categoryList);
+
+        // 执行测试 - delFlag 已设置，不触发自动设置分支
+        mockMvc.perform(post("/system/category/export")
+                .param("delFlag", "0")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(blogCategoryService).selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class));
+    }
+
+    /**
+     * 测试导出分类接口 - 空结果
+     */
+    @Test
+    void testExportCategory_Empty() throws Exception {
+        // 模拟空结果
+        when(blogCategoryService.selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class)))
+            .thenReturn(new ArrayList<>());
+
+        // 执行测试
+        mockMvc.perform(post("/system/category/export")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(blogCategoryService).selectCategoryListForFront(any(com.ruoyi.system.domain.BlogCategory.class));
+    }
 }

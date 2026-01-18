@@ -7,9 +7,15 @@ import createSetupExtend from './setup-extend'
 
 export default function createVitePlugins(viteEnv, isBuild = false) {
   const vitePlugins = [vue()]
+
+  // 自动导入插件
   vitePlugins.push(createAutoImport())
-  vitePlugins.push(createSetupExtend())
+
+  // SVG 图标插件
   vitePlugins.push(createSvgIcon(isBuild))
-  // isBuild && vitePlugins.push(...createCompression(viteEnv)) // 暂时注释掉有问题的压缩插件
+
+  // setup 插件
+  vitePlugins.push(createSetupExtend())
+
   return vitePlugins
 }

@@ -1,6 +1,13 @@
 <template>
-  <div class="user-info-head" @click="editCropper()">
-    <img :src="options.img" title="点击上传头像" class="img-circle img-lg" />
+  <div
+    class="user-info-head"
+    @click="editCropper()"
+  >
+    <img
+      :src="options.img"
+      title="点击上传头像"
+      class="img-circle img-lg"
+    />
     <el-dialog
       v-model="open"
       :title="title"
@@ -10,7 +17,11 @@
       @close="closeDialog"
     >
       <el-row>
-        <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+        <el-col
+          :xs="24"
+          :md="12"
+          :style="{ height: '350px' }"
+        >
           <vue-cropper
             v-if="visible"
             ref="cropper"
@@ -24,15 +35,25 @@
             @real-time="realTime"
           />
         </el-col>
-        <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+        <el-col
+          :xs="24"
+          :md="12"
+          :style="{ height: '350px' }"
+        >
           <div class="avatar-upload-preview">
-            <img :src="options.previews.url" :style="options.previews.img" />
+            <img
+              :src="options.previews.url"
+              :style="options.previews.img"
+            />
           </div>
         </el-col>
       </el-row>
       <br />
       <el-row>
-        <el-col :lg="2" :md="2">
+        <el-col
+          :lg="2"
+          :md="2"
+        >
           <el-upload
             action="#"
             :http-request="requestUpload"
@@ -47,31 +68,63 @@
             </el-button>
           </el-upload>
         </el-col>
-        <el-col :lg="{ span: 1, offset: 2 }" :md="2">
-          <el-button icon="Plus" @click="changeScale(1)" />
+        <el-col
+          :lg="{ span: 1, offset: 2 }"
+          :md="2"
+        >
+          <el-button
+            icon="Plus"
+            @click="changeScale(1)"
+          />
         </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="Minus" @click="changeScale(-1)" />
+        <el-col
+          :lg="{ span: 1, offset: 1 }"
+          :md="2"
+        >
+          <el-button
+            icon="Minus"
+            @click="changeScale(-1)"
+          />
         </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshLeft" @click="rotateLeft()" />
+        <el-col
+          :lg="{ span: 1, offset: 1 }"
+          :md="2"
+        >
+          <el-button
+            icon="RefreshLeft"
+            @click="rotateLeft()"
+          />
         </el-col>
-        <el-col :lg="{ span: 1, offset: 1 }" :md="2">
-          <el-button icon="RefreshRight" @click="rotateRight()" />
+        <el-col
+          :lg="{ span: 1, offset: 1 }"
+          :md="2"
+        >
+          <el-button
+            icon="RefreshRight"
+            @click="rotateRight()"
+          />
         </el-col>
-        <el-col :lg="{ span: 2, offset: 6 }" :md="2">
-          <el-button type="primary" @click="uploadImg()">提 交</el-button>
+        <el-col
+          :lg="{ span: 2, offset: 6 }"
+          :md="2"
+        >
+          <el-button
+            type="primary"
+            @click="uploadImg()"
+          >
+            提 交
+          </el-button>
         </el-col>
       </el-row>
     </el-dialog>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import 'vue-cropper/dist/index.css'
 import { VueCropper } from 'vue-cropper'
 import { uploadAvatar } from '@/api/system/user'
-import useUserStore from '@/store/modules/user'
+import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 const userStore = useUserStore()
@@ -126,7 +179,7 @@ function changeScale(num) {
 /** 上传预处理 */
 function beforeUpload(file) {
   if (file.type.indexOf('image/') === -1) {
-    proxy.$modal.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
+    ;(proxy as any).$modal.msgError('文件格式错误，请上传图片类型,如：JPG，PNG后缀的文件。')
   } else {
     const reader = new FileReader()
     reader.readAsDataURL(file)
@@ -139,16 +192,16 @@ function beforeUpload(file) {
 
 /** 上传图片 */
 function uploadImg() {
-  proxy.$refs.cropper.getCropBlob(data => {
+  ;(proxy.$refs.cropper as any).getCropBlob((data: any) => {
     const formData = new FormData()
     formData.append('avatarfile', data, options.filename)
-    uploadAvatar(formData).then(response => {
+    uploadAvatar(formData).then((response: any) => {
       open.value = false
       options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl
       userStore.avatar = options.img
       // 同时更新博客设置中的头像，确保前台首页显示最新头像
       blogSettingsStore.updateBlogAvatar(response.imgUrl)
-      proxy.$modal.msgSuccess('修改成功')
+      ;(proxy as any).$modal.msgSuccess('修改成功')
       visible.value = false
     })
   })

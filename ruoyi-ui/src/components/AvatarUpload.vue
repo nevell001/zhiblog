@@ -1,7 +1,10 @@
 <template>
   <div class="avatar-upload">
     <!-- 头像预览 -->
-    <div class="avatar-preview" :class="{ 'avatar-uploading': uploading }">
+    <div
+      class="avatar-preview"
+      :class="{ 'avatar-uploading': uploading }"
+    >
       <img
         :src="processedAvatarUrl"
         :alt="alt || '用户头像'"
@@ -10,7 +13,10 @@
         @load="handleAvatarLoad"
       />
       <!-- 上传进度 -->
-      <div v-if="uploading" class="upload-overlay">
+      <div
+        v-if="uploading"
+        class="upload-overlay"
+      >
         <el-progress
           type="circle"
           :percentage="uploadProgress"
@@ -19,7 +25,11 @@
         />
       </div>
       <!-- 上传按钮 -->
-      <div v-if="!uploading && editable" class="upload-button" @click="triggerUpload">
+      <div
+        v-if="!uploading && editable"
+        class="upload-button"
+        @click="triggerUpload"
+      >
         <el-icon><Camera /></el-icon>
         <span>更换头像</span>
       </div>
@@ -35,35 +45,50 @@
     />
 
     <!-- 头像信息 -->
-    <div v-if="showInfo && avatarInfo" class="avatar-info">
+    <div
+      v-if="showInfo && avatarInfo"
+      class="avatar-info"
+    >
       <div class="info-item">
         <span class="label">文件名:</span>
         <span class="value">{{ avatarInfo.fileName }}</span>
       </div>
-      <div v-if="avatarInfo.originalSize" class="info-item">
+      <div
+        v-if="avatarInfo.originalSize"
+        class="info-item"
+      >
         <span class="label">原始大小:</span>
         <span class="value">{{ formatFileSize(avatarInfo.originalSize) }}</span>
       </div>
-      <div v-if="avatarInfo.compressedSize" class="info-item">
+      <div
+        v-if="avatarInfo.compressedSize"
+        class="info-item"
+      >
         <span class="label">压缩后:</span>
         <span class="value">{{ formatFileSize(avatarInfo.compressedSize) }}</span>
       </div>
-      <div v-if="avatarInfo.compressionRatio" class="info-item">
+      <div
+        v-if="avatarInfo.compressionRatio"
+        class="info-item"
+      >
         <span class="label">压缩率:</span>
         <span class="value">{{ avatarInfo.compressionRatio }}%</span>
       </div>
     </div>
 
     <!-- 错误提示 -->
-    <div v-if="errorMessage" class="error-message">
+    <div
+      v-if="errorMessage"
+      class="error-message"
+    >
       <el-icon><Warning /></el-icon>
       <span>{{ errorMessage }}</span>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, computed, watch } from 'vue'
+<script setup lang="ts">
+import { ref, computed, watch, onUnmounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Camera, Warning } from '@element-plus/icons-vue'
 import { uploadAvatar, processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
@@ -105,7 +130,15 @@ const fileInput = ref(null)
 const uploading = ref(false)
 const uploadProgress = ref(0)
 const errorMessage = ref('')
-const avatarInfo = ref(null)
+
+interface AvatarInfo {
+  fileName: string
+  originalSize?: number
+  compressedSize?: number
+  compressionRatio?: number
+}
+
+const avatarInfo = ref<AvatarInfo | null>(null)
 
 // Computed
 const processedAvatarUrl = computed(() => {
@@ -113,6 +146,7 @@ const processedAvatarUrl = computed(() => {
 })
 
 // Watchers
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   () => props.modelValue,
   newVal => {
@@ -209,7 +243,7 @@ const validateFile = file => {
   }
 
   // 检查图片尺寸（这里可以在前端检查，但更准确的是在后端检查）
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     const img = new Image()
     img.onload = () => {
       const { width, height } = img

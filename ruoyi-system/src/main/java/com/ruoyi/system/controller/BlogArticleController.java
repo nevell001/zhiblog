@@ -95,27 +95,22 @@ public class BlogArticleController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody Map<String, Object> params)
     {
-        try {
-            // 解析文章信息
-            BlogArticle blogArticle = parseArticleFromParams(params);
-            
-            // 解析标签ID列表
-            List<Long> tagIds = parseTagIds(params.get("tagIds"));
+        // 解析文章信息
+        BlogArticle blogArticle = parseArticleFromParams(params);
 
-            // 插入文章
-            int result = blogArticleService.insertBlogArticle(blogArticle);
-            if (result > 0) {
-                // 关联标签
-                if (tagIds != null && !tagIds.isEmpty()) {
-                    blogArticleService.insertArticleTagRelations(blogArticle.getId(), tagIds);
-                }
-                return success("文章创建成功");
-            } else {
-                return error("文章创建失败");
+        // 解析标签ID列表
+        List<Long> tagIds = parseTagIds(params.get("tagIds"));
+
+        // 插入文章
+        int result = blogArticleService.insertBlogArticle(blogArticle);
+        if (result > 0) {
+            // 关联标签
+            if (tagIds != null && !tagIds.isEmpty()) {
+                blogArticleService.insertArticleTagRelations(blogArticle.getId(), tagIds);
             }
-        } catch (Exception e) {
-            logger.error("创建文章失败", e);
-            return error("创建文章失败：" + e.getMessage());
+            return success("文章创建成功");
+        } else {
+            return error("文章创建失败");
         }
     }
 
@@ -127,25 +122,20 @@ public class BlogArticleController extends BaseController
     @PutMapping
     public AjaxResult edit(@RequestBody Map<String, Object> params)
     {
-        try {
-            // 解析文章信息
-            BlogArticle blogArticle = parseArticleFromParams(params);
-            
-            // 解析标签ID列表
-            List<Long> tagIds = parseTagIds(params.get("tagIds"));
+        // 解析文章信息
+        BlogArticle blogArticle = parseArticleFromParams(params);
 
-            // 更新文章
-            int result = blogArticleService.updateBlogArticle(blogArticle);
-            if (result > 0) {
-                // 更新标签关联
-                blogArticleService.updateArticleTagRelations(blogArticle.getId(), tagIds);
-                return success("文章更新成功");
-            } else {
-                return error("文章更新失败");
-            }
-        } catch (Exception e) {
-            logger.error("更新文章失败", e);
-            return error("更新文章失败：" + e.getMessage());
+        // 解析标签ID列表
+        List<Long> tagIds = parseTagIds(params.get("tagIds"));
+
+        // 更新文章
+        int result = blogArticleService.updateBlogArticle(blogArticle);
+        if (result > 0) {
+            // 更新标签关联
+            blogArticleService.updateArticleTagRelations(blogArticle.getId(), tagIds);
+            return success("文章更新成功");
+        } else {
+            return error("文章更新失败");
         }
     }
 
@@ -193,21 +183,16 @@ public class BlogArticleController extends BaseController
     @PutMapping("/status")
     public AjaxResult updateStatus(@RequestBody Map<String, Object> params)
     {
-        try {
-            @SuppressWarnings("unchecked")
-            List<Long> ids = (List<Long>) params.get("ids");
-            Integer status = (Integer) params.get("status");
+        @SuppressWarnings("unchecked")
+        List<Long> ids = (List<Long>) params.get("ids");
+        Integer status = (Integer) params.get("status");
 
-            if (ids == null || ids.isEmpty()) {
-                return error("请选择要更新的文章");
-            }
-
-            int result = blogArticleService.updateArticleStatus(ids, status);
-            return toAjax(result);
-        } catch (Exception e) {
-            logger.error("更新文章状态失败", e);
-            return error("更新文章状态失败：" + e.getMessage());
+        if (ids == null || ids.isEmpty()) {
+            return error("请选择要更新的文章");
         }
+
+        int result = blogArticleService.updateArticleStatus(ids, status);
+        return toAjax(result);
     }
 
     /**

@@ -7,7 +7,10 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="参数名称" prop="configName">
+      <el-form-item
+        label="参数名称"
+        prop="configName"
+      >
         <el-input
           v-model="queryParams.configName"
           placeholder="请输入参数名称"
@@ -16,7 +19,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="参数键名" prop="configKey">
+      <el-form-item
+        label="参数键名"
+        prop="configKey"
+      >
         <el-input
           v-model="queryParams.configKey"
           placeholder="请输入参数键名"
@@ -25,7 +31,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="系统内置" prop="configType">
+      <el-form-item
+        label="系统内置"
+        prop="configType"
+      >
         <el-select
           v-model="queryParams.configType"
           placeholder="系统内置"
@@ -40,7 +49,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="创建时间" style="width: 308px">
+      <el-form-item
+        label="创建时间"
+        style="width: 308px"
+      >
         <el-date-picker
           v-model="dateRange"
           value-format="YYYY-MM-DD"
@@ -51,12 +63,26 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="Search"
+          @click="handleQuery"
+        >
+          搜索
+        </el-button>
+        <el-button
+          icon="Refresh"
+          @click="resetQuery"
+        >
+          重置
+        </el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <el-row
+      :gutter="10"
+      class="mb8"
+    >
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['system:config:add']"
@@ -114,12 +140,27 @@
           刷新缓存
         </el-button>
       </el-col>
-      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
+      <right-toolbar
+        v-model:show-search="showSearch"
+        @query-table="getList"
+      />
     </el-row>
 
-    <el-table v-loading="loading" :data="configList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="参数主键" align="center" prop="configId" />
+    <el-table
+      v-loading="loading"
+      :data="configList"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column
+        type="selection"
+        width="55"
+        align="center"
+      />
+      <el-table-column
+        label="参数主键"
+        align="center"
+        prop="configId"
+      />
       <el-table-column
         label="参数名称"
         align="center"
@@ -138,13 +179,30 @@
         prop="configValue"
         :show-overflow-tooltip="true"
       />
-      <el-table-column label="系统内置" align="center" prop="configType">
+      <el-table-column
+        label="系统内置"
+        align="center"
+        prop="configType"
+      >
         <template #default="scope">
-          <dict-tag :options="sys_yes_no" :value="scope.row.configType" />
+          <dict-tag
+            :options="sys_yes_no"
+            :value="scope.row.configType"
+          />
         </template>
       </el-table-column>
-      <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true" />
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column
+        label="备注"
+        align="center"
+        prop="remark"
+        :show-overflow-tooltip="true"
+      />
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        width="180"
+      >
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -187,32 +245,82 @@
     />
 
     <!-- 添加或修改参数配置对话框 -->
-    <el-dialog v-model="open" :title="title" width="500px" append-to-body>
-      <el-form ref="configRef" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="参数名称" prop="configName">
-          <el-input v-model="form.configName" placeholder="请输入参数名称" />
+    <el-dialog
+      v-model="open"
+      :title="title"
+      width="500px"
+      append-to-body
+    >
+      <el-form
+        ref="configRef"
+        :model="form"
+        :rules="rules"
+        label-width="80px"
+      >
+        <el-form-item
+          label="参数名称"
+          prop="configName"
+        >
+          <el-input
+            v-model="form.configName"
+            placeholder="请输入参数名称"
+          />
         </el-form-item>
-        <el-form-item label="参数键名" prop="configKey">
-          <el-input v-model="form.configKey" placeholder="请输入参数键名" />
+        <el-form-item
+          label="参数键名"
+          prop="configKey"
+        >
+          <el-input
+            v-model="form.configKey"
+            placeholder="请输入参数键名"
+          />
         </el-form-item>
-        <el-form-item label="参数键值" prop="configValue">
-          <el-input v-model="form.configValue" type="textarea" placeholder="请输入参数键值" />
+        <el-form-item
+          label="参数键值"
+          prop="configValue"
+        >
+          <el-input
+            v-model="form.configValue"
+            type="textarea"
+            placeholder="请输入参数键值"
+          />
         </el-form-item>
-        <el-form-item label="系统内置" prop="configType">
+        <el-form-item
+          label="系统内置"
+          prop="configType"
+        >
           <el-radio-group v-model="form.configType">
-            <el-radio v-for="dict in sys_yes_no" :key="dict.value" :value="dict.value">
+            <el-radio
+              v-for="dict in sys_yes_no"
+              :key="dict.value"
+              :value="dict.value"
+            >
               {{ dict.label }}
             </el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="备注" prop="remark">
-          <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+        <el-form-item
+          label="备注"
+          prop="remark"
+        >
+          <el-input
+            v-model="form.remark"
+            type="textarea"
+            placeholder="请输入内容"
+          />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="submitForm"
+          >
+            确 定
+          </el-button>
+          <el-button @click="cancel">
+            取 消
+          </el-button>
         </div>
       </template>
     </el-dialog>

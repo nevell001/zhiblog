@@ -1,28 +1,65 @@
 <template>
-  <el-form ref="userRef" :model="form" :rules="rules" label-width="80px">
-    <el-form-item label="用户昵称" prop="nickName">
-      <el-input v-model="form.nickName" maxlength="30" />
+  <el-form
+    ref="userRef"
+    :model="form"
+    :rules="rules"
+    label-width="80px"
+  >
+    <el-form-item
+      label="用户昵称"
+      prop="nickName"
+    >
+      <el-input
+        v-model="form.nickName"
+        maxlength="30"
+      />
     </el-form-item>
-    <el-form-item label="手机号码" prop="phonenumber">
-      <el-input v-model="form.phonenumber" maxlength="11" />
+    <el-form-item
+      label="手机号码"
+      prop="phonenumber"
+    >
+      <el-input
+        v-model="form.phonenumber"
+        maxlength="11"
+      />
     </el-form-item>
-    <el-form-item label="邮箱" prop="email">
-      <el-input v-model="form.email" maxlength="50" />
+    <el-form-item
+      label="邮箱"
+      prop="email"
+    >
+      <el-input
+        v-model="form.email"
+        maxlength="50"
+      />
     </el-form-item>
     <el-form-item label="性别">
       <el-radio-group v-model="form.sex">
-        <el-radio value="0">男</el-radio>
-        <el-radio value="1">女</el-radio>
+        <el-radio value="0">
+          男
+        </el-radio>
+        <el-radio value="1">
+          女
+        </el-radio>
       </el-radio-group>
     </el-form-item>
     <el-form-item>
-      <el-button type="primary" @click="submit">保存</el-button>
-      <el-button type="danger" @click="close">关闭</el-button>
+      <el-button
+        type="primary"
+        @click="submit"
+      >
+        保存
+      </el-button>
+      <el-button
+        type="danger"
+        @click="close"
+      >
+        关闭
+      </el-button>
     </el-form-item>
   </el-form>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { updateUserProfile } from '@/api/system/user'
 
 const props = defineProps({
@@ -33,7 +70,14 @@ const props = defineProps({
 
 const { proxy } = getCurrentInstance()
 
-const form = ref({})
+interface UserForm {
+  nickName?: string
+  phonenumber?: string
+  email?: string
+  sex?: string
+}
+
+const form = ref<UserForm>({})
 const rules = ref({
   nickName: [{ required: true, message: '用户昵称不能为空', trigger: 'blur' }],
   email: [
@@ -48,10 +92,10 @@ const rules = ref({
 
 /** 提交按钮 */
 function submit() {
-  proxy.$refs.userRef.validate(valid => {
+  ;(proxy.$refs.userRef as any).validate((valid: boolean) => {
     if (valid) {
-      updateUserProfile(form.value).then(response => {
-        proxy.$modal.msgSuccess('修改成功')
+      updateUserProfile(form.value).then(() => {
+        ;(proxy as any).$modal.msgSuccess('修改成功')
         props.user.phonenumber = form.value.phonenumber
         props.user.email = form.value.email
       })
@@ -61,7 +105,7 @@ function submit() {
 
 /** 关闭按钮 */
 function close() {
-  proxy.$tab.closePage()
+  ;(proxy as any).$tab.closePage()
 }
 
 // 回显当前登录用户信息

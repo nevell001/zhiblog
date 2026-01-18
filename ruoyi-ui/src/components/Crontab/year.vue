@@ -53,7 +53,11 @@
   </el-form>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ref, watch, onUnmounted, computed } from 'vue'
+
+// 存储 watch 的返回值，用于清理
+
 const emit = defineEmits(['update'])
 const props = defineProps({
   cron: {
@@ -86,6 +90,17 @@ const average02 = ref(1)
 const checkboxList = ref([])
 const checkCopy = ref([fullYear])
 
+// 设置 watch 监听器
+watch(
+  () => props.cron.year,
+  value => changeRadioValue(value)
+)
+
+watch(
+  [radioValue, cycleTotal, averageTotal, checkboxString],
+  () => onRadioChange()
+)
+
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, fullYear, maxFullYear - 1)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, maxFullYear)
@@ -99,11 +114,6 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
-watch(
-  () => props.cron.year,
-  value => changeRadioValue(value)
-)
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 function changeRadioValue(value) {
   if (value === '') {
     radioValue.value = 1
@@ -148,6 +158,9 @@ function onRadioChange() {
       break
   }
 }
+onUnmounted(() => {
+  // Watchers will be automatically cleaned up by Vue 3
+})
 </script>
 
 <style lang="scss" scoped>

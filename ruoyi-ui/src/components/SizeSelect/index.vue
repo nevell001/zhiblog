@@ -1,8 +1,14 @@
 <template>
   <div>
-    <el-dropdown trigger="click" @command="handleSetSize">
+    <el-dropdown
+      trigger="click"
+      @command="handleSetSize"
+    >
       <div class="size-icon--style">
-        <svg-icon class-name="size-icon" icon-class="size" />
+        <svg-icon
+          class-name="size-icon"
+          icon-class="size"
+        />
       </div>
       <template #dropdown>
         <el-dropdown-menu>
@@ -20,8 +26,8 @@
   </div>
 </template>
 
-<script setup>
-import useAppStore from '@/store/modules/app'
+<script setup lang="ts">
+import { useAppStore } from '@/stores/app'
 
 const appStore = useAppStore()
 const size = computed(() => appStore.size)
@@ -34,10 +40,12 @@ const sizeOptions = ref([
   { label: '稍小', value: 'small' }
 ])
 
-function handleSetSize(size) {
-  proxy.$modal.loading('正在设置布局大小，请稍候...')
+function handleSetSize(size: string) {
+  ;(proxy as any).$modal.loading('正在设置布局大小，请稍候...')
   appStore.setSize(size)
-  setTimeout('window.location.reload()', 1000)
+  setTimeout(() => {
+    window.location.reload()
+  }, 1000)
 }
 </script>
 

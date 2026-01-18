@@ -1,5 +1,8 @@
 <template>
-  <div class="article-toc" :class="{ 'toc-fixed': isFixed, 'toc-hidden': isHidden }">
+  <div
+    class="article-toc"
+    :class="{ 'toc-fixed': isFixed, 'toc-hidden': isHidden }"
+  >
     <div class="toc-header">
       <h4 class="toc-title">
         <el-icon><List /></el-icon>
@@ -15,8 +18,14 @@
     </div>
 
     <transition name="slide-fade">
-      <div v-show="isExpanded" class="toc-content">
-        <ul v-if="tocItems.length > 0" class="toc-list">
+      <div
+        v-show="isExpanded"
+        class="toc-content"
+      >
+        <ul
+          v-if="tocItems.length > 0"
+          class="toc-list"
+        >
           <li
             v-for="(item, index) in tocItems"
             :key="index"
@@ -27,11 +36,17 @@
             }"
             @click="scrollToHeading(item.id)"
           >
-            <span class="toc-dot" :class="{ 'dot-active': activeIndex === index }"></span>
+            <span
+              class="toc-dot"
+              :class="{ 'dot-active': activeIndex === index }"
+            ></span>
             <span class="toc-text">{{ item.text }}</span>
           </li>
         </ul>
-        <div v-else class="toc-empty">
+        <div
+          v-else
+          class="toc-empty"
+        >
           <el-icon :size="32">
             <DocumentCopy />
           </el-icon>
@@ -42,7 +57,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { List, ArrowUp, ArrowDown, DocumentCopy } from '@element-plus/icons-vue'
 
@@ -188,7 +203,7 @@ const getHeadingElements = () => {
   headings.value = Array.from(headingElements)
 }
 
-// 监听内容变化
+// 设置 watch 监听器，Vue 3 会自动清理
 watch(
   () => props.content,
   () => {

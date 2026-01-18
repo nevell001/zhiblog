@@ -18,6 +18,96 @@
 
 ## 📦 版本历史
 
+### v4.0.4 (2026-01-18)
+**Bug 修复 - 前端显示问题清理**
+
+**前端问题修复**:
+- ✅ 修复占位符图片服务不可用问题
+  - 替换 via.placeholder.com 为本地图片
+  - 博客首页博主头像使用本地默认图片
+  - 关于页面博主头像使用本地默认图片
+  - 友情链接 logo 使用首字母图标（CSS 样式）
+  - 微信二维码占位符优化（显示提示文字）
+- ✅ 修复登录页面环境变量错误
+  - 添加可选链操作符保护（import.meta.env?.VITE_APP_TITLE）
+  - 添加默认值回退机制
+- ✅ 清理残留 JavaScript 文件
+  - 删除 5 个未使用的 admin-*.js 路由文件
+  - TypeScript 迁移 100% 完成（src 目录 0 个 JS 残留）
+  - 释放约 31KB 空间
+
+**配置说明**:
+- ⚠️ HMR 已禁用（vite.config.ts: hmr: false）
+  - 原因：Vite HMR 系统与项目存在兼容性问题
+  - 错误：Cannot read properties of undefined (reading 'on')
+  - 解决方案：禁用 HMR，使用手动浏览器刷新
+  - 影响：代码更改后需要手动刷新浏览器
+- ✅ Vite 插件保持 JS 格式（vite/plugins/*.js）
+  - 运行在 Node.js 环境，无需迁移到 TypeScript
+  - 与 HMR 错误无关
+
+**修改文件**:
+- src/views/blog/index.vue - 占位符图片优化
+- src/views/blog/about.vue - 占位符图片优化
+- src/views/login.vue - 环境变量保护
+- 删除 src/router/admin-*.js（5个文件）
+
+**文档更新**:
+- ✅ 更新 README.md 版本历史
+- ✅ 添加 HMR 配置说明
+- ✅ 更新 TypeScript 迁移状态
+
+### v4.0.3 (2026-01-17)
+**技术升级 - TypeScript 迁移完成**
+
+**TypeScript 迁移**:
+- ✅ 前端项目全面迁移到 TypeScript 5.9.3（100% 完成）
+  - 所有 JavaScript 文件迁移到 TypeScript
+  - 新增完整的类型定义（src/types/）
+  - 配置 Vitest 测试框架
+  - 配置 tsconfig.json 和 tsconfig.node.json
+  - 修复所有类型错误和语法错误
+  - 删除已迁移的 JavaScript 文件（73个文件）
+
+**技术栈更新**:
+- ✅ 新增 TypeScript 5.9.3
+- ✅ 新增 Vitest 2.1.8 测试框架
+- ✅ 新增 @vitest/coverage-v8 2.1.8 覆盖率工具
+- ✅ 新增 @vue/test-utils 2.4.6 Vue 测试工具
+- ✅ 更新 Vite 配置（vite.config.ts）
+- ✅ 更新 package.json 脚本命令
+
+**类型定义**:
+- ✅ 新增 src/types/index.d.ts - 全局类型定义
+- ✅ 新增 src/types/api.d.ts - API 模块类型定义
+- ✅ 定义完整的接口类型（Article、Tag、Category、Comment等）
+- ✅ 定义通用类型（PageParams、QueryResult、AjaxResult等）
+
+**测试配置**:
+- ✅ 配置 Vitest 测试环境（jsdom）
+- ✅ 配置测试覆盖率目标（行/函数/分支/语句 ≥70%）
+- ✅ 新增测试文件（9个测试文件）
+  - utils/validate.test.ts
+  - utils/index.test.ts
+  - utils/imageUtils.test.ts
+  - stores/user.test.ts
+  - stores/permission.test.ts
+  - stores/app.test.ts
+  - components/LinkIcon.test.ts
+  - components/Pagination/index.test.ts
+  - api/blog/article.test.ts
+
+**构建验证**:
+- ✅ 生产环境构建成功（npm run build:prod）
+- ✅ 所有类型检查通过
+- ✅ 所有语法错误修复
+- ✅ 代码质量保证
+
+**文档更新**:
+- ✅ 更新 README.md 技术栈说明
+- ✅ 添加 TypeScript 版本信息
+- ✅ 更新版本历史
+
 ### v4.0.2 (2026-01-11)
 **质量提升 - 测试覆盖率优化**
 
@@ -748,6 +838,7 @@ newblog/
 
 ### 前端技术栈
 - **框架**: Vue 3.5.16
+- **语言**: TypeScript 5.9.3
 - **构建工具**: Vite 6.3.6
 - **UI组件**: Element Plus 2.10.7
 - **状态管理**: Pinia 3.0.2
@@ -757,6 +848,7 @@ newblog/
 - **HTTP客户端**: Axios 1.9.0
 - **图表**: ECharts 5.6.0
 - **图片裁剪**: vue-cropper 1.1.1
+- **测试框架**: Vitest 2.1.8 + Vue Test Utils 2.4.6
 
 ### 监控技术栈
 - **监控采集**: Prometheus
@@ -921,6 +1013,23 @@ proxy: {
 }
 ```
 
+**HMR 配置说明** (`ruoyi-ui/vite.config.ts`):
+```javascript
+server: {
+  host: '0.0.0.0',
+  port: 3000,
+  open: false,
+  hmr: false  // ⚠️ 已禁用 - 存在兼容性问题
+}
+```
+
+**重要说明**:
+- ⚠️ **HMR 已禁用**: 由于 Vite HMR 系统与项目存在兼容性问题，已禁用热模块替换
+- **错误表现**: `Cannot read properties of undefined (reading 'on')`
+- **解决方案**: 代码更改后需要手动刷新浏览器
+- **影响范围**: 仅影响开发体验，不影响功能
+- **Vite 插件**: `vite/plugins/*.js` 保持 JS 格式，运行在 Node.js 环境，无需迁移
+
 ### 生产环境建议
 
 1. **安全配置**:
@@ -1046,6 +1155,6 @@ proxy: {
 
 ---
 
-**最后更新**: 2026-01-11
+**最后更新**: 2026-01-18
 **维护者**: nevell
 **项目地址**: https://gitee.com/nevell/newblog

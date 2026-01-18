@@ -1,10 +1,13 @@
 <template>
   <div>
-    <svg-icon icon-class="question" @click="goto" />
+    <svg-icon
+      icon-class="question"
+      @click="goto"
+    />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const url = ref('')
 
 function goto() {

@@ -1,10 +1,13 @@
 <template>
   <div>
-    <svg-icon icon-class="github" @click="goto" />
+    <svg-icon
+      icon-class="github"
+      @click="goto"
+    />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const url = ref('https://gitee.com/y_project/RuoYi-Vue')
 
 function goto() {
