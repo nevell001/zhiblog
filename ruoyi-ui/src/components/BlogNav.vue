@@ -352,31 +352,39 @@ onUnmounted(() => {
 }
 
 /* 深色主题 */
-[data-theme='dark'] .blog-nav .nav-item {
+html.dark .blog-nav .nav-item {
   background: rgba(30, 30, 30, 0.95);
   color: #e0e0e0;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme='dark'] .blog-nav .nav-item:hover {
-  background: #409eff;
+html.dark .blog-nav .nav-item:hover {
+  background: #667eea;
   color: white;
 }
 
-[data-theme='dark'] .theme-toggle,
-[data-theme='dark'] .scroll-top,
-[data-theme='dark'] .hamburger-menu {
+html.dark .theme-toggle,
+html.dark .scroll-top,
+html.dark .hamburger-menu {
   background: rgba(30, 30, 30, 0.95);
   color: #e0e0e0;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme='dark'] .hamburger-icon span {
+html.dark .hamburger-icon span {
   background: #e0e0e0;
 }
 
-[data-theme='dark'] .hamburger-menu:hover .hamburger-icon span {
+html.dark .hamburger-menu:hover .hamburger-icon span {
   background: white;
+}
+
+html.dark .theme-toggle:hover,
+html.dark .scroll-top:hover {
+  background: #667eea;
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 平板响应式 */

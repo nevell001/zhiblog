@@ -1262,142 +1262,142 @@ onMounted(async () => {
 }
 
 /* 深色主题 */
-:deep(.dark) .blog-home-container {
+html.dark .blog-home-container {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
-:deep(.dark) .articles-section,
-:deep(.dark) .widget {
+html.dark .articles-section,
+html.dark .widget {
   background: #1e1e2e;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-:deep(.dark) .section-header,
-:deep(.dark) .widget-title {
+html.dark .section-header,
+html.dark .widget-title {
   background: linear-gradient(135deg, #252535 0%, #2a2a3a 100%);
   border-bottom-color: #3a3a4a;
 }
 
-:deep(.dark) .section-header h2,
-:deep(.dark) .widget-title {
+html.dark .section-header h2,
+html.dark .widget-title {
   color: #e0e0e0;
 }
 
-:deep(.dark) .article-card {
+html.dark .article-card {
   background: #252535;
   border-color: #3a3a4a;
 }
 
-:deep(.dark) .article-card:hover {
+html.dark .article-card:hover {
   border-color: #667eea;
 }
 
-:deep(.dark) .article-title {
+html.dark .article-title {
   color: #e0e0e0;
 }
 
-:deep(.dark) .article-card:hover .article-title {
+html.dark .article-card:hover .article-title {
   color: #667eea;
 }
 
-:deep(.dark) .article-summary {
+html.dark .article-summary {
   color: #b0b0b0;
 }
 
-:deep(.dark) .article-meta-bottom {
+html.dark .article-meta-bottom {
   border-top-color: #3a3a4a;
 }
 
-:deep(.dark) .article-view,
-:deep(.dark) .article-like {
+html.dark .article-view,
+html.dark .article-like {
   color: #b0b0b0;
 }
 
-:deep(.dark) .article-tag {
+html.dark .article-tag {
   background: #3a3a4a;
   border-color: #3a3a4a;
   color: #b0b0b0;
 }
 
-:deep(.dark) .article-tag:hover {
+html.dark .article-tag:hover {
   background: #667eea;
   border-color: #667eea;
   color: white;
 }
 
-:deep(.dark) .profile-name {
+html.dark .profile-name {
   color: #e0e0e0;
 }
 
-:deep(.dark) .profile-desc {
+html.dark .profile-desc {
   color: #b0b0b0;
 }
 
-:deep(.dark) .profile-stats {
+html.dark .profile-stats {
   border-top-color: #3a3a4a;
 }
 
-:deep(.dark) .stat-text {
+html.dark .stat-text {
   color: #b0b0b0;
 }
 
-:deep(.dark) .popular-post-item,
-:deep(.dark) .category-item,
-:deep(.dark) .link-item {
+html.dark .popular-post-item,
+html.dark .category-item,
+html.dark .link-item {
   border-bottom-color: #3a3a4a;
 }
 
-:deep(.dark) .popular-post-item:hover,
-:deep(.dark) .category-item:hover,
-:deep(.dark) .link-item:hover {
+html.dark .popular-post-item:hover,
+html.dark .category-item:hover,
+html.dark .link-item:hover {
   background: linear-gradient(135deg, #2a2a3a 0%, #303040 100%);
 }
 
-:deep(.dark) .post-title,
-:deep(.dark) .category-name {
+html.dark .post-title,
+html.dark .category-name {
   color: #e0e0e0;
 }
 
-:deep(.dark) .popular-post-item:hover .post-title,
-:deep(.dark) .category-item:hover .category-name {
+html.dark .popular-post-item:hover .post-title,
+html.dark .category-item:hover .category-name {
   color: #667eea;
 }
 
-:deep(.dark) .post-views,
-:deep(.dark) .category-count {
+html.dark .post-views,
+html.dark .category-count {
   color: #b0b0b0;
 }
 
-:deep(.dark) .category-count {
+html.dark .category-count {
   background: #3a3a4a;
 }
 
-:deep(.dark) .category-item:hover .category-count {
+html.dark .category-item:hover .category-count {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
-:deep(.dark) .tag-item {
+html.dark .tag-item {
   background: #3a3a4a;
   border-color: #3a3a4a;
   color: #b0b0b0;
 }
 
-:deep(.dark) .tag-item:hover {
+html.dark .tag-item:hover {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-color: transparent;
   color: white;
 }
 
-:deep(.dark) .link-item a {
+html.dark .link-item a {
   color: #b0b0b0;
 }
 
-:deep(.dark) .link-item a:hover {
+html.dark .link-item a:hover {
   color: #667eea;
 }
 
-:deep(.dark) .empty-icon {
+html.dark .empty-icon {
   color: #3a3a4a;
 }
 </style>

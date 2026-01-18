@@ -160,10 +160,11 @@ const shouldShowCopyright = computed(() => {
 
 <style scoped>
 .blog-footer {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  color: #ecf0f1;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%);
+  color: #334155;
   margin-top: 60px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid rgba(99, 102, 241, 0.15);
 }
 
 .footer-content {
@@ -178,12 +179,12 @@ const shouldShowCopyright = computed(() => {
   gap: 40px;
   margin-bottom: 40px;
   padding-bottom: 30px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid rgba(99, 102, 241, 0.15);
 }
 
 .footer-section h4 {
   margin: 0 0 20px 0;
-  color: #3498db;
+  color: #4f46e5;
   font-size: 1.2rem;
   font-weight: 600;
   position: relative;
@@ -197,13 +198,14 @@ const shouldShowCopyright = computed(() => {
   left: 0;
   width: 30px;
   height: 2px;
-  background: #3498db;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 2px;
 }
 
 .footer-section p {
   margin: 0 0 15px 0;
   line-height: 1.6;
-  color: #bdc3c7;
+  color: #64748b;
 }
 
 .footer-stats {
@@ -213,11 +215,12 @@ const shouldShowCopyright = computed(() => {
 }
 
 .footer-stats span {
-  background: rgba(52, 152, 219, 0.2);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(139, 92, 246, 0.08));
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.9rem;
-  color: #3498db;
+  color: #4f46e5;
+  border: 1px solid rgba(99, 102, 241, 0.15);
 }
 
 .footer-links {
@@ -231,15 +234,18 @@ const shouldShowCopyright = computed(() => {
 }
 
 .footer-links a {
-  color: #bdc3c7;
+  color: #64748b;
   text-decoration: none;
   transition: all 0.3s ease;
   display: inline-block;
 }
 
 .footer-links a:hover {
-  color: #3498db;
+  color: #4f46e5;
   transform: translateX(5px);
+  background: rgba(99, 102, 241, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .footer-links a .el-icon {
@@ -256,20 +262,22 @@ const shouldShowCopyright = computed(() => {
 }
 
 .footer-contact i {
-  color: #3498db;
+  color: #4f46e5;
   font-size: 1.1rem;
 }
 
 .footer-copyright {
   text-align: center;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid rgba(99, 102, 241, 0.15);
+  background: linear-gradient(to bottom, transparent, rgba(99, 102, 241, 0.03));
 }
 
 .copyright-content p {
   margin: 8px 0;
   font-size: 0.9rem;
-  color: #95a5a6;
+  color: #475569;
+  font-weight: 500;
 }
 
 .tech-info {
@@ -277,14 +285,18 @@ const shouldShowCopyright = computed(() => {
 }
 
 .tech-info a {
-  color: #3498db;
+  color: #4f46e5;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  background: rgba(99, 102, 241, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .tech-info a:hover {
-  color: #2980b9;
-  text-decoration: underline;
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.08);
+  text-decoration: none;
 }
 
 /* 响应式设计 */
@@ -347,53 +359,59 @@ const shouldShowCopyright = computed(() => {
 }
 
 /* 深色主题适配 */
-[data-theme='dark'] .blog-footer {
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-  box-shadow: 0 -2px 10px rgba(255, 255, 255, 0.1);
+html.dark .blog-footer {
+  background: linear-gradient(135deg, #1e1e2e 0%, #2d2d3f 100%);
+  color: #e2e8f0;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  border-top-color: rgba(139, 92, 246, 0.2);
 }
 
-[data-theme='dark'] .footer-section h4 {
-  color: #64b5f6;
+html.dark .footer-section h4 {
+  color: #a78bfa;
 }
 
-[data-theme='dark'] .footer-section h4::after {
-  background: #64b5f6;
+html.dark .footer-section h4::after {
+  background: linear-gradient(90deg, #a78bfa, #c4b5fd);
 }
 
-[data-theme='dark'] .footer-section p {
-  color: #9e9e9e;
+html.dark .footer-section p {
+  color: #a1a1aa;
 }
 
-[data-theme='dark'] .footer-stats span {
-  background: rgba(100, 181, 246, 0.2);
-  color: #64b5f6;
+html.dark .footer-stats span {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.15));
+  color: #a78bfa;
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
-[data-theme='dark'] .footer-links a {
-  color: #9e9e9e;
+html.dark .footer-links a {
+  color: #a1a1aa;
 }
 
-[data-theme='dark'] .footer-links a:hover {
-  color: #64b5f6;
+html.dark .footer-links a:hover {
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.1);
 }
 
-[data-theme='dark'] .footer-contact i {
-  color: #64b5f6;
+html.dark .footer-contact i {
+  color: #a78bfa;
 }
 
-[data-theme='dark'] .footer-copyright {
-  border-top-color: rgba(255, 255, 255, 0.1);
+html.dark .footer-copyright {
+  border-top-color: rgba(139, 92, 246, 0.2);
 }
 
-[data-theme='dark'] .copyright-content p {
-  color: #757575;
+html.dark .copyright-content p {
+  color: #71717a;
 }
 
-[data-theme='dark'] .tech-info a {
-  color: #64b5f6;
+html.dark .tech-info a {
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.1);
 }
 
-[data-theme='dark'] .tech-info a:hover {
-  color: #42a5f5;
+html.dark .tech-info a:hover {
+  color: #c4b5fd;
+  background: rgba(196, 181, 253, 0.15);
 }
 </style>

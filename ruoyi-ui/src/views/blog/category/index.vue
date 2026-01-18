@@ -765,10 +765,10 @@ onMounted(() => {
 
 .tag-badge {
   color: white;
-  padding: 4px 10px;
-  border-radius: 14px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -1282,5 +1282,158 @@ onMounted(() => {
     font-size: 1rem;
     margin-bottom: 12px;
   }
+}
+
+/* 深色主题适配 */
+html.dark .category-container {
+  background-color: #1a1a2e;
+}
+
+html.dark .category-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+html.dark .category-title {
+  background: linear-gradient(45deg, #fff, #f0f8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .category-description {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+html.dark .stat-item {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html.dark .article-item {
+  background: #2a2a3e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-color: #333;
+}
+
+html.dark .article-item:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  border-color: rgba(64, 158, 255, 0.2);
+}
+
+html.dark .article-title a {
+  background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .article-title a:hover {
+  color: #667eea;
+}
+
+html.dark .article-meta {
+  color: #999;
+}
+
+html.dark .meta-item {
+  background: rgba(255, 255, 255, 0.05);
+  color: #b0b0b0;
+}
+
+html.dark .meta-item:hover {
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+}
+
+html.dark .article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .article-footer {
+  border-top-color: #333;
+}
+
+html.dark .read-more {
+  color: #667eea;
+}
+
+html.dark .read-more:hover {
+  color: #9f7aea;
+}
+
+html.dark .sidebar-widget {
+  background: #2a2a3e;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .widget-title {
+  color: #e0e0e0;
+  border-bottom-color: #667eea;
+}
+
+html.dark .category-icon {
+  color: #667eea;
+}
+
+html.dark .category-about .category-name {
+  color: #e0e0e0;
+}
+
+html.dark .category-about .category-desc {
+  color: #b0b0b0;
+}
+
+html.dark .category-meta .meta-item {
+  color: #b0b0b0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html.dark .category-link {
+  color: #b0b0b0;
+}
+
+html.dark .category-link:hover,
+html.dark .category-link.active {
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+}
+
+html.dark .category-count {
+  color: #666;
+}
+
+html.dark .tag-item {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .tag-item:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .recent-articles .article-item {
+  border-bottom-color: #333;
+}
+
+html.dark .article-link {
+  color: #b0b0b0;
+}
+
+html.dark .article-link:hover {
+  color: #667eea;
+}
+
+html.dark .article-date {
+  color: #666;
+}
+
+html.dark .empty-state {
+  color: #666;
+}
+
+html.dark .empty-icon {
+  color: #444;
+}
+
+html.dark .empty-content h3 {
+  color: #e0e0e0;
 }
 </style>

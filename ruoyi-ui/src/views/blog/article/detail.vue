@@ -153,7 +153,7 @@
             v-for="tag in article.tags"
             :key="tag.id"
             class="tag-item"
-            :style="{ backgroundColor: tag.color || '#409EFF' }"
+            :style="{ backgroundColor: tag.color || '#667eea' }"
           >
             <i class="el-icon-price-tag"></i>
             {{ tag.name }}
@@ -837,7 +837,7 @@ watch(
 <style scoped>
 .article-detail-container {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
 }
 
 .article-detail {
@@ -855,7 +855,7 @@ watch(
 }
 
 .article-header {
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding: 40px 50px 30px;
   position: relative;
@@ -869,7 +869,7 @@ watch(
   right: -20%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(64, 158, 255, 0.05), transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
   border-radius: 50%;
 }
 
@@ -880,15 +880,17 @@ watch(
 }
 
 .category-badge {
-  background: linear-gradient(135deg, #409eff, #337ecc);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
   color: white;
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
   display: inline-block;
   animation: categoryPulse 2s ease-in-out infinite alternate;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 @keyframes categoryPulse {
@@ -911,7 +913,7 @@ watch(
   align-items: center;
   gap: 25px;
   flex-wrap: wrap;
-  color: #666;
+  color: rgba(255, 255, 255, 0.95);
   font-size: 0.95rem;
 }
 
@@ -919,10 +921,11 @@ watch(
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0, 0, 0, 0.03);
+  background: rgba(255, 255, 255, 0.15);
   padding: 6px 12px;
   border-radius: 15px;
   transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .back-home-link {
@@ -932,9 +935,10 @@ watch(
 }
 
 .meta-item:hover {
-  background: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
   transform: translateY(-2px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 .meta-item i {
@@ -956,10 +960,10 @@ watch(
   font-weight: 700;
   line-height: 1.3;
   margin: 25px 0;
-  color: #1a1a1a;
+  color: white;
   position: relative;
   z-index: 1;
-  background: linear-gradient(135deg, #2c3e50, #3498db);
+  background: linear-gradient(135deg, #ffffff, #e8e8e8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1053,14 +1057,14 @@ watch(
 
 .content-body :deep(h1) {
   font-size: 2em;
-  border-bottom: 3px solid #409eff;
+  border-bottom: 3px solid #667eea;
   padding-bottom: 10px;
   margin-top: 0;
 }
 
 .content-body :deep(h2) {
   font-size: 1.75em;
-  border-left: 5px solid #409eff;
+  border-left: 5px solid #667eea;
   padding-left: 15px;
   margin-top: 2.5em;
 }
@@ -1143,7 +1147,7 @@ watch(
 
 /* 引用块样式 */
 .content-body :deep(blockquote) {
-  border-left: 5px solid #409eff;
+  border-left: 5px solid #667eea;
   margin: 1.5em 0;
   padding: 15px 25px;
   background: linear-gradient(135deg, #f8f9fa, #ffffff);
@@ -1158,7 +1162,7 @@ watch(
   top: -10px;
   left: 15px;
   font-size: 3em;
-  color: #409eff;
+  color: #667eea;
   opacity: 0.3;
   font-family: Georgia, serif;
 }
@@ -1182,7 +1186,7 @@ watch(
 }
 
 .content-body :deep(th) {
-  background: linear-gradient(135deg, #409eff, #337ecc);
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
   font-weight: 600;
 }
@@ -1192,7 +1196,7 @@ watch(
 }
 
 .content-body :deep(tr:hover) {
-  background: rgba(64, 158, 255, 0.05);
+  background: rgba(102, 126, 234, 0.05);
 }
 
 /* 列表样式 */
@@ -1209,7 +1213,7 @@ watch(
 
 /* 链接样式 */
 .content-body :deep(a) {
-  color: #409eff;
+  color: #667eea;
   text-decoration: none;
   position: relative;
   transition: color 0.3s ease;
@@ -1222,12 +1226,12 @@ watch(
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #409eff, #337ecc);
+  background: linear-gradient(90deg, #667eea, #764ba2);
   transition: width 0.3s ease;
 }
 
 .content-body :deep(a):hover {
-  color: #337ecc;
+  color: #764ba2;
 }
 
 .content-body :deep(a):hover::after {
@@ -1238,7 +1242,7 @@ watch(
 .content-body :deep(hr) {
   border: none;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #409eff, transparent);
+  background: linear-gradient(90deg, transparent, #667eea, transparent);
   margin: 3em 0;
   opacity: 0.5;
 }
@@ -1295,7 +1299,7 @@ watch(
 
 .nav-arrow {
   font-size: 1.5rem;
-  color: #409eff;
+  color: #667eea;
 }
 
 .nav-content {
@@ -1502,7 +1506,7 @@ watch(
 
 .comment-form {
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 16px;
   padding: 20px;
 }
 
@@ -1746,101 +1750,103 @@ watch(
 
 /* 深色主题适配 */
 html.dark .article-detail-container {
-  background: #1a1a1a;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
 html.dark .article-detail {
-  background: #2a2a2a;
+  background: #2a2a3e;
   border-color: #333;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
 }
 
 html.dark .article-header {
-  background: linear-gradient(135deg, #333, #2a2a2a);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-bottom-color: #333;
 }
 
 html.dark .article-title {
-  background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+  background: linear-gradient(135deg, #ffffff, #e8e8e8);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 html.dark .meta-info {
-  color: #999;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 html.dark .meta-item {
-  background: rgba(255, 255, 255, 0.05);
-  color: #b0b0b0;
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 html.dark .meta-item:hover {
-  background: rgba(64, 158, 255, 0.15);
-  color: #409eff;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .content-body {
   color: #e0e0e0;
 }
 
-html.dark .content-body :deep(h1),
-html.dark .content-body :deep(h2),
-html.dark .content-body :deep(h3),
-html.dark .content-body :deep(h4),
-html.dark .content-body :deep(h5),
-html.dark .content-body :deep(h6) {
+html.dark .content-body h1,
+html.dark .content-body h2,
+html.dark .content-body h3,
+html.dark .content-body h4,
+html.dark .content-body h5,
+html.dark .content-body h6 {
   color: #e0e0e0;
 }
 
-html.dark .content-body :deep(p) {
+html.dark .content-body p {
   color: #b0b0b0;
 }
 
-html.dark .content-body :deep(blockquote) {
+html.dark .content-body blockquote {
   background: linear-gradient(135deg, #333, #2a2a2a);
-  border-left-color: #409eff;
+  border-left-color: #667eea;
   color: #b0b0b0;
 }
 
-html.dark .content-body :deep(table) {
+html.dark .content-body table {
   background: #2a2a2a;
 }
 
-html.dark .content-body :deep(th) {
-  background: linear-gradient(135deg, #409eff, #337ecc);
+html.dark .content-body th {
+  background: linear-gradient(135deg, #667eea, #764ba2);
   color: white;
 }
 
-html.dark .content-body :deep(tr:nth-child(even)) {
+html.dark .content-body tr:nth-child(even) {
   background: #333;
 }
 
-html.dark .content-body :deep(tr:hover) {
-  background: rgba(64, 158, 255, 0.1);
+html.dark .content-body tr:hover {
+  background: rgba(102, 126, 234, 0.1);
 }
 
-html.dark .content-body :deep(a) {
-  color: #409eff;
+html.dark .content-body a {
+  color: #667eea;
 }
 
-html.dark .content-body :deep(a):hover {
-  color: #66b3ff;
+html.dark .content-body a:hover {
+  color: #9f7aea;
 }
 
-html.dark .content-body :deep(code) {
+html.dark .content-body code {
   background: linear-gradient(135deg, #333, #2a2a2a);
   color: #ff79c6;
   border-color: #444;
 }
 
-html.dark .content-body :deep(pre) {
+html.dark .content-body pre {
   background: linear-gradient(135deg, #1e1e1e, #2d2d2d);
   border: 1px solid #444;
 }
 
-html.dark .content-body :deep(pre) code {
+html.dark .content-body pre code {
   color: #abb2bf;
 }
 
@@ -1861,7 +1867,7 @@ html.dark .nav-link {
 
 html.dark .nav-link:hover {
   background: #444;
-  color: #409eff;
+  color: #667eea;
 }
 
 html.dark .nav-label {

@@ -1277,4 +1277,171 @@ onMounted(() => {
     font-size: 1.3rem;
   }
 }
+
+/* 深色主题适配 */
+html.dark .about-container {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+html.dark .hero-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+html.dark .stats-section {
+  background: #2a2a3e;
+}
+
+html.dark .stat-card {
+  background: #2a2a3e;
+  border-color: #333;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .stat-card:hover {
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .stat-icon {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+html.dark .stat-number {
+  color: #e0e0e0;
+}
+
+html.dark .stat-label {
+  color: #b0b0b0;
+}
+
+html.dark .skills-section {
+  background: #1a1a2e;
+}
+
+html.dark .section-title {
+  color: #e0e0e0;
+}
+
+html.dark .section-title::after {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+html.dark .skill-item {
+  background: #2a2a3e;
+  border-color: #333;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .skill-item:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .skill-name {
+  color: #e0e0e0;
+}
+
+html.dark .skill-level {
+  color: #b0b0b0;
+}
+
+html.dark .skill-bar {
+  background: #333;
+}
+
+html.dark .skill-progress {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
+html.dark .skill-description {
+  color: #b0b0b0;
+}
+
+html.dark .timeline-section {
+  background: #2a2a3e;
+}
+
+html.dark .timeline::before {
+  background: linear-gradient(180deg, #667eea, #764ba2);
+}
+
+html.dark .timeline-dot {
+  background: #2a2a3e;
+  border-color: #667eea;
+}
+
+html.dark .timeline-item:hover .timeline-dot {
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+}
+
+html.dark .timeline-content {
+  background: #2a2a3e;
+  border-color: #333;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .timeline-content:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .timeline-date {
+  color: #667eea;
+}
+
+html.dark .timeline-title {
+  color: #e0e0e0;
+}
+
+html.dark .timeline-description {
+  color: #b0b0b0;
+}
+
+html.dark .contact-section {
+  background: #1a1a2e;
+}
+
+html.dark .contact-item {
+  background: #2a2a3e;
+  border-color: #333;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .contact-item:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .contact-icon {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+html.dark .contact-label {
+  color: #b0b0b0;
+}
+
+html.dark .contact-value {
+  color: #e0e0e0;
+}
+
+html.dark .contact-form {
+  background: #2a2a3e;
+  border-color: #333;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .submit-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+html.dark .submit-btn:hover {
+  background: linear-gradient(135deg, #764ba2, #667eea);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+html.dark .qr-placeholder {
+  background-color: #2a2a3e;
+  border-color: #444;
+  color: #b0b0b0;
+}
+
+html.dark .qr-code-container p {
+  color: #b0b0b0;
+}
 </style>

@@ -685,7 +685,7 @@ onMounted(() => {
 
 .article-item {
   background: white;
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -696,7 +696,7 @@ onMounted(() => {
 
 .article-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   border-color: rgba(64, 158, 255, 0.1);
 }
 
@@ -914,8 +914,8 @@ onMounted(() => {
 
 .sidebar-widget {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 20px;
   margin-bottom: 20px;
 }
@@ -1376,5 +1376,157 @@ onMounted(() => {
   .tag-about .tag-desc {
     font-size: 0.85rem;
   }
+}
+
+/* 深色主题适配 */
+html.dark .tag-container {
+  background-color: #1a1a2e;
+}
+
+html.dark .tag-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+html.dark .tag-title {
+  background: linear-gradient(45deg, #fff, #f0f8ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .tag-description {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+html.dark .stat-item {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+html.dark .article-item {
+  background: #2a2a3e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-color: #333;
+}
+
+html.dark .article-item:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+  border-color: rgba(64, 158, 255, 0.2);
+}
+
+html.dark .article-title a {
+  background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+html.dark .article-title a:hover {
+  color: #667eea;
+}
+
+html.dark .article-meta {
+  color: #999;
+}
+
+html.dark .meta-item {
+  background: rgba(255, 255, 255, 0.05);
+  color: #b0b0b0;
+}
+
+html.dark .meta-item:hover {
+  background: rgba(102, 126, 234, 0.15);
+  color: #667eea;
+}
+
+html.dark .article-summary {
+  color: #b0b0b0;
+}
+
+html.dark .article-footer {
+  border-top-color: #333;
+}
+
+html.dark .read-more {
+  color: #667eea;
+}
+
+html.dark .read-more:hover {
+  color: #9f7aea;
+}
+
+html.dark .sidebar-widget {
+  background: #2a2a3e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .widget-title {
+  color: #e0e0e0;
+  border-bottom-color: #667eea;
+}
+
+html.dark .tag-about .tag-name {
+  color: #e0e0e0;
+}
+
+html.dark .tag-about .tag-desc {
+  color: #b0b0b0;
+}
+
+html.dark .tag-meta .meta-item {
+  color: #b0b0b0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html.dark .related-tag-item {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .related-tag-item:hover,
+html.dark .related-tag-item.active {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+html.dark .popular-tag-item {
+  border-bottom-color: #333;
+}
+
+html.dark .tag-rank {
+  color: #667eea;
+}
+
+html.dark .tag-link {
+  color: #e0e0e0;
+}
+
+html.dark .tag-article-count {
+  color: #666;
+}
+
+html.dark .recent-articles .article-item {
+  border-bottom-color: #333;
+}
+
+html.dark .article-link {
+  color: #b0b0b0;
+}
+
+html.dark .article-link:hover {
+  color: #667eea;
+}
+
+html.dark .article-date {
+  color: #666;
+}
+
+html.dark .empty-state {
+  color: #666;
+}
+
+html.dark .empty-icon {
+  color: #444;
+}
+
+html.dark .empty-content h3 {
+  color: #e0e0e0;
 }
 </style>
