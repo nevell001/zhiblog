@@ -11,7 +11,7 @@
           class="hero-avatar"
         >
           <img
-            :src="blogSettings.blog_avatar || '/src/assets/images/profile.jpg'"
+            :src="blogSettings.blog_avatar || '/default-avatar.jpg'"
             :alt="blogSettings.blog_author"
           />
           <div class="avatar-decoration"></div>
@@ -354,7 +354,10 @@
           :src="blogSettings.wechat_qr"
           alt="微信二维码"
         />
-        <div v-else class="qr-placeholder">
+        <div
+          v-else
+          class="qr-placeholder"
+        >
           暂无微信二维码
         </div>
         <p>扫码添加微信</p>
