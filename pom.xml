@@ -6,7 +6,7 @@
 	
     <groupId>com.ruoyi</groupId>
     <artifactId>ruoyi</artifactId>
-    <version>4.1.0</version>
+    <version>1.2.0</version>
 
     <name>newblog</name>
     <url>http://www.gitee.com/nevell/newblog</url>
@@ -14,7 +14,7 @@
     
     <properties>
     
-            <ruoyi.version>4.1.0</ruoyi.version>
+            <ruoyi.version>1.2.0</ruoyi.version>
     
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     
@@ -397,6 +397,15 @@
                     <target>${java.version}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <parameters>true</parameters>
+                </configuration>
+            </plugin>
+            <!-- Maven Versions 插件 - 批量更新版本号 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.2</version>
+                <configuration>
+                    <generateBackupPoms>false</generateBackupPoms>
                 </configuration>
             </plugin>
             <!-- Checkstyle 代码规范检查 -->
