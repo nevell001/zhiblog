@@ -8,7 +8,7 @@ import { useUserStore } from '@/stores/user'
 import type { RouteRecordRaw } from 'vue-router'
 
 // 匹配views里面所有的.vue文件
-const modules = import.meta.glob('./../../views/**/*.vue')
+const modules = import.meta.glob('../views/**/*.vue')
 
 interface ViewState {
   routes: RouteRecordRaw[]
@@ -132,7 +132,9 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
 export const loadView = (view: string) => {
   let res: any
   for (const path in modules) {
-    const dir = path.replace('../../views/', '').replace('.vue', '')
+    // 移除 ../views/ 前缀和 .vue 后缀，得到相对路径
+    const dir = path.replace(/^\.\/\.\.\/views\//, '').replace('.vue', '')
+    
     // 尝试直接匹配
     if (dir === view) {
       res = () => modules[path]()
@@ -140,6 +142,11 @@ export const loadView = (view: string) => {
     }
     // 尝试添加 admin/ 前缀匹配（博客管理）
     if (dir === `admin/${view}`) {
+      res = () => modules[path]()
+      break
+    }
+    // 尝试添加 admin/ 前缀并匹配 index 文件
+    if (dir === `admin/${view}/index`) {
       res = () => modules[path]()
       break
     }
@@ -151,7 +158,13 @@ export const loadView = (view: string) => {
       // 如果倒数两部分相同，说明已经是正确的格式
       if (secondLastPart === lastPart) {
         const adminPath = `admin/${view}`
+        // 尝试匹配 admin/system/user/user
         if (dir === adminPath) {
+          res = () => modules[path]()
+          break
+        }
+        // 尝试匹配 admin/system/user/user/index
+        if (dir === `${adminPath}/index`) {
           res = () => modules[path]()
           break
         }
@@ -164,6 +177,11 @@ export const loadView = (view: string) => {
         }
       }
     }
+  }
+  // 如果没有找到匹配的组件，返回一个默认组件
+  if (!res) {
+    console.error(`无法加载组件: ${view}，请检查组件路径是否正确`)
+    console.log('可用的组件路径:', Object.keys(modules).map(p => p.replace(/^\.\/\.\.\/views\//, '').replace('.vue', '')))
   }
   return res
 }
