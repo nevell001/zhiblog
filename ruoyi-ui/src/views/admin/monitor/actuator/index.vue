@@ -347,7 +347,7 @@ import {
 
 const loading = ref(true)
 const endpoints = ref({})
-const baseUrl = import.meta.env.VITE_APP_BASE_API + '/manage/actuator'
+const baseUrl = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + '/manage/actuator'
 
 // 详情弹窗相关
 const detailDialogVisible = ref(false)

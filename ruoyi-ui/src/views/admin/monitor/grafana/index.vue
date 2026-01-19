@@ -56,7 +56,7 @@
                     admin
                   </el-descriptions-item>
                   <el-descriptions-item label="密码">
-                    admin
+                    请查看 .env 文件中的 GF_SECURITY_ADMIN_PASSWORD 变量
                   </el-descriptions-item>
                   <el-descriptions-item label="端口">
                     3001
@@ -96,7 +96,7 @@
                   <h4>登录系统</h4>
                   <p>
                     使用默认账号
-                    <strong>admin / admin</strong>
+                    <strong>admin / 请查看 .env 文件中的 GF_SECURITY_ADMIN_PASSWORD 变量</strong>
                     登录
                   </p>
                 </el-card>
@@ -139,7 +139,7 @@
 import { ref } from 'vue'
 import { DataBoard, User, InfoFilled } from '@element-plus/icons-vue'
 
-const grafanaUrl = ref(import.meta.env.VITE_GRAFANA_URL || 'http://localhost:3001')
+const grafanaUrl = ref((import.meta.env?.VITE_GRAFANA_URL as string) || 'http://localhost:3001')
 
 // 打开 Grafana 界面
 const openGrafana = () => {

@@ -10,6 +10,10 @@ import type { RouteRecordRaw } from 'vue-router'
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('../views/**/*.vue')
 
+// 调试：输出 modules 的键（只输出前几个）
+console.log('📦 Modules 对象初始化完成，总共有', Object.keys(modules).length, '个组件')
+console.log('📦 前5个组件路径:', Object.keys(modules).slice(0, 5))
+
 interface ViewState {
   routes: RouteRecordRaw[]
   addRoutes: RouteRecordRaw[]
@@ -131,58 +135,74 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
 
 export const loadView = (view: string) => {
   let res: any
+
+  // 构建所有可能的路径模式
+  const possiblePaths = new Set<string>()
+
+  // 1. 直接匹配
+  possiblePaths.add(view)
+
+  // 2. 添加 admin 前缀
+  possiblePaths.add(`admin/${view}`)
+
+  // 3. 添加 admin 前缀和 index 后缀
+  possiblePaths.add(`admin/${view}/index`)
+
+  // 4. 处理 system/user/user/index 这样的路径
+  const parts = view.split('/')
+  if (parts.length >= 3) {
+    const lastPart = parts[parts.length - 1]
+    const secondLastPart = parts[parts.length - 2]
+
+    // 如果倒数两部分相同，说明已经是正确的格式
+    if (secondLastPart === lastPart) {
+      possiblePaths.add(`admin/${view}`)
+      possiblePaths.add(`admin/${view}/index`)
+    } else if (lastPart === 'index') {
+      // 如果已经是 index，尝试去掉 index 后的路径
+      const basePath = view.substring(0, view.lastIndexOf('/'))
+      const lastDir = basePath.split('/').pop()
+      if (lastDir) {
+        possiblePaths.add(`admin/${basePath}/${lastDir}/index`)
+      }
+    } else {
+      // 如果最后不是 index，尝试添加 index
+      possiblePaths.add(`admin/${view}/index`)
+      // 尝试重复最后一部分
+      possiblePaths.add(`admin/${view}/${lastPart}/index`)
+    }
+  }
+
+  // 转换为数组
+  const pathsArray = Array.from(possiblePaths)
+
+  console.log(`🔍 loadView: 尝试加载组件 ${view}`)
+  console.log('🔍 loadView: 尝试的路径:', pathsArray)
+
+  // 在所有模块中查找匹配的路径
   for (const path in modules) {
     // 移除 ../views/ 前缀和 .vue 后缀，得到相对路径
-    const dir = path.replace(/^\.\/\.\.\/views\//, '').replace('.vue', '')
-    
-    // 尝试直接匹配
-    if (dir === view) {
+    const dir = path.replace(/^\.\.\/views\//, '').replace('.vue', '')
+
+    // 检查是否匹配任何可能的路径
+    if (pathsArray.includes(dir)) {
       res = () => modules[path]()
+      console.log(`✅ 成功加载组件: ${view} -> ${dir}`)
       break
-    }
-    // 尝试添加 admin/ 前缀匹配（博客管理）
-    if (dir === `admin/${view}`) {
-      res = () => modules[path]()
-      break
-    }
-    // 尝试添加 admin/ 前缀并匹配 index 文件
-    if (dir === `admin/${view}/index`) {
-      res = () => modules[path]()
-      break
-    }
-    // 尝试添加 admin/ 并重复最后一层目录（系统管理、系统工具等）
-    const parts = view.split('/')
-    if (parts.length >= 3) {
-      const lastPart = parts[parts.length - 1]
-      const secondLastPart = parts[parts.length - 2]
-      // 如果倒数两部分相同，说明已经是正确的格式
-      if (secondLastPart === lastPart) {
-        const adminPath = `admin/${view}`
-        // 尝试匹配 admin/system/user/user
-        if (dir === adminPath) {
-          res = () => modules[path]()
-          break
-        }
-        // 尝试匹配 admin/system/user/user/index
-        if (dir === `${adminPath}/index`) {
-          res = () => modules[path]()
-          break
-        }
-      } else if (lastPart === 'index') {
-        const basePath = view.substring(0, view.lastIndexOf('/'))
-        const adminPath = `admin/${basePath}/${basePath.split('/').pop()}/index`
-        if (dir === adminPath) {
-          res = () => modules[path]()
-          break
-        }
-      }
     }
   }
+
   // 如果没有找到匹配的组件，返回一个默认组件
   if (!res) {
-    console.error(`无法加载组件: ${view}，请检查组件路径是否正确`)
-    console.log('可用的组件路径:', Object.keys(modules).map(p => p.replace(/^\.\/\.\.\/views\//, '').replace('.vue', '')))
+    console.error(`❌ 无法加载组件: ${view}，请检查组件路径是否正确`)
+    console.log('尝试的路径:', pathsArray)
+    // 只显示统计相关的可用路径，避免日志过多
+    const relevantPaths = Object.keys(modules)
+      .map(p => p.replace(/^\.\.\/views\//, '').replace('.vue', ''))
+      .filter(p => p.includes('statistics') || p.includes('system') || p.includes('monitor') || p.includes('blog'))
+    console.log('相关的可用组件路径:', relevantPaths)
   }
+
   return res
 }
 

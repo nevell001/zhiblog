@@ -108,7 +108,7 @@ public class SecurityConfig
             .csrf(csrf -> csrf.disable())
             // 禁用HTTP响应标头
             .headers((headersCustomizer) -> {
-                headersCustomizer.cacheControl(cache -> cache.disable()).frameOptions(options -> options.sameOrigin());
+                headersCustomizer.cacheControl(cache -> cache.disable()).frameOptions(options -> options.disable());
             })
             // 认证失败处理类
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
@@ -132,14 +132,27 @@ public class SecurityConfig
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.js"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
                 
-                // 开发环境允许访问Swagger、Druid和Actuator
+                // 开发环境允许访问Swagger和Actuator
                 if (!"prod".equals(activeProfile)) {
-                    requests.requestMatchers("/swagger-ui.html", "/swagger-resources/**", "/webjars/**", "/*/api-docs", "/druid/**",
-                            "/manage/actuator/**").permitAll();
+                    requests.requestMatchers(
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/*/api-docs"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/dev-api/*/api-docs"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/**")
+                    ).permitAll();
                 }
 
                 // 博客前台接口允许匿名访问
-                requests.requestMatchers("/blog/**", "/common/blog/**", "/index", "/about", "/system/friendLink/front/**").permitAll()
+                requests.requestMatchers(
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/blog/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/common/blog/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/index"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/about"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/system/friendLink/front/**")
+                ).permitAll()
                     // 除上面外的所有请求全部需要鉴权认证
                     .anyRequest().authenticated();
             })

@@ -251,11 +251,8 @@ class SysRoleServiceImplTest {
     void testCheckRoleAllowed_AdminRole() {
         testRole.setRoleId(1L);
 
-        ServiceException exception = assertThrows(ServiceException.class, () -> {
-            roleService.checkRoleAllowed(testRole);
-        });
-
-        assertEquals("不允许操作超级管理员角色", exception.getMessage());
+        // 现在允许修改超级管理员角色，不应该抛出异常
+        assertDoesNotThrow(() -> roleService.checkRoleAllowed(testRole));
     }
 
     /**
@@ -292,12 +289,13 @@ class SysRoleServiceImplTest {
         SysRole adminRole = new SysRole();
         adminRole.setRoleId(1L);
 
-        ServiceException exception = assertThrows(ServiceException.class, () -> {
-            roleService.deleteRoleByIds(new Long[]{1L});
-        });
+        when(roleMapper.deleteRoleByIds(new Long[]{1L})).thenReturn(1);
 
-        assertEquals("不允许操作超级管理员角色", exception.getMessage());
-        verify(roleMapper, never()).deleteRoleByIds(any(Long[].class));
+        // 现在允许删除超级管理员角色
+        int result = roleService.deleteRoleByIds(new Long[]{1L});
+
+        assertEquals(1, result);
+        verify(roleMapper).deleteRoleByIds(new Long[]{1L});
     }
 
     /**

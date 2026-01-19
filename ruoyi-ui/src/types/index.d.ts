@@ -237,3 +237,77 @@ export interface Post {
   status?: string
   remark?: string
 }
+
+/**
+ * CPU 信息
+ */
+export interface CpuInfo {
+  cpuNum: number
+  total: number
+  sys: number
+  used: number
+  wait: number
+  free: number
+}
+
+/**
+ * 内存信息
+ */
+export interface MemInfo {
+  total: number
+  used: number
+  free: number
+  usage: number
+}
+
+/**
+ * JVM 信息
+ */
+export interface JvmInfo {
+  total: number
+  max: number
+  used: number
+  free: number
+  usage: number
+  version: string
+  home: string
+  name: string
+  startTime: string
+  runTime: string
+  inputArgs: string
+}
+
+/**
+ * 系统信息
+ */
+export interface SysInfo {
+  computerName: string
+  computerIp: string
+  osName: string
+  osArch: string
+  userDir: string
+}
+
+/**
+ * 系统文件信息
+ */
+export interface SysFileInfo {
+  dirName: string
+  sysTypeName: string
+  typeName: string
+  total: string
+  free: string
+  used: string
+  usage: number
+}
+
+/**
+ * 服务器监控信息
+ */
+export interface ServerInfo {
+  cpu: CpuInfo
+  mem: MemInfo
+  jvm: JvmInfo
+  sys: SysInfo
+  sysFiles: SysFileInfo[]
+}

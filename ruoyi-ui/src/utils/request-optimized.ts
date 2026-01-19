@@ -42,8 +42,9 @@ export const isRelogin = { show: false }
 axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 
 // 创建axios实例
+const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const service: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_APP_BASE_API,
+  baseURL: baseApi,
   timeout: 30000 // 增加超时时间
 })
 

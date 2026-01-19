@@ -289,9 +289,9 @@ function handleSelectionChange(selection) {
 }
 
 /** 排序触发事件 */
-function handleSortChange(column, prop, order) {
-  queryParams.value.orderByColumn = column.prop
-  queryParams.value.isAsc = column.order
+function handleSortChange({ prop, order }) {
+  queryParams.value.orderByColumn = prop
+  queryParams.value.isAsc = order
   getList()
 }
 

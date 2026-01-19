@@ -149,7 +149,7 @@ import { ElMessage } from 'element-plus'
 import { DataLine, TrendCharts, InfoFilled, CopyDocument, View } from '@element-plus/icons-vue'
 
 const loading = ref(false)
-const metricsUrl = ref(import.meta.env.VITE_APP_BASE_API + '/manage/actuator/prometheus')
+const metricsUrl = ref((import.meta.env?.VITE_APP_BASE_API || '/dev-api') + '/manage/actuator/prometheus')
 
 // 指标数据弹窗相关
 const metricsDialogVisible = ref(false)

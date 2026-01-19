@@ -62,7 +62,7 @@ const useUserStore = defineStore('user', {
             if (!isHttp(avatar)) {
               avatar = isEmpty(avatar)
                 ? defAva
-                : (import.meta.env.VITE_APP_BASE_API as string) + avatar
+                : ((import.meta.env?.VITE_APP_BASE_API as string) || '/dev-api') + avatar
             }
             if (res.roles && res.roles.length > 0) {
               // 验证返回的roles是否是一个非空数组

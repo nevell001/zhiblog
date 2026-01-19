@@ -197,7 +197,6 @@
       >
         <template #default="scope">
           <el-tooltip
-            v-if="scope.row.roleId !== 1"
             content="修改"
             placement="top"
           >
@@ -210,7 +209,6 @@
             />
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.roleId !== 1"
             content="删除"
             placement="top"
           >
@@ -223,7 +221,6 @@
             />
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.roleId !== 1"
             content="数据权限"
             placement="top"
           >
@@ -236,7 +233,6 @@
             />
           </el-tooltip>
           <el-tooltip
-            v-if="scope.row.roleId !== 1"
             content="分配用户"
             placement="top"
           >
@@ -671,6 +667,11 @@ function handleAdd() {
 function handleUpdate(row) {
   reset()
   const roleId = row.roleId || ids.value
+  if (Array.isArray(roleId)) {
+    // 批量修改时，只处理第一个选中的角色
+    handleUpdate({ roleId: roleId[0] })
+    return
+  }
   const roleMenu = getRoleMenuTreeselect(roleId)
   getRole(roleId).then(response => {
     form.value = response.data

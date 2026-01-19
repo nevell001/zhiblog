@@ -234,7 +234,6 @@ CREATE TABLE sys_menu (
 INSERT INTO sys_menu VALUES('1', '系统管理', '0', '1', 'admin/system',    NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
 INSERT INTO sys_menu VALUES('2', '系统监控', '0', '2', 'admin/monitor',   NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
 INSERT INTO sys_menu VALUES('3', '系统工具', '0', '3', 'admin/tool',      NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
-INSERT INTO sys_menu VALUES('4', '日志管理', '2', '9', 'log',      '', '', '', 1, 0, 'M', '0', '0', '', 'document', 'admin', NOW(), '', NULL, '日志管理菜单');
 
 -- 7、用户和角色关联表（用户N-1角色）
 DROP TABLE IF EXISTS sys_user_role;

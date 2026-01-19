@@ -42,7 +42,9 @@ defineOptions({
 const { proxy } = getCurrentInstance()
 
 const quillEditorRef = ref()
-const uploadUrl = ref(import.meta.env.VITE_APP_BASE_API + '/common/upload/compressed') // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案
+// 添加安全检查，防止环境变量未定义
+const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
+const uploadUrl = ref(baseApi + '/common/upload/compressed') // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案
 const headers = ref({
   Authorization: 'Bearer ' + getToken()
 })
@@ -336,7 +338,7 @@ function handleUploadSuccess(res, file) {
     const fileType = file.type
     if (fileType.startsWith('image/')) {
       // 插入图片
-      quill.insertEmbed(length, 'image', import.meta.env.VITE_APP_BASE_API + res.fileName)
+      quill.insertEmbed(length, 'image', baseApi + res.fileName)
     } else if (fileType.startsWith('video/')) {
       // 插入视频
       quill.insertEmbed(length, 'video', import.meta.env.VITE_APP_BASE_API + res.fileName)

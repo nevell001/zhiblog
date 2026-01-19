@@ -551,65 +551,20 @@
 <script setup lang="ts">
 import { ref, getCurrentInstance } from 'vue'
 import { getServer } from '@/api/monitor/server'
-
-interface CpuInfo {
-  cpuNum: number
-  sys: number
-  user: number
-  free: number
-}
-
-interface MemInfo {
-  total: number
-  used: number
-  free: number
-  usage: number
-}
-
-interface JvmInfo {
-  total: number
-  used: number
-  free: number
-  version: string
-  home: string
-  startTime: string
-  runTime: string
-}
-
-interface SysInfo {
-  computerName: string
-  computerIp: string
-  osName: string
-  osArch: string
-  userDir: string
-}
-
-interface SysFileInfo {
-  dirName: string
-  sysTypeName: string
-  typeName: string
-  total: string
-  free: string
-  used: string
-  usage: number
-}
-
-interface ServerInfo {
-  cpu: CpuInfo
-  mem: MemInfo
-  jvm: JvmInfo
-  sys: SysInfo
-  sysFiles: SysFileInfo[]
-}
+import type { ServerInfo } from '@/types'
 
 const server = ref<ServerInfo>({} as ServerInfo)
-const { proxy } = getCurrentInstance()
+const { proxy } = getCurrentInstance() || {}
 
 function getList() {
-  ;(proxy as any).$modal.loading('正在加载服务监控数据，请稍候！')
+  if (proxy) {
+    ;(proxy as any).$modal.loading('正在加载服务监控数据，请稍候！')
+  }
   getServer().then((response: any) => {
     server.value = response.data
-    ;(proxy as any).$modal.closeLoading()
+    if (proxy) {
+      ;(proxy as any).$modal.closeLoading()
+    }
   })
 }
 

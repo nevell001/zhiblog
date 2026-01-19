@@ -495,8 +495,6 @@
                 :min="5"
                 :max="50"
                 :step="1"
-                :value="Number(settingsMap.page_size) || 10"
-                @change="val => (settingsMap.page_size = Number(val))"
               />
             </el-form-item>
             <el-form-item
@@ -508,8 +506,6 @@
                 :min="1"
                 :max="20"
                 :step="1"
-                :value="Number(settingsMap.hot_article_count) || 5"
-                @change="val => (settingsMap.hot_article_count = Number(val))"
               />
             </el-form-item>
             <el-form-item
@@ -521,8 +517,6 @@
                 :min="1"
                 :max="20"
                 :step="1"
-                :value="Number(settingsMap.recent_comment_count) || 5"
-                @change="val => (settingsMap.recent_comment_count = Number(val))"
               />
             </el-form-item>
             <el-form-item
@@ -664,7 +658,8 @@ import { getToken } from '@/utils/auth'
 const { proxy } = getCurrentInstance()
 
 // 头像上传相关
-const baseUrl = import.meta.env.VITE_APP_BASE_API
+const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
+const baseUrl = baseApi
 const uploadAvatarUrl = baseUrl + '/common/upload/avatar'
 const uploadThumbnailUrl = baseUrl + '/common/upload/thumbnail'
 const headers = ref({ Authorization: 'Bearer ' + getToken() })
@@ -1066,6 +1061,11 @@ async function getAllSettings() {
       if (settings[key] !== undefined) {
         // 即使是 null 或空字符串也要保留，因为有些字段可能就是空的
         mergedSettings[key] = settings[key]
+
+        // 对数值类型字段进行类型转换
+        if (['page_size', 'hot_article_count', 'recent_comment_count'].includes(key)) {
+          mergedSettings[key] = Number(settings[key]) || defaultSettings[key]
+        }
 
         // 为关键字段添加详细日志
         if (criticalKeys.includes(key)) {

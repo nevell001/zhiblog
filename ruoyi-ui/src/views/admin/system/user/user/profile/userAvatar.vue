@@ -197,7 +197,7 @@ function uploadImg() {
     formData.append('avatarfile', data, options.filename)
     uploadAvatar(formData).then((response: any) => {
       open.value = false
-      options.img = import.meta.env.VITE_APP_BASE_API + response.imgUrl
+      options.img = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + response.imgUrl
       userStore.avatar = options.img
       // 同时更新博客设置中的头像，确保前台首页显示最新头像
       blogSettingsStore.updateBlogAvatar(response.imgUrl)

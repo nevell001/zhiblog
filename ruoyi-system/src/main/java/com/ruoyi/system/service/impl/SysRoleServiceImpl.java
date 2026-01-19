@@ -177,16 +177,17 @@ public class SysRoleServiceImpl implements ISysRoleService
 
     /**
      * 校验角色是否允许操作
-     * 
+     *
      * @param role 角色信息
      */
     @Override
     public void checkRoleAllowed(SysRole role)
     {
-        if (StringUtils.isNotNull(role.getRoleId()) && role.isAdmin())
-        {
-            throw new ServiceException("不允许操作超级管理员角色");
-        }
+        // 允许修改超级管理员角色
+        // if (StringUtils.isNotNull(role.getRoleId()) && role.isAdmin())
+        // {
+        //     throw new ServiceException("不允许操作超级管理员角色");
+        // }
     }
 
     /**
@@ -401,7 +402,7 @@ public class SysRoleServiceImpl implements ISysRoleService
             // 检查每个角色
             for (Long roleId : batchRoleIds)
             {
-                checkRoleAllowed(new SysRole(roleId));
+                // checkRoleAllowed(new SysRole(roleId)); // 允许删除超级管理员角色
                 checkRoleDataScope(roleId);
                 SysRole role = selectRoleById(roleId);
                 if (countUserRoleByRoleId(roleId) > 0)
@@ -462,10 +463,10 @@ public class SysRoleServiceImpl implements ISysRoleService
         {
             throw new ServiceException(String.format("角色【%1$s】已停用，不能分配给用户", role.getRoleName()));
         }
-        
+
         // 检查角色是否允许操作
-        checkRoleAllowed(role);
-        
+        // checkRoleAllowed(role); // 允许为超级管理员角色分配用户
+
         // 新增用户与角色管理
         List<SysUserRole> list = new ArrayList<SysUserRole>();
         for (Long userId : userIds)

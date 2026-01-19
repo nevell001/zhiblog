@@ -189,6 +189,12 @@ const routes: ExtendedRouteRecordRaw[] = [
         name: 'StatisticsArticle',
         component: () => import('@/views/admin/statistics/article/index.vue'),
         meta: { title: '文章统计', icon: 'documentation' }
+      },
+      {
+        path: 'user',
+        name: 'StatisticsUser',
+        component: () => import('@/views/admin/statistics/user/index.vue'),
+        meta: { title: '用户统计', icon: 'user' }
       }
     ]
   },
@@ -247,10 +253,22 @@ const routes: ExtendedRouteRecordRaw[] = [
         meta: { title: '缓存监控', icon: 'redis' }
       },
       {
+        path: 'cache/list',
+        name: 'MonitorCacheList',
+        component: () => import('@/views/admin/monitor/cache/list.vue'),
+        meta: { title: '缓存列表', icon: 'redis' }
+      },
+      {
         path: 'job',
         name: 'MonitorJob',
         component: () => import('@/views/admin/monitor/job/index.vue'),
         meta: { title: '定时任务', icon: 'job' }
+      },
+      {
+        path: 'druid',
+        name: 'MonitorDruid',
+        component: () => import('@/views/admin/monitor/druid/index.vue'),
+        meta: { title: '数据监控', icon: 'druid' }
       }
     ]
   },

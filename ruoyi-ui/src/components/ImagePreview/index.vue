@@ -40,7 +40,7 @@ const realSrc = computed(() => {
   if (isExternal(real_src)) {
     return real_src
   }
-  return import.meta.env.VITE_APP_BASE_API + real_src
+  return (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + real_src
 })
 
 const realSrcList = computed(() => {
@@ -49,11 +49,12 @@ const realSrcList = computed(() => {
   }
   const real_src_list = props.src.split(',')
   const srcList = []
+  const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
   real_src_list.forEach(item => {
     if (isExternal(item)) {
       return srcList.push(item)
     }
-    return srcList.push(import.meta.env.VITE_APP_BASE_API + item)
+    return srcList.push(baseApi + item)
   })
   return srcList
 })
