@@ -170,6 +170,21 @@ const routes: ExtendedRouteRecordRaw[] = [
       }
     ]
   },
+  // 个人中心
+  {
+    path: '/user',
+    component: () => import('@/layout/index.vue'),
+    redirect: '/user/profile',
+    hidden: true,
+    children: [
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/admin/system/user/user/profile/index.vue'),
+        meta: { title: '个人中心', icon: 'user' }
+      }
+    ]
+  },
   // 数据统计
   {
     path: '/admin/statistics',

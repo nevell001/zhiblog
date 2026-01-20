@@ -140,11 +140,6 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       this.lastUpdate = Date.now()
     },
 
-    updateBlogAvatar(avatarUrl: string): void {
-      this.blogSettings.blog_avatar = avatarUrl
-      this.lastUpdate = Date.now()
-    },
-
     setBlogSettings(settings: BlogSettingsState): void {
       this.blogSettings = settings
       this.lastUpdate = Date.now()

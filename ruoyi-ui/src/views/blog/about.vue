@@ -11,7 +11,7 @@
           class="hero-avatar"
         >
           <img
-            :src="blogSettings.blog_avatar || '/default-avatar.jpg'"
+            :src="userStore.avatar || '/default-avatar.jpg'"
             :alt="blogSettings.blog_author"
           />
           <div class="avatar-decoration"></div>
@@ -372,6 +372,9 @@ import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getSkillsList, getExperienceList } from '@/api/blog/author'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 // 响应式数据
 interface BlogSettings {

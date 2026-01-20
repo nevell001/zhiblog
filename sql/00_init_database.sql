@@ -5,7 +5,7 @@
 -- 🔧 最后更新：2026-01-13
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
 -- 🚀 版本：v2.1.0 (完整版)
--- 
+--
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
 -- ✅ Quartz定时任务表结构 (11个表)
@@ -43,13 +43,13 @@
 -- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- 2. 导入本脚本：mysql -u root -p newblog < init_database.sql
 -- 3. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
--- 
+--
 -- 🎯 使用方法：
 -- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- 2. 选择数据库：USE newblog;
 -- 3. 执行脚本：source /path/to/init_database.sql;
 -- 4. 验证结果：查看最后的统计信息
--- 
+--
 -- ⚠️  注意事项：
 -- - 请确保MySQL版本 >= 8.0
 -- - 执行前请备份现有数据
@@ -777,7 +777,7 @@ INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create
 ('blog_desc', '这是一个基于RuoYi-Vue的博客系统', '博客描述', NOW(), NOW()),
 ('blog_author', 'admin', '博客作者', NOW(), NOW()),
 ('blog_keywords', '博客,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '博客关键词', NOW(), NOW()),
-('blog_copyright', 'Copyright © 2025 我的博客. All rights reserved.', '版权信息', NOW(), NOW()),
+('blog_copyright', 'Copyright © 2025-2026 我的博客. All rights reserved.', '版权信息', NOW(), NOW()),
 ('blog_beian', 'ICP备12345678号', '备案信息', NOW(), NOW()),
 
 -- 联系方式设置
@@ -837,14 +837,9 @@ INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_
 -- 二级分类（生活随笔下的子分类）
 ('日常记录', 'daily', '日常生活记录', 2, 1, 1, 1),
 ('读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
-('旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1),
+('旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
 
--- 二级分类（学习笔记下的子分类）
-('算法学习', 'algorithm', '算法和数据结构学习', 4, 1, 1, 1),
-('设计模式', 'pattern', '设计模式学习笔记', 4, 2, 2, 1),
-('面试经验', 'interview', '面试准备和经验分享', 4, 3, 3, 1);
-
--- 插入完整的博客标签数据（26个常用标签）
+-- 插入完整的博客标签数据（22个常用标签）
 INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
 -- 核心标签（确保与test_tags.sql一致）
 (1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
@@ -878,13 +873,7 @@ INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_c
 (19, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
 (20, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0),
 (21, '算法', '算法和数据结构', '#FF9800', 'el-icon-data-analysis', 0),
-(22, '设计模式', '软件设计模式', '#9C27B0', 'el-icon-setting', 0),
-
--- 额外专业标签
-(23, '微服务', '微服务架构设计', '#E91E63', 'el-icon-connection', 0),
-(24, '分布式系统', '分布式系统架构', '#9C27B0', 'el-icon-share', 0),
-(25, '性能优化', '系统性能优化技术', '#FF5722', 'el-icon-lightning', 0),
-(26, '架构设计', '软件架构设计', '#795548', 'el-icon-s-home', 0);
+(22, '设计模式', '软件设计模式', '#9C27B0', 'el-icon-setting', 0);
 
 -- 插入完整的博客文章示例数据
 INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
@@ -994,13 +983,13 @@ export default {
   setup() {
     const count = ref(0)
     const state = reactive({ name: ''Vue'', version: 3 })
-    
+
     const doubled = computed(() => count.value * 2)
-    
+
     watch(count, (newVal, oldVal) => {
       console.log(`Count changed from ${oldVal} to ${newVal}`)
     })
-    
+
     return { count, state, doubled }
   }
 }
@@ -1014,7 +1003,7 @@ export function useCounter(initialValue = 0) {
   const count = ref(initialValue)
   const increment = () => count.value++
   const decrement = () => count.value--
-  
+
   return { count, increment, decrement }
 }
 ```
@@ -1081,7 +1070,7 @@ services:
     depends_on:
       - mysql
       - redis
-  
+
   mysql:
     image: mysql:8.0
     environment:
@@ -1089,7 +1078,7 @@ services:
       MYSQL_DATABASE: blog
     volumes:
       - mysql_data:/var/lib/mysql
-  
+
   redis:
     image: redis:alpine
     volumes:
@@ -1119,7 +1108,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 public User getUser(Long id) {
     String key = "user:" + id;
     User user = redisTemplate.opsForValue().get(key);
-    
+
     if (user == null) {
         user = userMapper.selectById(id);
         if (user != null) {
@@ -1139,10 +1128,10 @@ public User getUser(Long id) {
 public void updateUser(User user) {
     // 第一次删除
     redisTemplate.delete("user:" + user.getId());
-    
+
     // 更新数据库
     userMapper.updateById(user);
-    
+
     // 延迟删除（避免脏数据）
     Thread.sleep(500);
     redisTemplate.delete("user:" + user.getId());
@@ -1316,7 +1305,7 @@ VALUES (2002, '分类管理', 2000, 2, 'category', 'blog/category/index', '', ''
 
 -- 标签管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tag', 'admin', NOW(), '', NULL, '标签管理菜单');
+VALUES (2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tab', 'admin', NOW(), '', NULL, '标签管理菜单');
 
 -- 评论管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1324,7 +1313,7 @@ VALUES (2004, '评论管理', 2000, 4, 'comment', 'blog/comment/index', '', '', 
 
 -- 博客设置
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2005, '博客设置', 2000, 5, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'setting', 'admin', NOW(), '', NULL, '博客设置菜单');
+VALUES (2005, '博客设置', 2000, 5, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '博客设置菜单');
 
 -- 友链管理
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1510,8 +1499,8 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1108, '任务执行', 110, 8, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:execute', '#', 'admin', NOW(), '', NULL, '');
 
 -- 3、数据监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (111, '数据监控', 2, 3, 'druid', 'monitor/druid/index', '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', NOW(), '', NULL, '数据监控菜单');
+-- INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+-- VALUES (111, '数据监控', 2, 3, 'druid', 'monitor/druid/index', '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', NOW(), '', NULL, '数据监控菜单');
 
 -- 4、服务监控菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1536,8 +1525,8 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- ========== 配置系统工具菜单 ==========
 
 -- 1、表单构建菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (115, '表单构建', 3, 1, 'build', 'tool/build/index', '', '', 1, 0, 'C', '0', '0', 'tool:build:list', 'build', 'admin', NOW(), '', NULL, '表单构建菜单');
+-- INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+-- VALUES (115, '表单构建', 3, 1, 'build', 'tool/build/index', '', '', 1, 0, 'C', '0', '0', 'tool:build:list', 'build', 'admin', NOW(), '', NULL, '表单构建菜单');
 
 -- 2、代码生成菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1607,7 +1596,7 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- 1、数据统计一级菜单（注意：visible='0' 表示显示，'1' 表示隐藏）
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (5, '数据统计', 0, 2, 'admin/statistics', NULL, '', '', 1, 0, 'M', '0', '0', '', 'chart', 'admin', NOW(), '', NULL, '数据统计目录');
+VALUES (5, '数据统计', 0, 2, 'admin/statistics', NULL, '', '', 1, 0, 'M', '0', '0', '', 'nested', 'admin', NOW(), '', NULL, '数据统计目录');
 
 -- 2、数据概览菜单
 INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1637,15 +1626,25 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 
 -- ========== 为管理员角色分配系统管理、监控和工具菜单权限 ==========
 
--- 系统管理菜单权限
+-- 系统管理菜单权限（包括菜单和按钮权限）
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+-- 系统管理主菜单
+(1, 1),
+-- 用户管理
 (1, 100), (1, 1001), (1, 1002), (1, 1003), (1, 1004), (1, 1005), (1, 1006), (1, 1007),
+-- 角色管理
 (1, 101), (1, 1011), (1, 1012), (1, 1013), (1, 1014), (1, 1015),
+-- 菜单管理
 (1, 102), (1, 1021), (1, 1022), (1, 1023), (1, 1024),
+-- 部门管理
 (1, 103), (1, 1031), (1, 1032), (1, 1033), (1, 1034),
+-- 岗位管理
 (1, 104), (1, 1041), (1, 1042), (1, 1043), (1, 1044), (1, 1045),
+-- 字典管理
 (1, 105), (1, 1051), (1, 1052), (1, 1053), (1, 1054), (1, 1055),
+-- 参数设置
 (1, 106), (1, 1061), (1, 1062), (1, 1063), (1, 1064), (1, 1065),
+-- 通知公告
 (1, 107), (1, 1071), (1, 1072), (1, 1073), (1, 1074);
 
 -- 系统监控菜单权限
@@ -2005,7 +2004,7 @@ UNION ALL
 SELECT CONCAT('📁 分类数量: ', COUNT(*)) AS info FROM blog_category WHERE del_flag = '0'
 UNION ALL
 SELECT CONCAT('🏷️  标签数量: ', COUNT(*)) AS info FROM blog_tag WHERE del_flag = '0'
-UNION ALL  
+UNION ALL
 SELECT CONCAT('💬 评论数量: ', COUNT(*)) AS info FROM blog_comment
 UNION ALL
 SELECT CONCAT('🔗 友链数量: ', COUNT(*)) AS info FROM blog_friend_link WHERE del_flag = '0'
@@ -2059,8 +2058,8 @@ SELECT '5. 访问前台首页：http://localhost:3000' AS step5;
 
 -- 验证关键配置
 SELECT '🔍 关键配置验证：' AS verify_title;
-SELECT config_key, config_value, description 
-FROM blog_setting 
+SELECT config_key, config_value, description
+FROM blog_setting
 WHERE config_key IN ('blog_name', 'footer_enabled', 'copyright_enabled', 'comment_enabled')
 ORDER BY config_key;
 
@@ -2089,9 +2088,7 @@ SELECT '4. 定期备份数据：mysqldump -u root -p newblog > backup.sql' AS ti
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
-SELECT 'GitHub: https://github.com/your-repo' AS github;
-SELECT 'Email: admin@example.com' AS email;
-SELECT '文档: https://your-docs-site.com' AS docs;
-
+SELECT 'Gitee: https://gitee.com/nevell/newblog' AS gitee;
+SELECT 'Email: nevell@foxmail.com' AS email;
 SELECT '✅ 初始化脚本执行完成！祝您使用愉快！' AS complete_message;
 

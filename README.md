@@ -4,6 +4,14 @@
 
 基于 RuoYi-Vue 快速开发平台打造的现代化、前后端分离的企业级博客系统。采用 Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript 技术栈，支持文章发布、评论互动、标签分类、友情链接、后台管理等完整功能。
 
+**最新更新（v1.2.1）**：
+- 🐛 修复个人中心404错误
+- 🐛 修复头像上传失败问题
+- 🎨 统一账号头像和博客头像管理
+- 🐛 修复登录闪退问题
+- 🔧 优化 Maven 配置（groupId 统一）
+- 📊 版本号动态显示（从 pom.xml 读取）
+
 **项目特色**：
 - 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架
 - 📱 **前后端分离**：Vue 3 + Spring Boot，TypeScript 类型安全
@@ -13,8 +21,33 @@
 - 📈 **监控完善**：Prometheus + Grafana 全链路监控
 - 🖼️ **图片优化**：智能压缩、防盗链保护
 - ✅ **测试完善**：656个测试用例，覆盖率≥60%
+- 🔧 **版本管理**：版本号从 pom.xml 动态读取，保持一致性
 
 ## 📦 版本历史
+
+### v1.2.1 (2026-01-20)
+**功能修复与优化**
+
+**系统功能修复**:
+- ✅ 修复个人中心页面404错误（添加 /user/profile 路由）
+- ✅ 修复头像上传失败问题（multipart/form-data 格式错误）
+- ✅ 统一账号头像和博客头像（移除博客设置中的独立头像选项）
+- ✅ 修复登录后闪退问题（process.env 未定义错误）
+- ✅ 修复前端环境变量配置（Vite 兼容性问题）
+- ✅ 修复 Maven 构建失败问题（pom.xml groupId 不一致）
+- ✅ 优化版本号显示（从 pom.xml 动态读取）
+- ✅ 添加版本号 API 接口（/system/version）
+
+**代码优化**:
+- ✅ 优化 FormData 请求处理（自动设置 Content-Type）
+- ✅ 优化防重复提交机制（跳过 FormData 请求）
+- ✅ 统一 pom.xml groupId 为 top.nevell
+- ✅ 修复所有子模块依赖配置
+
+**用户体验改进**:
+- ✅ 简化头像管理流程（统一入口）
+- ✅ 添加头像上传loading状态
+- ✅ 优化错误提示信息
 
 ### v1.2.0 (2026-01-19)
 **功能修复与优化**
@@ -34,22 +67,6 @@
 - ✅ 优化 permission.ts 组件加载逻辑（使用 Set 替代数组）
 - ✅ 添加 SwaggerConfig 资源处理器配置
 - ✅ 修复前端类型安全问题（import.meta.env 可选链）
-
-### v4.1.0 (2026-01-18)
-**重大升级 - TypeScript 迁移完成 + 博客 UI 优化**
-
-**TypeScript 迁移**:
-- ✅ 前端项目全面迁移到 TypeScript 5.9.3（100% 完成）
-- ✅ 新增完整的类型定义（src/types/）
-- ✅ 配置 Vitest 测试框架（覆盖率目标 ≥70%）
-
-**博客 UI 优化**:
-- ✅ 统一配色方案为紫色系（#667eea, #764ba2）
-- ✅ 修复深色主题选择器问题（:deep(.dark) -> html.dark）
-- ✅ 优化博客详情页、首页、分类、标签、归档、关于页面 UI
-- ✅ 统一设计规范（圆角、阴影、间距等）
-- ✅ 新增博客设计规范文档（BLOG_DESIGN_STANDARDS.md）
-- ✅ 优化深色主题配色和浅色主题底部配色
 
 **技术栈更新**:
 - TypeScript 5.9.3
@@ -151,6 +168,7 @@ newblog/
 ├── prometheus/           # Prometheus配置
 ├── grafana/              # Grafana配置
 ├── docker-compose.yml    # Docker编排
+├── pom.xml              # Maven主配置
 └── README.md
 ```
 
@@ -163,6 +181,7 @@ newblog/
 - 文章搜索、归档
 - 热门文章排行
 - 评论功能（支持匿名/登录评论）
+- **头像展示**（统一使用账号头像）
 - 深色主题支持
 - RSS 订阅
 
@@ -172,18 +191,25 @@ newblog/
 - 评论管理（审核、删除）
 - 友链管理
 - 用户管理
+- **个人中心**（头像修改、基本信息、密码修改）
 - 系统设置
 - 日志管理
+
+**头像管理**:
+- ✅ 统一账号头像和博客头像（单一数据源）
+- ✅ 支持图片裁剪和压缩
+- ✅ 自动同步到前台展示
 
 ### 系统功能
 - 用户认证与授权（JWT + Spring Security）
 - 图片上传与管理
-- 图片智能压缩
+- **图片智能压缩**（支持头像、缩略图、封面图）
 - 防盗链保护
 - XSS 防护
 - 定时任务
 - 代码生成器
 - 监控告警
+- **版本号动态获取**（从 pom.xml 读取）
 
 ## 🏗️ 技术栈
 
@@ -195,6 +221,8 @@ newblog/
 - Spring Security 6.1.5
 - Druid 1.2.27
 - Java 17
+- **Maven**: 3.6+
+- **GroupId**: top.nevell
 
 ### 前端
 - Vue 3.5.16
@@ -204,11 +232,17 @@ newblog/
 - Pinia 3.0.2
 - Vue Router 4.5.1
 - Vitest 2.1.8
+- **Axios** 1.9.0（HTTP 客户端）
 
 ### 监控
 - Prometheus
 - Grafana
 - Spring Boot Actuator
+
+### 构建工具
+- Maven 3.6+
+- npm/pnpm
+- Docker 20.10+
 
 ## 🔧 配置说明
 
@@ -232,6 +266,11 @@ R_TOKEN_SECRET=your-very-long-and-secure-random-string-here
 REFERER_ENABLED=false
 REFERER_ALLOWED_DOMAINS=localhost,127.0.0.1
 ```
+
+**注意**：
+- 版本号在 `pom.xml` 中定义，当前版本为 `1.2.1`
+- 前端会自动从后端 API 获取版本号并显示在管理后台首页
+- 修改版本号时请同步更新 `pom.xml` 和 `application.yml`
 
 ### 图片压缩配置
 ```yaml
@@ -264,6 +303,11 @@ chore: 构建/工具
 - **Vue**: 遵循 Vue 官方风格指南
 - **TypeScript**: 严格类型检查，避免使用 any
 
+### 版本号管理
+- 版本号统一在 `pom.xml` 中定义
+- 修改版本号时同步更新 `application.yml` 中的 `ruoyi.version`
+- 遵循语义化版本规范（Major.Minor.Patch）
+
 ## 📞 技术支持
 
 ### 相关文档
@@ -271,12 +315,22 @@ chore: 构建/工具
 - [Vue 3文档](https://cn.vuejs.org/)
 - [Element Plus文档](https://element-plus.org/)
 - [Spring Boot文档](https://spring.io/projects/spring-boot)
+- [项目更新日志](#版本历史)
+- [开发规范](#开发规范)
+
+### 常见问题
+1. **版本号显示不正确**：检查 `pom.xml` 和 `application.yml` 中的版本号是否一致
+2. **头像上传失败**：确保后端服务正常运行，检查网络连接
+3. **登录后闪退**：清除浏览器缓存，检查控制台错误信息
+4. **个人中心404**：确保后端已重启，路由配置正确
 
 ### 许可证
 本项目基于 [MIT许可证](LICENSE) 开源
 
----
-
-**最后更新**: 2026-01-19
-**维护者**: nevell
-**项目地址**: https://gitee.com/nevell/newblog
+### 项目信息
+- **项目名称**: NewBlog
+- **当前版本**: v1.2.1
+- **Maven GroupId**: top.nevell
+- **项目地址**: https://gitee.com/nevell/newblog
+- **维护者**: nevell
+- **最后更新**: 2026-01-20

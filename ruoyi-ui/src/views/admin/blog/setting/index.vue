@@ -102,6 +102,8 @@
                 style="width: 100%"
               />
             </el-form-item>
+            <!-- 博客头像设置已移除，直接使用账号头像 -->
+            <!--
             <el-form-item
               label="博主头像"
               prop="blog_avatar"
@@ -148,6 +150,7 @@
                 </div>
               </div>
             </el-form-item>
+            -->
             <el-form-item
               label="博主签名"
               prop="blog_signature"
@@ -1566,21 +1569,7 @@ async function handleSingleSettingChange(key, value) {
       originalSettings.value[key] = processedValue
       console.log(`原始设置已更新: ${key} = ${processedValue}`)
 
-      // 如果是头像设置，同时更新前台store并发送更新事件
-      if (key === 'blog_avatar' && processedValue) {
-        console.log('更新前台store中的头像设置...')
-        const blogSettingsStore = useBlogSettingsStore()
-        if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
-          blogSettingsStore.updateBlogAvatar(processedValue)
-        }
-
-        // 发送更新事件给前台页面
-        window.dispatchEvent(
-          new CustomEvent('blog-settings-update', {
-            detail: { blog_avatar: processedValue }
-          })
-        )
-      }
+      // 博客头像已移除，不再需要同步到前台store
     } else {
       throw new Error(response.msg || '操作失败')
     }
@@ -1597,12 +1586,7 @@ async function handleSingleSettingChange(key, value) {
 function refreshFrontendAvatar() {
   const blogSettingsStore = useBlogSettingsStore()
 
-  // 如果当前有头像设置，更新前台store
-  if (settingsMap.value.blog_avatar) {
-    blogSettingsStore.updateBlogAvatar(settingsMap.value.blog_avatar)
-    console.log('前台头像已刷新:', settingsMap.value.blog_avatar)
-  }
-
+  // 博客头像已移除，不再需要刷新前台头像
   // 刷新前台二维码
   if (settingsMap.value.wechat_qr) {
     blogSettingsStore.updateBlogSettings({
@@ -1616,10 +1600,7 @@ function refreshFrontendAvatar() {
  */
 onMounted(() => {
   getAllSettings().then(() => {
-    // 设置加载完成后，强制刷新前台头像显示
-    setTimeout(() => {
-      refreshFrontendAvatar()
-    }, 1000)
+    // 头像已移除，不再需要刷新前台头像
   })
 })
 
@@ -1646,64 +1627,13 @@ function handleAvatarBeforeUpload(file) {
 }
 
 /**
- * 头像上传成功回调
+ * 头像上传成功回调（已废弃，不再使用）
  */
+/*
 function handleAvatarUploadSuccess(response, uploadFile) {
-  if (response.code === 200) {
-    // 处理头像URL
-    let avatarUrl = response.url
-
-    // 确保URL格式正确
-    if (avatarUrl && !avatarUrl.startsWith('http')) {
-      // 如果是相对路径，直接使用后端返回的路径
-      // 开发环境会通过vite代理访问，生产环境会通过nginx代理访问
-      if (!avatarUrl.startsWith('/')) {
-        avatarUrl = '/' + avatarUrl
-      }
-    }
-
-    // 验证URL格式
-    avatarUrl = validateAvatarUrl(avatarUrl)
-
-    settingsMap.value.blog_avatar = avatarUrl
-    ElMessage.success('头像上传成功！已自动压缩为200x200尺寸')
-
-    // 同时更新前台store
-    const blogSettingsStore = useBlogSettingsStore()
-    if (blogSettingsStore && blogSettingsStore.updateBlogAvatar) {
-      blogSettingsStore.updateBlogAvatar(avatarUrl)
-    }
-
-    // 发送更新事件给前台页面
-    console.log('📤 发送头像更新事件:', {
-      avatarUrl: avatarUrl,
-      timestamp: Date.now()
-    })
-
-    // 方式1: 同窗口事件通知
-    window.dispatchEvent(
-      new CustomEvent('blog-settings-update', {
-        detail: { blog_avatar: avatarUrl }
-      })
-    )
-
-    // 方式2: 跨标签页通知（使用localStorage）
-    const updateData = {
-      type: 'avatar_update',
-      avatarUrl: avatarUrl,
-      timestamp: Date.now()
-    }
-    localStorage.setItem('blog-settings-update', JSON.stringify(updateData))
-    localStorage.removeItem('blog-settings-update') // 触发storage事件
-
-    // 自动保存头像设置
-    setTimeout(() => {
-      handleSingleSettingChange('blog_avatar', avatarUrl)
-    }, 500)
-  } else {
-    ElMessage.error('头像上传失败: ' + response.msg)
-  }
+  // 博客头像功能已移除，直接使用账号头像
 }
+*/
 
 /**
  * 二维码上传前检查

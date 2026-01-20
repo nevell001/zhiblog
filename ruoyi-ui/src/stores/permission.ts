@@ -51,19 +51,26 @@ const usePermissionStore = defineStore('permission', {
 
     generateRoutes(): Promise<RouteRecordRaw[]> {
       return new Promise((resolve, reject) => {
+        console.log('🚀 开始获取路由数据...')
         // 向后端请求路由数据
         getRouters().then((res: any) => {
+          console.log('✅ 成功获取路由数据:', res)
           const sdata = JSON.parse(JSON.stringify(res.data))
           const rdata = JSON.parse(JSON.stringify(res.data))
+          console.log('📋 开始过滤路由...')
           const sidebarRoutes = filterAsyncRouter(sdata)
+          console.log('📋 侧边栏路由:', sidebarRoutes)
           const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+          console.log('📋 重写路由:', rewriteRoutes)
           rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
           this.setRoutes(constantRoutes)
           this.setSidebarRouters(sidebarRoutes)
           this.setDefaultRoutes(sidebarRoutes)
           this.setTopbarRoutes(rewriteRoutes)
+          console.log('✅ 路由生成完成，总共', rewriteRoutes.length, '个路由')
           resolve(rewriteRoutes)
         }).catch(error => {
+          console.error('❌ 获取路由数据失败:', error)
           reject(error)
         })
       })
@@ -135,6 +142,13 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
 
 export const loadView = (view: string) => {
   let res: any
+
+  // 特殊处理个人中心路径
+  if (view === 'user/profile' || view === 'profile') {
+    console.log(`🔍 loadView: 检测到个人中心路径 ${view}，使用固定路径`)
+    res = () => import('../views/admin/system/user/user/profile/index.vue')
+    return res
+  }
 
   // 构建所有可能的路径模式
   const possiblePaths = new Set<string>()
@@ -256,7 +270,7 @@ function hasRole(requiredRoles: string[]): boolean {
       return super_admin === v || requiredRoles.includes(v)
     })
   } else {
-    return process.env.NODE_ENV === 'development'
+    return import.meta.env.DEV
   }
 }
 

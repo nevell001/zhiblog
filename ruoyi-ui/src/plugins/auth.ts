@@ -144,7 +144,7 @@ export function verifyPermission(
   const result = checkPermission(permission, options)
 
   // 记录权限检查日志（仅在开发环境）
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     // console.log('权限检查:', result)
   }
 
@@ -158,7 +158,7 @@ export function verifyRole(role: string, options: VerifyOptions = {}): Permissio
   const result = checkRole(role, options)
 
   // 记录角色检查日志（仅在开发环境）
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     // console.log('角色检查:', result)
   }
 

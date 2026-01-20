@@ -3,7 +3,10 @@ FROM maven:3.8.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY . .
 
-# 编译项目，跳过测试编译，并保留参数名称
+# 先安装依赖模块到本地仓库
+RUN mvn clean install -Dmaven.test.skip=true -pl ruoyi-common,ruoyi-framework,ruoyi-system,ruoyi-quartz,ruoyi-generator -am
+
+# 再编译主模块
 RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true
 
 FROM eclipse-temurin:17-jre

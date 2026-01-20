@@ -217,7 +217,21 @@ const stats = ref<DashboardStats>({} as DashboardStats)
 onMounted(() => {
   // 初始化统计数据
   loadStats()
+  // 获取版本号
+  loadVersion()
 })
+
+const loadVersion = async () => {
+  try {
+    const response = await request.get('/system/version') as any
+    if (response.code === 200 && response.data) {
+      version.value = response.data.version || '1.0.0'
+    }
+  } catch (error) {
+    console.error('获取版本号失败:', error)
+    // 保持默认版本号
+  }
+}
 
 const loadStats = async () => {
   try {

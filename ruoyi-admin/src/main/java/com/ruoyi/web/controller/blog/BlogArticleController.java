@@ -17,9 +17,9 @@ import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.BlogArticle;
 import com.ruoyi.system.service.IBlogArticleService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * 博客文章前台访问控制器
@@ -28,7 +28,7 @@ import io.swagger.annotations.ApiParam;
  * @author nevell
  * @date 2025-12-18
  */
-@Api(tags = "博客文章管理（前台）")
+@Tag(name = "博客文章管理（前台）")
 @RestController("blogFrontArticleController")
 @RequestMapping("/common/blog/article")
 public class BlogArticleController extends BaseController {
@@ -39,14 +39,14 @@ public class BlogArticleController extends BaseController {
     /**
      * 获取文章列表（前台匿名访问）
      */
-    @ApiOperation("获取文章列表（前台用）")
+    @Operation(summary = "获取文章列表（前台用）")
     @GetMapping("/list")
     public TableDataInfo list(
-            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer pageNum,
-            @ApiParam(value = "每页大小", defaultValue = "10") @RequestParam(defaultValue = "10") Integer pageSize,
-            @ApiParam(value = "分类ID") @RequestParam(required = false) Long categoryId,
-            @ApiParam(value = "搜索关键词") @RequestParam(required = false) String keyword,
-            @ApiParam(value = "状态：1-已发布，0-草稿") @RequestParam(defaultValue = "1") Integer status) {
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页大小") @RequestParam(defaultValue = "10") Integer pageSize,
+            @Parameter(description = "分类ID") @RequestParam(required = false) Long categoryId,
+            @Parameter(description = "搜索关键词") @RequestParam(required = false) String keyword,
+            @Parameter(description = "状态：1-已发布，0-草稿") @RequestParam(defaultValue = "1") Integer status) {
         try {
             startPage();
 
@@ -75,7 +75,7 @@ public class BlogArticleController extends BaseController {
     /**
      * 获取文章详情（前台匿名访问）
      */
-    @ApiOperation("获取文章详情（前台用）")
+    @Operation(summary = "获取文章详情（前台用）")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
         try {
@@ -99,7 +99,7 @@ public class BlogArticleController extends BaseController {
     /**
      * 增加文章浏览量
      */
-    @ApiOperation("增加文章浏览量")
+    @Operation(summary = "增加文章浏览量")
     @GetMapping("/view/{id}")
     public AjaxResult addViewCount(@PathVariable("id") Long id) {
         try {
@@ -129,11 +129,11 @@ public class BlogArticleController extends BaseController {
     /**
      * 获取置顶文章列表
      */
-    @ApiOperation("获取置顶文章列表")
+    @Operation(summary = "获取置顶文章列表")
     @GetMapping("/top")
     public TableDataInfo getTopArticles(
-            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer pageNum,
-            @ApiParam(value = "每页大小", defaultValue = "5") @RequestParam(defaultValue = "5") Integer pageSize) {
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页大小") @RequestParam(defaultValue = "5") Integer pageSize) {
         try {
             startPage();
             
@@ -153,11 +153,11 @@ public class BlogArticleController extends BaseController {
     /**
      * 获取推荐文章列表
      */
-    @ApiOperation("获取推荐文章列表")
+    @Operation(summary = "获取推荐文章列表")
     @GetMapping("/recommend")
     public TableDataInfo getRecommendArticles(
-            @ApiParam(value = "页码", defaultValue = "1") @RequestParam(defaultValue = "1") Integer pageNum,
-            @ApiParam(value = "每页大小", defaultValue = "5") @RequestParam(defaultValue = "5") Integer pageSize) {
+            @Parameter(description = "页码") @RequestParam(defaultValue = "1") Integer pageNum,
+            @Parameter(description = "每页大小") @RequestParam(defaultValue = "5") Integer pageSize) {
         try {
             startPage();
             

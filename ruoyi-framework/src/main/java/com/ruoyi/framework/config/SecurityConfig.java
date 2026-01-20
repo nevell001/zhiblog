@@ -137,10 +137,9 @@ public class SecurityConfig
                     requests.requestMatchers(
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**"),
-                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/*/api-docs"),
-                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/dev-api/*/api-docs"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/**")
                     ).permitAll();
                 }

@@ -25,8 +25,8 @@ import com.ruoyi.system.domain.SysConfig;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.service.IBlogSettingService;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 /**
  * 博客前台设置控制器
@@ -35,7 +35,7 @@ import io.swagger.annotations.ApiOperation;
  * @author nevell
  * @date 2025-12-18
  */
-@Api(tags = "博客前台设置管理")
+@Tag(name = "博客前台设置管理")
 @RestController
 @RequestMapping("/common/blog/setting")
 public class BlogFrontSettingController extends BaseController {
@@ -53,7 +53,7 @@ public class BlogFrontSettingController extends BaseController {
      * 获取博客设置（前台匿名访问）
      */
     @Anonymous
-    @ApiOperation("获取博客设置（前台用）")
+    @Operation(summary = "获取博客设置（前台用）")
     @GetMapping
     public AjaxResult getBlogSettings() {
         try {
@@ -183,7 +183,7 @@ public class BlogFrontSettingController extends BaseController {
      * 根据键获取单个设置值
      */
     @Anonymous
-    @ApiOperation("根据键获取设置值")
+    @Operation(summary = "根据键获取设置值")
     @GetMapping("/value/{configKey}")
     public AjaxResult getSettingValueByKey(@PathVariable("configKey") String configKey) {
         try {
@@ -205,7 +205,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 批量更新博客设置
      */
-    @ApiOperation("批量更新博客设置")
+    @Operation(summary = "批量更新博客设置")
     @PostMapping("/update")
     public AjaxResult updateBlogSettings(@RequestBody Map<String, Object> settings) {
         try {

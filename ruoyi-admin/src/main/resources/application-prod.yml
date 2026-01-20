@@ -24,9 +24,12 @@ spring:
       # 总上传文件大小限制
       max-request-size: 10MB
 
-# Swagger配置 - 生产环境关闭Swagger
-swagger:
-  enabled: false
+# SpringDoc OpenAPI 配置 - 生产环境关闭
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
 
 # 日志配置 - 生产环境使用info级别
 logging:

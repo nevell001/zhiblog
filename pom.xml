@@ -3,71 +3,69 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
-    <groupId>com.ruoyi</groupId>
-    <artifactId>ruoyi</artifactId>
-    <version>1.2.0</version>
+
+    <groupId>top.nevell</groupId>
+    <artifactId>newblog</artifactId>
+    <version>1.2.1</version>
 
     <name>newblog</name>
     <url>http://www.gitee.com/nevell/newblog</url>
     <description>博客管理系统</description>
-    
+
     <properties>
-    
-            <ruoyi.version>1.2.0</ruoyi.version>
-    
+
             <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    
+
             <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    
+
             <java.version>17</java.version>
-    
+
             <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
-    
+
             <spring-boot.version>3.3.0</spring-boot.version>
-    
+
             <druid.version>1.2.27</druid.version>
-    
+
             <mysql.version>8.4.0</mysql.version>
-    
+
             <yauaa.version>7.32.0</yauaa.version>
-    
+
             <swagger.version>3.0.0</swagger.version>
-    
+
             <kaptcha.version>2.3.3</kaptcha.version>
-    
+
             <pagehelper.boot.version>1.4.7</pagehelper.boot.version>
-    
+
             <fastjson.version>2.0.60</fastjson.version>
-    
+
             <oshi.version>6.9.1</oshi.version>
-    
+
             <commons.io.version>2.21.0</commons.io.version>
-    
+
             <poi.version>5.4.0</poi.version>
-    
+
             <velocity.version>2.3</velocity.version>
-    
+
             <jwt.version>0.12.3</jwt.version>
-    
+
             <thumbnailator.version>0.4.20</thumbnailator.version>
-    
+
             <!-- override dependency version -->
-    
+
             <tomcat.version>10.1.24</tomcat.version>
-    
+
             <spring-security.version>6.1.5</spring-security.version>
-    
+
             <spring-framework.version>6.1.6</spring-framework.version>
-    
+
             <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
-    
+
             <jaxb-api.version>2.3.1</jaxb-api.version>
-    
+
             <jakarta.version>6.0.0</jakarta.version>
-    
+
             <springdoc.version>2.5.0</springdoc.version>
-            
+
                         <micrometer.version>1.13.0</micrometer.version>
 
             <!-- 测试框架版本 -->
@@ -182,17 +180,11 @@
                 <version>${oshi.version}</version>
             </dependency>
 
-            <!-- Swagger3依赖 -->
+            <!-- SpringDoc OpenAPI（替代 Springfox，支持 Spring Boot 3.x） -->
             <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-boot-starter</artifactId>
-                <version>${swagger.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>io.swagger</groupId>
-                        <artifactId>swagger-models</artifactId>
-                    </exclusion>
-                </exclusions>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
 
             <!-- io常用工具类 -->
@@ -265,37 +257,37 @@
 
             <!-- 定时任务-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
+                <groupId>top.nevell</groupId>
                 <artifactId>ruoyi-quartz</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- 代码生成-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
+                <groupId>top.nevell</groupId>
                 <artifactId>ruoyi-generator</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- 核心模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
+                <groupId>top.nevell</groupId>
                 <artifactId>ruoyi-framework</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- 系统模块-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
+                <groupId>top.nevell</groupId>
                 <artifactId>ruoyi-system</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- 通用工具-->
             <dependency>
-                <groupId>com.ruoyi</groupId>
+                <groupId>top.nevell</groupId>
                 <artifactId>ruoyi-common</artifactId>
-                <version>${ruoyi.version}</version>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- Spring Boot Actuator 监控-->

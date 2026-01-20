@@ -239,7 +239,7 @@ interface AuthApi {
 
 export const apiConfig: ApiConfig = {
   // 基础URL
-  baseURL: process.env.NODE_ENV === 'production' ? '/prod-api' : '/dev-api',
+  baseURL: import.meta.env.DEV ? '/dev-api' : '/prod-api',
 
   // 博客前台API
   blog: {

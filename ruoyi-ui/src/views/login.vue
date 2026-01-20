@@ -212,7 +212,7 @@ function handleLogin() {
             }
             return acc
           }, {})
-          // 使用 window.location.href 而不是 router.push 避免路由循环
+          // 使用 router.push 而不是 window.location.href，避免页面刷新导致 store 数据重置
           let targetPath
           if (redirect.value && redirect.value !== '/login') {
             targetPath = redirect.value
@@ -224,7 +224,7 @@ function handleLogin() {
             Object.keys(otherQueryParams).length > 0
               ? '?' + new URLSearchParams(otherQueryParams).toString()
               : ''
-          window.location.href = targetPath + queryString
+          router.push(targetPath + queryString)
         })
         .catch(error => {
           loading.value = false

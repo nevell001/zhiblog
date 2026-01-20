@@ -34,6 +34,11 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    // 如果是 FormData，删除 Content-Type 让浏览器自动设置为 multipart/form-data
+    if (config.data instanceof FormData) {
+      delete (config.headers as any)['Content-Type']
+    }
+
     // 是否需要设置 token
     const isToken = (config.headers as any)?.isToken === false
     // 是否需要防止数据重复提交
@@ -49,6 +54,11 @@ service.interceptors.request.use(
       config.url = url
     }
     if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
+      // 对于 FormData 请求，跳过重复提交检查（FormData 包含文件数据，不适合序列化）
+      if (config.data instanceof FormData) {
+        return config
+      }
+
       // 对于包含HTML内容的请求，完全跳过重复提交检查的所有相关操作
       const isHtmlContent =
         config.data &&

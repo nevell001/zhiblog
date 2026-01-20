@@ -156,7 +156,7 @@
             <div class="profile-header">
               <div class="avatar-container">
                 <img
-                  :src="blogSettings.blog_avatar || '/default-avatar.jpg'"
+                  :src="userStore.avatar || '/default-avatar.jpg'"
                   alt="博主头像"
                   class="profile-avatar"
                 />
@@ -303,8 +303,10 @@ import {
   getFrontFriendLinkList
 } from '@/api/blog'
 import { parseTime } from '@/utils/ruoyi'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 
 // 数据
 const articles = ref([])

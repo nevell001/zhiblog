@@ -110,9 +110,11 @@
         >
           <el-button
             type="primary"
+            :loading="loading"
+            :disabled="loading"
             @click="uploadImg()"
           >
-            提 交
+            {{ loading ? '上传中...' : '提 交' }}
           </el-button>
         </el-col>
       </el-row>
@@ -125,14 +127,13 @@ import 'vue-cropper/dist/index.css'
 import { VueCropper } from 'vue-cropper'
 import { uploadAvatar } from '@/api/system/user'
 import { useUserStore } from '@/stores/user'
-import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 const userStore = useUserStore()
-const blogSettingsStore = useBlogSettingsStore()
 const { proxy } = getCurrentInstance()
 
 const open = ref(false)
 const visible = ref(false)
+const loading = ref(false)
 const title = ref('修改头像')
 
 //图片裁剪数据
@@ -192,6 +193,12 @@ function beforeUpload(file) {
 
 /** 上传图片 */
 function uploadImg() {
+  // 防止重复提交
+  if (loading.value) {
+    return
+  }
+
+  loading.value = true
   ;(proxy.$refs.cropper as any).getCropBlob((data: any) => {
     const formData = new FormData()
     formData.append('avatarfile', data, options.filename)
@@ -199,10 +206,13 @@ function uploadImg() {
       open.value = false
       options.img = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + response.imgUrl
       userStore.avatar = options.img
-      // 同时更新博客设置中的头像，确保前台首页显示最新头像
-      blogSettingsStore.updateBlogAvatar(response.imgUrl)
       ;(proxy as any).$modal.msgSuccess('修改成功')
       visible.value = false
+    }).catch(error => {
+      console.error('上传头像失败:', error)
+      ;(proxy as any).$modal.msgError('上传失败，请重试')
+    }).finally(() => {
+      loading.value = false
     })
   })
 }

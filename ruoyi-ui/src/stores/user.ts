@@ -54,26 +54,32 @@ export const useUserStore = defineStore('user', {
      */
     getInfo(): Promise<any> {
       return new Promise((resolve, reject) => {
+        console.log('📋 开始获取用户信息...')
         getInfo()
           .then((res: any) => {
+            console.log('✅ 获取用户信息成功:', res)
             const user = res.user
             const avatar =
               user.avatar == '' || user.avatar == null
                 ? defaultAvatar
-                : process.env.VUE_APP_BASE_API + user.avatar
+                : (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + user.avatar
 
             if (res.roles && res.roles.length > 0) {
               // 验证返回的roles是否是一个非空数组
               this.roles = res.roles
               this.permissions = res.permissions
+              console.log('✅ 设置 roles:', this.roles)
             } else {
               this.roles = ['ROLE_DEFAULT']
+              console.log('⚠️ roles 为空，使用默认值')
             }
             this.name = user.userName
             this.avatar = avatar
+            console.log('✅ 用户信息设置完成: name =', this.name, ', avatar =', this.avatar)
             resolve(res)
           })
           .catch(error => {
+            console.error('❌ 获取用户信息失败:', error)
             reject(error)
           })
       })

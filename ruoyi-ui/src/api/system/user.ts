@@ -129,7 +129,6 @@ export function uploadAvatar(data: FormData): Promise<any> {
   return request({
     url: '/system/user/profile/avatar',
     method: 'post',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     data: data
   })
 }
