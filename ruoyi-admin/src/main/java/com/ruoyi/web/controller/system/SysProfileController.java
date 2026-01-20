@@ -173,7 +173,15 @@ public class SysProfileController extends BaseController
                 } catch (Exception e) {
                     logger.error("更新 sys_config 表中的 blog_avatar 失败", e);
                 }
-                
+
+                // 清除博客设置缓存，确保前台能立即看到新头像
+                try {
+                    unifiedCacheManager.delete("blog:settings:all");
+                    logger.info("已清除博客设置缓存");
+                } catch (Exception e) {
+                    logger.error("清除博客设置缓存失败", e);
+                }
+
                 String oldAvatar = loginUser.getUser().getAvatar();
                 if (StringUtils.isNotEmpty(oldAvatar))
                 {

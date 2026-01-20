@@ -127,9 +127,10 @@
           class="article-list"
         >
           <div
-            v-for="article in articleList"
+            v-for="(article, index) in articleList"
             :key="article.id"
             class="article-item"
+            :style="{ animationDelay: `${index * 0.1}s` }"
           >
             <div
               v-if="article.coverUrl"
@@ -243,7 +244,10 @@
       <!-- 侧边栏 -->
       <div class="sidebar">
         <!-- 关于这个分类 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.1s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-menu"></i>
             关于这个分类
@@ -272,16 +276,20 @@
         </div>
 
         <!-- 相关分类 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.2s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-share"></i>
             相关分类
           </h3>
           <ul class="related-categories">
             <li
-              v-for="category in relatedCategories.slice(0, 8)"
+              v-for="(category, index) in relatedCategories.slice(0, 8)"
               :key="category.id"
               class="category-item"
+              :style="{ animationDelay: `${0.3 + index * 0.05}s` }"
             >
               <router-link
                 :to="`/blog/category/${category.id}`"
@@ -296,18 +304,22 @@
         </div>
 
         <!-- 热门标签 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.3s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-collection-tag"></i>
             热门标签
           </h3>
           <div class="tag-cloud">
             <router-link
-              v-for="tag in popularTags.slice(0, 15)"
+              v-for="(tag, index) in popularTags.slice(0, 15)"
               :key="tag.id"
               :to="`/blog/tag/${tag.id}`"
               class="tag-item"
               :style="{
+                animationDelay: `${0.4 + index * 0.03}s`,
                 fontSize: getTagFontSize(tag.article_count) + 'px',
                 backgroundColor: tag.color || '#409EFF',
                 color: 'white',
@@ -321,16 +333,20 @@
         </div>
 
         <!-- 最新文章 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.4s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-star-on"></i>
             最新文章
           </h3>
           <ul class="recent-articles">
             <li
-              v-for="article in recentArticles.slice(0, 8)"
+              v-for="(article, index) in recentArticles.slice(0, 8)"
               :key="article.id"
               class="article-item"
+              :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
             >
               <router-link
                 :to="`/blog/article/${article.id}`"
@@ -397,7 +413,13 @@ const loadCategoryArticles = async (append = false) => {
     loading.value = !append
     if (append) loadingMore.value = true
 
+    console.log('📥 加载分类文章，参数:', {
+      ...queryParams,
+      categoryId: queryParams.categoryId
+    })
+
     const response = await getArticleList({ ...queryParams, categoryId: queryParams.categoryId })
+    console.log('📦 分类文章响应:', response)
 
     const newArticles = response.rows || []
     if (append) {
@@ -406,8 +428,13 @@ const loadCategoryArticles = async (append = false) => {
       articleList.value = newArticles
     }
     total.value = response.total || 0
+
+    console.log('✅ 分类文章加载成功:', {
+      文章数量: newArticles.length,
+      总数: total.value
+    })
   } catch (error) {
-    console.error('获取分类文章失败:', error)
+    console.error('❌ 获取分类文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
     loading.value = false
@@ -428,14 +455,22 @@ const loadBlogSettings = async () => {
 // 获取分类详情
 const loadCategoryDetail = async () => {
   try {
+    console.log('📥 加载分类详情，ID:', queryParams.categoryId)
     const response = await getCategoryDetail(queryParams.categoryId)
-    const category = response.data || response
+    console.log('📦 分类详情响应:', response)
 
+    const category = response.data || response
     categoryName.value = category.name || ''
     categoryDescription.value = category.description || ''
     lastUpdateTime.value = formatDate(new Date().toISOString())
+
+    console.log('✅ 分类详情加载成功:', {
+      name: categoryName.value,
+      description: categoryDescription.value
+    })
   } catch (error) {
-    console.error('获取分类详情失败:', error)
+    console.error('❌ 获取分类详情失败:', error)
+    ElMessage.error('获取分类详情失败')
   }
 }
 
@@ -528,11 +563,24 @@ const stripHtmlTags = html => {
 watch(
   () => route.params.id,
   newId => {
+    console.log('🔄 路由参数变化:', newId)
+
     if (newId) {
+      // 有分类ID，加载特定分类的文章
       currentCategoryId.value = parseInt(newId)
       queryParams.categoryId = parseInt(newId)
       queryParams.pageNum = 1
       loadCategoryDetail()
+      loadCategoryArticles()
+      loadRelatedCategories()
+    } else {
+      // 没有分类ID，显示所有分类列表
+      console.log('⚠️ 没有分类ID，显示所有分类')
+      currentCategoryId.value = null
+      queryParams.categoryId = null
+      queryParams.pageNum = 1
+      categoryName.value = '所有分类'
+      categoryDescription.value = '浏览所有分类下的文章'
       loadCategoryArticles()
       loadRelatedCategories()
     }
@@ -1458,5 +1506,26 @@ html.dark .empty-icon {
 
 html.dark .empty-content h3 {
   color: #e0e0e0;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.article-item,
+.sidebar-widget,
+.category-item,
+.tag-item,
+.recent-articles .article-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
 }
 </style>

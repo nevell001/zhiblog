@@ -41,4 +41,9 @@ public class CacheConstants
      * 登录账户密码错误次数 redis key
      */
     public static final String PWD_ERR_CNT_KEY = "pwd_err_cnt:";
+
+    /**
+     * 友情链接列表 redis key
+     */
+    public static final String BLOG_FRIEND_LINK_LIST = "blog:friend_link:list";
 }

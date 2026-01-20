@@ -11,8 +11,9 @@
           class="hero-avatar"
         >
           <img
-            :src="userStore.avatar || '/default-avatar.jpg'"
+            :src="blogAvatarUrl"
             :alt="blogSettings.blog_author"
+            @error="handleAvatarError"
           />
           <div class="avatar-decoration"></div>
         </div>
@@ -39,46 +40,46 @@
             class="hero-social"
           >
             <a
-              :href="blogSettings.github_url || '#'"
-              class="social-link"
+              v-if="blogSettings.github_url"
+              :href="blogSettings.github_url"
+              class="social-link social-github"
               title="GitHub"
               target="_blank"
               rel="noopener"
             >
-              <i class="el-icon-s-promotion"></i>
+              <el-icon><Promotion /></el-icon>
+              <span class="social-tooltip">GitHub</span>
             </a>
             <a
-              :href="blogSettings.email ? `mailto:${blogSettings.email}` : '#'"
-              class="social-link"
+              v-if="blogSettings.blog_email"
+              :href="`mailto:${blogSettings.blog_email}`"
+              class="social-link social-email"
               title="邮箱"
             >
-              <i class="el-icon-message"></i>
+              <el-icon><Message /></el-icon>
+              <span class="social-tooltip">邮箱</span>
             </a>
             <a
-              href="#"
-              class="social-link"
-              title="微信"
-              @click.prevent="showWechatQR = true"
-            >
-              <i class="el-icon-chat-dot-round"></i>
-            </a>
-            <a
-              :href="blogSettings.weibo_url || '#'"
-              class="social-link"
+              v-if="blogSettings.weibo_url"
+              :href="blogSettings.weibo_url"
+              class="social-link social-weibo"
               title="微博"
               target="_blank"
               rel="noopener"
             >
-              <i class="el-icon-star-off"></i>
+              <el-icon><Star /></el-icon>
+              <span class="social-tooltip">微博</span>
             </a>
             <a
-              :href="blogSettings.zhihu_url || '#'"
-              class="social-link"
-              title="知乎"
+              v-if="blogSettings.personal_website"
+              :href="formatUrl(blogSettings.personal_website)"
+              class="social-link social-website"
+              title="个人网站"
               target="_blank"
               rel="noopener"
             >
-              <i class="el-icon-reading"></i>
+              <el-icon><Connection /></el-icon>
+              <span class="social-tooltip">个人网站</span>
             </a>
           </div>
         </div>
@@ -110,7 +111,7 @@
           </div>
           <div class="stat-content">
             <div class="stat-number">
-              {{ stats.categoryCount || 0 }}
+              {{ categories.length }}
             </div>
             <div class="stat-label">
               个分类
@@ -123,7 +124,7 @@
           </div>
           <div class="stat-content">
             <div class="stat-number">
-              {{ stats.tagCount || 0 }}
+              {{ tags.length }}
             </div>
             <div class="stat-label">
               个标签
@@ -159,68 +160,19 @@
       </div>
     </div>
 
-    <!-- 技能专长 -->
+    <!-- 关于内容 -->
     <div
       v-animate="'fade-in-up'"
-      class="skills-section"
+      class="about-content-section"
     >
       <h2 class="section-title">
-        技能专长
+        关于我
       </h2>
-      <div class="skills-container">
+      <div class="about-content-container">
         <div
-          v-for="(skill, index) in skills"
-          :key="index"
-          v-animate="'fade-in-up'"
-          class="skill-item"
-        >
-          <div class="skill-header">
-            <span class="skill-name">{{ skill.name }}</span>
-            <span class="skill-level">{{ skill.level }}%</span>
-          </div>
-          <div class="skill-bar">
-            <div
-              class="skill-progress"
-              :style="{ width: skill.level + '%', backgroundColor: skill.color }"
-            ></div>
-          </div>
-          <div class="skill-description">
-            {{ skill.description }}
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 工作经历 -->
-    <div
-      v-animate="'fade-in-up'"
-      class="timeline-section"
-    >
-      <h2 class="section-title">
-        成长历程
-      </h2>
-      <div class="timeline">
-        <div
-          v-for="(item, index) in timeline"
-          :key="index"
-          v-animate="'fade-in-up'"
-          class="timeline-item"
-        >
-          <div class="timeline-marker">
-            <div class="timeline-dot"></div>
-          </div>
-          <div class="timeline-content">
-            <div class="timeline-date">
-              {{ item.date }}
-            </div>
-            <div class="timeline-title">
-              {{ item.title }}
-            </div>
-            <div class="timeline-description">
-              {{ item.description }}
-            </div>
-          </div>
-        </div>
+          class="about-content"
+          v-html="blogSettings.about_content || '暂无关于内容'"
+        ></div>
       </div>
     </div>
 
@@ -233,377 +185,299 @@
         联系我
       </h2>
       <div class="contact-container">
-        <div class="contact-info">
-          <div class="contact-item">
+        <div class="contact-item contact-email">
+          <div class="contact-icon-wrapper">
             <div class="contact-icon">
-              <i class="el-icon-message"></i>
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+              </svg>
             </div>
-            <div class="contact-details">
-              <div class="contact-label">
-                邮箱
-              </div>
-              <div class="contact-value">
-                {{ blogSettings.email || 'contact@example.com' }}
-              </div>
-            </div>
+            <div class="contact-icon-bg"></div>
           </div>
-          <div class="contact-item">
-            <div class="contact-icon">
-              <i class="el-icon-location"></i>
+          <div class="contact-details">
+            <div class="contact-label">
+              邮箱
             </div>
-            <div class="contact-details">
-              <div class="contact-label">
-                位置
-              </div>
-              <div class="contact-value">
-                {{ blogSettings.author_location || '中国·北京' }}
-              </div>
-            </div>
-          </div>
-          <div class="contact-item">
-            <div class="contact-icon">
-              <i class="el-icon-link"></i>
-            </div>
-            <div class="contact-details">
-              <div class="contact-label">
-                GitHub
-              </div>
-              <div class="contact-value">
-                {{ blogSettings.github_url ? 'github.com/nevell' : 'github.com/username' }}
-              </div>
+            <div class="contact-value">
+              <a
+                v-if="blogSettings.blog_email"
+                :href="`mailto:${blogSettings.blog_email}`"
+                class="contact-link"
+              >
+                {{ blogSettings.blog_email }}
+              </a>
+              <span v-else>暂无邮箱</span>
             </div>
           </div>
         </div>
-
-        <div class="contact-form">
-          <el-form
-            ref="contactFormRef"
-            :model="contactForm"
-            :rules="contactRules"
-            label-width="0"
-          >
-            <el-form-item prop="name">
-              <el-input
-                v-model="contactForm.name"
-                placeholder="您的姓名"
-                size="large"
+        <div class="contact-item contact-location">
+          <div class="contact-icon-wrapper">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </div>
+            <div class="contact-icon-bg"></div>
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">
+              位置
+            </div>
+            <div class="contact-value">
+              {{ blogSettings.author_location || '暂无位置信息' }}
+            </div>
+          </div>
+        </div>
+        <div class="contact-item contact-github">
+          <div class="contact-icon-wrapper">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+            </div>
+            <div class="contact-icon-bg"></div>
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">
+              GitHub
+            </div>
+            <div class="contact-value">
+              <a
+                v-if="blogSettings.github_url"
+                :href="formatUrl(blogSettings.github_url)"
+                target="_blank"
+                rel="noopener"
+                class="contact-link"
               >
-                <template #prefix>
-                  <i class="el-icon-user"></i>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="email">
-              <el-input
-                v-model="contactForm.email"
-                placeholder="您的邮箱"
-                size="large"
+                {{ blogSettings.github_url }}
+              </a>
+              <span v-else>暂无 GitHub</span>
+            </div>
+          </div>
+        </div>
+        <div class="contact-item contact-weibo">
+          <div class="contact-icon-wrapper">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.03 2C6.55 2 2.11 6.44 2.11 11.92c0 5.48 4.44 9.92 9.92 9.92 5.48 0 9.92-4.44 9.92-9.92S17.51 2 12.03 2zm0 17.83c-4.35 0-7.91-3.56-7.91-7.91 0-4.35 3.56-7.91 7.91-7.91 4.35 0 7.91 3.56 7.91 7.91 0 4.35-3.56 7.91-7.91 7.91zm5.23-9.12c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24zm-2.35 2.35c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24zm-2.35 2.35c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24z"/>
+              </svg>
+            </div>
+            <div class="contact-icon-bg"></div>
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">
+              微博
+            </div>
+            <div class="contact-value">
+              <a
+                v-if="blogSettings.weibo_url"
+                :href="formatUrl(blogSettings.weibo_url)"
+                target="_blank"
+                rel="noopener"
+                class="contact-link"
               >
-                <template #prefix>
-                  <i class="el-icon-message"></i>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="subject">
-              <el-input
-                v-model="contactForm.subject"
-                placeholder="主题"
-                size="large"
+                {{ blogSettings.weibo_url }}
+              </a>
+              <span v-else>暂无微博</span>
+            </div>
+          </div>
+        </div>
+        <div class="contact-item contact-website">
+          <div class="contact-icon-wrapper">
+            <div class="contact-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+              </svg>
+            </div>
+            <div class="contact-icon-bg"></div>
+          </div>
+          <div class="contact-details">
+            <div class="contact-label">
+              个人网站
+            </div>
+            <div class="contact-value">
+              <a
+                v-if="blogSettings.personal_website"
+                :href="formatUrl(blogSettings.personal_website)"
+                target="_blank"
+                rel="noopener"
+                class="contact-link"
               >
-                <template #prefix>
-                  <i class="el-icon-edit"></i>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item prop="message">
-              <el-input
-                v-model="contactForm.message"
-                type="textarea"
-                :rows="4"
-                placeholder="留言内容"
-                resize="none"
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button
-                type="primary"
-                size="large"
-                :loading="submitting"
-                class="submit-btn"
-                @click="submitContact"
-              >
-                <i class="el-icon-s-promotion"></i>
-                发送消息
-              </el-button>
-            </el-form-item>
-          </el-form>
+                {{ blogSettings.personal_website }}
+              </a>
+              <span v-else>暂无个人网站</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 微信二维码对话框 -->
-    <el-dialog
-      v-model="showWechatQR"
-      title="微信二维码"
-      width="300px"
-      center
-    >
-      <div class="qr-code-container">
-        <img
-          v-if="blogSettings.wechat_qr"
-          :src="blogSettings.wechat_qr"
-          alt="微信二维码"
-        />
-        <div
-          v-else
-          class="qr-placeholder"
-        >
-          暂无微信二维码
-        </div>
-        <p>扫码添加微信</p>
-      </div>
-    </el-dialog>
-  </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ref, computed, onMounted } from 'vue'
 import BlogNav from '@/components/BlogNav.vue'
+import { Promotion, Message, Star, Connection } from '@element-plus/icons-vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
-import { getSkillsList, getExperienceList } from '@/api/blog/author'
+import { getStatisticsOverview } from '@/api/statistics'
+import { getCategoryList } from '@/api/blog/category'
+import { getTagList } from '@/api/blog/tag'
 import { useUserStore } from '@/stores/user'
+import { processAvatarUrl } from '@/api/blog/avatar'
 
 const userStore = useUserStore()
 
 // 响应式数据
 interface BlogSettings {
-  email?: string
+  blog_email?: string
   weibo_url?: string
   github_url?: string
   wechat_qr?: string
+  about_content?: string
+  author_location?: string
+  personal_website?: string
   [key: string]: any
 }
 
 const blogSettings = ref<BlogSettings>({})
 const stats = ref({})
-const showWechatQR = ref(false)
-const submitting = ref(false)
-const contactFormRef = ref()
+const categories = ref([])
+const tags = ref([])
 
-// 联系表单
-const contactForm = reactive({
-  name: '',
-  email: '',
-  subject: '',
-  message: ''
+// 处理头像 URL
+const blogAvatarUrl = computed(() => {
+  const avatar = blogSettings.value.blog_avatar
+  console.log('🔍 博客设置中的头像值:', avatar)
+
+  if (!avatar || !avatar.trim()) {
+    console.log('⚠️ 头像为空，使用默认头像')
+    return '/default-avatar.svg'
+  }
+
+  const processedUrl = processAvatarUrl(avatar)
+  console.log('✅ 处理后的头像 URL:', processedUrl)
+
+  if (!processedUrl) {
+    console.log('⚠️ 处理后的 URL 为空，使用默认头像')
+    return '/default-avatar.svg'
+  }
+
+  return processedUrl
 })
 
-// 表单验证规则
-const contactRules = {
-  name: [
-    { required: true, message: '请输入您的姓名', trigger: 'blur' },
-    { min: 2, max: 20, message: '姓名长度在 2 到 20 个字符', trigger: 'blur' }
-  ],
-  email: [
-    { required: true, message: '请输入您的邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
-  ],
-  subject: [
-    { required: true, message: '请输入主题', trigger: 'blur' },
-    { min: 5, max: 50, message: '主题长度在 5 到 50 个字符', trigger: 'blur' }
-  ],
-  message: [
-    { required: true, message: '请输入留言内容', trigger: 'blur' },
-    { min: 10, max: 500, message: '留言内容长度在 10 到 500 个字符', trigger: 'blur' }
-  ]
-}
+// 处理头像加载错误
+const handleAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  const currentSrc = img.src
 
-// 技能数据
-const skills = ref([])
-
-// 成长历程数据
-const timeline = ref([])
-
-// 加载技能数据
-const loadSkillsData = async () => {
-  try {
-    const response = await getSkillsList()
-    if (response.data && response.data.length > 0) {
-      skills.value = response.data
-    } else {
-      // 使用默认数据
-      skills.value = [
-        {
-          name: 'Vue.js',
-          level: 90,
-          color: '#4FC08D',
-          description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等'
-        },
-        {
-          name: 'React',
-          level: 75,
-          color: '#61DAFB',
-          description: '了解 React 生态，能够进行 React 项目开发'
-        },
-        {
-          name: 'Node.js',
-          level: 85,
-          color: '#339933',
-          description: '熟悉 Node.js 后端开发，Express、Koa 框架'
-        },
-        {
-          name: 'Java',
-          level: 88,
-          color: '#ED8B00',
-          description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构'
-        },
-        {
-          name: 'Python',
-          level: 70,
-          color: '#3776AB',
-          description: '掌握 Python 基础，能够进行脚本编写和数据分析'
-        },
-        {
-          name: 'MySQL',
-          level: 85,
-          color: '#4479A1',
-          description: '熟练使用 MySQL 数据库设计、优化和集群部署'
-        },
-        {
-          name: 'Redis',
-          level: 80,
-          color: '#DC382D',
-          description: '熟悉 Redis 缓存应用、数据结构和集群'
-        },
-        {
-          name: 'Docker',
-          level: 82,
-          color: '#2496ED',
-          description: '掌握 Docker 容器化部署和 Docker Compose 编排'
-        }
-      ]
-    }
-  } catch (error) {
-    console.error('加载技能数据失败:', error)
-    // 使用默认数据
-    skills.value = [
-      {
-        name: 'Vue.js',
-        level: 90,
-        color: '#4FC08D',
-        description: '熟练掌握 Vue 3 全家桶，包括 Vue Router、Pinia、Element Plus 等'
-      },
-      {
-        name: 'React',
-        level: 75,
-        color: '#61DAFB',
-        description: '了解 React 生态，能够进行 React 项目开发'
-      },
-      {
-        name: 'Node.js',
-        level: 85,
-        color: '#339933',
-        description: '熟悉 Node.js 后端开发，Express、Koa 框架'
-      },
-      {
-        name: 'Java',
-        level: 88,
-        color: '#ED8B00',
-        description: '精通 Java 开发，Spring Boot、Spring Cloud 微服务架构'
-      }
-    ]
+  // 防止无限循环：如果已经是默认头像，就不再重试
+  if (currentSrc.includes('default-avatar.svg')) {
+    console.error('❌ 默认头像也加载失败，停止重试')
+    return
   }
-}
 
-// 加载经历数据
-const loadExperienceData = async () => {
-  try {
-    const response = await getExperienceList()
-    if (response.data && response.data.length > 0) {
-      timeline.value = response.data
-    } else {
-      // 使用默认数据
-      timeline.value = [
-        {
-          date: '2024 - 至今',
-          title: '高级全栈工程师',
-          description: '负责公司核心产品架构设计和团队技术管理，推动技术革新和性能优化'
-        },
-        {
-          date: '2022 - 2024',
-          title: '全栈开发工程师',
-          description: '参与多个大型 Web 项目开发，精通前后端技术栈，独立完成项目交付'
-        },
-        {
-          date: '2020 - 2022',
-          title: '前端开发工程师',
-          description: '专注于前端开发，精通 Vue、React 等现代前端框架，推动前端工程化建设'
-        },
-        {
-          date: '2019 - 2020',
-          title: '初级开发工程师',
-          description: '职业生涯起步，学习全栈开发技术，积累项目经验'
-        },
-        {
-          date: '2015 - 2019',
-          title: '计算机科学学位',
-          description: '获得计算机科学学士学位，系统学习软件开发基础理论知识'
-        }
-      ]
-    }
-  } catch (error) {
-    console.error('加载经历数据失败:', error)
-    // 使用默认数据
-    timeline.value = [
-      {
-        date: '2024 - 至今',
-        title: '高级全栈工程师',
-        description: '负责公司核心产品架构设计和团队技术管理，推动技术革新和性能优化'
-      },
-      {
-        date: '2022 - 2024',
-        title: '全栈开发工程师',
-        description: '参与多个大型 Web 项目开发，精通前后端技术栈，独立完成项目交付'
-      },
-      {
-        date: '2020 - 2022',
-        title: '前端开发工程师',
-        description: '专注于前端开发，精通 Vue、React 等现代前端框架，推动前端工程化建设'
-      }
-    ]
-  }
+  console.error('❌ 头像加载失败:', currentSrc)
+  console.log('🔄 切换到默认头像 SVG')
+
+  // 使用 SVG 格式的默认头像（更可靠）
+  img.src = '/default-avatar.svg'
 }
 
 // 加载博客设置
 const loadBlogSettings = async () => {
   try {
+    console.log('🔄 开始加载博客设置...')
     const response = await getBlogSettingsAnonymous()
-    blogSettings.value = response || {}
+    // 正确提取data字段
+    blogSettings.value = response?.data || {}
+    
+    console.log('📦 博客设置加载完成:', {
+      github_url: blogSettings.value.github_url,
+      weibo_url: blogSettings.value.weibo_url,
+      author_location: blogSettings.value.author_location,
+      personal_website: blogSettings.value.personal_website,
+      blog_email: blogSettings.value.blog_email
+    })
+    
+    console.log('🔍 联系信息字段值:', {
+      'github_url 是否存在': !!blogSettings.value.github_url,
+      'github_url 值': blogSettings.value.github_url,
+      'weibo_url 是否存在': !!blogSettings.value.weibo_url,
+      'weibo_url 值': blogSettings.value.weibo_url,
+      'author_location 是否存在': !!blogSettings.value.author_location,
+      'author_location 值': blogSettings.value.author_location,
+      'personal_website 是否存在': !!blogSettings.value.personal_website,
+      'personal_website 值': blogSettings.value.personal_website,
+      'blog_email 是否存在': !!blogSettings.value.blog_email,
+      'blog_email 值': blogSettings.value.blog_email
+    })
   } catch (error) {
-    console.error('加载博客设置失败:', error)
+    console.error('❌ 加载博客设置失败:', error)
     // 使用默认设置
     blogSettings.value = {
       blog_author: 'Nevell',
       author_title: '全栈开发工程师',
       blog_desc: '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。',
-      email: 'contact@example.com',
+      blog_email: 'contact@example.com',
       github_url: 'https://github.com',
       weibo_url: 'https://weibo.com',
-      wechat_qr: ''
+      wechat_qr: '',
+      about_content: '暂无关于内容',
+      author_location: '中国·北京'
     }
   }
 }
 
 // 加载统计数据
-const loadStats = () => {
-  // 模拟数据，实际应该从API获取
-  stats.value = {
-    articleCount: 42,
-    categoryCount: 8,
-    tagCount: 25,
-    commentCount: 168,
-    totalViews: 15230
+const loadStats = async () => {
+  try {
+    console.log('🔄 开始加载统计数据...')
+    const response = await getStatisticsOverview()
+    console.log('📦 统计数据API响应:', response)
+
+    // 正确提取data字段
+    const data = response?.data || {}
+
+    stats.value = {
+      articleCount: data.articleCount || 0,
+      commentCount: data.commentCount || 0,
+      totalViews: data.totalViews || 0
+    }
+
+    console.log('✅ 统计数据加载完成:', stats.value)
+  } catch (error) {
+    console.error('❌ 加载统计数据失败:', error)
+    // 使用默认数据
+    stats.value = {
+      articleCount: 0,
+      commentCount: 0,
+      totalViews: 0
+    }
+  }
+}
+
+// 加载分类列表
+const loadCategories = async () => {
+  try {
+    const response = await getCategoryList({ pageSize: 100 })
+    categories.value = response.data || []
+    console.log('✅ 分类列表加载完成，数量:', categories.value.length)
+  } catch (error) {
+    console.error('❌ 加载分类列表失败:', error)
+    categories.value = []
+  }
+}
+
+// 加载标签列表
+const loadTags = async () => {
+  try {
+    const response = await getTagList({ pageSize: 100 })
+    tags.value = response.data || []
+    console.log('✅ 标签列表加载完成，数量:', tags.value.length)
+  } catch (error) {
+    console.error('❌ 加载标签列表失败:', error)
+    tags.value = []
   }
 }
 
@@ -617,37 +491,23 @@ const formatNumber = num => {
   return num.toString()
 }
 
-// 提交联系表单
-const submitContact = async () => {
-  try {
-    await contactFormRef.value.validate()
-    submitting.value = true
-
-    // 这里应该调用API发送邮件
-    await new Promise(resolve => setTimeout(resolve, 1000)) // 模拟API调用
-
-    ElMessage.success('消息已发送，我会尽快回复您！')
-    // 重置表单
-    Object.keys(contactForm).forEach(key => {
-      contactForm[key] = ''
-    })
-  } catch (error) {
-    console.error('提交失败:', error)
-    if (error !== 'validation_failed') {
-      ElMessage.error('发送失败，请稍后重试')
-    }
-  } finally {
-    submitting.value = false
+// 格式化URL，确保有协议前缀
+const formatUrl = url => {
+  if (!url) return ''
+  if (typeof url !== 'string') return url
+  // 如果没有协议前缀，添加 https://
+  if (!url.startsWith('http://') && !url.startsWith('https://')) {
+    return 'https://' + url
   }
+  return url
 }
 
 onMounted(() => {
   loadBlogSettings()
   loadStats()
-  loadSkillsData()
-  loadExperienceData()
-})
-</script>
+  loadCategories()
+  loadTags()
+})</script>
 
 <style scoped>
 .about-container {
@@ -683,12 +543,34 @@ onMounted(() => {
   animation: floatStars 25s linear infinite;
 }
 
+.hero-section::after {
+  content: '';
+  position: absolute;
+  bottom: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+  animation: pulse 8s ease-in-out infinite;
+}
+
 @keyframes floatStars {
   0% {
     transform: translate(0, 0);
   }
   100% {
     transform: translate(-50px, -50px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
   }
 }
 
@@ -714,11 +596,14 @@ onMounted(() => {
   border-radius: 50%;
   border: 6px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-avatar:hover img {
   transform: scale(1.05);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
 }
 
 .avatar-decoration {
@@ -730,6 +615,18 @@ onMounted(() => {
   border: 3px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
   animation: rotate 20s linear infinite;
+}
+
+.avatar-decoration::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  animation: rotate 30s linear infinite reverse;
 }
 
 @keyframes rotate {
@@ -753,6 +650,19 @@ onMounted(() => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  position: relative;
+  display: inline-block;
+}
+
+.hero-title::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  border-radius: 2px;
 }
 
 .hero-subtitle {
@@ -760,6 +670,25 @@ onMounted(() => {
   margin-bottom: 20px;
   opacity: 0.9;
   font-weight: 500;
+  position: relative;
+  display: inline-block;
+}
+
+.hero-subtitle::before {
+  content: '✨';
+  margin-right: 8px;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 .hero-description {
@@ -779,24 +708,100 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
   color: white;
   font-size: 1.3rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.social-link svg {
+  width: 26px;
+  height: 26px;
+  position: relative;
+  z-index: 1;
 }
 
 .social-link:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  transform: translateY(-8px) scale(1.1);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
 }
 
+/* GitHub 特有样式 */
+.social-github {
+  background: rgba(31, 31, 31, 0.15);
+  border-color: rgba(31, 31, 31, 0.3);
+}
+
+.social-github:hover {
+  background: linear-gradient(135deg, #24292e, #1a1e22);
+  box-shadow: 0 15px 35px rgba(36, 41, 46, 0.4);
+}
+
+/* 邮箱特有样式 */
+.social-email {
+  background: rgba(234, 67, 53, 0.15);
+  border-color: rgba(234, 67, 53, 0.3);
+}
+
+.social-email:hover {
+  background: linear-gradient(135deg, #ea4335, #d93025);
+  box-shadow: 0 15px 35px rgba(234, 67, 53, 0.4);
+}
+
+/* 微博特有样式 */
+.social-weibo {
+  background: rgba(230, 22, 45, 0.15);
+  border-color: rgba(230, 22, 45, 0.3);
+}
+
+.social-weibo:hover {
+  background: linear-gradient(135deg, #e6162d, #d61228);
+  box-shadow: 0 15px 35px rgba(230, 22, 45, 0.4);
+}
+
+/* 个人网站特有样式 */
+.social-website {
+  background: rgba(64, 158, 255, 0.15);
+  border-color: rgba(64, 158, 255, 0.3);
+}
+
+.social-website:hover {
+  background: linear-gradient(135deg, #409eff, #3a8ee6);
+  box-shadow: 0 15px 35px rgba(64, 158, 255, 0.4);
+}
+
+/* Tooltip */
+.social-tooltip {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  z-index: 10;
+}
+
+.social-link:hover .social-tooltip {
+  opacity: 1;
+  bottom: -35px;
+}
+
+/* 光效动画 */
 .social-link::before {
   content: '';
   position: absolute;
@@ -804,8 +809,9 @@ onMounted(() => {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: left 0.5s ease;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.6s ease;
+  z-index: 2;
 }
 
 .social-link:hover::before {
@@ -838,11 +844,29 @@ onMounted(() => {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #409eff, #337ecc);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-10px);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:hover::before {
+  transform: scaleX(1);
 }
 
 .stat-icon {
@@ -855,6 +879,12 @@ onMounted(() => {
   justify-content: center;
   font-size: 1.5rem;
   color: white;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.3);
 }
 
 .stat-number {
@@ -863,17 +893,37 @@ onMounted(() => {
   color: #333;
   line-height: 1;
   margin-bottom: 5px;
+  position: relative;
+  display: inline-block;
+}
+
+.stat-number::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #409eff, #337ecc);
+  transition: width 0.3s ease;
+}
+
+.stat-card:hover .stat-number::after {
+  width: 100%;
 }
 
 .stat-label {
   font-size: 0.95rem;
   color: #666;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* 技能专长 */
-.skills-section {
+/* 关于内容 */
+.about-content-section {
   padding: 80px 20px;
-  background: #f8f9fa;
+  background: white;
 }
 
 .section-title {
@@ -896,273 +946,291 @@ onMounted(() => {
   border-radius: 2px;
 }
 
-.skills-container {
-  max-width: 1000px;
+.about-content-container {
+  max-width: 900px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 30px;
 }
 
-.skill-item {
-  background: white;
+.about-content {
+  background: #f8f9fa;
+  padding: 40px;
   border-radius: 16px;
-  padding: 25px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.skill-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-}
-
-.skill-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.skill-name {
-  font-size: 1.1rem;
-  font-weight: 600;
+  line-height: 1.8;
   color: #333;
-}
-
-.skill-level {
   font-size: 1rem;
-  font-weight: 600;
-  color: #666;
-}
-
-.skill-bar {
-  height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin-bottom: 15px;
-}
-
-.skill-progress {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1s ease-in-out;
-  background: linear-gradient(90deg, #409eff, #337ecc);
-}
-
-.skill-description {
-  color: #666;
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-/* 成长历程 */
-.timeline-section {
-  padding: 80px 20px;
-  background: white;
-}
-
-.timeline {
-  max-width: 1000px;
-  margin: 0 auto;
   position: relative;
-  padding: 20px 0;
+  overflow: hidden;
 }
 
-.timeline::before {
+.about-content::before {
   content: '';
   position: absolute;
-  left: 50%;
   top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, #409eff, #337ecc);
-  transform: translateX(-50%);
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #409eff, #337ecc, #409eff);
+  background-size: 200% 100%;
+  animation: gradientMove 3s linear infinite;
 }
 
-.timeline-item {
-  display: flex;
-  margin-bottom: 50px;
-  position: relative;
+@keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
 }
 
-.timeline-item:nth-child(odd) {
-  flex-direction: row-reverse;
-}
-
-.timeline-marker {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  transform: translateX(-50%);
-  z-index: 2;
-}
-
-.timeline-dot {
-  width: 20px;
-  height: 20px;
-  background: white;
-  border: 4px solid #409eff;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.timeline-item:hover .timeline-dot {
-  transform: translateX(-50%) scale(1.3);
-  box-shadow: 0 0 20px rgba(64, 158, 255, 0.5);
-}
-
-.timeline-content {
-  width: 45%;
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.timeline-content:hover {
-  transform: scale(1.02);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-}
-
-.timeline-date {
-  font-size: 0.9rem;
-  color: #409eff;
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-.timeline-title {
-  font-size: 1.3rem;
-  font-weight: 700;
+.about-content :deep(h1),
+.about-content :deep(h2),
+.about-content :deep(h3) {
   color: #333;
-  margin-bottom: 15px;
+  margin-top: 24px;
+  margin-bottom: 16px;
 }
 
-.timeline-description {
-  color: #666;
-  line-height: 1.8;
-  font-size: 0.95rem;
+.about-content :deep(p) {
+  margin-bottom: 16px;
+}
+
+.about-content :deep(a) {
+  color: #409eff;
+  text-decoration: none;
+}
+
+.about-content :deep(a:hover) {
+  text-decoration: underline;
 }
 
 /* 联系方式 */
 .contact-section {
   padding: 80px 20px 100px;
-  background: #f8f9fa;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+}
+
+.contact-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(64, 158, 255, 0.3), transparent);
 }
 
 .contact-container {
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-}
-
-.contact-info {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  gap: 24px;
 }
 
 .contact-item {
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 25px;
+  gap: 24px;
+  padding: 28px 32px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border-radius: 20px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+}
+
+.contact-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #409eff, #337ecc);
+  opacity: 0;
+  transition: opacity 0.3s ease;
 }
 
 .contact-item:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-8px) translateX(4px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  border-color: rgba(64, 158, 255, 0.2);
+}
+
+.contact-item:hover::before {
+  opacity: 1;
+}
+
+/* 图标包装器 */
+.contact-icon-wrapper {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
 }
 
 .contact-icon {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #409eff, #337ecc);
-  border-radius: 16px;
+  position: relative;
+  z-index: 2;
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
   color: white;
-  flex-shrink: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.contact-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.contact-icon-bg {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  opacity: 0.3;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+}
+
+.contact-item:hover .contact-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
+}
+
+.contact-item:hover .contact-icon-bg {
+  transform: scale(1.15) rotate(-5deg);
+  opacity: 0.2;
+}
+
+/* 邮箱特有样式 */
+.contact-email .contact-icon,
+.contact-email .contact-icon-bg {
+  background: linear-gradient(135deg, #ea4335, #d33426);
+}
+
+.contact-email:hover .contact-icon {
+  transform: rotate(10deg) scale(1.1);
+  box-shadow: 0 10px 30px rgba(234, 67, 53, 0.4);
+}
+
+.contact-email::before {
+  background: linear-gradient(180deg, #ea4335, #d33426);
+}
+
+/* 位置特有样式 */
+.contact-location .contact-icon,
+.contact-location .contact-icon-bg {
+  background: linear-gradient(135deg, #4CAF50, #388E3C);
+}
+
+.contact-location:hover .contact-icon {
+  transform: rotate(-10deg) scale(1.1);
+  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+}
+
+.contact-location::before {
+  background: linear-gradient(180deg, #4CAF50, #388E3C);
+}
+
+/* GitHub 特有样式 */
+.contact-github .contact-icon,
+.contact-github .contact-icon-bg {
+  background: linear-gradient(135deg, #333, #24292e);
+}
+
+.contact-github:hover .contact-icon {
+  transform: scale(1.1);
+  box-shadow: 0 10px 30px rgba(51, 51, 51, 0.4);
+}
+
+.contact-github::before {
+  background: linear-gradient(180deg, #333, #24292e);
+}
+
+/* 微博特有样式 */
+.contact-weibo .contact-icon,
+.contact-weibo .contact-icon-bg {
+  background: linear-gradient(135deg, #e6162d, #c81227);
+}
+
+.contact-weibo:hover .contact-icon {
+  transform: rotate(10deg) scale(1.1);
+  box-shadow: 0 10px 30px rgba(230, 22, 45, 0.4);
+}
+
+.contact-weibo::before {
+  background: linear-gradient(180deg, #e6162d, #c81227);
+}
+
+/* 个人网站特有样式 */
+.contact-website .contact-icon,
+.contact-website .contact-icon-bg {
+  background: linear-gradient(135deg, #409eff, #337ecc);
+}
+
+.contact-website:hover .contact-icon {
+  transform: rotate(-10deg) scale(1.1);
+  box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
+}
+
+.contact-website::before {
+  background: linear-gradient(180deg, #409eff, #337ecc);
 }
 
 .contact-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .contact-value {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: #333;
+  line-height: 1.4;
 }
 
-.contact-form {
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-}
-
-.submit-btn {
-  width: 100%;
-  height: 50px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  border-radius: 10px;
-  background: linear-gradient(135deg, #409eff, #337ecc);
+.contact-link {
+  color: #409eff;
+  text-decoration: none;
   transition: all 0.3s ease;
+  display: inline-block;
+  position: relative;
 }
 
-.submit-btn:hover {
-  background: linear-gradient(135deg, #337ecc, #2575fc);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(64, 158, 255, 0.3);
+.contact-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #409eff, #337ecc);
+  transition: width 0.3s ease;
 }
 
-/* 二维码对话框 */
-.qr-code-container {
-  text-align: center;
-  padding: 20px;
+.contact-link:hover {
+  color: #337ecc;
 }
 
-.qr-code-container img {
-  width: 200px;
-  height: 200px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-}
-
-.qr-placeholder {
-  width: 200px;
-  height: 200px;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f5f5f5;
-  color: #999;
-  font-size: 0.95rem;
-  border: 2px dashed #ddd;
-}
-
-.qr-code-container p {
-  color: #666;
-  font-size: 0.95rem;
-  margin: 0;
+.contact-link:hover::after {
+  width: 100%;
 }
 
 /* 响应式设计 */
@@ -1177,6 +1245,16 @@ onMounted(() => {
     font-size: 2.8rem;
   }
 
+  .hero-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .hero-description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .stats-container {
     flex-wrap: wrap;
   }
@@ -1185,30 +1263,8 @@ onMounted(() => {
     min-width: calc(50% - 15px);
   }
 
-  .skills-container {
-    grid-template-columns: 1fr;
-  }
-
-  .timeline::before {
-    left: 30px;
-  }
-
-  .timeline-item {
-    flex-direction: row !important;
-    margin-left: 60px;
-  }
-
-  .timeline-content {
-    width: calc(100% - 60px);
-  }
-
-  .timeline-marker {
-    left: 30px;
-  }
-
-  .contact-container {
-    grid-template-columns: 1fr;
-    gap: 40px;
+  .about-content {
+    padding: 30px 20px;
   }
 }
 
@@ -1230,6 +1286,10 @@ onMounted(() => {
     font-size: 1.2rem;
   }
 
+  .hero-description {
+    font-size: 1rem;
+  }
+
   .stats-container {
     flex-direction: column;
   }
@@ -1242,12 +1302,13 @@ onMounted(() => {
     font-size: 2rem;
   }
 
-  .timeline-item {
-    margin-left: 40px;
+  .about-content {
+    padding: 25px 15px;
+    font-size: 0.95rem;
   }
 
-  .contact-form {
-    padding: 30px 20px;
+  .contact-item {
+    padding: 20px;
   }
 }
 
@@ -1261,9 +1322,18 @@ onMounted(() => {
   }
 
   .social-link {
-    width: 40px;
-    height: 40px;
+    width: 48px;
+    height: 48px;
     font-size: 1.1rem;
+  }
+
+  .social-link svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .social-tooltip {
+    display: none;
   }
 
   .stat-number {
@@ -1271,13 +1341,36 @@ onMounted(() => {
   }
 
   .contact-item {
-    padding: 20px;
+    padding: 20px 24px;
+    gap: 16px;
+  }
+
+  .contact-icon-wrapper {
+    width: 56px;
+    height: 56px;
   }
 
   .contact-icon {
-    width: 50px;
-    height: 50px;
-    font-size: 1.3rem;
+    width: 56px;
+    height: 56px;
+  }
+
+  .contact-icon-bg {
+    width: 56px;
+    height: 56px;
+  }
+
+  .contact-icon svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  .contact-label {
+    font-size: 0.8rem;
+  }
+
+  .contact-value {
+    font-size: 1rem;
   }
 }
 
@@ -1304,20 +1397,32 @@ html.dark .stat-card:hover {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
+html.dark .stat-card::before {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
 html.dark .stat-icon {
   background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+html.dark .stat-card:hover .stat-icon {
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
 }
 
 html.dark .stat-number {
   color: #e0e0e0;
 }
 
+html.dark .stat-number::after {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+}
+
 html.dark .stat-label {
   color: #b0b0b0;
 }
 
-html.dark .skills-section {
-  background: #1a1a2e;
+html.dark .about-content-section {
+  background: #2a2a3e;
 }
 
 html.dark .section-title {
@@ -1328,91 +1433,48 @@ html.dark .section-title::after {
   background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
-html.dark .skill-item {
-  background: #2a2a3e;
-  border-color: #333;
+html.dark .about-content {
+  background: #1e1e2e;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .skill-item:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-html.dark .skill-name {
   color: #e0e0e0;
 }
 
-html.dark .skill-level {
-  color: #b0b0b0;
+html.dark .about-content::before {
+  background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+  background-size: 200% 100%;
 }
 
-html.dark .skill-bar {
-  background: #333;
+html.dark .about-content :deep(h1),
+html.dark .about-content :deep(h2),
+html.dark .about-content :deep(h3) {
+  color: #e0e0e0;
 }
 
-html.dark .skill-progress {
-  background: linear-gradient(90deg, #667eea, #764ba2);
-}
-
-html.dark .skill-description {
-  color: #b0b0b0;
-}
-
-html.dark .timeline-section {
-  background: #2a2a3e;
-}
-
-html.dark .timeline::before {
-  background: linear-gradient(180deg, #667eea, #764ba2);
-}
-
-html.dark .timeline-dot {
-  background: #2a2a3e;
-  border-color: #667eea;
-}
-
-html.dark .timeline-item:hover .timeline-dot {
-  box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
-}
-
-html.dark .timeline-content {
-  background: #2a2a3e;
-  border-color: #333;
-  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .timeline-content:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-html.dark .timeline-date {
+html.dark .about-content :deep(a) {
   color: #667eea;
 }
 
-html.dark .timeline-title {
-  color: #e0e0e0;
-}
-
-html.dark .timeline-description {
-  color: #b0b0b0;
+html.dark .about-content :deep(a:hover) {
+  color: #9f7aea;
 }
 
 html.dark .contact-section {
-  background: #1a1a2e;
+  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+}
+
+html.dark .contact-section::before {
+  background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
 }
 
 html.dark .contact-item {
   background: #2a2a3e;
   border-color: #333;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .contact-item:hover {
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-html.dark .contact-icon {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+  border-color: rgba(102, 126, 234, 0.2);
 }
 
 html.dark .contact-label {
@@ -1423,28 +1485,56 @@ html.dark .contact-value {
   color: #e0e0e0;
 }
 
-html.dark .contact-form {
-  background: #2a2a3e;
-  border-color: #333;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+html.dark .contact-link {
+  color: #667eea;
 }
 
-html.dark .submit-btn {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+html.dark .contact-link:hover {
+  color: #9f7aea;
 }
 
-html.dark .submit-btn:hover {
-  background: linear-gradient(135deg, #764ba2, #667eea);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+html.dark .contact-link::after {
+  background: linear-gradient(90deg, #667eea, #9f7aea);
 }
 
-html.dark .qr-placeholder {
-  background-color: #2a2a3e;
-  border-color: #444;
-  color: #b0b0b0;
+/* 深色主题社交链接 */
+html.dark .social-github {
+  background: rgba(31, 31, 31, 0.25);
+  border-color: rgba(31, 31, 31, 0.4);
 }
 
-html.dark .qr-code-container p {
-  color: #b0b0b0;
+html.dark .social-github:hover {
+  background: linear-gradient(135deg, #24292e, #1a1e22);
+  box-shadow: 0 15px 35px rgba(36, 41, 46, 0.5);
+}
+
+html.dark .social-email {
+  background: rgba(234, 67, 53, 0.25);
+  border-color: rgba(234, 67, 53, 0.4);
+}
+
+html.dark .social-email:hover {
+  background: linear-gradient(135deg, #ea4335, #d93025);
+  box-shadow: 0 15px 35px rgba(234, 67, 53, 0.5);
+}
+
+html.dark .social-weibo {
+  background: rgba(230, 22, 45, 0.25);
+  border-color: rgba(230, 22, 45, 0.4);
+}
+
+html.dark .social-weibo:hover {
+  background: linear-gradient(135deg, #e6162d, #d61228);
+  box-shadow: 0 15px 35px rgba(230, 22, 45, 0.5);
+}
+
+html.dark .social-website {
+  background: rgba(64, 158, 255, 0.25);
+  border-color: rgba(64, 158, 255, 0.4);
+}
+
+html.dark .social-website:hover {
+  background: linear-gradient(135deg, #409eff, #3a8ee6);
+  box-shadow: 0 15px 35px rgba(64, 158, 255, 0.5);
 }
 </style>

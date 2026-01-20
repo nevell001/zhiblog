@@ -40,6 +40,30 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/common/blog/setting")
 public class BlogFrontSettingController extends BaseController {
 
+    /**
+     * 博客配置键常量
+     */
+    private static final String[] BLOG_CONFIG_KEYS = {
+        "blog_name", "blog_desc", "blog_author", "blog_email", "blog_url", "blog_start_time",
+        "blog_avatar", "blog_signature", "blog_keywords", "blog_copyright", "blog_beian",
+        "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
+        "theme_color", "header_background", "sidebar_style",
+        "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
+        "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
+        "page_size", "hot_article_count", "recent_comment_count", "greeting_message", "about_content",
+        "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
+    };
+
+    /**
+     * 博客设置缓存键
+     */
+    private static final String BLOG_SETTINGS_CACHE_KEY = "blog:settings:all";
+
+    /**
+     * 缓存过期时间（秒）
+     */
+    private static final int CACHE_EXPIRE_SECONDS = 3600;
+
     @Autowired
     private ISysConfigService configService;
 
@@ -57,43 +81,68 @@ public class BlogFrontSettingController extends BaseController {
     @GetMapping
     public AjaxResult getBlogSettings() {
         try {
-            // 定义博客相关的配置键
-            String[] blogConfigKeys = {
-                "blog_name", "blog_desc", "blog_author", "blog_email", "blog_url", "blog_start_time",
-                "blog_avatar", "blog_signature", "blog_keywords", "blog_copyright", "blog_beian",
-                "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
-                "theme_color", "header_background", "sidebar_style",
-                "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
-                "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
-                "page_size", "hot_article_count", "recent_comment_count", "greeting_message", "about_content",
-                "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
-            };
+            // 先从缓存读取
+            Map<String, Object> cached = unifiedCacheManager.get(BLOG_SETTINGS_CACHE_KEY, Map.class);
+            if (cached != null) {
+                return AjaxResult.success(cached);
+            }
 
+            // 缓存不存在，查询数据库
             Map<String, Object> blogSettings = new HashMap<>();
 
-            // 批量查询博客设置
-            for (String configKey : blogConfigKeys) {
-                try {
-                    // 优先从 blog_setting 表读取
-                    String configValue = blogSettingService.selectSettingValueByKey(configKey);
+            // 一次性查询所有系统配置，然后过滤
+            try {
+                List<SysConfig> allConfigs = configService.selectConfigList(new SysConfig());
+                Map<String, String> configMap = allConfigs.stream()
+                    .filter(c -> java.util.Arrays.asList(BLOG_CONFIG_KEYS).contains(c.getConfigKey()))
+                    .collect(java.util.stream.Collectors.toMap(SysConfig::getConfigKey, SysConfig::getConfigValue));
 
-                    // 如果 blog_setting 表中没有，尝试从 sys_config 表读取
-                    if (StringUtils.isEmpty(configValue)) {
-                        configValue = configService.selectConfigByKey(configKey);
-                    }
+                // 批量查询博客设置
+                for (String configKey : BLOG_CONFIG_KEYS) {
+                    try {
+                        // 优先从 blog_setting 表读取
+                        String configValue = blogSettingService.selectSettingValueByKey(configKey);
 
-                    if (StringUtils.isNotEmpty(configValue)) {
-                        blogSettings.put(configKey, configValue);
-                    } else {
+                        // 如果 blog_setting 表中没有，尝试从 sys_config 表读取
+                        if (StringUtils.isEmpty(configValue)) {
+                            configValue = configMap.get(configKey);
+                        }
+
+                        if (StringUtils.isNotEmpty(configValue)) {
+                            blogSettings.put(configKey, configValue);
+                        } else {
+                            // 设置默认值
+                            setDefaultValue(blogSettings, configKey);
+                        }
+                    } catch (Exception e) {
+                        logger.warn("获取博客设置失败: {}, 错误: {}", configKey, e.getMessage());
                         // 设置默认值
                         setDefaultValue(blogSettings, configKey);
                     }
-                } catch (Exception e) {
-                    logger.warn("获取博客设置失败: {}, 错误: {}", configKey, e.getMessage());
-                    // 设置默认值
-                    setDefaultValue(blogSettings, configKey);
+                }
+            } catch (Exception e) {
+                logger.error("批量查询系统配置失败，回退到逐个查询", e);
+                // 回退到逐个查询
+                for (String configKey : BLOG_CONFIG_KEYS) {
+                    try {
+                        String configValue = blogSettingService.selectSettingValueByKey(configKey);
+                        if (StringUtils.isEmpty(configValue)) {
+                            configValue = configService.selectConfigByKey(configKey);
+                        }
+                        if (StringUtils.isNotEmpty(configValue)) {
+                            blogSettings.put(configKey, configValue);
+                        } else {
+                            setDefaultValue(blogSettings, configKey);
+                        }
+                    } catch (Exception ex) {
+                        logger.warn("获取博客设置失败: {}, 错误: {}", configKey, ex.getMessage());
+                        setDefaultValue(blogSettings, configKey);
+                    }
                 }
             }
+
+            // 存入缓存，设置过期时间
+            unifiedCacheManager.set(BLOG_SETTINGS_CACHE_KEY, blogSettings, CACHE_EXPIRE_SECONDS, java.util.concurrent.TimeUnit.SECONDS);
 
             return AjaxResult.success(blogSettings);
         } catch (Exception e) {
@@ -132,6 +181,12 @@ public class BlogFrontSettingController extends BaseController {
                 settings.put(configKey, "");
                 break;
             case "weibo_url":
+                settings.put(configKey, "");
+                break;
+            case "author_location":
+                settings.put(configKey, "");
+                break;
+            case "personal_website":
                 settings.put(configKey, "");
                 break;
             case "wechat_qr":
@@ -212,7 +267,7 @@ public class BlogFrontSettingController extends BaseController {
             for (Map.Entry<String, Object> entry : settings.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue() != null ? entry.getValue().toString() : "";
-                
+
                 // 更新系统配置表
                 try {
                     // 先尝试获取现有配置
@@ -224,7 +279,7 @@ public class BlogFrontSettingController extends BaseController {
                             break;
                         }
                     }
-                    
+
                     if (config != null) {
                         config.setConfigValue(value);
                         configService.updateConfig(config);
@@ -249,6 +304,10 @@ public class BlogFrontSettingController extends BaseController {
                     }
                 }
             }
+
+            // 清除博客设置缓存
+            unifiedCacheManager.delete(BLOG_SETTINGS_CACHE_KEY);
+
             return AjaxResult.success();
         } catch (Exception e) {
             logger.error("批量更新博客设置失败", e);
@@ -271,28 +330,20 @@ public class BlogFrontSettingController extends BaseController {
         }
     }
 
-    /**
-     * 清除所有博客设置缓存
-     */
+@Anonymous
     @GetMapping("/clear-blog-cache")
+    @Operation(summary = "清除博客设置缓存")
     public AjaxResult clearBlogCache() {
         try {
-            String[] blogConfigKeys = {
-                "blog_name", "blog_desc", "blog_author", "blog_email", "blog_url", "blog_start_time",
-                "blog_avatar", "blog_signature", "blog_keywords", "blog_copyright", "blog_beian",
-                "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
-                "theme_color", "header_background", "sidebar_style",
-                "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
-                "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
-                "page_size", "hot_article_count", "recent_comment_count", "greeting_message", "about_content",
-                "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
-            };
-
-            for (String configKey : blogConfigKeys) {
+            // 清除博客设置主缓存
+            unifiedCacheManager.delete(BLOG_SETTINGS_CACHE_KEY);
+            
+            // 同时也清除单个配置的缓存（兼容旧逻辑）
+            for (String configKey : BLOG_CONFIG_KEYS) {
                 unifiedCacheManager.delete("sys_config:" + configKey);
             }
 
-            logger.info("所有博客设置缓存已清除");
+            logger.info("所有博客设置缓存已清除，包括主缓存: " + BLOG_SETTINGS_CACHE_KEY);
             return AjaxResult.success("所有博客设置缓存已清除");
         } catch (Exception e) {
             logger.error("清除博客设置缓存失败", e);
@@ -303,7 +354,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 清除所有标签缓存
      */
-    @Anonymous
+    @PreAuthorize("@ss.hasPermi('system:config:edit')")
     @GetMapping("/clear-tag-cache")
     public AjaxResult clearTagCache() {
         try {
@@ -320,7 +371,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 清除所有文章缓存
      */
-    @Anonymous
+    @PreAuthorize("@ss.hasPermi('system:config:edit')")
     @GetMapping("/clear-article-cache")
     public AjaxResult clearArticleCache() {
         try {
@@ -339,7 +390,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 清除所有博客缓存（文章、分类、标签等）
      */
-    @Anonymous
+    @PreAuthorize("@ss.hasPermi('system:config:edit')")
     @GetMapping("/clear-all-cache")
     public AjaxResult clearAllBlogCache() {
         try {

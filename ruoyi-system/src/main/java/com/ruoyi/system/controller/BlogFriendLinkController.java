@@ -17,6 +17,8 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.common.cache.annotation.BlogCacheEvict;
+import com.ruoyi.common.constant.CacheConstants;
 import com.ruoyi.system.domain.BlogFriendLink;
 import com.ruoyi.system.service.IBlogFriendLinkService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -86,6 +88,7 @@ public class BlogFriendLinkController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:friendLink:add')")
     @Log(title = "友情链接", businessType = BusinessType.INSERT)
+    @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PostMapping
     public AjaxResult add(@RequestBody BlogFriendLink blogFriendLink)
     {
@@ -97,6 +100,7 @@ public class BlogFriendLinkController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:friendLink:edit')")
     @Log(title = "友情链接", businessType = BusinessType.UPDATE)
+    @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogFriendLink blogFriendLink)
     {
@@ -108,6 +112,7 @@ public class BlogFriendLinkController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:friendLink:remove')")
     @Log(title = "友情链接", businessType = BusinessType.DELETE)
+    @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {

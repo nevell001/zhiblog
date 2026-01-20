@@ -150,7 +150,7 @@
         </section>
 
         <!-- 侧边栏 -->
-        <aside 
+        <aside
           v-if="blogSettings.sidebar_enabled !== 'false'"
           class="sidebar"
         >
@@ -159,9 +159,10 @@
             <div class="profile-header">
               <div class="avatar-container">
                 <img
-                  :src="userStore.avatar || '/default-avatar.jpg'"
+                  :src="blogAvatarUrl"
                   alt="博主头像"
                   class="profile-avatar"
+                  @error="handleAvatarError"
                 />
                 <div class="avatar-ring"></div>
               </div>
@@ -170,7 +171,7 @@
               </h3>
             </div>
             <p class="profile-desc">
-              {{ blogSettings.author_description || '这个人很懒，什么都没留下' }}
+              {{ blogSettings.author_bio || '这个人很懒，什么都没留下' }}
             </p>
             <div class="profile-stats">
               <div class="profile-stat">
@@ -189,7 +190,10 @@
           </div>
 
           <!-- 热门文章 -->
-          <div class="widget popular-posts-widget">
+          <div
+            class="widget popular-posts-widget"
+            :style="{ animationDelay: '0.1s' }"
+          >
             <h3 class="widget-title">
               <el-icon><TrendCharts /></el-icon>
               热门文章
@@ -199,6 +203,7 @@
                 v-for="(popular, index) in popularArticles"
                 :key="popular.id"
                 class="popular-post-item"
+                :style="{ animationDelay: `${0.2 + index * 0.1}s` }"
                 @click="goToArticle(popular.id)"
               >
                 <span
@@ -217,16 +222,20 @@
           </div>
 
           <!-- 分类列表 -->
-          <div class="widget categories-widget">
+          <div
+            class="widget categories-widget"
+            :style="{ animationDelay: '0.2s' }"
+          >
             <h3 class="widget-title">
               <el-icon><FolderOpened /></el-icon>
               分类
             </h3>
             <ul class="categories-list">
               <li
-                v-for="category in categories"
+                v-for="(category, index) in categories"
                 :key="category.id"
                 class="category-item"
+                :style="{ animationDelay: `${0.3 + index * 0.05}s` }"
                 @click="goToCategory(category.id)"
               >
                 <span class="category-name">{{ category.name }}</span>
@@ -236,17 +245,21 @@
           </div>
 
           <!-- 标签云 -->
-          <div class="widget tags-widget">
+          <div
+            class="widget tags-widget"
+            :style="{ animationDelay: '0.3s' }"
+          >
             <h3 class="widget-title">
               <el-icon><PriceTag /></el-icon>
               标签云
             </h3>
             <div class="tags-cloud">
               <el-tag
-                v-for="tag in tags"
+                v-for="(tag, index) in tags"
                 :key="tag.id"
                 size="small"
                 class="tag-item"
+                :style="{ animationDelay: `${0.4 + index * 0.03}s` }"
                 @click="goToTag(tag.id)"
               >
                 {{ tag.name }}
@@ -255,16 +268,20 @@
           </div>
 
           <!-- 友情链接 -->
-          <div class="widget links-widget">
+          <div
+            class="widget links-widget"
+            :style="{ animationDelay: '0.4s' }"
+          >
             <h3 class="widget-title">
               <el-icon><Link /></el-icon>
               友情链接
             </h3>
             <ul class="links-list">
               <li
-                v-for="link in friendLinks"
+                v-for="(link, index) in friendLinks"
                 :key="link.id"
                 class="link-item"
+                :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
               >
                 <a
                   :href="link.url"
@@ -301,7 +318,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { FolderOpened, View, Star, DocumentDelete, TrendCharts, PriceTag, Link } from '@element-plus/icons-vue'
 import BlogNav from '@/components/BlogNav.vue'
@@ -314,6 +331,7 @@ import {
   getTagList,
   getFrontFriendLinkList
 } from '@/api/blog'
+import { processAvatarUrl } from '@/api/blog/avatar'
 import { parseTime } from '@/utils/ruoyi'
 import { useUserStore } from '@/stores/user'
 
@@ -331,6 +349,45 @@ const loading = ref(true)
 const currentPage = ref(1)
 const pageSize = ref(6)
 const total = ref(0)
+
+// 处理头像 URL
+const blogAvatarUrl = computed(() => {
+  const avatar = blogSettings.value.blog_avatar
+  console.log('🔍 博客设置中的头像值:', avatar)
+
+  if (!avatar || !avatar.trim()) {
+    console.log('⚠️ 头像为空，使用默认头像')
+    return '/default-avatar.svg'
+  }
+
+  const processedUrl = processAvatarUrl(avatar)
+  console.log('✅ 处理后的头像 URL:', processedUrl)
+
+  if (!processedUrl) {
+    console.log('⚠️ 处理后的 URL 为空，使用默认头像')
+    return '/default-avatar.svg'
+  }
+
+  return processedUrl
+})
+
+// 处理头像加载错误
+const handleAvatarError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  const currentSrc = img.src
+
+  // 防止无限循环：如果已经是默认头像，就不再重试
+  if (currentSrc.includes('default-avatar.svg')) {
+    console.error('❌ 默认头像也加载失败，停止重试')
+    return
+  }
+
+  console.error('❌ 头像加载失败:', currentSrc)
+  console.log('🔄 切换到默认头像 SVG')
+
+  // 使用 SVG 格式的默认头像（更可靠）
+  img.src = '/default-avatar.svg'
+}
 
 // 格式化日期
 const formatDate = (date: string) => {
@@ -416,9 +473,12 @@ const loadTags = async () => {
 const loadFriendLinks = async () => {
   try {
     const response = await getFrontFriendLinkList()
+    console.log('🔗 友情链接API响应:', response)
+    console.log('🔗 友情链接数据长度:', response?.length)
     friendLinks.value = response || []
+    console.log('🔗 友情链接数据:', friendLinks.value)
   } catch (error) {
-    console.error('加载友情链接失败:', error)
+    console.error('❌ 加载友情链接失败:', error)
   }
 }
 
@@ -427,6 +487,8 @@ const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettings()
     blogSettings.value = response.data || {}
+    console.log('📦 博客设置加载完成:', blogSettings.value)
+    console.log('📦 blog_avatar 值:', blogSettings.value.blog_avatar)
   } catch (error) {
     console.error('加载博客设置失败:', error)
   }
@@ -816,7 +878,13 @@ onMounted(async () => {
   border-radius: 16px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
-  animation: fadeInUp 0.8s ease 0.8s both;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+/* 博主信息卡片特殊处理 */
+.profile-widget {
+  animation-delay: 0s;
 }
 
 .widget-title {
@@ -948,6 +1016,8 @@ onMounted(async () => {
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .popular-post-item:last-child {
@@ -1041,6 +1111,8 @@ onMounted(async () => {
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .category-item:last-child {
@@ -1092,6 +1164,8 @@ onMounted(async () => {
   border-color: #f5f5f5;
   color: #666;
   font-weight: 500;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .tag-item:hover {
@@ -1113,6 +1187,8 @@ onMounted(async () => {
   padding: 12px 24px;
   border-bottom: 1px solid #f0f0f0;
   transition: all 0.3s ease;
+  opacity: 0;
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .link-item:last-child {

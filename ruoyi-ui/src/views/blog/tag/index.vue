@@ -133,9 +133,10 @@
           class="article-list"
         >
           <div
-            v-for="article in articleList"
+            v-for="(article, index) in articleList"
             :key="article.id"
             class="article-item"
+            :style="{ animationDelay: `${index * 0.1}s` }"
           >
             <div
               v-if="article.coverUrl"
@@ -249,7 +250,10 @@
       <!-- 侧边栏 -->
       <div class="sidebar">
         <!-- 关于这个标签 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.1s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-price-tag"></i>
             关于这个标签
@@ -281,19 +285,23 @@
         </div>
 
         <!-- 相关标签 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.2s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-share"></i>
             相关标签
           </h3>
           <div class="related-tags">
             <router-link
-              v-for="tag in relatedTags.slice(0, 12)"
+              v-for="(tag, index) in relatedTags.slice(0, 12)"
               :key="tag.id"
               :to="`/blog/tag/${tag.id}`"
               class="related-tag-item"
               :class="{ active: tag.id === currentTagId }"
               :style="{
+                animationDelay: `${0.3 + index * 0.05}s`,
                 backgroundColor: tag.color || '#409EFF',
                 fontSize: getTagFontSize(tag.article_count) + 'px',
                 transform: `scale(${getTagScale(tag.article_count)})`
@@ -306,16 +314,20 @@
         </div>
 
         <!-- 热门标签 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.3s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-star-on"></i>
             热门标签
           </h3>
           <div class="popular-tags">
             <div
-              v-for="tag in popularTags.slice(0, 10)"
+              v-for="(tag, index) in popularTags.slice(0, 10)"
               :key="tag.id"
               class="popular-tag-item"
+              :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
             >
               <div class="tag-rank">
                 #{{ popularTags.indexOf(tag) + 1 }}
@@ -335,16 +347,20 @@
         </div>
 
         <!-- 最新文章 -->
-        <div class="sidebar-widget">
+        <div
+          class="sidebar-widget"
+          :style="{ animationDelay: '0.4s' }"
+        >
           <h3 class="widget-title">
             <i class="el-icon-star-on"></i>
             最新文章
           </h3>
           <ul class="recent-articles">
             <li
-              v-for="article in recentArticles.slice(0, 8)"
+              v-for="(article, index) in recentArticles.slice(0, 8)"
               :key="article.id"
               class="article-item"
+              :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
             >
               <router-link
                 :to="`/blog/article/${article.id}`"
@@ -375,9 +391,11 @@ import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRoute } from 'vue-router'
 import BlogNav from '@/components/BlogNav.vue'
+import BlogFooter from '@/components/BlogFooter.vue'
 import { getArticlesByTag, getTagDetail } from '@/api/blog/tag'
 import { getTagCloud } from '@/api/blog/tag'
 import { getArticleList } from '@/api/blog/article'
+import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 const route = useRoute()
 
@@ -394,6 +412,7 @@ const currentTagId = ref(null)
 const relatedTags = ref([])
 const popularTags = ref([])
 const recentArticles = ref([])
+const blogSettings = ref<any>({})
 
 // 查询参数
 const queryParams = reactive({
@@ -409,7 +428,24 @@ const loadTagArticles = async (append = false) => {
     loading.value = !append
     if (append) loadingMore.value = true
 
-    const response = await getArticlesByTag(queryParams.tagId, queryParams)
+    console.log('📥 加载标签文章，参数:', {
+      tagId: queryParams.tagId,
+      pageNum: queryParams.pageNum,
+      pageSize: queryParams.pageSize
+    })
+
+    let response
+
+    // 如果有 tagId，调用 getArticlesByTag，否则调用普通的 getArticleList
+    if (queryParams.tagId) {
+      console.log('📥 使用标签查询模式，tagId:', queryParams.tagId)
+      response = await getArticlesByTag(queryParams.tagId, queryParams)
+    } else {
+      console.log('📥 使用普通查询模式（所有文章）')
+      response = await getArticleList(queryParams)
+    }
+
+    console.log('📦 标签文章响应:', response)
 
     // 处理不同的响应格式
     let newArticles = []
@@ -428,7 +464,7 @@ const loadTagArticles = async (append = false) => {
       newArticles = response.data
       totalCount = response.total || response.data.length
     } else {
-      console.warn('未知的响应格式:', response)
+      console.warn('⚠️ 未知的响应格式:', response)
       newArticles = []
       totalCount = 0
     }
@@ -443,8 +479,13 @@ const loadTagArticles = async (append = false) => {
     if (!append && totalCount > 0) {
       total.value = totalCount
     }
+
+    console.log('✅ 标签文章加载成功:', {
+      文章数量: newArticles.length,
+      总数: total.value
+    })
   } catch (error) {
-    console.error('获取标签文章失败:', error)
+    console.error('❌ 获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
     loading.value = false
@@ -455,7 +496,10 @@ const loadTagArticles = async (append = false) => {
 // 获取标签详情
 const loadTagDetail = async () => {
   try {
+    console.log('📥 加载标签详情，ID:', queryParams.tagId)
     const response = await getTagDetail(queryParams.tagId)
+    console.log('📦 标签详情响应:', response)
+
     const tag = response.data || response
 
     tagName.value = tag.name || ''
@@ -467,8 +511,15 @@ const loadTagDetail = async () => {
     if (tag.articleCount !== undefined && tag.articleCount !== null) {
       total.value = tag.articleCount
     }
+
+    console.log('✅ 标签详情加载成功:', {
+      name: tagName.value,
+      description: tagDescription.value,
+      color: tagColor.value
+    })
   } catch (error) {
-    console.error('获取标签详情失败:', error)
+    console.error('❌ 获取标签详情失败:', error)
+    ElMessage.error('获取标签详情失败')
   }
 }
 
@@ -557,15 +608,38 @@ const stripHtmlTags = html => {
   return html.replace(/<[^>]*>/g, '')
 }
 
+// 加载博客设置
+const loadBlogSettings = async () => {
+  try {
+    const response = await getBlogSettingsAnonymous()
+    blogSettings.value = response || {}
+  } catch (error) {
+    console.error('加载博客设置失败:', error)
+  }
+}
+
 // 监听路由变化，Vue 3 会自动清理
 watch(
   () => route.params.id,
   newId => {
+    console.log('🔄 标签路由参数变化:', newId)
+
     if (newId) {
+      // 有标签ID，加载特定标签的文章
       currentTagId.value = parseInt(newId)
       queryParams.tagId = parseInt(newId)
       queryParams.pageNum = 1
       loadTagDetail()
+      loadTagArticles()
+      loadRelatedTags()
+    } else {
+      // 没有标签ID，显示所有标签列表
+      console.log('⚠️ 没有标签ID，显示所有标签')
+      currentTagId.value = null
+      queryParams.tagId = null
+      queryParams.pageNum = 1
+      tagName.value = '所有标签'
+      tagDescription.value = '浏览所有标签下的文章'
       loadTagArticles()
       loadRelatedTags()
     }
@@ -575,6 +649,7 @@ watch(
 
 // 组件挂载时加载数据
 onMounted(() => {
+  loadBlogSettings()
   loadPopularTags()
   loadRecentArticles()
 })
@@ -1536,5 +1611,26 @@ html.dark .empty-icon {
 
 html.dark .empty-content h3 {
   color: #e0e0e0;
+}
+
+/* 动画效果 */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.article-item,
+.sidebar-widget,
+.related-tag-item,
+.popular-tag-item,
+.recent-articles .article-item {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
 }
 </style>

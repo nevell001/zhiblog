@@ -74,15 +74,6 @@
               />
             </el-form-item>
             <el-form-item
-              label="联系邮箱"
-              prop="blog_email"
-            >
-              <el-input
-                v-model="settingsMap.blog_email"
-                placeholder="请输入联系邮箱"
-              />
-            </el-form-item>
-            <el-form-item
               label="博客地址"
               prop="blog_url"
             >
@@ -395,6 +386,15 @@
               />
             </el-form-item>
             <el-form-item
+              label="联系邮箱"
+              prop="blog_email"
+            >
+              <el-input
+                v-model="settingsMap.blog_email"
+                placeholder="请输入联系邮箱"
+              />
+            </el-form-item>
+            <el-form-item
               label="GitHub地址"
               prop="github_url"
             >
@@ -412,52 +412,7 @@
                 placeholder="请输入微博地址"
               />
             </el-form-item>
-            <el-form-item
-              label="微信二维码"
-              prop="wechat_qr"
-            >
-              <div class="avatar-upload">
-                <el-upload
-                  class="avatar-uploader"
-                  :action="uploadThumbnailUrl"
-                  :headers="headers"
-                  :on-success="handleQRCodeUploadSuccess"
-                  :before-upload="handleQRCodeBeforeUpload"
-                  :show-file-list="false"
-                >
-                  <img
-                    v-if="settingsMap.wechat_qr"
-                    :src="processedQRCodeUrl"
-                    class="avatar"
-                  />
-                  <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                  ></i>
-                </el-upload>
-                <el-input
-                  v-model="settingsMap.wechat_qr"
-                  class="avatar-input"
-                  placeholder="或直接输入二维码URL"
-                />
-                <div
-                  class="upload-tip"
-                  style="
-                    font-size: 12px;
-                    color: var(--el-text-color-placeholder, #999);
-                    margin-top: 5px;
-                  "
-                >
-                  🚀
-                  <strong>基于Thumbnailator专业处理</strong>
-                  ：智能压缩为400x400像素，保持清晰度
-                  <br />
-                  💡 适合微信二维码、支付码等，自动优化大小和清晰度
-                  <br />
-                  📦 文件存储，数据库仅存URL，扫描性能更佳
-                </div>
-              </div>
-            </el-form-item>
+            <!-- 微信二维码功能已移除 -->
             <el-form-item
               label="位置信息"
               prop="author_location"
@@ -535,11 +490,9 @@
               label="关于页面内容"
               prop="about_content"
             >
-              <el-input
+              <editor
                 v-model="settingsMap.about_content"
-                type="textarea"
-                :rows="5"
-                placeholder="请输入关于页面内容"
+                :min-height="300"
               />
             </el-form-item>
           </el-form>
@@ -687,15 +640,7 @@ const processedAvatarUrl = computed(() => {
   return processedUrl
 })
 
-const processedQRCodeUrl = computed(() => {
-  const qrUrl = settingsMap.value.wechat_qr
-  const processedUrl = processAvatarUrl(qrUrl)
-  console.log('📱 后台二维码URL处理:', {
-    original: qrUrl,
-    processed: processedUrl
-  })
-  return processedUrl
-})
+// 微信二维码处理已移除
 
 /**
  * 获取所有博客设置
@@ -1635,56 +1580,7 @@ function handleAvatarUploadSuccess(response, uploadFile) {
 }
 */
 
-/**
- * 二维码上传前检查
- */
-function handleQRCodeBeforeUpload(file) {
-  // 检查文件类型
-  const isImage = file.type.startsWith('image/')
-  if (!isImage) {
-    ElMessage.error('只能上传图片文件!')
-    return false
-  }
-
-  // 检查文件大小 (10MB)
-  const isLt10M = file.size / 1024 / 1024 < 10
-  if (!isLt10M) {
-    ElMessage.error('二维码图片大小不能超过 10MB!')
-    return false
-  }
-
-  ElMessage.info('正在上传并压缩二维码...')
-  return true
-}
-
-/**
- * 二维码上传成功回调
- */
-function handleQRCodeUploadSuccess(response, uploadFile) {
-  if (response.code === 200) {
-    // 处理二维码URL
-    let qrCodeUrl = response.url
-
-    // 确保URL格式正确
-    if (qrCodeUrl && !qrCodeUrl.startsWith('http')) {
-      // 如果是相对路径，直接使用后端返回的路径
-      // 开发环境会通过vite代理访问，生产环境会通过nginx代理访问
-      if (!qrCodeUrl.startsWith('/')) {
-        qrCodeUrl = '/' + qrCodeUrl
-      }
-    }
-
-    settingsMap.value.wechat_qr = qrCodeUrl
-    ElMessage.success('二维码上传成功！已自动压缩为400x400尺寸')
-
-    // 自动保存二维码设置
-    setTimeout(() => {
-      handleSingleSettingChange('wechat_qr', qrCodeUrl)
-    }, 500)
-  } else {
-    ElMessage.error('二维码上传失败: ' + response.msg)
-  }
-}
+// 微信二维码上传功能已移除
 
 // 添加一个测试函数用于验证数据库连接
 async function testDatabaseConnection() {
