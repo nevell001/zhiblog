@@ -29,7 +29,7 @@
 --
 -- 📊 数据库统计：
 -- - 总表数：41个（包含完整的若依系统表、Quartz表、博客系统表和代码生成器表）
--- - 总设置项：35个
+-- - 总设置项：38个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
 -- - 示例标签：26个
@@ -770,7 +770,7 @@ CREATE TABLE gen_table_column (
 
 -- ========== 初始化博客系统数据 ==========
 
--- 初始化完整的博客设置数据（35项配置）
+-- 初始化完整的博客设置数据（38项配置）
 INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '我的博客', '博客名称', NOW(), NOW()),
@@ -786,6 +786,13 @@ INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create
 ('blog_avatar', '', '博主头像', NOW(), NOW()),
 ('blog_signature', 'Stay hungry, Stay foolish', '博主签名', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '博客创建时间', NOW(), NOW()),
+
+-- 社交媒体设置
+('author_title', '全栈开发工程师', '博主头衔', NOW(), NOW()),
+('author_description', '这个人很懒，什么都没留下', '博主描述', NOW(), NOW()),
+('github_url', 'https://github.com/nevell', 'GitHub链接', NOW(), NOW()),
+('weibo_url', '', '微博链接', NOW(), NOW()),
+('zhihu_url', '', '知乎链接', NOW(), NOW()),
 
 -- 功能开关设置
 ('footer_enabled', 'true', '是否显示底部', NOW(), NOW()),
@@ -824,7 +831,6 @@ INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_
 -- 一级分类
 ('技术分享', 'tech', '技术相关文章和教程', 0, 1, 1, 1),
 ('生活随笔', 'life', '生活记录和感悟分享', 0, 2, 2, 1),
-('项目实战', 'project', '项目开发经验和案例分析', 0, 3, 3, 1),
 ('学习笔记', 'study', '学习过程中的知识整理', 0, 4, 4, 1),
 ('资源分享', 'resource', '优质工具和资源推荐', 0, 5, 5, 1),
 
@@ -839,7 +845,7 @@ INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_
 ('读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
 ('旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
 
--- 插入完整的博客标签数据（22个常用标签）
+-- 插入完整的博客标签数据（18个常用标签）
 INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
 -- 核心标签（确保与test_tags.sql一致）
 (1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
@@ -850,30 +856,26 @@ INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_c
 (6, '后端开发', '后端开发技术相关文章', '#337ecc', 'el-icon-server', 0),
 
 -- 编程语言
-(7, 'Python', 'Python编程语言相关', '#3776AB', 'el-icon-python', 0),
-(8, 'JavaScript', 'JavaScript编程语言相关', '#F7DF1E', 'el-icon-link', 0),
-(9, 'TypeScript', 'TypeScript编程语言相关', '#3178C6', 'el-icon-document', 0),
+(7, 'JavaScript', 'JavaScript编程语言相关', '#F7DF1E', 'el-icon-link', 0),
+(8, 'TypeScript', 'TypeScript编程语言相关', '#3178C6', 'el-icon-document', 0),
 
 -- 后端框架
-(10, 'Spring Cloud', 'Spring Cloud微服务框架', '#6DB33F', 'el-icon-cloudy', 0),
-(11, 'MyBatis', 'MyBatis持久层框架', '#000000', 'el-icon-database', 0),
-(12, 'Node.js', 'Node.js运行时环境', '#339933', 'el-icon-node', 0),
+(9, 'Spring Cloud', 'Spring Cloud微服务框架', '#6DB33F', 'el-icon-cloudy', 0),
+(10, 'MyBatis', 'MyBatis持久层框架', '#000000', 'el-icon-database', 0),
+(11, 'Node.js', 'Node.js运行时环境', '#339933', 'el-icon-node', 0),
 
 -- 前端框架
-(13, 'Element Plus', 'Element Plus组件库', '#409EFF', 'el-icon-menu', 0),
-(14, 'React', 'React前端框架相关', '#61DAFB', 'el-icon-cpu', 0),
-(15, 'Angular', 'Angular前端框架相关', '#DD0031', 'el-icon-trophy', 0),
+(12, 'Element Plus', 'Element Plus组件库', '#409EFF', 'el-icon-menu', 0),
+(13, 'React', 'React前端框架相关', '#61DAFB', 'el-icon-cpu', 0),
 
 -- 数据库
-(16, 'Redis', 'Redis缓存数据库', '#DC382D', 'el-icon-connection', 0),
-(17, 'MongoDB', 'MongoDB文档数据库', '#47A248', 'el-icon-folder-opened', 0),
+(14, 'Redis', 'Redis缓存数据库', '#DC382D', 'el-icon-connection', 0),
+(15, 'MongoDB', 'MongoDB文档数据库', '#47A248', 'el-icon-folder-opened', 0),
 
 -- 工具和其他
-(18, 'Docker', 'Docker容器技术', '#2496ED', 'el-icon-box', 0),
-(19, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
-(20, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0),
-(21, '算法', '算法和数据结构', '#FF9800', 'el-icon-data-analysis', 0),
-(22, '设计模式', '软件设计模式', '#9C27B0', 'el-icon-setting', 0);
+(16, 'Docker', 'Docker容器技术', '#2496ED', 'el-icon-box', 0),
+(17, 'Git', 'Git版本控制工具', '#F05032', 'el-icon-branch', 0),
+(18, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0);
 
 -- 插入完整的博客文章示例数据
 INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES

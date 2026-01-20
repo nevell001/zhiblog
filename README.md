@@ -11,6 +11,7 @@
 - 🐛 修复登录闪退问题
 - 🔧 优化 Maven 配置（groupId 统一）
 - 📊 版本号动态显示（从 pom.xml 读取）
+- 🗄️ 修复数据库初始化文件（新增5个设置项：author_title、author_description、github_url、weibo_url、zhihu_url）
 
 **项目特色**：
 - 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架
@@ -222,7 +223,7 @@ newblog/
 - Druid 1.2.27
 - Java 17
 - **Maven**: 3.6+
-- **GroupId**: top.nevell
+
 
 ### 前端
 - Vue 3.5.16
@@ -251,20 +252,26 @@ newblog/
 # 数据库
 DB_HOST=localhost
 DB_USERNAME=root
-DB_PASSWORD=root
+DB_PASSWORD={openssl rand -base64 16}
 DB_NAME=newblog
 
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
-REDIS_PASSWORD=
+REDIS_PASSWORD={openssl rand -base64 16}
 
 # JWT
-R_TOKEN_SECRET=your-very-long-and-secure-random-string-here
+R_TOKEN_SECRET={openssl rand -base64 64}
 
 # 防盗链
 REFERER_ENABLED=false
 REFERER_ALLOWED_DOMAINS=localhost,127.0.0.1
+
+# Druid
+DRUID_USERNAME=ruoyi
+# Druid监控密码（必须设置强密码）
+DRUID_PASSWORD={openssl rand -base64 16}
+
 ```
 
 **注意**：

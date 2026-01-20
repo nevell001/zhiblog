@@ -124,6 +124,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
     // CSS 配置
     css: {
       postcss: {
+        from: undefined,
         plugins: [
           {
             postcssPlugin: 'internal:charset-removal',

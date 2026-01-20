@@ -150,7 +150,10 @@
         </section>
 
         <!-- 侧边栏 -->
-        <aside class="sidebar">
+        <aside 
+          v-if="blogSettings.sidebar_enabled !== 'false'"
+          class="sidebar"
+        >
           <!-- 博主信息 -->
           <div class="widget profile-widget">
             <div class="profile-header">
@@ -286,6 +289,14 @@
         </aside>
       </div>
     </main>
+
+    <!-- 博客底部 -->
+    <BlogFooter
+      :blog-settings="blogSettings"
+      :total-articles="total"
+      :category-count="categories.length"
+      :tag-count="tags.length"
+    />
   </div>
 </template>
 
@@ -294,6 +305,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { FolderOpened, View, Star, DocumentDelete, TrendCharts, PriceTag, Link } from '@element-plus/icons-vue'
 import BlogNav from '@/components/BlogNav.vue'
+import BlogFooter from '@/components/BlogFooter.vue'
 import {
   getArticleList,
   getBlogSettings,
@@ -384,7 +396,7 @@ const loadPopularArticles = async () => {
 const loadCategories = async () => {
   try {
     const response = await getCategoryList({ pageSize: 100 })
-    categories.value = response.rows || []
+    categories.value = response.data || []
   } catch (error) {
     console.error('加载分类列表失败:', error)
   }
@@ -394,7 +406,7 @@ const loadCategories = async () => {
 const loadTags = async () => {
   try {
     const response = await getTagList({ pageSize: 100 })
-    tags.value = response.rows || []
+    tags.value = response.data || []
   } catch (error) {
     console.error('加载标签列表失败:', error)
   }
@@ -437,7 +449,6 @@ onMounted(async () => {
 .blog-home-container {
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding-bottom: 60px;
 }
 
 /* 博客头部 */

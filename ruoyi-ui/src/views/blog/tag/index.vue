@@ -359,6 +359,14 @@
         </div>
       </div>
     </div>
+
+    <!-- 博客底部 -->
+    <BlogFooter
+      :blog-settings="blogSettings"
+      :total-articles="0"
+      :category-count="0"
+      :tag-count="0"
+    />
   </div>
 </template>
 
@@ -468,7 +476,7 @@ const loadTagDetail = async () => {
 const loadRelatedTags = async () => {
   try {
     const response = await getTagCloud()
-    const tags = response || []
+    const tags = response.data || []
     relatedTags.value = tags.filter(tag => tag.id !== currentTagId.value).slice(0, 12)
   } catch (error) {
     console.error('获取相关标签失败:', error)
@@ -479,7 +487,7 @@ const loadRelatedTags = async () => {
 const loadPopularTags = async () => {
   try {
     const response = await getTagCloud()
-    popularTags.value = (response || []).slice(0, 10)
+    popularTags.value = (response.data || []).slice(0, 10)
   } catch (error) {
     console.error('获取热门标签失败:', error)
   }

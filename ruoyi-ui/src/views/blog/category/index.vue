@@ -345,16 +345,27 @@
         </div>
       </div>
     </div>
+
+    <!-- 博客底部 -->
+    <BlogFooter
+      :blog-settings="blogSettings"
+      :total-articles="total"
+      :category-count="0"
+      :tag-count="0"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
+import BlogFooter from '@/components/BlogFooter.vue'
 import { getCategoryDetail, getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
 import { getArticleList } from '@/api/blog/article'
+import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 const route = useRoute()
 
@@ -370,6 +381,7 @@ const lastUpdateTime = ref('')
 const relatedCategories = ref([])
 const popularTags = ref([])
 const recentArticles = ref([])
+const blogSettings = ref<any>({})
 
 // 查询参数
 const queryParams = reactive({
@@ -403,6 +415,16 @@ const loadCategoryArticles = async (append = false) => {
   }
 }
 
+// 加载博客设置
+const loadBlogSettings = async () => {
+  try {
+    const response = await getBlogSettingsAnonymous()
+    blogSettings.value = response || {}
+  } catch (error) {
+    console.error('加载博客设置失败:', error)
+  }
+}
+
 // 获取分类详情
 const loadCategoryDetail = async () => {
   try {
@@ -432,7 +454,7 @@ const loadRelatedCategories = async () => {
 const loadPopularTags = async () => {
   try {
     const response = await getTagCloud()
-    popularTags.value = response || []
+    popularTags.value = response.data || []
   } catch (error) {
     console.error('获取热门标签失败:', error)
   }
@@ -520,6 +542,7 @@ watch(
 
 // 组件挂载时加载数据
 onMounted(() => {
+  loadBlogSettings()
   loadPopularTags()
   loadRecentArticles()
 })
