@@ -61,7 +61,11 @@ router.beforeEach(
         console.log('✅ 有 token')
         to.meta.title && useSettingsStore().setTitle(to.meta.title as string)
         /* has token*/
-        if (to.path === '/login') {
+        // 如果访问博客页面，直接放行，不检查roles
+        if (to.path.startsWith('/blog')) {
+          console.log('📝 访问博客页面，直接放行')
+          next()
+        } else if (to.path === '/login') {
           console.log('🔄 有 token 但访问登录页，重定向到首页')
           // 如果有redirect参数，则重定向到指定路径
           const redirect = to.query.redirect as string

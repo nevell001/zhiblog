@@ -131,7 +131,13 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     },
 
     getBlogAuthor: (state: BlogSettingsStoreState) => state.blogSettings.blog_author || 'nevell',
-    getBlogName: (state: BlogSettingsStoreState) => state.blogSettings.blog_name || '我的博客'
+    getBlogName: (state: BlogSettingsStoreState) => state.blogSettings.blog_name || '我的博客',
+
+    // 功能开关辅助方法
+    isFeatureEnabled: (state: BlogSettingsStoreState) => (feature: string) => {
+      const value = state.blogSettings[feature]
+      return value !== false && value !== 'false'
+    }
   },
 
   actions: {

@@ -387,32 +387,64 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, watch } from 'vue'
+
+import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
+
 import { ElMessage } from 'element-plus'
+
 import { useRoute } from 'vue-router'
+
 import BlogNav from '@/components/BlogNav.vue'
+
 import BlogFooter from '@/components/BlogFooter.vue'
+
 import { getArticlesByTag, getTagDetail } from '@/api/blog/tag'
+
 import { getTagCloud } from '@/api/blog/tag'
+
 import { getArticleList } from '@/api/blog/article'
+
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
+
+import { useBlogSettingsStore } from '@/stores/blogSettings'
+
+
 
 const route = useRoute()
 
+const blogSettingsStore = useBlogSettingsStore()
+
+
+
 // 响应式数据
+
 const articleList = ref([])
+
 const tagName = ref('')
+
 const tagDescription = ref('')
+
 const tagColor = ref('#409EFF')
+
 const tagCreateTime = ref('')
+
 const total = ref(0)
+
 const loading = ref(false)
+
 const loadingMore = ref(false)
+
+
+
 const currentTagId = ref(null)
+
 const relatedTags = ref([])
+
 const popularTags = ref([])
+
 const recentArticles = ref([])
-const blogSettings = ref<any>({})
+
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
 
 // 查询参数
 const queryParams = reactive({
@@ -612,9 +644,13 @@ const stripHtmlTags = html => {
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettingsAnonymous()
-    blogSettings.value = response || {}
+    const settings = response || {}
+    // 更新 blogSettingsStore
+    blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
     console.error('加载博客设置失败:', error)
+    // 使用默认值
+    console.log('📦 使用默认博客设置')
   }
 }
 

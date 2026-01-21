@@ -324,9 +324,11 @@ import { getStatisticsOverview } from '@/api/statistics'
 import { getCategoryList } from '@/api/blog/category'
 import { getTagList } from '@/api/blog/tag'
 import { useUserStore } from '@/stores/user'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
 
 const userStore = useUserStore()
+const blogSettingsStore = useBlogSettingsStore()
 
 // 响应式数据
 interface BlogSettings {
@@ -340,7 +342,7 @@ interface BlogSettings {
   [key: string]: any
 }
 
-const blogSettings = ref<BlogSettings>({})
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const stats = ref({})
 const categories = ref([])
 const tags = ref([])
@@ -390,42 +392,35 @@ const loadBlogSettings = async () => {
     console.log('🔄 开始加载博客设置...')
     const response = await getBlogSettingsAnonymous()
     // 正确提取data字段
-    blogSettings.value = response?.data || {}
+    const settings = response?.data || {}
+    
+    // 更新 blogSettingsStore
+    blogSettingsStore.updateBlogSettings(settings)
     
     console.log('📦 博客设置加载完成:', {
-      github_url: blogSettings.value.github_url,
-      weibo_url: blogSettings.value.weibo_url,
-      author_location: blogSettings.value.author_location,
-      personal_website: blogSettings.value.personal_website,
-      blog_email: blogSettings.value.blog_email
+      github_url: settings.github_url,
+      weibo_url: settings.weibo_url,
+      author_location: settings.author_location,
+      personal_website: settings.personal_website,
+      blog_email: settings.blog_email
     })
     
     console.log('🔍 联系信息字段值:', {
-      'github_url 是否存在': !!blogSettings.value.github_url,
-      'github_url 值': blogSettings.value.github_url,
-      'weibo_url 是否存在': !!blogSettings.value.weibo_url,
-      'weibo_url 值': blogSettings.value.weibo_url,
-      'author_location 是否存在': !!blogSettings.value.author_location,
-      'author_location 值': blogSettings.value.author_location,
-      'personal_website 是否存在': !!blogSettings.value.personal_website,
-      'personal_website 值': blogSettings.value.personal_website,
-      'blog_email 是否存在': !!blogSettings.value.blog_email,
-      'blog_email 值': blogSettings.value.blog_email
+      'github_url 是否存在': !!settings.github_url,
+      'github_url 值': settings.github_url,
+      'weibo_url 是否存在': !!settings.weibo_url,
+      'weibo_url 值': settings.weibo_url,
+      'author_location 是否存在': !!settings.author_location,
+      'author_location 值': settings.author_location,
+      'personal_website 是否存在': !!settings.personal_website,
+      'personal_website 值': settings.personal_website,
+      'blog_email 是否存在': !!settings.blog_email,
+      'blog_email 值': settings.blog_email
     })
   } catch (error) {
     console.error('❌ 加载博客设置失败:', error)
-    // 使用默认设置
-    blogSettings.value = {
-      blog_author: 'Nevell',
-      author_title: '全栈开发工程师',
-      blog_desc: '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。',
-      blog_email: 'contact@example.com',
-      github_url: 'https://github.com',
-      weibo_url: 'https://weibo.com',
-      wechat_qr: '',
-      about_content: '暂无关于内容',
-      author_location: '中国·北京'
-    }
+    // 使用默认值
+    console.log('📦 使用默认博客设置')
   }
 }
 

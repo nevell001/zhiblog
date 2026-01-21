@@ -13,6 +13,32 @@
         <p class="blog-subtitle">
           {{ blogSettings.blog_desc || '欢迎来到我的博客' }}
         </p>
+
+        <!-- 搜索栏 -->
+        <div
+          v-if="isFeatureEnabled('search_enabled')"
+          class="search-container"
+        >
+          <el-input
+            v-model="searchKeyword"
+            placeholder="搜索文章..."
+            size="large"
+            class="search-input"
+            clearable
+            @keyup.enter="handleSearch"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+            <template #append>
+              <el-button
+                :icon="Search"
+                @click="handleSearch"
+              />
+            </template>
+          </el-input>
+        </div>
+
         <div class="header-stats">
           <div class="stat-item">
             <span class="stat-number">{{ total }}</span>
@@ -151,7 +177,7 @@
 
         <!-- 侧边栏 -->
         <aside
-          v-if="blogSettings.sidebar_enabled !== 'false'"
+          v-if="isFeatureEnabled('sidebar_enabled')"
           class="sidebar"
         >
           <!-- 博主信息 -->
@@ -320,7 +346,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { FolderOpened, View, Star, DocumentDelete, TrendCharts, PriceTag, Link } from '@element-plus/icons-vue'
+import { FolderOpened, View, Star, DocumentDelete, TrendCharts, PriceTag, Link, Search } from '@element-plus/icons-vue'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
 import {
@@ -329,14 +355,17 @@ import {
   getHotArticles,
   getCategoryList,
   getTagList,
-  getFrontFriendLinkList
+  getFrontFriendLinkList,
+  searchArticles
 } from '@/api/blog'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import { parseTime } from '@/utils/ruoyi'
 import { useUserStore } from '@/stores/user'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 const router = useRouter()
 const userStore = useUserStore()
+const blogSettingsStore = useBlogSettingsStore()
 
 // 数据
 const articles = ref([])
@@ -344,11 +373,14 @@ const popularArticles = ref([])
 const categories = ref([])
 const tags = ref([])
 const friendLinks = ref([])
-const blogSettings = ref<any>({})
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
+const isFeatureEnabled = (feature: string) => blogSettingsStore.isFeatureEnabled(feature)
 const loading = ref(true)
 const currentPage = ref(1)
 const pageSize = ref(6)
 const total = ref(0)
+const searchKeyword = ref('')
+const isSearching = ref(false)
 
 // 处理头像 URL
 const blogAvatarUrl = computed(() => {
@@ -412,12 +444,47 @@ const goToTag = (id: number) => {
 // 分页处理
 const handleSizeChange = (size: number) => {
   pageSize.value = size
-  loadArticles()
+  if (isSearching.value) {
+    handleSearch()
+  } else {
+    loadArticles()
+  }
 }
 
 const handleCurrentChange = (page: number) => {
   currentPage.value = page
-  loadArticles()
+  if (isSearching.value) {
+    handleSearch()
+  } else {
+    loadArticles()
+  }
+}
+
+// 搜索处理
+const handleSearch = async () => {
+  if (!searchKeyword.value.trim()) {
+    isSearching.value = false
+    currentPage.value = 1
+    await loadArticles()
+    return
+  }
+
+  try {
+    loading.value = true
+    isSearching.value = true
+    const params = {
+      pageNum: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: searchKeyword.value.trim()
+    }
+    const response = await searchArticles(searchKeyword.value.trim(), params)
+    articles.value = response.rows || []
+    total.value = response.total || 0
+  } catch (error) {
+    console.error('搜索文章失败:', error)
+  } finally {
+    loading.value = false
+  }
 }
 
 // 加载文章列表
@@ -474,8 +541,8 @@ const loadFriendLinks = async () => {
   try {
     const response = await getFrontFriendLinkList()
     console.log('🔗 友情链接API响应:', response)
-    console.log('🔗 友情链接数据长度:', response?.length)
-    friendLinks.value = response || []
+    console.log('🔗 友情链接数据长度:', response?.data?.length)
+    friendLinks.value = response?.data || []
     console.log('🔗 友情链接数据:', friendLinks.value)
   } catch (error) {
     console.error('❌ 加载友情链接失败:', error)
@@ -486,11 +553,15 @@ const loadFriendLinks = async () => {
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettings()
-    blogSettings.value = response.data || {}
-    console.log('📦 博客设置加载完成:', blogSettings.value)
-    console.log('📦 blog_avatar 值:', blogSettings.value.blog_avatar)
+    const settings = response.data || {}
+    // 更新 blogSettingsStore
+    blogSettingsStore.updateBlogSettings(settings)
+    console.log('📦 博客设置加载完成:', settings)
+    console.log('📦 blog_avatar 值:', settings.blog_avatar)
   } catch (error) {
     console.error('加载博客设置失败:', error)
+    // 使用默认值
+    console.log('📦 使用默认博客设置')
   }
 }
 
@@ -575,9 +646,78 @@ onMounted(async () => {
 .blog-subtitle {
   font-size: 1.4rem;
   opacity: 0.95;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
   font-weight: 300;
   animation: slideDown 0.8s ease 0.2s both;
+}
+
+.search-container {
+  max-width: 600px;
+  margin: 0 auto 40px;
+  animation: slideDown 0.8s ease 0.3s both;
+}
+
+.search-input {
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.search-input:hover,
+.search-input:focus-within {
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+.search-input :deep(.el-input__wrapper) {
+  border-radius: 30px 0 0 30px;
+  padding: 8px 20px;
+  background: white;
+  box-shadow: none;
+  border: 2px solid transparent;
+  border-right: none;
+  transition: all 0.3s ease;
+}
+
+.search-input :deep(.el-input__wrapper:hover),
+.search-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #667eea;
+  border-right: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-input :deep(.el-input__prefix) {
+  color: #667eea;
+}
+
+.search-input :deep(.el-input-group__append) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-left: none;
+  border-radius: 0 30px 30px 0;
+  padding: 0;
+  width: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input :deep(.el-input-group__append .el-button) {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 18px;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input :deep(.el-input-group__append .el-button:hover) {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .header-stats {
@@ -1248,6 +1388,10 @@ onMounted(async () => {
     font-size: 3rem;
   }
 
+  .search-container {
+    max-width: 500px;
+  }
+
   .article-image {
     width: 240px;
     height: 170px;
@@ -1269,6 +1413,11 @@ onMounted(async () => {
 
   .blog-subtitle {
     font-size: 1.2rem;
+  }
+
+  .search-container {
+    max-width: 100%;
+    padding: 0 20px;
   }
 
   .header-stats {
@@ -1319,6 +1468,10 @@ onMounted(async () => {
     font-size: 1rem;
   }
 
+  .search-container {
+    margin-bottom: 30px;
+  }
+
   .header-stats {
     gap: 30px;
   }
@@ -1353,6 +1506,17 @@ onMounted(async () => {
 /* 深色主题 */
 html.dark .blog-home-container {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+html.dark .search-input :deep(.el-input__wrapper) {
+  background: #252535;
+  border-color: #3a3a4a;
+}
+
+html.dark .search-input :deep(.el-input__wrapper:hover),
+html.dark .search-input :deep(.el-input__wrapper.is-focus) {
+  border-color: #667eea;
+  background: #2a2a3a;
 }
 
 html.dark .articles-section,

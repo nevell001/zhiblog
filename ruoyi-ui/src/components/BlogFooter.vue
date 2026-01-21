@@ -5,7 +5,7 @@
   >
     <div class="footer-content">
       <div
-        v-if="blogSettings.footer_enabled === 'true' || blogSettings.footer_enabled === true"
+        v-if="blogSettingsStore.isFeatureEnabled('footer_enabled')"
         class="footer-info"
       >
         <div class="footer-section">
@@ -102,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 
 // 定义props
 const props = defineProps({
@@ -122,6 +123,8 @@ const props = defineProps({
     default: 0
   }
 })
+
+const blogSettingsStore = useBlogSettingsStore()
 
 // 计算RSS URL
 const rssUrl = computed(() => {
@@ -147,14 +150,12 @@ const currentYear = computed(() => {
 
 // 是否显示底部
 const shouldShowFooter = computed(() => {
-  return props.blogSettings.footer_enabled === 'true' || props.blogSettings.footer_enabled === true
+  return blogSettingsStore.isFeatureEnabled('footer_enabled')
 })
 
 // 是否显示版权
 const shouldShowCopyright = computed(() => {
-  return (
-    props.blogSettings.copyright_enabled === 'true' || props.blogSettings.copyright_enabled === true
-  )
+  return blogSettingsStore.isFeatureEnabled('copyright_enabled')
 })
 </script>
 

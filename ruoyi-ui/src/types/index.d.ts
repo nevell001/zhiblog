@@ -146,11 +146,17 @@ export interface Comment {
  */
 export interface FriendLink {
   id?: number
-  linkName: string
-  linkUrl: string
+  name: string
+  url: string
   logo?: string
-  status?: number
-  orderNum?: number
+  description?: string
+  sort?: number
+  status?: string
+  createBy?: string
+  createTime?: string
+  updateBy?: string
+  updateTime?: string
+  delFlag?: string
 }
 
 /**

@@ -122,7 +122,10 @@
               <i class="el-icon-date"></i>
               <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
             </span>
-            <span class="meta-item">
+            <span
+              v-if="isFeatureEnabled('view_count_enabled')"
+              class="meta-item"
+            >
               <i class="el-icon-view"></i>
               <span>{{ article.viewCount || 0 }} 阅读</span>
             </span>
@@ -191,6 +194,7 @@
       <div class="article-actions">
         <div class="action-buttons">
           <el-button
+            v-if="isFeatureEnabled('like_enabled')"
             :loading="likeLoading"
             :type="article.isLiked ? 'success' : 'default'"
             plain
@@ -200,6 +204,7 @@
             点赞 {{ article.likeCount || 0 }}
           </el-button>
           <el-button
+            v-if="isFeatureEnabled('share_enabled')"
             type="default"
             plain
             @click="handleShare"
@@ -319,7 +324,10 @@
       </div>
 
       <!-- 评论区域 -->
-      <div class="comment-section">
+      <div
+        v-if="isFeatureEnabled('comment_enabled')"
+        class="comment-section"
+      >
         <h3 class="section-title">
           <i class="el-icon-chat-dot-round"></i>
           评论 ({{ totalComments }})
@@ -469,6 +477,7 @@
 import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { ElMessage } from 'element-plus'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
@@ -482,6 +491,7 @@ import { sanitizeArticleContent } from '@/utils/sanitize'
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const blogSettingsStore = useBlogSettingsStore()
 
 // 响应式数据
 const article = ref(null)
@@ -494,7 +504,8 @@ const loading = ref(false)
 const likeLoading = ref(false)
 const commentSubmitting = ref(false)
 const isLoggedIn = ref(false)
-const blogSettings = ref({})
+const blogSettings = computed(() => blogSettingsStore.blogSettings)
+const isFeatureEnabled = (feature: string) => blogSettingsStore.isFeatureEnabled(feature)
 const tocItems = ref([])
 
 // 处理文章内容，为标题添加ID并消毒内容
@@ -792,14 +803,19 @@ const loadBlogSettings = async () => {
       response = await getBlogSettingsAnonymous()
     }
 
+    let settings = {}
     if (response && response.code === 200) {
-      blogSettings.value = response.data || {}
+      settings = response.data || {}
     } else if (response && typeof response === 'object') {
-      blogSettings.value = response
+      settings = response
     }
+
+    // 更新 blogSettingsStore
+    blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
     console.error('获取博客设置失败:', error)
-    blogSettings.value = {}
+    // 使用默认值
+    console.log('📦 使用默认博客设置')
   }
 }
 
