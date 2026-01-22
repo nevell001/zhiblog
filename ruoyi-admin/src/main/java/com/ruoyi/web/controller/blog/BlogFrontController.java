@@ -277,12 +277,23 @@ public class BlogFrontController extends BaseController
     {
         logger.info("请求文章详情，ID: {}", id);
 
-        // 先增加浏览量（异步执行，不阻塞返回）
+        // 检查浏览统计开关，决定是否增加浏览量
         try {
-            blogArticleService.addViewCount(id);
-            logger.info("文章浏览量已增加，ID: {}", id);
+            String viewCountEnabled = blogSettingService.selectSettingValueByKey("view_count_enabled");
+
+            // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
+            boolean shouldCount = viewCountEnabled == null ||
+                                  "true".equalsIgnoreCase(viewCountEnabled) ||
+                                  "1".equals(viewCountEnabled);
+
+            if (shouldCount) {
+                blogArticleService.addViewCount(id);
+                logger.info("文章浏览量已增加，ID: {}", id);
+            } else {
+                logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
+            }
         } catch (Exception e) {
-            logger.error("增加浏览量失败，ID: {}, 错误: {}", id, e.getMessage());
+            logger.error("浏览量统计失败，ID: {}, 错误: {}", id, e.getMessage());
             // 即使增加浏览量失败，也继续返回文章详情
         }
 
@@ -518,7 +529,21 @@ public class BlogFrontController extends BaseController
     @GetMapping("/article/view/{id}")
     public AjaxResult addArticleView(@PathVariable("id") Long id)
     {
-        blogArticleService.addViewCount(id);
+        // 检查浏览统计开关
+        String viewCountEnabled = blogSettingService.selectSettingValueByKey("view_count_enabled");
+
+        // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
+        boolean shouldCount = viewCountEnabled == null ||
+                              "true".equalsIgnoreCase(viewCountEnabled) ||
+                              "1".equals(viewCountEnabled);
+
+        if (shouldCount) {
+            blogArticleService.addViewCount(id);
+            logger.info("文章浏览量已增加（API调用），ID: {}", id);
+        } else {
+            logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
+        }
+
         return success();
     }
 
@@ -541,7 +566,22 @@ public class BlogFrontController extends BaseController
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
-        blogComment.setStatus("0"); // 设置评论状态为待审核，需要管理员审核通过后才显示
+        // 检查评论审核开关，根据博客设置决定是否需要审核
+        String commentReviewSetting = blogSettingService.selectSettingValueByKey("comment_review");
+
+        // 如果评论审核开关为 true 或 "true"，则设置为待审核（0）；否则直接发布（1）
+        // 默认需要审核（安全考虑）
+        boolean needsReview = commentReviewSetting == null ||
+                              "true".equalsIgnoreCase(commentReviewSetting) ||
+                              "1".equals(commentReviewSetting);
+
+        blogComment.setStatus(needsReview ? "0" : "1");
+
+        logger.info("新评论提交: articleId={}, status={} (审核开关={})",
+                    blogComment.getArticleId(),
+                    needsReview ? "待审核" : "已发布",
+                    commentReviewSetting);
+
         return toAjax(blogCommentService.insertBlogComment(blogComment));
     }
 

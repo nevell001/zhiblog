@@ -107,7 +107,10 @@
                 </p>
                 <div class="article-meta-bottom">
                   <div class="meta-left">
-                    <span class="article-view">
+                    <span
+                      v-if="isFeatureEnabled('view_count_enabled')"
+                      class="article-view"
+                    >
                       <el-icon><View /></el-icon>
                       {{ article.viewCount || 0 }}
                     </span>
@@ -238,7 +241,10 @@
                 >{{ index + 1 }}</span>
                 <div class="post-info">
                   <span class="post-title">{{ popular.title }}</span>
-                  <span class="post-views">
+                  <span
+                    v-if="isFeatureEnabled('view_count_enabled')"
+                    class="post-views"
+                  >
                     <el-icon><View /></el-icon>
                     {{ popular.viewCount || 0 }}
                   </span>

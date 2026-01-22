@@ -254,7 +254,16 @@ public class BlogArticleController extends BaseController
             article.setCoverUrl(params.get("coverUrl").toString());
         }
         if (params.get("categoryId") != null) {
-            article.setCategoryId(Long.valueOf(params.get("categoryId").toString()));
+            String categoryIdStr = params.get("categoryId").toString();
+            try {
+                // 检查是否为有效的数字字符串
+                if (!categoryIdStr.isEmpty() && !categoryIdStr.equals("NaN")) {
+                    article.setCategoryId(Long.valueOf(categoryIdStr));
+                }
+            } catch (NumberFormatException e) {
+                // 忽略无效的 categoryId 参数
+                System.err.println("警告: 无效的 categoryId 参数: " + categoryIdStr);
+            }
         }
         if (params.get("status") != null) {
             article.setStatus(Long.valueOf(params.get("status").toString()));

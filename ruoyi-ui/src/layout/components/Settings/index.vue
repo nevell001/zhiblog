@@ -220,7 +220,12 @@ const predefineColors = ref([
 function topNavChange(val) {
   if (!val) {
     appStore.toggleSideBarHide(false)
-    permissionStore.setSidebarRouters(permissionStore.defaultRoutes)
+    // 关闭 TopNav 时，过滤掉没有子菜单的一级路由，只显示有子菜单的路由作为侧边栏
+    const filteredRoutes = permissionStore.defaultRoutes.filter(route => {
+      // 保留 Layout 和有子菜单的路由
+      return route.path === '/' || (route.children && route.children.length > 0)
+    })
+    permissionStore.setSidebarRouters(filteredRoutes)
   }
 }
 

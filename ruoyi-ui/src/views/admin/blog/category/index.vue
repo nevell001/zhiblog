@@ -304,12 +304,28 @@ function handleAdd() {
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
-  reset()
-  const id = row.id || ids.value
+  // 处理 ID：如果是 row 对象则取 row.id，否则取 ids 数组的第一个元素
+  let id
+  if (row && row.id) {
+    // 从表格行点击修改按钮
+    id = row.id
+  } else if (ids.value && ids.value.length > 0) {
+    // 从顶部修改按钮点击
+    id = ids.value[0]
+  } else {
+    proxy.$modal.msgError('请先选择要修改的数据')
+    return
+  }
+
   getCategory(id).then(response => {
-    form.value = response.data
+    // 数据加载完成后重置表单并填充数据
+    reset()
+    Object.assign(form.value, response.data)
     open.value = true
     title.value = '修改分类'
+  }).catch(error => {
+    console.error('获取分类信息失败:', error)
+    proxy.$modal.msgError('获取分类信息失败')
   })
 }
 

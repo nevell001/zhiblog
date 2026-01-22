@@ -116,9 +116,11 @@ public class CacheAspect {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             return generateDefaultKey(signature, joinPoint.getArgs());
         }
-        
+
         // 解析SpEL表达式或使用字符串模板
-        return resolveSpEL(keyExpression, joinPoint);
+        String resolvedKey = resolveSpEL(keyExpression, joinPoint);
+        log.debug("缓存 key 解析: {} -> {}", keyExpression, resolvedKey);
+        return resolvedKey;
     }
 
     /**
@@ -153,24 +155,33 @@ public class CacheAspect {
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             String[] paramNames = signature.getParameterNames();
             Object[] args = joinPoint.getArgs();
-            
+
             String result = expression;
-            
-            // 替换参数引用 #paramName 或 #p0
-            if (paramNames != null) {
+
+            // 首先处理按索引的引用 #p0, #p1, ..., #a0, #a1, ...
+            for (int i = 0; i < args.length; i++) {
+                Object argValue = args[i];
+
+                // 替换 #p[i]
+                result = result.replace("#p" + i,
+                                      argValue != null ? argValue.toString() : "null");
+                // 替换 #a[i] (Spring 也支持这种格式)
+                result = result.replace("#a" + i,
+                                      argValue != null ? argValue.toString() : "null");
+            }
+
+            // 然后处理按参数名的引用 #paramName
+            if (paramNames != null && paramNames.length > 0) {
                 for (int i = 0; i < paramNames.length; i++) {
                     String paramName = paramNames[i];
                     Object argValue = args[i];
-                    
+
                     // 替换 #paramName
-                    result = result.replace("#" + paramName, 
-                                          argValue != null ? argValue.toString() : "null");
-                    // 替换 #p[i]
-                    result = result.replace("#p" + i, 
+                    result = result.replace("#" + paramName,
                                           argValue != null ? argValue.toString() : "null");
                 }
             }
-            
+
             return result;
         } else {
             // 普通字符串，直接返回

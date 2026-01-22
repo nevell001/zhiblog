@@ -30,12 +30,13 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
 
     /**
      * 查询文章分类
-     * 
+     *
      * @param id 文章分类主键
      * @return 文章分类
      */
     @Override
-    @BlogCacheable(key = "blog:category:#id", ttl = 60, timeUnit = TimeUnit.MINUTES)
+    // 暂时禁用缓存，待 SpEL 解析修复后重新启用
+    // @BlogCacheable(key = "blog:category:#p0", ttl = 60, timeUnit = TimeUnit.MINUTES)
     public BlogCategory selectBlogCategoryById(Long id)
     {
         return blogCategoryMapper.selectBlogCategoryById(id);

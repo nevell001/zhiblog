@@ -602,12 +602,26 @@ watch(
 
     if (newId) {
       // 有分类ID，加载特定分类的文章
-      currentCategoryId.value = parseInt(newId)
-      queryParams.categoryId = parseInt(newId)
-      queryParams.pageNum = 1
-      loadCategoryDetail()
-      loadCategoryArticles()
-      loadRelatedCategories()
+      const parsedId = parseInt(newId as string)
+      // 检查是否为有效数字
+      if (!isNaN(parsedId) && parsedId > 0) {
+        currentCategoryId.value = parsedId
+        queryParams.categoryId = parsedId
+        queryParams.pageNum = 1
+        loadCategoryDetail()
+        loadCategoryArticles()
+        loadRelatedCategories()
+      } else {
+        // 无效的分类ID，显示所有分类列表
+        console.warn('⚠️ 无效的分类ID:', newId)
+        currentCategoryId.value = null
+        queryParams.categoryId = null
+        queryParams.pageNum = 1
+        categoryName.value = '所有分类'
+        categoryDescription.value = '浏览所有分类下的文章'
+        loadCategoryArticles()
+        loadRelatedCategories()
+      }
     } else {
       // 没有分类ID，显示所有分类列表
       console.log('⚠️ 没有分类ID，显示所有分类')
