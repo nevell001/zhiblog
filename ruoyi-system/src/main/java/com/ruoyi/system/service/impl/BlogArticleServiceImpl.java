@@ -493,4 +493,40 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     {
         return blogArticleMapper.selectArticlesByArchive(blogArticle);
     }
+
+    /**
+     * 批量更新文章置顶状态
+     *
+     * @param ids 文章ID列表
+     * @param isTop 置顶状态（0-不置顶，1-置顶）
+     * @return 结果
+     */
+    @Override
+    @BlogCacheEvict(keyPattern = "blog:*")
+    public int updateArticleTopStatus(List<Long> ids, Integer isTop)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return 0;
+        }
+        return blogArticleMapper.updateArticleTopStatus(ids, isTop);
+    }
+
+    /**
+     * 批量更新文章推荐状态
+     *
+     * @param ids 文章ID列表
+     * @param isRecommend 推荐状态（0-不推荐，1-推荐）
+     * @return 结果
+     */
+    @Override
+    @BlogCacheEvict(keyPattern = "blog:*")
+    public int updateArticleRecommendStatus(List<Long> ids, Integer isRecommend)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return 0;
+        }
+        return blogArticleMapper.updateArticleRecommendStatus(ids, isRecommend);
+    }
 }

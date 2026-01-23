@@ -527,7 +527,9 @@ import {
   getArticle,
   delArticle,
   addArticle,
-  updateArticle
+  updateArticle,
+  updateArticleTopStatus,
+  updateArticleRecommendStatus
 } from '@/api/admin/blog/article'
 import { listCategory } from '@/api/admin/blog/category'
 import { listTag } from '@/api/admin/blog/tag'
@@ -1076,13 +1078,11 @@ async function handleBatchTop() {
     )
 
     loading.value = true
-    // 批量更新置顶状态
-    for (const id of ids.value) {
-      await updateArticle({
-        id: id,
-        isTop: 1
-      })
-    }
+    // 使用批量更新接口
+    await updateArticleTopStatus({
+      ids: ids.value,
+      isTop: 1
+    })
     ElMessage.success('批量置顶成功')
     await getList()
     // 清空选择
@@ -1117,13 +1117,11 @@ async function handleBatchRecommend() {
     )
 
     loading.value = true
-    // 批量更新推荐状态
-    for (const id of ids.value) {
-      await updateArticle({
-        id: id,
-        isRecommend: 1
-      })
-    }
+    // 使用批量更新接口
+    await updateArticleRecommendStatus({
+      ids: ids.value,
+      isRecommend: 1
+    })
     ElMessage.success('批量推荐成功')
     await getList()
     // 清空选择

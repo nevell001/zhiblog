@@ -313,6 +313,8 @@ INSERT INTO sys_dict_type VALUES(1,  '用户性别', 'sys_user_sex',        '0',
 INSERT INTO sys_dict_type VALUES(2,  '菜单状态', 'sys_show_hide',       '0', 'admin', NOW(), '', NULL, '菜单状态列表');
 INSERT INTO sys_dict_type VALUES(3,  '系统开关', 'sys_normal_disable',  '0', 'admin', NOW(), '', NULL, '系统开关列表');
 INSERT INTO sys_dict_type VALUES(4,  '评论状态', 'comment_status',     '0', 'admin', NOW(), '', NULL, '评论状态列表');
+INSERT INTO sys_dict_type VALUES(5,  '公告类型', 'sys_notice_type',    '0', 'admin', NOW(), '', NULL, '公告类型列表');
+INSERT INTO sys_dict_type VALUES(6,  '公告状态', 'sys_notice_status',  '0', 'admin', NOW(), '', NULL, '公告状态列表');
 
 INSERT INTO sys_dict_data VALUES(1,  1,  '男',       '0',       'sys_user_sex',        '',   '',        'Y', '0', 'admin', NOW(), '', NULL, '性别男');
 INSERT INTO sys_dict_data VALUES(2,  2,  '女',       '1',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别女');
@@ -327,6 +329,12 @@ INSERT INTO sys_dict_data VALUES(7,  2,  '停用',     '1',       'sys_normal_di
 INSERT INTO sys_dict_data VALUES(8,  1,  '待审核',   '0',       'comment_status',      '',   'warning',  'N', '0', 'admin', NOW(), '', NULL, '待审核状态');
 INSERT INTO sys_dict_data VALUES(9,  2,  '已审核',   '1',       'comment_status',      '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '已审核状态');
 INSERT INTO sys_dict_data VALUES(10, 3,  '已删除',   '2',       'comment_status',      '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '已删除状态');
+
+INSERT INTO sys_dict_data VALUES(11, 1,  '通知',     '1',       'sys_notice_type',     '',   'primary', 'N', '0', 'admin', NOW(), '', NULL, '通知');
+INSERT INTO sys_dict_data VALUES(12, 2,  '公告',     '2',       'sys_notice_type',     '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '公告');
+
+INSERT INTO sys_dict_data VALUES(13, 1,  '正常',     '0',       'sys_notice_status',   '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
+INSERT INTO sys_dict_data VALUES(14, 2,  '关闭',     '1',       'sys_notice_status',   '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '关闭状态');
 
 -- 13、通知公告表
 DROP TABLE IF EXISTS sys_notice;

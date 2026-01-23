@@ -160,4 +160,22 @@ public interface BlogArticleMapper
      * @return 文章列表
      */
     List<BlogArticle> selectArticlesByArchive(BlogArticle blogArticle);
+
+    /**
+     * 批量更新文章置顶状态
+     *
+     * @param ids 文章ID列表
+     * @param isTop 置顶状态（0-不置顶，1-置顶）
+     * @return 结果
+     */
+    int updateArticleTopStatus(@Param("ids") List<Long> ids, @Param("isTop") Integer isTop);
+
+    /**
+     * 批量更新文章推荐状态
+     *
+     * @param ids 文章ID列表
+     * @param isRecommend 推荐状态（0-不推荐，1-推荐）
+     * @return 结果
+     */
+    int updateArticleRecommendStatus(@Param("ids") List<Long> ids, @Param("isRecommend") Integer isRecommend);
 }

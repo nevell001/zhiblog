@@ -73,3 +73,25 @@ export function likeArticle(id: number): Promise<any> {
     method: 'put'
   })
 }
+
+/**
+ * 批量更新文章置顶状态
+ */
+export function updateArticleTopStatus(ids: number[], isTop: number): Promise<any> {
+  return request({
+    url: '/system/article/top',
+    method: 'put',
+    data: { ids, isTop }
+  })
+}
+
+/**
+ * 批量更新文章推荐状态
+ */
+export function updateArticleRecommendStatus(ids: number[], isRecommend: number): Promise<any> {
+  return request({
+    url: '/system/article/recommend',
+    method: 'put',
+    data: { ids, isRecommend }
+  })
+}

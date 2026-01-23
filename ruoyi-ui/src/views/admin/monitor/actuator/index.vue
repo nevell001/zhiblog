@@ -36,7 +36,21 @@
                 <p class="endpoint-url">
                   {{ endpoint.href }}
                 </p>
+                <el-tooltip
+                  v-if="isTemplateEndpoint(endpoint.href)"
+                  content="这是一个模板端点，请先查看指标列表，然后从列表中选择具体指标查看详情"
+                  placement="top"
+                >
+                  <el-button
+                    type="primary"
+                    size="small"
+                    disabled
+                  >
+                    查看详情
+                  </el-button>
+                </el-tooltip>
                 <el-button
+                  v-else
                   type="primary"
                   size="small"
                   @click="viewEndpoint(endpoint.href, key)"
@@ -542,6 +556,11 @@ const formatEndpointName = key => {
   return nameMap[key] || key
 }
 
+// 判断是否为模板端点（包含路径参数）
+const isTemplateEndpoint = url => {
+  return url && url.includes('{')
+}
+
 // 格式化 health 组件名称
 const formatHealthComponentName = key => {
   const nameMap = {
@@ -580,9 +599,14 @@ const viewEndpoint = async (url, key) => {
 
   try {
     // 将容器内地址转换为本地访问地址
-    const localUrl = url
-      .replace('http://ruoyi-admin:8080', 'http://localhost:8080')
-      .replace('http://host.docker.internal:8080', 'http://localhost:8080')
+    let localUrl = url
+    if (import.meta.env?.VUE_APP_ENV === 'production') {
+      // 生产环境：使用相对路径，通过 Nginx 代理
+      localUrl = url.replace('http://ruoyi-admin:8080', '').replace('http://host.docker.internal:8080', '')
+    } else {
+      // 开发环境：使用 localhost
+      localUrl = url.replace('http://ruoyi-admin:8080', 'http://localhost:8080').replace('http://host.docker.internal:8080', 'http://localhost:8080')
+    }
 
     const response = await fetch(localUrl)
     if (!response.ok) {
@@ -634,13 +658,27 @@ const copyToClipboard = async () => {
 
 // 在新窗口打开
 const openInNewWindow = () => {
-  const localUrl = detailUrl.value.replace('http://ruoyi-admin:8080', 'http://localhost:8080')
+  let localUrl = detailUrl.value
+  if (import.meta.env?.VUE_APP_ENV === 'production') {
+    // 生产环境：使用相对路径，通过 Nginx 代理
+    localUrl = detailUrl.value.replace('http://ruoyi-admin:8080', '').replace('http://host.docker.internal:8080', '')
+  } else {
+    // 开发环境：使用 localhost
+    localUrl = detailUrl.value.replace('http://ruoyi-admin:8080', 'http://localhost:8080').replace('http://host.docker.internal:8080', 'http://localhost:8080')
+  }
   window.open(localUrl, '_blank')
 }
 
 // 查看指标详情
 const viewMetricDetail = metricName => {
-  const metricUrl = `http://localhost:8080/manage/actuator/metrics/${metricName}`
+  let metricUrl
+  if (import.meta.env?.VUE_APP_ENV === 'production') {
+    // 生产环境：使用相对路径，通过 Nginx 代理
+    metricUrl = `/manage/actuator/metrics/${metricName}`
+  } else {
+    // 开发环境：使用 localhost
+    metricUrl = `http://localhost:8080/manage/actuator/metrics/${metricName}`
+  }
   window.open(metricUrl, '_blank')
 }
 

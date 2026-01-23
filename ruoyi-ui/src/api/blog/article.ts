@@ -225,3 +225,31 @@ export function submitComment(data: Record<string, any>): Promise<any> {
     data: data
   })
 }
+
+/**
+ * 批量更新文章置顶状态
+ */
+export function updateArticleTopStatus(data: {
+  ids: number[]
+  isTop: number
+}): Promise<any> {
+  return request({
+    url: '/system/article/top',
+    method: 'put',
+    data: data
+  })
+}
+
+/**
+ * 批量更新文章推荐状态
+ */
+export function updateArticleRecommendStatus(data: {
+  ids: number[]
+  isRecommend: number
+}): Promise<any> {
+  return request({
+    url: '/system/article/recommend',
+    method: 'put',
+    data: data
+  })
+}

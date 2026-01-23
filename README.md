@@ -4,16 +4,17 @@
 
 基于 RuoYi-Vue 快速开发平台打造的现代化、前后端分离的企业级博客系统。采用 Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript 技术栈，支持文章发布、评论互动、标签分类、友情链接、后台管理等完整功能。
 
-**最新更新（v1.2.6）**：
-- 🐛 修复文章发布时表单重置问题（点击新增按钮时显示上一次的内容）
-- 🐛 修复用户统计页面图表显示模拟数据问题
-- ✅ 实现用户注册趋势和角色分布的真实数据库查询
-- 🎨 移除标签选择时显示的文章数（非动态数据）
-- 📝 更新项目版权信息为 Nevell（2025-2026）
-- 🔗 更新源码地址为 https://gitee.com/nevell/newblog.git
-- 🧪 修复 SysRoleServiceImplTest 测试的用户上下文问题
-- 🔧 优化前端代码规范（ESLint 自动修复 231 个问题）
-- 📦 创建 tinymce.ts 工具文件，优化 TinyMCE 组件结构
+**最新更新（v1.2.7）**：
+- 🔒 生产环境 Actuator 安全配置（只暴露必要端点，移除敏感信息端点）
+- 🔧 优化批量置顶和批量推荐功能（性能提升 90%，从 N 次调用优化为 1 次调用）
+- 🛡️ Spring Security 配置优化（生产环境 Actuator 端点放行）
+- 📊 添加 Actuator 监控页面优化（模板端点禁用、环境自适应 URL）
+- 🚫 生产环境 Swagger 接口禁用（显示友好提示而非 404）
+- 📝 添加应用信息配置（info 端点显示应用、构建、Java、OS 信息）
+- 🐛 修复健康检查子路径放行问题（/health/**）
+- 🌐 添加 Nginx 代理配置（/manage/ 路径代理到后端）
+- 🎨 优化 Actuator 监控页面 UI（模板端点按钮禁用、Tooltip 提示）
+- 📦 版本号更新到 v1.2.7
 
 **项目特色**：
 - 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架
@@ -27,6 +28,49 @@
 - 🔧 **版本管理**：版本号从 pom.xml 动态读取，保持一致性
 
 ## 📦 版本历史
+
+### v1.2.7 (2026-01-23)
+**生产环境安全配置与性能优化**
+
+**安全配置优化**:
+- ✅ 生产环境 Actuator 安全配置（只暴露 health, info, metrics, prometheus 端点）
+- ✅ 移除 env 和 configprops 端点（防止泄露数据库密码、API密钥等敏感信息）
+- ✅ Spring Security 配置优化（生产环境 Actuator 端点放行）
+- ✅ 健康检查子路径放行（/health/**）
+- ✅ 生产环境 Swagger 接口禁用（显示友好提示而非 404）
+
+**性能优化**:
+- ✅ 优化批量置顶功能（从循环调用优化为批量更新，性能提升 90%）
+- ✅ 优化批量推荐功能（从循环调用优化为批量更新，性能提升 90%）
+- ✅ 添加批量更新置顶状态接口（PUT /system/article/top）
+- ✅ 添加批量更新推荐状态接口（PUT /system/article/recommend）
+
+**功能增强**:
+- ✅ 添加 Actuator 监控页面优化（模板端点禁用、环境自适应 URL）
+- ✅ 添加应用信息配置（info 端点显示应用、构建、Java、OS 信息）
+- ✅ 添加 Nginx 代理配置（/manage/ 路径代理到后端）
+- ✅ 优化 Actuator 监控页面 UI（模板端点按钮禁用、Tooltip 提示）
+
+**代码优化**:
+- ✅ Service 层添加批量更新方法（updateArticleTopStatus, updateArticleRecommendStatus）
+- ✅ Mapper 层添加批量更新 SQL
+- ✅ Controller 层添加批量更新接口
+- ✅ 前端 API 添加批量更新方法
+- ✅ 前端页面使用新的批量更新接口
+
+**详细说明**:
+1. **生产环境 Actuator 安全配置**:
+   - 只暴露必要的监控端点（health, info, metrics, prometheus）
+   - 移除可能泄露敏感信息的端点（env, configprops）
+   - 健康检查不显示详细信息（show-details: never）
+2. **批量操作性能优化**:
+   - 优化前：批量操作 10 篇文章需要调用 10 次 API
+   - 优化后：批量操作 10 篇文章只需调用 1 次 API
+   - 性能提升约 90%
+3. **Actuator 监控页面优化**:
+   - 模板端点（如 /metrics/{requiredMetricName}）按钮禁用
+   - 添加 Tooltip 提示信息
+   - 环境自适应 URL（生产环境使用相对路径，开发环境使用 localhost）
 
 ### v1.2.6 (2026-01-23)
 **Bug修复与功能优化**
@@ -389,7 +433,7 @@ DRUID_PASSWORD={openssl rand -base64 16}
 ```
 
 **注意**：
-- 版本号在 `pom.xml` 中定义，当前版本为 `1.2.6`
+- 版本号在 `pom.xml` 中定义，当前版本为 `1.2.7`
 - 前端会自动从后端 API 获取版本号并显示在管理后台首页
 - 修改版本号时请同步更新 `pom.xml` 和 `application.yml`
 
@@ -450,7 +494,7 @@ chore: 构建/工具
 
 ### 项目信息
 - **项目名称**: NewBlog
-- **当前版本**: v1.2.6
+- **当前版本**: v1.2.7
 - **Maven GroupId**: top.nevell
 - **项目地址**: https://gitee.com/nevell/newblog
 - **维护者**: nevell

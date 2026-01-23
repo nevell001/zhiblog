@@ -132,15 +132,23 @@ public class SecurityConfig
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.js"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
                 
-                // 开发环境允许访问Swagger和Actuator
+                // Actuator 监控端点（所有环境都允许访问）
+                requests.requestMatchers(
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/health/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/info"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/metrics/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/prometheus")
+                ).permitAll();
+
+                // 开发环境允许访问Swagger
                 if (!"prod".equals(activeProfile)) {
                     requests.requestMatchers(
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
-                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**"),
-                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/**")
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**")
                     ).permitAll();
                 }
 

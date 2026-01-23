@@ -50,12 +50,20 @@ server:
   # 服务器头信息配置
   server-header:
 
-# 安全配置
+# 生产环境安全配置
 ruoyi:
+  # 名称
+  name: RuoYi
+  # 版本
+  version: 1.2.7
+  # 版权年份
+  copyrightYear: 2026
   # 关闭获取IP地址
   addressEnabled: false
   # 使用字符验证码
   captchaType: char
+  # 验证码开关（从环境变量读取，默认true）
+  captchaEnabled: ${CAPTCHA_ENABLED:true}
 
 # Token配置
 token:
@@ -70,3 +78,65 @@ xss:
   excludes: /blog/**,/api/**,/index
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*,/admin/*
+
+# Spring Boot Actuator 生产环境安全配置
+management:
+  # 生产环境只暴露必要的端点，移除可能泄露敏感信息的端点
+  endpoints:
+    web:
+      exposure:
+        # 暴露健康检查、基本信息、监控指标和 Prometheus 监控端点
+        # 根端点会自动返回所有已暴露端点的链接
+        # 移除 env 和 configprops 以防止泄露敏感信息
+        include: health,info,metrics,prometheus
+      base-path: /manage/actuator
+    # 启用根端点
+    enabled-by-default: true
+  # 端点配置
+  endpoint:
+    health:
+      enabled: true
+      # 生产环境禁用健康检查详细信息
+      show-details: never
+      show-components: never
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  # 健康检查配置
+  health:
+    redis:
+      enabled: true
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+  # 应用信息配置
+  info:
+    env:
+      enabled: true
+    java:
+      enabled: true
+    os:
+      enabled: true
+
+# 应用信息配置
+info:
+  app:
+    name: ${ruoyi.name}
+    version: ${ruoyi.version}
+    copyright-year: ${ruoyi.copyrightYear}
+  build:
+    artifact: ruoyi-admin
+    name: ruoyi-admin
+    description: 博客管理系统
+  # Prometheus 配置
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+      environment: prod

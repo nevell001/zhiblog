@@ -196,6 +196,46 @@ public class BlogArticleController extends BaseController
     }
 
     /**
+     * 批量更新文章置顶状态
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/top")
+    public AjaxResult updateTopStatus(@RequestBody Map<String, Object> params)
+    {
+        @SuppressWarnings("unchecked")
+        List<Long> ids = (List<Long>) params.get("ids");
+        Integer isTop = (Integer) params.get("isTop");
+
+        if (ids == null || ids.isEmpty()) {
+            return error("请选择要更新的文章");
+        }
+
+        int result = blogArticleService.updateArticleTopStatus(ids, isTop);
+        return toAjax(result);
+    }
+
+    /**
+     * 批量更新文章推荐状态
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/recommend")
+    public AjaxResult updateRecommendStatus(@RequestBody Map<String, Object> params)
+    {
+        @SuppressWarnings("unchecked")
+        List<Long> ids = (List<Long>) params.get("ids");
+        Integer isRecommend = (Integer) params.get("isRecommend");
+
+        if (ids == null || ids.isEmpty()) {
+            return error("请选择要更新的文章");
+        }
+
+        int result = blogArticleService.updateArticleRecommendStatus(ids, isRecommend);
+        return toAjax(result);
+    }
+
+    /**
      * 搜索文章
      */
     @PreAuthorize("@ss.hasPermi('blog:article:list')")
