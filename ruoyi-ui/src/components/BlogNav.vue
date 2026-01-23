@@ -99,7 +99,7 @@ import {
 
 // 主题状态
 const isDarkTheme = ref(false)
-let scrollHandler = null
+const scrollHandler = null
 
 // 移动端菜单状态
 const isMobile = ref(false)

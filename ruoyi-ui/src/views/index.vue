@@ -21,24 +21,24 @@
         </p>
         <p>
           <el-button
-              type="primary"
-              plain
-              @click="goTarget('https://gitee.com/y_project/RuoYi-Vue')"
-            >
-              <template #icon>
-                <i class="el-icon-Cloudy"></i>
-              </template>
-              访问码云
-            </el-button>
-            <el-button
-              plain
-              @click="goTarget('/blog')"
-            >
-              <template #icon>
-                <i class="el-icon-HomeFilled"></i>
-              </template>
-              访问博客
-            </el-button>
+            type="primary"
+            plain
+            @click="goTarget('https://gitee.com/y_project/RuoYi-Vue')"
+          >
+            <template #icon>
+              <i class="el-icon-Cloudy"></i>
+            </template>
+            访问码云
+          </el-button>
+          <el-button
+            plain
+            @click="goTarget('/blog')"
+          >
+            <template #icon>
+              <i class="el-icon-HomeFilled"></i>
+            </template>
+            访问博客
+          </el-button>
         </p>
       </el-col>
 

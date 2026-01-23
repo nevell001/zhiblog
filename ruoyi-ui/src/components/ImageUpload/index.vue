@@ -24,7 +24,10 @@
       </el-icon>
     </el-upload>
     <!-- 上传提示 -->
-    <div v-if="showTip && !disabled" class="el-upload__tip">
+    <div
+      v-if="showTip && !disabled"
+      class="el-upload__tip"
+    >
       请上传
       <template v-if="fileSize">
         大小不超过
@@ -37,8 +40,16 @@
       的文件
     </div>
 
-    <el-dialog v-model="dialogVisible" title="预览" width="800px" append-to-body>
-      <img :src="dialogImageUrl" style="display: block; max-width: 100%; margin: 0 auto" />
+    <el-dialog
+      v-model="dialogVisible"
+      title="预览"
+      width="800px"
+      append-to-body
+    >
+      <img
+        :src="dialogImageUrl"
+        style="display: block; max-width: 100%; margin: 0 auto"
+      />
     </el-dialog>
   </div>
 </template>

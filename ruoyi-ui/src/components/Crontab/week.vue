@@ -1,17 +1,33 @@
 <template>
   <el-form>
     <el-form-item>
-      <el-radio v-model="radioValue" :value="1">周，允许的通配符[, - * ? / L #]</el-radio>
+      <el-radio
+        v-model="radioValue"
+        :value="1"
+      >
+        周，允许的通配符[, - * ? / L #]
+      </el-radio>
     </el-form-item>
 
     <el-form-item>
-      <el-radio v-model="radioValue" :value="2">不指定</el-radio>
+      <el-radio
+        v-model="radioValue"
+        :value="2"
+      >
+        不指定
+      </el-radio>
     </el-form-item>
 
     <el-form-item>
-      <el-radio v-model="radioValue" :value="3">
+      <el-radio
+        v-model="radioValue"
+        :value="3"
+      >
         周期从
-        <el-select v-model="cycle01" clearable>
+        <el-select
+          v-model="cycle01"
+          clearable
+        >
           <el-option
             v-for="(item, index) of weekList"
             :key="index"
@@ -23,7 +39,10 @@
           </el-option>
         </el-select>
         -
-        <el-select v-model="cycle02" clearable>
+        <el-select
+          v-model="cycle02"
+          clearable
+        >
           <el-option
             v-for="(item, index) of weekList"
             :key="index"
@@ -38,11 +57,21 @@
     </el-form-item>
 
     <el-form-item>
-      <el-radio v-model="radioValue" :value="4">
+      <el-radio
+        v-model="radioValue"
+        :value="4"
+      >
         第
-        <el-input-number v-model="average01" :min="1" :max="4" />
+        <el-input-number
+          v-model="average01"
+          :min="1"
+          :max="4"
+        />
         周的
-        <el-select v-model="average02" clearable>
+        <el-select
+          v-model="average02"
+          clearable
+        >
           <el-option
             v-for="item in weekList"
             :key="item.key"
@@ -54,9 +83,15 @@
     </el-form-item>
 
     <el-form-item>
-      <el-radio v-model="radioValue" :value="5">
+      <el-radio
+        v-model="radioValue"
+        :value="5"
+      >
         本月最后一个
-        <el-select v-model="weekday" clearable>
+        <el-select
+          v-model="weekday"
+          clearable
+        >
           <el-option
             v-for="item in weekList"
             :key="item.key"
@@ -68,7 +103,10 @@
     </el-form-item>
 
     <el-form-item>
-      <el-radio v-model="radioValue" :value="6">
+      <el-radio
+        v-model="radioValue"
+        :value="6"
+      >
         指定
         <el-select
           v-model="checkboxList"

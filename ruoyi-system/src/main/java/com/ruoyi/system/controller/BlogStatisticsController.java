@@ -328,14 +328,47 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getUserRegisterTrend()
     {
         try {
-            // 返回模拟数据
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"});
-            result.put("data", new int[]{5, 8, 3, 2, 6, 4, 7, 9, 12, 15, 8, 6});
+
+            // 从数据库查询用户注册趋势（最近12个月）
+            List<Map<String, Object>> trendData = userService.selectUserRegisterTrend(12);
+
+            if (trendData != null && !trendData.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+
+                // 数据是按月份升序排列的
+                for (Map<String, Object> monthData : trendData) {
+                    String month = (String) monthData.get("month");
+                    Long count = monthData.get("count") != null ? Long.parseLong(monthData.get("count").toString()) : 0;
+
+                    // 格式化月份标签（例如：2025-12 -> 12月）
+                    String[] parts = month.split("-");
+                    if (parts.length == 2) {
+                        labels.add(parts[1] + "月");
+                    } else {
+                        labels.add(month);
+                    }
+
+                    data.add(count.intValue());
+                }
+
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取用户注册趋势失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 
@@ -347,14 +380,42 @@ public class BlogStatisticsController extends BaseController
     public AjaxResult getUserRoleDistribution()
     {
         try {
-            // 返回模拟数据
             Map<String, Object> result = new HashMap<>();
-            result.put("labels", new String[]{"管理员", "编辑", "普通用户"});
-            result.put("data", new int[]{3, 5, 42});
+
+            // 从数据库查询用户角色分布
+            List<Map<String, Object>> roleData = userService.selectUserRoleDistribution();
+
+            if (roleData != null && !roleData.isEmpty()) {
+                List<String> labels = new ArrayList<>();
+                List<Integer> data = new ArrayList<>();
+
+                for (Map<String, Object> roleItem : roleData) {
+                    String label = (String) roleItem.get("label");
+                    Long count = roleItem.get("count") != null ? Long.parseLong(roleItem.get("count").toString()) : 0;
+
+                    // 只统计有用户的角色
+                    if (count > 0) {
+                        labels.add(label);
+                        data.add(count.intValue());
+                    }
+                }
+
+                result.put("labels", labels);
+                result.put("data", data);
+            } else {
+                // 返回空数据
+                result.put("labels", new ArrayList<>());
+                result.put("data", new ArrayList<>());
+            }
+
             return AjaxResult.success(result);
         } catch (Exception e) {
             logger.error("获取用户角色分布失败:", e);
-            return AjaxResult.success();
+            // 返回默认数据
+            Map<String, Object> defaultResult = new HashMap<>();
+            defaultResult.put("labels", new ArrayList<>());
+            defaultResult.put("data", new ArrayList<>());
+            return AjaxResult.success(defaultResult);
         }
     }
 

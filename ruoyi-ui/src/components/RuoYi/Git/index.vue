@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-const url = ref('https://gitee.com/y_project/RuoYi-Vue')
+const url = ref('https://gitee.com/nevell/newblog.git')
 
 function goto() {
   window.open(url.value)

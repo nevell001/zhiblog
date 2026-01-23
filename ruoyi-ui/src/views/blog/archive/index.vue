@@ -59,7 +59,10 @@
             to="/"
             class="go-home-link"
           >
-            <el-button type="primary" round>
+            <el-button
+              type="primary"
+              round
+            >
               返回首页
             </el-button>
           </router-link>

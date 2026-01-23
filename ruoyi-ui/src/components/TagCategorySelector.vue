@@ -59,31 +59,21 @@
             :label="tag.name || tag.tagName"
             :value="tag.id || tag.tagId"
           >
-            <div style="display: flex; align-items: center; justify-content: space-between">
-              <div style="display: flex; align-items: center">
-                <el-tag
-                  :style="{
-                    backgroundColor: tag.color || '#409EFF',
-                    color: 'white',
-                    border: 'none',
-                    marginRight: '8px'
-                  }"
-                  size="small"
-                >
-                  <i
-                    v-if="tag.icon"
-                    :class="tag.icon"
-                    style="margin-right: 4px"
-                  ></i>
-                  {{ tag.name || tag.tagName }}
-                </el-tag>
-              </div>
+            <div style="display: flex; align-items: center">
               <el-tag
-                v-if="tag.articleCount"
+                :style="{
+                  backgroundColor: tag.color || '#409EFF',
+                  color: 'white',
+                  border: 'none'
+                }"
                 size="small"
-                type="info"
               >
-                {{ tag.articleCount }}篇
+                <i
+                  v-if="tag.icon"
+                  :class="tag.icon"
+                  style="margin-right: 4px"
+                ></i>
+                {{ tag.name || tag.tagName }}
               </el-tag>
             </div>
           </el-option>

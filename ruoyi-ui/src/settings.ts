@@ -59,7 +59,7 @@ const settings: SettingsConfig = {
   /**
    * 底部版权文本内容
    */
-  footerContent: 'Copyright © 2018-2025 RuoYi. All Rights Reserved.',
+  footerContent: 'Copyright © 2025-2026 Nevell. All Rights Reserved.',
 
   /**
    * 侧边栏文字主题

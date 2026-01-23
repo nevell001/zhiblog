@@ -386,6 +386,7 @@
           prop="content"
         >
           <editor
+            :key="form.id || 'new'"
             v-model="form.content"
             :min-height="192"
           />
@@ -694,6 +695,11 @@ function handleAdd() {
   reset()
   open.value = true
   title.value = '添加博客文章'
+
+  // 使用 nextTick 确保 DOM 更新后再强制清空编辑器内容
+  nextTick(() => {
+    form.value.content = ''
+  })
 }
 
 /** 修改按钮操作 */

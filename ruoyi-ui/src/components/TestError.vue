@@ -1,19 +1,34 @@
 <template>
   <div class="test-error">
     <h1>错误测试组件</h1>
-    <button @click="testUndefinedOn">测试 undefined.on()</button>
-    <button @click="testNullOn">测试 null.on()</button>
-    <button @click="testObjectOn">测试普通对象.on()</button>
-    <button @click="testWindowOn">测试 window.on()</button>
-    <button @click="testDocumentOn">测试 document.on()</button>
-    <button @click="loadTinyMCE">测试 TinyMCE 加载</button>
-    <div class="test-result" ref="resultRef"></div>
+    <button @click="testUndefinedOn">
+      测试 undefined.on()
+    </button>
+    <button @click="testNullOn">
+      测试 null.on()
+    </button>
+    <button @click="testObjectOn">
+      测试普通对象.on()
+    </button>
+    <button @click="testWindowOn">
+      测试 window.on()
+    </button>
+    <button @click="testDocumentOn">
+      测试 document.on()
+    </button>
+    <button @click="loadTinyMCE">
+      测试 TinyMCE 加载
+    </button>
+    <div
+      ref="resultRef"
+      class="test-result"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { loadTinymce } from './TinyMCE/index.vue'
+import { loadTinymce } from '@/utils/tinymce'
 
 const resultRef = ref<HTMLElement | null>(null)
 

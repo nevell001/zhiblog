@@ -2,6 +2,7 @@ package com.ruoyi.system.mapper;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.ibatis.annotations.Param;
 import com.ruoyi.common.core.domain.entity.SysUser;
 
@@ -178,9 +179,24 @@ public interface SysUserMapper
 
     /**
      * 获取在线用户数量（最近指定分钟内有登录记录的用户）
-     * 
+     *
      * @param minutes 分钟数
      * @return 在线用户数量
      */
     Long selectOnlineUserCount(Integer minutes);
+
+    /**
+     * 获取用户注册趋势（按月份统计）
+     *
+     * @param months 统计最近几个月
+     * @return 用户注册趋势数据
+     */
+    List<Map<String, Object>> selectUserRegisterTrend(@Param("months") Integer months);
+
+    /**
+     * 获取用户角色分布
+     *
+     * @return 用户角色分布数据
+     */
+    List<Map<String, Object>> selectUserRoleDistribution();
 }

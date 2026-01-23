@@ -408,13 +408,9 @@ import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
-
-
 const route = useRoute()
 
 const blogSettingsStore = useBlogSettingsStore()
-
-
 
 // 响应式数据
 
@@ -433,8 +429,6 @@ const total = ref(0)
 const loading = ref(false)
 
 const loadingMore = ref(false)
-
-
 
 const currentTagId = ref(null)
 

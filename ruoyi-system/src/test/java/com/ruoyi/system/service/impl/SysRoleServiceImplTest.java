@@ -291,11 +291,20 @@ class SysRoleServiceImplTest {
 
         when(roleMapper.deleteRoleByIds(new Long[]{1L})).thenReturn(1);
 
-        // 现在允许删除超级管理员角色
-        int result = roleService.deleteRoleByIds(new Long[]{1L});
+        try (var mockedSecurityUtils = mockStatic(com.ruoyi.common.utils.SecurityUtils.class);
+             var mockedSysUser = mockStatic(com.ruoyi.common.core.domain.entity.SysUser.class)) {
+            // Mock getUserId() 返回管理员用户ID
+            mockedSecurityUtils.when(com.ruoyi.common.utils.SecurityUtils::getUserId).thenReturn(1L);
 
-        assertEquals(1, result);
-        verify(roleMapper).deleteRoleByIds(new Long[]{1L});
+            // Mock SysUser.isAdmin() 返回 true（是管理员）
+            mockedSysUser.when(() -> com.ruoyi.common.core.domain.entity.SysUser.isAdmin(1L)).thenReturn(true);
+
+            // 现在允许删除超级管理员角色
+            int result = roleService.deleteRoleByIds(new Long[]{1L});
+
+            assertEquals(1, result);
+            verify(roleMapper).deleteRoleByIds(new Long[]{1L});
+        }
     }
 
     /**

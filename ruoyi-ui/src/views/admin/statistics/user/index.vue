@@ -93,14 +93,20 @@ const loadChartData = async () => {
   try {
     // 加载用户注册趋势
     const registerRes = await getUserRegisterTrend()
+    console.log('用户注册趋势数据:', registerRes)
     if (registerRes.code === 200) {
       renderRegisterChart(registerRes.data)
+    } else {
+      console.error('用户注册趋势API返回错误:', registerRes)
     }
 
     // 加载用户角色分布
     const roleRes = await getUserRoleDistribution()
+    console.log('用户角色分布数据:', roleRes)
     if (roleRes.code === 200) {
       renderRoleChart(roleRes.data)
+    } else {
+      console.error('用户角色分布API返回错误:', roleRes)
     }
   } catch (error) {
     console.error('加载图表数据失败:', error)
@@ -116,27 +122,14 @@ const renderRegisterChart = data => {
       },
       xAxis: {
         type: 'category',
-        data: data.labels || [
-          '1月',
-          '2月',
-          '3月',
-          '4月',
-          '5月',
-          '6月',
-          '7月',
-          '8月',
-          '9月',
-          '10月',
-          '11月',
-          '12月'
-        ]
+        data: (data && data.labels) ? data.labels : []
       },
       yAxis: {
         type: 'value'
       },
       series: [
         {
-          data: data.data || [5, 8, 3, 2, 6, 4, 7, 9, 12, 15, 8, 6],
+          data: (data && data.data) ? data.data : [],
           type: 'line',
           smooth: true,
           itemStyle: {
@@ -152,6 +145,16 @@ const renderRegisterChart = data => {
 const renderRoleChart = data => {
   nextTick(() => {
     const chart = echarts.init(document.getElementById('roleChart'))
+
+    // 处理数据
+    let chartData = []
+    if (data && data.labels && data.data) {
+      chartData = data.labels.map((label, index) => ({
+        value: data.data[index],
+        name: label
+      }))
+    }
+
     const option = {
       tooltip: {
         trigger: 'item'
@@ -186,16 +189,7 @@ const renderRoleChart = data => {
           labelLine: {
             show: false
           },
-          data: data.labels
-            ? data.labels.map((label, index) => ({
-              value: data.data[index],
-              name: label
-            }))
-            : [
-              { value: 3, name: '管理员' },
-              { value: 5, name: '编辑' },
-              { value: 42, name: '普通用户' }
-            ]
+          data: chartData
         }
       ]
     }

@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import jakarta.validation.Validator;
 import org.slf4j.Logger;
@@ -612,7 +613,7 @@ public class SysUserServiceImpl implements ISysUserService
 
     /**
      * 查询在线用户数量（最近指定分钟内有登录记录的用户）
-     * 
+     *
      * @param minutes 分钟数
      * @return 在线用户数量
      */
@@ -620,5 +621,28 @@ public class SysUserServiceImpl implements ISysUserService
     public Long selectOnlineUserCount(Integer minutes)
     {
         return userMapper.selectOnlineUserCount(minutes);
+    }
+
+    /**
+     * 获取用户注册趋势（按月份统计）
+     *
+     * @param months 统计最近几个月
+     * @return 用户注册趋势数据
+     */
+    @Override
+    public List<Map<String, Object>> selectUserRegisterTrend(Integer months)
+    {
+        return userMapper.selectUserRegisterTrend(months);
+    }
+
+    /**
+     * 获取用户角色分布
+     *
+     * @return 用户角色分布数据
+     */
+    @Override
+    public List<Map<String, Object>> selectUserRoleDistribution()
+    {
+        return userMapper.selectUserRoleDistribution();
     }
 }
