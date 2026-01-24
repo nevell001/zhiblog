@@ -7,12 +7,13 @@
       >
         <el-card>
           <template #header>
-            <Cpu style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">CPU</span>
+            <Cpu style="width: 1em; height: 1em; vertical-align: middle" />
+            <span style="vertical-align: middle">CPU</span>
           </template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table
               cellspacing="0"
-              style="width: 100%;"
+              style="width: 100%"
             >
               <thead>
                 <tr>
@@ -101,12 +102,13 @@
       >
         <el-card>
           <template #header>
-            <Tickets style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">内存</span>
+            <Tickets style="width: 1em; height: 1em; vertical-align: middle" />
+            <span style="vertical-align: middle">内存</span>
           </template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table
               cellspacing="0"
-              style="width: 100%;"
+              style="width: 100%"
             >
               <thead>
                 <tr>
@@ -207,7 +209,7 @@
                     <div
                       v-if="server.mem"
                       class="cell"
-                      :class="{'text-danger': server.mem.usage > 80}"
+                      :class="{ 'text-danger': server.mem.usage > 80 }"
                     >
                       {{ server.mem.usage }}%
                     </div>
@@ -216,7 +218,7 @@
                     <div
                       v-if="server.jvm"
                       class="cell"
-                      :class="{'text-danger': server.jvm.usage > 80}"
+                      :class="{ 'text-danger': server.jvm.usage > 80 }"
                     >
                       {{ server.jvm.usage }}%
                     </div>
@@ -234,12 +236,13 @@
       >
         <el-card>
           <template #header>
-            <Monitor style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">服务器信息</span>
+            <Monitor style="width: 1em; height: 1em; vertical-align: middle" />
+            <span style="vertical-align: middle">服务器信息</span>
           </template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table
               cellspacing="0"
-              style="width: 100%;"
+              style="width: 100%"
             >
               <tbody>
                 <tr>
@@ -310,12 +313,13 @@
       >
         <el-card>
           <template #header>
-            <CoffeeCup style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">Java虚拟机信息</span>
+            <CoffeeCup style="width: 1em; height: 1em; vertical-align: middle" />
+            <span style="vertical-align: middle">Java虚拟机信息</span>
           </template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table
               cellspacing="0"
-              style="width: 100%;table-layout:fixed;"
+              style="width: 100%; table-layout: fixed"
             >
               <tbody>
                 <tr>
@@ -449,12 +453,13 @@
       >
         <el-card>
           <template #header>
-            <MessageBox style="width: 1em; height: 1em; vertical-align: middle;" /> <span style="vertical-align: middle;">磁盘状态</span>
+            <MessageBox style="width: 1em; height: 1em; vertical-align: middle" />
+            <span style="vertical-align: middle">磁盘状态</span>
           </template>
           <div class="el-table el-table--enable-row-hover el-table--medium">
             <table
               cellspacing="0"
-              style="width: 100%;"
+              style="width: 100%"
             >
               <thead>
                 <tr>
@@ -533,7 +538,7 @@
                   <td class="el-table__cell is-leaf">
                     <div
                       class="cell"
-                      :class="{'text-danger': sysFile.usage > 80}"
+                      :class="{ 'text-danger': sysFile.usage > 80 }"
                     >
                       {{ sysFile.usage }}%
                     </div>

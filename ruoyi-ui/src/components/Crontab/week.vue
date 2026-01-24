@@ -169,10 +169,7 @@ watch(
   value => changeRadioValue(value)
 )
 
-watch(
-  [radioValue, cycleTotal, averageTotal, weekdayTotal, checkboxString],
-  () => onRadioChange()
-)
+watch([radioValue, cycleTotal, averageTotal, weekdayTotal, checkboxString], () => onRadioChange())
 const weekList = ref([
   { key: 1, value: '星期日' },
   { key: 2, value: '星期一' },

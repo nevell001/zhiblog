@@ -19,10 +19,14 @@ import org.springframework.test.context.ActiveProfiles;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.core.domain.entity.SysUser;
+import com.ruoyi.common.exception.DuplicateArticleTitleException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -341,7 +345,6 @@ class BlogArticleServiceImplTest {
         List<BlogArticle> articleList = Arrays.asList(testArticle);
         when(blogArticleMapper.searchArticles(anyString(), any(BlogArticle.class)))
             .thenReturn(articleList);
-        when(blogTagMapper.selectTagsByArticleId(anyLong())).thenReturn(Collections.emptyList());
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.searchArticles("测试", new BlogArticle());
@@ -549,7 +552,6 @@ class BlogArticleServiceImplTest {
         // 准备数据
         List<BlogArticle> articleList = Arrays.asList(testArticle);
         when(blogArticleMapper.selectArticlesByTagId(1L)).thenReturn(articleList);
-        when(blogTagMapper.selectTagsByArticleId(anyLong())).thenReturn(Collections.emptyList());
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectArticlesByTagId(1L);
@@ -682,7 +684,6 @@ class BlogArticleServiceImplTest {
         // 准备数据
         List<BlogArticle> articleList = Arrays.asList(testArticle);
         when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class))).thenReturn(articleList);
-        when(blogTagMapper.selectTagsByArticleId(anyLong())).thenReturn(Collections.emptyList());
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectBlogArticleListWithCache(new BlogArticle());
@@ -778,10 +779,21 @@ class BlogArticleServiceImplTest {
         tag.setTagName("测试标签");
 
         List<BlogArticle> articleList = Arrays.asList(testArticle);
-        List<BlogTag> tagList = Arrays.asList(tag);
+
+        // 创建标签映射数据（模拟 XML 返回的 Map 结构）
+        List<Map<String, Object>> tagMappings = new ArrayList<>();
+        Map<String, Object> tagMapping = new HashMap<>();
+        tagMapping.put("articleId", 1L);
+        tagMapping.put("id", 1L);
+        tagMapping.put("name", "测试标签");
+        tagMapping.put("description", null);
+        tagMapping.put("color", null);
+        tagMapping.put("icon", null);
+        tagMapping.put("delFlag", 0);
+        tagMappings.add(tagMapping);
 
         when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class))).thenReturn(articleList);
-        when(blogTagMapper.selectTagsByArticleId(anyLong())).thenReturn(tagList);
+        when(blogTagMapper.selectTagsByArticleIds(anyList())).thenReturn(tagMappings);
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
@@ -791,9 +803,9 @@ class BlogArticleServiceImplTest {
         assertEquals(1, result.size());
         assertNotNull(result.get(0).getTags());
         assertEquals(1, result.get(0).getTags().size());
-        assertEquals("测试标签", result.get(0).getTags().get(0).getTagName());
+        assertEquals("测试标签", result.get(0).getTags().get(0).getName());
         verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
-        verify(blogTagMapper).selectTagsByArticleId(anyLong());
+        verify(blogTagMapper).selectTagsByArticleIds(anyList());
     }
 
     /**
@@ -847,7 +859,7 @@ class BlogArticleServiceImplTest {
     }
 
     /**
-     * 测试查询文章列表 - 标签为 null
+     * 测试查询文章列表 - 标签为空列表
      */
     @Test
     void testSelectBlogArticleList_TagsNull() {
@@ -856,9 +868,11 @@ class BlogArticleServiceImplTest {
         article.setId(1L);
         article.setTitle("测试文章");
 
+        List<Map<String, Object>> tagMappings = new ArrayList<>();
+
         when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class)))
             .thenReturn(Arrays.asList(article));
-        when(blogTagMapper.selectTagsByArticleId(1L)).thenReturn(null);
+        when(blogTagMapper.selectTagsByArticleIds(anyList())).thenReturn(tagMappings);
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
@@ -866,9 +880,10 @@ class BlogArticleServiceImplTest {
         // 验证结果
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertNull(result.get(0).getTags());
+        assertNotNull(result.get(0).getTags());
+        assertEquals(0, result.get(0).getTags().size());
         verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
-        verify(blogTagMapper).selectTagsByArticleId(1L);
+        verify(blogTagMapper).selectTagsByArticleIds(anyList());
     }
 
     /**
@@ -877,17 +892,25 @@ class BlogArticleServiceImplTest {
     @Test
     void testSelectBlogArticleList_TagIdNull() {
         // 准备数据 - 标签 ID 为 null
-        BlogTag tagWithNullId = new BlogTag();
-        tagWithNullId.setId(null);
-        tagWithNullId.setTagName("测试标签");
-
         BlogArticle article = new BlogArticle();
         article.setId(1L);
         article.setTitle("测试文章");
 
+        // 创建标签映射数据（标签 ID 为 null）
+        List<Map<String, Object>> tagMappings = new ArrayList<>();
+        Map<String, Object> tagMapping = new HashMap<>();
+        tagMapping.put("articleId", 1L);
+        tagMapping.put("id", null);  // 标签 ID 为 null
+        tagMapping.put("name", "测试标签");
+        tagMapping.put("description", null);
+        tagMapping.put("color", null);
+        tagMapping.put("icon", null);
+        tagMapping.put("delFlag", 0);
+        tagMappings.add(tagMapping);
+
         when(blogArticleMapper.selectBlogArticleList(any(BlogArticle.class)))
             .thenReturn(Arrays.asList(article));
-        when(blogTagMapper.selectTagsByArticleId(1L)).thenReturn(Arrays.asList(tagWithNullId));
+        when(blogTagMapper.selectTagsByArticleIds(anyList())).thenReturn(tagMappings);
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectBlogArticleList(new BlogArticle());
@@ -899,7 +922,7 @@ class BlogArticleServiceImplTest {
         assertEquals(1, result.get(0).getTags().size());
         assertTrue(result.get(0).getTagIds().isEmpty());
         verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
-        verify(blogTagMapper).selectTagsByArticleId(1L);
+        verify(blogTagMapper).selectTagsByArticleIds(anyList());
     }
 
     /**
@@ -1006,9 +1029,9 @@ class BlogArticleServiceImplTest {
             .thenThrow(new RuntimeException("Duplicate entry 'title' for key 'idx_article_title'"));
 
         // 执行测试
-        RuntimeException exception = assertThrows(RuntimeException.class, 
+        DuplicateArticleTitleException exception = assertThrows(DuplicateArticleTitleException.class,
                 () -> blogArticleService.updateBlogArticle(testArticle));
-        
+
         assertTrue(exception.getMessage().contains("文章标题已存在"));
     }
 
@@ -1064,9 +1087,11 @@ class BlogArticleServiceImplTest {
      */
     @Test
     void testSelectArticlesByTagId_TagsEmpty() {
-        // 模拟返回文章列表，但标签为空列表
+        // 模拟返回文章列表，但标签映射为空列表
+        List<Map<String, Object>> tagMappings = new ArrayList<>();
+
         when(blogArticleMapper.selectArticlesByTagId(1L)).thenReturn(Arrays.asList(testArticle));
-        when(blogTagMapper.selectTagsByArticleId(1L)).thenReturn(Collections.emptyList());
+        when(blogTagMapper.selectTagsByArticleIds(anyList())).thenReturn(tagMappings);
 
         // 执行测试
         List<BlogArticle> result = blogArticleService.selectArticlesByTagId(1L);
@@ -1077,7 +1102,7 @@ class BlogArticleServiceImplTest {
         assertNotNull(result.get(0).getTags());
         assertTrue(result.get(0).getTags().isEmpty());
         verify(blogArticleMapper).selectArticlesByTagId(1L);
-        verify(blogTagMapper).selectTagsByArticleId(1L);
+        verify(blogTagMapper).selectTagsByArticleIds(anyList());
     }
 
     /**

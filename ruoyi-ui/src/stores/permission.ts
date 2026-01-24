@@ -53,26 +53,28 @@ const usePermissionStore = defineStore('permission', {
       return new Promise((resolve, reject) => {
         console.log('🚀 开始获取路由数据...')
         // 向后端请求路由数据
-        getRouters().then((res: any) => {
-          console.log('✅ 成功获取路由数据:', res)
-          const sdata = JSON.parse(JSON.stringify(res.data))
-          const rdata = JSON.parse(JSON.stringify(res.data))
-          console.log('📋 开始过滤路由...')
-          const sidebarRoutes = filterAsyncRouter(sdata)
-          console.log('📋 侧边栏路由:', sidebarRoutes)
-          const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-          console.log('📋 重写路由:', rewriteRoutes)
-          rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
-          this.setRoutes(constantRoutes)
-          this.setSidebarRouters(sidebarRoutes)
-          this.setDefaultRoutes(sidebarRoutes)
-          this.setTopbarRoutes(rewriteRoutes)
-          console.log('✅ 路由生成完成，总共', rewriteRoutes.length, '个路由')
-          resolve(rewriteRoutes)
-        }).catch(error => {
-          console.error('❌ 获取路由数据失败:', error)
-          reject(error)
-        })
+        getRouters()
+          .then((res: any) => {
+            console.log('✅ 成功获取路由数据:', res)
+            const sdata = JSON.parse(JSON.stringify(res.data))
+            const rdata = JSON.parse(JSON.stringify(res.data))
+            console.log('📋 开始过滤路由...')
+            const sidebarRoutes = filterAsyncRouter(sdata)
+            console.log('📋 侧边栏路由:', sidebarRoutes)
+            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+            console.log('📋 重写路由:', rewriteRoutes)
+            rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
+            this.setRoutes(constantRoutes)
+            this.setSidebarRouters(sidebarRoutes)
+            this.setDefaultRoutes(sidebarRoutes)
+            this.setTopbarRoutes(rewriteRoutes)
+            console.log('✅ 路由生成完成，总共', rewriteRoutes.length, '个路由')
+            resolve(rewriteRoutes)
+          })
+          .catch(error => {
+            console.error('❌ 获取路由数据失败:', error)
+            reject(error)
+          })
       })
     }
   }
@@ -213,7 +215,13 @@ export const loadView = (view: string) => {
     // 只显示统计相关的可用路径，避免日志过多
     const relevantPaths = Object.keys(modules)
       .map(p => p.replace(/^\.\.\/views\//, '').replace('.vue', ''))
-      .filter(p => p.includes('statistics') || p.includes('system') || p.includes('monitor') || p.includes('blog'))
+      .filter(
+        p =>
+          p.includes('statistics') ||
+          p.includes('system') ||
+          p.includes('monitor') ||
+          p.includes('blog')
+      )
     console.log('相关的可用组件路径:', relevantPaths)
   }
 

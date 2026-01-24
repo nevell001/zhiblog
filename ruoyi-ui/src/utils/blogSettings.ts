@@ -17,10 +17,18 @@ export async function initBlogSettings(): Promise<void> {
 
     // 获取博客个性化设置
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
-      getConfigKey('blog.custom.themeColor').catch((): Config => ({ configKey: '', configValue: '', configName: '' })),
-      getConfigKey('blog.custom.logo').catch((): Config => ({ configKey: '', configValue: '', configName: '' })),
-      getConfigKey('blog.custom.sidebarStyle').catch((): Config => ({ configKey: '', configValue: '', configName: '' })),
-      getConfigKey('blog.custom.customCss').catch((): Config => ({ configKey: '', configValue: '', configName: '' }))
+      getConfigKey('blog.custom.themeColor').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      ),
+      getConfigKey('blog.custom.logo').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      ),
+      getConfigKey('blog.custom.sidebarStyle').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      ),
+      getConfigKey('blog.custom.customCss').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      )
     ])
 
     const settingsStore = useSettingsStore()

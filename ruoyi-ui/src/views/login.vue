@@ -51,6 +51,8 @@
           </template>
         </el-input>
       </el-form-item>
+
+      <!-- 验证码 -->
       <el-form-item
         v-if="captchaEnabled"
         prop="code"
@@ -84,6 +86,7 @@
           />
         </div>
       </el-form-item>
+
       <el-checkbox
         v-model="loginForm.rememberMe"
         style="margin: 0px 0px 25px 0px"
@@ -147,7 +150,10 @@ const loginForm = ref({
   password: 'admin123',
   rememberMe: false,
   code: '',
-  uuid: ''
+  uuid: '',
+  captchaType: '',
+  pointJson: '',
+  token: ''
 })
 
 const loginRules = {

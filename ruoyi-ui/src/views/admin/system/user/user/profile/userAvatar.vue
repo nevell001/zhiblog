@@ -202,18 +202,21 @@ function uploadImg() {
   ;(proxy.$refs.cropper as any).getCropBlob((data: any) => {
     const formData = new FormData()
     formData.append('avatarfile', data, options.filename)
-    uploadAvatar(formData).then((response: any) => {
-      open.value = false
-      options.img = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + response.imgUrl
-      userStore.avatar = options.img
-      ;(proxy as any).$modal.msgSuccess('修改成功')
-      visible.value = false
-    }).catch(error => {
-      console.error('上传头像失败:', error)
-      ;(proxy as any).$modal.msgError('上传失败，请重试')
-    }).finally(() => {
-      loading.value = false
-    })
+    uploadAvatar(formData)
+      .then((response: any) => {
+        open.value = false
+        options.img = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + response.imgUrl
+        userStore.avatar = options.img
+        ;(proxy as any).$modal.msgSuccess('修改成功')
+        visible.value = false
+      })
+      .catch(error => {
+        console.error('上传头像失败:', error)
+        ;(proxy as any).$modal.msgError('上传失败，请重试')
+      })
+      .finally(() => {
+        loading.value = false
+      })
   })
 }
 

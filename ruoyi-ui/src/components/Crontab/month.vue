@@ -117,10 +117,7 @@ watch(
 )
 
 // 监听相关值变化
-watch(
-  [radioValue, cycleTotal, averageTotal, checkboxString],
-  () => onRadioChange()
-)
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 const monthList = ref([
   { key: 1, value: '一月' },
   { key: 2, value: '二月' },
@@ -187,7 +184,6 @@ function onRadioChange() {
       break
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

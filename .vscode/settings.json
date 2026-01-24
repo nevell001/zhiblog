@@ -73,9 +73,5 @@
     "**/target": true
   },
   "java.compile.nullAnalysis.mode": "automatic",
-  "java.configuration.updateBuildConfiguration": "automatic",
-  "sonarlint.connectedMode.project": {
-    "connectionId": "http-localhost-9000",
-    "projectKey": "newblog"
-  }
+  "java.configuration.updateBuildConfiguration": "automatic"
 }

@@ -31,7 +31,7 @@ import com.ruoyi.system.service.ISysUserService;
 
 /**
  * 登录校验方法
- * 
+ *
  * @author ruoyi
  */
 @Component
@@ -45,7 +45,7 @@ public class SysLoginService
 
     @Autowired
     private UnifiedCacheManager unifiedCacheManager;
-    
+
     @Autowired
     private ISysUserService userService;
 
@@ -54,7 +54,7 @@ public class SysLoginService
 
     /**
      * 登录验证
-     * 
+     *
      * @param username 用户名
      * @param password 密码
      * @param code 验证码

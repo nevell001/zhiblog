@@ -3,6 +3,8 @@ package com.ruoyi.framework.config;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -20,6 +22,7 @@ import java.lang.reflect.Method;
  */
 @Configuration
 public class DruidServletConfig {
+    private static final Logger log = LoggerFactory.getLogger(DruidServletConfig.class);
 
     /**
      * Druid监控用户名（从环境变量读取）
@@ -46,11 +49,11 @@ public class DruidServletConfig {
         // 如果没有设置密码，使用强随机密码并记录警告
         if (druidPassword == null || druidPassword.isEmpty()) {
             druidPassword = generateSecurePassword();
-            System.err.println("========================================");
-            System.err.println("警告: Druid监控密码未配置！");
-            System.err.println("已自动生成临时密码: " + druidPassword);
-            System.err.println("请在环境变量中设置 DRUID_PASSWORD");
-            System.err.println("========================================");
+            log.warn("========================================");
+            log.warn("警告: Druid监控密码未配置！");
+            log.warn("已自动生成临时密码: {}", druidPassword);
+            log.warn("请在环境变量中设置 DRUID_PASSWORD");
+            log.warn("========================================");
         }
 
         ServletRegistrationBean<HttpServlet> registrationBean = new ServletRegistrationBean<>();

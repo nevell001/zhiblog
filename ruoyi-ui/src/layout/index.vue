@@ -83,8 +83,7 @@ function setLayout() {
 }
 
 // 组件挂载后执行初始化
-onMounted(() => {
-})
+onMounted(() => {})
 
 // 组件卸载时清理
 onUnmounted(() => {

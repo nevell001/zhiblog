@@ -27,9 +27,15 @@ async function setSeoMetaTags(): Promise<void> {
   try {
     // 获取SEO设置
     const [seoTitle, seoDescription, seoKeywords] = await Promise.all([
-      getConfigKey('blog.seo.title').catch((): Config => ({ configKey: '', configValue: '', configName: '' })),
-      getConfigKey('blog.seo.description').catch((): Config => ({ configKey: '', configValue: '', configName: '' })),
-      getConfigKey('blog.seo.keywords').catch((): Config => ({ configKey: '', configValue: '', configName: '' }))
+      getConfigKey('blog.seo.title').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      ),
+      getConfigKey('blog.seo.description').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      ),
+      getConfigKey('blog.seo.keywords').catch(
+        (): Config => ({ configKey: '', configValue: '', configName: '' })
+      )
     ])
 
     // 设置title（如果有专门的SEO标题）

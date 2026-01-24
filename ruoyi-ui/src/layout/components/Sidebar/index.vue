@@ -24,7 +24,9 @@
         @close="handleClose"
       >
         <sidebar-item
-          v-for="(sidebarRoute, index) in sidebarRouters.filter(r => r.meta && r.meta.title && !r.hidden)"
+          v-for="(sidebarRoute, index) in sidebarRouters.filter(
+            r => r.meta && r.meta.title && !r.hidden
+          )"
           :key="sidebarRoute.path + index"
           :item="sidebarRoute"
           :base-path="sidebarRoute.path"

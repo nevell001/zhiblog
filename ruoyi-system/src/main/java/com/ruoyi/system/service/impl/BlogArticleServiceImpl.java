@@ -18,6 +18,7 @@ import com.ruoyi.system.domain.BlogArticle;
 import com.ruoyi.system.domain.BlogArticleTag;
 import com.ruoyi.system.domain.BlogTag;
 import com.ruoyi.system.service.IBlogArticleService;
+import com.ruoyi.common.exception.DuplicateArticleTitleException;
 
 /**
  * 博客文章Service业务层处理
@@ -77,28 +78,71 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle)
     {
         List<BlogArticle> articleList = blogArticleMapper.selectBlogArticleList(blogArticle);
-        if (articleList != null && !articleList.isEmpty()) {
-            // 为每篇文章加载标签数据
-            for (BlogArticle article : articleList) {
-                if (article != null && article.getId() != null) {
-                    List<BlogTag> tags = blogTagMapper.selectTagsByArticleId(article.getId());
-                    article.setTags(tags);
-
-                    // 设置标签ID列表
-                    List<Long> tagIds = new ArrayList<>();
-                    if (tags != null) {
-                        for (BlogTag tag : tags) {
-                            if (tag != null && tag.getId() != null) {
-                                tagIds.add(tag.getId());
-                            }
-                        }
-                    }
-                    article.setTagIds(tagIds);
-                }
-            }
-        }
+        loadTagsForArticles(articleList);
         return articleList;
     }
+
+    /**
+     * 批量加载文章的标签数据（解决N+1查询问题）
+     *
+     * @param articleList 文章列表
+     */
+    private void loadTagsForArticles(List<BlogArticle> articleList) {
+        if (articleList == null || articleList.isEmpty()) {
+            return;
+        }
+
+        // 提取所有文章ID
+        List<Long> articleIds = new ArrayList<>();
+        for (BlogArticle article : articleList) {
+            if (article != null && article.getId() != null) {
+                articleIds.add(article.getId());
+            }
+        }
+
+        if (articleIds.isEmpty()) {
+            return;
+        }
+
+        // 批量查询所有标签映射（每行包含 articleId 和标签信息）
+        List<Map<String, Object>> tagMappings = blogTagMapper.selectTagsByArticleIds(articleIds);
+
+        // 将标签映射转换为 Map<Long, List<BlogTag>>
+        Map<Long, List<BlogTag>> tagsMap = new HashMap<>();
+        for (Map<String, Object> mapping : tagMappings) {
+            Long articleId = (Long) mapping.get("articleId");
+            if (articleId != null) {
+                tagsMap.computeIfAbsent(articleId, k -> new ArrayList<>());
+                // 创建 BlogTag 对象并添加到列表
+                BlogTag tag = new BlogTag();
+                tag.setId((Long) mapping.get("id"));
+                tag.setName((String) mapping.get("name"));
+                tag.setDescription((String) mapping.get("description"));
+                tag.setColor((String) mapping.get("color"));
+                tag.setIcon((String) mapping.get("icon"));
+                tag.setDelFlag((Integer) mapping.get("delFlag"));
+                tagsMap.get(articleId).add(tag);
+            }
+        }
+
+        // 为每篇文章设置标签
+        for (BlogArticle article : articleList) {
+            if (article != null && article.getId() != null) {
+                List<BlogTag> tags = tagsMap.getOrDefault(article.getId(), new ArrayList<>());
+                article.setTags(tags);
+
+                // 设置标签ID列表
+                List<Long> tagIds = new ArrayList<>();
+                for (BlogTag tag : tags) {
+                    if (tag != null && tag.getId() != null) {
+                        tagIds.add(tag.getId());
+                    }
+                }
+                article.setTagIds(tagIds);
+            }
+        }
+    }
+
 
     /**
      * 新增博客文章
@@ -166,8 +210,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             
             return result;
         } catch (Exception e) {
+            // 检查是否为数据库唯一索引冲突
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
-                throw new IllegalArgumentException("文章标题已存在");
+                throw new DuplicateArticleTitleException("文章标题已存在");
             }
             throw e;
         }
@@ -218,8 +263,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             
             return blogArticleMapper.updateBlogArticle(blogArticle);
         } catch (Exception e) {
+            // 检查是否为数据库唯一索引冲突
             if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
-                throw new RuntimeException("文章标题已存在，请更换标题！");
+                throw new DuplicateArticleTitleException("文章标题已存在，请更换标题！");
             }
             throw e;
         }
@@ -278,24 +324,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     public List<BlogArticle> selectArticlesByTagId(Long tagId) {
         List<BlogArticle> articleList = blogArticleMapper.selectArticlesByTagId(tagId);
-        if (articleList != null && !articleList.isEmpty()) {
-            // 为每篇文章加载标签数据
-            for (BlogArticle article : articleList) {
-                if (article != null && article.getId() != null) {
-                    List<BlogTag> tags = blogTagMapper.selectTagsByArticleId(article.getId());
-                    article.setTags(tags);
-
-                    // 设置标签ID列表
-                    List<Long> tagIds = new ArrayList<>();
-                    for (BlogTag tag : tags) {
-                        if (tag != null && tag.getId() != null) {
-                            tagIds.add(tag.getId());
-                        }
-                    }
-                    article.setTagIds(tagIds);
-                }
-            }
-        }
+        loadTagsForArticles(articleList);
         return articleList;
     }
 
@@ -303,24 +332,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @BlogCacheable(key = "blog:search:#keyword + '_' + (#blogArticle != null ? #blogArticle.hashCode() : 'null')", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
         List<BlogArticle> articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
-        if (articleList != null && !articleList.isEmpty()) {
-            // 为每篇文章加载标签数据
-            for (BlogArticle article : articleList) {
-                if (article != null && article.getId() != null) {
-                    List<BlogTag> tags = blogTagMapper.selectTagsByArticleId(article.getId());
-                    article.setTags(tags);
-
-                    // 设置标签ID列表
-                    List<Long> tagIds = new ArrayList<>();
-                    for (BlogTag tag : tags) {
-                        if (tag != null && tag.getId() != null) {
-                            tagIds.add(tag.getId());
-                        }
-                    }
-                    article.setTagIds(tagIds);
-                }
-            }
-        }
+        loadTagsForArticles(articleList);
         return articleList;
     }
 

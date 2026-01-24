@@ -96,7 +96,8 @@ async function testAPI() {
   margin-bottom: 20px;
 }
 
-.test-section, .info-section {
+.test-section,
+.info-section {
   margin-bottom: 20px;
 }
 

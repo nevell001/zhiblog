@@ -17,30 +17,6 @@ describe('文章 API 测试', () => {
     vi.restoreAllMocks()
   })
 
-  describe('listArticle', () => {
-    it('应该调用正确的端点获取文章列表', () => {
-      const query = { pageNum: 1, pageSize: 10 }
-      mockRequest.mockResolvedValue({ data: { total: 100, rows: [] } })
-
-      articleApi.listArticle(query)
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article/list',
-        method: 'get',
-        params: query
-      })
-    })
-
-    it('应该返回文章列表数据', async () => {
-      const mockData = { total: 50, rows: [{ id: 1, title: 'Test Article' }] }
-      mockRequest.mockResolvedValue({ data: mockData })
-
-      const result = await articleApi.listArticle({ pageNum: 1, pageSize: 10 })
-
-      expect(result).toEqual({ data: mockData })
-    })
-  })
-
   describe('getArticleListAnonymous', () => {
     it('应该调用前台匿名访问端点', () => {
       const query = { pageNum: 1, pageSize: 10 }
@@ -55,111 +31,90 @@ describe('文章 API 测试', () => {
         headers: { isToken: false }
       })
     })
-  })
 
-  describe('getArticle', () => {
-    it('应该调用正确的端点获取文章详情', () => {
-      mockRequest.mockResolvedValue({ data: { id: 1, title: 'Test Article' } })
+    it('应该返回文章列表数据', async () => {
+      const mockData = { total: 50, rows: [{ id: 1, title: 'Test Article' }] }
+      mockRequest.mockResolvedValue({ data: mockData })
 
-      articleApi.getArticle(1)
+      const result = await articleApi.getArticleListAnonymous({ pageNum: 1, pageSize: 10 })
 
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article/1',
-        method: 'get'
-      })
+      expect(result).toEqual({ data: mockData })
     })
   })
 
-  describe('addArticle', () => {
-    it('应该调用正确的端点新增文章', () => {
-      const articleData = { title: 'New Article', content: 'Content' }
-      mockRequest.mockResolvedValue({ code: 200 })
+  describe('getArticleList', () => {
+    it('应该调用前台文章列表端点', () => {
+      const query = { pageNum: 1, pageSize: 10 }
+      mockRequest.mockResolvedValue({ data: { total: 100, rows: [] } })
 
-      articleApi.addArticle(articleData)
+      articleApi.getArticleList(query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article',
-        method: 'post',
-        data: articleData
+        url: '/blog/article/list',
+        method: 'get',
+        params: query,
+        headers: { isToken: false }
       })
+    })
+
+    it('应该返回文章列表数据', async () => {
+      const mockData = { total: 50, rows: [{ id: 1, title: 'Test Article' }] }
+      mockRequest.mockResolvedValue({ data: mockData })
+
+      const result = await articleApi.getArticleList({ pageNum: 1, pageSize: 10 })
+
+      expect(result).toEqual({ data: mockData })
     })
   })
 
-  describe('updateArticle', () => {
-    it('应该调用正确的端点更新文章', () => {
-      const articleData = { id: 1, title: 'Updated Article' } as any
-      mockRequest.mockResolvedValue({ code: 200 })
+  describe('getArticlesByCategory', () => {
+    it('应该调用分类文章列表端点', () => {
+      const categoryId = 1
+      const query = { pageNum: 1, pageSize: 10 }
+      mockRequest.mockResolvedValue({ data: { total: 20, rows: [] } })
 
-      articleApi.updateArticle(articleData)
+      articleApi.getArticlesByCategory(categoryId, query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article',
-        method: 'put',
-        data: articleData
+        url: '/blog/article/category/1',
+        method: 'get',
+        params: query,
+        headers: { isToken: false }
       })
     })
-  })
 
-  describe('delArticle', () => {
-    it('应该调用正确的端点删除文章', () => {
-      mockRequest.mockResolvedValue({ code: 200 })
+    it('应该返回分类文章数据', async () => {
+      const mockData = { total: 20, rows: [{ id: 1, title: 'Category Article' }] }
+      mockRequest.mockResolvedValue({ data: mockData })
 
-      articleApi.delArticle(1)
+      const result = await articleApi.getArticlesByCategory(1, { pageNum: 1, pageSize: 10 })
 
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article/1',
-        method: 'delete'
-      })
-    })
-  })
-
-  describe('addViewCount', () => {
-    it('应该调用正确的端点增加浏览量', () => {
-      mockRequest.mockResolvedValue({ code: 200 })
-
-      articleApi.addViewCount(1)
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/article/view/1',
-        method: 'get'
-      })
+      expect(result).toEqual({ data: mockData })
     })
   })
 
   describe('getHotArticles', () => {
-    it('应该调用正确的端点获取热门文章', () => {
-      const query = { pageNum: 1, pageSize: 10 }
-      mockRequest.mockResolvedValue({ data: { total: 10, rows: [] } })
+    it('应该调用热门文章端点', () => {
+      const query = { pageNum: 1, pageSize: 5 }
+      mockRequest.mockResolvedValue({ data: { total: 5, rows: [] } })
 
       articleApi.getHotArticles(query)
 
       expect(mockRequest).toHaveBeenCalledWith({
         url: '/blog/article/hot',
         method: 'get',
-        params: { ...query, pageSize: 10 },
-        headers: { isToken: false }
-      })
-    })
-
-    it('应该使用默认的 pageSize', () => {
-      mockRequest.mockResolvedValue({ data: { total: 5, rows: [] } })
-
-      articleApi.getHotArticles({ pageNum: 1 })
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/article/hot',
-        method: 'get',
-        params: { pageNum: 1, pageSize: 5 },
+        params: { ...query, pageSize: 5 },
         headers: { isToken: false }
       })
     })
   })
 
   describe('getArticleDetail', () => {
-    it('应该调用前台端点获取文章详情', () => {
-      mockRequest.mockResolvedValue({ data: { id: 1, title: 'Test Article', content: 'Content' } })
+    it('应该调用文章详情端点', () => {
+      const articleId = 1
+      mockRequest.mockResolvedValue({ data: { id: 1, title: 'Test Article' } })
 
-      articleApi.getArticleDetail(1)
+      articleApi.getArticleDetail(articleId)
 
       expect(mockRequest).toHaveBeenCalledWith({
         url: '/blog/article/1',
@@ -167,26 +122,75 @@ describe('文章 API 测试', () => {
         headers: { isToken: false }
       })
     })
+
+    it('应该返回文章详情数据', async () => {
+      const mockData = { id: 1, title: 'Test Article', content: 'Test Content' }
+      mockRequest.mockResolvedValue({ data: mockData })
+
+      const result = await articleApi.getArticleDetail(1)
+
+      expect(result).toEqual({ data: mockData })
+    })
+  })
+
+  describe('updateArticleViewCount', () => {
+    it('应该调用浏览量更新端点', () => {
+      const articleId = 1
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      articleApi.updateArticleViewCount(articleId)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/blog/article/view/1',
+        method: 'get',
+        headers: { isToken: false }
+      })
+    })
   })
 
   describe('searchArticles', () => {
-    it('应该调用搜索端点并传递关键词', () => {
+    it('应该调用搜索文章端点', () => {
+      const keyword = 'test'
       const query = { pageNum: 1, pageSize: 10 }
-      mockRequest.mockResolvedValue({ data: { total: 5, rows: [] } })
+      mockRequest.mockResolvedValue({ data: { total: 10, rows: [] } })
 
-      articleApi.searchArticles('test keyword', query)
+      articleApi.searchArticles(keyword, query)
 
       expect(mockRequest).toHaveBeenCalledWith({
         url: '/blog/article/search',
         method: 'get',
-        params: { ...query, keyword: 'test keyword' },
+        params: { ...query, keyword },
+        headers: { isToken: false }
+      })
+    })
+
+    it('应该返回搜索结果', async () => {
+      const mockData = { total: 10, rows: [{ id: 1, title: 'Test Article' }] }
+      mockRequest.mockResolvedValue({ data: mockData })
+
+      const result = await articleApi.searchArticles('test', { pageNum: 1, pageSize: 10 })
+
+      expect(result).toEqual({ data: mockData })
+    })
+  })
+
+  describe('getRelatedArticles', () => {
+    it('应该调用相关文章端点', () => {
+      const articleId = 1
+      mockRequest.mockResolvedValue({ data: [{ id: 2, title: 'Related Article' }] })
+
+      articleApi.getRelatedArticles(articleId)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/blog/article/related/1',
+        method: 'get',
         headers: { isToken: false }
       })
     })
   })
 
   describe('submitComment', () => {
-    it('应该调用正确的端点提交评论', () => {
+    it('应该调用评论提交端点', () => {
       const commentData = { articleId: 1, content: 'Test Comment' }
       mockRequest.mockResolvedValue({ code: 200 })
 

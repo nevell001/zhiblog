@@ -602,10 +602,14 @@ const viewEndpoint = async (url, key) => {
     let localUrl = url
     if (import.meta.env?.VUE_APP_ENV === 'production') {
       // 生产环境：使用相对路径，通过 Nginx 代理
-      localUrl = url.replace('http://ruoyi-admin:8080', '').replace('http://host.docker.internal:8080', '')
+      localUrl = url
+        .replace('http://ruoyi-admin:8080', '')
+        .replace('http://host.docker.internal:8080', '')
     } else {
       // 开发环境：使用 localhost
-      localUrl = url.replace('http://ruoyi-admin:8080', 'http://localhost:8080').replace('http://host.docker.internal:8080', 'http://localhost:8080')
+      localUrl = url
+        .replace('http://ruoyi-admin:8080', 'http://localhost:8080')
+        .replace('http://host.docker.internal:8080', 'http://localhost:8080')
     }
 
     const response = await fetch(localUrl)
@@ -661,10 +665,14 @@ const openInNewWindow = () => {
   let localUrl = detailUrl.value
   if (import.meta.env?.VUE_APP_ENV === 'production') {
     // 生产环境：使用相对路径，通过 Nginx 代理
-    localUrl = detailUrl.value.replace('http://ruoyi-admin:8080', '').replace('http://host.docker.internal:8080', '')
+    localUrl = detailUrl.value
+      .replace('http://ruoyi-admin:8080', '')
+      .replace('http://host.docker.internal:8080', '')
   } else {
     // 开发环境：使用 localhost
-    localUrl = detailUrl.value.replace('http://ruoyi-admin:8080', 'http://localhost:8080').replace('http://host.docker.internal:8080', 'http://localhost:8080')
+    localUrl = detailUrl.value
+      .replace('http://ruoyi-admin:8080', 'http://localhost:8080')
+      .replace('http://host.docker.internal:8080', 'http://localhost:8080')
   }
   window.open(localUrl, '_blank')
 }

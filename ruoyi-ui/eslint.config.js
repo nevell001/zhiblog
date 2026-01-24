@@ -309,7 +309,7 @@ export default [
 
   // 配置文件支持 Node.js 全局变量
   {
-    files: ['vite.config.ts', 'vitest.config.ts', 'vitest.config.ts'],
+    files: ['vite.config.ts', 'vitest.config.ts'],
     languageOptions: {
       globals: {
         ...globals.node,

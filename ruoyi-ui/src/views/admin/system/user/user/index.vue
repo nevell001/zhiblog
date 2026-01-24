@@ -934,7 +934,11 @@ function submitForm() {
         })
       } else {
         // 新增用户时，确保 password 字段存在且不为空
-        if (!form.value.password || form.value.password === undefined || form.value.password === '') {
+        if (
+          !form.value.password ||
+          form.value.password === undefined ||
+          form.value.password === ''
+        ) {
           form.value.password = initPassword.value || '123456'
         }
         addUser(form.value).then(response => {

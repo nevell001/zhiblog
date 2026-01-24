@@ -19,7 +19,11 @@ vi.mock('@/api/login', () => ({
 import { useUserStore } from '@/stores/user'
 
 // Import mock functions
-import { getToken as mockGetToken, setToken as mockSetToken, removeToken as mockRemoveToken } from '@/utils/auth'
+import {
+  getToken as mockGetToken,
+  setToken as mockSetToken,
+  removeToken as mockRemoveToken
+} from '@/utils/auth'
 import { login as mockLogin, logout as mockLogout, getInfo as mockGetInfo } from '@/api/login'
 
 describe('User Store 测试', () => {

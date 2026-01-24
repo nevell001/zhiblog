@@ -100,7 +100,6 @@ export function validAlphabets(str: string): boolean {
  * @returns 是否为有效邮箱
  */
 export function validEmail(email: string): boolean {
-   
   const reg =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
   return reg.test(email)

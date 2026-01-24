@@ -8,7 +8,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,7 +200,7 @@ public class ReflectUtils
                         }
                         else
                         {
-                            args[i] = DateUtil.getJavaDate((Double) args[i]);
+                            args[i] = DateUtil.getJavaDate((Double) args[i], false);
                         }
                     }
                     else if (cs[i] == boolean.class || cs[i] == Boolean.class)
@@ -230,7 +229,10 @@ public class ReflectUtils
         {
             return null;
         }
-        Validate.notBlank(fieldName, "fieldName can't be blank");
+        if (StringUtils.isBlank(fieldName))
+        {
+            throw new IllegalArgumentException("fieldName can't be blank");
+        }
         for (Class<?> superClass = obj.getClass(); superClass != Object.class; superClass = superClass.getSuperclass())
         {
             try
@@ -261,7 +263,10 @@ public class ReflectUtils
         {
             return null;
         }
-        Validate.notBlank(methodName, "methodName can't be blank");
+        if (StringUtils.isBlank(methodName))
+        {
+            throw new IllegalArgumentException("methodName can't be blank");
+        }
         for (Class<?> searchType = obj.getClass(); searchType != Object.class; searchType = searchType.getSuperclass())
         {
             try
@@ -291,7 +296,10 @@ public class ReflectUtils
         {
             return null;
         }
-        Validate.notBlank(methodName, "methodName can't be blank");
+        if (StringUtils.isBlank(methodName))
+        {
+            throw new IllegalArgumentException("methodName can't be blank");
+        }
         for (Class<?> searchType = obj.getClass(); searchType != Object.class; searchType = searchType.getSuperclass())
         {
             Method[] methods = searchType.getDeclaredMethods();

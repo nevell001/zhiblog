@@ -117,10 +117,7 @@ watch(
 )
 
 // 监听相关值变化
-watch(
-  [radioValue, cycleTotal, averageTotal, checkboxString],
-  () => onRadioChange()
-)
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, 0, 58)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, 59)
@@ -174,7 +171,6 @@ function onRadioChange() {
       break
   }
 }
-
 </script>
 
 <style lang="scss" scoped>

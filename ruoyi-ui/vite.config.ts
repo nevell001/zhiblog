@@ -62,7 +62,9 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       host: '0.0.0.0', // 绑定到所有网络接口
       port: 3000,
       open: false, // 不自动打开浏览器，在容器中会导致错误
-      // 禁用 HMR - 这是解决 .on() 错误的唯一可靠方案
+      // 暂时禁用 HMR - Vite HMR 在 Docker 环境中存在兼容性问题
+      // 错误发生在 HMR 客户端代码中（App.vue:2），无法通过全局错误处理器完全解决
+      // 代码修改后需要手动刷新浏览器
       hmr: false,
       proxy: {
         // 接口代理 - RuoYi 默认 API 前缀
@@ -71,6 +73,18 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/dev-api/, '')
         },
+        // 代理博客前台接口 (只代理API请求，不代理前端路由)
+        '^/blog/api/': {
+          target: baseUrl,
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/blog\/api/, '/common/blog')
+        },
+        // 代理所有博客 API 接口（文章、标签、分类、设置等）
+        '^/blog/(article|tag|category|setting|comment)/': {
+          target: baseUrl,
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/blog/, '/common/blog')
+        },
         // 代理系统管理接口
         '/system': {
           target: baseUrl,
@@ -78,32 +92,6 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
         },
         // 代理通用接口（包括头像上传）
         '/common': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        // 代理博客前台接口 (只代理API请求，不代理前端路由)
-        '^/blog/api/': {
-          target: baseUrl,
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog\/api/, '/blog')
-        },
-        // 代理博客设置接口
-        '^/blog/setting': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        // 代理博客文章相关接口（文章列表、详情、标签等）
-        '^/blog/article/': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        // 代理博客标签相关接口
-        '^/blog/tag/': {
-          target: baseUrl,
-          changeOrigin: true
-        },
-        // 代理博客分类相关接口
-        '^/blog/category/': {
           target: baseUrl,
           changeOrigin: true
         },

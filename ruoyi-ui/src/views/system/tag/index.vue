@@ -304,7 +304,7 @@
 
 <script setup name="Tag">
 import { ref, reactive, toRefs, getCurrentInstance } from 'vue'
-import { listTag, getTag, delTag, addTag, updateTag } from '@/api/blog/tag'
+import { listTag, getTag, delTag, addTag, updateTag } from '@/api/admin/blog/tag'
 
 const { proxy } = getCurrentInstance()
 

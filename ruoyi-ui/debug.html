@@ -1,46 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Debug Vue App</title>
     <script>
-        // 全局错误处理
-        window.addEventListener('error', function(event) {
-            console.error('=== 全局错误捕获 ===');
-            console.error('错误信息:', event.message);
-            console.error('错误位置:', event.filename, event.lineno, event.colno);
-            console.error('错误对象:', event.error);
-            console.error('错误堆栈:', event.error ? event.error.stack : '无堆栈信息');
-            console.error('==================');
-        });
+      // 全局错误处理
+      window.addEventListener('error', function (event) {
+        console.error('=== 全局错误捕获 ===')
+        console.error('错误信息:', event.message)
+        console.error('错误位置:', event.filename, event.lineno, event.colno)
+        console.error('错误对象:', event.error)
+        console.error('错误堆栈:', event.error ? event.error.stack : '无堆栈信息')
+        console.error('==================')
+      })
 
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('=== 未处理的Promise错误 ===');
-            console.error('错误原因:', event.reason);
-            console.error('错误堆栈:', event.reason ? event.reason.stack : '无堆栈信息');
-            console.error('====================');
-        });
+      window.addEventListener('unhandledrejection', function (event) {
+        console.error('=== 未处理的Promise错误 ===')
+        console.error('错误原因:', event.reason)
+        console.error('错误堆栈:', event.reason ? event.reason.stack : '无堆栈信息')
+        console.error('====================')
+      })
 
-        // 重写console.log，添加时间戳
-        const originalLog = console.log;
-        console.log = function(...args) {
-            originalLog.apply(console, [`[${new Date().toISOString()}]`, ...args]);
-        };
+      // 重写console.log，添加时间戳
+      const originalLog = console.log
+      console.log = function (...args) {
+        originalLog.apply(console, [`[${new Date().toISOString()}]`, ...args])
+      }
 
-        const originalError = console.error;
-        console.error = function(...args) {
-            originalError.apply(console, [`[${new Date().toISOString()}]`, ...args]);
-        };
+      const originalError = console.error
+      console.error = function (...args) {
+        originalError.apply(console, [`[${new Date().toISOString()}]`, ...args])
+      }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Vue App Debug</h1>
     <p>打开浏览器开发者工具查看控制台输出</p>
     <div id="app"></div>
-    
+
     <!-- 直接加载 Vite 开发服务器的脚本 -->
     <script type="module" src="http://localhost:3003/@vite/client"></script>
     <script type="module" src="http://localhost:3003/src/main.ts"></script>
-</body>
+  </body>
 </html>

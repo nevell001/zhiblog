@@ -30,6 +30,8 @@ import com.ruoyi.system.service.IBlogSettingService;
 import com.ruoyi.system.service.IBlogTagService;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.system.domain.SysConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 上下篇文章信息DTO
@@ -62,11 +64,12 @@ class ArticleNavigationDTO {
 @RequestMapping("/blog")
 public class BlogFrontController extends BaseController
 {
+    private static final Logger log = LoggerFactory.getLogger(BlogFrontController.class);
 
     public BlogFrontController() {
-        System.out.println("BlogFrontController initialized");
+        log.debug("BlogFrontController initialized");
     }
-    
+
     @Autowired
     private IBlogArticleService blogArticleService;
 
@@ -221,8 +224,7 @@ public class BlogFrontController extends BaseController
             setDefaultSetting(settingsMap, "blog_email", "");
 
         } catch (Exception e) {
-            System.err.println("获取博客设置出错: " + e.getMessage());
-            e.printStackTrace();
+            log.error("获取博客设置出错: {}", e.getMessage(), e);
 
             // 如果出错，返回默认设置
             setDefaultSetting(settingsMap, "blog_avatar", "");
@@ -380,7 +382,7 @@ public class BlogFrontController extends BaseController
             // 处理获取上下篇文章时的异常，确保即使出错也能返回文章详情
             extraInfo.put("prevArticle", null);
             extraInfo.put("nextArticle", null);
-            System.err.println("获取上下篇文章出错: " + e.getMessage());
+            log.warn("获取上下篇文章出错: {}", e.getMessage());
         }
 
         // 添加分类信息
@@ -392,7 +394,7 @@ public class BlogFrontController extends BaseController
                 }
             }
         } catch (Exception e) {
-            System.err.println("获取分类信息出错: " + e.getMessage());
+            log.warn("获取分类信息出错: {}", e.getMessage());
         }
 
         // 构建返回数据结构，包含文章主体和额外信息（上下篇文章、分类信息等）

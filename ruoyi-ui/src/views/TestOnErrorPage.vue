@@ -2,7 +2,7 @@
   <div class="test-container">
     <h1>测试 .on() 错误处理</h1>
     <p>这个页面用于测试全局保护机制是否能正确处理 .on() 错误</p>
-    
+
     <div class="test-buttons">
       <el-button
         type="primary"
@@ -23,7 +23,7 @@
         测试普通对象.on()
       </el-button>
     </div>
-    
+
     <div
       v-if="result"
       class="test-result"

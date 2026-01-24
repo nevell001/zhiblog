@@ -1,36 +1,48 @@
 // ========== 全局错误处理 ==========
 // 必须在任何其他代码之前设置，确保能捕获所有错误
-window.addEventListener('error', (event) => {
-  // 捕获所有 .on() 相关错误
-  if (
-    event.message &&
-    (event.message.includes("Cannot read properties of undefined (reading 'on')") ||
-     event.message.includes("Cannot read properties of null (reading 'on')"))
-  ) {
-    console.warn('⚠️ 已拦截并忽略 .on() 错误（不影响功能）')
-    event.preventDefault()
-    return true
-  }
+window.addEventListener(
+  'error',
+  event => {
+    // 捕获所有 .on() 相关错误
+    if (
+      event.message &&
+      (event.message.includes("Cannot read properties of undefined (reading 'on')") ||
+        event.message.includes("Cannot read properties of null (reading 'on')") ||
+        event.message.includes("reading 'on'"))
+    ) {
+      console.warn('⚠️ 已拦截并忽略 .on() 错误（不影响功能）')
+      event.preventDefault()
+      return true
+    }
 
-  // 忽略网络资源加载错误（如图片、字体等）
-  if (event.filename && (event.filename.includes('.jpg') || event.filename.includes('.png') || event.filename.includes('.css') || event.filename.includes('.js'))) {
-    // 网络资源加载失败，静默忽略
-    return true
-  }
+    // 忽略网络资源加载错误（如图片、字体等）
+    if (
+      event.filename &&
+      (event.filename.includes('.jpg') ||
+        event.filename.includes('.png') ||
+        event.filename.includes('.css') ||
+        event.filename.includes('.js'))
+    ) {
+      // 网络资源加载失败，静默忽略
+      return true
+    }
 
-  // 其他错误也记录，但不阻止
-  if (event.message) {
-    console.error('全局错误:', event.message)
-  }
-}, true) // 使用捕获阶段
+    // 其他错误也记录，但不阻止
+    if (event.message) {
+      console.error('全局错误:', event.message)
+    }
+  },
+  true
+) // 使用捕获阶段
 
 // 添加未处理的Promise错误处理
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener('unhandledrejection', event => {
   if (
     event.reason &&
     event.reason.message &&
     (event.reason.message.includes("Cannot read properties of undefined (reading 'on')") ||
-     event.reason.message.includes("Cannot read properties of null (reading 'on')"))
+      event.reason.message.includes("Cannot read properties of null (reading 'on')") ||
+      event.reason.message.includes("reading 'on'"))
   ) {
     console.warn('⚠️ 已拦截 Promise .on() 错误')
     event.preventDefault()
@@ -39,6 +51,23 @@ window.addEventListener('unhandledrejection', (event) => {
 
   console.error('未处理的Promise错误:', event.reason)
 })
+
+// 添加全局错误捕获函数
+window.onerror = function (message, source, lineno, colno, error) {
+  if (
+    message &&
+    (message.includes("Cannot read properties of undefined (reading 'on')") ||
+      message.includes("Cannot read properties of null (reading 'on')") ||
+      message.includes("reading 'on'"))
+  ) {
+    console.warn('⚠️ 已拦截 window.onerror .on() 错误')
+    return true
+  }
+  return false
+}
+
+// 注意：process 是 Node.js 全局对象，在浏览器环境中不存在
+// 浏览器环境中的未捕获异常会触发 window.onerror 或 window.addEventListener('error')
 // ========== 全局错误处理结束 ==========
 
 import { createApp } from 'vue'

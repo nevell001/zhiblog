@@ -352,7 +352,16 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { FolderOpened, View, Star, DocumentDelete, TrendCharts, PriceTag, Link, Search } from '@element-plus/icons-vue'
+import {
+  FolderOpened,
+  View,
+  Star,
+  DocumentDelete,
+  TrendCharts,
+  PriceTag,
+  Link,
+  Search
+} from '@element-plus/icons-vue'
 import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
 import {
@@ -613,7 +622,8 @@ onMounted(async () => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
   }
   50% {
@@ -1089,8 +1099,12 @@ onMounted(async () => {
   border: 2px solid transparent;
   border-radius: 50%;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) padding-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: destination-out;
   mask-composite: exclude;
   animation: rotate 10s linear infinite;

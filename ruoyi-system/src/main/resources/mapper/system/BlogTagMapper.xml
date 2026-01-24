@@ -97,6 +97,28 @@
         group by bt.id, bt.name, bt.description, bt.color, bt.icon, bt.create_time, bt.update_time, bt.del_flag
     </select>
 
+    <!-- 批量查询多篇文章的标签（解决N+1查询问题） -->
+    <select id="selectTagsByArticleIds" resultType="map">
+        select
+            bat.article_id as articleId,
+            bt.id,
+            bt.name,
+            bt.description,
+            bt.color,
+            bt.icon,
+            bt.create_time as createTime,
+            bt.update_time as updateTime,
+            bt.del_flag as delFlag
+        from blog_article_tag bat
+        inner join blog_tag bt on bat.tag_id = bt.id
+        where bat.article_id in
+        <foreach item="articleId" collection="list" open="(" separator="," close=")">
+            #{articleId}
+        </foreach>
+        and bt.del_flag = 0
+        order by bat.article_id, bt.create_time desc
+    </select>
+
     <insert id="insertBlogTag" parameterType="BlogTag" useGeneratedKeys="true" keyProperty="id">
         insert into blog_tag
         <trim prefix="(" suffix=")" suffixOverrides=",">

@@ -14,10 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 
 import com.ruoyi.common.annotation.Anonymous;
-import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.cache.UnifiedCacheManager;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.StringUtils;
@@ -330,7 +328,7 @@ public class BlogFrontSettingController extends BaseController {
         }
     }
 
-@Anonymous
+    @Anonymous
     @GetMapping("/clear-blog-cache")
     @Operation(summary = "清除博客设置缓存")
     public AjaxResult clearBlogCache() {

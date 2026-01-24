@@ -95,4 +95,11 @@ public interface BlogTagMapper
      * @return 标签列表
      */
     List<BlogTag> selectTagsByArticleId(Long articleId);
+
+    /**
+     * 批量查询多篇文章的标签列表（解决N+1查询问题）
+     * @param articleIds 文章ID列表
+     * @return 标签映射列表（每行包含 articleId 和标签信息）
+     */
+    List<Map<String, Object>> selectTagsByArticleIds(List<Long> articleIds);
 }

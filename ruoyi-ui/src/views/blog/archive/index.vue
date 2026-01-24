@@ -13,8 +13,11 @@
           文章归档
         </h1>
         <p class="page-description">
-          共 <span class="highlight-number">{{ totalArticles }}</span> 篇文章，
-          记录了 <span class="highlight-number">{{ archiveList.length }}</span> 个月的写作历程
+          共
+          <span class="highlight-number">{{ totalArticles }}</span>
+          篇文章， 记录了
+          <span class="highlight-number">{{ archiveList.length }}</span>
+          个月的写作历程
         </p>
         <div class="back-button">
           <router-link
@@ -178,7 +181,8 @@
 
                         <p class="article-summary">
                           {{
-                            article.summary || stripHtmlTags(article.content).substring(0, 150) + '...'
+                            article.summary ||
+                              stripHtmlTags(article.content).substring(0, 150) + '...'
                           }}
                         </p>
 
@@ -407,7 +411,8 @@ onMounted(() => {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0) rotate(0deg);
   }
   50% {
@@ -428,7 +433,8 @@ onMounted(() => {
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -510,7 +516,8 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.5;
     transform: scale(1);
   }

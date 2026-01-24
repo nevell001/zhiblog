@@ -138,7 +138,11 @@ public class SecurityConfig
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/health/**"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/info"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/metrics/**"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/prometheus")
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/prometheus"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops/**")
                 ).permitAll();
 
                 // 开发环境允许访问Swagger

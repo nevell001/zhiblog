@@ -3,17 +3,6 @@ import type { Article } from '@/types'
 import type { ArticleParams, QueryResult } from '@/types/api'
 
 /**
- * 查询博客文章列表
- */
-export function listArticle(query?: ArticleParams): Promise<QueryResult<Article>> {
-  return request({
-    url: '/system/article/list',
-    method: 'get',
-    params: query
-  })
-}
-
-/**
  * 前台匿名访问文章列表
  */
 export function getArticleListAnonymous(query?: ArticleParams): Promise<QueryResult<Article>> {
@@ -22,58 +11,6 @@ export function getArticleListAnonymous(query?: ArticleParams): Promise<QueryRes
     method: 'get',
     params: query,
     headers: { isToken: false }
-  })
-}
-
-/**
- * 查询博客文章详细
- */
-export function getArticle(id: number): Promise<Article> {
-  return request({
-    url: '/system/article/' + id,
-    method: 'get'
-  })
-}
-
-/**
- * 新增博客文章
- */
-export function addArticle(data: Article): Promise<any> {
-  return request({
-    url: '/system/article',
-    method: 'post',
-    data: data
-  })
-}
-
-/**
- * 修改博客文章
- */
-export function updateArticle(data: Article): Promise<any> {
-  return request({
-    url: '/system/article',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
- * 删除博客文章
- */
-export function delArticle(id: number): Promise<any> {
-  return request({
-    url: '/system/article/' + id,
-    method: 'delete'
-  })
-}
-
-/**
- * 增加浏览量
- */
-export function addViewCount(id: number): Promise<any> {
-  return request({
-    url: '/system/article/view/' + id,
-    method: 'get'
   })
 }
 
@@ -222,34 +159,6 @@ export function submitComment(data: Record<string, any>): Promise<any> {
   return request({
     url: '/blog/comment',
     method: 'post',
-    data: data
-  })
-}
-
-/**
- * 批量更新文章置顶状态
- */
-export function updateArticleTopStatus(data: {
-  ids: number[]
-  isTop: number
-}): Promise<any> {
-  return request({
-    url: '/system/article/top',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
- * 批量更新文章推荐状态
- */
-export function updateArticleRecommendStatus(data: {
-  ids: number[]
-  isRecommend: number
-}): Promise<any> {
-  return request({
-    url: '/system/article/recommend',
-    method: 'put',
     data: data
   })
 }

@@ -47,48 +47,48 @@ const componentChild: Record<string, Record<string, RenderFunction>> = {
     options(h, conf, _key) {
       return conf.optionType === 'button'
         ? conf.options.map((item: any) =>
-          h(
-            resolveComponent('el-checkbox-button'),
-            {
-              label: item.value
-            },
-            () => item.label
+            h(
+              resolveComponent('el-checkbox-button'),
+              {
+                label: item.value
+              },
+              () => item.label
+            )
           )
-        )
         : conf.options.map((item: any) =>
-          h(
-            resolveComponent('el-radio'),
-            {
-              label: item.value,
-              border: conf.border
-            },
-            () => item.label
+            h(
+              resolveComponent('el-radio'),
+              {
+                label: item.value,
+                border: conf.border
+              },
+              () => item.label
+            )
           )
-        )
     }
   },
   'el-checkbox-group': {
     options(h, conf, _key) {
       return conf.optionType === 'button'
         ? conf.options.map((item: any) =>
-          h(
-            resolveComponent('el-checkbox-button'),
-            {
-              label: item.value
-            },
-            () => item.label
+            h(
+              resolveComponent('el-checkbox-button'),
+              {
+                label: item.value
+              },
+              () => item.label
+            )
           )
-        )
         : conf.options.map((item: any) =>
-          h(
-            resolveComponent('el-checkbox'),
-            {
-              label: item.value,
-              border: conf.border
-            },
-            () => item.label
+            h(
+              resolveComponent('el-checkbox'),
+              {
+                label: item.value,
+                border: conf.border
+              },
+              () => item.label
+            )
           )
-        )
     }
   },
   'el-upload': {

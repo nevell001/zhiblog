@@ -317,16 +317,18 @@ function handleUpdate(row) {
     return
   }
 
-  getCategory(id).then(response => {
-    // 数据加载完成后重置表单并填充数据
-    reset()
-    Object.assign(form.value, response.data)
-    open.value = true
-    title.value = '修改分类'
-  }).catch(error => {
-    console.error('获取分类信息失败:', error)
-    proxy.$modal.msgError('获取分类信息失败')
-  })
+  getCategory(id)
+    .then(response => {
+      // 数据加载完成后重置表单并填充数据
+      reset()
+      Object.assign(form.value, response.data)
+      open.value = true
+      title.value = '修改分类'
+    })
+    .catch(error => {
+      console.error('获取分类信息失败:', error)
+      proxy.$modal.msgError('获取分类信息失败')
+    })
 }
 
 /** 提交按钮 */

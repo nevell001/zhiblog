@@ -189,7 +189,7 @@ public class UnifiedCacheManager {
         try {
             // 获取Redis的内存使用情况
             Properties info = redisTemplate.getConnectionFactory()
-                    .getConnection().info();
+                    .getConnection().serverCommands().info();
             
             return Map.of(
                 "total_keys", keys("*") != null ? keys("*").size() : 0,

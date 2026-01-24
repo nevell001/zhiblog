@@ -27,6 +27,8 @@ import com.ruoyi.system.service.IBlogCategoryService;
 import com.ruoyi.system.service.IBlogTagService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 文章管理Controller
@@ -38,6 +40,8 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RequestMapping("/system/article")
 public class BlogArticleController extends BaseController
 {
+    private static final Logger log = LoggerFactory.getLogger(BlogArticleController.class);
+
     @Autowired
     private IBlogArticleService blogArticleService;
 
@@ -302,7 +306,7 @@ public class BlogArticleController extends BaseController
                 }
             } catch (NumberFormatException e) {
                 // 忽略无效的 categoryId 参数
-                System.err.println("警告: 无效的 categoryId 参数: " + categoryIdStr);
+                log.warn("无效的 categoryId 参数: {}", categoryIdStr);
             }
         }
         if (params.get("status") != null) {

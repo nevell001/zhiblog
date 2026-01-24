@@ -122,14 +122,14 @@ const renderRegisterChart = data => {
       },
       xAxis: {
         type: 'category',
-        data: (data && data.labels) ? data.labels : []
+        data: data && data.labels ? data.labels : []
       },
       yAxis: {
         type: 'value'
       },
       series: [
         {
-          data: (data && data.data) ? data.data : [],
+          data: data && data.data ? data.data : [],
           type: 'line',
           smooth: true,
           itemStyle: {
