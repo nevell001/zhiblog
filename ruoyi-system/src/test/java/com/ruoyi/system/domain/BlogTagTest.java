@@ -54,28 +54,14 @@ class BlogTagTest {
     }
 
     /**
-     * 测试兼容性方法 - setTagId 和 getTagId
+     * 测试标签名称设置和获取
      */
     @Test
-    void testTagIdCompatibility() {
+    void testTagName() {
         BlogTag tag = new BlogTag();
-        tag.setTagId(100L);
-        
-        // 验证通过 setTagId 设置的值可以通过 getId 和 getTagId 获取
-        assertEquals(100L, tag.getId());
-        assertEquals(100L, tag.getTagId());
-    }
+        tag.setName("测试标签");
 
-    /**
-     * 测试兼容性方法 - setTagName 和 getTagName
-     */
-    @Test
-    void testTagNameCompatibility() {
-        BlogTag tag = new BlogTag();
-        tag.setTagName("测试标签");
-        
-        // 验证通过 setTagName 设置的值可以通过 getName 和 getTagName 获取
+        // 验证通过 setName 设置的值可以通过 getName 获取
         assertEquals("测试标签", tag.getName());
-        assertEquals("测试标签", tag.getTagName());
     }
 }

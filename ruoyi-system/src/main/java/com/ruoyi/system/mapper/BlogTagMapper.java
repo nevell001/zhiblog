@@ -29,11 +29,11 @@ public interface BlogTagMapper
 
     /**
      * 通过ID查询单条数据
-     * 
-     * @param tagId 标签ID
+     *
+     * @param id 标签ID
      * @return 实例对象
      */
-    public BlogTag selectBlogTagById(Long tagId);
+    public BlogTag selectBlogTagById(Long id);
 
     /**
      * 新增博客标签
@@ -53,11 +53,11 @@ public interface BlogTagMapper
 
     /**
      * 通过主键删除数据
-     * 
-     * @param tagId 标签ID
+     *
+     * @param id 标签ID
      * @return 影响行数
      */
-    public int deleteBlogTagById(Long tagId);
+    public int deleteBlogTagById(Long id);
 
     /**
      * 批量删除博客标签
@@ -77,11 +77,11 @@ public interface BlogTagMapper
     
     /**
      * 检查标签是否已被文章使用
-     * 
-     * @param tagId 标签ID
+     *
+     * @param id 标签ID
      * @return 结果
      */
-    public int checkTagExistArticle(Long tagId);
+    int checkTagExistArticle(Long id);
 
     /**
      * 获取标签云（包含文章数量）

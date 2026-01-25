@@ -37,16 +37,17 @@ public class CacheAspect {
     @Around("@annotation(blogCacheable)")
     public Object handleCacheable(ProceedingJoinPoint joinPoint, BlogCacheable blogCacheable) throws Throwable {
         String cacheKey = buildCacheKey(joinPoint, blogCacheable.key());
+        log.debug("🔍 CacheAspect: 缓存键 = {}", cacheKey);
         
         try {
             // 尝试从缓存获取
             Object cachedValue = blogCacheManager.get(cacheKey, Object.class);
             if (cachedValue != null) {
-                log.debug("Cache hit for key: {}", cacheKey);
+                log.debug("✅ CacheAspect: 缓存命中，key = {}", cacheKey);
                 return cachedValue;
             }
             
-            log.debug("Cache miss for key: {}", cacheKey);
+            log.debug("❌ CacheAspect: 缓存未命中，key = {}", cacheKey);
             
             // 缓存未命中，执行原方法
             Object result = joinPoint.proceed();
@@ -56,13 +57,13 @@ public class CacheAspect {
                 long ttl = blogCacheable.ttl();
                 TimeUnit timeUnit = blogCacheable.timeUnit();
                 blogCacheManager.set(cacheKey, result, ttl, timeUnit);
-                log.debug("Cached result for key: {} with TTL: {} {}", cacheKey, ttl, timeUnit);
+                log.info("💾 CacheAspect: 已缓存结果，key = {}, TTL = {} {}", cacheKey, ttl, timeUnit);
             }
             
             return result;
             
         } catch (Exception e) {
-            log.error("Cache operation failed for key: {}, proceeding with method execution", cacheKey, e);
+            log.error("❌ CacheAspect: 缓存操作失败，key = {}, 执行原方法", cacheKey, e);
             // 缓存操作失败时，直接执行原方法
             return joinPoint.proceed();
         }
@@ -119,7 +120,7 @@ public class CacheAspect {
 
         // 解析SpEL表达式或使用字符串模板
         String resolvedKey = resolveSpEL(keyExpression, joinPoint);
-        log.debug("缓存 key 解析: {} -> {}", keyExpression, resolvedKey);
+        log.info("🔑 CacheAspect: 缓存键解析 - 原始表达式: {}, 解析结果: {}", keyExpression, resolvedKey);
         return resolvedKey;
     }
 
@@ -150,11 +151,17 @@ public class CacheAspect {
      * 简化实现，支持常见的参数引用
      */
     private String resolveSpEL(String expression, ProceedingJoinPoint joinPoint) {
-        if (expression.startsWith("#") || expression.contains("$")) {
+        log.info("🔍 resolveSpEL: 开始解析表达式 = {}", expression);
+        
+        // 检查是否包含需要解析的参数引用（#开头的内容）
+        if (expression.contains("#")) {
             // 简化的SpEL解析
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             String[] paramNames = signature.getParameterNames();
             Object[] args = joinPoint.getArgs();
+
+            log.info("🔍 resolveSpEL: 参数名数组 = {}", java.util.Arrays.toString(paramNames));
+            log.info("🔍 resolveSpEL: 参数值数组 = {}", java.util.Arrays.toString(args));
 
             String result = expression;
 
@@ -176,15 +183,19 @@ public class CacheAspect {
                     String paramName = paramNames[i];
                     Object argValue = args[i];
 
-                    // 替换 #paramName
-                    result = result.replace("#" + paramName,
-                                          argValue != null ? argValue.toString() : "null");
+                    log.info("🔍 resolveSpEL: 处理参数名 = {}, 值 = {}", paramName, argValue);
+                    
+                    // 使用 replaceAll 替换所有匹配项
+                    result = result.replaceAll("#" + paramName,
+                                              argValue != null ? argValue.toString() : "null");
                 }
             }
 
+            log.info("🔍 resolveSpEL: 解析完成，结果 = {}", result);
             return result;
         } else {
             // 普通字符串，直接返回
+            log.info("🔍 resolveSpEL: 普通字符串，直接返回 = {}", expression);
             return expression;
         }
     }

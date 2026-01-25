@@ -97,7 +97,7 @@ export interface PostParams extends PageParams {
  * 标签查询参数
  */
 export interface TagParams extends PageParams {
-  tagName?: string
+  name?: string
   status?: string
 }
 

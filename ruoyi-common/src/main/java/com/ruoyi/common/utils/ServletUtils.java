@@ -29,7 +29,8 @@ public class ServletUtils
      */
     public static String getParameter(String name)
     {
-        return getRequest().getParameter(name);
+        HttpServletRequest request = getRequest();
+        return request == null ? null : request.getParameter(name);
     }
 
     /**
@@ -37,7 +38,8 @@ public class ServletUtils
      */
     public static String getParameter(String name, String defaultValue)
     {
-        return Convert.toStr(getRequest().getParameter(name), defaultValue);
+        HttpServletRequest request = getRequest();
+        return Convert.toStr(request == null ? null : request.getParameter(name), defaultValue);
     }
 
     /**
@@ -45,7 +47,8 @@ public class ServletUtils
      */
     public static Integer getParameterToInt(String name)
     {
-        return Convert.toInt(getRequest().getParameter(name));
+        HttpServletRequest request = getRequest();
+        return Convert.toInt(request == null ? null : request.getParameter(name));
     }
 
     /**
@@ -53,7 +56,8 @@ public class ServletUtils
      */
     public static Integer getParameterToInt(String name, Integer defaultValue)
     {
-        return Convert.toInt(getRequest().getParameter(name), defaultValue);
+        HttpServletRequest request = getRequest();
+        return Convert.toInt(request == null ? null : request.getParameter(name), defaultValue);
     }
 
     /**
@@ -61,7 +65,8 @@ public class ServletUtils
      */
     public static Boolean getParameterToBool(String name)
     {
-        return Convert.toBool(getRequest().getParameter(name));
+        HttpServletRequest request = getRequest();
+        return Convert.toBool(request == null ? null : request.getParameter(name));
     }
 
     /**
@@ -69,7 +74,8 @@ public class ServletUtils
      */
     public static Boolean getParameterToBool(String name, Boolean defaultValue)
     {
-        return Convert.toBool(getRequest().getParameter(name), defaultValue);
+        HttpServletRequest request = getRequest();
+        return Convert.toBool(request == null ? null : request.getParameter(name), defaultValue);
     }
 
     /**
@@ -105,7 +111,8 @@ public class ServletUtils
      */
     public static HttpServletRequest getRequest()
     {
-        return getRequestAttributes().getRequest();
+        ServletRequestAttributes attributes = getRequestAttributes();
+        return attributes != null ? attributes.getRequest() : null;
     }
 
     /**
@@ -113,7 +120,8 @@ public class ServletUtils
      */
     public static HttpServletResponse getResponse()
     {
-        return getRequestAttributes().getResponse();
+        ServletRequestAttributes attributes = getRequestAttributes();
+        return attributes != null ? attributes.getResponse() : null;
     }
 
     /**
@@ -121,7 +129,8 @@ public class ServletUtils
      */
     public static HttpSession getSession()
     {
-        return getRequest().getSession();
+        HttpServletRequest request = getRequest();
+        return request == null ? null : request.getSession();
     }
 
     public static ServletRequestAttributes getRequestAttributes()

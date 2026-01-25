@@ -6,21 +6,9 @@ interface BlogSettingsState {
   blog_desc: string
   blog_author: string
   blog_email: string
-  blog_url: string
-  blog_start_time: string | null
   blog_avatar: string | null
-  blog_signature: string
-  blog_keywords: string
   blog_copyright: string
   blog_beian: string
-  seo_title: string
-  seo_description: string
-  seo_canonical_url: string
-  seo_robots: string
-  seo_favicon: string
-  theme_color: string
-  header_background: string
-  sidebar_style: string
   comment_enabled: boolean
   comment_review: boolean
   like_enabled: boolean
@@ -30,10 +18,6 @@ interface BlogSettingsState {
   sidebar_enabled: boolean
   footer_enabled: boolean
   copyright_enabled: boolean
-  page_size: number
-  hot_article_count: number
-  recent_comment_count: number
-  greeting_message: string
   about_content: string
   author_title: string
   author_bio: string
@@ -58,25 +42,9 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       blog_desc: '欢迎来到我的博客',
       blog_author: 'nevell',
       blog_email: '',
-      blog_url: '',
-      blog_start_time: null,
       blog_avatar: null,
-      blog_signature: '',
-      blog_keywords: '',
       blog_copyright: '',
       blog_beian: '',
-
-      // SEO设置
-      seo_title: '',
-      seo_description: '',
-      seo_canonical_url: '',
-      seo_robots: 'index,follow',
-      seo_favicon: '',
-
-      // 个性化设置
-      theme_color: '#409EFF',
-      header_background: '#304156',
-      sidebar_style: 'dark',
 
       // 功能设置
       comment_enabled: true,
@@ -90,10 +58,6 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       copyright_enabled: true,
 
       // 其他设置
-      page_size: 10,
-      hot_article_count: 5,
-      recent_comment_count: 5,
-      greeting_message: '欢迎来到我的博客！',
       about_content: '',
 
       // 博主信息

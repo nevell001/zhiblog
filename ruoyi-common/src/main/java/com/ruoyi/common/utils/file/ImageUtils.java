@@ -45,6 +45,9 @@ public class ImageUtils
         try
         {
             byte[] result = readFile(imagePath);
+            if (result == null) {
+                return null;
+            }
             result = Arrays.copyOf(result, result.length);
             return new ByteArrayInputStream(result);
         }

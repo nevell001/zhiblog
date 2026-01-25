@@ -3,6 +3,8 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.ruoyi.common.cache.annotation.BlogCacheable;
 import com.ruoyi.common.cache.annotation.BlogCacheEvict;
@@ -21,6 +23,8 @@ import com.ruoyi.system.service.IBlogTagService;
 @Service
 public class BlogTagServiceImpl implements IBlogTagService
 {
+    private static final Logger log = LoggerFactory.getLogger(BlogTagServiceImpl.class);
+
     @Autowired
     private BlogTagMapper blogTagMapper;
 
@@ -50,18 +54,22 @@ public class BlogTagServiceImpl implements IBlogTagService
     }
 
     /**
-     * 通过ID查询单条数据
-     * 
-     * @param tagId 标签ID
-     * @return 实例对象
-     */
-    @Override
-    @BlogCacheable(key = "blog:tag:#tagId", ttl = 60, timeUnit = TimeUnit.MINUTES)
-    public BlogTag selectBlogTagById(Long tagId)
-    {
-        return blogTagMapper.selectBlogTagById(tagId);
-    }
-
+         * 通过ID查询单条数据
+         * 
+         * @param id 标签ID
+         * @return 实例对象
+         */
+        @Override
+        @BlogCacheable(key = "blog:tag:#id", ttl = 60, timeUnit = TimeUnit.MINUTES)
+        public BlogTag selectBlogTagById(Long id)
+        {
+            log.info("📝 Service: 查询标签，参数 id = {}", id);
+            BlogTag result = blogTagMapper.selectBlogTagById(id);
+            log.info("📝 Service: 查询标签完成，结果 id = {}, name = {}", 
+                     result != null ? result.getId() : null, 
+                     result != null ? result.getName() : null);
+            return result;
+        }
     /**
      * 新增博客标签
      * 
@@ -93,14 +101,14 @@ public class BlogTagServiceImpl implements IBlogTagService
     /**
      * 通过主键删除数据
      *
-     * @param tagId 标签ID
+     * @param id 标签ID
      * @return 影响行数
      */
     @Override
     @BlogCacheEvict(value = {"blog:tag:*"}, keyPattern = "blog:tag:*")
-    public int deleteBlogTagById(Long tagId)
+    public int deleteBlogTagById(Long id)
     {
-        return blogTagMapper.deleteBlogTagById(tagId);
+        return blogTagMapper.deleteBlogTagById(id);
     }
 
     /**
@@ -125,9 +133,9 @@ public class BlogTagServiceImpl implements IBlogTagService
     @Override
     public boolean checkTagNameUnique(BlogTag blogTag)
     {
-        Long tagId = blogTag.getTagId() == null ? -1L : blogTag.getTagId();
-        BlogTag info = blogTagMapper.checkTagNameUnique(blogTag.getTagName());
-        if (info != null && info.getTagId().longValue() != tagId.longValue())
+        Long tagId = blogTag.getId() == null ? -1L : blogTag.getId();
+        BlogTag info = blogTagMapper.checkTagNameUnique(blogTag.getName());
+        if (info != null && info.getId().longValue() != tagId.longValue())
         {
             return false;
         }
@@ -136,14 +144,14 @@ public class BlogTagServiceImpl implements IBlogTagService
     
     /**
      * 检查标签是否已被文章使用
-     * 
-     * @param tagId 标签ID
+     *
+     * @param id 标签ID
      * @return 结果
      */
     @Override
-    public boolean checkTagExistArticle(Long tagId)
+    public boolean checkTagExistArticle(Long id)
     {
-        int count = blogTagMapper.checkTagExistArticle(tagId);
+        int count = blogTagMapper.checkTagExistArticle(id);
         return count > 0;
     }
 

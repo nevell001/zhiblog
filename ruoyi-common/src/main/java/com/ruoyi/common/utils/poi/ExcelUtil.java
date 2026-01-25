@@ -731,7 +731,7 @@ public class ExcelUtil<T>
 
         for (int i = startNo; i < endNo; i++)
         {
-            row = sheet.createRow(currentRowNum);
+            Row dataRow = sheet.createRow(currentRowNum);
             T vo = (T) list.get(i);
             int column = 0;
             int maxSubListSize = getCurrentMaxSubListSize(vo);
@@ -1033,7 +1033,9 @@ public class ExcelUtil<T>
         }
         else if (ColumnType.IMAGE == attr.cellType())
         {
-            ClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, (short) cell.getColumnIndex(), cell.getRow().getRowNum(), (short) (cell.getColumnIndex() + 1), cell.getRow().getRowNum() + 1);
+            int colIndex = cell.getColumnIndex();
+            int rowNum = cell.getRow().getRowNum();
+            ClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, (short) colIndex, (short) rowNum, (short) (colIndex + 1), (short) (rowNum + 1));
             String propertyValue = Convert.toStr(value);
             if (StringUtils.isNotEmpty(propertyValue))
             {

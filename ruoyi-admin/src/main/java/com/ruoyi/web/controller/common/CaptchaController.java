@@ -100,7 +100,8 @@ public class CaptchaController
         }
 
         ajax.put("uuid", uuid);
-        ajax.put("img", Base64.encode(os.toByteArray()));
+        // 使用 Java 内置的 Base64 编码器，避免自定义 Base64 实现的 bug
+        ajax.put("img", java.util.Base64.getEncoder().encodeToString(os.toByteArray()));
         return ajax;
     }
 }

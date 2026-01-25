@@ -215,7 +215,8 @@ public class HttpUtils
         try
         {
             log.info("sendSSLPost - {}", urlNameString);
-            SSLContext sc = SSLContext.getInstance("SSL");
+            log.warn("sendSSLPost - 使用不安全的 SSL/TLS 配置（跳过证书验证和主机名验证），仅建议在测试环境或内部网络中使用");
+            SSLContext sc = SSLContext.getInstance("TLS");
             sc.init(null, new TrustManager[] { new TrustAnyTrustManager() }, new java.security.SecureRandom());
             URL console = new URL(urlNameString);
             HttpsURLConnection conn = (HttpsURLConnection) console.openConnection();

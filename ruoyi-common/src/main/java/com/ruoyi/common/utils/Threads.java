@@ -28,6 +28,7 @@ public class Threads
         }
         catch (InterruptedException e)
         {
+            Thread.currentThread().interrupt(); // 重新中断线程
             return;
         }
     }

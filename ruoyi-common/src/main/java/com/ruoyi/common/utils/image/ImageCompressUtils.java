@@ -34,6 +34,8 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ImageCompressConfig;
 import com.ruoyi.common.utils.StringUtils;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * 图片压缩工具类
  * 基于Thumbnailator实现高质量图片压缩
@@ -45,8 +47,8 @@ public class ImageCompressUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ImageCompressUtils.class);
 
-    // 使用volatile确保多线程环境下的可见性
-    private static volatile ImageCompressConfig config;
+    // 使用AtomicReference确保多线程环境下的线程安全
+    private static final AtomicReference<ImageCompressConfig> config = new AtomicReference<>();
     
     // 配置变更监听器列表
     private static final List<ConfigChangeListener> listeners = Collections.synchronizedList(new ArrayList<>());
@@ -57,8 +59,8 @@ public class ImageCompressUtils {
      * @param config 图片压缩配置
      */
     public static void setConfig(ImageCompressConfig config) {
-        ImageCompressConfig oldConfig = ImageCompressUtils.config;
-        ImageCompressUtils.config = config;
+        ImageCompressConfig oldConfig = ImageCompressUtils.config.get();
+        ImageCompressUtils.config.set(config);
         
         // 触发配置变更事件
         notifyConfigChange(oldConfig, config);
@@ -70,7 +72,7 @@ public class ImageCompressUtils {
      * @return 图片压缩配置
      */
     public static ImageCompressConfig getConfig() {
-        return config;
+        return config.get();
     }
     
     /**
@@ -213,10 +215,10 @@ public class ImageCompressUtils {
         log.debug("开始压缩图片: {}，原始大小: {} bytes", originalName, originalSize);
 
         // 获取压缩阈值，如果配置未初始化则使用默认值
-        long threshold = (config != null) ? config.getThresholdSizeBytes() : COMPRESS_THRESHOLD;
+        long threshold = (config.get() != null) ? config.get().getThresholdSizeBytes() : COMPRESS_THRESHOLD;
 
         // 检查是否启用压缩
-        if (config != null && !config.isEnabled()) {
+        if (config.get() != null && !config.get().isEnabled()) {
             log.debug("图片压缩功能已禁用，跳过压缩");
             return file.getBytes();
         }
@@ -259,8 +261,8 @@ public class ImageCompressUtils {
         log.debug("开始压缩头像: {}", originalName);
 
         // 获取头像压缩配置
-        int avatarSize = (config != null) ? config.getAvatarSize() : AVATAR_SIZE;
-        double avatarQuality = (config != null) ? config.getAvatarQuality() : 0.9;
+        int avatarSize = (config.get() != null) ? config.get().getAvatarSize() : AVATAR_SIZE;
+        double avatarQuality = (config.get() != null) ? config.get().getAvatarQuality() : 0.9;
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Thumbnails.of(file.getInputStream())
@@ -293,8 +295,8 @@ public class ImageCompressUtils {
         String format = getImageFormat(file);
 
         // 获取缩略图压缩配置
-        int thumbnailSize = (config != null) ? config.getThumbnailSize() : THUMBNAIL_SIZE;
-        double thumbnailQuality = (config != null) ? config.getThumbnailQuality() : 0.8;
+        int thumbnailSize = (config.get() != null) ? config.get().getThumbnailSize() : THUMBNAIL_SIZE;
+        double thumbnailQuality = (config.get() != null) ? config.get().getThumbnailQuality() : 0.8;
 
         log.debug("开始压缩缩略图: {}, 尺寸: {}, 质量: {}",
             file.getOriginalFilename(), thumbnailSize, thumbnailQuality);
@@ -359,12 +361,11 @@ public class ImageCompressUtils {
         String format = getImageFormat(file);
 
         // 获取配置参数
-        int coverWidth = (config != null && config.getArticleCoverWidth() > 0) ?
-                        config.getArticleCoverWidth() : ARTICLE_COVER_WIDTH;
-        int coverHeight = (config != null && config.getArticleCoverHeight() > 0) ?
-                         config.getArticleCoverHeight() : ARTICLE_COVER_HEIGHT;
-        double coverQuality = (config != null) ? config.getCoverQuality() : 0.85;
-
+        int coverWidth = (config.get() != null && config.get().getArticleCoverWidth() > 0) ?
+                    config.get().getArticleCoverWidth() : ARTICLE_COVER_WIDTH;
+                int coverHeight = (config.get() != null && config.get().getArticleCoverHeight() > 0) ?
+                    config.get().getArticleCoverHeight() : ARTICLE_COVER_HEIGHT;
+                double coverQuality = (config.get() != null) ? config.get().getCoverQuality() : 0.85;
         log.debug("开始压缩文章封面: {}, 尺寸: {}x{}, 质量: {}",
                 file.getOriginalFilename(), coverWidth, coverHeight, coverQuality);
 
@@ -399,10 +400,9 @@ public class ImageCompressUtils {
         String format = getImageFormat(file);
 
         // 获取移动端配置参数
-        int mobileWidth = (config != null && config.getMobileMaxWidth() > 0) ?
-                          config.getMobileMaxWidth() : MOBILE_MAX_WIDTH;
-        double mobileQuality = (config != null) ? config.getMobileQuality() : 0.75;
-
+        int mobileWidth = (config.get() != null && config.get().getMobileMaxWidth() > 0) ?
+                    config.get().getMobileMaxWidth() : MOBILE_MAX_WIDTH;
+                double mobileQuality = (config.get() != null) ? config.get().getMobileQuality() : 0.75;
         log.debug("开始移动端适配压缩: {}, 最大宽度: {}, 质量: {}",
                 file.getOriginalFilename(), mobileWidth, mobileQuality);
 
@@ -674,7 +674,10 @@ public class ImageCompressUtils {
         for (Future<?> future : futures) {
             try {
                 future.get();
-            } catch (InterruptedException | ExecutionException e) {
+            } catch (InterruptedException e) {
+                log.error("批量压缩任务执行失败: {}", e.getMessage(), e);
+                Thread.currentThread().interrupt(); // 重新中断线程
+            } catch (ExecutionException e) {
                 log.error("批量压缩任务执行失败: {}", e.getMessage(), e);
             }
         }
@@ -691,6 +694,10 @@ public class ImageCompressUtils {
      * @return 压缩后的文件数据
      */
     private static byte[] processSingleFile(MultipartFile file, int index) {
+        if (file == null) {
+            log.error("压缩第 {} 张图片失败: 文件为 null", index + 1);
+            return new byte[0];
+        }
         try {
             return smartCompress(file);
         } catch (IOException e) {
@@ -738,10 +745,10 @@ public class ImageCompressUtils {
             Thumbnails.Builder<?> builder = Thumbnails.of(inputStream);
 
             // 获取配置的质量参数，默认0.85
-            double configuredQuality = (config != null) ? config.getDefaultQuality() : DEFAULT_QUALITY;
+            double configuredQuality = (config.get() != null) ? config.get().getDefaultQuality() : DEFAULT_QUALITY;
             // 获取配置的最大尺寸，默认1920x1080
-            int maxWidth = (config != null && config.getMaxWidth() > 0) ? config.getMaxWidth() : DEFAULT_MAX_WIDTH;
-            int maxHeight = (config != null && config.getMaxHeight() > 0) ? config.getMaxHeight() : DEFAULT_MAX_HEIGHT;
+            int maxWidth = (config.get() != null && config.get().getMaxWidth() > 0) ? config.get().getMaxWidth() : DEFAULT_MAX_WIDTH;
+            int maxHeight = (config.get() != null && config.get().getMaxHeight() > 0) ? config.get().getMaxHeight() : DEFAULT_MAX_HEIGHT;
 
             switch (strategy) {
                 case LIGHT:

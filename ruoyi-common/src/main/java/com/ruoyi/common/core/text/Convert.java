@@ -991,7 +991,7 @@ public class Convert
         for (int i = 0; i < fraction.length; i++)
         {
             // 优化double计算精度丢失问题
-            BigDecimal nNum = new BigDecimal(n);
+            BigDecimal nNum = BigDecimal.valueOf(n);
             BigDecimal decimal = new BigDecimal(10);
             BigDecimal scale = nNum.multiply(decimal).setScale(2, RoundingMode.HALF_EVEN);
             double d = scale.doubleValue();

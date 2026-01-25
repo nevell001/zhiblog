@@ -50,15 +50,22 @@ public class JobInvokeUtil
             throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException
     {
+        if (bean == null || methodName == null) {
+            throw new IllegalArgumentException("Bean 或方法名不能为空");
+        }
         if (StringUtils.isNotNull(methodParams) && methodParams.size() > 0)
         {
             Method method = bean.getClass().getMethod(methodName, getMethodParamsType(methodParams));
-            method.invoke(bean, getMethodParamsValue(methodParams));
+            if (method != null) {
+                method.invoke(bean, getMethodParamsValue(methodParams));
+            }
         }
         else
         {
             Method method = bean.getClass().getMethod(methodName);
-            method.invoke(bean);
+            if (method != null) {
+                method.invoke(bean);
+            }
         }
     }
 
@@ -110,7 +117,8 @@ public class JobInvokeUtil
         {
             return null;
         }
-        String[] methodParams = methodStr.split(",(?=([^\"']*[\"'][^\"']*[\"'])*[^\"']*$)");
+        // 简化正则表达式，避免递归模式导致的栈溢出
+        String[] methodParams = methodStr.split(",");
         List<Object[]> classs = new LinkedList<>();
         for (int i = 0; i < methodParams.length; i++)
         {

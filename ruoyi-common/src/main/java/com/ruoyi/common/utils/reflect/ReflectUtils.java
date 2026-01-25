@@ -75,6 +75,11 @@ public class ReflectUtils
     @SuppressWarnings("unchecked")
     public static <E> E getFieldValue(final Object obj, final String fieldName)
     {
+        if (obj == null)
+        {
+            logger.debug("对象为空，无法获取字段值");
+            return null;
+        }
         Field field = getAccessibleField(obj, fieldName);
         if (field == null)
         {
@@ -98,6 +103,11 @@ public class ReflectUtils
      */
     public static <E> void setFieldValue(final Object obj, final String fieldName, final E value)
     {
+        if (obj == null)
+        {
+            logger.debug("对象为空，无法设置字段值");
+            return;
+        }
         Field field = getAccessibleField(obj, fieldName);
         if (field == null)
         {

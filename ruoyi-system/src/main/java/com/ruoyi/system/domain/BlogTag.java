@@ -3,6 +3,7 @@ package com.ruoyi.system.domain;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
@@ -58,27 +59,6 @@ public class BlogTag extends BaseEntity
     }
 
     public String getName()
-    {
-        return name;
-    }
-
-    // 兼容性方法，保持向后兼容
-    public void setTagId(Long tagId)
-    {
-        this.id = tagId;
-    }
-
-    public Long getTagId()
-    {
-        return id;
-    }
-
-    public void setTagName(String tagName)
-    {
-        this.name = tagName;
-    }
-
-    public String getTagName()
     {
         return name;
     }

@@ -497,7 +497,7 @@
         >
           <el-input
             v-model="form.authorName"
-            placeholder="自动填充为当前用户"
+            placeholder="自动填充为博客设置中的作者"
             readonly
           />
         </el-form-item>
@@ -522,6 +522,7 @@
 <script setup name="Article">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
 import {
   listArticle,
   getArticle,
@@ -540,6 +541,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
+const blogSettingsStore = useBlogSettingsStore()
 
 const articleList = ref([])
 const open = ref(false)
@@ -642,7 +644,7 @@ function reset() {
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
-    authorName: userStore.name || 'admin',
+    authorName: blogSettingsStore.blogSettings.blog_author || userStore.name || 'admin',
     status: 0, // 默认草稿状态
     isTop: 0,
     isRecommend: 0,

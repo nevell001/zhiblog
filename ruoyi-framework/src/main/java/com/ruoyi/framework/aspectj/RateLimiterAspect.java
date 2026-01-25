@@ -61,7 +61,7 @@ public class RateLimiterAspect
             {
                 throw new ServiceException("访问过于频繁，请稍候再试");
             }
-            log.info("限制请求'{}',当前请求'{}',缓存key'{}'", count, number.intValue(), combineKey);
+            log.info("限制请求'{}',当前请求'{}',缓存key'{}'", count, number != null ? number : 0, combineKey);
         }
         catch (ServiceException e)
         {

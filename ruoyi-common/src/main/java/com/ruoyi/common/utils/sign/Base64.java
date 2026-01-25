@@ -114,13 +114,13 @@ public final class Base64
             l = (byte) (b2 & 0x0f);
             k = (byte) (b1 & 0x03);
 
-            byte val1 = ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
-            byte val2 = ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
-            byte val3 = ((b3 & SIGN) == 0) ? (byte) (b3 >> 6) : (byte) ((b3) >> 6 ^ 0xfc);
+            byte val1 = ((b1 & SIGN) == 0) ? (byte) ((b1 & 0xff) >> 2) : (byte) (((b1 & 0xff) >> 2) ^ 0xc0);
+            byte val2 = ((b2 & SIGN) == 0) ? (byte) ((b2 & 0xff) >> 4) : (byte) (((b2 & 0xff) >> 4) ^ 0xf0);
+            byte val3 = ((b3 & SIGN) == 0) ? (byte) ((b3 & 0xff) >> 6) : (byte) (((b3 & 0xff) >> 6) ^ 0xfc);
 
             encodedData[encodedIndex++] = lookUpBase64Alphabet[val1];
-            encodedData[encodedIndex++] = lookUpBase64Alphabet[val2 | (k << 4)];
-            encodedData[encodedIndex++] = lookUpBase64Alphabet[(l << 2) | val3];
+            encodedData[encodedIndex++] = lookUpBase64Alphabet[val2 | ((k & 0xff) << 4)];
+            encodedData[encodedIndex++] = lookUpBase64Alphabet[((l & 0xff) << 2) | val3];
             encodedData[encodedIndex++] = lookUpBase64Alphabet[b3 & 0x3f];
         }
 
@@ -142,12 +142,12 @@ public final class Base64
             l = (byte) (b2 & 0x0f);
             k = (byte) (b1 & 0x03);
 
-            byte val1 = ((b1 & SIGN) == 0) ? (byte) (b1 >> 2) : (byte) ((b1) >> 2 ^ 0xc0);
-            byte val2 = ((b2 & SIGN) == 0) ? (byte) (b2 >> 4) : (byte) ((b2) >> 4 ^ 0xf0);
+            byte val1 = ((b1 & SIGN) == 0) ? (byte) ((b1 & 0xff) >> 2) : (byte) (((b1 & 0xff) >> 2) ^ 0xc0);
+            byte val2 = ((b2 & SIGN) == 0) ? (byte) ((b2 & 0xff) >> 4) : (byte) (((b2 & 0xff) >> 4) ^ 0xf0);
 
             encodedData[encodedIndex++] = lookUpBase64Alphabet[val1];
-            encodedData[encodedIndex++] = lookUpBase64Alphabet[val2 | (k << 4)];
-            encodedData[encodedIndex++] = lookUpBase64Alphabet[l << 2];
+            encodedData[encodedIndex++] = lookUpBase64Alphabet[val2 | ((k & 0xff) << 4)];
+            encodedData[encodedIndex++] = lookUpBase64Alphabet[(l & 0xff) << 2];
             encodedData[encodedIndex++] = PAD;
         }
         return new String(encodedData);
@@ -205,9 +205,9 @@ public final class Base64
             b3 = base64Alphabet[d3];
             b4 = base64Alphabet[d4];
 
-            decodedData[encodedIndex++] = (byte) (b1 << 2 | b2 >> 4);
-            decodedData[encodedIndex++] = (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
-            decodedData[encodedIndex++] = (byte) (b3 << 6 | b4);
+            decodedData[encodedIndex++] = (byte) ((b1 & 0xff) << 2 | (b2 & 0xff) >> 4);
+            decodedData[encodedIndex++] = (byte) (((b2 & 0xf) << 4) | ((b3 & 0xff) >> 2) & 0xf);
+            decodedData[encodedIndex++] = (byte) (((b3 & 0xff) << 6) | (b4 & 0xff));
         }
 
         if (!isData((d1 = base64Data[dataIndex++])) || !isData((d2 = base64Data[dataIndex++])))
@@ -255,9 +255,9 @@ public final class Base64
         { // No PAD e.g 3cQl
             b3 = base64Alphabet[d3];
             b4 = base64Alphabet[d4];
-            decodedData[encodedIndex++] = (byte) (b1 << 2 | b2 >> 4);
-            decodedData[encodedIndex++] = (byte) (((b2 & 0xf) << 4) | ((b3 >> 2) & 0xf));
-            decodedData[encodedIndex++] = (byte) (b3 << 6 | b4);
+            decodedData[encodedIndex++] = (byte) ((b1 & 0xff) << 2 | (b2 & 0xff) >> 4);
+            decodedData[encodedIndex++] = (byte) (((b2 & 0xf) << 4) | ((b3 & 0xff) >> 2) & 0xf);
+            decodedData[encodedIndex++] = (byte) (((b3 & 0xff) << 6) | (b4 & 0xff));
 
         }
         return decodedData;

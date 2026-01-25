@@ -1,7 +1,6 @@
 package com.ruoyi.system.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ruoyi.system.TestApplication;
 import com.ruoyi.system.domain.BlogArticle;
 import com.ruoyi.system.service.IBlogArticleService;
 import com.ruoyi.system.service.IBlogCategoryService;
@@ -229,7 +228,7 @@ class BlogArticleControllerTest {
         List<com.ruoyi.system.domain.BlogTag> tags = new ArrayList<>();
         com.ruoyi.system.domain.BlogTag tag = new com.ruoyi.system.domain.BlogTag();
         tag.setId(1L);
-        tag.setTagName("测试标签");
+        tag.setName("测试标签");
         tags.add(tag);
 
         when(blogCategoryService.selectBlogCategoryList(any(com.ruoyi.system.domain.BlogCategory.class))).thenReturn(categories);

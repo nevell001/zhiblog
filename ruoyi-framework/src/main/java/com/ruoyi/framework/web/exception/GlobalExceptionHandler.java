@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingPathVariableException;
@@ -88,7 +89,9 @@ public class GlobalExceptionHandler
             value = EscapeUtil.clean(value);
         }
         log.error("请求参数类型不匹配'{}',发生系统异常.", requestURI, e);
-        return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), value));
+        Class<?> requiredType = e.getRequiredType();
+        String typeName = requiredType != null ? requiredType.getName() : "未知类型";
+        return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), typeName, value));
     }
 
     /**
@@ -131,7 +134,8 @@ public class GlobalExceptionHandler
     public Object handleMethodArgumentNotValidException(MethodArgumentNotValidException e)
     {
         log.error(e.getMessage(), e);
-        String message = e.getBindingResult().getFieldError().getDefaultMessage();
+        FieldError fieldError = e.getBindingResult().getFieldError();
+        String message = fieldError != null ? fieldError.getDefaultMessage() : "参数验证失败";
         return AjaxResult.error(message);
     }
 

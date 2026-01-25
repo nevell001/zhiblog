@@ -510,7 +510,11 @@ public class FileUploadUtils
     {
         try
         {
-            int fileNamelength = file.getOriginalFilename().length();
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null) {
+                throw new IOException("文件名为空");
+            }
+            int fileNamelength = originalFilename.length();
             if (fileNamelength > DEFAULT_FILE_NAME_LENGTH)
             {
                 throw new FileNameLengthLimitExceededException(DEFAULT_FILE_NAME_LENGTH);
@@ -539,7 +543,11 @@ public class FileUploadUtils
      * 专用压缩上传方法
      */
     private static final String uploadWithSpecialCompression(String baseDir, MultipartFile file, String[] allowedExtension, boolean useCustomNaming, String compressType) throws IOException, InvalidExtensionException {
-        int fileNamelength = file.getOriginalFilename().length();
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null) {
+            throw new IOException("文件名为空");
+        }
+        int fileNamelength = originalFilename.length();
         if (fileNamelength > DEFAULT_FILE_NAME_LENGTH) {
             throw new FileNameLengthLimitExceededException(DEFAULT_FILE_NAME_LENGTH);
         }

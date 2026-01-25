@@ -111,7 +111,8 @@ export interface Article {
  */
 export interface Tag {
   id?: number
-  tagName: string
+  name: string
+  description?: string
   color?: string
   icon?: string
   articleCount?: number
@@ -122,8 +123,12 @@ export interface Tag {
  */
 export interface Category {
   id?: number
-  categoryName: string
-  orderNum?: number
+  name: string
+  alias?: string
+  description?: string
+  parentId?: number
+  sortOrder?: number
+  sort?: number
   status?: number
   articleCount?: number
 }

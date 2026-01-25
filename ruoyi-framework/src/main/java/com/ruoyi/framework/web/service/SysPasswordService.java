@@ -54,7 +54,7 @@ public class SysPasswordService
             retryCount = 0;
         }
 
-        if (retryCount >= Integer.valueOf(maxRetryCount).intValue())
+        if (retryCount >= maxRetryCount)
         {
             throw new UserPasswordRetryLimitExceedException(maxRetryCount, lockTime);
         }

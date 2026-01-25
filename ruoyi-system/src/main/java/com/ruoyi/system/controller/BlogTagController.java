@@ -2,6 +2,8 @@ package com.ruoyi.system.controller;
 
 import java.util.List;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +33,8 @@ import com.ruoyi.common.core.page.TableDataInfo;
 @RequestMapping("/system/tag")
 public class BlogTagController extends BaseController
 {
+    private static final Logger log = LoggerFactory.getLogger(BlogTagController.class);
+
     @Autowired
     private IBlogTagService blogTagService;
 
@@ -63,10 +67,15 @@ public class BlogTagController extends BaseController
      * 获取博客标签详细信息
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:query')")
-    @GetMapping(value = "/{tagId}")
-    public AjaxResult getInfo(@PathVariable("tagId") Long tagId)
+    @GetMapping(value = "/{id}")
+    public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(blogTagService.selectBlogTagById(tagId));
+        log.info("📝 Controller: 获取标签详情，参数 id = {}", id);
+        BlogTag result = blogTagService.selectBlogTagById(id);
+        log.info("📝 Controller: 获取标签详情完成，结果 id = {}, name = {}", 
+                 result != null ? result.getId() : null, 
+                 result != null ? result.getName() : null);
+        return success(result);
     }
 
     /**
@@ -79,7 +88,7 @@ public class BlogTagController extends BaseController
     {
         if (!blogTagService.checkTagNameUnique(blogTag))
         {
-            return error("新增标签'" + blogTag.getTagName() + "'失败，标签名称已存在");
+            return error("新增标签'" + blogTag.getName() + "'失败，标签名称已存在");
         }
         return toAjax(blogTagService.insertBlogTag(blogTag));
     }
@@ -94,7 +103,7 @@ public class BlogTagController extends BaseController
     {
         if (!blogTagService.checkTagNameUnique(blogTag))
         {
-            return error("修改标签'" + blogTag.getTagName() + "'失败，标签名称已存在");
+            return error("修改标签'" + blogTag.getName() + "'失败，标签名称已存在");
         }
         return toAjax(blogTagService.updateBlogTag(blogTag));
     }
@@ -104,17 +113,17 @@ public class BlogTagController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('blog:tag:remove')")
     @Log(title = "博客标签", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{tagIds}")
-    public AjaxResult remove(@PathVariable("tagIds") Long[] tagIds)
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
-        for (Long tagId : tagIds)
+        for (Long id : ids)
         {
-            if (blogTagService.checkTagExistArticle(tagId))
+            if (blogTagService.checkTagExistArticle(id))
             {
                 return error("删除标签失败，标签已关联文章");
             }
         }
-        return toAjax(blogTagService.deleteBlogTagByIds(tagIds));
+        return toAjax(blogTagService.deleteBlogTagByIds(ids));
     }
 
     /**

@@ -9,10 +9,10 @@
     >
       <el-form-item
         label="标签名称"
-        prop="tagName"
+        prop="name"
       >
         <el-input
-          v-model="queryParams.tagName"
+          v-model="queryParams.name"
           placeholder="请输入标签名称"
           clearable
           @keyup.enter="handleQuery"
@@ -100,12 +100,12 @@
       <el-table-column
         label="标签ID"
         align="center"
-        prop="tagId"
+        prop="id"
       />
       <el-table-column
         label="标签名称"
         align="center"
-        prop="tagName"
+        prop="name"
       />
       <el-table-column
         label="文章数量"
@@ -188,10 +188,10 @@
       >
         <el-form-item
           label="标签名称"
-          prop="tagName"
+          prop="name"
         >
           <el-input
-            v-model="form.tagName"
+            v-model="form.name"
             placeholder="请输入标签名称"
           />
         </el-form-item>
@@ -250,10 +250,10 @@ const data = reactive({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
-    tagName: undefined
+    name: undefined
   },
   rules: {
-    tagName: [{ required: true, message: '标签名称不能为空', trigger: 'blur' }]
+    name: [{ required: true, message: '标签名称不能为空', trigger: 'blur' }]
   }
 })
 
@@ -278,8 +278,8 @@ function cancel() {
 /** 表单重置 */
 function reset() {
   form.value = {
-    tagId: undefined,
-    tagName: undefined,
+    id: undefined,
+    name: undefined,
     description: undefined,
     color: undefined
   }
@@ -300,7 +300,7 @@ function resetQuery() {
 
 /** 多选框选中数据 */
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.tagId)
+  ids.value = selection.map(item => item.id)
   single.value = selection.length !== 1
   multiple.value = !selection.length
 }
@@ -314,20 +314,38 @@ function handleAdd() {
 
 /** 修改按钮操作 */
 function handleUpdate(row) {
-  reset()
-  const tagId = row.tagId || ids.value
-  getTag(tagId).then(response => {
-    form.value = response.data
-    open.value = true
-    title.value = '修改标签'
-  })
+  // 处理 ID：如果是 row 对象则取 row.id，否则取 ids 数组的第一个元素
+  let tagId
+  if (row && row.id) {
+    // 从表格行点击修改按钮
+    tagId = row.id
+  } else if (ids.value && ids.value.length > 0) {
+    // 从顶部修改按钮点击
+    tagId = ids.value[0]
+  } else {
+    proxy.$modal.msgError('请先选择要修改的数据')
+    return
+  }
+
+  getTag(tagId)
+    .then(response => {
+      // 数据加载完成后重置表单并填充数据
+      reset()
+      Object.assign(form.value, response.data)
+      open.value = true
+      title.value = '修改标签'
+    })
+    .catch(error => {
+      console.error('获取标签信息失败:', error)
+      proxy.$modal.msgError('获取标签信息失败')
+    })
 }
 
 /** 提交按钮 */
 function submitForm() {
   proxy.$refs['tagRef'].validate(valid => {
     if (valid) {
-      if (form.value.tagId !== undefined) {
+      if (form.value.id !== undefined) {
         updateTag(form.value).then(response => {
           proxy.$modal.msgSuccess('修改成功')
           open.value = false
@@ -346,7 +364,7 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const tagIds = row.tagId || ids.value
+  const tagIds = row.id || ids.value
   proxy.$modal
     .confirm('是否确认删除标签编号为"' + tagIds + '"的数据项？')
     .then(function () {

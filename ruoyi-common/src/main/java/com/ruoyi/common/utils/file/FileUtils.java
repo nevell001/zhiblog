@@ -38,15 +38,13 @@ public class FileUtils
      */
     public static void writeBytes(String filePath, OutputStream os) throws IOException
     {
-        FileInputStream fis = null;
-        try
+        File file = new File(filePath);
+        if (!file.exists())
         {
-            File file = new File(filePath);
-            if (!file.exists())
-            {
-                throw new FileNotFoundException(filePath);
-            }
-            fis = new FileInputStream(file);
+            throw new FileNotFoundException(filePath);
+        }
+        try (FileInputStream fis = new FileInputStream(file))
+        {
             byte[] b = new byte[1024];
             int length;
             while ((length = fis.read(b)) > 0)
@@ -54,14 +52,9 @@ public class FileUtils
                 os.write(b, 0, length);
             }
         }
-        catch (IOException e)
-        {
-            throw e;
-        }
         finally
         {
             IOUtils.close(os);
-            IOUtils.close(fis);
         }
     }
 

@@ -56,7 +56,11 @@ public class Md5Utils
     {
         try
         {
-            return new String(toHex(md5(s)).getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+            String hex = toHex(md5(s));
+            if (hex == null) {
+                return s;
+            }
+            return new String(hex.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
         }
         catch (Exception e)
         {

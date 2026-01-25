@@ -52,7 +52,7 @@ class BlogTagControllerTest {
         // 模拟数据
         List<com.ruoyi.system.domain.BlogTag> tagList = new ArrayList<>();
         com.ruoyi.system.domain.BlogTag tag = new com.ruoyi.system.domain.BlogTag();
-        tag.setTagId(1L);
+        tag.setId(1L);
         tag.setName("测试标签");
         tagList.add(tag);
 
@@ -64,7 +64,7 @@ class BlogTagControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.rows[0].tagName").value("测试标签"));
+                .andExpect(jsonPath("$.rows[0].name").value("测试标签"));
 
         verify(blogTagService).selectBlogTagList(any(com.ruoyi.system.domain.BlogTag.class));
     }
@@ -76,7 +76,7 @@ class BlogTagControllerTest {
     void testGetTagDetail() throws Exception {
         // 模拟数据
         com.ruoyi.system.domain.BlogTag tag = new com.ruoyi.system.domain.BlogTag();
-        tag.setTagId(1L);
+        tag.setId(1L);
         tag.setName("测试标签");
 
         when(blogTagService.selectBlogTagById(1L)).thenReturn(tag);
@@ -86,7 +86,7 @@ class BlogTagControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data.tagName").value("测试标签"));
+                .andExpect(jsonPath("$.data.name").value("测试标签"));
 
         verify(blogTagService).selectBlogTagById(1L);
     }
@@ -104,8 +104,8 @@ class BlogTagControllerTest {
 
         // 准备请求体
         Map<String, Object> params = new HashMap<>();
-        params.put("tagName", "测试标签");
-        params.put("tagColor", "#ff0000");
+        params.put("name", "测试标签");
+        params.put("color", "#ff0000");
 
         // 执行测试
         mockMvc.perform(post("/system/tag")
@@ -128,7 +128,7 @@ class BlogTagControllerTest {
 
         // 准备请求体
         Map<String, Object> params = new HashMap<>();
-        params.put("tagName", "测试标签");
+        params.put("name", "测试标签");
 
         // 执行测试
         mockMvc.perform(post("/system/tag")
@@ -153,8 +153,8 @@ class BlogTagControllerTest {
 
         // 准备请求体
         Map<String, Object> params = new HashMap<>();
-        params.put("tagId", 1L);
-        params.put("tagName", "修改后的标签");
+        params.put("id", 1L);
+        params.put("name", "修改后的标签");
 
         // 执行测试
         mockMvc.perform(put("/system/tag")
@@ -209,7 +209,7 @@ class BlogTagControllerTest {
         // 模拟数据
         List<com.ruoyi.system.domain.BlogTag> tagList = new ArrayList<>();
         com.ruoyi.system.domain.BlogTag tag = new com.ruoyi.system.domain.BlogTag();
-        tag.setTagId(1L);
+        tag.setId(1L);
         tag.setName("测试标签");
         tagList.add(tag);
 
@@ -220,7 +220,7 @@ class BlogTagControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.data[0].tagName").value("测试标签"));
+                .andExpect(jsonPath("$.data[0].name").value("测试标签"));
 
         verify(blogTagService).selectAllTagList();
     }

@@ -42,13 +42,11 @@ public class BlogFrontSettingController extends BaseController {
      * 博客配置键常量
      */
     private static final String[] BLOG_CONFIG_KEYS = {
-        "blog_name", "blog_desc", "blog_author", "blog_email", "blog_url", "blog_start_time",
-        "blog_avatar", "blog_signature", "blog_keywords", "blog_copyright", "blog_beian",
-        "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",
-        "theme_color", "header_background", "sidebar_style",
+        "blog_name", "blog_desc", "blog_author", "blog_email",
+        "blog_avatar", "blog_copyright", "blog_beian",
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
-        "page_size", "hot_article_count", "recent_comment_count", "greeting_message", "about_content",
+        "about_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
     };
 
@@ -166,13 +164,16 @@ public class BlogFrontSettingController extends BaseController {
             case "blog_avatar":
                 settings.put(configKey, "");
                 break;
+            case "blog_copyright":
+                settings.put(configKey, "");
+                break;
+            case "blog_beian":
+                settings.put(configKey, "");
+                break;
             case "author_title":
                 settings.put(configKey, "全栈开发工程师");
                 break;
             case "blog_email":
-                settings.put(configKey, "");
-                break;
-            case "blog_url":
                 settings.put(configKey, "");
                 break;
             case "github_url":
@@ -189,18 +190,6 @@ public class BlogFrontSettingController extends BaseController {
                 break;
             case "wechat_qr":
                 settings.put(configKey, "");
-                break;
-            case "theme_color":
-                settings.put(configKey, "#409eff");
-                break;
-            case "page_size":
-                settings.put(configKey, "10");
-                break;
-            case "hot_article_count":
-                settings.put(configKey, "5");
-                break;
-            case "recent_comment_count":
-                settings.put(configKey, "5");
                 break;
             case "comment_enabled":
                 settings.put(configKey, "true");

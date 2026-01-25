@@ -219,20 +219,20 @@ public class SysMenuServiceImpl implements ISysMenuService
                     router.setChildren(childrenList);
                 }
                 // 如果有子菜单，设置 children
-                if (StringUtils.isNotEmpty(cMenus)) {
+                if (cMenus != null && !cMenus.isEmpty()) {
                     log.info("buildMenus - Setting children for menu: {}, children count: {}", menu.getMenuName(), cMenus.size());
                     router.setChildren(buildMenus(cMenus));
                 } else {
                     log.warn("buildMenus - No children found for menu: {}", menu.getMenuName());
                 }
             }
-            else if (StringUtils.isNotEmpty(cMenus) && UserConstants.TYPE_MENU.equals(menu.getMenuType()))
+            else if (cMenus != null && !cMenus.isEmpty() && UserConstants.TYPE_MENU.equals(menu.getMenuType()))
             {
                 router.setAlwaysShow(true);
                 router.setRedirect("noRedirect");
                 router.setChildren(buildMenus(cMenus));
             }
-            else if (StringUtils.isNotEmpty(cMenus) && menu.getParentId() != 0 && isMenuFrame(menu))
+            else if (cMenus != null && !cMenus.isEmpty() && menu.getParentId() != 0 && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
                 router.setRedirect("noRedirect");

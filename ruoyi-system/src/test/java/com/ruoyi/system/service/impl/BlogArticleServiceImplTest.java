@@ -776,7 +776,7 @@ class BlogArticleServiceImplTest {
         // 准备数据
         BlogTag tag = new BlogTag();
         tag.setId(1L);
-        tag.setTagName("测试标签");
+        tag.setName("测试标签");
 
         List<BlogArticle> articleList = Arrays.asList(testArticle);
 
@@ -816,7 +816,7 @@ class BlogArticleServiceImplTest {
         // 准备数据
         BlogTag tag = new BlogTag();
         tag.setId(1L);
-        tag.setTagName("测试标签");
+        tag.setName("测试标签");
         List<BlogTag> tagList = Arrays.asList(tag);
 
         when(blogArticleMapper.selectBlogArticleById(1L)).thenReturn(testArticle);
@@ -829,7 +829,7 @@ class BlogArticleServiceImplTest {
         assertNotNull(result);
         assertNotNull(result.getTags());
         assertEquals(1, result.getTags().size());
-        assertEquals("测试标签", result.getTags().get(0).getTagName());
+        assertEquals("测试标签", result.getTags().get(0).getName());
         verify(blogArticleMapper).selectBlogArticleById(1L);
         verify(blogTagMapper).selectTagsByArticleId(1L);
     }

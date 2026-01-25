@@ -238,7 +238,9 @@ public class LogAspect
             Collection collection = (Collection) o;
             for (Object value : collection)
             {
-                return value instanceof MultipartFile;
+                if (value instanceof MultipartFile) {
+                    return true;
+                }
             }
         }
         else if (Map.class.isAssignableFrom(clazz))
@@ -247,7 +249,9 @@ public class LogAspect
             for (Object value : map.entrySet())
             {
                 Map.Entry entry = (Map.Entry) value;
-                return entry.getValue() instanceof MultipartFile;
+                if (entry.getValue() instanceof MultipartFile) {
+                    return true;
+                }
             }
         }
         return o instanceof MultipartFile || o instanceof HttpServletRequest || o instanceof HttpServletResponse
