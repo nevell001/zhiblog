@@ -42,6 +42,13 @@ public class BlogArticleController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BlogArticleController.class);
 
+    /**
+     * 错误消息常量
+     */
+    private static final String MSG_SELECT_ARTICLES_TO_UPDATE = "请选择要更新的文章";
+    private static final String PARAM_IS_TOP = "isTop";
+    private static final String PARAM_IS_RECOMMEND = "isRecommend";
+
     @Autowired
     private IBlogArticleService blogArticleService;
 
@@ -192,7 +199,7 @@ public class BlogArticleController extends BaseController
         Integer status = (Integer) params.get("status");
 
         if (ids == null || ids.isEmpty()) {
-            return error("请选择要更新的文章");
+            return error(MSG_SELECT_ARTICLES_TO_UPDATE);
         }
 
         int result = blogArticleService.updateArticleStatus(ids, status);
@@ -209,10 +216,10 @@ public class BlogArticleController extends BaseController
     {
         @SuppressWarnings("unchecked")
         List<Long> ids = (List<Long>) params.get("ids");
-        Integer isTop = (Integer) params.get("isTop");
+        Integer isTop = (Integer) params.get(PARAM_IS_TOP);
 
         if (ids == null || ids.isEmpty()) {
-            return error("请选择要更新的文章");
+            return error(MSG_SELECT_ARTICLES_TO_UPDATE);
         }
 
         int result = blogArticleService.updateArticleTopStatus(ids, isTop);
@@ -229,10 +236,10 @@ public class BlogArticleController extends BaseController
     {
         @SuppressWarnings("unchecked")
         List<Long> ids = (List<Long>) params.get("ids");
-        Integer isRecommend = (Integer) params.get("isRecommend");
+        Integer isRecommend = (Integer) params.get(PARAM_IS_RECOMMEND);
 
         if (ids == null || ids.isEmpty()) {
-            return error("请选择要更新的文章");
+            return error(MSG_SELECT_ARTICLES_TO_UPDATE);
         }
 
         int result = blogArticleService.updateArticleRecommendStatus(ids, isRecommend);
@@ -312,11 +319,11 @@ public class BlogArticleController extends BaseController
         if (params.get("status") != null) {
             article.setStatus(Long.valueOf(params.get("status").toString()));
         }
-        if (params.get("isTop") != null) {
-            article.setIsTop(Long.valueOf(params.get("isTop").toString()));
+        if (params.get(PARAM_IS_TOP) != null) {
+            article.setIsTop(Long.valueOf(params.get(PARAM_IS_TOP).toString()));
         }
-        if (params.get("isRecommend") != null) {
-            article.setIsRecommend(Long.valueOf(params.get("isRecommend").toString()));
+        if (params.get(PARAM_IS_RECOMMEND) != null) {
+            article.setIsRecommend(Long.valueOf(params.get(PARAM_IS_RECOMMEND).toString()));
         }
         if (params.get("authorId") != null) {
             article.setAuthorId(Long.valueOf(params.get("authorId").toString()));

@@ -15,6 +15,11 @@ import static com.google.code.kaptcha.Constants.*;
 @Configuration
 public class CaptchaConfig
 {
+    /**
+     * 验证码背景颜色（浅灰色）
+     */
+    private static final String CAPTCHA_BACKGROUND_COLOR = "245,245,245";
+
     @Bean(name = "captchaProducer")
     public DefaultKaptcha getKaptchaBean()
     {
@@ -41,8 +46,8 @@ public class CaptchaConfig
         // 验证码文本字体样式 使用更清晰的字体
         properties.setProperty(KAPTCHA_TEXTPRODUCER_FONT_NAMES, "Arial,Courier New,Verdana");
         // 验证码背景颜色 使用浅色背景，提高对比度
-        properties.setProperty(KAPTCHA_BACKGROUND_CLR_FROM, "245,245,245");
-        properties.setProperty(KAPTCHA_BACKGROUND_CLR_TO, "245,245,245");
+        properties.setProperty(KAPTCHA_BACKGROUND_CLR_FROM, CAPTCHA_BACKGROUND_COLOR);
+        properties.setProperty(KAPTCHA_BACKGROUND_CLR_TO, CAPTCHA_BACKGROUND_COLOR);
         // 验证码噪点颜色 使用浅灰色，适度干扰
         properties.setProperty(KAPTCHA_NOISE_COLOR, "220,220,220");
         // 干扰实现类 使用默认噪点，增加OCR识别难度
@@ -82,8 +87,8 @@ public class CaptchaConfig
         // 验证码文本字体样式 使用更清晰的字体
         properties.setProperty(KAPTCHA_TEXTPRODUCER_FONT_NAMES, "Arial,Courier New,Verdana");
         // 验证码背景颜色 使用浅色背景，提高对比度
-        properties.setProperty(KAPTCHA_BACKGROUND_CLR_FROM, "245,245,245");
-        properties.setProperty(KAPTCHA_BACKGROUND_CLR_TO, "245,245,245");
+        properties.setProperty(KAPTCHA_BACKGROUND_CLR_FROM, CAPTCHA_BACKGROUND_COLOR);
+        properties.setProperty(KAPTCHA_BACKGROUND_CLR_TO, CAPTCHA_BACKGROUND_COLOR);
         // 验证码噪点颜色 使用浅灰色，适度干扰
         properties.setProperty(KAPTCHA_NOISE_COLOR, "220,220,220");
         // 干扰实现类 使用默认噪点，增加OCR识别难度

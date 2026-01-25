@@ -146,7 +146,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     /**
      * 新增博客文章
-     * 
+     *
      * @param blogArticle 博客文章
      * @return 结果
      */
@@ -154,10 +154,38 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Transactional
     public int insertBlogArticle(BlogArticle blogArticle)
     {
+        validateArticleContent(blogArticle);
+        String title = validateArticleTitle(blogArticle.getTitle());
+        blogArticle.setTitle(title);
+        blogArticle.setCreateTime(DateUtils.getNowDate());
+        blogArticle.setAuthorId(com.ruoyi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
+        setDefaultValues(blogArticle);
+        
+        try {
+            int result = blogArticleMapper.insertBlogArticle(blogArticle);
+            processTagAssociations(blogArticle);
+            return result;
+        } catch (Exception e) {
+            handleInsertException(e);
+            throw e;
+        }
+    }
+
+    /**
+     * 验证文章内容
+     */
+    private void validateArticleContent(BlogArticle blogArticle)
+    {
         if (blogArticle.getContent() == null || blogArticle.getContent().trim().isEmpty()) {
             throw new IllegalArgumentException("文章内容不能为空");
         }
-        String title = blogArticle.getTitle();
+    }
+
+    /**
+     * 验证文章标题
+     */
+    private String validateArticleTitle(String title)
+    {
         if (title == null || title.trim().isEmpty()) {
             throw new IllegalArgumentException("文章标题不能为空");
         }
@@ -166,15 +194,17 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         if (exist != null) {
             throw new IllegalArgumentException("文章标题已存在");
         }
-        blogArticle.setTitle(title);
-        blogArticle.setCreateTime(DateUtils.getNowDate());
-        // 新增时自动设置作者ID
-        blogArticle.setAuthorId(com.ruoyi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
-        // 确保delFlag有默认值
+        return title;
+    }
+
+    /**
+     * 设置默认值
+     */
+    private void setDefaultValues(BlogArticle blogArticle)
+    {
         if (blogArticle.getDelFlag() == null) {
             blogArticle.setDelFlag(0L);
         }
-        // 设置默认值
         if (blogArticle.getViewCount() == null) {
             blogArticle.setViewCount(0L);
         }
@@ -184,37 +214,56 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         if (blogArticle.getCommentCount() == null) {
             blogArticle.setCommentCount(0L);
         }
-        try {
-            int result = blogArticleMapper.insertBlogArticle(blogArticle);
-            
-            // 处理标签关联
-            if (blogArticle.getTagIds() != null && !blogArticle.getTagIds().isEmpty()) {
-                for (Object tagIdObj : blogArticle.getTagIds()) {
-                    Long tagId = null;
-                    if (tagIdObj instanceof Long) {
-                        tagId = (Long) tagIdObj;
-                    } else if (tagIdObj instanceof Integer) {
-                        tagId = ((Integer) tagIdObj).longValue();
-                    } else if (tagIdObj instanceof String) {
-                        tagId = Long.parseLong((String) tagIdObj);
-                    }
-                    
-                    if (tagId != null) {
-                        BlogArticleTag articleTag = new BlogArticleTag();
-                        articleTag.setArticleId(blogArticle.getId());
-                        articleTag.setTagId(tagId);
-                        blogArticleTagMapper.insertBlogArticleTag(articleTag);
-                    }
-                }
+    }
+
+    /**
+     * 处理标签关联
+     */
+    private void processTagAssociations(BlogArticle blogArticle)
+    {
+        if (blogArticle.getTagIds() == null || blogArticle.getTagIds().isEmpty()) {
+            return;
+        }
+        
+        for (Object tagIdObj : blogArticle.getTagIds()) {
+            Long tagId = convertToLong(tagIdObj);
+            if (tagId != null) {
+                BlogArticleTag articleTag = new BlogArticleTag();
+                articleTag.setArticleId(blogArticle.getId());
+                articleTag.setTagId(tagId);
+                blogArticleTagMapper.insertBlogArticleTag(articleTag);
             }
-            
-            return result;
-        } catch (Exception e) {
-            // 检查是否为数据库唯一索引冲突
-            if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
-                throw new DuplicateArticleTitleException("文章标题已存在");
+        }
+    }
+
+    /**
+     * 将对象转换为 Long 类型
+     */
+    private Long convertToLong(Object obj)
+    {
+        if (obj instanceof Long) {
+            return (Long) obj;
+        }
+        if (obj instanceof Integer) {
+            return ((Integer) obj).longValue();
+        }
+        if (obj instanceof String) {
+            try {
+                return Long.parseLong((String) obj);
+            } catch (NumberFormatException e) {
+                return null;
             }
-            throw e;
+        }
+        return null;
+    }
+
+    /**
+     * 处理插入异常
+     */
+    private void handleInsertException(Exception e)
+    {
+        if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
+            throw new DuplicateArticleTitleException("文章标题已存在");
         }
     }
 

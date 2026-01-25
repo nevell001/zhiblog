@@ -20,6 +20,12 @@ public class SecurityConfigValidator
     private static final Logger log = LoggerFactory.getLogger(SecurityConfigValidator.class);
 
     /**
+     * 生成密钥命令常量
+     */
+    private static final String GENERATE_CMD_64 = "   生成命令：openssl rand -base64 64";
+    private static final String GENERATE_CMD_32 = "   生成命令：openssl rand -base64 32";
+
+    /**
      * JWT密钥
      */
     @Value("${token.secret:}")
@@ -74,112 +80,139 @@ public class SecurityConfigValidator
         }
 
         boolean isProduction = isProductionEnvironment();
-        boolean hasErrors = false;
-
         log.info("🔒 开始验证安全配置...");
         log.info("📍 当前环境: {}", activeProfile);
 
-        // 验证JWT密钥
+        boolean hasErrors = false;
+        hasErrors |= validateTokenSecret(isProduction);
+        hasErrors |= validateDruidPassword(isProduction);
+        hasErrors |= validateRedisPassword(isProduction);
+        hasErrors |= validateDatabasePassword(isProduction);
+
+        log.info("🔒 安全配置验证完成");
+
+        if (isProduction && hasErrors)
+        {
+            String errorMsg = "生产环境安全配置验证失败！应用启动已阻止。请检查上述错误并设置正确的环境变量。";
+            log.error("🛑 {}", errorMsg);
+            throw new SecurityConfigValidationException(errorMsg);
+        }
+    }
+
+    /**
+     * 验证JWT密钥
+     */
+    private boolean validateTokenSecret(boolean isProduction)
+    {
         if (tokenSecret == null || tokenSecret.trim().isEmpty() || "#{null}".equals(tokenSecret))
         {
             if (isProduction)
             {
                 log.error("❌ 安全错误：JWT密钥未设置！");
                 log.error("   解决方法：设置环境变量 R_TOKEN_SECRET");
-                log.error("   生成命令：openssl rand -base64 64");
-                hasErrors = true;
+                log.error(GENERATE_CMD_64);
+                return true;
             }
             else
             {
                 log.warn("⚠️  JWT密钥未设置（开发环境）");
                 log.warn("   建议设置环境变量 R_TOKEN_SECRET");
-                log.warn("   生成命令：openssl rand -base64 64");
+                log.warn(GENERATE_CMD_64);
+                return false;
             }
         }
         else if (tokenSecret.length() < 64)
         {
             log.warn("⚠️  JWT密钥长度不足（当前：{} 字符，建议至少 64 字符）", tokenSecret.length());
-            if (isProduction)
-            {
-                hasErrors = true;
-            }
+            return isProduction;
         }
         else
         {
             log.info("✅ JWT密钥：已设置且长度符合要求（{} 字符）", tokenSecret.length());
+            return false;
         }
+    }
 
-        // 验证Druid监控密码
+    /**
+     * 验证Druid监控密码
+     */
+    private boolean validateDruidPassword(boolean isProduction)
+    {
         if (druidPassword == null || druidPassword.trim().isEmpty())
         {
             if (isProduction)
             {
                 log.error("❌ 安全错误：Druid监控密码未设置！");
                 log.error("   解决方法：设置环境变量 DRUID_PASSWORD");
-                log.error("   生成命令：openssl rand -base64 32");
-                hasErrors = true;
+                log.error(GENERATE_CMD_32);
+                return true;
             }
             else
             {
                 log.warn("⚠️  Druid监控密码未设置（开发环境）");
                 log.warn("   建议设置环境变量 DRUID_PASSWORD");
-                log.warn("   生成命令：openssl rand -base64 32");
+                log.warn(GENERATE_CMD_32);
+                return false;
             }
         }
         else
         {
             log.info("✅ Druid监控密码：已设置");
+            return false;
         }
+    }
 
-        // 验证Redis密码
+    /**
+     * 验证Redis密码
+     */
+    private boolean validateRedisPassword(boolean isProduction)
+    {
         if (redisPassword == null || redisPassword.trim().isEmpty())
         {
             if (isProduction)
             {
                 log.error("❌ 安全错误：Redis密码未设置！");
                 log.error("   解决方法：设置环境变量 REDIS_PASSWORD");
-                log.error("   生成命令：openssl rand -base64 32");
-                hasErrors = true;
+                log.error(GENERATE_CMD_32);
+                return true;
             }
             else
             {
                 log.warn("⚠️  Redis密码未设置（开发环境）");
                 log.warn("   建议设置环境变量 REDIS_PASSWORD");
-                log.warn("   生成命令：openssl rand -base64 32");
+                log.warn(GENERATE_CMD_32);
+                return false;
             }
         }
         else
         {
             log.info("✅ Redis密码：已设置");
+            return false;
         }
+    }
 
-        // 验证数据库密码（不检查具体值，只确保不是明显的不安全值）
+    /**
+     * 验证数据库密码
+     */
+    private boolean validateDatabasePassword(boolean isProduction)
+    {
         if (dbPassword == null || dbPassword.trim().isEmpty())
         {
             log.error("❌ 数据库密码未设置！");
             log.error("   解决方法：设置环境变量 DB_PASSWORD");
-            hasErrors = true;
+            return true;
         }
         else if (isProduction && isInsecurePassword(dbPassword))
         {
             log.error("❌ 安全错误：数据库密码使用了不安全的默认值！");
             log.error("   检测到的密码：{}", maskPassword(dbPassword));
             log.error("   解决方法：设置强密码环境变量 DB_PASSWORD");
-            hasErrors = true;
+            return true;
         }
         else
         {
             log.info("✅ 数据库密码：已设置");
-        }
-
-        log.info("🔒 安全配置验证完成");
-
-        // 如果在生产环境中发现严重安全配置问题，则抛出异常阻止应用启动
-        if (isProduction && hasErrors)
-        {
-            String errorMsg = "生产环境安全配置验证失败！应用启动已阻止。请检查上述错误并设置正确的环境变量。";
-            log.error("🛑 {}", errorMsg);
-            throw new SecurityConfigValidationException(errorMsg);
+            return false;
         }
     }
 
@@ -224,10 +257,11 @@ public class SecurityConfigValidator
         {
             return "[empty]";
         }
-        if (password.length() <= 2)
+        int length = password.length();
+        if (length <= 2)
         {
             return "**";
         }
-        return password.substring(0, 2) + "****" + password.substring(password.length() - 1);
+        return password.substring(0, 2) + "****" + password.substring(length - 1);
     }
 }
