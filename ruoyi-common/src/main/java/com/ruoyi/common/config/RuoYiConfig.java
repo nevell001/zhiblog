@@ -1,6 +1,6 @@
 package com.ruoyi.common.config;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -9,16 +9,18 @@ import org.springframework.stereotype.Component;
  * @author ruoyi
  */
 @Component
-@ConfigurationProperties(prefix = "ruoyi")
 public class RuoYiConfig
 {
     /** 项目名称 */
+    @Value("${ruoyi.name:RuoYi}")
     private String name;
 
     /** 版本 */
+    @Value("${ruoyi.version:1.2.9}")
     private String version;
 
     /** 版权年份 */
+    @Value("${ruoyi.copyrightYear:2026}")
     private String copyrightYear;
 
     /** 上传路径 */
@@ -28,7 +30,8 @@ public class RuoYiConfig
     private static boolean addressEnabled;
 
     /** 验证码类型 */
-    private static String captchaType;
+    @Value("${ruoyi.captchaType:math}")
+    private String captchaType;
 
     public String getName()
     {
@@ -80,12 +83,12 @@ public class RuoYiConfig
         RuoYiConfig.addressEnabled = addressEnabled;
     }
 
-    public static String getCaptchaType() {
+    public String getCaptchaType() {
         return captchaType;
     }
 
     public void setCaptchaType(String captchaType) {
-        RuoYiConfig.captchaType = captchaType;
+        this.captchaType = captchaType;
     }
 
     /**

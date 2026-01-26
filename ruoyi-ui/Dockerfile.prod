@@ -1,19 +1,49 @@
-# 构建阶段
-FROM node:22-slim AS build
+# 构建阶段 - 使用 Alpine 基础镜像
+FROM node:22-alpine AS build
+
 WORKDIR /app
+
+# 复制 package.json 并安装依赖
 COPY package*.json ./
+
+# 安装依赖并清理缓存
 RUN npm config set registry https://registry.npmmirror.com \
-    && npm install --legacy-peer-deps --force
+    && npm install --legacy-peer-deps --force \
+    && npm cache clean --force
+
+# 复制源代码
 COPY . .
+
+# 构建参数
 ARG VITE_APP_TITLE=博客管理系统
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
-RUN npm run build:prod
 
-# 生产阶段
+# 构建生产版本
+RUN npm run build:prod \
+    && rm -rf node_modules package*.json
+
+# 生产阶段 - 使用优化的 nginx:alpine
 FROM nginx:alpine
+
 # 安装 curl 用于健康检查
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl \
+    && rm -rf /var/cache/apk/*
+
+# 复制构建产物
 COPY --from=build /app/dist /usr/share/nginx/html
-# 注意：nginx.conf 会在 docker-compose 中挂载，这里不复制
+
+# 创建必要的目录
+RUN mkdir -p /var/cache/nginx \
+    && mkdir -p /var/log/nginx \
+    && mkdir -p /tmp/nginx \
+    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx /tmp/nginx
+
+# 暴露端口
 EXPOSE 80
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+# 启动 nginx
 CMD ["nginx", "-g", "daemon off;"]

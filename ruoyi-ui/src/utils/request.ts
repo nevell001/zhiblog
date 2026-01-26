@@ -6,7 +6,7 @@ import axios, {
 } from 'axios'
 import type { BlobPart } from 'node:buffer'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-import { getToken } from '@/utils/auth'
+import { getToken, getBlogToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
@@ -43,8 +43,10 @@ service.interceptors.request.use(
     const isToken = (config.headers as any)?.isToken === false
     // 是否需要防止数据重复提交
     const isRepeatSubmit = (config.headers as any)?.repeatSubmit === false
-    if (getToken() && !isToken) {
-      ;(config.headers as any).Authorization = 'Bearer ' + getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+    // 优先使用管理员token，如果没有则尝试博客用户token
+    const token = getToken() || getBlogToken()
+    if (token && !isToken) {
+      ;(config.headers as any).Authorization = 'Bearer ' + token // 让每个请求携带自定义token 请根据实际情况自行修改
     }
     // get请求映射params参数
     if (config.method === 'get' && config.params) {

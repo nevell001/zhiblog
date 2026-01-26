@@ -98,7 +98,7 @@ spring:
           # 控制台管理用户名和密码（从环境变量读取）
           # 安全警告：生产环境必须设置 DRUID_USERNAME 和 DRUID_PASSWORD 环境变量！
           # 生成强密码方法：openssl rand -base64 32
-          login-username: ${DRUID_USERNAME:ruoyi}
+          login-username: ${DRUID_USERNAME:nevell}
           login-password: ${DRUID_PASSWORD:#{null}}
         filter:
           stat:
@@ -170,6 +170,40 @@ spring:
       cache-null-values: false
       key-prefix: "blog:"
       use-key-prefix: true
+  # 邮件服务配置
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    protocol: smtp
+    test-connection: false
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: ${MAIL_STARTTLS:true}
+            required: false
+          ssl:
+            enable: ${MAIL_SSL:false}
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+    default-encoding: UTF-8
+
+# 邮件验证码配置
+email-code:
+  # 验证码有效期（分钟）
+  expire-minutes: ${EMAIL_CODE_EXPIRE_MINUTES:5}
+  # 验证码长度
+  code-length: ${EMAIL_CODE_LENGTH:6}
+  # 邮箱发送频率限制（秒）
+  rate-limit-seconds: ${EMAIL_CODE_RATE_LIMIT_SECONDS:60}
+  # IP频率限制（每小时最大发送次数）
+  ip-rate-limit: ${EMAIL_CODE_IP_RATE_LIMIT:10}
+  # 开发环境是否在控制台打印验证码（不发送真实邮件）
+  dev-print-code: ${EMAIL_DEV_PRINT_CODE:true}
 
 # token配置
 token:

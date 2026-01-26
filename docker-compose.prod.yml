@@ -8,17 +8,6 @@ services:
       context: .
       dockerfile: Dockerfile-admin
     container_name: ruoyi-admin
-    working_dir: /app
-    command:
-      - sh
-      - -c
-      - |
-        ln -snf /usr/share/zoneinfo/$TZ /etc/localtime
-        echo $TZ > /etc/timezone
-        for i in {1..60}; do
-          curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
-        done
-        java -jar /app/ruoyi-admin.jar --spring.redis.host=redis --spring.redis.port=6379
     ports:
       - "8080:8080"
     volumes:
@@ -50,9 +39,12 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       R_TOKEN_SECRET: ${R_TOKEN_SECRET}
-      DRUID_USERNAME: ${DRUID_USERNAME:-ruoyi}
+      DRUID_USERNAME: ${DRUID_USERNAME:-nevell}
       DRUID_PASSWORD: ${DRUID_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
+      # 直接设置 Spring Boot 配置属性
+      SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_USERNAME: ${DRUID_USERNAME:-ruoyi}
+      SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_PASSWORD: ${DRUID_PASSWORD}
     networks:
       - ruoyi-network
     restart: unless-stopped
@@ -67,6 +59,13 @@ services:
     image: mysql:8.4
     container_name: mysql
     restart: always
+    # 优化 MySQL 配置
+    command: >
+      --mysql_native_password=ON
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --max_connections=200
+      --innodb_buffer_pool_size=256M
     env_file:
       - .env
     environment:
@@ -98,15 +97,15 @@ services:
       - ruoyi-network
 
   redis:
-    image: redis:6.2
+    image: redis:7.2-alpine
     container_name: redis
     restart: always
     command: >
       sh -c '
         if [ -n "${REDIS_PASSWORD:-}" ]; then
-          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes
+          redis-server --requirepass "${REDIS_PASSWORD}" --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         else
-          redis-server --appendonly yes
+          redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
         fi
       '
     ports:
@@ -177,7 +176,7 @@ services:
       start_period: 30s
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.54.1
     container_name: prometheus
     restart: always
     ports:
@@ -203,7 +202,7 @@ services:
           cpus: '0.25'
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.3.1
     container_name: grafana
     restart: always
     env_file:

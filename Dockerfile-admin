@@ -1,29 +1,52 @@
-FROM maven:3.8.8-eclipse-temurin-17 AS builder
+# 构建阶段 - 使用更小的 Alpine 基础镜像
+FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
 
 WORKDIR /app
+
+# 复制 pom.xml 并下载依赖（利用 Docker 缓存）
+COPY pom.xml .
+COPY ruoyi-common/pom.xml ruoyi-common/
+COPY ruoyi-framework/pom.xml ruoyi-framework/
+COPY ruoyi-system/pom.xml ruoyi-system/
+COPY ruoyi-quartz/pom.xml ruoyi-quartz/
+COPY ruoyi-generator/pom.xml ruoyi-generator/
+COPY ruoyi-admin/pom.xml ruoyi-admin/
+
+# 下载依赖到本地仓库
+RUN mvn dependency:go-offline -B
+
+# 复制源代码
 COPY . .
 
-# 先安装依赖模块到本地仓库
-RUN mvn clean install -Dmaven.test.skip=true -pl ruoyi-common,ruoyi-framework,ruoyi-system,ruoyi-quartz,ruoyi-generator -am
+# 编译项目并清理 Maven 缓存
+RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true \
+    && rm -rf /root/.m2/repository
 
-# 再编译主模块
-RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true
-
-FROM eclipse-temurin:17-jre
+# 运行阶段 - 使用 Alpine JRE 镜像
+FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# 安装必要的工具（用于健康检查）
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# 安装 curl 并清理缓存
+RUN apk add --no-cache curl \
+    && rm -rf /var/cache/apk/*
 
-# 复制编译好的JAR包
+# 复制编译好的 JAR 包
 COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
 
 # 创建上传目录
-RUN mkdir -p /app/uploadPath && chmod 755 /app/uploadPath
+RUN mkdir -p /app/uploadPath \
+    && chmod 755 /app/uploadPath
 
 # 设置时区
 ENV TZ=Asia/Shanghai
 
 # 启动命令 - 使用 curl 等待 MySQL 就绪，并配置 Redis 连接
-CMD sh -c "ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && for i in {1..60}; do curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2; done && SPRING_REDIS_HOST=${SPRING_REDIS_HOST:-redis} SPRING_REDIS_PORT=${SPRING_REDIS_PORT:-6379} java -jar /app/ruoyi-admin.jar"
+CMD sh -c "apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && for i in {1..60}; do \
+        curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break \
+        || echo 'waiting mysql...' && sleep 2; \
+    done \
+    && exec java -jar /app/ruoyi-admin.jar"

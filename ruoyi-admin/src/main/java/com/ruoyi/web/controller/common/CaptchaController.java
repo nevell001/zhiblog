@@ -39,6 +39,9 @@ public class CaptchaController
     
     @Autowired
     private ISysConfigService configService;
+    
+    @Autowired
+    private RuoYiConfig ruoyiConfig;
     /**
      * 生成验证码
      */
@@ -73,7 +76,7 @@ public class CaptchaController
         BufferedImage image = null;
 
         // 生成验证码
-        String captchaType = RuoYiConfig.getCaptchaType();
+        String captchaType = ruoyiConfig.getCaptchaType();
         if ("math".equals(captchaType))
         {
             String capText = captchaProducerMath.createText();

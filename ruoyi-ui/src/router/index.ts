@@ -32,7 +32,7 @@ const routes: ExtendedRouteRecordRaw[] = [
   },
   {
     path: '/login',
-    component: () => import('@/views/login.vue')
+    component: () => import('@/views/UnifiedLogin.vue')
   },
   {
     path: '/index',

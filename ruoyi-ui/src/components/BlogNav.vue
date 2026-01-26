@@ -49,6 +49,42 @@
 
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
+      <!-- 用户信息（已登录） -->
+      <el-dropdown v-if="blogUserStore.isLogin" trigger="click" @command="handleUserCommand">
+        <div class="user-info">
+          <el-avatar :size="36" :src="blogUserStore.avatar">
+            <el-icon><UserFilled /></el-icon>
+          </el-avatar>
+          <span class="username">{{ blogUserStore.name }}</span>
+          <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+        </div>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item disabled>
+              <div class="user-email">{{ blogUserStore.email }}</div>
+            </el-dropdown-item>
+            <el-dropdown-item divided command="profile">
+              <el-icon><User /></el-icon>
+              个人中心
+            </el-dropdown-item>
+            <el-dropdown-item command="logout">
+              <el-icon><SwitchButton /></el-icon>
+              退出登录
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
+      <!-- 登录/注册按钮（未登录） -->
+      <div v-else class="auth-buttons">
+        <el-button size="small" link @click="goToLogin">
+          登录
+        </el-button>
+        <el-button size="small" type="primary" @click="goToRegister">
+          注册
+        </el-button>
+      </div>
+
       <el-button
         link
         class="theme-toggle"
@@ -83,7 +119,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { getFilteredMenus } from '@/config/menu'
+import { useBlogUserStore } from '@/stores/blogUser'
 import {
   Setting,
   Sunny,
@@ -94,8 +133,15 @@ import {
   PriceTag,
   Calendar,
   InfoFilled,
-  Document
+  Document,
+  UserFilled,
+  ArrowDown,
+  User,
+  SwitchButton
 } from '@element-plus/icons-vue'
+
+const router = useRouter()
+const blogUserStore = useBlogUserStore()
 
 // 主题状态
 const isDarkTheme = ref(false)
@@ -142,6 +188,39 @@ const scrollToTop = () => {
 const goToAdmin = () => {
   closeMobileMenu()
   window.location.href = '/login?redirect=/admin'
+}
+
+// 跳转到统一登录页
+const goToLogin = () => {
+  router.push('/login')
+}
+
+// 跳转到注册页（博客用户注册）
+const goToRegister = () => {
+  router.push('/blog/auth/register')
+}
+
+// 处理用户下拉菜单命令
+const handleUserCommand = async (command: string) => {
+  switch (command) {
+    case 'profile':
+      ElMessage.info('个人中心功能开发中...')
+      break
+    case 'logout':
+      try {
+        await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        await blogUserStore.logOut()
+        ElMessage.success('已退出登录')
+        router.push('/blog')
+      } catch (error) {
+        // 用户取消操作
+      }
+      break
+  }
 }
 
 // 切换移动端菜单
@@ -299,6 +378,59 @@ onUnmounted(() => {
 }
 
 .nav-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info:hover {
+  background: #409eff;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.3);
+}
+
+.user-info .username {
+  font-size: 0.9rem;
+  font-weight: 500;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-info .dropdown-icon {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.user-info:hover .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+.user-email {
+  font-size: 12px;
+  color: #999;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-buttons {
   display: flex;
   gap: 8px;
 }

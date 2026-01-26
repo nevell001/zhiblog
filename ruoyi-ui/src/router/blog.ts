@@ -51,6 +51,24 @@ export const blogRoutes: RouteRecordRaw[] = [
     name: 'PublicAbout',
     meta: { title: '关于我们' }
   },
+  // 博客用户认证路由
+  {
+    path: '/blog/auth/login',
+    redirect: '/login',
+    meta: { title: '用户登录' }
+  },
+  {
+    path: '/blog/auth/register',
+    component: () => import('@/views/blog/auth/Register.vue'),
+    name: 'BlogRegister',
+    meta: { title: '用户注册' }
+  },
+  {
+    path: '/blog/auth/forgot-password',
+    component: () => import('@/views/blog/auth/ForgotPassword.vue'),
+    name: 'BlogForgotPassword',
+    meta: { title: '找回密码' }
+  },
   {
     path: '/index',
     component: () => import('@/views/blog/index.vue'),

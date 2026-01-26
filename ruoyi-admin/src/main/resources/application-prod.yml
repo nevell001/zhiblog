@@ -60,8 +60,8 @@ ruoyi:
   copyrightYear: 2026
   # 关闭获取IP地址
   addressEnabled: false
-  # 使用字符验证码
-  captchaType: char
+  # 使用验证码类型 （math,char）
+  captchaType: math
   # 验证码开关（从环境变量读取，默认true）
   captchaEnabled: ${CAPTCHA_ENABLED:true}
 

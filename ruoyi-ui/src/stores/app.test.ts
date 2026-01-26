@@ -163,7 +163,10 @@ describe('App Store 测试', () => {
 
   describe('完整场景测试', () => {
     it('应该支持完整的侧边栏操作流程', () => {
-      // 初始状态：侧边栏打开
+      // 设置初始状态：侧边栏打开
+      appStore.sidebar.opened = true
+
+      // 验证初始状态
       expect(appStore.sidebar.opened).toBe(true)
 
       // 关闭侧边栏
