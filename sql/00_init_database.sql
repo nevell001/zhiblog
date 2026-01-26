@@ -9,7 +9,8 @@
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
 -- ✅ Quartz定时任务表结构 (11个表)
--- ✅ 博客系统表结构和数据 (7个表)
+-- ✅ 博客系统表结构和数据 (8个表：blog_article、blog_category、blog_tag、blog_article_tag、blog_comment、blog_friend_link、blog_setting、blog_email_code)
+-- ✅ 博客用户认证系统（博客用户角色role_id=3、邮箱验证码表）
 -- ✅ 代码生成器表结构 (2个表：gen_table、gen_table_column)
 -- ✅ 性能优化索引 (20+个索引)
 -- ✅ 数据完整性约束和触发器
@@ -28,12 +29,13 @@
 -- - Redis
 --
 -- 📊 数据库统计：
--- - 总表数：41个（包含完整的若依系统表、Quartz表、博客系统表和代码生成器表）
+-- - 总表数：42个（包含完整的若依系统表、Quartz表、博客系统表、博客用户认证表和代码生成器表）
 -- - 总设置项：38个
 -- - 示例文章：6篇
 -- - 示例分类：14个 (含层级结构)
 -- - 示例标签：26个
 -- - 友情链接：10个
+-- - 用户角色：3个（超级管理员、普通角色、博客用户）
 --
 -- ⚠️ 重要提示：
 -- 本脚本已整合所有必要的表结构和数据，完整的数据库初始化只需执行此脚本即可
@@ -203,6 +205,7 @@ CREATE TABLE sys_role (
 -- 初始化-角色信息表数据
 INSERT INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
 INSERT INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
+INSERT INTO sys_role VALUES('3', '博客用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '博客普通用户，用于前台注册登录');
 
 -- 6、菜单权限表
 DROP TABLE IF EXISTS sys_menu;
@@ -718,6 +721,24 @@ CREATE TABLE `blog_setting` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_config_key` (`config_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客系统设置表';
+
+-- 博客邮箱验证码表
+DROP TABLE IF EXISTS `blog_email_code`;
+CREATE TABLE `blog_email_code` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `email` varchar(50) NOT NULL COMMENT '邮箱地址',
+  `code` varchar(6) NOT NULL COMMENT '验证码',
+  `code_type` varchar(20) NOT NULL COMMENT '验证码类型：register=注册, reset=重置密码, bind=绑定邮箱',
+  `expire_time` datetime NOT NULL COMMENT '过期时间',
+  `used` tinyint(1) DEFAULT '0' COMMENT '是否已使用：0=未使用, 1=已使用',
+  `ip_address` varchar(50) DEFAULT NULL COMMENT '请求IP地址',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `use_time` datetime DEFAULT NULL COMMENT '使用时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_email_code` (`email`, `code_type`),
+  KEY `idx_expire_time` (`expire_time`),
+  KEY `idx_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='博客邮箱验证码表';
 
 -- ========== 代码生成器表 ==========
 

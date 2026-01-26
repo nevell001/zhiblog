@@ -386,7 +386,7 @@
           prop="content"
         >
           <editor
-            :key="form.id || 'new'"
+            :key="editorKey"
             v-model="form.content"
             :min-height="192"
           />
@@ -554,6 +554,8 @@ const total = ref(0)
 const title = ref('')
 const categoryOptions = ref([])
 const tagOptions = ref([])
+// 编辑器组件的渲染计数器，用于强制重新渲染
+const editorKey = ref(0)
 
 const data = reactive({
   form: {},
@@ -635,12 +637,14 @@ function cancel() {
 
 // 表单重置
 function reset() {
-  // 强制清空表单对象，使用 nextTick 确保响应式更新
+  // 增加编辑器组件的渲染计数器，强制重新渲染
+  editorKey.value++
+
   form.value = {
     id: null,
     title: '',
     summary: '',
-    content: null, // 使用 null 而不是空字符串，确保编辑器组件能正确响应
+    content: '', // 直接使用空字符串
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
@@ -661,11 +665,6 @@ function reset() {
   if (articleRef.value) {
     articleRef.value.clearValidate()
   }
-
-  // 使用 nextTick 确保 DOM 更新后再设置内容为空
-  nextTick(() => {
-    form.value.content = ''
-  })
 }
 
 /** 搜索按钮操作 */
@@ -696,14 +695,24 @@ function handleSelectionChange(selection) {
 
 /** 新增按钮操作 */
 function handleAdd() {
+  // 如果对话框已经打开，先关闭它
+  if (open.value) {
+    open.value = false
+    // 等待对话框完全关闭后再重新打开
+    setTimeout(() => {
+      openDialog()
+    }, 300)
+  } else {
+    openDialog()
+  }
+}
+
+/** 打开对话框的辅助函数 */
+function openDialog() {
   reset()
+  // reset 函数已经增加了 editorKey，编辑器会重新渲染
   open.value = true
   title.value = '添加博客文章'
-
-  // 使用 nextTick 确保 DOM 更新后再强制清空编辑器内容
-  nextTick(() => {
-    form.value.content = ''
-  })
 }
 
 /** 修改按钮操作 */
@@ -861,20 +870,24 @@ const submitForm = async () => {
         }
 
         // 移除可能引起JSON解析问题的字段
-        if (apiData.id === null || apiData.id === '') {
+        // 判断是否为新增操作：id 为 null 或空字符串
+        const isNew = !form.value.id || form.value.id === ''
+        
+        if (isNew) {
           delete apiData.id // 新增时不需要id
         }
+
         delete apiData.createTime
         delete apiData.updateTime
         delete apiData.delFlag
 
         // 使用现有的API函数
-        if (form.value.id !== null) {
-          await updateArticle(apiData)
-          ElMessage.success('修改成功')
-        } else {
+        if (isNew) {
           await addArticle(apiData)
           ElMessage.success('新增成功')
+        } else {
+          await updateArticle(apiData)
+          ElMessage.success('修改成功')
         }
 
         // 重置表单，清空所有字段

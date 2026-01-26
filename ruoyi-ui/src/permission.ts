@@ -64,8 +64,26 @@ router.beforeEach(
         console.log('✅ 有 token')
         to.meta.title && useSettingsStore().setTitle(to.meta.title as string)
         /* has token*/
-        // 如果访问博客页面，直接放行，不检查roles
+        // 如果访问博客页面，需要获取用户信息但不需要生成路由
         if (to.path.startsWith('/blog')) {
+          const userStore = useUserStore()
+          // 如果用户信息为空，则获取用户信息
+          if (!userStore.name || userStore.roles.length === 0) {
+            console.log('📝 访问博客页面但用户信息为空，开始获取用户信息...')
+            try {
+              await userStore.getInfo()
+              console.log('✅ 获取用户信息成功')
+            } catch (err) {
+              console.error('❌ 获取用户信息失败:', err)
+              // 获取用户信息失败，清除 token 并重定向到登录页
+              userStore.token = ''
+              userStore.roles = []
+              userStore.permissions = []
+              removeToken()
+              next({ path: '/login', replace: true })
+              return
+            }
+          }
           console.log('📝 访问博客页面，直接放行')
           next()
         } else if (to.path === '/login') {

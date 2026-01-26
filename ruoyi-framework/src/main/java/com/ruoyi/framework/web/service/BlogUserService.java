@@ -113,6 +113,7 @@ public class BlogUserService
         blogUser.setPassword(SecurityUtils.encryptPassword(password));
         blogUser.setStatus("0"); // 正常状态
         blogUser.setPwdUpdateDate(DateUtils.getNowDate());
+        blogUser.setUserType(USER_TYPE_BLOG); // 设置为博客用户类型
 
         try
         {

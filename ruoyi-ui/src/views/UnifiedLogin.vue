@@ -80,12 +80,8 @@
 
         <div class="login-footer">
           <div class="footer-links">
-            <router-link to="/register" class="link">
-              管理员注册
-            </router-link>
-            <span class="divider">|</span>
             <router-link to="/blog/auth/register" class="link">
-              博客用户注册
+              用户注册
             </router-link>
             <span class="divider">|</span>
             <router-link to="/blog/auth/forgot-password" class="link">

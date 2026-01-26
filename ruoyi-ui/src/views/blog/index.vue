@@ -170,7 +170,7 @@
               v-model:current-page="currentPage"
               v-model:page-size="pageSize"
               :total="total"
-              :page-sizes="[6, 12, 24, 48]"
+              :page-sizes="[8, 12, 24, 48]"
               layout="total, sizes, prev, pager, next, jumper"
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
@@ -392,7 +392,7 @@ const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const isFeatureEnabled = (feature: string) => blogSettingsStore.isFeatureEnabled(feature)
 const loading = ref(true)
 const currentPage = ref(1)
-const pageSize = ref(6)
+const pageSize = ref(8)
 const total = ref(0)
 const searchKeyword = ref('')
 const isSearching = ref(false)

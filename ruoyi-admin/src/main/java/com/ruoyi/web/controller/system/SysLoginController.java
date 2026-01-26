@@ -3,6 +3,8 @@ package com.ruoyi.web.controller.system;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,12 +28,14 @@ import com.ruoyi.system.service.ISysMenuService;
 
 /**
  * 登录验证
- * 
+ *
  * @author ruoyi
  */
 @RestController
 public class SysLoginController
 {
+    private static final Logger log = LoggerFactory.getLogger(SysLoginController.class);
+
     @Autowired
     private SysLoginService loginService;
 
@@ -66,7 +70,7 @@ public class SysLoginController
 
     /**
      * 获取用户信息
-     * 
+     *
      * @return 用户信息
      */
     @GetMapping("getInfo")
@@ -74,6 +78,10 @@ public class SysLoginController
     {
         LoginUser loginUser = SecurityUtils.getLoginUser();
         SysUser user = loginUser.getUser();
+
+        log.info("📋 获取用户信息 - userId: {}, userName: {}, userType: {}",
+            user.getUserId(), user.getUserName(), user.getUserType());
+
         // 角色集合
         Set<String> roles = permissionService.getRolePermission(user);
         // 权限集合
@@ -89,6 +97,7 @@ public class SysLoginController
         ajax.put("permissions", permissions);
         ajax.put("isDefaultModifyPwd", initPasswordIsModify(user.getPwdUpdateDate()));
         ajax.put("isPasswordExpired", passwordIsExpiration(user.getPwdUpdateDate()));
+        ajax.put("userType", user.getUserType());
         return ajax;
     }
 

@@ -68,6 +68,7 @@ public class RuoYiConfig
         return profile;
     }
 
+    @Value("${ruoyi.profile}")
     public void setProfile(String profile)
     {
         RuoYiConfig.profile = profile;
@@ -78,6 +79,7 @@ public class RuoYiConfig
         return addressEnabled;
     }
 
+    @Value("${ruoyi.addressEnabled}")
     public void setAddressEnabled(boolean addressEnabled)
     {
         RuoYiConfig.addressEnabled = addressEnabled;

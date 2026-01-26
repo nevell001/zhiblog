@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function getStatisticsOverview(): Promise<any> {
   return request({
-    url: '/statistics/overview',
+    url: '/system-stats/overview',
     method: 'get'
   })
 }

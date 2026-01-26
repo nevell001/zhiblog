@@ -41,6 +41,10 @@ public class SysUser extends BaseEntity
     @Excel(name = "用户名称")
     private String nickName;
 
+    /** 用户类型（00系统用户 01博客用户） */
+    @Excel(name = "用户类型", readConverterExp = "00=系统用户,01=博客用户")
+    private String userType;
+
     /** 用户邮箱 */
     @Excel(name = "用户邮箱")
     private String email;
@@ -147,6 +151,17 @@ public class SysUser extends BaseEntity
     public void setNickName(String nickName)
     {
         this.nickName = nickName;
+    }
+
+    @Size(min = 0, max = 2, message = "用户类型长度不能超过2个字符")
+    public String getUserType()
+    {
+        return userType;
+    }
+
+    public void setUserType(String userType)
+    {
+        this.userType = userType;
     }
 
     @Xss(message = "用户账号不能包含脚本字符")

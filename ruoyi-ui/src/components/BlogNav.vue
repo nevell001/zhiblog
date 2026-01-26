@@ -35,39 +35,34 @@
         />
         <span>{{ menu.name }}</span>
       </router-link>
-
-      <div
-        class="nav-item admin-link"
-        @click="goToAdmin"
-      >
-        <el-icon :size="16">
-          <Setting />
-        </el-icon>
-        <span>后台管理</span>
-      </div>
     </div>
 
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
       <!-- 用户信息（已登录） -->
-      <el-dropdown v-if="blogUserStore.isLogin" trigger="click" @command="handleUserCommand">
+      <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
         <div class="user-info">
-          <el-avatar :size="36" :src="blogUserStore.avatar">
+          <el-avatar :size="36" :src="userStore.avatar">
             <el-icon><UserFilled /></el-icon>
           </el-avatar>
-          <span class="username">{{ blogUserStore.name }}</span>
+          <span class="username">{{ userStore.name }}</span>
           <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item disabled>
-              <div class="user-email">{{ blogUserStore.email }}</div>
+            <!-- 管理员显示管理后台入口 -->
+            <el-dropdown-item
+              v-if="userStore.userType === '00'"
+              @click="goToAdmin"
+            >
+              <el-icon><Setting /></el-icon>
+              管理后台
             </el-dropdown-item>
-            <el-dropdown-item divided command="profile">
+            <el-dropdown-item command="profile">
               <el-icon><User /></el-icon>
               个人中心
             </el-dropdown-item>
-            <el-dropdown-item command="logout">
+            <el-dropdown-item divided command="logout">
               <el-icon><SwitchButton /></el-icon>
               退出登录
             </el-dropdown-item>
@@ -75,15 +70,15 @@
         </template>
       </el-dropdown>
 
-      <!-- 登录/注册按钮（未登录） -->
-      <div v-else class="auth-buttons">
-        <el-button size="small" link @click="goToLogin">
-          登录
-        </el-button>
-        <el-button size="small" type="primary" @click="goToRegister">
-          注册
-        </el-button>
-      </div>
+      <!-- 登录按钮（未登录） -->
+      <el-button
+        v-else
+        size="small"
+        type="primary"
+        @click="goToLogin"
+      >
+        登录
+      </el-button>
 
       <el-button
         link
@@ -118,11 +113,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getFilteredMenus } from '@/config/menu'
-import { useBlogUserStore } from '@/stores/blogUser'
+import { useUserStore } from '@/stores/user'
 import {
   Setting,
   Sunny,
@@ -141,7 +136,16 @@ import {
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
-const blogUserStore = useBlogUserStore()
+const userStore = useUserStore()
+
+// 监听 token 变化，确保组件正确更新
+watch(
+  () => userStore.token,
+  (newToken) => {
+    console.log('🔄 BlogNav 检测到 token 变化:', newToken ? '有 token' : '无 token')
+  },
+  { immediate: true }
+)
 
 // 主题状态
 const isDarkTheme = ref(false)
@@ -204,7 +208,8 @@ const goToRegister = () => {
 const handleUserCommand = async (command: string) => {
   switch (command) {
     case 'profile':
-      ElMessage.info('个人中心功能开发中...')
+      // 跳转到管理后台的个人中心页面
+      window.location.href = '/user/profile'
       break
     case 'logout':
       try {
@@ -213,7 +218,7 @@ const handleUserCommand = async (command: string) => {
           cancelButtonText: '取消',
           type: 'warning'
         })
-        await blogUserStore.logOut()
+        await userStore.logOut()
         ElMessage.success('已退出登录')
         router.push('/blog')
       } catch (error) {
@@ -419,15 +424,6 @@ onUnmounted(() => {
 
 .user-info:hover .dropdown-icon {
   transform: rotate(180deg);
-}
-
-.user-email {
-  font-size: 12px;
-  color: #999;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .auth-buttons {

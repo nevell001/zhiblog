@@ -10,7 +10,7 @@ RUN npm config set registry https://registry.npmmirror.com \
     && npm install --legacy-peer-deps --force \
     && arch=$(uname -m) \
     && if [ "$arch" = "aarch64" ]; then \
-         npm install @rollup/rollup-linux-arm64-gnu --save-dev; \
+         npm install @rollup/rollup-linux-arm64-musl --save-dev; \
        fi \
     && npm cache clean --force
 

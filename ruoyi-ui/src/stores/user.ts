@@ -17,6 +17,7 @@ interface UserState {
   avatar: string
   roles: string[]
   permissions: string[]
+  userType: string
 }
 
 export const useUserStore = defineStore('user', {
@@ -25,7 +26,8 @@ export const useUserStore = defineStore('user', {
     name: '',
     avatar: '',
     roles: [],
-    permissions: []
+    permissions: [],
+    userType: ''
   }),
 
   actions: {
@@ -61,6 +63,10 @@ export const useUserStore = defineStore('user', {
           .then((res: any) => {
             console.log('✅ 获取用户信息成功:', res)
             const data = res.data || res
+            console.log('📊 data 对象:', data)
+            console.log('📊 data.userType:', data.userType)
+            console.log('📊 data.user:', data.user)
+            console.log('📊 data.user.userType:', data.user?.userType)
             const user = data.user
             const avatar =
               user.avatar == '' || user.avatar == null
@@ -78,7 +84,8 @@ export const useUserStore = defineStore('user', {
             }
             this.name = user.userName
             this.avatar = avatar
-            console.log('✅ 用户信息设置完成: name =', this.name, ', avatar =', this.avatar)
+            this.userType = data.userType || user.userType || '00'
+            console.log('✅ 用户信息设置完成: name =', this.name, ', avatar =', this.avatar, ', userType =', this.userType)
             resolve(res)
           })
           .catch(error => {

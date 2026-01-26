@@ -33,55 +33,6 @@
                 '热爱技术，热爱生活，专注于Web开发和用户体验设计，分享技术心得与生活感悟。'
             }}
           </p>
-
-          <!-- 社交链接 -->
-          <div
-            v-animate="'fade-in-up'"
-            class="hero-social"
-          >
-            <a
-              v-if="blogSettings.github_url"
-              :href="blogSettings.github_url"
-              class="social-link social-github"
-              title="GitHub"
-              target="_blank"
-              rel="noopener"
-            >
-              <el-icon><Promotion /></el-icon>
-              <span class="social-tooltip">GitHub</span>
-            </a>
-            <a
-              v-if="blogSettings.blog_email"
-              :href="`mailto:${blogSettings.blog_email}`"
-              class="social-link social-email"
-              title="邮箱"
-            >
-              <el-icon><Message /></el-icon>
-              <span class="social-tooltip">邮箱</span>
-            </a>
-            <a
-              v-if="blogSettings.weibo_url"
-              :href="blogSettings.weibo_url"
-              class="social-link social-weibo"
-              title="微博"
-              target="_blank"
-              rel="noopener"
-            >
-              <el-icon><Star /></el-icon>
-              <span class="social-tooltip">微博</span>
-            </a>
-            <a
-              v-if="blogSettings.personal_website"
-              :href="formatUrl(blogSettings.personal_website)"
-              class="social-link social-website"
-              title="个人网站"
-              target="_blank"
-              rel="noopener"
-            >
-              <el-icon><Connection /></el-icon>
-              <span class="social-tooltip">个人网站</span>
-            </a>
-          </div>
         </div>
       </div>
     </div>
@@ -94,7 +45,7 @@
       <div class="stats-container">
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="el-icon-document"></i>
+            <el-icon :size="28"><Document /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -107,11 +58,11 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="el-icon-folder-opened"></i>
+            <el-icon :size="28"><Folder /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
-              {{ categories.length }}
+              {{ stats.categoryCount || 0 }}
             </div>
             <div class="stat-label">
               个分类
@@ -120,11 +71,11 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="el-icon-price-tag"></i>
+            <el-icon :size="28"><PriceTag /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
-              {{ tags.length }}
+              {{ stats.tagCount || 0 }}
             </div>
             <div class="stat-label">
               个标签
@@ -133,7 +84,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="el-icon-chat-dot-round"></i>
+            <el-icon :size="28"><ChatDotRound /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -146,7 +97,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <i class="el-icon-view"></i>
+            <el-icon :size="28"><View /></el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -187,17 +138,7 @@
       <div class="contact-container">
         <div class="contact-item contact-email">
           <div class="contact-icon-wrapper">
-            <div class="contact-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"
-                />
-              </svg>
-            </div>
-            <div class="contact-icon-bg"></div>
+            <el-icon :size="24"><Message /></el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -217,17 +158,7 @@
         </div>
         <div class="contact-item contact-location">
           <div class="contact-icon-wrapper">
-            <div class="contact-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"
-                />
-              </svg>
-            </div>
-            <div class="contact-icon-bg"></div>
+            <el-icon :size="24"><Location /></el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -240,17 +171,7 @@
         </div>
         <div class="contact-item contact-github">
           <div class="contact-icon-wrapper">
-            <div class="contact-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
-                />
-              </svg>
-            </div>
-            <div class="contact-icon-bg"></div>
+            <el-icon :size="24"><Position /></el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -272,17 +193,7 @@
         </div>
         <div class="contact-item contact-weibo">
           <div class="contact-icon-wrapper">
-            <div class="contact-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12.03 2C6.55 2 2.11 6.44 2.11 11.92c0 5.48 4.44 9.92 9.92 9.92 5.48 0 9.92-4.44 9.92-9.92S17.51 2 12.03 2zm0 17.83c-4.35 0-7.91-3.56-7.91-7.91 0-4.35 3.56-7.91 7.91-7.91 4.35 0 7.91 3.56 7.91 7.91 0 4.35-3.56 7.91-7.91 7.91zm5.23-9.12c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24zm-2.35 2.35c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24zm-2.35 2.35c-.45-.23-1.01-.08-1.24.37-.23.45-.08 1.01.37 1.24.45.23 1.01.08 1.24-.37.23-.45.08-1.01-.37-1.24z"
-                />
-              </svg>
-            </div>
-            <div class="contact-icon-bg"></div>
+            <el-icon :size="24"><Star /></el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -304,17 +215,7 @@
         </div>
         <div class="contact-item contact-website">
           <div class="contact-icon-wrapper">
-            <div class="contact-icon">
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-              >
-                <path
-                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"
-                />
-              </svg>
-            </div>
-            <div class="contact-icon-bg"></div>
+            <el-icon :size="24"><Connection /></el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -342,11 +243,20 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import BlogNav from '@/components/BlogNav.vue'
-import { Promotion, Message, Star, Connection } from '@element-plus/icons-vue'
+import {
+  Message,
+  Star,
+  Connection,
+  Document,
+  Folder,
+  PriceTag,
+  ChatDotRound,
+  View,
+  Location,
+  Position
+} from '@element-plus/icons-vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getStatisticsOverview } from '@/api/statistics'
-import { getCategoryList } from '@/api/blog/category'
-import { getTagList } from '@/api/blog/tag'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
@@ -368,8 +278,6 @@ interface BlogSettings {
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const stats = ref({})
-const categories = ref([])
-const tags = ref([])
 
 // 处理头像 URL
 const blogAvatarUrl = computed(() => {
@@ -460,6 +368,8 @@ const loadStats = async () => {
 
     stats.value = {
       articleCount: data.articleCount || 0,
+      categoryCount: data.categoryCount || 0,
+      tagCount: data.tagCount || 0,
       commentCount: data.commentCount || 0,
       totalViews: data.totalViews || 0
     }
@@ -470,33 +380,11 @@ const loadStats = async () => {
     // 使用默认数据
     stats.value = {
       articleCount: 0,
+      categoryCount: 0,
+      tagCount: 0,
       commentCount: 0,
       totalViews: 0
     }
-  }
-}
-
-// 加载分类列表
-const loadCategories = async () => {
-  try {
-    const response = await getCategoryList({ pageSize: 100 })
-    categories.value = response.data || []
-    console.log('✅ 分类列表加载完成，数量:', categories.value.length)
-  } catch (error) {
-    console.error('❌ 加载分类列表失败:', error)
-    categories.value = []
-  }
-}
-
-// 加载标签列表
-const loadTags = async () => {
-  try {
-    const response = await getTagList({ pageSize: 100 })
-    tags.value = response.data || []
-    console.log('✅ 标签列表加载完成，数量:', tags.value.length)
-  } catch (error) {
-    console.error('❌ 加载标签列表失败:', error)
-    tags.value = []
   }
 }
 
@@ -524,8 +412,6 @@ const formatUrl = url => {
 onMounted(() => {
   loadBlogSettings()
   loadStats()
-  loadCategories()
-  loadTags()
 })
 </script>
 
@@ -553,14 +439,13 @@ onMounted(() => {
   right: 0;
   bottom: 0;
   background:
-    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 3px, transparent 4px),
-    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.08) 2px, transparent 3px),
-    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.06) 4px, transparent 5px);
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.08) 2px, transparent 3px),
+    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.06) 2px, transparent 3px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.05) 3px, transparent 4px);
   background-size:
     150px 150px,
     100px 100px,
     200px 200px;
-  animation: floatStars 25s linear infinite;
 }
 
 .hero-section::after {
@@ -570,29 +455,7 @@ onMounted(() => {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
-  animation: pulse 8s ease-in-out infinite;
-}
-
-@keyframes floatStars {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(-50px, -50px);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.8;
-  }
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
 }
 
 .hero-content {
@@ -629,25 +492,13 @@ onMounted(() => {
 
 .avatar-decoration {
   position: absolute;
-  top: -10px;
-  left: -10px;
-  right: -10px;
-  bottom: -10px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   border-radius: 50%;
-  animation: rotate 20s linear infinite;
-}
-
-.avatar-decoration::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: -5px;
-  right: -5px;
-  bottom: -5px;
-  border: 2px dashed rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  animation: rotate 30s linear infinite reverse;
+  animation: rotate 30s linear infinite;
 }
 
 @keyframes rotate {
@@ -695,23 +546,7 @@ onMounted(() => {
   display: inline-block;
 }
 
-.hero-subtitle::before {
-  content: '✨';
-  margin-right: 8px;
-  animation: sparkle 2s ease-in-out infinite;
-}
 
-@keyframes sparkle {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.2);
-  }
-}
 
 .hero-description {
   font-size: 1.1rem;
@@ -719,125 +554,6 @@ onMounted(() => {
   margin-bottom: 30px;
   opacity: 0.85;
   max-width: 600px;
-}
-
-.hero-social {
-  display: flex;
-  gap: 15px;
-}
-
-.social-link {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 56px;
-  height: 56px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 16px;
-  color: white;
-  font-size: 1.3rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.social-link svg {
-  width: 26px;
-  height: 26px;
-  position: relative;
-  z-index: 1;
-}
-
-.social-link:hover {
-  transform: translateY(-8px) scale(1.1);
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-}
-
-/* GitHub 特有样式 */
-.social-github {
-  background: rgba(31, 31, 31, 0.15);
-  border-color: rgba(31, 31, 31, 0.3);
-}
-
-.social-github:hover {
-  background: linear-gradient(135deg, #24292e, #1a1e22);
-  box-shadow: 0 15px 35px rgba(36, 41, 46, 0.4);
-}
-
-/* 邮箱特有样式 */
-.social-email {
-  background: rgba(234, 67, 53, 0.15);
-  border-color: rgba(234, 67, 53, 0.3);
-}
-
-.social-email:hover {
-  background: linear-gradient(135deg, #ea4335, #d93025);
-  box-shadow: 0 15px 35px rgba(234, 67, 53, 0.4);
-}
-
-/* 微博特有样式 */
-.social-weibo {
-  background: rgba(230, 22, 45, 0.15);
-  border-color: rgba(230, 22, 45, 0.3);
-}
-
-.social-weibo:hover {
-  background: linear-gradient(135deg, #e6162d, #d61228);
-  box-shadow: 0 15px 35px rgba(230, 22, 45, 0.4);
-}
-
-/* 个人网站特有样式 */
-.social-website {
-  background: rgba(64, 158, 255, 0.15);
-  border-color: rgba(64, 158, 255, 0.3);
-}
-
-.social-website:hover {
-  background: linear-gradient(135deg, #409eff, #3a8ee6);
-  box-shadow: 0 15px 35px rgba(64, 158, 255, 0.4);
-}
-
-/* Tooltip */
-.social-tooltip {
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
-  z-index: 10;
-}
-
-.social-link:hover .social-tooltip {
-  opacity: 1;
-  bottom: -35px;
-}
-
-/* 光效动画 */
-.social-link::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transition: left 0.6s ease;
-  z-index: 2;
-}
-
-.social-link:hover::before {
-  left: 100%;
 }
 
 /* 统计数据 */
@@ -892,21 +608,20 @@ onMounted(() => {
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   background: linear-gradient(135deg, #409eff, #337ecc);
-  border-radius: 16px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   color: white;
   transition: all 0.3s ease;
 }
 
 .stat-card:hover .stat-icon {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 8px 20px rgba(64, 158, 255, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.25);
 }
 
 .stat-number {
@@ -991,19 +706,8 @@ onMounted(() => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #409eff, #337ecc, #409eff);
-  background-size: 200% 100%;
-  animation: gradientMove 3s linear infinite;
-}
-
-@keyframes gradientMove {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 200% 50%;
-  }
+  height: 3px;
+  background: linear-gradient(90deg, #409eff, #337ecc);
 }
 
 .about-content :deep(h1),
@@ -1090,62 +794,26 @@ onMounted(() => {
 
 /* 图标包装器 */
 .contact-icon-wrapper {
-  position: relative;
-  width: 70px;
-  height: 70px;
+  width: 48px;
+  height: 48px;
   flex-shrink: 0;
-}
-
-.contact-icon {
-  position: relative;
-  z-index: 2;
-  width: 70px;
-  height: 70px;
-  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  background: linear-gradient(135deg, #409eff, #337ecc);
+  border-radius: 12px;
   color: white;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s ease;
 }
 
-.contact-icon svg {
-  width: 32px;
-  height: 32px;
-}
-
-.contact-icon-bg {
-  position: absolute;
-  top: 4px;
-  left: 4px;
-  width: 70px;
-  height: 70px;
-  border-radius: 18px;
-  opacity: 0.3;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
-}
-
-.contact-item:hover .contact-icon {
-  transform: scale(1.1) rotate(5deg);
-  box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
-}
-
-.contact-item:hover .contact-icon-bg {
-  transform: scale(1.15) rotate(-5deg);
-  opacity: 0.2;
+.contact-item:hover .contact-icon-wrapper {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.25);
 }
 
 /* 邮箱特有样式 */
-.contact-email .contact-icon,
-.contact-email .contact-icon-bg {
+.contact-email .contact-icon-wrapper {
   background: linear-gradient(135deg, #ea4335, #d33426);
-}
-
-.contact-email:hover .contact-icon {
-  transform: rotate(10deg) scale(1.1);
-  box-shadow: 0 10px 30px rgba(234, 67, 53, 0.4);
 }
 
 .contact-email::before {
@@ -1153,14 +821,8 @@ onMounted(() => {
 }
 
 /* 位置特有样式 */
-.contact-location .contact-icon,
-.contact-location .contact-icon-bg {
+.contact-location .contact-icon-wrapper {
   background: linear-gradient(135deg, #4caf50, #388e3c);
-}
-
-.contact-location:hover .contact-icon {
-  transform: rotate(-10deg) scale(1.1);
-  box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
 }
 
 .contact-location::before {
@@ -1168,14 +830,8 @@ onMounted(() => {
 }
 
 /* GitHub 特有样式 */
-.contact-github .contact-icon,
-.contact-github .contact-icon-bg {
+.contact-github .contact-icon-wrapper {
   background: linear-gradient(135deg, #333, #24292e);
-}
-
-.contact-github:hover .contact-icon {
-  transform: scale(1.1);
-  box-shadow: 0 10px 30px rgba(51, 51, 51, 0.4);
 }
 
 .contact-github::before {
@@ -1183,14 +839,8 @@ onMounted(() => {
 }
 
 /* 微博特有样式 */
-.contact-weibo .contact-icon,
-.contact-weibo .contact-icon-bg {
+.contact-weibo .contact-icon-wrapper {
   background: linear-gradient(135deg, #e6162d, #c81227);
-}
-
-.contact-weibo:hover .contact-icon {
-  transform: rotate(10deg) scale(1.1);
-  box-shadow: 0 10px 30px rgba(230, 22, 45, 0.4);
 }
 
 .contact-weibo::before {
@@ -1198,14 +848,8 @@ onMounted(() => {
 }
 
 /* 个人网站特有样式 */
-.contact-website .contact-icon,
-.contact-website .contact-icon-bg {
+.contact-website .contact-icon-wrapper {
   background: linear-gradient(135deg, #409eff, #337ecc);
-}
-
-.contact-website:hover .contact-icon {
-  transform: rotate(-10deg) scale(1.1);
-  box-shadow: 0 10px 30px rgba(64, 158, 255, 0.4);
 }
 
 .contact-website::before {
@@ -1343,21 +987,6 @@ onMounted(() => {
     font-size: 1rem;
   }
 
-  .social-link {
-    width: 48px;
-    height: 48px;
-    font-size: 1.1rem;
-  }
-
-  .social-link svg {
-    width: 22px;
-    height: 22px;
-  }
-
-  .social-tooltip {
-    display: none;
-  }
-
   .stat-number {
     font-size: 2rem;
   }
@@ -1368,23 +997,8 @@ onMounted(() => {
   }
 
   .contact-icon-wrapper {
-    width: 56px;
-    height: 56px;
-  }
-
-  .contact-icon {
-    width: 56px;
-    height: 56px;
-  }
-
-  .contact-icon-bg {
-    width: 56px;
-    height: 56px;
-  }
-
-  .contact-icon svg {
-    width: 26px;
-    height: 26px;
+    width: 42px;
+    height: 42px;
   }
 
   .contact-label {
@@ -1462,8 +1076,7 @@ html.dark .about-content {
 }
 
 html.dark .about-content::before {
-  background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-  background-size: 200% 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
 }
 
 html.dark .about-content :deep(h1),
@@ -1519,44 +1132,4 @@ html.dark .contact-link::after {
   background: linear-gradient(90deg, #667eea, #9f7aea);
 }
 
-/* 深色主题社交链接 */
-html.dark .social-github {
-  background: rgba(31, 31, 31, 0.25);
-  border-color: rgba(31, 31, 31, 0.4);
-}
-
-html.dark .social-github:hover {
-  background: linear-gradient(135deg, #24292e, #1a1e22);
-  box-shadow: 0 15px 35px rgba(36, 41, 46, 0.5);
-}
-
-html.dark .social-email {
-  background: rgba(234, 67, 53, 0.25);
-  border-color: rgba(234, 67, 53, 0.4);
-}
-
-html.dark .social-email:hover {
-  background: linear-gradient(135deg, #ea4335, #d93025);
-  box-shadow: 0 15px 35px rgba(234, 67, 53, 0.5);
-}
-
-html.dark .social-weibo {
-  background: rgba(230, 22, 45, 0.25);
-  border-color: rgba(230, 22, 45, 0.4);
-}
-
-html.dark .social-weibo:hover {
-  background: linear-gradient(135deg, #e6162d, #d61228);
-  box-shadow: 0 15px 35px rgba(230, 22, 45, 0.5);
-}
-
-html.dark .social-website {
-  background: rgba(64, 158, 255, 0.25);
-  border-color: rgba(64, 158, 255, 0.4);
-}
-
-html.dark .social-website:hover {
-  background: linear-gradient(135deg, #409eff, #3a8ee6);
-  box-shadow: 0 15px 35px rgba(64, 158, 255, 0.5);
-}
 </style>

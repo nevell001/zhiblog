@@ -70,6 +70,8 @@ public class UnifiedAuthController extends BaseController
         try
         {
             SysUser user = getLoginUser().getUser();
+            logger.info("📋 获取用户信息 - userId: {}, userName: {}, userType: {}", 
+                user.getUserId(), user.getUserName(), user.getUserType());
 
             // 提取角色标识列表
             java.util.List<String> roles = new java.util.ArrayList<>();
@@ -90,12 +92,14 @@ public class UnifiedAuthController extends BaseController
             result.put("nickName", user.getNickName());
             result.put("avatar", user.getAvatar());
             result.put("email", user.getEmail());
+            result.put("userType", user.getUserType());
 
+            logger.info("📊 返回用户信息 - userType: {}", result.get("userType"));
             return AjaxResult.success(result);
         }
         catch (Exception e)
         {
-            logger.error("获取用户信息失败：error={}", e.getMessage());
+            logger.error("获取用户信息失败：error={}", e.getMessage(), e);
             return AjaxResult.error("获取用户信息失败");
         }
     }

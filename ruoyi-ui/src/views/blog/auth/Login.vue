@@ -97,12 +97,12 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
-import { useBlogUserStore } from '@/stores/blogUser'
-import { getCodeImg } from '@/api/blog/auth'
+import { useUserStore } from '@/stores/user'
+import { getCodeImg } from '@/api/login'
 import BlogNav from '@/components/BlogNav.vue'
 
 const router = useRouter()
-const blogUserStore = useBlogUserStore()
+const userStore = useUserStore()
 
 const loginFormRef = ref<FormInstance>()
 const loading = ref(false)
@@ -144,14 +144,18 @@ const handleLogin = async () => {
 
     loading.value = true
 
-    await blogUserStore.login({
+    await userStore.login({
       username: loginForm.username,
       password: loginForm.password,
       code: loginForm.code,
       uuid: loginForm.uuid
     })
 
+    // 登录成功后立即获取用户信息
+    await userStore.getInfo()
+
     ElMessage.success('登录成功')
+    // 使用 router.push 跳转，避免页面刷新导致状态重置
     router.push('/blog')
   } catch (error: any) {
     ElMessage.error(error.message || '登录失败')
@@ -166,7 +170,7 @@ const handleLogin = async () => {
 
 onMounted(() => {
   // 如果已登录，跳转到首页
-  if (blogUserStore.isLogin) {
+  if (userStore.token) {
     router.push('/blog')
     return
   }

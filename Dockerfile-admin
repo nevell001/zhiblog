@@ -1,5 +1,5 @@
-# 构建阶段 - 使用更小的 Alpine 基础镜像
-FROM maven:3.9.9-eclipse-temurin-17-alpine AS builder
+# 构建阶段 - 使用支持 ARM64 的基础镜像
+FROM maven:3.9.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
@@ -22,14 +22,14 @@ COPY . .
 RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true \
     && rm -rf /root/.m2/repository
 
-# 运行阶段 - 使用 Alpine JRE 镜像
-FROM eclipse-temurin:17-jre-alpine
+# 运行阶段 - 使用支持 ARM64 的 JRE 镜像
+FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
 # 安装 curl 并清理缓存
-RUN apk add --no-cache curl \
-    && rm -rf /var/cache/apk/*
+RUN apt-get update && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # 复制编译好的 JAR 包
 COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
@@ -42,9 +42,10 @@ RUN mkdir -p /app/uploadPath \
 ENV TZ=Asia/Shanghai
 
 # 启动命令 - 使用 curl 等待 MySQL 就绪，并配置 Redis 连接
-CMD sh -c "apk add --no-cache tzdata \
+CMD sh -c "apt-get update && apt-get install -y --no-install-recommends tzdata \
     && cp /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/* \
     && for i in {1..60}; do \
         curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break \
         || echo 'waiting mysql...' && sleep 2; \

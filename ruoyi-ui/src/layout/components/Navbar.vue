@@ -97,6 +97,14 @@
         </div>
         <template #dropdown>
           <el-dropdown-menu>
+            <!-- 管理员显示管理后台入口 -->
+            <el-dropdown-item
+              v-if="userStore.userType === '00'"
+              @click="goToAdmin"
+            >
+              <span>管理后台</span>
+            </el-dropdown-item>
+            <!-- 普通用户显示个人中心 -->
             <router-link to="/user/profile">
               <el-dropdown-item>个人中心</el-dropdown-item>
             </router-link>
@@ -176,6 +184,10 @@ function setLayout() {
 
 function toggleTheme() {
   settingsStore.toggleTheme()
+}
+
+function goToAdmin() {
+  window.location.href = '/admin'
 }
 </script>
 
