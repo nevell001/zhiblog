@@ -4,11 +4,8 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginBody;
-import com.ruoyi.common.core.domain.model.LoginUser;
-import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.framework.web.service.SysLoginService;
-import com.ruoyi.framework.web.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,12 +26,9 @@ public class UnifiedAuthController extends BaseController
     @Autowired
     private SysLoginService loginService;
 
-    @Autowired
-    private TokenService tokenService;
-
     /**
      * 统一登录接口
-     * 自动识别用户类型（管理员/博客用户）并返回相应的token和用户类型信息
+     * 支持管理员和博客用户登录
      */
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
@@ -52,29 +46,11 @@ public class UnifiedAuthController extends BaseController
             // 调用登录服务进行验证
             String token = loginService.login(username, password, loginBody.getCode(), loginBody.getUuid());
 
-            // 从缓存中获取登录用户信息
-            LoginUser loginUser = tokenService.getLoginUser(token);
+            logger.info("用户登录成功：username={}", username);
 
-            if (loginUser == null || loginUser.getUser() == null)
-            {
-                return AjaxResult.error("登录失败：无法获取用户信息");
-            }
-
-            SysUser user = loginUser.getUser();
-            String userType = user.getUserType(); // '00' = 管理员, '01' = 博客用户
-
-            // 构建返回结果
+            // 返回token，前端根据获取的用户信息判断用户类型
             Map<String, Object> result = new HashMap<>();
             result.put("token", token);
-            result.put("userType", userType);
-            result.put("userId", user.getUserId());
-            result.put("userName", user.getUserName());
-            result.put("nickName", user.getNickName());
-            result.put("avatar", user.getAvatar());
-            result.put("email", user.getEmail());
-
-            logger.info("用户登录成功：username={}, userType={}, userId={}",
-                username, userType, user.getUserId());
 
             return AjaxResult.success("登录成功", result);
         }
@@ -93,13 +69,22 @@ public class UnifiedAuthController extends BaseController
     {
         try
         {
-            LoginUser loginUser = getLoginUser();
-            SysUser user = loginUser.getUser();
+            SysUser user = getLoginUser().getUser();
+
+            // 提取角色标识列表
+            java.util.List<String> roles = new java.util.ArrayList<>();
+            if (user.getRoles() != null && !user.getRoles().isEmpty())
+            {
+                for (com.ruoyi.common.core.domain.entity.SysRole role : user.getRoles())
+                {
+                    roles.add(role.getRoleKey());
+                }
+            }
 
             Map<String, Object> result = new HashMap<>();
             result.put("user", user);
-            result.put("permissions", loginUser.getPermissions());
-            result.put("userType", user.getUserType());
+            result.put("roles", roles);
+            result.put("permissions", getLoginUser().getPermissions());
             result.put("userId", user.getUserId());
             result.put("userName", user.getUserName());
             result.put("nickName", user.getNickName());
@@ -123,15 +108,7 @@ public class UnifiedAuthController extends BaseController
     {
         try
         {
-            LoginUser loginUser = getLoginUser();
-            if (loginUser != null)
-            {
-                logger.info("用户登出：username={}, userType={}",
-                    loginUser.getUser().getUserName(),
-                    loginUser.getUser().getUserType());
-            }
-
-            tokenService.delLoginUser(getLoginUser().getToken());
+            logger.info("用户登出：username={}", getLoginUser().getUser().getUserName());
             return AjaxResult.success("登出成功");
         }
         catch (Exception e)

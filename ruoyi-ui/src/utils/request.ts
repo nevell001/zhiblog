@@ -6,7 +6,7 @@ import axios, {
 } from 'axios'
 import type { BlobPart } from 'node:buffer'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
-import { getToken, getBlogToken } from '@/utils/auth'
+import { getToken, getBlogToken, removeToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
@@ -150,7 +150,6 @@ service.interceptors.response.use(
       userStore.token = ''
       userStore.roles = []
       userStore.permissions = []
-      const { removeToken } = require('@/utils/auth')
       removeToken()
       // 使用 window.location.replace 避免重复历史记录
       window.location.replace('/login')

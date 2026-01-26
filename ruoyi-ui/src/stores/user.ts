@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { login, logout, getInfo } from '@/api/login'
+import { login, logout } from '@/api/login'
+import { getUserInfo } from '@/api/unifiedAuth'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import defaultAvatar from '@/assets/images/profile.jpg'
 
@@ -55,19 +56,21 @@ export const useUserStore = defineStore('user', {
     getInfo(): Promise<any> {
       return new Promise((resolve, reject) => {
         console.log('📋 开始获取用户信息...')
-        getInfo()
+        // 使用统一的认证接口获取用户信息
+        getUserInfo()
           .then((res: any) => {
             console.log('✅ 获取用户信息成功:', res)
-            const user = res.user
+            const data = res.data || res
+            const user = data.user
             const avatar =
               user.avatar == '' || user.avatar == null
                 ? defaultAvatar
                 : (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + user.avatar
 
-            if (res.roles && res.roles.length > 0) {
+            if (data.roles && data.roles.length > 0) {
               // 验证返回的roles是否是一个非空数组
-              this.roles = res.roles
-              this.permissions = res.permissions
+              this.roles = data.roles
+              this.permissions = data.permissions
               console.log('✅ 设置 roles:', this.roles)
             } else {
               this.roles = ['ROLE_DEFAULT']

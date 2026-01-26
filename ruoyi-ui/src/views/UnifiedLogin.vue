@@ -105,7 +105,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCodeImg } from '@/api/login'
 import { unifiedLogin } from '@/api/unifiedAuth'
-import { setToken, setBlogToken } from '@/utils/auth'
+import { setToken } from '@/utils/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -157,33 +157,21 @@ const handleLogin = async () => {
       uuid: loginForm.uuid
     })
 
-    // 从响应中获取token和用户类型
+    // 从响应中获取token
     const token = res.token || res.data?.token
-    const userType = res.userType || res.data?.userType
 
     if (!token) {
       throw new Error('登录失败：未获取到token')
     }
 
-    // 根据用户类型设置不同的token
-    // '00' = 管理员, '01' = 博客用户
-    if (userType === '01') {
-      // 博客用户
-      setBlogToken(token)
-      ElMessage.success('博客用户登录成功')
+    // 统一使用Admin-Token存储
+    // 登录成功后跳转到首页，由路由守卫根据权限决定跳转到哪里
+    setToken(token)
+    ElMessage.success('登录成功')
 
-      // 跳转到博客首页
-      const redirect = (route.query.redirect as string) || '/blog'
-      router.push(redirect)
-    } else {
-      // 管理员
-      setToken(token)
-      ElMessage.success('管理员登录成功')
-
-      // 跳转到管理后台首页
-      const redirect = (route.query.redirect as string) || '/index'
-      router.push(redirect)
-    }
+    // 跳转到首页，路由守卫会根据用户权限自动跳转
+    const redirect = (route.query.redirect as string) || '/index'
+    router.push(redirect)
   } catch (error: any) {
     ElMessage.error(error.message || '登录失败')
     // 刷新验证码

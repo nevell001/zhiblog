@@ -120,10 +120,11 @@ public class SecurityConfig
                     System.out.println("PermitAll URL: " + url);
                     requests.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher(url)).permitAll();
                 });
-                // 对于登录login 注册register 验证码captchaImage 允许匿名访问
+                // 对于登录login 注册register 验证码captchaImage 统一认证auth 允许匿名访问
                 requests.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/login"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/register"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/captchaImage")).permitAll()
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/captchaImage"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/auth/**")).permitAll()
                     // 静态资源，可匿名访问
                     .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/*.html"),
