@@ -356,7 +356,7 @@ import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
 
-const version = ref('1.2.8')
+const version = ref('1.3.2')
 const currentDate = ref('')
 
 interface DashboardStats {
@@ -438,7 +438,7 @@ const loadVersion = async () => {
   try {
     const response = (await request.get('/system/version')) as any
     if (response.code === 200 && response.data) {
-      version.value = response.data.version || '1.2.8'
+      version.value = response.data.version || '1.3.2'
     }
   } catch (error) {
     console.error('获取版本号失败:', error)

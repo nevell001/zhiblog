@@ -75,13 +75,12 @@ router.beforeEach(
               console.log('✅ 获取用户信息成功')
             } catch (err) {
               console.error('❌ 获取用户信息失败:', err)
-              // 获取用户信息失败，清除 token 并重定向到登录页
+              // 获取用户信息失败，清除 token 但继续访问博客页面（作为匿名用户）
               userStore.token = ''
               userStore.roles = []
               userStore.permissions = []
               removeToken()
-              next({ path: '/login', replace: true })
-              return
+              console.log('⚠️ Token 已清除，以匿名用户身份继续访问博客页面')
             }
           }
           console.log('📝 访问博客页面，直接放行')

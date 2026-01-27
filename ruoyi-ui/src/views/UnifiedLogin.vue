@@ -15,10 +15,12 @@
         >
           <el-form-item prop="username">
             <el-input
+              ref="usernameInputRef"
               v-model="loginForm.username"
               placeholder="用户名/邮箱"
               size="large"
               clearable
+              @keyup.enter="focusPassword"
             >
               <template #prefix>
                 <el-icon><User /></el-icon>
@@ -28,6 +30,7 @@
 
           <el-form-item prop="password">
             <el-input
+              ref="passwordInputRef"
               v-model="loginForm.password"
               type="password"
               placeholder="密码"
@@ -45,6 +48,7 @@
           <el-form-item v-if="captchaEnabled" prop="code">
             <div class="captcha-row">
               <el-input
+                ref="codeInputRef"
                 v-model="loginForm.code"
                 placeholder="验证码"
                 size="large"
@@ -95,18 +99,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules, type InputInstance } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCodeImg } from '@/api/login'
 import { unifiedLogin } from '@/api/unifiedAuth'
 import { setToken } from '@/utils/auth'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const route = useRoute()
+const userStore = useUserStore()
 
 const loginFormRef = ref<FormInstance>()
+const usernameInputRef = ref<InputInstance>()
+const passwordInputRef = ref<InputInstance>()
+const codeInputRef = ref<InputInstance>()
 const loading = ref(false)
 const captchaEnabled = ref(true)
 const captchaUrl = ref('')
@@ -124,6 +133,13 @@ const loginRules: FormRules = {
   code: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 
+// 聚焦到密码输入框
+const focusPassword = () => {
+  nextTick(() => {
+    passwordInputRef.value?.focus()
+  })
+}
+
 // 刷新验证码
 const refreshCaptcha = async () => {
   try {
@@ -134,6 +150,51 @@ const refreshCaptcha = async () => {
     console.error('获取验证码失败:', error)
     captchaEnabled.value = false
   }
+}
+
+// 获取友好的错误提示
+const getErrorMessage = (error: any): string => {
+  const errorMessage = error.message || error.msg || error.data?.msg || ''
+  const isProduction = import.meta.env.MODE === 'production'
+  
+  // 生产环境：隐藏敏感信息，只显示通用错误
+  if (isProduction) {
+    // 所有认证相关的错误都统一为"用户名或密码错误"
+    if (errorMessage.includes('用户') || errorMessage.includes('密码') || errorMessage.includes('账号')) {
+      return '用户名或密码错误，请检查后重试'
+    }
+    
+    // 验证码错误可以显示
+    if (errorMessage.includes('验证码')) {
+      return '验证码错误，请重新输入'
+    }
+    
+    // 其他错误显示通用提示
+    return '登录失败，请稍后重试'
+  }
+  
+  // 开发环境：显示详细错误信息以便调试
+  if (errorMessage.includes('用户不存在') || errorMessage.includes('用户名或密码错误')) {
+    return '用户名或密码错误，请检查后重试'
+  }
+  
+  if (errorMessage.includes('密码错误')) {
+    return '密码错误，请重新输入'
+  }
+  
+  if (errorMessage.includes('验证码')) {
+    return '验证码错误，请重新输入'
+  }
+  
+  if (errorMessage.includes('账号已被锁定')) {
+    return '账号已被锁定，请联系管理员'
+  }
+  
+  if (errorMessage.includes('账号已被禁用')) {
+    return '账号已被禁用，请联系管理员'
+  }
+  
+  return errorMessage || '登录失败，请稍后重试'
 }
 
 // 登录处理
@@ -161,18 +222,44 @@ const handleLogin = async () => {
     }
 
     // 统一使用Admin-Token存储
-    // 登录成功后跳转到首页，由路由守卫根据权限决定跳转到哪里
     setToken(token)
-    ElMessage.success('登录成功')
+    // 同时更新 store 中的 token 状态
+    userStore.token = token
+    console.log('✅ Token 已设置:', token)
+
+    // 立即获取用户信息，避免页面刷新后才显示登录状态
+    try {
+      await userStore.getInfo()
+      ElMessage.success({
+        message: '登录成功，欢迎回来！',
+        duration: 2000
+      })
+    } catch (error) {
+      console.error('获取用户信息失败:', error)
+      ElMessage.warning({
+        message: '登录成功，但获取用户信息失败，请刷新页面',
+        duration: 3000
+      })
+    }
 
     // 跳转到首页，路由守卫会根据用户权限自动跳转
     const redirect = (route.query.redirect as string) || '/index'
+    console.log('🔄 跳转到:', redirect)
     router.push(redirect)
   } catch (error: any) {
-    ElMessage.error(error.message || '登录失败')
+    const errorMessage = getErrorMessage(error)
+    ElMessage.error({
+      message: errorMessage,
+      duration: 3000
+    })
     // 刷新验证码
     if (captchaEnabled.value) {
       refreshCaptcha()
+      // 清空验证码输入框
+      loginForm.code = ''
+      nextTick(() => {
+        codeInputRef.value?.focus()
+      })
     }
   } finally {
     loading.value = false
@@ -182,6 +269,10 @@ const handleLogin = async () => {
 onMounted(() => {
   // 获取验证码
   refreshCaptcha()
+  // 自动聚焦到用户名输入框
+  nextTick(() => {
+    usernameInputRef.value?.focus()
+  })
 })
 </script>
 

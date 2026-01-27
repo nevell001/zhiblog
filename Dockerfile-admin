@@ -19,7 +19,7 @@ RUN mvn dependency:go-offline -B
 COPY . .
 
 # 编译项目并清理 Maven 缓存
-RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true \
+RUN mvn clean package -Dmaven.test.skip=true -Dmaven.compiler.parameters=true -Dmaven.resources.filtering=true \
     && rm -rf /root/.m2/repository
 
 # 运行阶段 - 使用支持 ARM64 的 JRE 镜像
