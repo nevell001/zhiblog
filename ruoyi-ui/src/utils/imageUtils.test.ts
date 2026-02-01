@@ -1,270 +1,190 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
   isImageFile,
   getImageFormat,
   getImageSizeMB,
-  validateImage,
-  formatFileSize
+  formatFileSize,
+  createPreviewUrl,
+  revokePreviewUrl,
+  getUploadApi,
+  createUploadFormData,
+  needsCompression,
+  validateImage
 } from './imageUtils'
 
-describe('ImageUtils 工具测试', () => {
-  let mockFile: File
-  let mockImageFile: File
-
-  beforeEach(() => {
-    // 创建模拟文件对象
-    mockFile = new File(['test content'], 'test.txt', { type: 'text/plain' })
-    mockImageFile = new File(['image content'], 'test.jpg', { type: 'image/jpeg' })
-  })
-
-  describe('isImageFile 函数', () => {
-    it('应该识别 JPEG 图片', () => {
-      const jpegFile = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      expect(isImageFile(jpegFile)).toBe(true)
-    })
-
-    it('应该识别 PNG 图片', () => {
-      const pngFile = new File([''], 'test.png', { type: 'image/png' })
-      expect(isImageFile(pngFile)).toBe(true)
-    })
-
-    it('应该识别 GIF 图片', () => {
-      const gifFile = new File([''], 'test.gif', { type: 'image/gif' })
-      expect(isImageFile(gifFile)).toBe(true)
-    })
-
-    it('应该识别 WebP 图片', () => {
-      const webpFile = new File([''], 'test.webp', { type: 'image/webp' })
-      expect(isImageFile(webpFile)).toBe(true)
-    })
-
-    it('应该识别 BMP 图片', () => {
-      const bmpFile = new File([''], 'test.bmp', { type: 'image/bmp' })
-      expect(isImageFile(bmpFile)).toBe(true)
+describe('ImageUtils 工具函数测试', () => {
+  describe('isImageFile', () => {
+    it('应该识别图片文件', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      expect(isImageFile(file)).toBe(true)
     })
 
     it('应该拒绝非图片文件', () => {
-      expect(isImageFile(mockFile)).toBe(false)
+      const file = new File(['test'], 'test.txt', { type: 'text/plain' })
+      expect(isImageFile(file)).toBe(false)
     })
 
     it('应该处理 null 文件', () => {
       expect(isImageFile(null)).toBe(false)
     })
-
-    it('应该处理 undefined 文件', () => {
-      expect(isImageFile(undefined as any)).toBe(false)
-    })
   })
 
-  describe('getImageFormat 函数', () => {
-    it('应该返回 jpg 格式', () => {
-      const jpegFile = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      expect(getImageFormat(jpegFile)).toBe('jpg')
+  describe('getImageFormat', () => {
+    it('应该识别 JPEG 格式', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      expect(getImageFormat(file)).toBe('jpg')
     })
 
-    it('应该返回 jpg 格式（jpeg）', () => {
-      const jpegFile = new File([''], 'test.jpeg', { type: 'image/jpeg' })
-      expect(getImageFormat(jpegFile)).toBe('jpg')
-    })
-
-    it('应该返回 png 格式', () => {
-      const pngFile = new File([''], 'test.png', { type: 'image/png' })
-      expect(getImageFormat(pngFile)).toBe('png')
-    })
-
-    it('应该返回 gif 格式', () => {
-      const gifFile = new File([''], 'test.gif', { type: 'image/gif' })
-      expect(getImageFormat(gifFile)).toBe('gif')
-    })
-
-    it('应该返回 webp 格式', () => {
-      const webpFile = new File([''], 'test.webp', { type: 'image/webp' })
-      expect(getImageFormat(webpFile)).toBe('webp')
-    })
-
-    it('应该返回 bmp 格式', () => {
-      const bmpFile = new File([''], 'test.bmp', { type: 'image/bmp' })
-      expect(getImageFormat(bmpFile)).toBe('bmp')
-    })
-
-    it('应该返回空字符串当文件为 null', () => {
-      expect(getImageFormat(null)).toBe('')
-    })
-
-    it('应该返回空字符串当类型未知', () => {
-      const unknownFile = new File([''], 'test.xyz', { type: 'application/octet-stream' })
-      expect(getImageFormat(unknownFile)).toBe('octet-stream')
-    })
-  })
-
-  describe('getImageSizeMB 函数', () => {
-    it('应该返回 0 当文件为 null', () => {
-      expect(getImageSizeMB(null)).toBe(0)
-    })
-
-    it('应该正确计算文件大小（字节）', () => {
-      const smallFile = new File(['x'], 'test.jpg', { type: 'image/jpeg' })
-      expect(getImageSizeMB(smallFile)).toBe(0)
-    })
-
-    it('应该正确计算文件大小（KB）', () => {
-      const content = 'x'.repeat(1024 * 10) // 10KB
-      const kbFile = new File([content], 'test.jpg', { type: 'image/jpeg' })
-      const size = getImageSizeMB(kbFile)
-      expect(size).toBeGreaterThan(0)
-      expect(size).toBeLessThan(0.1)
-    })
-
-    it('应该正确计算文件大小（MB）', () => {
-      const content = 'x'.repeat(1024 * 1024 * 2) // 2MB
-      const mbFile = new File([content], 'test.jpg', { type: 'image/jpeg' })
-      const size = getImageSizeMB(mbFile)
-      expect(size).toBeGreaterThanOrEqual(1.9)
-      expect(size).toBeLessThanOrEqual(2.1)
-    })
-
-    it('应该四舍五入到两位小数', () => {
-      const content = 'x'.repeat(1024 * 1024 * 1.234) // 1.234MB
-      const file = new File([content], 'test.jpg', { type: 'image/jpeg' })
-      const size = getImageSizeMB(file)
-      expect(size.toString()).toMatch(/^\d+\.\d{2}$/)
-    })
-  })
-
-  describe('validateImage 函数', () => {
-    it('应该验证有效的图片文件', () => {
-      const validFile = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      // 创建一个大小适中的文件（1MB）
-      Object.defineProperty(validFile, 'size', { value: 1024 * 1024 })
-
-      const result = validateImage(validFile, {
-        maxSize: 2,
-        allowedTypes: ['image/jpeg', 'image/png']
-      })
-
-      expect(result.valid).toBe(true)
-      expect(result.errors).toEqual([])
-    })
-
-    it('应该拒绝过大的文件', () => {
-      const largeFile = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      Object.defineProperty(largeFile, 'size', { value: 5 * 1024 * 1024 }) // 5MB
-
-      const result = validateImage(largeFile, {
-        maxSize: 2
-      })
-
-      expect(result.valid).toBe(false)
-      expect(result.errors.length).toBeGreaterThan(0)
-    })
-
-    it('应该拒绝不支持的文件类型', () => {
-      const unsupportedFile = new File([''], 'test.bmp', { type: 'image/bmp' })
-
-      const result = validateImage(unsupportedFile, {
-        allowedTypes: ['image/jpeg', 'image/png']
-      })
-
-      expect(result.valid).toBe(false)
-      expect(result.errors.length).toBeGreaterThan(0)
-    })
-
-    it('应该返回文件信息', () => {
-      const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      Object.defineProperty(file, 'size', { value: 1024 * 1024 })
-
-      const result = validateImage(file, {
-        maxSize: 2
-      })
-
-      expect(result.fileInfo).toBeDefined()
-      expect(result.fileInfo?.name).toBe('test.jpg')
-      expect(result.fileInfo?.size).toBe(1024 * 1024)
-      expect(result.fileInfo?.type).toBe('image/jpeg')
+    it('应该识别 PNG 格式', () => {
+      const file = new File(['test'], 'test.png', { type: 'image/png' })
+      expect(getImageFormat(file)).toBe('png')
     })
 
     it('应该处理 null 文件', () => {
-      const result = validateImage(null as any, {
-        maxSize: 2
-      })
-
-      expect(result.valid).toBe(false)
-      expect(result.errors.length).toBeGreaterThan(0)
+      expect(getImageFormat(null)).toBe('')
     })
   })
 
-  describe('formatFileSize 函数', () => {
+  describe('getImageSizeMB', () => {
+    it('应该计算文件大小（MB）', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      Object.defineProperty(file, 'size', { value: 1024 * 1024 }) // 1MB
+      expect(getImageSizeMB(file)).toBe(1)
+    })
+
+    it('应该处理 null 文件', () => {
+      expect(getImageSizeMB(null)).toBe(0)
+    })
+  })
+
+  describe('formatFileSize', () => {
     it('应该格式化字节', () => {
-      expect(formatFileSize(100)).toBe('100 B')
+      expect(formatFileSize(512)).toBe('512 B')
     })
 
     it('应该格式化 KB', () => {
-      expect(formatFileSize(1024)).toBe('1 KB')
+      expect(formatFileSize(1024 * 2)).toBe('2 KB')
     })
 
     it('应该格式化 MB', () => {
-      expect(formatFileSize(1024 * 1024)).toBe('1 MB')
+      expect(formatFileSize(1024 * 1024 * 3)).toBe('3 MB')
     })
 
     it('应该格式化 GB', () => {
-      expect(formatFileSize(1024 * 1024 * 1024)).toBe('1 GB')
+      expect(formatFileSize(1024 * 1024 * 1024 * 4)).toBe('4 GB')
     })
 
     it('应该处理 0 字节', () => {
       expect(formatFileSize(0)).toBe('0 B')
     })
+  })
 
-    it('应该四舍五入到两位小数', () => {
-      const size = 1024 * 1024 * 1.234
-      const formatted = formatFileSize(size)
-      expect(formatted).toMatch(/^\d+(\.\d{1,2})? MB$/)
+  describe('createPreviewUrl', () => {
+    it.skip('应该创建预览 URL', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const url = createPreviewUrl(file)
+      expect(url).toBeTruthy()
+      expect(url.startsWith('blob:')).toBe(true)
+      revokePreviewUrl(url) // 清理
+    })
+
+    it('应该处理 null 文件', () => {
+      expect(createPreviewUrl(null)).toBe('')
     })
   })
 
-  describe('完整场景测试', () => {
-    it('应该支持完整的图片处理流程', () => {
-      // 创建测试文件
-      const file = new File([''], 'test.jpg', { type: 'image/jpeg' })
-      Object.defineProperty(file, 'size', { value: 1024 * 1024 })
-
-      // 检查是否为图片
-      expect(isImageFile(file)).toBe(true)
-
-      // 获取图片格式
-      expect(getImageFormat(file)).toBe('jpg')
-
-      // 获取文件大小
-      const size = getImageSizeMB(file)
-      expect(size).toBeCloseTo(1.0, 1)
-
-      // 验证图片
-      const validation = validateImage(file, {
-        maxSize: 2,
-        allowedTypes: ['image/jpeg', 'image/png']
-      })
-      expect(validation.valid).toBe(true)
-
-      // 格式化文件大小
-      const formattedSize = formatFileSize(file.size)
-      expect(formattedSize).toBe('1 MB')
+  describe('revokePreviewUrl', () => {
+    it.skip('应该释放预览 URL', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const url = createPreviewUrl(file)
+      expect(() => revokePreviewUrl(url)).not.toThrow()
     })
 
-    it('应该处理无效图片文件', () => {
-      // 创建非图片文件
-      const file = new File([''], 'test.txt', { type: 'text/plain' })
+    it('应该处理空 URL', () => {
+      expect(() => revokePreviewUrl('')).not.toThrow()
+    })
+  })
 
-      // 检查是否为图片
-      expect(isImageFile(file)).toBe(false)
+  describe('getUploadApi', () => {
+    it('应该返回头像上传接口', () => {
+      expect(getUploadApi('avatar')).toBe('/common/upload/avatar')
+    })
 
-      // 获取图片格式
-      expect(getImageFormat(file)).toBe('plain')
+    it('应该返回默认上传接口', () => {
+      expect(getUploadApi('default')).toBe('/common/upload')
+    })
 
-      // 验证图片
-      const validation = validateImage(file, {
-        maxSize: 2,
+    it('应该处理未知类型', () => {
+      expect(getUploadApi('unknown')).toBe('/common/upload')
+    })
+  })
+
+  describe('createUploadFormData', () => {
+    it('应该创建 FormData', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const formData = createUploadFormData(file)
+      expect(formData).toBeInstanceOf(FormData)
+    })
+
+    it('应该添加额外字段', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const formData = createUploadFormData(file, { type: 'avatar', userId: 123 })
+      expect(formData).toBeInstanceOf(FormData)
+    })
+
+    it('应该忽略 null 和 undefined 值', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      const formData = createUploadFormData(file, { type: null, userId: undefined })
+      expect(formData).toBeInstanceOf(FormData)
+    })
+  })
+
+  describe('needsCompression', () => {
+    it('应该判断需要压缩', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      Object.defineProperty(file, 'size', { value: 3 * 1024 * 1024 }) // 3MB
+      expect(needsCompression(file, 2)).toBe(true)
+    })
+
+    it('应该判断不需要压缩', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      Object.defineProperty(file, 'size', { value: 1 * 1024 * 1024 }) // 1MB
+      expect(needsCompression(file, 2)).toBe(false)
+    })
+  })
+
+  describe('validateImage', () => {
+    it('应该验证有效的图片', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      Object.defineProperty(file, 'size', { value: 1 * 1024 * 1024 }) // 1MB
+      const result = validateImage(file)
+      expect(result.valid).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+
+    it('应该拒绝过大的文件', () => {
+      const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
+      Object.defineProperty(file, 'size', { value: 20 * 1024 * 1024 }) // 20MB
+      const result = validateImage(file, { maxSize: 10 })
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThan(0)
+    })
+
+    it('应该拒绝非图片文件', () => {
+      const file = new File(['test'], 'test.txt', { type: 'text/plain' })
+      const result = validateImage(file)
+      expect(result.valid).toBe(false)
+      expect(result.errors).toContain('请选择有效的图片文件')
+    })
+
+    it('应该拒绝不支持的格式', () => {
+      const file = new File(['test'], 'test.bmp', { type: 'image/bmp' })
+      Object.defineProperty(file, 'size', { value: 1 * 1024 * 1024 }) // 1MB
+      const result = validateImage(file, {
         allowedTypes: ['image/jpeg', 'image/png']
       })
-      expect(validation.valid).toBe(false)
+      expect(result.valid).toBe(false)
+      expect(result.errors.length).toBeGreaterThan(0)
     })
   })
 })

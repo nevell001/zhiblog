@@ -11,8 +11,12 @@ vi.mock('@/utils/auth', () => ({
 // Mock API - 使用 hoisted 确保在导入 store 之前执行
 vi.mock('@/api/login', () => ({
   login: vi.fn(),
-  logout: vi.fn(),
-  getInfo: vi.fn()
+  logout: vi.fn()
+}))
+
+// Mock unifiedAuth API - 使用 hoisted 确保在导入 store 之前执行
+vi.mock('@/api/unifiedAuth', () => ({
+  getUserInfo: vi.fn()
 }))
 
 // Import the store after mocking
@@ -24,7 +28,8 @@ import {
   setToken as mockSetToken,
   removeToken as mockRemoveToken
 } from '@/utils/auth'
-import { login as mockLogin, logout as mockLogout, getInfo as mockGetInfo } from '@/api/login'
+import { login as mockLogin, logout as mockLogout } from '@/api/login'
+import { getUserInfo as mockGetUserInfo } from '@/api/unifiedAuth'
 
 describe('User Store 测试', () => {
   let userStore: any
@@ -118,11 +123,11 @@ describe('User Store 测试', () => {
         roles: ['admin'],
         permissions: ['*:*:*']
       }
-      mockGetInfo.mockResolvedValue(mockResponse)
+      mockGetUserInfo.mockResolvedValue(mockResponse)
 
       const result = await userStore.getInfo()
 
-      expect(mockGetInfo).toHaveBeenCalled()
+      expect(mockGetUserInfo).toHaveBeenCalled()
       expect(userStore.name).toBe('admin')
       expect(userStore.roles).toEqual(['admin'])
       expect(userStore.permissions).toEqual(['*:*:*'])
@@ -138,7 +143,7 @@ describe('User Store 测试', () => {
         roles: ['admin'],
         permissions: ['*:*:*']
       }
-      mockGetInfo.mockResolvedValue(mockResponse)
+      mockGetUserInfo.mockResolvedValue(mockResponse)
 
       await userStore.getInfo()
 
@@ -154,7 +159,7 @@ describe('User Store 测试', () => {
         roles: ['admin'],
         permissions: ['*:*:*']
       }
-      mockGetInfo.mockResolvedValue(mockResponse)
+      mockGetUserInfo.mockResolvedValue(mockResponse)
 
       await userStore.getInfo()
 
@@ -170,7 +175,7 @@ describe('User Store 测试', () => {
         roles: [],
         permissions: []
       }
-      mockGetInfo.mockResolvedValue(mockResponse)
+      mockGetUserInfo.mockResolvedValue(mockResponse)
 
       await userStore.getInfo()
 
@@ -179,7 +184,7 @@ describe('User Store 测试', () => {
 
     it('应该处理获取信息失败', async () => {
       const error = new Error('获取用户信息失败')
-      mockGetInfo.mockRejectedValue(error)
+      mockGetUserInfo.mockRejectedValue(error)
 
       await expect(userStore.getInfo()).rejects.toThrow('获取用户信息失败')
     })
@@ -232,7 +237,7 @@ describe('User Store 测试', () => {
         roles: ['admin'],
         permissions: ['*:*:*']
       }
-      mockGetInfo.mockResolvedValue(mockResponse)
+      mockGetUserInfo.mockResolvedValue(mockResponse)
       await userStore.getInfo()
 
       expect(userStore.name).toBe('admin')

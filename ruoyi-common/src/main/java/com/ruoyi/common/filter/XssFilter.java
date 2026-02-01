@@ -16,7 +16,7 @@ import com.ruoyi.common.enums.HttpMethod;
 
 /**
  * 防止XSS攻击的过滤器
- * 
+ *
  * @author ruoyi
  */
 public class XssFilter implements Filter
@@ -30,7 +30,6 @@ public class XssFilter implements Filter
     public void init(FilterConfig filterConfig) throws ServletException
     {
         String tempExcludes = filterConfig.getInitParameter("excludes");
-        System.out.println("[XssFilter] init - excludes parameter: " + tempExcludes);
         if (StringUtils.isNotEmpty(tempExcludes))
         {
             String[] urls = tempExcludes.split(",");
@@ -39,7 +38,6 @@ public class XssFilter implements Filter
                 excludes.add(url);
             }
         }
-        System.out.println("[XssFilter] init - excludes list: " + excludes);
     }
 
     @Override
@@ -49,17 +47,11 @@ public class XssFilter implements Filter
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        String url = req.getServletPath();
-        String method = req.getMethod();
-        System.out.println("[XssFilter] doFilter - url: " + url + ", method: " + method);
-
         if (handleExcludeURL(req, resp))
         {
-            System.out.println("[XssFilter] doFilter - URL excluded, skipping XSS filter");
             chain.doFilter(request, response);
             return;
         }
-        System.out.println("[XssFilter] doFilter - URL NOT excluded, applying XSS filter");
         XssHttpServletRequestWrapper xssRequest = new XssHttpServletRequestWrapper((HttpServletRequest) request);
         chain.doFilter(xssRequest, response);
     }
@@ -73,9 +65,7 @@ public class XssFilter implements Filter
         {
             return true;
         }
-        boolean matches = StringUtils.matches(url, excludes);
-        System.out.println("[XssFilter] handleExcludeURL - url: " + url + ", matches: " + matches + ", excludes: " + excludes);
-        return matches;
+        return StringUtils.matches(url, excludes);
     }
 
     @Override

@@ -146,11 +146,11 @@ newblog/
 ### 前端
 - Vue 3.5.16
 - TypeScript 5.9.3
-- Vite 7.3.1
-- Element Plus 2.10.7
-- Pinia 3.0.2
-- Vue Router 4.5.1
-- Vitest 2.1.8
+- Vite 5.4.11
+- Element Plus 2.13.1
+- Pinia 3.0.4
+- Vue Router 4.6.4
+- Vitest 4.0.18
 
 ### 监控
 - Prometheus
@@ -293,4 +293,4 @@ chore: 构建/工具
 - **Maven GroupId**: top.nevell
 - **项目地址**: https://gitee.com/nevell/newblog
 - **维护者**: nevell
-- **最后更新**: 2026-01-27
+- **最后更新**: 2026-02-01

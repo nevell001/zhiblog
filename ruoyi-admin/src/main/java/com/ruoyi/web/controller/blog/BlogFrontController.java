@@ -676,37 +676,43 @@ public class BlogFrontController extends BaseController
     public void getRssFeed(HttpServletResponse response) throws IOException {
         response.setContentType("application/xml;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
+
+        // 从配置中读取博客URL，如果配置不存在则使用默认值
+        String blogUrl = blogSettingService.selectSettingValueByKey("blog_url");
+        if (blogUrl == null || blogUrl.trim().isEmpty()) {
+            blogUrl = "http://localhost:3000";
+        }
+
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.println("<rss version=\"2.0\">");
         out.println("<channel>");
         out.println("<title>我的博客</title>");
-        out.println("<link>http://localhost:3000</link>");
+        out.println("<link>" + blogUrl + "</link>");
         out.println("<description>这是一个基于RuoYi-Vue的博客系统</description>");
         out.println("<language>zh-CN</language>");
-        
+
         // 获取最新的10篇文章
         BlogArticle blogArticle = new BlogArticle();
         blogArticle.setStatus(1L);
         blogArticle.setDelFlag(0L);
-        
+
         List<BlogArticle> articles = blogArticleService.selectBlogArticleList(blogArticle);
         // 只取前10篇文章
         int count = 0;
         for (BlogArticle article : articles) {
             if (count >= 10) break;
-            
+
             out.println("<item>");
             out.println("<title><![CDATA[" + (article.getTitle() != null ? article.getTitle() : "") + "]]></title>");
-            out.println("<link>http://localhost:3000/blog/article/" + article.getId() + "</link>");
+            out.println("<link>" + blogUrl + "/blog/article/" + article.getId() + "</link>");
             out.println("<description><![CDATA[" + (article.getSummary() != null ? article.getSummary() : "") + "]]></description>");
             out.println("<pubDate>" + (article.getCreateTime() != null ? article.getCreateTime().toString() : "") + "</pubDate>");
-            out.println("<guid>http://localhost:3000/blog/article/" + article.getId() + "</guid>");
+            out.println("<guid>" + blogUrl + "/blog/article/" + article.getId() + "</guid>");
             out.println("</item>");
-            
+
             count++;
         }
-        
+
         out.println("</channel>");
         out.println("</rss>");
         out.flush();
