@@ -39,9 +39,7 @@ describe('Dict Store 测试', () => {
     it('应该设置字典数据', () => {
       const store = useDictStore()
       store.setDict({
-        status: [
-          { label: '启用', value: '1' }
-        ]
+        status: [{ label: '启用', value: '1' }]
       })
       expect(store.dict.status).toHaveLength(1)
     })
@@ -50,7 +48,10 @@ describe('Dict Store 测试', () => {
       const store = useDictStore()
       store.setDict({
         status: [{ label: '启用', value: '1' }],
-        gender: [{ label: '男', value: '1' }, { label: '女', value: '2' }]
+        gender: [
+          { label: '男', value: '1' },
+          { label: '女', value: '2' }
+        ]
       })
       expect(Object.keys(store.dict)).toHaveLength(2)
       expect(store.dict.status).toHaveLength(1)

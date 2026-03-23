@@ -40,13 +40,22 @@
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
       <!-- 用户信息（已登录） -->
-      <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
+      <el-dropdown
+        v-if="userStore.token"
+        trigger="click"
+        @command="handleUserCommand"
+      >
         <div class="user-info">
-          <el-avatar :size="36" :src="userStore.avatar">
+          <el-avatar
+            :size="36"
+            :src="userStore.avatar"
+          >
             <el-icon><UserFilled /></el-icon>
           </el-avatar>
           <span class="username">{{ userStore.name }}</span>
-          <el-icon class="dropdown-icon"><ArrowDown /></el-icon>
+          <el-icon class="dropdown-icon">
+            <ArrowDown />
+          </el-icon>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
@@ -62,7 +71,10 @@
               <el-icon><User /></el-icon>
               个人中心
             </el-dropdown-item>
-            <el-dropdown-item divided command="logout">
+            <el-dropdown-item
+              divided
+              command="logout"
+            >
               <el-icon><SwitchButton /></el-icon>
               退出登录
             </el-dropdown-item>
@@ -141,7 +153,7 @@ const userStore = useUserStore()
 // 监听 token 变化，确保组件正确更新
 watch(
   () => userStore.token,
-  (newToken) => {
+  newToken => {
     console.log('🔄 BlogNav 检测到 token 变化:', newToken ? '有 token' : '无 token')
   },
   { immediate: true }

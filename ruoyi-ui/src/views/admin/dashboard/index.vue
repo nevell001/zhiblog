@@ -18,9 +18,7 @@
           <el-icon><Document /></el-icon>
           写文章
         </el-button>
-        <el-button
-          @click="$router.push('/admin/blog/setting')"
-        >
+        <el-button @click="$router.push('/admin/blog/setting')">
           <el-icon><Setting /></el-icon>
           博客设置
         </el-button>

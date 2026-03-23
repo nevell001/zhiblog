@@ -1,113 +1,85 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import Cookies from 'js-cookie'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { getToken, setToken, removeToken, getBlogToken, setBlogToken, removeBlogToken } from './auth'
 
 // Mock Cookies
-vi.mock('js-cookie', () => ({
-  default: {
-    get: vi.fn(() => undefined),
-    set: vi.fn(),
-    remove: vi.fn()
-  }
-}))
+const mockCookies = {
+  get: vi.fn(),
+  set: vi.fn(),
+  remove: vi.fn()
+}
 
-const TokenKey = 'Admin-Token'
-const BlogTokenKey = 'Blog-Token'
+beforeEach(() => {
+  vi.clearAllMocks()
 
-describe('Auth 工具函数测试', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
+  // Mock Cookies
+  Object.defineProperty(global, 'Cookies', {
+    value: mockCookies,
+    writable: true,
+    configurable: true
   })
+})
 
-  describe('getToken', () => {
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
+describe('auth 工具测试', () => {
+  describe('Token 管理函数', () => {
     it('应该导出 getToken 函数', () => {
       expect(getToken).toBeDefined()
       expect(typeof getToken).toBe('function')
     })
 
-    it('应该从 cookies 获取 token', () => {
-      const mockToken = 'test-token-123'
-      vi.mocked(Cookies.get).mockReturnValue(mockToken)
+    it('应该从 Cookies 获取 Admin-Token', () => {
+      mockCookies.get.mockReturnValue('test-token')
+
       const result = getToken()
-      expect(Cookies.get).toHaveBeenCalledWith(TokenKey)
-      expect(result).toBe(mockToken)
+
+      expect(mockCookies.get).toHaveBeenCalledWith('Admin-Token')
+      expect(result).toBe('test-token')
     })
 
-    it('token 不存在时应该返回 undefined', () => {
-      vi.mocked(Cookies.get).mockReturnValue(undefined)
-      const result = getToken()
-      expect(result).toBeUndefined()
-    })
-  })
+    it('应该从 Cookies 获取 Blog-Token', () => {
+      mockCookies.get.mockReturnValue('blog-token')
 
-  describe('setToken', () => {
-    it('应该导出 setToken 函数', () => {
-      expect(setToken).toBeDefined()
-      expect(typeof setToken).toBe('function')
+      const result = getBlogToken()
+
+      expect(mockCookies.get).toHaveBeenCalledWith('Blog-Token')
+      expect(result).toBe('blog-token')
     })
 
-    it('应该设置 token 到 cookies', () => {
-      const mockToken = 'test-token-123'
-      setToken(mockToken)
-      expect(Cookies.set).toHaveBeenCalledWith(TokenKey, mockToken)
-    })
-  })
+    it('应该设置 Admin-Token 到 Cookies', () => {
+      mockCookies.set.mockReturnValue(undefined)
 
-  describe('removeToken', () => {
-    it('应该导出 removeToken 函数', () => {
-      expect(removeToken).toBeDefined()
-      expect(typeof removeToken).toBe('function')
+      const result = setToken('test-token')
+
+      expect(mockCookies.set).toHaveBeenCalledWith('Admin-Token', 'test-token')
+      expect(result).toBe('test-token')
     })
 
-    it('应该从 cookies 移除 token', () => {
+    it('应该设置 Blog-Token 到 Cookies', () => {
+      mockCookies.set.mockReturnValue(undefined)
+
+      const result = setBlogToken('blog-token')
+
+      expect(mockCookies.set).toHaveBeenCalledWith('Blog-Token', 'blog-token')
+      expect(result).toBe('blog-token')
+    })
+
+    it('应该移除 Admin-Token', () => {
+      mockCookies.remove.mockReturnValue(undefined)
+
       removeToken()
-      expect(Cookies.remove).toHaveBeenCalledWith(TokenKey)
-    })
-  })
 
-  describe('getBlogToken', () => {
-    it('应该导出 getBlogToken 函数', () => {
-      expect(getBlogToken).toBeDefined()
-      expect(typeof getBlogToken).toBe('function')
+      expect(mockCookies.remove).toHaveBeenCalledWith('Admin-Token')
     })
 
-    it('应该从 cookies 获取博客 token', () => {
-      const mockToken = 'blog-token-456'
-      vi.mocked(Cookies.get).mockReturnValue(mockToken)
-      const result = getBlogToken()
-      expect(Cookies.get).toHaveBeenCalledWith(BlogTokenKey)
-      expect(result).toBe(mockToken)
-    })
+    it('应该移除 Blog-Token', () => {
+      mockCookies.remove.mockReturnValue(undefined)
 
-    it('博客 token 不存在时应该返回 undefined', () => {
-      vi.mocked(Cookies.get).mockReturnValue(undefined)
-      const result = getBlogToken()
-      expect(result).toBeUndefined()
-    })
-  })
-
-  describe('setBlogToken', () => {
-    it('应该导出 setBlogToken 函数', () => {
-      expect(setBlogToken).toBeDefined()
-      expect(typeof setBlogToken).toBe('function')
-    })
-
-    it('应该设置博客 token 到 cookies', () => {
-      const mockToken = 'blog-token-456'
-      setBlogToken(mockToken)
-      expect(Cookies.set).toHaveBeenCalledWith(BlogTokenKey, mockToken)
-    })
-  })
-
-  describe('removeBlogToken', () => {
-    it('应该导出 removeBlogToken 函数', () => {
-      expect(removeBlogToken).toBeDefined()
-      expect(typeof removeBlogToken).toBe('function')
-    })
-
-    it('应该从 cookies 移除博客 token', () => {
       removeBlogToken()
-      expect(Cookies.remove).toHaveBeenCalledWith(BlogTokenKey)
+
+      expect(mockCookies.remove).toHaveBeenCalledWith('Blog-Token')
     })
   })
 })

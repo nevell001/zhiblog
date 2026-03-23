@@ -30,6 +30,8 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      // 测试失败时也生成报告
+      reportOnFailure: true,
       exclude: [
         'node_modules/',
         'dist/',

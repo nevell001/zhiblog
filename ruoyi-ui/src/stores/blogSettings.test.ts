@@ -4,7 +4,7 @@ import { useBlogSettingsStore } from './blogSettings'
 
 // Mock processAvatarUrl
 vi.mock('@/api/blog/avatar', () => ({
-  processAvatarUrl: vi.fn((url) => url)
+  processAvatarUrl: vi.fn(url => url)
 }))
 
 // Mock listSetting

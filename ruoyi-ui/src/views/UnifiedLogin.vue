@@ -45,7 +45,10 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item v-if="captchaEnabled" prop="code">
+          <el-form-item
+            v-if="captchaEnabled"
+            prop="code"
+          >
             <div class="captcha-row">
               <el-input
                 ref="codeInputRef"
@@ -84,11 +87,17 @@
 
         <div class="login-footer">
           <div class="footer-links">
-            <router-link to="/blog/auth/register" class="link">
+            <router-link
+              to="/blog/auth/register"
+              class="link"
+            >
               用户注册
             </router-link>
             <span class="divider">|</span>
-            <router-link to="/blog/auth/forgot-password" class="link">
+            <router-link
+              to="/blog/auth/forgot-password"
+              class="link"
+            >
               忘记密码？
             </router-link>
           </div>
@@ -156,44 +165,48 @@ const refreshCaptcha = async () => {
 const getErrorMessage = (error: any): string => {
   const errorMessage = error.message || error.msg || error.data?.msg || ''
   const isProduction = import.meta.env.MODE === 'production'
-  
+
   // 生产环境：隐藏敏感信息，只显示通用错误
   if (isProduction) {
     // 所有认证相关的错误都统一为"用户名或密码错误"
-    if (errorMessage.includes('用户') || errorMessage.includes('密码') || errorMessage.includes('账号')) {
+    if (
+      errorMessage.includes('用户') ||
+      errorMessage.includes('密码') ||
+      errorMessage.includes('账号')
+    ) {
       return '用户名或密码错误，请检查后重试'
     }
-    
+
     // 验证码错误可以显示
     if (errorMessage.includes('验证码')) {
       return '验证码错误，请重新输入'
     }
-    
+
     // 其他错误显示通用提示
     return '登录失败，请稍后重试'
   }
-  
+
   // 开发环境：显示详细错误信息以便调试
   if (errorMessage.includes('用户不存在') || errorMessage.includes('用户名或密码错误')) {
     return '用户名或密码错误，请检查后重试'
   }
-  
+
   if (errorMessage.includes('密码错误')) {
     return '密码错误，请重新输入'
   }
-  
+
   if (errorMessage.includes('验证码')) {
     return '验证码错误，请重新输入'
   }
-  
+
   if (errorMessage.includes('账号已被锁定')) {
     return '账号已被锁定，请联系管理员'
   }
-  
+
   if (errorMessage.includes('账号已被禁用')) {
     return '账号已被禁用，请联系管理员'
   }
-  
+
   return errorMessage || '登录失败，请稍后重试'
 }
 

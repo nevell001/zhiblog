@@ -75,6 +75,7 @@ public class BlogFrontSettingController extends BaseController {
     @Anonymous
     @Operation(summary = "获取博客设置（前台用）")
     @GetMapping
+    @SuppressWarnings("unchecked")
     public AjaxResult getBlogSettings() {
         try {
             // 先从缓存读取

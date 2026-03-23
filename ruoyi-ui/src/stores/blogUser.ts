@@ -70,7 +70,7 @@ export const useBlogUserStore = defineStore('blogUser', {
 
   getters: {
     /** 判断是否已登录 */
-    isLogin: (state) => !!state.token && !!state.isLoggedIn
+    isLogin: state => !!state.token && !!state.isLoggedIn
   },
 
   actions: {

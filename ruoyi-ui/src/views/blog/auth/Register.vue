@@ -95,7 +95,10 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item v-if="captchaEnabled" prop="code">
+          <el-form-item
+            v-if="captchaEnabled"
+            prop="code"
+          >
             <div class="captcha-row">
               <el-input
                 v-model="registerForm.code"
@@ -130,7 +133,10 @@
           </el-form-item>
 
           <div class="register-footer">
-            <router-link to="/login" class="link">
+            <router-link
+              to="/login"
+              class="link"
+            >
               已有账号？立即登录
             </router-link>
           </div>
@@ -201,9 +207,7 @@ const registerRules: FormRules = {
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 5, max: 20, message: '密码长度在5到20个字符', trigger: 'blur' }
   ],
-  confirmPassword: [
-    { required: true, validator: validateConfirmPassword, trigger: 'blur' }
-  ],
+  confirmPassword: [{ required: true, validator: validateConfirmPassword, trigger: 'blur' }],
   code: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
 }
 

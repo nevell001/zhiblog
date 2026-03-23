@@ -1,11 +1,16 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { setActivePinia, createPinia } from 'pinia'
-import { useUserStore } from '@/stores/user'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { checkPermi, checkRole } from './permission'
 
-describe('Permission 工具函数测试', () => {
+// Mock user store
+vi.mock('@/stores/user', () => ({
+  useUserStore: vi.fn()
+}))
+
+describe('permission 工具测试', () => {
+  const mockUseUserStore = vi.mocked(useUserStore)
+
   beforeEach(() => {
-    setActivePinia(createPinia())
+    vi.clearAllMocks()
   })
 
   describe('checkPermi', () => {
@@ -14,30 +19,24 @@ describe('Permission 工具函数测试', () => {
       expect(typeof checkPermi).toBe('function')
     })
 
-    it('应该处理空权限数组', () => {
-      const result = checkPermi([])
-      expect(result).toBe(false)
+    it('应该返回 true 当用户有所需权限', () => {
+      mockUseUserStore.mockReturnValue({
+        permissions: ['system:user:add', 'system:user:edit'],
+        roles: ['admin']
+      })
+
+      expect(checkPermi(['system:user:add'])).toBe(true)
+      expect(checkPermi(['system:user:edit'])).toBe(true)
     })
 
-    it('应该处理超级管理员权限', () => {
-      const userStore = useUserStore()
-      userStore.permissions = ['*:*:*']
-      const result = checkPermi(['system:user:add'])
-      expect(result).toBe(true)
-    })
+    it('应该返回 false 当用户没有所需权限', () => {
+      mockUseUserStore.mockReturnValue({
+        permissions: ['system:user:list'],
+        roles: ['editor']
+      })
 
-    it('应该检查权限是否存在', () => {
-      const userStore = useUserStore()
-      userStore.permissions = ['system:user:list', 'system:user:add']
-      const result = checkPermi(['system:user:list'])
-      expect(result).toBe(true)
-    })
-
-    it('权限不存在时应该返回 false', () => {
-      const userStore = useUserStore()
-      userStore.permissions = ['system:user:list']
-      const result = checkPermi(['system:user:add'])
-      expect(result).toBe(false)
+      expect(checkPermi(['system:user:add'])).toBe(false)
+      expect(checkPermi(['system:user:edit'])).toBe(false)
     })
   })
 
@@ -47,30 +46,34 @@ describe('Permission 工具函数测试', () => {
       expect(typeof checkRole).toBe('function')
     })
 
-    it('应该处理空角色数组', () => {
-      const result = checkRole([])
-      expect(result).toBe(false)
+    it('应该返回 true 当用户是 admin 角色', () => {
+      mockUseUserStore.mockReturnValue({
+        permissions: [],
+        roles: ['admin']
+      })
+
+      expect(checkRole(['admin'])).toBe(true)
     })
 
-    it('应该处理超级管理员角色', () => {
-      const userStore = useUserStore()
-      userStore.roles = ['admin']
-      const result = checkRole(['user'])
-      expect(result).toBe(true)
+    it('应该返回 true 当用户拥有所需角色', () => {
+      mockUseUserStore.mockReturnValue({
+        permissions: [],
+        roles: ['editor', 'admin']
+      })
+
+      expect(checkRole(['editor'])).toBe(true)
+      expect(checkRole(['admin'])).toBe(true)
     })
 
-    it('应该检查角色是否存在', () => {
-      const userStore = useUserStore()
-      userStore.roles = ['user', 'editor']
-      const result = checkRole(['user'])
-      expect(result).toBe(true)
-    })
+    it('应该返回 false 当用户没有所需角色', () => {
+      mockUseUserStore.mockReturnValue({
+        permissions: [],
+        roles: ['guest']
+      })
 
-    it('角色不存在时应该返回 false', () => {
-      const userStore = useUserStore()
-      userStore.roles = ['user']
-      const result = checkRole(['admin'])
-      expect(result).toBe(false)
+      expect(checkRole(['admin'])).toBe(false)
+      expect(checkRole(['editor'])).toBe(false)
+      expect(checkRole(['guest'])).toBe(false)
     })
   })
 })

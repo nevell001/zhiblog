@@ -1,12 +1,23 @@
-import { describe, it, expect, vi } from 'vitest'
-import { listFriendLink, getFriendLink, delFriendLink, addFriendLink, updateFriendLink } from './friendLink'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import {
+  listFriendLink,
+  getFriendLink,
+  addFriendLink,
+  updateFriendLink,
+  delFriendLink,
+  getFrontFriendLinkList
+} from './friendLink'
+import type { FriendLink } from '@/types'
 
 // Mock request module
 vi.mock('@/utils/request', () => ({
   request: vi.fn()
 }))
 
-describe('FriendLink API 测试', () => {
+describe('Friend Link API 测试', () => {
+  const request = vi.fn()
+  const mockRequest = vi.mocked(request)
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -16,6 +27,19 @@ describe('FriendLink API 测试', () => {
       expect(listFriendLink).toBeDefined()
       expect(typeof listFriendLink).toBe('function')
     })
+
+    it('应该调用 GET /system/friendLink/list', async () => {
+      mockRequest.mockResolvedValue({ rows: [], total: 0 })
+
+      const query = { pageNum: 1, pageSize: 10 }
+      await listFriendLink(query)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/list',
+        method: 'get',
+        params: query
+      })
+    })
   })
 
   describe('getFriendLink', () => {
@@ -23,12 +47,25 @@ describe('FriendLink API 测试', () => {
       expect(getFriendLink).toBeDefined()
       expect(typeof getFriendLink).toBe('function')
     })
-  })
 
-  describe('delFriendLink', () => {
-    it('应该导出 delFriendLink 函数', () => {
-      expect(delFriendLink).toBeDefined()
-      expect(typeof delFriendLink).toBe('function')
+    it('应该调用 GET /system/friendLink/:id', async () => {
+      const friendLink: FriendLink = {
+        id: 1,
+        name: '测试友链',
+        url: 'https://example.com',
+        logo: '',
+        orderNum: 0,
+        createTime: '',
+        updateTime: ''
+      }
+      mockRequest.mockResolvedValue(friendLink)
+
+      await getFriendLink(1)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/1',
+        method: 'get'
+      })
     })
   })
 
@@ -37,12 +74,94 @@ describe('FriendLink API 测试', () => {
       expect(addFriendLink).toBeDefined()
       expect(typeof addFriendLink).toBe('function')
     })
+
+    it('应该调用 POST /system/friendLink', async () => {
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      const friendLink: FriendLink = {
+        id: 0,
+        name: '新友链',
+        url: 'https://newlink.com',
+        logo: '',
+        orderNum: 0,
+        createTime: '',
+        updateTime: ''
+      }
+      await addFriendLink(friendLink)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink',
+        method: 'post',
+        data: friendLink
+      })
+    })
   })
 
   describe('updateFriendLink', () => {
     it('应该导出 updateFriendLink 函数', () => {
       expect(updateFriendLink).toBeDefined()
       expect(typeof updateFriendLink).toBe('function')
+    })
+
+    it('应该调用 PUT /system/friendLink', async () => {
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      const friendLink: FriendLink = {
+        id: 1,
+        name: '更新友链',
+        url: 'https://updated.com',
+        logo: '',
+        orderNum: 1,
+        createTime: '',
+        updateTime: ''
+      }
+      await updateFriendLink(friendLink)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink',
+        method: 'put',
+        data: friendLink
+      })
+    })
+  })
+
+  describe('delFriendLink', () => {
+    it('应该导出 delFriendLink 函数', () => {
+      expect(delFriendLink).toBeDefined()
+      expect(typeof delFriendLink).toBe('function')
+    })
+
+    it('应该调用 DELETE /system/friendLink/:id', async () => {
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      await delFriendLink(1)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/1',
+        method: 'delete'
+      })
+    })
+  })
+
+  describe('getFrontFriendLinkList', () => {
+    it('应该导出 getFrontFriendLinkList 函数', () => {
+      expect(getFrontFriendLinkList).toBeDefined()
+      expect(typeof getFrontFriendLinkList).toBe('function')
+    })
+
+    it('应该调用 GET /system/friendLink/front/list', async () => {
+      const friendLinks: FriendLink[] = [
+        { id: 1, name: '友链1', url: 'https://link1.com', logo: '', orderNum: 0, createTime: '', updateTime: '' }
+      ]
+      mockRequest.mockResolvedValue(friendLinks)
+
+      const result = await getFrontFriendLinkList()
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/front/list',
+        method: 'get'
+      })
+      expect(result).toEqual(friendLinks)
     })
   })
 })

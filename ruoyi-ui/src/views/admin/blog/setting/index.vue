@@ -180,7 +180,13 @@
               prop="comment_enabled"
             >
               <el-switch v-model="settingsMap.comment_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 允许访客在文章下方发表评论
               </span>
             </el-form-item>
@@ -190,7 +196,13 @@
               prop="comment_review"
             >
               <el-switch v-model="settingsMap.comment_review" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 新评论需要管理员审核后才能显示
               </span>
             </el-form-item>
@@ -199,7 +211,13 @@
               prop="like_enabled"
             >
               <el-switch v-model="settingsMap.like_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 允许访客为文章点赞
               </span>
             </el-form-item>
@@ -215,7 +233,13 @@
               prop="view_count_enabled"
             >
               <el-switch v-model="settingsMap.view_count_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 统计文章浏览次数
               </span>
             </el-form-item>
@@ -224,7 +248,13 @@
               prop="share_enabled"
             >
               <el-switch v-model="settingsMap.share_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 允许访客分享文章到社交媒体
               </span>
             </el-form-item>
@@ -233,7 +263,13 @@
               prop="search_enabled"
             >
               <el-switch v-model="settingsMap.search_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 启用文章搜索功能
               </span>
             </el-form-item>
@@ -249,7 +285,13 @@
               prop="sidebar_enabled"
             >
               <el-switch v-model="settingsMap.sidebar_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 在博客首页显示侧边栏
               </span>
             </el-form-item>
@@ -258,7 +300,13 @@
               prop="footer_enabled"
             >
               <el-switch v-model="settingsMap.footer_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 在博客页面底部显示页脚信息
               </span>
             </el-form-item>
@@ -267,7 +315,13 @@
               prop="copyright_enabled"
             >
               <el-switch v-model="settingsMap.copyright_enabled" />
-              <span style="margin-left: 10px; color: var(--el-text-color-secondary, #909399); font-size: 12px">
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
                 在底部显示版权信息
               </span>
             </el-form-item>
@@ -587,7 +641,7 @@ watch(activeTab, (newVal, oldVal) => {
 })
 
 // 监听tabTitle变化，确保标题正确更新
-watch(tabTitle, (newVal) => {
+watch(tabTitle, newVal => {
   console.log('📝 tabTitle更新:', newVal)
   // 更新页面标题
   settingsStore.setTitle(newVal)
@@ -1510,7 +1564,7 @@ function refreshFrontendAvatar() {
 onMounted(() => {
   // 设置正确的页面标题
   settingsStore.setTitle('博客设置')
-  
+
   getAllSettings().then(() => {
     // 头像已移除，不再需要刷新前台头像
   })

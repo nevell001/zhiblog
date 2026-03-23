@@ -872,7 +872,7 @@ const submitForm = async () => {
         // 移除可能引起JSON解析问题的字段
         // 判断是否为新增操作：id 为 null 或空字符串
         const isNew = !form.value.id || form.value.id === ''
-        
+
         if (isNew) {
           delete apiData.id // 新增时不需要id
         }

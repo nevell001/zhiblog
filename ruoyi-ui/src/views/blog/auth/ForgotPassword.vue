@@ -9,14 +9,21 @@
           <p>通过邮箱重置您的密码</p>
         </div>
 
-        <el-steps :active="currentStep" align-center class="steps">
+        <el-steps
+          :active="currentStep"
+          align-center
+          class="steps"
+        >
           <el-step title="验证邮箱" />
           <el-step title="重置密码" />
           <el-step title="完成" />
         </el-steps>
 
         <!-- 步骤1: 验证邮箱 -->
-        <div v-if="currentStep === 0" class="step-content">
+        <div
+          v-if="currentStep === 0"
+          class="step-content"
+        >
           <el-form
             ref="emailFormRef"
             :model="emailForm"
@@ -75,7 +82,10 @@
         </div>
 
         <!-- 步骤2: 重置密码 -->
-        <div v-if="currentStep === 1" class="step-content">
+        <div
+          v-if="currentStep === 1"
+          class="step-content"
+        >
           <el-form
             ref="passwordFormRef"
             :model="passwordForm"
@@ -134,13 +144,27 @@
         </div>
 
         <!-- 步骤3: 完成 -->
-        <div v-if="currentStep === 2" class="step-content success-content">
-          <el-result icon="success" title="密码重置成功" sub-title="您的密码已成功重置">
+        <div
+          v-if="currentStep === 2"
+          class="step-content success-content"
+        >
+          <el-result
+            icon="success"
+            title="密码重置成功"
+            sub-title="您的密码已成功重置"
+          >
             <template #extra>
-              <el-button type="primary" size="large" @click="goToLogin">
+              <el-button
+                type="primary"
+                size="large"
+                @click="goToLogin"
+              >
                 立即登录
               </el-button>
-              <el-button size="large" @click="goToHome">
+              <el-button
+                size="large"
+                @click="goToHome"
+              >
                 返回首页
               </el-button>
             </template>
@@ -148,10 +172,16 @@
         </div>
 
         <div class="forgot-password-footer">
-          <router-link to="/login" class="link">
+          <router-link
+            to="/login"
+            class="link"
+          >
             返回登录
           </router-link>
-          <router-link to="/blog/auth/register" class="link">
+          <router-link
+            to="/blog/auth/register"
+            class="link"
+          >
             注册账号
           </router-link>
         </div>
@@ -218,9 +248,7 @@ const passwordRules: FormRules = {
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 5, max: 20, message: '密码长度在5到20个字符', trigger: 'blur' }
   ],
-  confirmPassword: [
-    { required: true, validator: validateConfirmPassword, trigger: 'blur' }
-  ]
+  confirmPassword: [{ required: true, validator: validateConfirmPassword, trigger: 'blur' }]
 }
 
 // 发送邮箱验证码

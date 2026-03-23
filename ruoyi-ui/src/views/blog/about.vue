@@ -45,7 +45,9 @@
       <div class="stats-container">
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon :size="28"><Document /></el-icon>
+            <el-icon :size="28">
+              <Document />
+            </el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -58,7 +60,9 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon :size="28"><Folder /></el-icon>
+            <el-icon :size="28">
+              <Folder />
+            </el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -71,7 +75,9 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon :size="28"><PriceTag /></el-icon>
+            <el-icon :size="28">
+              <PriceTag />
+            </el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -84,7 +90,9 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon :size="28"><ChatDotRound /></el-icon>
+            <el-icon :size="28">
+              <ChatDotRound />
+            </el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -97,7 +105,9 @@
         </div>
         <div class="stat-card">
           <div class="stat-icon">
-            <el-icon :size="28"><View /></el-icon>
+            <el-icon :size="28">
+              <View />
+            </el-icon>
           </div>
           <div class="stat-content">
             <div class="stat-number">
@@ -138,7 +148,9 @@
       <div class="contact-container">
         <div class="contact-item contact-email">
           <div class="contact-icon-wrapper">
-            <el-icon :size="24"><Message /></el-icon>
+            <el-icon :size="24">
+              <Message />
+            </el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -158,7 +170,9 @@
         </div>
         <div class="contact-item contact-location">
           <div class="contact-icon-wrapper">
-            <el-icon :size="24"><Location /></el-icon>
+            <el-icon :size="24">
+              <Location />
+            </el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -171,7 +185,9 @@
         </div>
         <div class="contact-item contact-github">
           <div class="contact-icon-wrapper">
-            <el-icon :size="24"><Position /></el-icon>
+            <el-icon :size="24">
+              <Position />
+            </el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -193,7 +209,9 @@
         </div>
         <div class="contact-item contact-weibo">
           <div class="contact-icon-wrapper">
-            <el-icon :size="24"><Star /></el-icon>
+            <el-icon :size="24">
+              <Star />
+            </el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -215,7 +233,9 @@
         </div>
         <div class="contact-item contact-website">
           <div class="contact-icon-wrapper">
-            <el-icon :size="24"><Connection /></el-icon>
+            <el-icon :size="24">
+              <Connection />
+            </el-icon>
           </div>
           <div class="contact-details">
             <div class="contact-label">
@@ -545,8 +565,6 @@ onMounted(() => {
   position: relative;
   display: inline-block;
 }
-
-
 
 .hero-description {
   font-size: 1.1rem;
@@ -1131,5 +1149,4 @@ html.dark .contact-link:hover {
 html.dark .contact-link::after {
   background: linear-gradient(90deg, #667eea, #9f7aea);
 }
-
 </style>

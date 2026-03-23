@@ -131,7 +131,11 @@ describe('TagsView Store 测试', () => {
 
     it('应该保留 affix 标签', async () => {
       const store = useTagsViewStore()
-      const affixView = { path: '/dashboard', name: 'Dashboard', meta: { affix: true, title: 'Dashboard' } }
+      const affixView = {
+        path: '/dashboard',
+        name: 'Dashboard',
+        meta: { affix: true, title: 'Dashboard' }
+      }
       const normalView = { path: '/test', name: 'Test', meta: { title: 'Test' } }
       store.addView(affixView)
       store.addView(normalView)
@@ -182,7 +186,11 @@ describe('TagsView Store 测试', () => {
   describe('affix 标签处理', () => {
     it('affix 标签不应被删除', async () => {
       const store = useTagsViewStore()
-      const affixView = { path: '/dashboard', name: 'Dashboard', meta: { affix: true, title: 'Dashboard' } }
+      const affixView = {
+        path: '/dashboard',
+        name: 'Dashboard',
+        meta: { affix: true, title: 'Dashboard' }
+      }
       const normalView = { path: '/test', name: 'Test', meta: { title: 'Test' } }
       store.addView(affixView)
       store.addView(normalView)

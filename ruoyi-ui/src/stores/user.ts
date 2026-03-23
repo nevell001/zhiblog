@@ -91,7 +91,16 @@ export const useUserStore = defineStore('user', {
               this.token = token
               console.log('✅ 更新 store 中的 token')
             }
-            console.log('✅ 用户信息设置完成: name =', this.name, ', avatar =', this.avatar, ', userType =', this.userType, ', token =', this.token ? '有' : '无')
+            console.log(
+              '✅ 用户信息设置完成: name =',
+              this.name,
+              ', avatar =',
+              this.avatar,
+              ', userType =',
+              this.userType,
+              ', token =',
+              this.token ? '有' : '无'
+            )
             resolve(res)
           })
           .catch(error => {

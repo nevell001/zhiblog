@@ -41,12 +41,14 @@ vi.mock('@/utils/errorCode', () => ({
   }
 }))
 vi.mock('@/utils/ruoyi', () => ({
-  tansParams: vi.fn((params) => {
-    return Object.keys(params)
-      .map(key => `${key}=${encodeURIComponent(params[key])}`)
-      .join('&') + '&'
+  tansParams: vi.fn(params => {
+    return (
+      Object.keys(params)
+        .map(key => `${key}=${encodeURIComponent(params[key])}`)
+        .join('&') + '&'
+    )
   }),
-  blobValidate: vi.fn((data) => data instanceof Blob)
+  blobValidate: vi.fn(data => data instanceof Blob)
 }))
 vi.mock('@/plugins/cache', () => ({
   default: {
@@ -148,7 +150,7 @@ describe('Request 工具函数测试', () => {
       mockAxios.create.mockReturnValue({
         interceptors: {
           request: {
-            use: vi.fn((cb) => {
+            use: vi.fn(cb => {
               const config = {
                 headers: {},
                 url: '/api/test',
@@ -179,7 +181,7 @@ describe('Request 工具函数测试', () => {
       if (result) {
         const token = getToken() || getBlogToken()
         if (token && (result.headers as any)?.isToken !== false) {
-          (result.headers as any).Authorization = 'Bearer ' + token
+          ;(result.headers as any).Authorization = 'Bearer ' + token
         }
         expect(result.headers.Authorization).toBe('Bearer admin-token')
       }
@@ -326,7 +328,10 @@ describe('Request 工具函数测试', () => {
         data: new Blob(['test'])
       }
 
-      if (response.request.responseType === 'blob' || response.request.responseType === 'arraybuffer') {
+      if (
+        response.request.responseType === 'blob' ||
+        response.request.responseType === 'arraybuffer'
+      ) {
         expect(response.data).toBeInstanceOf(Blob)
       }
     })
@@ -529,9 +534,7 @@ describe('Request 工具函数测试', () => {
     it('应该检查首页路径', () => {
       const currentPath = '/'
       const isBlogPath =
-        currentPath.startsWith('/blog') ||
-        currentPath === '/' ||
-        currentPath === '/index'
+        currentPath.startsWith('/blog') || currentPath === '/' || currentPath === '/index'
 
       expect(isBlogPath).toBe(true)
     })

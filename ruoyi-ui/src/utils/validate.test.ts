@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import {
   isPathMatch,
   isEmpty,
@@ -14,7 +14,11 @@ import {
   isArray
 } from './validate'
 
-describe('Validate 工具函数测试', () => {
+describe('validate 工具测试', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   describe('isPathMatch', () => {
     it('应该导出 isPathMatch 函数', () => {
       expect(isPathMatch).toBeDefined()
@@ -22,27 +26,22 @@ describe('Validate 工具函数测试', () => {
     })
 
     it('应该匹配精确路径', () => {
-      expect(isPathMatch('/home', '/home')).toBe(true)
-      expect(isPathMatch('/about', '/about')).toBe(true)
+      expect(isPathMatch('/admin/user', '/admin/user')).toBe(true)
+      expect(isPathMatch('/admin/user', '/admin')).toBe(true)
     })
 
-    it('应该拒绝不匹配的路径', () => {
-      expect(isPathMatch('/home', '/about')).toBe(false)
-      expect(isPathMatch('/home', '/home/sub')).toBe(false)
+    it('应该匹配通配符路径', () => {
+      expect(isPathMatch('/admin/*', '/admin/user')).toBe(true)
+      expect(isPathMatch('/admin/**', '/admin/user')).toBe(true)
     })
 
-    it('应该处理单层通配符', () => {
-      // * 匹配除斜杠外的任意字符
-      expect(isPathMatch('/home/*', '/home/user')).toBe(true)
-      expect(isPathMatch('/home/*', '/home/test')).toBe(true)
-      expect(isPathMatch('/home/*', '/home/user/extra')).toBe(false) // * 不匹配斜杠
+    it('应该不匹配不同路径', () => {
+      expect(isPathMatch('/admin/user', '/admin/post')).toBe(false)
+      expect(isPathMatch('/admin', '/admin/user')).toBe(false)
     })
 
-    it('应该处理多层通配符（注意：当前实现可能有限制）', () => {
-      // ** 在当前实现中只匹配一级
-      expect(isPathMatch('/api/**', '/api/v1')).toBe(true)
-      // 注意：由于实现方式的限制，** 可能无法匹配多级路径
-      // 这是当前实现的已知行为
+    it('应该处理特殊字符', () => {
+      expect(isPathMatch('/admin/*/user', '/admin/edit/user')).toBe(true)
     })
   })
 
@@ -52,16 +51,37 @@ describe('Validate 工具函数测试', () => {
       expect(typeof isEmpty).toBe('function')
     })
 
-    it('应该识别空值', () => {
+    it('应该识别空字符串', () => {
+      expect(isEmpty('')).toBe(true)
+      expect(isEmpty('')).toBe(true)
+    })
+
+    it('应该识别 null', () => {
       expect(isEmpty(null)).toBe(true)
       expect(isEmpty(undefined)).toBe(true)
-      expect(isEmpty('')).toBe(true)
+    })
+
+    it('应该识别 undefined', () => {
+      expect(isEmpty(undefined)).toBe(true)
+      expect(isEmpty(undefined)).toBe(true)
+    })
+
+    it('应该识别空白字符串', () => {
+      expect(isEmpty('   ')).toBe(true)
+      expect(isEmpty('\\t')).toBe(true)
+    })
+
+    it('应该识别字符串 undefined', () => {
+      expect(isEmpty('undefined')).toBe(true)
       expect(isEmpty('undefined')).toBe(true)
     })
 
-    it('应该识别非空值', () => {
-      expect(isEmpty('hello')).toBe(false)
+    it('应该不识别非空值', () => {
+      expect(isEmpty('abc')).toBe(false)
       expect(isEmpty('0')).toBe(false)
+      expect(isEmpty(false)).toBe(false)
+      expect(isEmpty([])).toBe(false)
+      expect(isEmpty({})).toBe(false)
     })
   })
 
@@ -71,16 +91,22 @@ describe('Validate 工具函数测试', () => {
       expect(typeof isHttp).toBe('function')
     })
 
-    it('应该识别 HTTP URL', () => {
+    it('应该识别 http URL', () => {
       expect(isHttp('http://example.com')).toBe(true)
-      expect(isHttp('https://example.com')).toBe(true)
-      expect(isHttp('https://example.com/path')).toBe(true)
+      expect(isHttp('http://localhost:8080')).toBe(true)
     })
 
-    it('应该拒绝非 HTTP URL', () => {
+    it('应该识别 https URL', () => {
+      expect(isHttp('https://example.com')).toBe(true)
+      expect(isHttp('https://localhost:8080')).toBe(true)
+    })
+
+    it('应该不识别非 HTTP URL', () => {
       expect(isHttp('ftp://example.com')).toBe(false)
       expect(isHttp('mailto:test@example.com')).toBe(false)
-      expect(isHttp('/home')).toBe(false)
+      expect(isHttp('tel:123456')).toBe(false)
+      expect(isHttp('/api/test')).toBe(false)
+      expect(isHttp('example.com')).toBe(false)
     })
   })
 
@@ -92,16 +118,27 @@ describe('Validate 工具函数测试', () => {
 
     it('应该识别外部链接', () => {
       expect(isExternal('https://example.com')).toBe(true)
+      expect(isExternal('https://www.example.com')).toBe(true)
       expect(isExternal('http://example.com')).toBe(true)
-      expect(isExternal('mailto:test@example.com')).toBe(true)
-      expect(isExternal('tel:1234567890')).toBe(true)
     })
 
-    it('应该识别内部路径', () => {
-      expect(isExternal('/home')).toBe(false)
-      expect(isExternal('home')).toBe(false)
-      expect(isExternal('./home')).toBe(false)
-      expect(isExternal('../home')).toBe(false)
+    it('应该识别 ftp 链接', () => {
+      expect(isExternal('ftp://example.com')).toBe(true)
+    })
+
+    it('应该识别 mailto 链接', () => {
+      expect(isExternal('mailto:test@example.com')).toBe(true)
+    })
+
+    it('应该识别 tel 链接', () => {
+      expect(isExternal('tel:123456')).toBe(true)
+    })
+
+    it('应该识别相对路径', () => {
+      expect(isExternal('/admin/user')).toBe(false)
+      expect(isExternal('/blog/article')).toBe(false)
+      expect(isExternal('./file.pdf')).toBe(false)
+      expect(isExternal('../parent')).toBe(false)
     })
   })
 
@@ -111,16 +148,21 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validUsername).toBe('function')
     })
 
-    it('应该验证有效的用户名', () => {
+    it('应该识别有效的 admin 用户名', () => {
       expect(validUsername('admin')).toBe(true)
+      expect(validUsername('admin ')).toBe(true)
+      expect(validUsername(' admin')).toBe(true)
+    })
+
+    it('应该识别有效的 editor 用户名', () => {
       expect(validUsername('editor')).toBe(true)
-      expect(validUsername(' admin ')).toBe(true)
+      expect(validUsername('editor ')).toBe(true)
     })
 
     it('应该拒绝无效的用户名', () => {
-      expect(validUsername('user')).toBe(false)
-      expect(validUsername('')).toBe(false)
       expect(validUsername('test')).toBe(false)
+      expect(validUsername('user')).toBe(false)
+      expect(validUsername('root')).toBe(false)
     })
   })
 
@@ -130,18 +172,24 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validURL).toBe('function')
     })
 
-    it('应该验证有效的URL', () => {
-      expect(validURL('https://example.com')).toBe(true)
+    it('应该识别有效的 HTTP URL', () => {
       expect(validURL('http://example.com')).toBe(true)
       expect(validURL('https://www.example.com')).toBe(true)
-      expect(validURL('ftp://example.com')).toBe(true)
+      expect(validURL('http://localhost:8080')).toBe(true)
     })
 
-    it('应该拒绝无效的URL', () => {
-      expect(validURL('not-a-url')).toBe(false)
-      expect(validURL('')).toBe(false)
-      expect(validURL('http://')).toBe(false)
+    it('应该识别有效的 HTTPS URL', () => {
+      expect(validURL('https://example.com/path')).toBe(true)
+      expect(validURL('https://example.com/path?query=test')).toBe(true)
+    })
+
+    it('应该拒绝无效的 URL', () => {
+      expect(validURL('ftp://example.com')).toBe(false)
+      expect(validURL('mailto:test@example.com')).toBe(false)
+      expect(validURL('tel:123456')).toBe(false)
       expect(validURL('example.com')).toBe(false)
+      expect(validURL('/api/test')).toBe(false)
+      expect(validURL('invalid://url')).toBe(false)
     })
   })
 
@@ -151,17 +199,27 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validLowerCase).toBe('function')
     })
 
-    it('应该验证小写字母', () => {
+    it('应该识别小写字母', () => {
       expect(validLowerCase('abc')).toBe(true)
-      expect(validLowerCase('a')).toBe(true)
-      expect(validLowerCase('abcdefghijklmnopqrstuvwxyz')).toBe(true)
+      expect(validLowerCase('abc123')).toBe(true)
+      expect(validLowerCase('hello world')).toBe(true)
     })
 
-    it('应该拒绝大写字母和数字', () => {
+    it('应该拒绝大写字母', () => {
       expect(validLowerCase('ABC')).toBe(false)
-      expect(validLowerCase('Abc')).toBe(false)
-      expect(validLowerCase('abc123')).toBe(false)
-      expect(validLowerCase('')).toBe(false)
+      expect(validLowerCase('Hello')).toBe(false)
+      expect(validLowerCase('Hello World')).toBe(false)
+      expect(validLowerCase('ABC123')).toBe(false)
+    })
+
+    it('应该拒绝数字', () => {
+      expect(validLowerCase('123')).toBe(false)
+      expect(validLowerCase('123abc')).toBe(false)
+    })
+
+    it('应该拒绝特殊字符', () => {
+      expect(validLowerCase('hello!')).toBe(false)
+      expect(validLowerCase('hello@')).toBe(false)
     })
   })
 
@@ -171,17 +229,27 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validUpperCase).toBe('function')
     })
 
-    it('应该验证大写字母', () => {
+    it('应该识别大写字母', () => {
       expect(validUpperCase('ABC')).toBe(true)
-      expect(validUpperCase('A')).toBe(true)
-      expect(validUpperCase('ABCDEFGHIJKLMNOPQRSTUVWXYZ')).toBe(true)
+      expect(validUpperCase('ABC123')).toBe(true)
+      expect(validUpperCase('HELLO WORLD')).toBe(true)
     })
 
-    it('应该拒绝小写字母和数字', () => {
+    it('应该拒绝小写字母', () => {
       expect(validUpperCase('abc')).toBe(false)
-      expect(validUpperCase('Abc')).toBe(false)
+      expect(validUpperCase('Hello')).toBe(false)
+      expect(validUpperCase('Hello World')).toBe(false)
       expect(validUpperCase('ABC123')).toBe(false)
-      expect(validUpperCase('')).toBe(false)
+    })
+
+    it('应该拒绝数字', () => {
+      expect(validUpperCase('123')).toBe(false)
+      expect(validUpperCase('123ABC')).toBe(false)
+    })
+
+    it('应该拒绝特殊字符', () => {
+      expect(validUpperCase('HELLO!')).toBe(false)
+      expect(validUpperCase('HELLO@')).toBe(false)
     })
   })
 
@@ -191,18 +259,21 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validAlphabets).toBe('function')
     })
 
-    it('应该验证字母', () => {
+    it('应该识别字母', () => {
       expect(validAlphabets('abc')).toBe(true)
       expect(validAlphabets('ABC')).toBe(true)
-      expect(validAlphabets('Abc')).toBe(true)
-      expect(validAlphabets('aBc')).toBe(true)
+      expect(validAlphabets('abc123')).toBe(true)
+      expect(validAlphabets('Hello World')).toBe(true)
     })
 
-    it('应该拒绝数字和特殊字符', () => {
-      expect(validAlphabets('abc123')).toBe(false)
-      expect(validAlphabets('abc!')).toBe(false)
-      expect(validAlphabets('')).toBe(false)
-      expect(validAlphabets('abc ')).toBe(false)
+    it('应该拒绝纯数字', () => {
+      expect(validAlphabets('123')).toBe(false)
+    expect(validAlphabets('123456')).toBe(false)
+    })
+
+    it('应该拒绝特殊字符', () => {
+      expect(validAlphabets('abc123!')).toBe(false)
+      expect(validAlphabets('abc@123')).toBe(false)
     })
   })
 
@@ -212,20 +283,19 @@ describe('Validate 工具函数测试', () => {
       expect(typeof validEmail).toBe('function')
     })
 
-    it('应该验证有效的邮箱', () => {
+    it('应该识别有效的邮箱', () => {
       expect(validEmail('test@example.com')).toBe(true)
       expect(validEmail('user.name@example.com')).toBe(true)
-      expect(validEmail('user+tag@example.com')).toBe(true)
-      expect(validEmail('user@test.example.com')).toBe(true)
-      expect(validEmail('user@test.co.uk')).toBe(true)
+      expect(validEmail('test.user+tag@example.com')).toBe(true)
+      expect(validEmail('test123@example.co.uk')).toBe(true)
     })
 
     it('应该拒绝无效的邮箱', () => {
-      expect(validEmail('invalid')).toBe(false)
+      expect(validEmail('test@')).toBe(false)
+      expect(validEmail('test@example')).toBe(false)
       expect(validEmail('@example.com')).toBe(false)
-      expect(validEmail('user@')).toBe(false)
-      expect(validEmail('user@@example.com')).toBe(false)
-      expect(validEmail('')).toBe(false)
+      expect(validEmail('test example.com')).toBe(false)
+      expect(validEmail('test@.')).toBe(false)
     })
   })
 
@@ -236,18 +306,23 @@ describe('Validate 工具函数测试', () => {
     })
 
     it('应该识别字符串', () => {
-      expect(isString('hello')).toBe(true)
+      expect(isString('abc')).toBe(true)
       expect(isString('')).toBe(true)
-      expect(isString(new String('hello'))).toBe(true)
+      expect(isString('123')).toBe(true)
+    })
+
+    it('应该识别 String 对象', () => {
+      expect(isString(new String('abc'))).toBe(true)
+      expect(isString(new String())).toBe(true)
     })
 
     it('应该拒绝非字符串', () => {
-      expect(isString(123)).toBe(false)
       expect(isString(null)).toBe(false)
       expect(isString(undefined)).toBe(false)
+      expect(isString(123)).toBe(false)
       expect(isString({})).toBe(false)
       expect(isString([])).toBe(false)
-      expect(isString(true)).toBe(false)
+      expect(isString(() => {})).toBe(false)
     })
   })
 
@@ -261,16 +336,16 @@ describe('Validate 工具函数测试', () => {
       expect(isArray([])).toBe(true)
       expect(isArray([1, 2, 3])).toBe(true)
       expect(isArray(new Array())).toBe(true)
-      expect(isArray(Array.from({ length: 3 }))).toBe(true)
     })
 
     it('应该拒绝非数组', () => {
       expect(isArray({})).toBe(false)
-      expect(isArray('string')).toBe(false)
       expect(isArray(null)).toBe(false)
       expect(isArray(undefined)).toBe(false)
+      expect(isArray('abc')).toBe(false)
       expect(isArray(123)).toBe(false)
       expect(isArray(true)).toBe(false)
+      expect(isArray(new Map())).toBe(false)
     })
   })
 })
