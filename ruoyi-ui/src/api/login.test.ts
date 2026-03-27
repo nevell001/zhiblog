@@ -6,15 +6,11 @@ import {
   logout,
   getCodeImg
 } from './login'
+import request from '@/utils/request'
 
 // Mock request module
-vi.mock('@/utils/request', () => ({
-  request: vi.fn()
-}))
-
-describe('Login API 测试', () => {
-  const request = vi.fn()
-  const mockRequest = vi.mocked(request)
+vi.mock('@/utils/request')
+const mockRequest = vi.mocked(request)
 
   beforeEach(() => {
     vi.clearAllMocks()

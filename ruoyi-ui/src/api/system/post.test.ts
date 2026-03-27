@@ -1,9 +1,10 @@
-import { describe, it, expect, vi } from 'vitest'
-import { listPost, getPost, delPost, addPost, updatePost } from './post'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import request from '@/utils/request'
+import * as postApi from './post'
 
-// Mock request module
+// Mock request
 vi.mock('@/utils/request', () => ({
-  request: vi.fn()
+  default: vi.fn(() => Promise.resolve({ data: {} }))
 }))
 
 describe('Post API 测试', () => {
@@ -13,36 +14,81 @@ describe('Post API 测试', () => {
 
   describe('listPost', () => {
     it('应该导出 listPost 函数', () => {
-      expect(listPost).toBeDefined()
-      expect(typeof listPost).toBe('function')
+      expect(postApi.listPost).toBeDefined()
+      expect(typeof postApi.listPost).toBe('function')
+    })
+
+    it('应该调用岗位列表接口', () => {
+      postApi.listPost({ pageNum: 1, pageSize: 10 })
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/post/list',
+        method: 'get',
+        params: { pageNum: 1, pageSize: 10 }
+      })
     })
   })
 
   describe('getPost', () => {
     it('应该导出 getPost 函数', () => {
-      expect(getPost).toBeDefined()
-      expect(typeof getPost).toBe('function')
+      expect(postApi.getPost).toBeDefined()
+      expect(typeof postApi.getPost).toBe('function')
     })
-  })
 
-  describe('delPost', () => {
-    it('应该导出 delPost 函数', () => {
-      expect(delPost).toBeDefined()
-      expect(typeof delPost).toBe('function')
+    it('应该调用岗位详情接口', () => {
+      postApi.getPost(123)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/post/123',
+        method: 'get'
+      })
     })
   })
 
   describe('addPost', () => {
     it('应该导出 addPost 函数', () => {
-      expect(addPost).toBeDefined()
-      expect(typeof addPost).toBe('function')
+      expect(postApi.addPost).toBeDefined()
+      expect(typeof postApi.addPost).toBe('function')
+    })
+
+    it('应该调用新增岗位接口', () => {
+      const postData = { postName: '测试岗位', postCode: 'test' }
+      postApi.addPost(postData)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/post',
+        method: 'post',
+        data: postData
+      })
     })
   })
 
   describe('updatePost', () => {
     it('应该导出 updatePost 函数', () => {
-      expect(updatePost).toBeDefined()
-      expect(typeof updatePost).toBe('function')
+      expect(postApi.updatePost).toBeDefined()
+      expect(typeof postApi.updatePost).toBe('function')
+    })
+
+    it('应该调用修改岗位接口', () => {
+      const postData = { postId: 123, postName: '更新的岗位' }
+      postApi.updatePost(postData)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/post',
+        method: 'put',
+        data: postData
+      })
+    })
+  })
+
+  describe('delPost', () => {
+    it('应该导出 delPost 函数', () => {
+      expect(postApi.delPost).toBeDefined()
+      expect(typeof postApi.delPost).toBe('function')
+    })
+
+    it('应该调用删除岗位接口', () => {
+      postApi.delPost(123)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/post/123',
+        method: 'delete'
+      })
     })
   })
 })

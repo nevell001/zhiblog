@@ -1,18 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { processAvatarUrl, getDefaultAvatar, getAvatarWithDefault, uploadAvatar, checkAvatarExists } from './avatar'
 
-// Mock request module and environment
+// Mock request module
 vi.mock('@/utils/request', () => ({
   default: vi.fn(() => Promise.resolve({ code: 200, url: '/uploads/avatar.jpg', fileName: 'avatar.jpg' }))
 }))
-
-vi.stubGlobal('import', {
-  meta: {
-    env: {
-      VITE_APP_BASE_API: '/dev-api'
-    }
-  }
-})
 
 describe('Avatar API 测试', () => {
   beforeEach(() => {

@@ -13,16 +13,13 @@ import {
   clearBlogCache
 } from './setting'
 import type { BlogSetting } from '@/types'
+import request from '@/utils/request'
 
 // Mock request module
-vi.mock('@/utils/request', () => ({
-  request: vi.fn()
-}))
+vi.mock('@/utils/request')
+const mockRequest = vi.mocked(request)
 
 describe('Blog Setting API 测试', () => {
-  const request = vi.fn()
-  const mockRequest = vi.mocked(request)
-
   beforeEach(() => {
     vi.clearAllMocks()
   })

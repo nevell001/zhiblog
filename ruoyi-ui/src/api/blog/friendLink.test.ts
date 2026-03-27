@@ -8,16 +8,13 @@ import {
   getFrontFriendLinkList
 } from './friendLink'
 import type { FriendLink } from '@/types'
+import request from '@/utils/request'
 
 // Mock request module
-vi.mock('@/utils/request', () => ({
-  request: vi.fn()
-}))
+vi.mock('@/utils/request')
+const mockRequest = vi.mocked(request)
 
 describe('Friend Link API 测试', () => {
-  const request = vi.fn()
-  const mockRequest = vi.mocked(request)
-
   beforeEach(() => {
     vi.clearAllMocks()
   })

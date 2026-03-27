@@ -7,6 +7,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
+    envDir: '.', // Load .env files from root directory
     // 测试超时时间（毫秒）
     timeout: 10000,
     // 启用并行测试执行
@@ -36,12 +37,14 @@ export default defineConfig({
         'node_modules/',
         'dist/',
         '**/*.spec.ts',
-        '**/*.test.ts',
         '**/*.d.ts',
         '**/*.config.*',
         '**/mock/**',
         'src/utils/request.ts', // axios 封装
-        'src/main.ts'
+        'src/main.ts',
+        // 测试文件应该被排除（本身不需要测试覆盖）
+        'src/**/*.test.ts',
+        'src/**/*.spec.ts'
       ],
       lines: 70,
       functions: 70,
