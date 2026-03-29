@@ -36,8 +36,10 @@ describe('theme 工具测试', () => {
     })
 
     it('应该处理无效颜色并返回默认值', () => {
+      // hexToRgb 函数对无效输入返回 [0, 0, 0]
       expect(hexToRgb('')).toEqual([0, 0, 0])
-      expect(hexToRgb('invalid')).toEqual([0, 0, 0])
+      expect(hexToRgb('invalid')).toEqual([0, 0, 0]) // 匹配3个字符，转换为有效的hex
+      expect(hexToRgb('#')).toEqual([0, 0, 0])
     })
   })
 
