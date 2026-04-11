@@ -65,7 +65,7 @@ public class BlogUserService
      * @param registerBody 注册信息
      * @return 结果
      */
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public AjaxResult registerBlogUser(BlogRegisterBody registerBody)
     {
         String username = registerBody.getUsername();

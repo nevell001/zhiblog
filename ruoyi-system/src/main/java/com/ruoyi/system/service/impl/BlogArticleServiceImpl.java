@@ -151,7 +151,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertBlogArticle(BlogArticle blogArticle)
     {
         validateArticleContent(blogArticle);
@@ -274,7 +274,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int updateBlogArticle(BlogArticle blogArticle)
     {
@@ -327,7 +327,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int deleteBlogArticleByIds(Long[] ids)
     {
@@ -393,7 +393,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertArticleTagRelations(Long articleId, List<Long> tagIds) {
         if (tagIds == null || tagIds.isEmpty()) {
             return 0;
@@ -417,7 +417,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateArticleTagRelations(Long articleId, List<Long> tagIds) {
         // 先删除原有关联
         deleteArticleTagRelations(articleId);
@@ -433,7 +433,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int deleteArticleTagRelations(Long articleId) {
         return blogArticleTagMapper.deleteByArticleId(articleId);
     }
@@ -446,7 +446,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateArticleStatus(List<Long> ids, Integer status) {
         if (ids == null || ids.isEmpty()) {
             return 0;

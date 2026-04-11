@@ -60,7 +60,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean sendRegisterCode(String email, String ipAddress)
     {
         return sendCode(email, CODE_TYPE_REGISTER, ipAddress, "注册账号");
@@ -74,7 +74,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean sendResetCode(String email, String ipAddress)
     {
         return sendCode(email, CODE_TYPE_RESET, ipAddress, "重置密码");
@@ -184,7 +184,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
      * @return 结果
      */
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public boolean verifyCode(String email, String code, String codeType)
     {
         if (StringUtils.isEmpty(email) || StringUtils.isEmpty(code))
