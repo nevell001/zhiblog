@@ -12,6 +12,7 @@ import request from '@/utils/request'
 vi.mock('@/utils/request')
 const mockRequest = vi.mocked(request)
 
+describe('login API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })

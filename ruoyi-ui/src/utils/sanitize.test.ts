@@ -198,7 +198,6 @@ describe('Sanitize Utils 测试', () => {
 
       expect(element.textContent).toBe('第一段 第二段')
     })
-  })
 
     it('应该处理空值', () => {
       // 测试 createSafeElement 空属性

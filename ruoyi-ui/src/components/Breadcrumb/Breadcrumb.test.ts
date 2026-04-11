@@ -26,14 +26,12 @@ describe('Breadcrumb 组件测试', () => {
     vi.mocked(useRoute).mockReturnValue(mockRoute)
     vi.mocked(usePermissionStore).mockReturnValue({ defaultRoutes: [
       { path: '/index', meta: { title: '首页' } }
-    ])
+    ]})
 
     Breadcrumb.getBreadcrumb()
     Breadcrumb.isDashboard(mockRoute.path)
 
     expect(Breadcrumb.levelList.value).toEqual([{ path: '/index', meta: { title: '首页' } }])
-  })
-
     expect(Breadcrumb.levelList.value.length).toBe(1)
   })
 
@@ -78,7 +76,7 @@ describe('Breadcrumb 组件测试', () => {
     expect(Breadcrumb.levelList.value).toEqual([
       { path: '/admin/system', meta: { title: '系统管理' } },
       { path: '/admin/system/user', meta: { title: '用户管理' } },
-      { path: '/admin/system/menu', meta: title: '菜单管理' } },
+      { path: '/admin/system/menu', meta: { title: '菜单管理' } },
       { path: '/admin/system/role', meta: { title: '角色管理' } }
     ])
 
@@ -107,8 +105,6 @@ describe('Breadcrumb 组件测试', () => {
     Breadcrumb.isDashboard(mockRoute.path)
 
     expect(Breadcrumb.levelList.value).toEqual([])
-  })
-
     expect(Breadcrumb.isRedirect.value).toBe(false)
   })
 
