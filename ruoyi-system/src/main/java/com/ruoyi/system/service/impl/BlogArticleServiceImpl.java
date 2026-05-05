@@ -590,4 +590,21 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         }
         return blogArticleMapper.updateArticleRecommendStatus(ids, isRecommend);
     }
+
+    /**
+     * 点赞文章
+     *
+     * @param id 文章ID
+     * @return 结果
+     */
+    @Override
+    @BlogCacheEvict(keyPattern = "blog:*")
+    public int likeArticle(Long id)
+    {
+        if (id == null)
+        {
+            return 0;
+        }
+        return blogArticleMapper.likeArticle(id);
+    }
 }

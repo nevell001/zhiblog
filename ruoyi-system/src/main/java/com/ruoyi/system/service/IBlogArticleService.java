@@ -212,4 +212,12 @@ public interface IBlogArticleService
      * @return 结果
      */
     public int updateArticleRecommendStatus(List<Long> ids, Integer isRecommend);
+
+    /**
+     * 点赞文章
+     *
+     * @param id 文章ID
+     * @return 结果
+     */
+    public int likeArticle(Long id);
 }

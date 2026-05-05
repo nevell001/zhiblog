@@ -178,4 +178,12 @@ public interface BlogArticleMapper
      * @return 结果
      */
     int updateArticleRecommendStatus(@Param("ids") List<Long> ids, @Param("isRecommend") Integer isRecommend);
+
+    /**
+     * 点赞文章
+     *
+     * @param id 文章ID
+     * @return 结果
+     */
+    int likeArticle(@Param("id") Long id);
 }

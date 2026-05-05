@@ -247,6 +247,21 @@ public class BlogArticleController extends BaseController
     }
 
     /**
+     * 点赞文章
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/like/{id}")
+    public AjaxResult likeArticle(@PathVariable("id") Long id)
+    {
+        int result = blogArticleService.likeArticle(id);
+        if (result > 0) {
+            return success("点赞成功");
+        }
+        return error("点赞失败");
+    }
+
+    /**
      * 搜索文章
      */
     @PreAuthorize("@ss.hasPermi('blog:article:list')")

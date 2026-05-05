@@ -323,4 +323,12 @@
         </foreach>
         AND del_flag = 0
     </update>
+
+    <!-- 点赞文章 -->
+    <update id="likeArticle">
+        UPDATE blog_article
+        SET like_count = like_count + 1
+        WHERE id = #{id}
+        AND del_flag = 0
+    </update>
 </mapper>

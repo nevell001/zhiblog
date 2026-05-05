@@ -117,7 +117,6 @@ public class SecurityConfig
             // 注解标记允许匿名访问的url
             .authorizeHttpRequests((requests) -> {
                 permitAllUrl.getUrls().forEach(url -> {
-                    System.out.println("PermitAll URL: " + url);
                     requests.requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher(url)).permitAll();
                 });
                 // 对于登录login 注册register 验证码captchaImage 统一认证auth 允许匿名访问

@@ -1,6 +1,5 @@
 package com.ruoyi.system.service.impl;
 
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.system.domain.BlogFriendLink;
 import com.ruoyi.system.mapper.BlogFriendLinkMapper;
 import org.junit.jupiter.api.BeforeEach;

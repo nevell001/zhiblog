@@ -1,6 +1,5 @@
 package com.ruoyi.common.utils.file;
 
-import com.ruoyi.common.exception.file.FileNameLengthLimitExceededException;
 import com.ruoyi.common.exception.file.FileSizeLimitExceededException;
 import com.ruoyi.common.exception.file.InvalidExtensionException;
 import org.junit.jupiter.api.Test;

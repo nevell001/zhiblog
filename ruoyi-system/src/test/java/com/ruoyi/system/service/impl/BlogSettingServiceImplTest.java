@@ -1,6 +1,5 @@
 package com.ruoyi.system.service.impl;
 
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.system.domain.BlogSetting;
 import com.ruoyi.system.mapper.BlogSettingMapper;
 import org.junit.jupiter.api.BeforeEach;

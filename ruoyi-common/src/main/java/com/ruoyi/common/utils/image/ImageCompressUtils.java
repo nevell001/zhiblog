@@ -18,7 +18,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import jakarta.annotation.PostConstruct;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
@@ -30,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import net.coobird.thumbnailator.Thumbnails;
 import net.coobird.thumbnailator.geometry.Positions;
 
-import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.config.ImageCompressConfig;
 import com.ruoyi.common.utils.StringUtils;
 

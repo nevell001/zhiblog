@@ -99,35 +99,26 @@ public class BlogFrontController extends BaseController
         Map<String, Object> settingsMap = new HashMap<>();
 
         try {
-            System.out.println("=== 博客设置调试信息 ===");
-
             // 首先尝试从sys_config表获取（后台管理页面配置的数据）
             List<SysConfig> configList = null;
             try {
                 configList = sysConfigService.selectConfigList(new SysConfig());
-                System.out.println("从sys_config表获取到 " + (configList != null ? configList.size() : 0) + " 个配置项");
             } catch (Exception e) {
-                System.out.println("sys_config表查询失败: " + e.getMessage());
+                log.debug("sys_config表查询失败: {}", e.getMessage());
             }
 
             // 如果sys_config表为空，则回退到blog_setting表
             if (configList == null || configList.isEmpty()) {
-                System.out.println("sys_config表为空，回退到blog_setting表");
+                log.debug("sys_config表为空，回退到blog_setting表");
                 BlogSetting blogSetting = new BlogSetting();
                 blogSetting.setDelFlag("0"); // 只查询未删除的设置
                 List<BlogSetting> blogSettingList = blogSettingService.selectBlogSettingList(blogSetting);
-                System.out.println("从blog_setting表获取到 " + (blogSettingList != null ? blogSettingList.size() : 0) + " 个配置项");
 
                 if (blogSettingList != null && !blogSettingList.isEmpty()) {
                     for (BlogSetting setting : blogSettingList) {
                         if (setting.getSettingKey() != null) {
                             String key = setting.getSettingKey();
                             String value = setting.getSettingValue();
-
-                            // 输出关键配置项
-                            if (key.startsWith("blog_") || key.equals("github_url") || key.equals("weibo_url") || key.equals("wechat_qr")) {
-                                System.out.println("配置项: " + key + " = " + value);
-                            }
 
                             // 处理特殊类型转换
                             Object convertedValue = value;
@@ -148,7 +139,6 @@ public class BlogFrontController extends BaseController
                                         String path = url.getPath();
                                         if (path.startsWith("/profile/")) {
                                             convertedValue = path; // 保留/profile/开头的相对路径
-                                            System.out.println("头像URL转换: " + value + " -> " + convertedValue);
                                         } else {
                                             convertedValue = value; // 其他情况保持原样
                                         }
@@ -171,11 +161,6 @@ public class BlogFrontController extends BaseController
                         String key = config.getConfigKey();
                         String value = config.getConfigValue();
 
-                        // 输出关键配置项
-                        if (key.startsWith("blog_") || key.equals("github_url") || key.equals("weibo_url") || key.equals("wechat_qr")) {
-                            System.out.println("配置项: " + key + " = " + value);
-                        }
-
                         // 处理特殊类型转换
                         Object convertedValue = value;
 
@@ -195,7 +180,6 @@ public class BlogFrontController extends BaseController
                                     String path = url.getPath();
                                     if (path.startsWith("/profile/")) {
                                         convertedValue = path; // 保留/profile/开头的相对路径
-                                        System.out.println("头像URL转换: " + value + " -> " + convertedValue);
                                     } else {
                                         convertedValue = value; // 其他情况保持原样
                                     }
@@ -266,7 +250,7 @@ public class BlogFrontController extends BaseController
     @GetMapping("/test")
     public AjaxResult test()
     {
-        System.out.println("test method called");
+        log.debug("test method called");
         return success("test success");
     }
 
@@ -411,10 +395,9 @@ public class BlogFrontController extends BaseController
     @GetMapping("/article-archive")
     public AjaxResult getArticleArchive()
     {
-        // 添加日志以便调试
-        System.out.println("getArticleArchive method called");
+        log.debug("getArticleArchive method called");
         List<Map<String, Object>> archiveList = blogArticleService.getArticleArchive();
-        System.out.println("archiveList size: " + (archiveList != null ? archiveList.size() : "null"));
+        log.debug("archiveList size: {}", archiveList != null ? archiveList.size() : "null");
         return success(archiveList);
     }
 
@@ -662,9 +645,9 @@ public class BlogFrontController extends BaseController
     @GetMapping("/tag/cloud")
     public AjaxResult getTagCloud()
     {
-        System.out.println("getTagCloud method called");
+        log.debug("getTagCloud method called");
         List<Map<String, Object>> tagCloud = blogTagService.getTagCloud();
-        System.out.println("tagCloud size: " + (tagCloud != null ? tagCloud.size() : "null"));
+        log.debug("tagCloud size: {}", tagCloud != null ? tagCloud.size() : "null");
         return success(tagCloud);
     }
 

@@ -219,9 +219,6 @@ public class SysImageServiceImpl implements ISysImageService {
      * @throws IOException
      */
     private String saveProcessedImage(byte[] imageData, MultipartFile originalFile, String targetFormat) throws IOException {
-        // 直接使用FileUploadUtils的核心功能，不依赖MockMultipartFile
-        String[] allowedExtension = new String[]{targetFormat != null ? targetFormat : "jpg"};
-        
         // 生成文件名
         String fileName = FileUploadUtils.extractFilename(originalFile);
         

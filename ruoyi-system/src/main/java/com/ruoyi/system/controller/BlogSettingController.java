@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.ruoyi.system.domain.SysConfig;
 import com.ruoyi.system.service.ISysConfigService;
 import com.ruoyi.common.cache.UnifiedCacheManager;
-import com.ruoyi.common.constant.CacheConstants;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;

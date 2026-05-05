@@ -33,9 +33,10 @@ coverage-report.json
 coverage/
 .nyc_output/
 
-# iFlow CLI 自动生成的文档
+# 开发工具自动生成的文档
 IFLOW.md
 CLAUDE.md
+CODEBUDDY.md
 
 
 # 构建产物与依赖
@@ -102,6 +103,7 @@ coverage/
 # 项目文档
 IFLOW.md
 CLAUDE.md
+CODEBUDDY.md
 
 # SonarQube 配置（包含敏感信息）
 sonar-project.properties

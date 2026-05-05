@@ -3,7 +3,6 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.BlogArticleTag;
 import com.ruoyi.system.mapper.BlogArticleTagMapper;
 import com.ruoyi.system.service.IBlogArticleTagService;

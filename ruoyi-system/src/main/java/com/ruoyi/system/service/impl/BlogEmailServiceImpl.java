@@ -1,7 +1,6 @@
 package com.ruoyi.system.service.impl;
 
 import com.ruoyi.common.config.EmailCodeConfig;
-import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.system.domain.BlogEmailCode;
 import com.ruoyi.system.mapper.BlogEmailCodeMapper;

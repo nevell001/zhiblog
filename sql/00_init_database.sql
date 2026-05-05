@@ -2117,6 +2117,23 @@ SELECT '2. 优化大表查询：使用分页和索引' AS tip2;
 SELECT '3. 启用Redis缓存：减轻数据库压力' AS tip3;
 SELECT '4. 定期备份数据：mysqldump -u root -p newblog > backup.sql' AS tip4;
 
+-- ===============================================================
+-- 📌 文章收藏表 (v1.3.3 新增)
+-- ===============================================================
+DROP TABLE IF EXISTS blog_bookmark;
+CREATE TABLE blog_bookmark (
+    id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
+    user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
+    article_id  BIGINT(20)      NOT NULL                    COMMENT '文章ID',
+    tenant_id   BIGINT(20)      DEFAULT 0                   COMMENT '租户ID',
+    create_time DATETIME        DEFAULT CURRENT_TIMESTAMP    COMMENT '创建时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_article (user_id, article_id),
+    KEY idx_user_id (user_id),
+    KEY idx_article_id (article_id),
+    KEY idx_create_time (create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章收藏表';
+
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
 SELECT 'Gitee: https://gitee.com/nevell/newblog' AS gitee;

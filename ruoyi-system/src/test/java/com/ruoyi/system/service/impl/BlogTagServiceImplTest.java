@@ -1,6 +1,5 @@
 package com.ruoyi.system.service.impl;
 
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.system.domain.BlogTag;
 import com.ruoyi.system.mapper.BlogTagMapper;
 import org.junit.jupiter.api.BeforeEach;

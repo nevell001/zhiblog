@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import org.apache.commons.lang3.RegExUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
@@ -26,8 +24,6 @@ import com.ruoyi.common.annotation.Anonymous;
 @Configuration
 public class PermitAllUrlProperties implements InitializingBean, ApplicationContextAware
 {
-    private static final Pattern PATTERN = Pattern.compile("\\{([^*]+?)\\}");
-
     private ApplicationContext applicationContext;
 
     private List<String> urls = new ArrayList<>();

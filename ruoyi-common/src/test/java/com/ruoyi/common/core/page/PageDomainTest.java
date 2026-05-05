@@ -1,6 +1,5 @@
 package com.ruoyi.common.core.page;
 
-import com.ruoyi.common.utils.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

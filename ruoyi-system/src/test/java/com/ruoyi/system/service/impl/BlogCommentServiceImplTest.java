@@ -1,6 +1,5 @@
 package com.ruoyi.system.service.impl;
 
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.system.domain.BlogComment;
 import com.ruoyi.system.mapper.BlogCommentMapper;
 import org.junit.jupiter.api.BeforeEach;

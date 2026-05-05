@@ -409,7 +409,15 @@
         <!-- 发表评论 -->
         <div class="comment-form">
           <div class="form-header">
-            <h4>发表评论</h4>
+            <h4>{{ replyTarget ? '回复 ' + replyTarget.nickname : '发表评论' }}</h4>
+            <el-button
+              v-if="replyTarget"
+              size="small"
+              type="text"
+              @click="cancelReply"
+            >
+              取消回复
+            </el-button>
           </div>
           <el-form
             ref="commentFormRef"
@@ -483,6 +491,8 @@ import BlogNav from '@/components/BlogNav.vue'
 import BlogFooter from '@/components/BlogFooter.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import { getArticleDetail } from '@/api/blog/article'
+import { likeArticle } from '@/api/admin/blog/article'
+import { toggleBookmark } from '@/api/blog/bookmark'
 
 import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
@@ -547,8 +557,12 @@ const handleTOCReady = items => {
 const commentForm = reactive({
   nickname: '',
   email: '',
-  content: ''
+  content: '',
+  parentId: null as number | null
 })
+
+// 回复目标评论
+const replyTarget = ref<{ id: number; nickname: string } | null>(null)
 
 const commentRules = {
   nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
@@ -686,13 +700,14 @@ const handleLike = async () => {
       return
     }
     likeLoading.value = true
-    // 这里应该调用点赞API
-    // await likeArticle(article.value.id)
 
-    article.value.isLiked = !article.value.isLiked
-    article.value.likeCount = (article.value.likeCount || 0) + (article.value.isLiked ? 1 : -1)
+    // 调用点赞API
+    await likeArticle(article.value.id)
 
-    ElMessage.success(article.value.isLiked ? '点赞成功' : '取消点赞')
+    article.value.isLiked = true
+    article.value.likeCount = (article.value.likeCount || 0) + 1
+
+    ElMessage.success('点赞成功')
   } catch (error) {
     console.error('点赞失败:', error)
     ElMessage.error('操作失败')
@@ -725,20 +740,45 @@ const handleShare = () => {
 }
 
 // 收藏文章
-const handleBookmark = () => {
+const handleBookmark = async () => {
   if (!isLoggedIn.value) {
     ElMessage.info('请先登录后再进行收藏')
     router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
     return
   }
-  article.value.isBookmarked = !article.value.isBookmarked
-  ElMessage.success(article.value.isBookmarked ? '收藏成功' : '取消收藏')
+
+  try {
+    const response = await toggleBookmark(article.value.id)
+    if (response.code === 200) {
+      article.value.isBookmarked = response.data.bookmarked
+      ElMessage.success(article.value.isBookmarked ? '收藏成功' : '取消收藏')
+    }
+  } catch (error) {
+    console.error('收藏失败:', error)
+    ElMessage.error('操作失败')
+  }
 }
 
 // 回复评论
-const handleReply = _comment => {
-  // 这里可以实现回复功能
-  ElMessage.info('回复功能开发中')
+const handleReply = comment => {
+  if (!isLoggedIn.value) {
+    ElMessage.info('请先登录后再进行回复')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+    return
+  }
+  replyTarget.value = { id: comment.id, nickname: comment.nickname || '匿名' }
+  // 滚动到评论表单
+  const formElement = document.querySelector('.comment-form')
+  if (formElement) {
+    formElement.scrollIntoView({ behavior: 'smooth' })
+  }
+  ElMessage.info(`正在回复 ${replyTarget.value.nickname}，请输入回复内容`)
+}
+
+// 取消回复
+const cancelReply = () => {
+  replyTarget.value = null
+  commentForm.parentId = null
 }
 
 // 点赞评论
@@ -759,15 +799,23 @@ const submitComment = async () => {
 
     commentSubmitting.value = true
 
-    const commentData = {
+    const commentData: any = {
       articleId: article.value.id,
-      ...commentForm
+      content: commentForm.content
+    }
+
+    // 如果是回复评论，添加 parentId
+    if (replyTarget.value) {
+      commentData.parentId = replyTarget.value.id
     }
 
     await apiSubmitComment(commentData)
 
-    ElMessage.success('评论发表成功')
+    ElMessage.success(replyTarget.value ? '回复发表成功' : '评论发表成功')
+    // 重置表单
     commentForm.content = ''
+    commentForm.parentId = null
+    replyTarget.value = null
     await loadComments()
   } catch (error) {
     console.error('提交评论失败:', error)
