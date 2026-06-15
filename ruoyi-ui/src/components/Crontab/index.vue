@@ -223,8 +223,6 @@ import CrontabWeek from './week.vue'
 import CrontabYear from './year.vue'
 import CrontabResult from './result.vue'
 
-// 存储 watch 的返回值，用于清理
-const stopWatchExpression: (() => void) | undefined = watch(internalExpression, () => resolveExp())
 const emit = defineEmits(['hide', 'fill'])
 const props = defineProps({
   hideComponent: {
@@ -239,6 +237,8 @@ const props = defineProps({
 const tabTitles = ref(['秒', '分钟', '小时', '日', '月', '周', '年'])
 const internalHideComponent = ref([])
 const internalExpression = ref('')
+// 存储 watch 的返回值，用于清理
+const stopWatchExpression: (() => void) | undefined = watch(internalExpression, () => resolveExp())
 const crontabValueObj = ref({
   second: '*',
   min: '*',

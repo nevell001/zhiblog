@@ -360,7 +360,12 @@ import {
 } from '@element-plus/icons-vue'
 
 const loading = ref(true)
-const endpoints = ref({})
+interface ActuatorEndpoint {
+  href: string
+  templated?: boolean
+}
+
+const endpoints = ref<Record<string, ActuatorEndpoint>>({})
 const baseUrl = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + '/manage/actuator'
 
 // 详情弹窗相关

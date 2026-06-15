@@ -6,15 +6,9 @@ describe('Auth Plugin 测试', () => {
     vi.clearAllMocks()
   })
 
-  it('应该导出 auth 函数', () => {
+  it('应该导出 auth 插件对象', () => {
     expect(auth).toBeDefined()
-    expect(typeof auth).toBe('function')
-  })
-
-  it('应该安装插件', () => {
-    const install = auth as any
-    expect(install).toBeDefined()
-    expect(typeof install).toBe('function')
+    expect(typeof auth).toBe('object')
   })
 
   it('应该有配置选项', () => {

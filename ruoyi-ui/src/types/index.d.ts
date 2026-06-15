@@ -115,6 +115,7 @@ export interface Tag {
   description?: string
   color?: string
   icon?: string
+  createTime?: string
   articleCount?: number
 }
 

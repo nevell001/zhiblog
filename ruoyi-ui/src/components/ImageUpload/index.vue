@@ -110,6 +110,7 @@ const number = ref(0)
 const uploadList = ref([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
+const fileTypes = computed<string[]>(() => props.fileType as string[])
 // 头像上传
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const baseUrl = baseApi
@@ -124,7 +125,7 @@ watch(
   val => {
     if (val) {
       // 首先将值转为数组
-      const list = Array.isArray(val) ? val : props.modelValue.split(',')
+      const list = Array.isArray(val) ? val : String(val).split(',')
       // 然后将数组转为对象数组
       fileList.value = list.map(item => {
         if (typeof item === 'string') {
@@ -147,12 +148,12 @@ watch(
 // 上传前loading加载
 function handleBeforeUpload(file) {
   let isImg = false
-  if (props.fileType.length) {
+  if (fileTypes.value.length) {
     let fileExtension = ''
     if (file.name.lastIndexOf('.') > -1) {
       fileExtension = file.name.slice(file.name.lastIndexOf('.') + 1)
     }
-    isImg = props.fileType.some(type => {
+    isImg = fileTypes.value.some(type => {
       if (file.type.indexOf(type) > -1) return true
       if (fileExtension && fileExtension.indexOf(type) > -1) return true
       return false
@@ -162,7 +163,7 @@ function handleBeforeUpload(file) {
   }
   if (!isImg) {
     ;(proxy as any).$modal.msgError(
-      `文件格式不正确，请上传${props.fileType.join('/')}图片格式文件!`
+      `文件格式不正确，请上传${fileTypes.value.join('/')}图片格式文件!`
     )
     return false
   }
@@ -261,7 +262,8 @@ function listToString(list, separator) {
 onMounted(() => {
   if (props.drag && !props.disabled) {
     nextTick(() => {
-      const element = proxy.$refs.imageUpload?.$el?.querySelector('.el-upload-list')
+      const uploadRef = (proxy as any).$refs.imageUpload
+      const element = uploadRef?.$el?.querySelector('.el-upload-list')
       Sortable.create(element, {
         onEnd: evt => {
           const movedItem = fileList.value.splice(evt.oldIndex, 1)[0]

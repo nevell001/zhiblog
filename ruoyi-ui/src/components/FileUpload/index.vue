@@ -123,6 +123,7 @@ const { proxy } = getCurrentInstance()
 const emit = defineEmits(['update:modelValue'])
 const number = ref(0)
 const uploadList = ref([])
+const fileTypes = computed<string[]>(() => props.fileType as string[])
 // 头像上传
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const baseUrl = baseApi
@@ -138,7 +139,7 @@ watch(
     if (val) {
       let temp = 1
       // 首先将值转为数组
-      const list = Array.isArray(val) ? val : props.modelValue.split(',')
+      const list = Array.isArray(val) ? val : String(val).split(',')
       // 然后将数组转为对象数组
       fileList.value = list.map(item => {
         if (typeof item === 'string') {
@@ -158,12 +159,12 @@ watch(
 // 上传前校检格式和大小
 function handleBeforeUpload(file) {
   // 校检文件类型
-  if (props.fileType.length) {
+  if (fileTypes.value.length) {
     const fileName = file.name.split('.')
     const fileExt = fileName[fileName.length - 1]
-    const isTypeOk = props.fileType.indexOf(fileExt) >= 0
+    const isTypeOk = fileTypes.value.indexOf(fileExt) >= 0
     if (!isTypeOk) {
-      ;(proxy as any).$modal.msgError(`文件格式不正确，请上传${props.fileType.join('/')}格式文件!`)
+      ;(proxy as any).$modal.msgError(`文件格式不正确，请上传${fileTypes.value.join('/')}格式文件!`)
       return false
     }
   }
@@ -253,7 +254,8 @@ function listToString(list, separator) {
 onMounted(() => {
   if (props.drag && !props.disabled) {
     nextTick(() => {
-      const element = proxy.$refs.uploadFileList?.$el || proxy.$refs.uploadFileList
+      const uploadRef = (proxy as any).$refs.uploadFileList
+      const element = uploadRef?.$el || uploadRef
       Sortable.create(element, {
         ghostClass: 'file-upload-darg',
         onEnd: evt => {

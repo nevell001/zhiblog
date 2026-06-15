@@ -264,8 +264,8 @@ describe('ruoyi 工具测试', () => {
     it('应该处理嵌套对象', () => {
       const params = { user: { name: 'test', age: 18 } }
       const result = tansParams(params)
-      expect(result).toContain('user[name]=')
-      expect(result).toContain('user[age]=')
+      expect(result).toContain('user%5Bname%5D=')
+      expect(result).toContain('user%5Bage%5D=')
     })
   })
 

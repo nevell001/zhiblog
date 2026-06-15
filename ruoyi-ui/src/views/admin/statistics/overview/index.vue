@@ -100,7 +100,14 @@ import { ref, onMounted, nextTick } from 'vue'
 import { getStatisticsOverview, getArticleTrend, getUserActivity } from '@/api/statistics'
 import * as echarts from 'echarts'
 
-const stats = ref({})
+interface OverviewStats {
+  articleCount?: number
+  userCount?: number
+  commentCount?: number
+  viewCount?: number
+}
+
+const stats = ref<OverviewStats>({})
 
 const loadData = async () => {
   try {

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
-  getOverview,
-  getArticleStats,
-  getUserStats,
-  getVisitStats
-} from './statistics'
+  getStatisticsOverview,
+  getArticleStatistics,
+  getUserStatistics,
+  getArticleTrend
+} from '@/api/statistics'
 
 // Mock request
 vi.mock('@/utils/request', () => ({
@@ -12,24 +12,24 @@ vi.mock('@/utils/request', () => ({
 }))
 
 describe('Blog Statistics API 测试', () => {
-  it('应该导出 getOverview 函数', () => {
-    expect(getOverview).toBeDefined()
-    expect(typeof getOverview).toBe('function')
+  it('应该导出 getStatisticsOverview 函数', () => {
+    expect(getStatisticsOverview).toBeDefined()
+    expect(typeof getStatisticsOverview).toBe('function')
   })
 
-  it('应该导出 getArticleStats 函数', () => {
-    expect(getArticleStats).toBeDefined()
-    expect(typeof getArticleStats).toBe('function')
+  it('应该导出 getArticleStatistics 函数', () => {
+    expect(getArticleStatistics).toBeDefined()
+    expect(typeof getArticleStatistics).toBe('function')
   })
 
-  it('应该导出 getUserStats 函数', () => {
-    expect(getUserStats).toBeDefined()
-    expect(typeof getUserStats).toBe('function')
+  it('应该导出 getUserStatistics 函数', () => {
+    expect(getUserStatistics).toBeDefined()
+    expect(typeof getUserStatistics).toBe('function')
   })
 
-  it('应该导出 getVisitStats 函数', () => {
-    expect(getVisitStats).toBeDefined()
-    expect(typeof getVisitStats).toBe('function')
+  it('应该导出 getArticleTrend 函数', () => {
+    expect(getArticleTrend).toBeDefined()
+    expect(typeof getArticleTrend).toBe('function')
   })
 
   it('应该支持日期范围查询', () => {

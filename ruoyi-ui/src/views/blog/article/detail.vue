@@ -578,7 +578,7 @@ const commentFormRef = ref(null)
 const loadArticleDetail = async () => {
   try {
     loading.value = true
-    const articleId = route.params.id
+    const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
 
     // 验证文章ID
     if (!articleId) {
@@ -669,7 +669,7 @@ const loadArticleDetail = async () => {
 // 获取评论列表
 const loadComments = async () => {
   try {
-    const articleId = route.params.id
+    const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
     const response = await getArticleComments(articleId)
 
     // 处理响应数据格式

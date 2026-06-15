@@ -25,10 +25,15 @@ export function hexToRgb(str: string): number[] {
   const hexs = str.match(/../g)
   if (!hexs) return [0, 0, 0]
 
+  const rgb: number[] = []
   for (let i = 0; i < 3; i++) {
-    hexs[i] = parseInt(hexs[i], 16) as any
+    const value = parseInt(hexs[i], 16)
+    if (Number.isNaN(value)) {
+      return [0, 0, 0]
+    }
+    rgb[i] = value
   }
-  return hexs as number[]
+  return rgb
 }
 
 // rgb颜色转Hex颜色

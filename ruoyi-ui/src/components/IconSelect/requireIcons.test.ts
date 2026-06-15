@@ -11,7 +11,6 @@ describe('requireIcons 测试', () => {
     expect(icons.length).toBeGreaterThan(0)
     icons.forEach(icon => {
       expect(typeof icon).toBe('string')
-      expect(icon.endsWith('.svg')).toBe(true)
       expect(icon).toMatch(/^[a-zA-Z0-9\-_]+$/)
     })
   })

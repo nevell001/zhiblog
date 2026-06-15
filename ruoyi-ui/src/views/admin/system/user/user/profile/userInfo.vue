@@ -94,7 +94,7 @@ const rules = ref({
 function submit() {
   ;(proxy.$refs.userRef as any).validate((valid: boolean) => {
     if (valid) {
-      updateUserProfile(form.value).then(() => {
+      updateUserProfile({ ...props.user, ...form.value } as any).then(() => {
         ;(proxy as any).$modal.msgSuccess('修改成功')
         props.user.phonenumber = form.value.phonenumber
         props.user.email = form.value.email

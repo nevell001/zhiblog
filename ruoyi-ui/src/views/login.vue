@@ -193,13 +193,13 @@ watch(
 )
 
 function handleLogin() {
-  proxy.$refs.loginRef.validate(valid => {
+  ;(proxy.$refs.loginRef as any).validate((valid: boolean) => {
     if (valid) {
       loading.value = true
       // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
       if (loginForm.value.rememberMe) {
         Cookies.set('username', loginForm.value.username, { expires: 30 })
-        Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 })
+        Cookies.set('password', encrypt(loginForm.value.password) || '', { expires: 30 })
         Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 })
       } else {
         // 否则移除
@@ -272,8 +272,9 @@ function getCookie() {
   const password = Cookies.get('password')
   const rememberMe = Cookies.get('rememberMe')
   loginForm.value = {
+    ...loginForm.value,
     username: username === undefined ? loginForm.value.username : username,
-    password: password === undefined ? loginForm.value.password : decrypt(password),
+    password: password === undefined ? loginForm.value.password : decrypt(password) || '',
     rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
   }
 }

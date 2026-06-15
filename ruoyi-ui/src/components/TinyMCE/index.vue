@@ -59,8 +59,8 @@ const initEditor = async () => {
   if (tinymce && typeof tinymce.init === 'function') {
     tinymce.init({
       selector: `#${id.value}`,
-      height: props.height,
-      min_height: props.minHeight,
+      height: Number(props.height),
+      min_height: Number(props.minHeight),
       language: 'en',
       license_key: 'gpl',
       menubar: 'file edit view insert format tools table help',

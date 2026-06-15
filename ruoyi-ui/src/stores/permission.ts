@@ -134,8 +134,8 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
         return
       }
     }
-    if (lastRouter) {
-      el.path = lastRouter.path + '/' + el.path
+    if (lastRouter && lastRouter !== true) {
+      el.path = (lastRouter as any).path + '/' + el.path
     }
     children = children.concat(el)
   })

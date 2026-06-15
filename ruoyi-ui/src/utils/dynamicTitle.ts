@@ -51,7 +51,7 @@ async function setSeoMetaTags(): Promise<void> {
 
     // 设置description
     if (seoDescription.configValue && seoDescription.configValue !== '') {
-      let metaDesc = document.querySelector('meta[name="description"]')
+      let metaDesc = document.querySelector<HTMLMetaElement>('meta[name="description"]')
       if (!metaDesc) {
         metaDesc = document.createElement('meta')
         metaDesc.name = 'description'
@@ -62,13 +62,13 @@ async function setSeoMetaTags(): Promise<void> {
 
     // 设置keywords
     if (seoKeywords.configValue && seoKeywords.configValue !== '') {
-      let metaKeywords = document.querySelector('meta[name="keywords"]')
+      let metaKeywords = document.querySelector<HTMLMetaElement>('meta[name="keywords"]')
       if (!metaKeywords) {
         metaKeywords = document.createElement('meta')
         metaKeywords.name = 'keywords'
         document.head.appendChild(metaKeywords)
       }
-      ;(metaKeywords as HTMLMetaElement).content = seoKeywords.data
+      ;(metaKeywords as HTMLMetaElement).content = seoKeywords.configValue
     }
   } catch (error) {
     console.error('设置SEO元标签失败:', error)

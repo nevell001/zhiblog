@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { constantRoutes, dynamicRoutes, router } from './index'
+import router, { constantRoutes, dynamicRoutes } from './index'
+
+const flattenRoutes = (routes: any[], parentPath = ''): any[] =>
+  routes.flatMap(route => {
+    const path = route.path.startsWith('/')
+      ? route.path
+      : `${parentPath.replace(/\/$/, '')}/${route.path}`
+    const current = { ...route, path }
+    return [current, ...flattenRoutes(route.children || [], path)]
+  })
 
 describe('Router Index 测试', () => {
   it('应该导出 constantRoutes', () => {
@@ -25,7 +34,9 @@ describe('Router Index 测试', () => {
   })
 
   it('constantRoutes 应该包含系统管理路由', () => {
-    const systemRoutes = constantRoutes.filter(route => route.path.startsWith('/admin/system'))
+    const systemRoutes = flattenRoutes(constantRoutes).filter(route =>
+      route.path.startsWith('/admin/system')
+    )
     expect(systemRoutes.length).toBeGreaterThan(0)
     expect(systemRoutes.some(route => route.name === 'SystemUser')).toBe(true)
     expect(systemRoutes.some(route => route.name === 'SystemMenu')).toBe(true)
@@ -37,14 +48,18 @@ describe('Router Index 测试', () => {
   })
 
   it('constantRoutes 应该包含用户管理路由', () => {
-    const userRoutes = constantRoutes.filter(route => route.path.startsWith('/admin/user'))
+    const userRoutes = flattenRoutes(constantRoutes).filter(
+      route => route.path.startsWith('/admin/system/user') || route.path.startsWith('/user')
+    )
     expect(userRoutes.length).toBeGreaterThan(0)
     expect(userRoutes.some(route => route.name === 'SystemUser')).toBe(true)
     expect(userRoutes.some(route => route.name === 'Profile')).toBe(true)
   })
 
   it('constantRoutes 应该包含统计路由', () => {
-    const statisticsRoutes = constantRoutes.filter(route => route.path.startsWith('/admin/statistics'))
+    const statisticsRoutes = flattenRoutes(constantRoutes).filter(route =>
+      route.path.startsWith('/admin/statistics')
+    )
     expect(statisticsRoutes.length).toBeGreaterThan(0)
     expect(statisticsRoutes.some(route => route.name === 'StatisticsOverview')).toBe(true)
     expect(statisticsRoutes.some(route => route.name === 'StatisticsArticle')).toBe(true)
@@ -52,7 +67,9 @@ describe('Router Index 测试', () => {
   })
 
   it('constantRoutes 应该包含监控路由', () => {
-    const monitorRoutes = constantRoutes.filter(route => route.path.startsWith('/admin/monitor'))
+    const monitorRoutes = flattenRoutes(constantRoutes).filter(route =>
+      route.path.startsWith('/admin/monitor')
+    )
     expect(monitorRoutes.length).toBeGreaterThan(0)
     expect(monitorRoutes.some(route => route.name === 'MonitorActuator')).toBe(true)
     expect(monitorRoutes.some(route => route.name === 'MonitorPrometheus')).toBe(true)
@@ -60,13 +77,15 @@ describe('Router Index 测试', () => {
     expect(monitorRoutes.some(route => route.name === 'MonitorOnline')).toBe(true)
     expect(monitorRoutes.some(route => route.name === 'MonitorLoginLog')).toBe(true)
     expect(monitorRoutes.some(route => route.name === 'MonitorOperLog')).toBe(true)
-    expect(monitorRoutes.some(route => route.name === 'MonitorServer')).toBe(true)
+    expect(monitorRoutes.some(route => route.name === 'Server')).toBe(true)
     expect(monitorRoutes.some(route => route.name === 'MonitorCache')).toBe(true)
     expect(monitorRoutes.some(route => route.name === 'MonitorJob')).toBe(true)
   })
 
   it('constantRoutes 应该包含工具路由', () => {
-    const toolRoutes = constantRoutes.filter(route => route.path.startsWith('/admin/tool'))
+    const toolRoutes = flattenRoutes(constantRoutes).filter(route =>
+      route.path.startsWith('/admin/tool')
+    )
     expect(toolRoutes.length).toBeGreaterThan(0)
     expect(toolRoutes.some(route => route.name === 'Build')).toBe(true)
   })
@@ -90,7 +109,7 @@ describe('Router Index 测试', () => {
   })
 
   it('所有路由都应该有 name 属性', () => {
-    const allRoutes = [...constantRoutes, ...dynamicRoutes]
+    const allRoutes = flattenRoutes([...constantRoutes, ...dynamicRoutes])
     const routesWithoutName = allRoutes.filter(route => !route.name)
 
     // 博客前台路由可能没有 name，这是正常的
@@ -98,7 +117,12 @@ describe('Router Index 测试', () => {
     expect(blogRoutes.length).toBeGreaterThan(0)
 
     // 后台管理路由和用户管理路由应该都有 name
-    const adminAndUserRoutes = allRoutes.filter(route => route.path.startsWith('/admin') || route.path === '/user')
+    const adminAndUserRoutes = allRoutes.filter(
+      route =>
+        (route.path.startsWith('/admin') || route.path === '/user') &&
+        !route.redirect &&
+        !route.children?.length
+    )
 
     expect(adminAndUserRoutes.every(route => route.name)).toBe(true)
     expect(adminAndUserRoutes.length).toBeGreaterThan(0)

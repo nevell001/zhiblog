@@ -85,7 +85,6 @@ interface LayoutElement {
   span: number
   labelWidth?: number | null
   required?: boolean
-  type?: string
   justify?: string
   align?: string
   gutter?: number

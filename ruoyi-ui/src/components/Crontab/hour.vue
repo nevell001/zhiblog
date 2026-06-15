@@ -114,8 +114,6 @@ watch(
   value => changeRadioValue(value)
 )
 
-// 监听相关值变化
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, 0, 22)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, 23)
@@ -129,6 +127,10 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
+
+// 监听相关值变化
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
+
 function changeRadioValue(value) {
   if (props.cron.min === '*') {
     emit('update', 'min', '0', 'hour')

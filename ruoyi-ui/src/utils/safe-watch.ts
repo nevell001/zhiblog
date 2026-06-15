@@ -9,11 +9,11 @@ import { watch as vueWatch, watchEffect as vueWatchEffect, WatchOptions, WatchSo
  */
 export function safeWatch<T>(
   source: WatchSource<T> | WatchSource<T>[],
-  callback: (value: T, oldValue: T, onCleanup: (cleanupFn: () => void) => void) => void,
+  callback: (value: T, oldValue: T | undefined, onCleanup: (cleanupFn: () => void) => void) => void,
   options?: WatchOptions
 ) {
   // 包装回调函数，添加错误处理
-  const wrappedCallback = (value: T, oldValue: T, onCleanup: (cleanupFn: () => void) => void) => {
+  const wrappedCallback = (value: T, oldValue: T | undefined, onCleanup: (cleanupFn: () => void) => void) => {
     // 包装 cleanup 函数，添加错误处理
     const wrappedCleanup = (cleanupFn: () => void) => {
       // 创建一个安全的清理函数
@@ -36,7 +36,7 @@ export function safeWatch<T>(
   }
 
   // 调用 Vue 的原始 watch 函数
-  return vueWatch(source, wrappedCallback, options)
+  return vueWatch(source as any, wrappedCallback as any, options)
 }
 
 /**

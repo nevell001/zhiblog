@@ -2,10 +2,10 @@ import { describe, it, expect, vi } from 'vitest'
 import {
   login,
   logout,
-  getCode,
+  getCodeImg,
   getInfo,
   register
-} from './login'
+} from '../login'
 
 // Mock request
 vi.mock('@/utils/request', () => ({
@@ -24,8 +24,8 @@ describe('Login API 测试', () => {
   })
 
   it('应该导出 getCode 函数', () => {
-    expect(getCode).toBeDefined()
-    expect(typeof getCode).toBe('function')
+    expect(getCodeImg).toBeDefined()
+    expect(typeof getCodeImg).toBe('function')
   })
 
   it('应该导出 getInfo 函数', () => {

@@ -64,7 +64,13 @@ import { ref, onMounted, nextTick } from 'vue'
 import { getArticleStatistics, getArticleCategoryDistribution, getHotTags } from '@/api/statistics'
 import * as echarts from 'echarts'
 
-const articleStats = ref({})
+interface ArticleStats {
+  publishedCount?: number
+  draftCount?: number
+  avgViews?: number
+}
+
+const articleStats = ref<ArticleStats>({})
 
 const loadData = async () => {
   try {

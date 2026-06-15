@@ -1,11 +1,10 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
-  login,
-  register,
-  logout,
-  getUserInfo,
-  updateProfile
-} from './user'
+  blogLogin,
+  blogRegister,
+  blogLogout,
+  getBlogUserInfo
+} from './auth'
 
 // Mock request
 vi.mock('@/utils/request', () => ({
@@ -14,28 +13,23 @@ vi.mock('@/utils/request', () => ({
 
 describe('Blog User API 测试', () => {
   it('应该导出 login 函数', () => {
-    expect(login).toBeDefined()
-    expect(typeof login).toBe('function')
+    expect(blogLogin).toBeDefined()
+    expect(typeof blogLogin).toBe('function')
   })
 
   it('应该导出 register 函数', () => {
-    expect(register).toBeDefined()
-    expect(typeof register).toBe('function')
+    expect(blogRegister).toBeDefined()
+    expect(typeof blogRegister).toBe('function')
   })
 
   it('应该导出 logout 函数', () => {
-    expect(logout).toBeDefined()
-    expect(typeof logout).toBe('function')
+    expect(blogLogout).toBeDefined()
+    expect(typeof blogLogout).toBe('function')
   })
 
   it('应该导出 getUserInfo 函数', () => {
-    expect(getUserInfo).toBeDefined()
-    expect(typeof getUserInfo).toBe('function')
-  })
-
-  it('应该导出 updateProfile 函数', () => {
-    expect(updateProfile).toBeDefined()
-    expect(typeof updateProfile).toBe('function')
+    expect(getBlogUserInfo).toBeDefined()
+    expect(typeof getBlogUserInfo).toBe('function')
   })
 
   it('应该支持用户登录', () => {

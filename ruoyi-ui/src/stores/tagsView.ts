@@ -1,8 +1,12 @@
 import { defineStore } from 'pinia'
-import type { RouteLocationNormalized } from 'vue-router'
-
-interface TagView extends Partial<RouteLocationNormalized> {
+export interface TagView {
   title?: string
+  fullPath?: string
+  path?: string
+  query?: any
+  name?: any
+  meta?: Record<string, any>
+  [key: string]: any
 }
 
 interface TagsViewState {
@@ -87,6 +91,13 @@ export const useTagsViewStore = defineStore('tags-view', {
     delCachedView(view: TagView): void {
       const index = this.cachedViews.indexOf(view.name as string)
       index > -1 && this.cachedViews.splice(index, 1)
+    },
+
+    delIframeView(view: TagView): void {
+      const index = this.iframeViews.findIndex(v => v.path === view.path)
+      if (index > -1) {
+        this.iframeViews.splice(index, 1)
+      }
     },
 
     delOthersViews(view: TagView): Promise<TagsViewResult> {

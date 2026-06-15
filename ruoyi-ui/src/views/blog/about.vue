@@ -297,7 +297,15 @@ interface BlogSettings {
 }
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
-const stats = ref({})
+interface BlogStats {
+  articleCount?: number
+  categoryCount?: number
+  tagCount?: number
+  commentCount?: number
+  totalViews?: number
+}
+
+const stats = ref<BlogStats>({})
 
 // 处理头像 URL
 const blogAvatarUrl = computed(() => {

@@ -1,9 +1,23 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
+import autoImport from 'unplugin-auto-import/vite'
 import { resolve } from 'path'
 
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    autoImport({
+      imports: [
+        'vue',
+        'vue-router',
+        'pinia',
+        {
+          '@/utils/safe-watch': ['safeWatch', 'safeWatchEffect']
+        }
+      ],
+      dts: false
+    })
+  ],
   test: {
     globals: true,
     environment: 'jsdom',
@@ -12,15 +26,9 @@ export default defineConfig({
     timeout: 10000,
     // 启用并行测试执行
     pool: 'threads',
-    // 线程池配置
-    poolOptions: {
-      threads: {
-        // 单个测试文件的最大线程数
-        maxThreads: 4,
-        // 最小线程数
-        minThreads: 2
-      }
-    },
+    // 线程池配置（Vitest 4 使用顶层 worker 配置）
+    maxWorkers: 4,
+    minWorkers: 2,
     // 最大并发测试数
     maxConcurrency: 4,
     // 启用测试缓存

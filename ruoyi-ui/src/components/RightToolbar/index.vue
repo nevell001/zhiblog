@@ -98,6 +98,14 @@
 </template>
 
 <script setup lang="ts">
+import type { CSSProperties } from 'vue'
+
+interface ColumnItem {
+  key?: string | number
+  label?: string
+  visible?: boolean
+}
+
 const props = defineProps({
   /* 是否显示检索条件 */
   showSearch: {
@@ -129,14 +137,14 @@ const props = defineProps({
 const emits = defineEmits(['update:showSearch', 'queryTable'])
 
 // 显隐数据
-const value = ref([])
+const value = ref<number[]>([])
 // 弹出层标题
 const title = ref('显示/隐藏')
 // 是否显示弹出层
 const open = ref(false)
 
 const style = computed(() => {
-  const ret = {}
+  const ret: CSSProperties = {}
   if (props.gutter) {
     ret.marginRight = `${props.gutter / 2}px`
   }
@@ -148,20 +156,20 @@ const isChecked = computed({
   get: () =>
     Array.isArray(props.columns)
       ? props.columns.every(col => col.visible)
-      : Object.values(props.columns).every(col => col.visible),
+      : Object.values(props.columns as Record<string, ColumnItem>).every(col => col.visible),
   set: () => {}
 })
 const isIndeterminate = computed(() =>
   Array.isArray(props.columns)
     ? props.columns.some(col => col.visible) && !isChecked.value
-    : Object.values(props.columns).some(col => col.visible) && !isChecked.value
+    : Object.values(props.columns as Record<string, ColumnItem>).some(col => col.visible) && !isChecked.value
 )
 const transferData = computed(() =>
   Array.isArray(props.columns)
     ? props.columns.map((item, index) => ({ key: index, label: item.label }))
-    : Object.keys(props.columns).map((key, index) => ({
+    : Object.keys(props.columns as Record<string, ColumnItem>).map((key, index) => ({
       key: index,
-      label: props.columns[key].label
+      label: (props.columns as Record<string, ColumnItem>)[key].label
     }))
 )
 
@@ -183,8 +191,8 @@ function dataChange(data) {
       props.columns[item].visible = !data.includes(key)
     }
   } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      props.columns[key].visible = !data.includes(index)
+    Object.keys(props.columns as Record<string, ColumnItem>).forEach((key, index) => {
+      ;(props.columns as Record<string, ColumnItem>)[key].visible = !data.includes(index)
     })
   }
 }
@@ -203,8 +211,8 @@ if (props.showColumnsType === 'transfer') {
       }
     }
   } else {
-    Object.keys(props.columns).forEach((key, index) => {
-      if (props.columns[key].visible === false) {
+    Object.keys(props.columns as Record<string, ColumnItem>).forEach((key, index) => {
+      if ((props.columns as Record<string, ColumnItem>)[key].visible === false) {
         value.value.push(index)
       }
     })
@@ -216,7 +224,7 @@ function checkboxChange(event, key) {
   if (Array.isArray(props.columns)) {
     props.columns.filter(item => item.key === key)[0].visible = event
   } else {
-    props.columns[key].visible = event
+    ;(props.columns as Record<string, ColumnItem>)[key].visible = event
   }
 }
 
@@ -226,7 +234,7 @@ function toggleCheckAll() {
   if (Array.isArray(props.columns)) {
     props.columns.forEach(col => (col.visible = newValue))
   } else {
-    Object.values(props.columns).forEach(col => (col.visible = newValue))
+    Object.values(props.columns as Record<string, ColumnItem>).forEach(col => (col.visible = newValue))
   }
 }
 </script>

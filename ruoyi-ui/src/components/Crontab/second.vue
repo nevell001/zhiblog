@@ -116,8 +116,6 @@ watch(
   value => changeRadioValue(value)
 )
 
-// 监听相关值变化
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, 0, 58)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, 59)
@@ -131,6 +129,10 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
+
+// 监听相关值变化
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
+
 function changeRadioValue(value) {
   if (value === '*') {
     radioValue.value = 1

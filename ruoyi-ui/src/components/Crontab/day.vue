@@ -117,9 +117,6 @@ watch(
   value => changeRadioValue(value)
 )
 
-// 监听相关值变化
-watch([radioValue, cycleTotal, averageTotal, workdayTotal, checkboxString], () => onRadioChange())
-
 const emit = defineEmits(['update'])
 const props = defineProps({
   cron: {
@@ -166,6 +163,10 @@ const workdayTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
+
+// 监听相关值变化
+watch([radioValue, cycleTotal, averageTotal, workdayTotal, checkboxString], () => onRadioChange())
+
 function changeRadioValue(value) {
   if (value === '*') {
     radioValue.value = 1

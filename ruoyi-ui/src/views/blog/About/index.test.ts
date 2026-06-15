@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import About from './index.vue'
+import About from '../about.vue'
 
 describe('About 页面测试', () => {
   beforeEach(() => {

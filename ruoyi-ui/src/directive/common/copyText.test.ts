@@ -11,16 +11,10 @@ describe('copyText 指令测试', () => {
     expect(typeof copyText).toBe('object')
   })
 
-  it('应该有 mounted 生命周期', () => {
+  it('应该有 beforeMount 生命周期', () => {
     const directive = copyText as any
-    expect(directive.mounted).toBeDefined()
-    expect(typeof directive.mounted).toBe('function')
-  })
-
-  it('应该有 updated 生命周期', () => {
-    const directive = copyText as any
-    expect(directive.updated).toBeDefined()
-    expect(typeof directive.updated).toBe('function')
+    expect(directive.beforeMount).toBeDefined()
+    expect(typeof directive.beforeMount).toBe('function')
   })
 
   it('应该复制文本到剪贴板', () => {

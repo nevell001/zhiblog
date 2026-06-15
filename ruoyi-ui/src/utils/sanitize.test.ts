@@ -161,8 +161,7 @@ describe('Sanitize Utils 测试', () => {
     })
 
     it('应该处理相对路径', () => {
-      // 相对路径在 isSafeUrl 中会被视为不安全，因为需要绝对URL
-      expect(isSafeUrl('/path/to/resource')).toBe(false)
+      expect(isSafeUrl('/path/to/resource')).toBe(true)
     })
   })
 

@@ -6,9 +6,11 @@ describe('Tab Plugin 测试', () => {
     vi.clearAllMocks()
   })
 
-  it('应该导出 tab 函数', () => {
+  it('应该导出 tab 插件对象', () => {
     expect(tab).toBeDefined()
-    expect(typeof tab).toBe('function')
+    expect(typeof tab).toBe('object')
+    expect(typeof tab.openPage).toBe('function')
+    expect(typeof tab.closePage).toBe('function')
   })
 
   it('应该打开新标签页', () => {

@@ -284,7 +284,7 @@ const loadArticlesByArchive = async (archiveDate: string) => {
   try {
     loadingArticles.value[archiveDate] = true
     const [year, month] = archiveDate.split('-')
-    const response = await getArticlesByArchive(year, month, { pageNum: 1, pageSize: 100 })
+    const response = await getArticlesByArchive(Number(year), Number(month), { pageNum: 1, pageSize: 100 })
 
     if (response && response.code === 200) {
       articlesByArchive.value[archiveDate] = response.rows || response.data || []

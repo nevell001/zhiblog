@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import AppMain from './index.vue'
+import AppMain from '../../layout/components/AppMain.vue'
 
 describe('AppMain 组件测试', () => {
   beforeEach(() => {

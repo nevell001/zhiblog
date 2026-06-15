@@ -82,9 +82,9 @@ describe('validate 工具测试', () => {
       expect(isEmpty('abc')).toBe(false)
       expect(isEmpty('0')).toBe(false)
       // isEmpty 函数只检查 null、undefined、空字符串和字符串 'undefined'，不检查 false、对象和数组
-      expect(isEmpty(false)).toBe(true)
-      expect(isEmpty([])).toBe(true)
-      expect(isEmpty({})).toBe(true)
+      expect(isEmpty(false)).toBe(false)
+      expect(isEmpty([])).toBe(false)
+      expect(isEmpty({})).toBe(false)
     })
   })
 

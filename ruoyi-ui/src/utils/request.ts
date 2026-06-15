@@ -4,7 +4,6 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig
 } from 'axios'
-import type { BlobPart } from 'node:buffer'
 import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
 import { getToken, getBlogToken, removeToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
@@ -216,7 +215,7 @@ export function download(
     .then(async (data: any) => {
       const isBlob = blobValidate(data)
       if (isBlob) {
-        const blob = new Blob([data] as BlobPart[])
+        const blob = new Blob([data])
         saveAs(blob, filename)
       } else {
         const resText = await (data as Blob).text()

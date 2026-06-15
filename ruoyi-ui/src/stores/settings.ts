@@ -7,6 +7,7 @@ interface SettingsState {
   sideTheme: string
   showSettings: boolean
   showTagsView: boolean
+  tagsView: boolean
   showSidebarLogo: boolean
   fixedHeader: boolean
   sidebarTextTheme: string
@@ -26,6 +27,7 @@ export const useSettingsStore = defineStore('settings', {
     sideTheme: defaultSettings.sideTheme,
     showSettings: defaultSettings.showSettings,
     showTagsView: defaultSettings.tagsView,
+    tagsView: defaultSettings.tagsView,
     showSidebarLogo: defaultSettings.sidebarLogo,
     fixedHeader: defaultSettings.fixedHeader,
     sidebarTextTheme: defaultSettings.sidebarTextTheme,

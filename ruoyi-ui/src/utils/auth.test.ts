@@ -1,19 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import Cookies from 'js-cookie'
 import {
   getToken,
   setToken,
   removeToken
 } from './auth'
 
-// Mock localStorage
-const mockLocalStorage = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn()
-}
+vi.mock('js-cookie', () => ({
+  default: {
+    get: vi.fn(),
+    set: vi.fn(),
+    remove: vi.fn()
+  }
+}))
 
-vi.stubGlobal('localStorage', mockLocalStorage)
+const mockCookies = vi.mocked(Cookies)
 
 describe('Auth Utils 测试', () => {
   beforeEach(() => {
@@ -28,8 +29,10 @@ describe('Auth Utils 测试', () => {
 
     it('应该从 localStorage 获取令牌', () => {
       const token = 'test-token-12345'
-      localStorage.setItem('Admin-Token', token)
-      expect(localStorage.getItem).toHaveBeenCalledWith('Admin-Token')
+      mockCookies.get.mockReturnValue(token)
+
+      expect(getToken()).toBe(token)
+      expect(mockCookies.get).toHaveBeenCalledWith('Admin-Token')
     })
 
     it('应该处理空令牌', () => {
@@ -51,8 +54,8 @@ describe('Auth Utils 测试', () => {
 
     it('应该将令牌存储到 localStorage', () => {
       const token = 'new-token-67890'
-      localStorage.setItem('Admin-Token', token)
-      expect(localStorage.setItem).toHaveBeenCalledWith('Admin-Token', token)
+      setToken(token)
+      expect(mockCookies.set).toHaveBeenCalledWith('Admin-Token', token)
     })
 
     it('应该处理空令牌', () => {
@@ -61,11 +64,12 @@ describe('Auth Utils 测试', () => {
     })
 
     it('应该覆盖现有令牌', () => {
-      const oldToken = 'old-token'
       const newToken = 'new-token'
-      localStorage.setItem('Admin-Token', oldToken)
-      localStorage.setItem('Admin-Token', newToken)
-      expect(localStorage.getItem('Admin-Token')).toBe(newToken)
+      mockCookies.get.mockReturnValue(newToken)
+
+      setToken(newToken)
+      expect(mockCookies.set).toHaveBeenCalledWith('Admin-Token', newToken)
+      expect(getToken()).toBe(newToken)
     })
   })
 
@@ -76,19 +80,18 @@ describe('Auth Utils 测试', () => {
     })
 
     it('应该从 localStorage 移除令牌', () => {
-      localStorage.removeItem('Admin-Token')
-      expect(localStorage.removeItem).toHaveBeenCalledWith('Admin-Token')
+      removeToken()
+      expect(mockCookies.remove).toHaveBeenCalledWith('Admin-Token')
     })
 
     it('应该处理不存在的令牌', () => {
-      localStorage.removeItem('Admin-Token')
-      const token = localStorage.getItem('Admin-Token')
-      expect(token).toBe(null)
+      mockCookies.get.mockReturnValue(undefined)
+      expect(getToken()).toBeUndefined()
     })
 
     it('应该支持清除所有存储', () => {
-      localStorage.clear()
-      expect(localStorage.clear).toHaveBeenCalled()
+      removeToken()
+      expect(mockCookies.remove).toHaveBeenCalledWith('Admin-Token')
     })
   })
 })

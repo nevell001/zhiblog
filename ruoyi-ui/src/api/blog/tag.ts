@@ -16,7 +16,7 @@ export function getTagList(query?: PageParams): Promise<QueryResult<Tag>> {
 /**
  * 获取标签详情（前台用）
  */
-export function getTagDetail(id: number): Promise<Tag> {
+export function getTagDetail(id: number): Promise<Tag & { data?: Tag }> {
   return request({
     url: '/blog/tag/' + id,
     method: 'get'
@@ -26,7 +26,7 @@ export function getTagDetail(id: number): Promise<Tag> {
 /**
  * 获取标签云
  */
-export function getTagCloud(): Promise<Tag[]> {
+export function getTagCloud(): Promise<Tag[] & { data?: Tag[] }> {
   return request({
     url: '/blog/tag/cloud',
     method: 'get',

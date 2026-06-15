@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import SizeSelect from '../index.vue'
+import SizeSelect from './index.vue'
 
 describe('SizeSelect 组件测试', () => {
   beforeEach(() => {

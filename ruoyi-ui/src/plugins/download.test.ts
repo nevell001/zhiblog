@@ -6,9 +6,12 @@ describe('Download Plugin 测试', () => {
     vi.clearAllMocks()
   })
 
-  it('应该导出 download 函数', () => {
+  it('应该导出 download 插件对象', () => {
     expect(download).toBeDefined()
-    expect(typeof download).toBe('function')
+    expect(typeof download).toBe('object')
+    expect(typeof download.name).toBe('function')
+    expect(typeof download.resource).toBe('function')
+    expect(typeof download.zip).toBe('function')
   })
 
   it('应该下载文件', () => {

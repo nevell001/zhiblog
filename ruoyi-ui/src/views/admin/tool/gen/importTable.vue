@@ -133,7 +133,7 @@ function show() {
 
 /** 单击选择行 */
 function clickRow(row) {
-  proxy.$refs.table.toggleRowSelection(row)
+  ;(proxy.$refs.table as any).toggleRowSelection(row)
 }
 
 /** 多选框选中数据 */

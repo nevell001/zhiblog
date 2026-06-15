@@ -13,7 +13,7 @@
         :key="tag.path"
         :data-path="tag.path"
         :class="{ active: isActive(tag), 'has-icon': tagsIcon }"
-        :to="{ path: tag.path, query: tag.query, fullPath: tag.fullPath }"
+        :to="{ path: tag.path, query: tag.query }"
         class="tags-view-item"
         :style="activeStyle(tag)"
         @click.middle="!isAffix(tag) ? closeSelectedTag(tag) : ''"
@@ -85,13 +85,14 @@ import { getNormalPath } from '@/utils/ruoyi'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
+import type { TagView } from '@/stores/tagsView'
 
 const visible = ref(false)
 const top = ref(0)
 const left = ref(0)
-const selectedTag = ref({})
-const affixTags = ref([])
-const scrollPaneRef = ref(null)
+const selectedTag = ref<TagView>({})
+const affixTags = ref<TagView[]>([])
+const scrollPaneRef = ref<any>(null)
 
 const { proxy } = getCurrentInstance()
 const route = useRoute()
@@ -125,11 +126,11 @@ onUnmounted(() => {
   // Watchers will be automatically cleaned up by Vue 3
 })
 
-function isActive(r) {
+function isActive(r: TagView) {
   return r.path === route.path
 }
 
-function activeStyle(tag) {
+function activeStyle(tag: TagView) {
   if (!isActive(tag)) return {}
   return {
     'background-color': theme.value,
@@ -137,7 +138,7 @@ function activeStyle(tag) {
   }
 }
 
-function isAffix(tag) {
+function isAffix(tag: TagView) {
   return tag.meta && tag.meta.affix
 }
 
@@ -160,8 +161,8 @@ function isLastView() {
   }
 }
 
-function filterAffixTags(routes, basePath = '') {
-  let tags = []
+function filterAffixTags(routes: any[], basePath = ''): TagView[] {
+  let tags: TagView[] = []
   routes.forEach(route => {
     if (route.meta && route.meta.affix) {
       const tagPath = getNormalPath(basePath + '/' + route.path)
@@ -214,14 +215,14 @@ function moveToCurrentTag() {
   })
 }
 
-function refreshSelectedTag(view) {
+function refreshSelectedTag(view: TagView) {
   proxy.$tab.refreshPage(view)
   if (route.meta.link) {
     useTagsViewStore().delIframeView(route)
   }
 }
 
-function closeSelectedTag(view) {
+function closeSelectedTag(view: TagView) {
   proxy.$tab.closePage(view).then(({ visitedViews }) => {
     if (isActive(view)) {
       toLastView(visitedViews, view)
@@ -246,13 +247,13 @@ function closeLeftTags() {
 }
 
 function closeOthersTags() {
-  router.push(selectedTag.value).catch(() => {})
+  router.push({ path: selectedTag.value.path || '/', query: selectedTag.value.query }).catch(() => {})
   proxy.$tab.closeOtherPage(selectedTag.value).then(() => {
     moveToCurrentTag()
   })
 }
 
-function closeAllTags(view) {
+function closeAllTags(view: TagView) {
   proxy.$tab.closeAllPage().then(({ visitedViews }) => {
     if (affixTags.value.some(tag => tag.path === route.path)) {
       return
@@ -261,7 +262,7 @@ function closeAllTags(view) {
   })
 }
 
-function toLastView(visitedViews, view) {
+function toLastView(visitedViews: TagView[], view?: TagView) {
   const latestView = visitedViews.slice(-1)[0]
   if (latestView) {
     router.push(latestView.fullPath)

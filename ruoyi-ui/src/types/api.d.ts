@@ -108,7 +108,14 @@ export interface QueryResult<T = any> {
   code: number
   msg: string
   rows: T[]
+  data?: T[]
   total: number
+}
+
+export interface DataResult<T = any> {
+  code?: number
+  msg?: string
+  data: T
 }
 
 /**

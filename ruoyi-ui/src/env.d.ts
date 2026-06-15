@@ -18,3 +18,35 @@ declare module '*.vue' {
   const component: DefineComponent<{}, {}, any>
   export default component
 }
+
+declare global {
+  interface Window {
+    hljs?: any
+    on?: any
+    webkitRequestAnimationFrame?: typeof requestAnimationFrame
+    mozRequestAnimationFrame?: typeof requestAnimationFrame
+  }
+
+  interface Document {
+    on?: any
+  }
+
+  interface Object {
+    on?: any
+  }
+}
+
+declare module '@vue/runtime-core' {
+  interface ComponentCustomProperties {
+    $tab: any
+    $modal: any
+    $download: any
+    $auth: any
+    $router: any
+    $route: any
+    resetForm: (refName: string) => void
+    handleTree: (...args: any[]) => any
+  }
+}
+
+export {}

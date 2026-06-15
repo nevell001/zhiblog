@@ -18,8 +18,8 @@ export function isPathMatch(pattern: string, path: string): boolean {
  * @param value 字符串值
  * @returns 是否为空
  */
-export function isEmpty(value: string | null | undefined): boolean {
-  if (value == null || value == '' || value == undefined || value == 'undefined') {
+export function isEmpty(value: any): boolean {
+  if (value === null || value === undefined || value === '' || value === 'undefined') {
     return true
   }
   return false
@@ -59,9 +59,12 @@ export function validUsername(str: string): boolean {
  * @returns 是否为有效URL
  */
 export function validURL(url: string): boolean {
-  const reg =
-    /^(https?|ftp):\/\/([a-zA-Z0-9.-]+(:[a-zA-Z0-9.&%$-]+)*@)*((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}|([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.(com|edu|gov|int|mil|net|org|biz|arpa|info|name|pro|aero|coop|museum|[a-zA-Z]{2}))(:[0-9]+)*(\/($|[a-zA-Z0-9.,?'\\+&%$#=~_-]+))*$/
-  return reg.test(url)
+  try {
+    const parsedUrl = new URL(url)
+    return ['http:', 'https:'].includes(parsedUrl.protocol)
+  } catch {
+    return false
+  }
 }
 
 /**

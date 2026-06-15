@@ -18,8 +18,12 @@ export const useDictStore = defineStore('dict', {
   },
 
   actions: {
-    setDict(dict: Record<string, any[]>): void {
-      this.dict = { ...this.dict, ...dict }
+    setDict(dictType: string | Record<string, any[]>, dict?: any[]): void {
+      if (typeof dictType === 'string') {
+        this.dict = { ...this.dict, [dictType]: dict || [] }
+      } else {
+        this.dict = { ...this.dict, ...dictType }
+      }
     },
 
     removeDict(dictType: string): void {

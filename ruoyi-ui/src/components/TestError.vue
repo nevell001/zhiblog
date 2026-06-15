@@ -49,7 +49,7 @@ const error = (message: string, err: Error) => {
 const testUndefinedOn = () => {
   try {
     const obj = undefined
-    obj.on('event')
+    ;(obj as any).on('event')
     log('测试 undefined.on() 成功（不应该发生）')
   } catch (err) {
     error('测试 undefined.on() 失败（预期结果）', err as Error)
@@ -59,7 +59,7 @@ const testUndefinedOn = () => {
 const testNullOn = () => {
   try {
     const obj = null
-    obj.on('event')
+    ;(obj as any).on('event')
     log('测试 null.on() 成功（不应该发生）')
   } catch (err) {
     error('测试 null.on() 失败（预期结果）', err as Error)
@@ -69,7 +69,7 @@ const testNullOn = () => {
 const testObjectOn = () => {
   try {
     const obj = {}
-    obj.on('event')
+    ;(obj as any).on('event')
     log('测试普通对象.on() 成功（不应该发生）')
   } catch (err) {
     error('测试普通对象.on() 失败（预期结果）', err as Error)
@@ -79,7 +79,7 @@ const testObjectOn = () => {
 const testWindowOn = () => {
   try {
     // 测试 window.on()
-    window.on('event')
+    ;(window as any).on('event')
     log('测试 window.on() 成功')
   } catch (err) {
     error('测试 window.on() 失败', err as Error)
@@ -89,14 +89,14 @@ const testWindowOn = () => {
 const testDocumentOn = () => {
   try {
     // 测试 document.on()
-    document.on('event')
+    ;(document as any).on('event')
     log('测试 document.on() 成功')
   } catch (err) {
     error('测试 document.on() 失败', err as Error)
   }
 }
 
-const testLoadTinyMCE = async () => {
+const loadTinyMCE = async () => {
   try {
     log('开始加载 TinyMCE...')
     const tinymce = await loadTinymce()

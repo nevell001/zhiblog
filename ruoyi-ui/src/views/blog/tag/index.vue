@@ -655,8 +655,9 @@ watch(
 
     if (newId) {
       // 有标签ID，加载特定标签的文章
-      currentTagId.value = parseInt(newId)
-      queryParams.tagId = parseInt(newId)
+      const tagId = Array.isArray(newId) ? newId[0] : newId
+      currentTagId.value = parseInt(tagId)
+      queryParams.tagId = parseInt(tagId)
       queryParams.pageNum = 1
       loadTagDetail()
       loadTagArticles()

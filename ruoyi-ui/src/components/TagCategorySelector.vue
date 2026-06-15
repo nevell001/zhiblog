@@ -299,7 +299,7 @@ const getRandomColor = () => {
 const getCategoryList = async () => {
   try {
     const response = await listCategory()
-    categoryOptions.value = response.rows || response.data || []
+    categoryOptions.value = response.rows || []
   } catch (error) {
     console.error('获取分类列表失败:', error)
   }
@@ -308,7 +308,7 @@ const getCategoryList = async () => {
 const getTagList = async () => {
   try {
     const response = await listTag()
-    tagOptions.value = response.rows || response.data || []
+    tagOptions.value = response.rows || []
   } catch (error) {
     console.error('获取标签列表失败:', error)
   }

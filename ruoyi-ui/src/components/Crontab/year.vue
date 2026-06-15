@@ -127,8 +127,6 @@ watch(
   value => changeRadioValue(value)
 )
 
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
-
 const cycleTotal = computed(() => {
   cycle01.value = props.check(cycle01.value, fullYear, maxFullYear - 1)
   cycle02.value = props.check(cycle02.value, cycle01.value + 1, maxFullYear)
@@ -142,6 +140,9 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
+
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
+
 function changeRadioValue(value) {
   if (value === '') {
     radioValue.value = 1

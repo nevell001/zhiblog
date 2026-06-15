@@ -57,7 +57,7 @@ export function delFriendLink(id: number): Promise<any> {
 /**
  * 查询前台友链列表（用于前台展示）
  */
-export function getFrontFriendLinkList(): Promise<FriendLink[]> {
+export function getFrontFriendLinkList(): Promise<FriendLink[] & { data?: FriendLink[] }> {
   return request({
     url: '/system/friendLink/front/list',
     method: 'get'

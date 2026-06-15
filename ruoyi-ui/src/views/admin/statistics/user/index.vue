@@ -74,7 +74,14 @@ import { ref, onMounted, nextTick } from 'vue'
 import { getUserStatistics, getUserRegisterTrend, getUserRoleDistribution } from '@/api/statistics'
 import * as echarts from 'echarts'
 
-const userStats = ref({})
+interface UserStats {
+  totalCount?: number
+  activeCount?: number
+  newCount?: number
+  adminCount?: number
+}
+
+const userStats = ref<UserStats>({})
 
 const loadData = async () => {
   try {

@@ -54,11 +54,12 @@ window.addEventListener('unhandledrejection', event => {
 
 // 添加全局错误捕获函数
 window.onerror = function (message, source, lineno, colno, error) {
+  const errorMessage = String(message || '')
   if (
-    message &&
-    (message.includes("Cannot read properties of undefined (reading 'on')") ||
-      message.includes("Cannot read properties of null (reading 'on')") ||
-      message.includes("reading 'on'"))
+    errorMessage &&
+    (errorMessage.includes("Cannot read properties of undefined (reading 'on')") ||
+      errorMessage.includes("Cannot read properties of null (reading 'on')") ||
+      errorMessage.includes("reading 'on'"))
   ) {
     console.warn('⚠️ 已拦截 window.onerror .on() 错误')
     return true

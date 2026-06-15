@@ -145,7 +145,7 @@ const options = reactive({
   fixedBox: true, // 固定截图框大小 不允许改变
   outputType: 'png', // 默认生成截图为PNG格式
   filename: 'avatar', // 文件名称
-  previews: {} //预览数据
+  previews: {} as { url?: string; img?: any } //预览数据
 })
 
 /** 编辑头像 */
@@ -163,18 +163,18 @@ function requestUpload() {}
 
 /** 向左旋转 */
 function rotateLeft() {
-  proxy.$refs.cropper.rotateLeft()
+  ;(proxy.$refs.cropper as any).rotateLeft()
 }
 
 /** 向右旋转 */
 function rotateRight() {
-  proxy.$refs.cropper.rotateRight()
+  ;(proxy.$refs.cropper as any).rotateRight()
 }
 
 /** 图片缩放 */
 function changeScale(num) {
   num = num || 1
-  proxy.$refs.cropper.changeScale(num)
+  ;(proxy.$refs.cropper as any).changeScale(num)
 }
 
 /** 上传预处理 */
@@ -185,7 +185,7 @@ function beforeUpload(file) {
     const reader = new FileReader()
     reader.readAsDataURL(file)
     reader.onload = () => {
-      options.img = reader.result
+      options.img = String(reader.result || '')
       options.filename = file.name
     }
   }
@@ -228,7 +228,7 @@ function realTime(data) {
 /** 关闭窗口 */
 function closeDialog() {
   options.img = userStore.avatar
-  options.visible = false
+  visible.value = false
 }
 </script>
 

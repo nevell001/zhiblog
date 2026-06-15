@@ -228,7 +228,8 @@ const handleLogin = async () => {
     })
 
     // 从响应中获取token
-    const token = res.token || res.data?.token
+    const loginResponse = res as any
+    const token = loginResponse.token || loginResponse.data?.token
 
     if (!token) {
       throw new Error('登录失败：未获取到token')

@@ -1,8 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
-  hasPermission,
-  hasRole,
-  hasPermi
+  checkPermi,
+  checkRole
 } from './permission'
 
 // Mock localStorage
@@ -20,16 +19,14 @@ describe('Permission Utils 测试', () => {
     vi.clearAllMocks()
   })
 
-  describe('hasPermission', () => {
-    it('应该导出 hasPermission 函数', () => {
-      expect(hasPermission).toBeDefined()
-      expect(typeof hasPermission).toBe('function')
+  describe('checkPermi', () => {
+    it('应该导出 checkPermi 函数', () => {
+      expect(checkPermi).toBeDefined()
+      expect(typeof checkPermi).toBe('function')
     })
 
-    it('应该检查权限', () => {
-      const permissions = ['system:user:add', 'system:user:edit']
-      const hasPerms = hasPermission('system:user:add')
-      expect(typeof hasPerms).toBe('boolean')
+    it('应该拒绝空权限数组', () => {
+      expect(checkPermi([])).toBe(false)
     })
 
     it('应该处理权限数组', () => {
@@ -39,16 +36,14 @@ describe('Permission Utils 测试', () => {
     })
   })
 
-  describe('hasRole', () => {
-    it('应该导出 hasRole 函数', () => {
-      expect(hasRole).toBeDefined()
-      expect(typeof hasRole).toBe('function')
+  describe('checkRole', () => {
+    it('应该导出 checkRole 函数', () => {
+      expect(checkRole).toBeDefined()
+      expect(typeof checkRole).toBe('function')
     })
 
-    it('应该检查角色', () => {
-      const roles = ['admin', 'editor']
-      const hasAdminRole = hasRole('admin')
-      expect(typeof hasAdminRole).toBe('boolean')
+    it('应该拒绝空角色数组', () => {
+      expect(checkRole([])).toBe(false)
     })
 
     it('应该处理角色数组', () => {
@@ -58,12 +53,7 @@ describe('Permission Utils 测试', () => {
     })
   })
 
-  describe('hasPermi', () => {
-    it('应该导出 hasPermi 函数', () => {
-      expect(hasPermi).toBeDefined()
-      expect(typeof hasPermi).toBe('function')
-    })
-
+  describe('权限标识', () => {
     it('应该检查权限标识', () => {
       const permission = 'system:user:add'
       expect(typeof permission).toBe('string')

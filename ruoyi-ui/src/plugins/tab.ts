@@ -24,11 +24,10 @@ export default {
         }
       })
     }
-    return useTagsViewStore()
-      .delCachedView(obj)
-      .then(() => {
+    useTagsViewStore().delCachedView(obj)
+    return Promise.resolve().then(() => {
         const { path, query } = obj as TabObject
-        router.replace({
+        return router.replace({
           path: '/redirect' + path,
           query: query
         })
@@ -81,6 +80,7 @@ export default {
   },
   // 修改tab页签
   updatePage(obj: TabObject): Promise<any> {
-    return useTagsViewStore().updateVisitedView(obj)
+    useTagsViewStore().updateVisitedView(obj)
+    return Promise.resolve()
   }
 }

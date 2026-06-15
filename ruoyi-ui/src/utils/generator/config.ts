@@ -18,9 +18,9 @@ export interface InputComponent {
   type?: string
   placeholder?: string
   defaultValue?: any
-  span: number
+  span?: number
   labelWidth: number | null
-  style: Record<string, any>
+  style?: Record<string, any>
   clearable?: boolean
   prepend?: string
   append?: string
@@ -62,7 +62,7 @@ export interface SelectComponent {
   document: string
   filterable?: boolean
   multiple?: boolean
-  options?: Array<{ label: string; value: any }>
+  options?: Array<{ id?: number; label: string; value: any; children?: any[] }>
   props?: Record<string, any>
   'show-all-levels'?: boolean
   dataType?: string
@@ -519,7 +519,7 @@ export interface LayoutComponent {
   tag?: string
   changeTag?: boolean
   labelWidth?: number | null
-  span: number
+  span?: number
   default?: string
   disabled?: boolean
   document?: string

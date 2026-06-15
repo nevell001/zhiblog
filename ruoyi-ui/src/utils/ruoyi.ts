@@ -50,16 +50,16 @@ export function parseTime(time?: string | Date | number, pattern?: string): stri
     s: date.getSeconds(),
     a: date.getDay()
   }
-  const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key) => {
-    let value = formatObj[key]
+  const time_str = format.replace(/{(y|m|d|h|i|s|a)+}/g, (result, key): string => {
+    const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
     if (key === 'a') {
       return ['日', '一', '二', '三', '四', '五', '六'][value]
     }
     if (result.length > 0 && value < 10) {
-      value = '0' + value
+      return '0' + value
     }
-    return value || 0
+    return String(value || 0)
   })
   return time_str
 }
@@ -121,11 +121,11 @@ export function selectDictLabels(
   if (value === undefined || (typeof value === 'string' && value.length === 0)) {
     return ''
   }
+  const currentSeparator = separator === undefined ? ',' : separator
   if (Array.isArray(value)) {
-    value = value.join(',')
+    value = value.join(currentSeparator)
   }
   const actions: string[] = []
-  const currentSeparator = separator === undefined ? ',' : separator
   const temp = (value as string).split(currentSeparator)
   Object.keys((value as string).split(currentSeparator)).some(val => {
     let match = false
@@ -146,7 +146,7 @@ export function selectDictLabels(
 
 // 字符串格式化(%s )
 export function sprintf(str: string, ...args: any[]): string {
-  let i = 1
+  let i = 0
   str = str.replace(/%s/g, function () {
     const arg = args[i++]
     if (typeof arg === 'undefined') {
@@ -249,11 +249,11 @@ export function tansParams(params: Record<string, any>): string {
 }
 
 // 返回项目路径
-export function getNormalPath(p: string): string {
-  if (p.length === 0 || !p || p == 'undefined') {
+export function getNormalPath(p?: string): string | undefined {
+  if (!p || p.length === 0 || p == 'undefined') {
     return p
   }
-  const res = p.replace('//', '/')
+  const res = p.replace(/\/+/g, '/')
   if (res[res.length - 1] === '/') {
     return res.slice(0, res.length - 1)
   }

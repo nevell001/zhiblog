@@ -69,7 +69,7 @@ export function getCategoryList(query?: PageParams): Promise<QueryResult<Categor
 /**
  * 获取分类详情（前台用）
  */
-export function getCategoryDetail(id: number): Promise<Category> {
+export function getCategoryDetail(id: number): Promise<Category & { data?: Category }> {
   return request({
     url: '/blog/category/' + id,
     method: 'get',

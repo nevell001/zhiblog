@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import dynamicTitle from './dynamicTitle'
+import { useDynamicTitle } from './dynamicTitle'
 
 // Mock useAppStore
 const mockStore = {
@@ -15,9 +15,9 @@ describe('DynamicTitle Utils 测试', () => {
     vi.clearAllMocks()
   })
 
-  it('应该导出 dynamicTitle 函数', () => {
-    expect(dynamicTitle).toBeDefined()
-    expect(typeof dynamicTitle).toBe('function')
+  it('应该导出 useDynamicTitle 函数', () => {
+    expect(useDynamicTitle).toBeDefined()
+    expect(typeof useDynamicTitle).toBe('function')
   })
 
   it('应该设置动态标题', () => {

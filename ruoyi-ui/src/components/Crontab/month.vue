@@ -116,8 +116,6 @@ watch(
   value => changeRadioValue(value)
 )
 
-// 监听相关值变化
-watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
 const monthList = ref([
   { key: 1, value: '一月' },
   { key: 2, value: '二月' },
@@ -145,6 +143,10 @@ const averageTotal = computed(() => {
 const checkboxString = computed(() => {
   return checkboxList.value.join(',')
 })
+
+// 监听相关值变化
+watch([radioValue, cycleTotal, averageTotal, checkboxString], () => onRadioChange())
+
 function changeRadioValue(value) {
   if (value === '*') {
     radioValue.value = 1

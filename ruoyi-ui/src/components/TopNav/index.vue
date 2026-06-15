@@ -53,10 +53,18 @@ import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
 
+interface MenuRoute {
+  path: string
+  parentPath?: string
+  query?: string
+  children?: MenuRoute[]
+  [key: string]: any
+}
+
 // 顶部栏初始数
-const visibleNumber = ref(null)
+const visibleNumber = ref<number | null>(null)
 // 当前激活菜单的 index
-const currentIndex = ref(null)
+const currentIndex = ref<string | null>(null)
 // 隐藏侧边栏路由
 const hideList = ['/index', '/user/profile']
 
@@ -73,8 +81,8 @@ const routers = computed(() => permissionStore.topbarRouters)
 
 // 顶部显示菜单
 const topMenus = computed(() => {
-  const topMenus = []
-  routers.value.map(menu => {
+  const topMenus: MenuRoute[] = []
+  ;(routers.value as MenuRoute[]).map(menu => {
     if ((menu as any).hidden !== true) {
       // 兼容顶部栏一级菜单内部跳转
       if (menu.path === '/' && menu.children) {
@@ -89,23 +97,24 @@ const topMenus = computed(() => {
 
 // 设置子路由
 const childrenMenus = computed(() => {
-  const childrenMenus = []
-  routers.value.map(router => {
-    for (const item in router.children) {
-      if (router.children[item].parentPath === undefined) {
+  const childrenMenus: MenuRoute[] = []
+  ;(routers.value as MenuRoute[]).map(router => {
+    for (const item in router.children || []) {
+      const child = router.children[item]
+      if (child.parentPath === undefined) {
         if (router.path === '/') {
-          router.children[item].path = '/' + router.children[item].path
+          child.path = '/' + child.path
         } else {
-          if (!isHttp(router.children[item].path)) {
-            router.children[item].path = router.path + '/' + router.children[item].path
+          if (!isHttp(child.path)) {
+            child.path = router.path + '/' + child.path
           }
         }
-        router.children[item].parentPath = router.path
+        child.parentPath = router.path
       }
-      childrenMenus.push(router.children[item])
+      childrenMenus.push(child)
     }
   })
-  return constantRoutes.concat(childrenMenus)
+  return (constantRoutes as MenuRoute[]).concat(childrenMenus)
 })
 
 // 默认激活的菜单
@@ -118,7 +127,7 @@ const activeMenu = computed(() => {
       activePath = '/' + tmpPath.substring(0, tmpPath.indexOf('/'))
       appStore.toggleSideBarHide(false)
     }
-  } else if (!route.children) {
+  } else if (!(route as any).children) {
     activePath = path
     appStore.toggleSideBarHide(true)
   }
@@ -128,10 +137,10 @@ const activeMenu = computed(() => {
 
 function setVisibleNumber() {
   const width = document.body.getBoundingClientRect().width / 3
-  visibleNumber.value = parseInt(width / 85)
+  visibleNumber.value = parseInt(String(width / 85))
 }
 
-function handleSelect(key, keyPath) {
+function handleSelect(key: string, keyPath?: string[]) {
   currentIndex.value = key
   const route = routers.value.find(item => item.path === key)
   if (isHttp(key)) {
@@ -154,8 +163,8 @@ function handleSelect(key, keyPath) {
   }
 }
 
-function activeRoutes(key) {
-  const routes = []
+function activeRoutes(key: string) {
+  const routes: MenuRoute[] = []
   if (childrenMenus.value && childrenMenus.value.length > 0) {
     childrenMenus.value.map(item => {
       if (key === item.parentPath || (key === 'index' && '' === item.path)) {
@@ -164,7 +173,7 @@ function activeRoutes(key) {
     })
   }
   if (routes.length > 0) {
-    permissionStore.setSidebarRouters(routes)
+    permissionStore.setSidebarRouters(routes as any)
   } else {
     appStore.toggleSideBarHide(true)
   }

@@ -30,6 +30,7 @@ interface UploadOptions {
   maxWidth?: number
   maxHeight?: number
   quality?: number
+  maxConcurrency?: number
 }
 
 interface UploadResult {
