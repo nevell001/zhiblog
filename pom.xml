@@ -75,6 +75,8 @@
             <junit.version>5.11.4</junit.version>
             <mockito.version>5.14.2</mockito.version>
             <jacoco.version>0.8.12</jacoco.version>
+            <surefire.version>3.2.5</surefire.version>
+            <argLine></argLine>
 
             </properties>
     <!-- 依赖声明 -->
@@ -474,6 +476,20 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!--
+                    Mockito inline mock maker needs instrumentation. Some JDK builds
+                    disable or break self-attach, so tests start Mockito as a Java agent.
+                    @{argLine} preserves JaCoCo's agent argument added during the build.
+                -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${surefire.version}</version>
+                    <configuration>
+                        <argLine>@{argLine} -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar -XX:+EnableDynamicAgentLoading</argLine>
+                        <useModulePath>false</useModulePath>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -495,6 +511,10 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

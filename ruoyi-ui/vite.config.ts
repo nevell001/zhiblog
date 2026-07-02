@@ -34,10 +34,10 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.vue']
     },
     build: {
-      sourcemap: command === 'build' ? true : 'inline',
+      sourcemap: command === 'build' ? false : 'inline',
       outDir: 'dist',
       assetsDir: 'assets',
-      chunkSizeWarningLimit: 500, // 减小 chunk 大小警告限制到 500kb
+      chunkSizeWarningLimit: 1200,
       rollupOptions: {
         output: {
           chunkFileNames: 'static/js/[name]-[hash].js',
@@ -48,9 +48,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
             // 将大型第三方库拆分为独立 chunks
             'vue-vendor': ['vue', 'vue-router', 'pinia'],
             'element-plus': ['element-plus', '@element-plus/icons-vue'],
-            tinymce: ['tinymce', '@tinymce/tinymce-vue'],
             echarts: ['echarts'],
-            highlight: ['highlight.js'],
             quill: ['@vueup/vue-quill'],
             // 将通用工具库拆分为独立 chunk
             utils: ['axios', 'js-cookie', 'file-saver', 'fuse.js', '@vueuse/core']
@@ -111,6 +109,11 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
     },
     // CSS 配置
     css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler'
+        }
+      },
       postcss: {
         from: undefined,
         plugins: [
