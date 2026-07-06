@@ -26,12 +26,12 @@ export default {
     }
     useTagsViewStore().delCachedView(obj)
     return Promise.resolve().then(() => {
-        const { path, query } = obj as TabObject
-        return router.replace({
-          path: '/redirect' + path,
-          query: query
-        })
+      const { path, query } = obj as TabObject
+      return router.replace({
+        path: '/redirect' + path,
+        query: query
       })
+    })
   },
   // 关闭当前tab页签，打开新页签
   closeOpenPage(obj: string): Promise<any> {

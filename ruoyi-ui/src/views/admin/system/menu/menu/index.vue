@@ -1,15 +1,7 @@
 <template>
   <div class="app-container">
-    <el-form
-      v-show="showSearch"
-      ref="queryRef"
-      :model="queryParams"
-      :inline="true"
-    >
-      <el-form-item
-        label="菜单名称"
-        prop="menuName"
-      >
+    <el-form v-show="showSearch" ref="queryRef" :model="queryParams" :inline="true">
+      <el-form-item label="菜单名称" prop="menuName">
         <el-input
           v-model="queryParams.menuName"
           placeholder="请输入菜单名称"
@@ -18,10 +10,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="状态"
-        prop="status"
-      >
+      <el-form-item label="状态" prop="status">
         <el-select
           v-model="queryParams.status"
           placeholder="菜单状态"
@@ -37,26 +26,12 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['system:menu:add']"
@@ -69,19 +44,9 @@
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="info"
-          plain
-          icon="Sort"
-          @click="toggleExpandAll"
-        >
-          展开/折叠
-        </el-button>
+        <el-button type="info" plain icon="Sort" @click="toggleExpandAll">展开/折叠</el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
     <el-table
@@ -92,55 +57,21 @@
       :default-expand-all="isExpandAll"
       :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
     >
-      <el-table-column
-        prop="menuName"
-        label="菜单名称"
-        :show-overflow-tooltip="true"
-        width="160"
-      />
-      <el-table-column
-        prop="icon"
-        label="图标"
-        align="center"
-        width="100"
-      >
+      <el-table-column prop="menuName" label="菜单名称" :show-overflow-tooltip="true" width="160" />
+      <el-table-column prop="icon" label="图标" align="center" width="100">
         <template #default="scope">
           <svg-icon :icon-class="scope.row.icon" />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="orderNum"
-        label="排序"
-        width="60"
-      />
-      <el-table-column
-        prop="perms"
-        label="权限标识"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        prop="component"
-        label="组件路径"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        prop="status"
-        label="状态"
-        width="80"
-      >
+      <el-table-column prop="orderNum" label="排序" width="60" />
+      <el-table-column prop="perms" label="权限标识" :show-overflow-tooltip="true" />
+      <el-table-column prop="component" label="组件路径" :show-overflow-tooltip="true" />
+      <el-table-column prop="status" label="状态" width="80">
         <template #default="scope">
-          <dict-tag
-            :options="sys_normal_disable"
-            :value="scope.row.status"
-          />
+          <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column
-        label="创建时间"
-        align="center"
-        width="160"
-        prop="createTime"
-      >
+      <el-table-column label="创建时间" align="center" width="160" prop="createTime">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -184,18 +115,8 @@
     </el-table>
 
     <!-- 添加或修改菜单对话框 -->
-    <el-dialog
-      v-model="open"
-      :title="title"
-      width="680px"
-      append-to-body
-    >
-      <el-form
-        ref="menuRef"
-        :model="form"
-        :rules="rules"
-        label-width="100px"
-      >
+    <el-dialog v-model="open" :title="title" width="680px" append-to-body>
+      <el-form ref="menuRef" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="24">
             <el-form-item label="上级菜单">
@@ -210,36 +131,17 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item
-              label="菜单类型"
-              prop="menuType"
-            >
+            <el-form-item label="菜单类型" prop="menuType">
               <el-radio-group v-model="form.menuType">
-                <el-radio value="M">
-                  目录
-                </el-radio>
-                <el-radio value="C">
-                  菜单
-                </el-radio>
-                <el-radio value="F">
-                  按钮
-                </el-radio>
+                <el-radio value="M">目录</el-radio>
+                <el-radio value="C">菜单</el-radio>
+                <el-radio value="F">按钮</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType != 'F'"
-            :span="12"
-          >
-            <el-form-item
-              label="菜单图标"
-              prop="icon"
-            >
-              <el-popover
-                placement="bottom-start"
-                :width="540"
-                trigger="click"
-              >
+          <el-col v-if="form.menuType != 'F'" :span="12">
+            <el-form-item label="菜单图标" prop="icon">
+              <el-popover placement="bottom-start" :width="540" trigger="click">
                 <template #reference>
                   <el-input
                     v-model="form.icon"
@@ -254,50 +156,27 @@
                         class="el-input__icon"
                         style="height: 32px; width: 16px"
                       />
-                      <el-icon
-                        v-else
-                        style="height: 32px; width: 16px"
-                      >
+                      <el-icon v-else style="height: 32px; width: 16px">
                         <search />
                       </el-icon>
                     </template>
                   </el-input>
                 </template>
-                <icon-select
-                  ref="iconSelectRef"
-                  :active-icon="form.icon"
-                  @selected="selected"
-                />
+                <icon-select ref="iconSelectRef" :active-icon="form.icon" @selected="selected" />
               </el-popover>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              label="显示排序"
-              prop="orderNum"
-            >
-              <el-input-number
-                v-model="form.orderNum"
-                controls-position="right"
-                :min="0"
-              />
+            <el-form-item label="显示排序" prop="orderNum">
+              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              label="菜单名称"
-              prop="menuName"
-            >
-              <el-input
-                v-model="form.menuName"
-                placeholder="请输入菜单名称"
-              />
+            <el-form-item label="菜单名称" prop="menuName">
+              <el-input v-model="form.menuName" placeholder="请输入菜单名称" />
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType == 'C'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType == 'C'" :span="12">
             <el-form-item prop="routeName">
               <template #label>
                 <span>
@@ -310,42 +189,26 @@
                   路由名称
                 </span>
               </template>
-              <el-input
-                v-model="form.routeName"
-                placeholder="请输入路由名称"
-              />
+              <el-input v-model="form.routeName" placeholder="请输入路由名称" />
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType != 'F'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType != 'F'" :span="12">
             <el-form-item>
               <template #label>
                 <span>
-                  <el-tooltip
-                    content="选择是外链则路由地址需要以`http(s)://`开头"
-                    placement="top"
-                  >
+                  <el-tooltip content="选择是外链则路由地址需要以`http(s)://`开头" placement="top">
                     <el-icon><question-filled /></el-icon>
                   </el-tooltip>
                   是否外链
                 </span>
               </template>
               <el-radio-group v-model="form.isFrame">
-                <el-radio value="0">
-                  是
-                </el-radio>
-                <el-radio value="1">
-                  否
-                </el-radio>
+                <el-radio value="0">是</el-radio>
+                <el-radio value="1">否</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType != 'F'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType != 'F'" :span="12">
             <el-form-item prop="path">
               <template #label>
                 <span>
@@ -358,16 +221,10 @@
                   路由地址
                 </span>
               </template>
-              <el-input
-                v-model="form.path"
-                placeholder="请输入路由地址"
-              />
+              <el-input v-model="form.path" placeholder="请输入路由地址" />
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType == 'C'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType == 'C'" :span="12">
             <el-form-item prop="component">
               <template #label>
                 <span>
@@ -380,22 +237,12 @@
                   组件路径
                 </span>
               </template>
-              <el-input
-                v-model="form.component"
-                placeholder="请输入组件路径"
-              />
+              <el-input v-model="form.component" placeholder="请输入组件路径" />
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType != 'M'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType != 'M'" :span="12">
             <el-form-item>
-              <el-input
-                v-model="form.perms"
-                placeholder="请输入权限标识"
-                maxlength="100"
-              />
+              <el-input v-model="form.perms" placeholder="请输入权限标识" maxlength="100" />
               <template #label>
                 <span>
                   <el-tooltip
@@ -409,20 +256,13 @@
               </template>
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType == 'C'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType == 'C'" :span="12">
             <el-form-item>
-              <el-input
-                v-model="form.query"
-                placeholder="请输入路由参数"
-                maxlength="255"
-              />
+              <el-input v-model="form.query" placeholder="请输入路由参数" maxlength="255" />
               <template #label>
                 <span>
                   <el-tooltip
-                    content="访问路由的默认传递参数，如：`{&quot;id&quot;: 1, &quot;name&quot;: &quot;ry&quot;}`"
+                    content='访问路由的默认传递参数，如：`{"id": 1, "name": "ry"}`'
                     placement="top"
                   >
                     <el-icon><question-filled /></el-icon>
@@ -432,10 +272,7 @@
               </template>
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType == 'C'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType == 'C'" :span="12">
             <el-form-item>
               <template #label>
                 <span>
@@ -449,19 +286,12 @@
                 </span>
               </template>
               <el-radio-group v-model="form.isCache">
-                <el-radio value="0">
-                  缓存
-                </el-radio>
-                <el-radio value="1">
-                  不缓存
-                </el-radio>
+                <el-radio value="0">缓存</el-radio>
+                <el-radio value="1">不缓存</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col
-            v-if="form.menuType != 'F'"
-            :span="12"
-          >
+          <el-col v-if="form.menuType != 'F'" :span="12">
             <el-form-item>
               <template #label>
                 <span>
@@ -475,11 +305,7 @@
                 </span>
               </template>
               <el-radio-group v-model="form.visible">
-                <el-radio
-                  v-for="dict in sys_show_hide"
-                  :key="dict.value"
-                  :value="dict.value"
-                >
+                <el-radio v-for="dict in sys_show_hide" :key="dict.value" :value="dict.value">
                   {{ dict.label }}
                 </el-radio>
               </el-radio-group>
@@ -499,11 +325,7 @@
                 </span>
               </template>
               <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in sys_normal_disable"
-                  :key="dict.value"
-                  :value="dict.value"
-                >
+                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">
                   {{ dict.label }}
                 </el-radio>
               </el-radio-group>
@@ -513,15 +335,8 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="submitForm"
-          >
-            确 定
-          </el-button>
-          <el-button @click="cancel">
-            取 消
-          </el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
     </el-dialog>

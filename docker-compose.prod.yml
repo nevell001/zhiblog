@@ -34,7 +34,7 @@ services:
       DB_HOST: mysql
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME:-newblog}
+      DB_NAME: ${DB_NAME:-zhiblog}
       REDIS_HOST: redis
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -43,7 +43,7 @@ services:
       DRUID_PASSWORD: ${DRUID_PASSWORD}
       SPRING_PROFILES_ACTIVE: prod
       # 直接设置 Spring Boot 配置属性
-      SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_USERNAME: ${DRUID_USERNAME:-ruoyi}
+      SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_USERNAME: ${DRUID_USERNAME:-nevell}
       SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_PASSWORD: ${DRUID_PASSWORD}
     networks:
       - ruoyi-network
@@ -73,7 +73,7 @@ services:
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME:-newblog}
+      MYSQL_DATABASE: ${DB_NAME:-zhiblog}
     ports:
       - "127.0.0.1:3306:3306"  # 仅本地访问
     volumes:

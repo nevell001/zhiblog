@@ -1,9 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { processAvatarUrl, getDefaultAvatar, getAvatarWithDefault, uploadAvatar, checkAvatarExists } from './avatar'
+import {
+  processAvatarUrl,
+  getDefaultAvatar,
+  getAvatarWithDefault,
+  uploadAvatar,
+  checkAvatarExists
+} from './avatar'
 
 // Mock request module
 vi.mock('@/utils/request', () => ({
-  default: vi.fn(() => Promise.resolve({ code: 200, url: '/uploads/avatar.jpg', fileName: 'avatar.jpg' }))
+  default: vi.fn(() =>
+    Promise.resolve({ code: 200, url: '/uploads/avatar.jpg', fileName: 'avatar.jpg' })
+  )
 }))
 
 describe('Avatar API 测试', () => {
@@ -29,8 +37,12 @@ describe('Avatar API 测试', () => {
     })
 
     it('应该返回完整的 HTTP/HTTPS URL', () => {
-      expect(processAvatarUrl('http://example.com/avatar.jpg')).toBe('http://example.com/avatar.jpg')
-      expect(processAvatarUrl('https://example.com/avatar.jpg')).toBe('https://example.com/avatar.jpg')
+      expect(processAvatarUrl('http://example.com/avatar.jpg')).toBe(
+        'http://example.com/avatar.jpg'
+      )
+      expect(processAvatarUrl('https://example.com/avatar.jpg')).toBe(
+        'https://example.com/avatar.jpg'
+      )
     })
 
     it('应该为相对路径添加基础路径', () => {
@@ -91,7 +103,7 @@ describe('Avatar API 测试', () => {
     it('应该返回成功结果', async () => {
       const file = new File(['test'], 'avatar.jpg', { type: 'image/jpeg' })
       const result = await uploadAvatar(file)
-      
+
       expect(result.success).toBe(true)
       expect(result.data).toBeDefined()
       expect(result.data?.url).toBeDefined()
@@ -100,7 +112,7 @@ describe('Avatar API 测试', () => {
     it('应该接受上传进度回调选项', () => {
       const file = new File(['test'], 'avatar.jpg', { type: 'image/jpeg' })
       const onProgress = vi.fn()
-      
+
       // 验证函数可以接受onProgress参数
       expect(() => uploadAvatar(file, { onProgress })).not.toThrow()
     })
@@ -126,10 +138,7 @@ describe('Avatar API 测试', () => {
       ;(global.fetch as any).mockResolvedValueOnce({ ok: true })
       const result = await checkAvatarExists('http://example.com/avatar.jpg')
       expect(result).toBe(true)
-      expect(global.fetch).toHaveBeenCalledWith(
-        'http://example.com/avatar.jpg',
-        { method: 'HEAD' }
-      )
+      expect(global.fetch).toHaveBeenCalledWith('http://example.com/avatar.jpg', { method: 'HEAD' })
     })
 
     it('应该在检查失败时返回 false', async () => {

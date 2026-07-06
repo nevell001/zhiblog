@@ -125,8 +125,10 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
           const newSettings: Record<string, any> = {}
 
           settings.forEach((setting: any) => {
-            if (setting.configKey) {
-              newSettings[setting.configKey] = setting.configValue
+            const key = setting.settingKey || setting.configKey
+            const value = setting.settingValue || setting.configValue
+            if (key) {
+              newSettings[key] = value
             }
           })
 

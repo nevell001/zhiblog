@@ -21,7 +21,7 @@
 1. **Maven 主配置** (`pom.xml`)
    ```xml
    <groupId>top.nevell</groupId>
-   <artifactId>newblog</artifactId>
+   <artifactId>zhiblog</artifactId>
    <version>1.3.2</version>  <!-- 项目版本 -->
    
    <properties>
@@ -62,7 +62,7 @@
    ```xml
    <parent>
        <groupId>top.nevell</groupId>
-       <artifactId>newblog</artifactId>
+       <artifactId>zhiblog</artifactId>
        <version>1.3.2</version>  <!-- 必须与父 POM 版本一致 -->
    </parent>
    ```

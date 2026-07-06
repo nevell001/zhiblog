@@ -40,9 +40,9 @@ describe('Blog Auth API 测试', () => {
     })
 
     it('应该调用博客注册接口', () => {
-      const registerData = { 
-        username: 'test', 
-        password: 'password', 
+      const registerData = {
+        username: 'test',
+        password: 'password',
         confirmPassword: 'password',
         email: 'test@example.com',
         emailCode: '123456'
@@ -75,7 +75,7 @@ describe('Blog Auth API 测试', () => {
           repeatSubmit: false
         },
         method: 'post',
-        params: { email: 'test@example.com' }
+        data: { email: 'test@example.com' }
       })
     })
   })
@@ -95,7 +95,7 @@ describe('Blog Auth API 测试', () => {
           repeatSubmit: false
         },
         method: 'post',
-        params: { email: 'test@example.com' }
+        data: { email: 'test@example.com' }
       })
     })
   })
@@ -107,7 +107,7 @@ describe('Blog Auth API 测试', () => {
     })
 
     it('应该调用重置密码接口', () => {
-      const resetData = { 
+      const resetData = {
         email: 'test@example.com',
         code: '123456',
         newPassword: 'newPassword',
@@ -121,7 +121,7 @@ describe('Blog Auth API 测试', () => {
           repeatSubmit: false
         },
         method: 'post',
-        params: resetData
+        data: resetData
       })
     })
   })

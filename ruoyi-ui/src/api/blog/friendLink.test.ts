@@ -148,7 +148,15 @@ describe('Friend Link API 测试', () => {
 
     it('应该调用 GET /system/friendLink/front/list', async () => {
       const friendLinks: FriendLink[] = [
-        { id: 1, name: '友链1', url: 'https://link1.com', logo: '', orderNum: 0, createTime: '', updateTime: '' }
+        {
+          id: 1,
+          name: '友链1',
+          url: 'https://link1.com',
+          logo: '',
+          orderNum: 0,
+          createTime: '',
+          updateTime: ''
+        }
       ]
       mockRequest.mockResolvedValue(friendLinks)
 
@@ -156,7 +164,8 @@ describe('Friend Link API 测试', () => {
 
       expect(mockRequest).toHaveBeenCalledWith({
         url: '/system/friendLink/front/list',
-        method: 'get'
+        method: 'get',
+        headers: { isToken: false }
       })
       expect(result).toEqual(friendLinks)
     })

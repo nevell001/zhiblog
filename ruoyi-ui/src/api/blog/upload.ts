@@ -84,16 +84,3 @@ export function uploadWatermarkImage(data: FormData, watermarkText: string): Pro
     headers: { 'Content-Type': 'multipart/form-data' }
   })
 }
-
-/**
- * 图片格式转换
- */
-export function convertImageFormat(data: FormData, targetFormat: string): Promise<any> {
-  return request({
-    url: '/common/convert-format',
-    method: 'post',
-    data: data,
-    params: { targetFormat: targetFormat },
-    headers: { 'Content-Type': 'multipart/form-data' }
-  })
-}

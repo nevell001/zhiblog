@@ -1,388 +1,280 @@
 <template>
   <div class="tag-container">
     <!-- 博客导航 -->
-    <BlogNav />
-
-    <!-- 标签头部 -->
-    <div
-      class="tag-header"
-      :style="{ backgroundColor: tagColor }"
-    >
-      <div class="header-content">
-        <div class="tag-info">
-          <div class="tag-icon-large">
-            <i class="el-icon-price-tag"></i>
+    <BlogLayout>
+      <!-- 标签头部 -->
+      <div class="tag-header" :style="{ backgroundColor: tagColor }">
+        <div class="header-content">
+          <div class="tag-info">
+            <div class="tag-icon-large">
+              <i class="el-icon-price-tag"></i>
+            </div>
+            <h1 class="tag-title">
+              {{ tagName || '文章标签' }}
+            </h1>
+            <p class="tag-description">
+              {{ tagDescription || `浏览标签"${tagName}"下的所有文章` }}
+            </p>
+            <div class="tag-stats">
+              <span class="stat-item">
+                <i class="el-icon-document-copy"></i>
+                {{ total }} 篇文章
+              </span>
+            </div>
           </div>
-          <h1 class="tag-title">
-            {{ tagName || '文章标签' }}
-          </h1>
-          <p class="tag-description">
-            {{ tagDescription || `浏览标签"${tagName}"下的所有文章` }}
-          </p>
-          <div class="tag-stats">
-            <span class="stat-item">
-              <i class="el-icon-document-copy"></i>
-              {{ total }} 篇文章
-            </span>
-          </div>
-        </div>
 
-        <!-- 返回按钮 -->
-        <div class="back-button">
-          <router-link
-            to="/"
-            class="back-link"
-          >
-            <el-button
-              type="default"
-              plain
-            >
-              <i class="el-icon-arrow-left"></i>
-              返回首页
-            </el-button>
-          </router-link>
-        </div>
-      </div>
-    </div>
-
-    <!-- 主要内容区域 -->
-    <div class="tag-main">
-      <div class="main-content">
-        <!-- 加载状态 -->
-        <div
-          v-if="loading"
-          class="loading-container"
-        >
-          <div class="loading-grid">
-            <el-skeleton
-              v-for="i in 6"
-              :key="i"
-              :loading="loading"
-              animated
-              class="skeleton-item"
-            >
-              <template #template>
-                <div class="article-item">
-                  <div class="article-cover">
-                    <el-skeleton-item
-                      variant="image"
-                      style="width: 100%; height: 200px"
-                    />
-                  </div>
-                  <div class="article-content">
-                    <el-skeleton-item
-                      variant="h3"
-                      style="width: 70%; margin-bottom: 15px"
-                    />
-                    <el-skeleton-item
-                      variant="text"
-                      style="width: 100%; margin-bottom: 10px"
-                    />
-                    <el-skeleton-item
-                      variant="text"
-                      style="width: 90%; margin-bottom: 10px"
-                    />
-                    <el-skeleton-item
-                      variant="text"
-                      style="width: 60%; margin-bottom: 15px"
-                    />
-                    <div style="display: flex; gap: 8px; margin-bottom: 15px">
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 60px; height: 24px"
-                      />
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 50px; height: 24px"
-                      />
-                    </div>
-                    <el-skeleton-item
-                      variant="text"
-                      style="width: 80px; height: 20px"
-                    />
-                  </div>
-                </div>
-              </template>
-            </el-skeleton>
-          </div>
-        </div>
-
-        <!-- 空状态 -->
-        <div
-          v-else-if="articleList.length === 0"
-          class="empty-state"
-        >
-          <div class="empty-content">
-            <i class="el-icon-price-tag empty-icon"></i>
-            <h3>暂无文章</h3>
-            <p>该标签下还没有文章，敬请期待...</p>
-            <router-link
-              to="/"
-              class="back-home-btn"
-            >
-              <el-button type="primary">
+          <!-- 返回按钮 -->
+          <div class="back-button">
+            <router-link to="/" class="back-link">
+              <el-button type="default" plain>
+                <i class="el-icon-arrow-left"></i>
                 返回首页
               </el-button>
             </router-link>
           </div>
         </div>
-
-        <!-- 文章列表 -->
-        <div
-          v-else
-          class="article-list"
-        >
-          <div
-            v-for="(article, index) in articleList"
-            :key="article.id"
-            class="article-item"
-            :style="{ animationDelay: `${index * 0.1}s` }"
-          >
-            <div
-              v-if="article.coverUrl"
-              class="article-cover"
-            >
-              <img
-                :src="article.coverUrl"
-                :alt="article.title"
-                loading="lazy"
-              />
-              <div
-                v-if="article.categoryName"
-                class="article-category-badge"
-              >
-                {{ article.categoryName }}
-              </div>
-            </div>
-            <div class="article-content">
-              <h2 class="article-title">
-                <router-link
-                  :to="`/blog/article/${article.id}`"
-                  :title="article.title"
-                >
-                  {{ article.title }}
-                </router-link>
-              </h2>
-              <div class="article-meta">
-                <span class="meta-item">
-                  <i class="el-icon-date"></i>
-                  {{ formatDate(article.createTime) }}
-                </span>
-                <span class="meta-item">
-                  <i class="el-icon-view"></i>
-                  {{ article.viewCount || 0 }} 阅读
-                </span>
-                <span
-                  v-if="article.likeCount"
-                  class="meta-item"
-                >
-                  <i class="el-icon-star-off"></i>
-                  {{ article.likeCount }} 点赞
-                </span>
-                <span
-                  v-if="article.commentCount"
-                  class="meta-item"
-                >
-                  <i class="el-icon-chat-line-round"></i>
-                  {{ article.commentCount }} 评论
-                </span>
-              </div>
-              <p class="article-summary">
-                {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
-              </p>
-              <div
-                v-if="article.tags && article.tags.length"
-                class="article-tags"
-              >
-                <span
-                  v-for="tag in article.tags.slice(0, 3)"
-                  :key="tag.id"
-                  class="tag-badge"
-                  :style="{ backgroundColor: tag.color || '#409EFF' }"
-                >
-                  {{ tag.name }}
-                </span>
-              </div>
-              <div class="article-footer">
-                <router-link
-                  :to="`/blog/article/${article.id}`"
-                  class="read-more"
-                >
-                  阅读全文
-                  <i class="el-icon-arrow-right"></i>
-                </router-link>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 加载更多 -->
-        <div
-          v-if="articleList.length < total && !loading"
-          class="load-more-container"
-        >
-          <el-button
-            type="primary"
-            :loading="loadingMore"
-            round
-            @click="loadMoreArticles"
-          >
-            {{ loadingMore ? '加载中...' : '加载更多' }}
-          </el-button>
-        </div>
-
-        <!-- 分页 -->
-        <div
-          v-if="total > queryParams.pageSize"
-          class="pagination-container"
-        >
-          <el-pagination
-            background
-            layout="prev, pager, next"
-            :total="total"
-            :page-size="queryParams.pageSize"
-            :current-page="queryParams.pageNum"
-            @current-change="handlePageChange"
-          />
-        </div>
       </div>
 
-      <!-- 侧边栏 -->
-      <div class="sidebar">
-        <!-- 关于这个标签 -->
-        <div
-          class="sidebar-widget"
-          :style="{ animationDelay: '0.1s' }"
-        >
-          <h3 class="widget-title">
-            <i class="el-icon-price-tag"></i>
-            关于这个标签
-          </h3>
-          <div class="tag-about">
-            <div
-              class="tag-icon"
-              :style="{ backgroundColor: tagColor }"
-            >
-              <i class="el-icon-price-tag"></i>
-            </div>
-            <h4 class="tag-name">
-              {{ tagName || '未命名标签' }}
-            </h4>
-            <p class="tag-desc">
-              {{ tagDescription || '暂无描述' }}
-            </p>
-            <div class="tag-meta">
-              <span class="meta-item">
-                <i class="el-icon-document-copy"></i>
-                {{ total }} 篇文章
-              </span>
-              <span class="meta-item">
-                <i class="el-icon-date"></i>
-                创建时间 {{ formatDate(tagCreateTime) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 相关标签 -->
-        <div
-          class="sidebar-widget"
-          :style="{ animationDelay: '0.2s' }"
-        >
-          <h3 class="widget-title">
-            <i class="el-icon-share"></i>
-            相关标签
-          </h3>
-          <div class="related-tags">
-            <router-link
-              v-for="(tag, index) in relatedTags.slice(0, 12)"
-              :key="tag.id"
-              :to="`/blog/tag/${tag.id}`"
-              class="related-tag-item"
-              :class="{ active: tag.id === currentTagId }"
-              :style="{
-                animationDelay: `${0.3 + index * 0.05}s`,
-                backgroundColor: tag.color || '#409EFF',
-                fontSize: getTagFontSize(tag.article_count) + 'px',
-                transform: `scale(${getTagScale(tag.article_count)})`
-              }"
-            >
-              {{ tag.name }}
-              <span class="tag-count">({{ tag.article_count }})</span>
-            </router-link>
-          </div>
-        </div>
-
-        <!-- 热门标签 -->
-        <div
-          class="sidebar-widget"
-          :style="{ animationDelay: '0.3s' }"
-        >
-          <h3 class="widget-title">
-            <i class="el-icon-star-on"></i>
-            热门标签
-          </h3>
-          <div class="popular-tags">
-            <div
-              v-for="(tag, index) in popularTags.slice(0, 10)"
-              :key="tag.id"
-              class="popular-tag-item"
-              :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
-            >
-              <div class="tag-rank">
-                #{{ popularTags.indexOf(tag) + 1 }}
-              </div>
-              <router-link
-                :to="`/blog/tag/${tag.id}`"
-                class="tag-link"
-                :style="{ color: tag.color || '#409EFF' }"
+      <!-- 主要内容区域 -->
+      <div class="tag-main">
+        <div class="main-content">
+          <!-- 加载状态 -->
+          <div v-if="loading" class="loading-container">
+            <div class="loading-grid">
+              <el-skeleton
+                v-for="i in 6"
+                :key="i"
+                :loading="loading"
+                animated
+                class="skeleton-item"
               >
-                {{ tag.name }}
-              </router-link>
-              <div class="tag-article-count">
-                {{ tag.article_count }}篇
-              </div>
+                <template #template>
+                  <div class="article-item">
+                    <div class="article-cover">
+                      <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
+                    </div>
+                    <div class="article-content">
+                      <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
+                      <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
+                      <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
+                      <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
+                      <div style="display: flex; gap: 8px; margin-bottom: 15px">
+                        <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
+                        <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
+                      </div>
+                      <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
+                    </div>
+                  </div>
+                </template>
+              </el-skeleton>
             </div>
           </div>
-        </div>
 
-        <!-- 最新文章 -->
-        <div
-          class="sidebar-widget"
-          :style="{ animationDelay: '0.4s' }"
-        >
-          <h3 class="widget-title">
-            <i class="el-icon-star-on"></i>
-            最新文章
-          </h3>
-          <ul class="recent-articles">
-            <li
-              v-for="(article, index) in recentArticles.slice(0, 8)"
+          <!-- 空状态 -->
+          <div v-else-if="articleList.length === 0" class="empty-state">
+            <div class="empty-content">
+              <i class="el-icon-price-tag empty-icon"></i>
+              <h3>暂无文章</h3>
+              <p>该标签下还没有文章，敬请期待...</p>
+              <router-link to="/" class="back-home-btn">
+                <el-button type="primary">返回首页</el-button>
+              </router-link>
+            </div>
+          </div>
+
+          <!-- 文章列表 -->
+          <div v-else class="article-list">
+            <div
+              v-for="(article, index) in articleList"
               :key="article.id"
               class="article-item"
-              :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
+              :style="{ animationDelay: `${index * 0.1}s` }"
             >
+              <div v-if="article.coverUrl" class="article-cover">
+                <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
+                <div v-if="article.categoryName" class="article-category-badge">
+                  {{ article.categoryName }}
+                </div>
+              </div>
+              <div class="article-content">
+                <h2 class="article-title">
+                  <router-link :to="`/blog/article/${article.id}`" :title="article.title">
+                    {{ article.title }}
+                  </router-link>
+                </h2>
+                <div class="article-meta">
+                  <span class="meta-item">
+                    <i class="el-icon-date"></i>
+                    {{ formatDate(article.createTime) }}
+                  </span>
+                  <span class="meta-item">
+                    <i class="el-icon-view"></i>
+                    {{ article.viewCount || 0 }} 阅读
+                  </span>
+                  <span v-if="article.likeCount" class="meta-item">
+                    <i class="el-icon-star-off"></i>
+                    {{ article.likeCount }} 点赞
+                  </span>
+                  <span v-if="article.commentCount" class="meta-item">
+                    <i class="el-icon-chat-line-round"></i>
+                    {{ article.commentCount }} 评论
+                  </span>
+                </div>
+                <p class="article-summary">
+                  {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
+                </p>
+                <div v-if="article.tags && article.tags.length" class="article-tags">
+                  <span
+                    v-for="tag in article.tags.slice(0, 3)"
+                    :key="tag.id"
+                    class="tag-badge"
+                    :style="{ backgroundColor: tag.color || '#4a7bff' }"
+                  >
+                    {{ tag.name }}
+                  </span>
+                </div>
+                <div class="article-footer">
+                  <router-link :to="`/blog/article/${article.id}`" class="read-more">
+                    阅读全文
+                    <i class="el-icon-arrow-right"></i>
+                  </router-link>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 加载更多 -->
+          <div v-if="articleList.length < total && !loading" class="load-more-container">
+            <el-button type="primary" :loading="loadingMore" round @click="loadMoreArticles">
+              {{ loadingMore ? '加载中...' : '加载更多' }}
+            </el-button>
+          </div>
+
+          <!-- 分页 -->
+          <div v-if="total > queryParams.pageSize" class="pagination-container">
+            <el-pagination
+              background
+              layout="prev, pager, next"
+              :total="total"
+              :page-size="queryParams.pageSize"
+              :current-page="queryParams.pageNum"
+              @current-change="handlePageChange"
+            />
+          </div>
+        </div>
+
+        <!-- 侧边栏 -->
+        <div class="sidebar">
+          <!-- 关于这个标签 -->
+          <div class="sidebar-widget" :style="{ animationDelay: '0.1s' }">
+            <h3 class="widget-title">
+              <i class="el-icon-price-tag"></i>
+              关于这个标签
+            </h3>
+            <div class="tag-about">
+              <div class="tag-icon" :style="{ backgroundColor: tagColor }">
+                <i class="el-icon-price-tag"></i>
+              </div>
+              <h4 class="tag-name">
+                {{ tagName || '未命名标签' }}
+              </h4>
+              <p class="tag-desc">
+                {{ tagDescription || '暂无描述' }}
+              </p>
+              <div class="tag-meta">
+                <span class="meta-item">
+                  <i class="el-icon-document-copy"></i>
+                  {{ total }} 篇文章
+                </span>
+                <span class="meta-item">
+                  <i class="el-icon-date"></i>
+                  创建时间 {{ formatDate(tagCreateTime) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 相关标签 -->
+          <div class="sidebar-widget" :style="{ animationDelay: '0.2s' }">
+            <h3 class="widget-title">
+              <i class="el-icon-share"></i>
+              相关标签
+            </h3>
+            <div class="related-tags">
               <router-link
-                :to="`/blog/article/${article.id}`"
-                class="article-link"
-                :title="article.title"
+                v-for="(tag, index) in relatedTags.slice(0, 12)"
+                :key="tag.id"
+                :to="`/blog/tag/${tag.id}`"
+                class="related-tag-item"
+                :class="{ active: tag.id === currentTagId }"
+                :style="{
+                  animationDelay: `${0.3 + index * 0.05}s`,
+                  backgroundColor: tag.color || '#4a7bff',
+                  fontSize: getTagFontSize(tag.article_count) + 'px',
+                  transform: `scale(${getTagScale(tag.article_count)})`
+                }"
               >
-                <span class="article-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
-                <span class="article-title">{{ article.title }}</span>
+                {{ tag.name }}
+                <span class="tag-count">({{ tag.article_count }})</span>
               </router-link>
-            </li>
-          </ul>
+            </div>
+          </div>
+
+          <!-- 热门标签 -->
+          <div class="sidebar-widget" :style="{ animationDelay: '0.3s' }">
+            <h3 class="widget-title">
+              <i class="el-icon-star-on"></i>
+              热门标签
+            </h3>
+            <div class="popular-tags">
+              <div
+                v-for="(tag, index) in popularTags.slice(0, 10)"
+                :key="tag.id"
+                class="popular-tag-item"
+                :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
+              >
+                <div class="tag-rank">#{{ popularTags.indexOf(tag) + 1 }}</div>
+                <router-link
+                  :to="`/blog/tag/${tag.id}`"
+                  class="tag-link"
+                  :style="{ color: tag.color || '#4a7bff' }"
+                >
+                  {{ tag.name }}
+                </router-link>
+                <div class="tag-article-count">{{ tag.article_count }}篇</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 最新文章 -->
+          <div class="sidebar-widget" :style="{ animationDelay: '0.4s' }">
+            <h3 class="widget-title">
+              <i class="el-icon-star-on"></i>
+              最新文章
+            </h3>
+            <ul class="recent-articles">
+              <li
+                v-for="(article, index) in recentArticles.slice(0, 8)"
+                :key="article.id"
+                class="article-item"
+                :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
+              >
+                <router-link
+                  :to="`/blog/article/${article.id}`"
+                  class="article-link"
+                  :title="article.title"
+                >
+                  <span class="article-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
+                  <span class="article-title">{{ article.title }}</span>
+                </router-link>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 博客底部 -->
-    <BlogFooter
-      :blog-settings="blogSettings"
-      :total-articles="0"
-      :category-count="0"
-      :tag-count="0"
-    />
+      <!-- 博客底部 -->
+    </BlogLayout>
   </div>
 </template>
 
@@ -393,9 +285,7 @@ import { ElMessage } from 'element-plus'
 
 import { useRoute } from 'vue-router'
 
-import BlogNav from '@/components/BlogNav.vue'
-
-import BlogFooter from '@/components/BlogFooter.vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 
 import { getArticlesByTag, getTagDetail } from '@/api/blog/tag'
 
@@ -419,7 +309,7 @@ const tagName = ref('')
 
 const tagDescription = ref('')
 
-const tagColor = ref('#409EFF')
+const tagColor = ref('#4a7bff')
 
 const tagCreateTime = ref('')
 
@@ -529,7 +419,7 @@ const loadTagDetail = async () => {
 
     tagName.value = tag.name || ''
     tagDescription.value = tag.description || ''
-    tagColor.value = tag.color || '#409EFF'
+    tagColor.value = tag.color || '#4a7bff'
     tagCreateTime.value = tag.createTime || new Date().toISOString()
 
     // 更新页面显示的文章数量
@@ -687,6 +577,7 @@ onMounted(() => {
 
 <style scoped>
 .tag-container {
+  padding-top: 64px;
   min-height: 100vh;
   background-color: #f5f5f5;
 }
@@ -875,7 +766,7 @@ onMounted(() => {
 }
 
 .article-title a:hover {
-  color: #409eff;
+  color: #4a7bff;
   transform: translateX(4px);
 }
 
@@ -900,7 +791,7 @@ onMounted(() => {
 
 .meta-item:hover {
   background: rgba(64, 158, 255, 0.1);
-  color: #409eff;
+  color: #4a7bff;
 }
 
 .meta-item i {
@@ -969,7 +860,7 @@ onMounted(() => {
 }
 
 .read-more {
-  color: #409eff;
+  color: #4a7bff;
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -987,12 +878,12 @@ onMounted(() => {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #409eff, #337ecc);
+  background: linear-gradient(90deg, #4a7bff, #6b8cff);
   transition: width 0.3s ease;
 }
 
 .read-more:hover {
-  color: #337ecc;
+  color: #6b8cff;
   transform: translateX(4px);
 }
 
@@ -1037,7 +928,7 @@ onMounted(() => {
   font-size: 1.2rem;
   margin: 0 0 15px 0;
   padding-bottom: 10px;
-  border-bottom: 2px solid #409eff;
+  border-bottom: 2px solid #4a7bff;
   color: #333;
 }
 
@@ -1147,7 +1038,7 @@ onMounted(() => {
 
 .tag-rank {
   font-weight: bold;
-  color: #409eff;
+  color: #4a7bff;
   min-width: 24px;
   text-align: center;
 }
@@ -1197,7 +1088,7 @@ onMounted(() => {
 }
 
 .article-link:hover {
-  color: #409eff;
+  color: #4a7bff;
 }
 
 .article-date {
@@ -1497,7 +1388,7 @@ html.dark .tag-container {
 }
 
 html.dark .tag-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
 }
 
 html.dark .tag-title {
@@ -1534,7 +1425,7 @@ html.dark .article-title a {
 }
 
 html.dark .article-title a:hover {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .article-meta {
@@ -1547,8 +1438,8 @@ html.dark .meta-item {
 }
 
 html.dark .meta-item:hover {
-  background: rgba(102, 126, 234, 0.15);
-  color: #667eea;
+  background: rgba(74, 123, 255, 0.15);
+  color: #4a7bff;
 }
 
 html.dark .article-summary {
@@ -1560,7 +1451,7 @@ html.dark .article-footer {
 }
 
 html.dark .read-more {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .read-more:hover {
@@ -1574,7 +1465,7 @@ html.dark .sidebar-widget {
 
 html.dark .widget-title {
   color: #e0e0e0;
-  border-bottom-color: #667eea;
+  border-bottom-color: #4a7bff;
 }
 
 html.dark .tag-about .tag-name {
@@ -1604,7 +1495,7 @@ html.dark .popular-tag-item {
 }
 
 html.dark .tag-rank {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .tag-link {
@@ -1624,7 +1515,7 @@ html.dark .article-link {
 }
 
 html.dark .article-link:hover {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .article-date {

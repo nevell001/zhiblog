@@ -1,11 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import {
-  login,
-  logout,
-  getCodeImg,
-  getInfo,
-  register
-} from '../login'
+import { login, logout, getCodeImg, getInfo, register } from '../login'
 
 // Mock request
 vi.mock('@/utils/request', () => ({

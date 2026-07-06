@@ -1,11 +1,7 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-      <el-col
-        :sm="24"
-        :lg="12"
-        style="padding-left: 20px"
-      >
+      <el-col :sm="24" :lg="12" style="padding-left: 20px">
         <h2>博客后台管理系统</h2>
         <p>
           基于SpringBoot和Vue.js开发的现代化博客管理系统，提供完整的文章管理、分类管理、标签管理、评论管理等功能。系统采用前后端分离架构，界面简洁美观，操作便捷高效，支持多用户权限管理，满足个人博客和企业内容管理的需求。
@@ -15,9 +11,7 @@
           <span>v{{ version }}</span>
         </p>
         <p>
-          <el-tag type="danger">
-            &yen;免费开源
-          </el-tag>
+          <el-tag type="danger">&yen;免费开源</el-tag>
         </p>
         <p>
           <el-button
@@ -30,10 +24,7 @@
             </template>
             访问码云
           </el-button>
-          <el-button
-            plain
-            @click="goTarget('/blog')"
-          >
+          <el-button plain @click="goTarget('/blog')">
             <template #icon>
               <i class="el-icon-HomeFilled"></i>
             </template>
@@ -42,11 +33,7 @@
         </p>
       </el-col>
 
-      <el-col
-        :sm="24"
-        :lg="12"
-        style="padding-left: 50px"
-      >
+      <el-col :sm="24" :lg="12" style="padding-left: 50px">
         <el-row>
           <el-col :span="12">
             <h2>技术选型</h2>
@@ -82,12 +69,7 @@
     </el-row>
     <el-divider />
     <el-row :gutter="20">
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="8"
-      >
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <el-card class="update-log">
           <template #header>
             <div class="clearfix">
@@ -98,12 +80,7 @@
             <p>
               <i class="el-icon-s-promotion"></i>
               博客地址：
-              <el-link
-                href="/blog"
-                target="_blank"
-              >
-                /blog
-              </el-link>
+              <el-link href="/blog" target="_blank">/blog</el-link>
             </p>
             <p>
               <i class="el-icon-user-solid"></i>
@@ -148,20 +125,12 @@
             <p>
               <i class="el-icon-money"></i>
               支付宝：
-              <a
-                href="javascript:;"
-                class="支付宝信息"
-              >/ *若依</a>
+              <a href="javascript:;" class="支付宝信息">/ *若依</a>
             </p>
           </div>
         </el-card>
       </el-col>
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="8"
-      >
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <el-card class="update-log">
           <template #header>
             <div class="clearfix">
@@ -1088,12 +1057,7 @@
           </el-collapse>
         </el-card>
       </el-col>
-      <el-col
-        :xs="24"
-        :sm="24"
-        :md="12"
-        :lg="8"
-      >
+      <el-col :xs="24" :sm="24" :md="12" :lg="8">
         <el-card class="update-log">
           <template #header>
             <div class="clearfix">
@@ -1101,11 +1065,7 @@
             </div>
           </template>
           <div class="body">
-            <img
-              src="@/assets/images/pay.png"
-              alt="donate"
-              style="width: 100%"
-            />
+            <img src="@/assets/images/pay.png" alt="donate" style="width: 100%" />
             <span style="display: inline-block; height: 30px; line-height: 30px">
               你可以请作者喝杯咖啡表示鼓励
             </span>

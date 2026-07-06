@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="article-toc"
-    :class="{ 'toc-fixed': isFixed, 'toc-hidden': isHidden }"
-  >
+  <div class="article-toc" :class="{ 'toc-fixed': isFixed, 'toc-hidden': isHidden }">
     <div class="toc-header">
       <h4 class="toc-title">
         <el-icon><List /></el-icon>
@@ -18,14 +15,8 @@
     </div>
 
     <transition name="slide-fade">
-      <div
-        v-show="isExpanded"
-        class="toc-content"
-      >
-        <ul
-          v-if="tocItems.length > 0"
-          class="toc-list"
-        >
+      <div v-show="isExpanded" class="toc-content">
+        <ul v-if="tocItems.length > 0" class="toc-list">
           <li
             v-for="(item, index) in tocItems"
             :key="index"
@@ -36,17 +27,11 @@
             }"
             @click="scrollToHeading(item.id)"
           >
-            <span
-              class="toc-dot"
-              :class="{ 'dot-active': activeIndex === index }"
-            ></span>
+            <span class="toc-dot" :class="{ 'dot-active': activeIndex === index }"></span>
             <span class="toc-text">{{ item.text }}</span>
           </li>
         </ul>
-        <div
-          v-else
-          class="toc-empty"
-        >
+        <div v-else class="toc-empty">
           <el-icon :size="32">
             <DocumentCopy />
           </el-icon>
@@ -291,7 +276,7 @@ onUnmounted(() => {
 }
 
 .toc-toggle:hover {
-  background: #409eff;
+  background: #4a7bff;
   color: white;
   transform: scale(1.1);
 }
@@ -342,12 +327,12 @@ onUnmounted(() => {
 
 .toc-item:hover {
   background: #f0f0f0;
-  color: #409eff;
+  color: #4a7bff;
   transform: translateX(-2px);
 }
 
 .toc-item.toc-item-active {
-  background: linear-gradient(135deg, #409eff, #337ecc);
+  background: linear-gradient(135deg, #4a7bff, #6b8cff);
   color: white;
   font-weight: 600;
 }
@@ -449,7 +434,7 @@ onUnmounted(() => {
   }
 
   .toc-toggle:hover {
-    background: #409eff;
+    background: #4a7bff;
     color: white;
   }
 
@@ -459,7 +444,7 @@ onUnmounted(() => {
 
   .toc-item:hover {
     background: #333;
-    color: #409eff;
+    color: #4a7bff;
   }
 
   .toc-dot {

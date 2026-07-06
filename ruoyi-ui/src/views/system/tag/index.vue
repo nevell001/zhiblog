@@ -7,10 +7,7 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item
-        label="标签名称"
-        prop="tagName"
-      >
+      <el-form-item label="标签名称" prop="tagName">
         <el-input
           v-model="queryParams.tagName"
           placeholder="请输入标签名称"
@@ -18,10 +15,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="最小文章数"
-        prop="articleCount"
-      >
+      <el-form-item label="最小文章数" prop="articleCount">
         <el-input
           v-model="queryParams.articleCount"
           placeholder="最小文章数"
@@ -31,26 +25,12 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['system:tag:add']"
@@ -119,33 +99,13 @@
           导入
         </el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="tagList"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        width="55"
-        align="center"
-      />
-      <el-table-column
-        label="标签ID"
-        align="center"
-        prop="tagId"
-      />
-      <el-table-column
-        label="标签名称"
-        align="center"
-        prop="tagName"
-        :show-overflow-tooltip="true"
-      >
+    <el-table v-loading="loading" :data="tagList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="标签ID" align="center" prop="tagId" />
+      <el-table-column label="标签名称" align="center" prop="tagName" :show-overflow-tooltip="true">
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <span
@@ -155,10 +115,7 @@
                 color: 'white'
               }"
             >
-              <i
-                v-if="scope.row.icon"
-                :class="scope.row.icon"
-              ></i>
+              <i v-if="scope.row.icon" :class="scope.row.icon"></i>
             </span>
             {{ scope.row.tagName }}
           </div>
@@ -170,32 +127,19 @@
         prop="description"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        label="关联文章数"
-        align="center"
-        prop="articleCount"
-      >
+      <el-table-column label="关联文章数" align="center" prop="articleCount">
         <template #default="scope">
           <el-tag type="success">
             {{ scope.row.articleCount || 0 }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        label="创建时间"
-        align="center"
-        prop="createTime"
-        width="180"
-      >
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
             v-hasPermi="['system:tag:edit']"
@@ -228,31 +172,12 @@
     />
 
     <!-- 添加或修改博客标签对话框 -->
-    <el-dialog
-      v-model="open"
-      :title="title"
-      width="600px"
-      append-to-body
-    >
-      <el-form
-        ref="tagRef"
-        :model="form"
-        :rules="rules"
-        label-width="100px"
-      >
-        <el-form-item
-          label="标签名称"
-          prop="tagName"
-        >
-          <el-input
-            v-model="form.tagName"
-            placeholder="请输入标签名称"
-          />
+    <el-dialog v-model="open" :title="title" width="600px" append-to-body>
+      <el-form ref="tagRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="标签名称" prop="tagName">
+          <el-input v-model="form.tagName" placeholder="请输入标签名称" />
         </el-form-item>
-        <el-form-item
-          label="标签描述"
-          prop="description"
-        >
+        <el-form-item label="标签描述" prop="description">
           <el-input
             v-model="form.description"
             type="textarea"
@@ -260,42 +185,22 @@
             :rows="3"
           />
         </el-form-item>
-        <el-form-item
-          label="标签颜色"
-          prop="color"
-        >
-          <el-color-picker
-            v-model="form.color"
-            show-alpha
-            :predefine="predefineColors"
-          />
+        <el-form-item label="标签颜色" prop="color">
+          <el-color-picker v-model="form.color" show-alpha :predefine="predefineColors" />
           <el-input
             v-model="form.color"
             placeholder="请输入颜色值"
             style="width: 200px; margin-left: 10px"
           />
         </el-form-item>
-        <el-form-item
-          label="标签图标"
-          prop="icon"
-        >
-          <el-input
-            v-model="form.icon"
-            placeholder="请输入图标类名（如：el-icon-star）"
-          />
+        <el-form-item label="标签图标" prop="icon">
+          <el-input v-model="form.icon" placeholder="请输入图标类名（如：el-icon-star）" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="submitForm"
-          >
-            确 定
-          </el-button>
-          <el-button @click="cancel">
-            取 消
-          </el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
     </el-dialog>

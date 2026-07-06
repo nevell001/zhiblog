@@ -1,8 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  checkPermi,
-  checkRole
-} from './permission'
+import { checkPermi, checkRole } from './permission'
 
 // Mock localStorage
 const mockLocalStorage = {

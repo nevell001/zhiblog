@@ -1,483 +1,353 @@
 <template>
   <div class="article-detail-container">
     <!-- 博客导航 -->
-    <BlogNav />
-
-    <!-- 加载状态 -->
-    <div
-      v-if="loading"
-      class="loading-container"
-    >
-      <div class="loading-skeleton">
-        <el-skeleton
-          :loading="loading"
-          animated
-          class="article-skeleton"
-        >
-          <template #template>
-            <div class="skeleton-content">
-              <el-skeleton-item
-                variant="h1"
-                style="width: 60%; margin-bottom: 20px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 100%; margin-bottom: 10px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 90%; margin-bottom: 10px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 80%; margin-bottom: 20px"
-              />
-              <el-skeleton-item
-                variant="rect"
-                style="width: 100%; height: 400px; margin-bottom: 20px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 100%; height: 20px; margin-bottom: 8px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 95%; height: 20px; margin-bottom: 8px"
-              />
-              <el-skeleton-item
-                variant="text"
-                style="width: 85%; height: 20px; margin-bottom: 8px"
-              />
-            </div>
-          </template>
-        </el-skeleton>
-      </div>
-    </div>
-
-    <!-- 文章不存在 -->
-    <div
-      v-else-if="!article"
-      class="not-found-container"
-    >
-      <div class="not-found-content">
-        <i class="el-icon-document-copy not-found-icon"></i>
-        <h2>文章不存在</h2>
-        <p>抱歉，您访问的文章不存在或已被删除。</p>
-        <router-link
-          to="/"
-          class="back-home-btn"
-        >
-          <el-button
-            type="primary"
-            size="large"
-          >
-            返回首页
-          </el-button>
-        </router-link>
-      </div>
-    </div>
-
-    <!-- 文章详情 -->
-    <div
-      v-else
-      class="article-detail"
-    >
-      <!-- 文章头部 -->
-      <div class="article-header">
-        <!-- 分类标签 -->
-        <div
-          v-if="article.categoryName"
-          class="article-category"
-        >
-          <span class="category-badge">{{ article.categoryName }}</span>
+    <BlogLayout>
+      <!-- 加载状态 -->
+      <div v-if="loading" class="loading-container">
+        <div class="loading-skeleton">
+          <el-skeleton :loading="loading" animated class="article-skeleton">
+            <template #template>
+              <div class="skeleton-content">
+                <el-skeleton-item variant="h1" style="width: 60%; margin-bottom: 20px" />
+                <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
+                <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
+                <el-skeleton-item variant="text" style="width: 80%; margin-bottom: 20px" />
+                <el-skeleton-item
+                  variant="rect"
+                  style="width: 100%; height: 400px; margin-bottom: 20px"
+                />
+                <el-skeleton-item
+                  variant="text"
+                  style="width: 100%; height: 20px; margin-bottom: 8px"
+                />
+                <el-skeleton-item
+                  variant="text"
+                  style="width: 95%; height: 20px; margin-bottom: 8px"
+                />
+                <el-skeleton-item
+                  variant="text"
+                  style="width: 85%; height: 20px; margin-bottom: 8px"
+                />
+              </div>
+            </template>
+          </el-skeleton>
         </div>
+      </div>
 
-        <!-- 文章标题 -->
-        <h1
-          v-animate="'fade-in-up'"
-          class="article-title"
-        >
-          {{ article.title }}
-        </h1>
+      <!-- 文章不存在 -->
+      <div v-else-if="!article" class="not-found-container">
+        <div class="not-found-content">
+          <i class="el-icon-document-copy not-found-icon"></i>
+          <h2>文章不存在</h2>
+          <p>抱歉，您访问的文章不存在或已被删除。</p>
+          <router-link to="/" class="back-home-btn">
+            <el-button type="primary" size="large">返回首页</el-button>
+          </router-link>
+        </div>
+      </div>
 
-        <!-- 文章元信息 -->
-        <div
-          v-animate="'fade-in-up'"
-          class="article-meta"
-        >
-          <div class="meta-info">
-            <router-link
-              to="/"
-              class="meta-item back-home-link"
-              title="返回首页"
-            >
-              <i class="el-icon-house"></i>
-              <span>返回首页</span>
-            </router-link>
-            <span class="meta-item">
-              <i class="el-icon-user"></i>
-              <span>{{ article.authorName || article.author || '匿名作者' }}</span>
-            </span>
-            <span class="meta-item">
-              <i class="el-icon-date"></i>
-              <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
-            </span>
+      <!-- 文章详情 -->
+      <div v-else class="article-detail">
+        <!-- 文章头部 -->
+        <div class="article-header">
+          <!-- 分类标签 -->
+          <div v-if="article.categoryName" class="article-category">
+            <span class="category-badge">{{ article.categoryName }}</span>
+          </div>
+
+          <!-- 文章标题 -->
+          <h1 v-animate="'fade-in-up'" class="article-title">
+            {{ article.title }}
+          </h1>
+
+          <!-- 文章元信息 -->
+          <div v-animate="'fade-in-up'" class="article-meta">
+            <div class="meta-info">
+              <router-link to="/" class="meta-item back-home-link" title="返回首页">
+                <i class="el-icon-house"></i>
+                <span>返回首页</span>
+              </router-link>
+              <span class="meta-item">
+                <i class="el-icon-user"></i>
+                <span>{{ article.authorName || article.author || '匿名作者' }}</span>
+              </span>
+              <span class="meta-item">
+                <i class="el-icon-date"></i>
+                <time :datetime="article.createTime">{{ formatDate(article.createTime) }}</time>
+              </span>
+              <span v-if="isFeatureEnabled('view_count_enabled')" class="meta-item">
+                <i class="el-icon-view"></i>
+                <span>{{ article.viewCount || 0 }} 阅读</span>
+              </span>
+              <span v-if="article.likeCount" class="meta-item">
+                <i class="el-icon-star-off"></i>
+                <span>{{ article.likeCount }} 点赞</span>
+              </span>
+              <span v-if="article.commentCount" class="meta-item">
+                <i class="el-icon-chat-line-round"></i>
+                <span>{{ article.commentCount }} 评论</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- 文章标签 -->
+          <div
+            v-if="article.tags && article.tags.length"
+            v-animate="'fade-in-up'"
+            class="article-tags"
+          >
             <span
-              v-if="isFeatureEnabled('view_count_enabled')"
-              class="meta-item"
+              v-for="tag in article.tags"
+              :key="tag.id"
+              class="tag-item"
+              :style="{ backgroundColor: tag.color || '#4a7bff' }"
             >
-              <i class="el-icon-view"></i>
-              <span>{{ article.viewCount || 0 }} 阅读</span>
-            </span>
-            <span
-              v-if="article.likeCount"
-              class="meta-item"
-            >
-              <i class="el-icon-star-off"></i>
-              <span>{{ article.likeCount }} 点赞</span>
-            </span>
-            <span
-              v-if="article.commentCount"
-              class="meta-item"
-            >
-              <i class="el-icon-chat-line-round"></i>
-              <span>{{ article.commentCount }} 评论</span>
+              <i class="el-icon-price-tag"></i>
+              {{ tag.name }}
             </span>
           </div>
         </div>
 
-        <!-- 文章标签 -->
-        <div
-          v-if="article.tags && article.tags.length"
-          v-animate="'fade-in-up'"
-          class="article-tags"
-        >
-          <span
-            v-for="tag in article.tags"
-            :key="tag.id"
-            class="tag-item"
-            :style="{ backgroundColor: tag.color || '#667eea' }"
-          >
-            <i class="el-icon-price-tag"></i>
-            {{ tag.name }}
-          </span>
-        </div>
-      </div>
+        <div class="article-content">
+          <!-- 封面图片 -->
+          <div v-if="article.coverUrl" class="article-cover">
+            <img :src="article.coverUrl" :alt="article.title" />
+          </div>
 
-      <div class="article-content">
-        <!-- 封面图片 -->
-        <div
-          v-if="article.coverUrl"
-          class="article-cover"
-        >
-          <img
-            :src="article.coverUrl"
-            :alt="article.title"
+          <!-- 文章内容 -->
+          <div class="content-body" v-html="processedContent"></div>
+
+          <!-- 文章目录导航 -->
+          <ArticleTOC
+            v-if="article && article.content"
+            :content="article.content"
+            @toc-ready="handleTOCReady"
           />
         </div>
 
-        <!-- 文章内容 -->
-        <div
-          class="content-body"
-          v-html="processedContent"
-        ></div>
-
-        <!-- 文章目录导航 -->
-        <ArticleTOC
-          v-if="article && article.content"
-          :content="article.content"
-          @toc-ready="handleTOCReady"
-        />
-      </div>
-
-      <!-- 文章操作 -->
-      <div class="article-actions">
-        <div class="action-buttons">
-          <el-button
-            v-if="isFeatureEnabled('like_enabled')"
-            :loading="likeLoading"
-            :type="article.isLiked ? 'success' : 'default'"
-            plain
-            @click="handleLike"
-          >
-            <i class="el-icon-star-off"></i>
-            点赞 {{ article.likeCount || 0 }}
-          </el-button>
-          <el-button
-            v-if="isFeatureEnabled('share_enabled')"
-            type="default"
-            plain
-            @click="handleShare"
-          >
-            <i class="el-icon-share"></i>
-            分享
-          </el-button>
-          <el-button
-            :type="article.isBookmarked ? 'warning' : 'default'"
-            plain
-            @click="handleBookmark"
-          >
-            <i class="el-icon-collection-tag"></i>
-            {{ article.isBookmarked ? '已收藏' : '收藏' }}
-          </el-button>
+        <!-- 文章操作 -->
+        <div class="article-actions">
+          <div class="action-buttons">
+            <el-button
+              v-if="isFeatureEnabled('like_enabled')"
+              :loading="likeLoading"
+              :type="article.isLiked ? 'success' : 'default'"
+              plain
+              @click="handleLike"
+            >
+              <i class="el-icon-star-off"></i>
+              点赞 {{ article.likeCount || 0 }}
+            </el-button>
+            <el-button
+              v-if="isFeatureEnabled('share_enabled')"
+              type="default"
+              plain
+              @click="handleShare"
+            >
+              <i class="el-icon-share"></i>
+              分享
+            </el-button>
+            <el-button
+              :type="article.isBookmarked ? 'warning' : 'default'"
+              plain
+              @click="handleBookmark"
+            >
+              <i class="el-icon-collection-tag"></i>
+              {{ article.isBookmarked ? '已收藏' : '收藏' }}
+            </el-button>
+          </div>
         </div>
-      </div>
 
-      <!-- 上下篇文章 -->
-      <div
-        v-if="prevArticle || nextArticle"
-        class="article-navigation"
-      >
-        <div
-          v-if="prevArticle"
-          class="nav-item prev-article"
-        >
-          <router-link
-            :to="{
-              name: 'PublicBlogArticleDetail',
-              params: { id: prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid }
-            }"
-            class="nav-link"
-          >
-            <div class="nav-arrow">
-              <i class="el-icon-arrow-left"></i>
-            </div>
-            <div class="nav-content">
-              <div class="nav-label">
-                上一篇
-              </div>
-              <div class="nav-title">
-                {{ prevArticle.title }}
-              </div>
-            </div>
-          </router-link>
-        </div>
-        <div
-          v-if="nextArticle"
-          class="nav-item next-article"
-        >
-          <router-link
-            :to="{
-              name: 'PublicBlogArticleDetail',
-              params: { id: nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid }
-            }"
-            class="nav-link"
-          >
-            <div class="nav-content">
-              <div class="nav-label">
-                下一篇
-              </div>
-              <div class="nav-title">
-                {{ nextArticle.title }}
-              </div>
-            </div>
-            <div class="nav-arrow">
-              <i class="el-icon-arrow-right"></i>
-            </div>
-          </router-link>
-        </div>
-      </div>
-
-      <!-- 相关文章 -->
-      <div
-        v-if="relatedArticles.length > 0"
-        class="related-articles"
-      >
-        <h3 class="section-title">
-          <i class="el-icon-document-copy"></i>
-          相关文章
-        </h3>
-        <div class="related-list">
-          <div
-            v-for="related in relatedArticles.slice(0, 6)"
-            :key="related.id"
-            class="related-item"
-          >
+        <!-- 上下篇文章 -->
+        <div v-if="prevArticle || nextArticle" class="article-navigation">
+          <div v-if="prevArticle" class="nav-item prev-article">
             <router-link
               :to="{
                 name: 'PublicBlogArticleDetail',
-                params: { id: related.id ?? related.articleId ?? related.uuid }
+                params: { id: prevArticle.id ?? prevArticle.articleId ?? prevArticle.uuid }
               }"
-              class="related-link"
+              class="nav-link"
             >
-              <div
-                v-if="related.coverUrl"
-                class="related-cover"
-              >
-                <img
-                  :src="related.coverUrl"
-                  :alt="related.title"
-                />
+              <div class="nav-arrow">
+                <i class="el-icon-arrow-left"></i>
               </div>
-              <div class="related-info">
-                <h4 class="related-title">
-                  {{ related.title }}
-                </h4>
-                <div class="related-meta">
-                  <span class="related-date">{{ formatDate(related.createTime) }}</span>
-                  <span class="related-views">{{ related.viewCount || 0 }} 阅读</span>
+              <div class="nav-content">
+                <div class="nav-label">上一篇</div>
+                <div class="nav-title">
+                  {{ prevArticle.title }}
                 </div>
               </div>
             </router-link>
           </div>
+          <div v-if="nextArticle" class="nav-item next-article">
+            <router-link
+              :to="{
+                name: 'PublicBlogArticleDetail',
+                params: { id: nextArticle.id ?? nextArticle.articleId ?? nextArticle.uuid }
+              }"
+              class="nav-link"
+            >
+              <div class="nav-content">
+                <div class="nav-label">下一篇</div>
+                <div class="nav-title">
+                  {{ nextArticle.title }}
+                </div>
+              </div>
+              <div class="nav-arrow">
+                <i class="el-icon-arrow-right"></i>
+              </div>
+            </router-link>
+          </div>
         </div>
-      </div>
 
-      <!-- 评论区域 -->
-      <div
-        v-if="isFeatureEnabled('comment_enabled')"
-        class="comment-section"
-      >
-        <h3 class="section-title">
-          <i class="el-icon-chat-dot-round"></i>
-          评论 ({{ totalComments }})
-        </h3>
-
-        <!-- 评论列表 -->
-        <div
-          v-if="commentList.length > 0"
-          class="comment-list"
-        >
-          <div
-            v-for="comment in commentList"
-            :key="comment.id"
-            class="comment-item"
-          >
-            <div class="comment-avatar">
-              <img
-                :src="comment.avatar || '/src/assets/images/profile.jpg'"
-                :alt="comment.nickname || '匿名'"
-              />
-            </div>
-            <div class="comment-content">
-              <div class="comment-header">
-                <span class="comment-author">{{ comment.nickname || '匿名' }}</span>
-                <span class="comment-time">{{ formatDate(comment.createTime) }}</span>
-              </div>
-              <div class="comment-text">
-                {{ comment.content }}
-              </div>
-              <div class="comment-actions">
-                <el-button
-                  size="mini"
-                  type="link"
-                  @click="handleReply(comment)"
-                >
-                  回复
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="link"
-                  @click="handleLikeComment(comment)"
-                >
-                  <i class="el-icon-star-off"></i>
-                  {{ comment.likeCount || 0 }}
-                </el-button>
-              </div>
-
-              <!-- 回复列表 -->
-              <div
-                v-if="comment.replies && comment.replies.length > 0"
-                class="comment-replies"
+        <!-- 相关文章 -->
+        <div v-if="relatedArticles.length > 0" class="related-articles">
+          <h3 class="section-title">
+            <i class="el-icon-document-copy"></i>
+            相关文章
+          </h3>
+          <div class="related-list">
+            <div
+              v-for="related in relatedArticles.slice(0, 6)"
+              :key="related.id"
+              class="related-item"
+            >
+              <router-link
+                :to="{
+                  name: 'PublicBlogArticleDetail',
+                  params: { id: related.id ?? related.articleId ?? related.uuid }
+                }"
+                class="related-link"
               >
-                <div
-                  v-for="reply in comment.replies"
-                  :key="reply.id"
-                  class="reply-item"
-                >
-                  <div class="reply-avatar">
-                    <img
-                      :src="reply.avatar || '/src/assets/images/profile.jpg'"
-                      :alt="reply.nickname || '匿名'"
-                    />
+                <div v-if="related.coverUrl" class="related-cover">
+                  <img :src="related.coverUrl" :alt="related.title" />
+                </div>
+                <div class="related-info">
+                  <h4 class="related-title">
+                    {{ related.title }}
+                  </h4>
+                  <div class="related-meta">
+                    <span class="related-date">{{ formatDate(related.createTime) }}</span>
+                    <span class="related-views">{{ related.viewCount || 0 }} 阅读</span>
                   </div>
-                  <div class="reply-content">
-                    <div class="reply-header">
-                      <span class="reply-author">{{ reply.nickname || '匿名' }}</span>
-                      <span class="reply-time">{{ formatDate(reply.createTime) }}</span>
+                </div>
+              </router-link>
+            </div>
+          </div>
+        </div>
+
+        <!-- 评论区域 -->
+        <div v-if="isFeatureEnabled('comment_enabled')" class="comment-section">
+          <h3 class="section-title">
+            <i class="el-icon-chat-dot-round"></i>
+            评论 ({{ totalComments }})
+          </h3>
+
+          <!-- 评论列表 -->
+          <div v-if="commentList.length > 0" class="comment-list">
+            <div v-for="comment in commentList" :key="comment.id" class="comment-item">
+              <div class="comment-avatar">
+                <img
+                  :src="comment.avatar || '/src/assets/images/profile.jpg'"
+                  :alt="comment.nickname || '匿名'"
+                />
+              </div>
+              <div class="comment-content">
+                <div class="comment-header">
+                  <span class="comment-author">{{ comment.nickname || '匿名' }}</span>
+                  <span class="comment-time">{{ formatDate(comment.createTime) }}</span>
+                </div>
+                <div class="comment-text">
+                  {{ comment.content }}
+                </div>
+                <div class="comment-actions">
+                  <el-button size="mini" type="link" @click="handleReply(comment)">回复</el-button>
+                  <el-button size="mini" type="link" @click="handleLikeComment(comment)">
+                    <i class="el-icon-star-off"></i>
+                    {{ comment.likeCount || 0 }}
+                  </el-button>
+                </div>
+
+                <!-- 回复列表 -->
+                <div v-if="comment.replies && comment.replies.length > 0" class="comment-replies">
+                  <div v-for="reply in comment.replies" :key="reply.id" class="reply-item">
+                    <div class="reply-avatar">
+                      <img
+                        :src="reply.avatar || '/src/assets/images/profile.jpg'"
+                        :alt="reply.nickname || '匿名'"
+                      />
                     </div>
-                    <div class="reply-text">
-                      {{ reply.content }}
+                    <div class="reply-content">
+                      <div class="reply-header">
+                        <span class="reply-author">{{ reply.nickname || '匿名' }}</span>
+                        <span class="reply-time">{{ formatDate(reply.createTime) }}</span>
+                      </div>
+                      <div class="reply-text">
+                        {{ reply.content }}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 发表评论 -->
-        <div class="comment-form">
-          <div class="form-header">
-            <h4>{{ replyTarget ? '回复 ' + replyTarget.nickname : '发表评论' }}</h4>
-            <el-button
-              v-if="replyTarget"
-              size="small"
-              type="text"
-              @click="cancelReply"
-            >
-              取消回复
-            </el-button>
-          </div>
-          <el-form
-            ref="commentFormRef"
-            :model="commentForm"
-            :rules="commentRules"
-            label-width="0"
-          >
-            <el-form-item
-              v-if="!isLoggedIn"
-              prop="nickname"
-            >
-              <el-input
-                v-model="commentForm.nickname"
-                placeholder="请输入您的昵称"
-                size="large"
-              />
-            </el-form-item>
-            <el-form-item
-              v-if="!isLoggedIn"
-              prop="email"
-            >
-              <el-input
-                v-model="commentForm.email"
-                placeholder="请输入您的邮箱（可选）"
-                size="large"
-              />
-            </el-form-item>
-            <el-form-item prop="content">
-              <el-input
-                v-model="commentForm.content"
-                type="textarea"
-                placeholder="写下您的评论..."
-                :rows="4"
-                size="large"
-                maxlength="500"
-                show-word-limit
-              />
-            </el-form-item>
-            <el-form-item>
-              <el-button
-                type="primary"
-                :loading="commentSubmitting"
-                size="large"
-                @click="submitComment"
-              >
-                发表评论
+          <!-- 发表评论 -->
+          <div class="comment-form">
+            <div class="form-header">
+              <h4>{{ replyTarget ? '回复 ' + replyTarget.nickname : '发表评论' }}</h4>
+              <el-button v-if="replyTarget" size="small" type="text" @click="cancelReply">
+                取消回复
               </el-button>
-            </el-form-item>
-          </el-form>
+            </div>
+            <el-form
+              ref="commentFormRef"
+              :model="commentForm"
+              :rules="commentRules"
+              label-width="0"
+            >
+              <el-form-item v-if="!isLoggedIn" prop="nickname">
+                <el-input
+                  v-model="commentForm.nickname"
+                  placeholder="请输入您的昵称"
+                  size="large"
+                />
+              </el-form-item>
+              <el-form-item v-if="!isLoggedIn" prop="email">
+                <el-input
+                  v-model="commentForm.email"
+                  placeholder="请输入您的邮箱（可选）"
+                  size="large"
+                />
+              </el-form-item>
+              <el-form-item prop="content">
+                <el-input
+                  v-model="commentForm.content"
+                  type="textarea"
+                  placeholder="写下您的评论..."
+                  :rows="4"
+                  size="large"
+                  maxlength="500"
+                  show-word-limit
+                />
+              </el-form-item>
+              <el-form-item>
+                <el-button
+                  type="primary"
+                  :loading="commentSubmitting"
+                  size="large"
+                  @click="submitComment"
+                >
+                  发表评论
+                </el-button>
+              </el-form-item>
+            </el-form>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- 博客底部 -->
-    <BlogFooter
-      :blog-settings="blogSettings"
-      :total-articles="0"
-      :category-count="0"
-      :tag-count="0"
-    />
+      <!-- 博客底部 -->
+    </BlogLayout>
   </div>
 </template>
 
@@ -487,8 +357,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { ElMessage } from 'element-plus'
-import BlogNav from '@/components/BlogNav.vue'
-import BlogFooter from '@/components/BlogFooter.vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import { getArticleDetail } from '@/api/blog/article'
 import { likeArticle } from '@/api/admin/blog/article'
@@ -631,14 +500,14 @@ const loadArticleDetail = async () => {
         }
       }
 
-      // 获取相关文章 - 暂时注释掉，因为后端API不存在
-      // if (article.value) {
-      //   const relatedResponse = await getRelatedArticles(articleId, { pageNum: 1, pageSize: 6 })
-      //   relatedArticles.value = relatedResponse.rows || []
-      // }
-
-      // 暂时设置为空数组，避免页面显示问题
-      relatedArticles.value = []
+      // 获取相关文章
+      try {
+        const relatedResponse = await getRelatedArticles(articleId)
+        relatedArticles.value = relatedResponse.data || []
+      } catch (e) {
+        // 相关文章加载失败不影响主内容
+        relatedArticles.value = []
+      }
 
       // 获取评论列表
       await loadComments()
@@ -900,6 +769,7 @@ watch(
 
 <style scoped>
 .article-detail-container {
+  padding-top: 64px;
   min-height: 100vh;
   background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf3 100%);
 }
@@ -919,7 +789,7 @@ watch(
 }
 
 .article-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   padding: 40px 50px 30px;
   position: relative;
@@ -1121,14 +991,14 @@ watch(
 
 .content-body :deep(h1) {
   font-size: 2em;
-  border-bottom: 3px solid #667eea;
+  border-bottom: 3px solid #4a7bff;
   padding-bottom: 10px;
   margin-top: 0;
 }
 
 .content-body :deep(h2) {
   font-size: 1.75em;
-  border-left: 5px solid #667eea;
+  border-left: 5px solid #4a7bff;
   padding-left: 15px;
   margin-top: 2.5em;
 }
@@ -1211,7 +1081,7 @@ watch(
 
 /* 引用块样式 */
 .content-body :deep(blockquote) {
-  border-left: 5px solid #667eea;
+  border-left: 5px solid #4a7bff;
   margin: 1.5em 0;
   padding: 15px 25px;
   background: linear-gradient(135deg, #f8f9fa, #ffffff);
@@ -1226,7 +1096,7 @@ watch(
   top: -10px;
   left: 15px;
   font-size: 3em;
-  color: #667eea;
+  color: #4a7bff;
   opacity: 0.3;
   font-family: Georgia, serif;
 }
@@ -1250,7 +1120,7 @@ watch(
 }
 
 .content-body :deep(th) {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #4a7bff, #6b8cff);
   color: white;
   font-weight: 600;
 }
@@ -1260,7 +1130,7 @@ watch(
 }
 
 .content-body :deep(tr:hover) {
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(74, 123, 255, 0.05);
 }
 
 /* 列表样式 */
@@ -1277,7 +1147,7 @@ watch(
 
 /* 链接样式 */
 .content-body :deep(a) {
-  color: #667eea;
+  color: #4a7bff;
   text-decoration: none;
   position: relative;
   transition: color 0.3s ease;
@@ -1290,12 +1160,12 @@ watch(
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #667eea, #764ba2);
+  background: linear-gradient(90deg, #4a7bff, #6b8cff);
   transition: width 0.3s ease;
 }
 
 .content-body :deep(a):hover {
-  color: #764ba2;
+  color: #6b8cff;
 }
 
 .content-body :deep(a):hover::after {
@@ -1306,7 +1176,7 @@ watch(
 .content-body :deep(hr) {
   border: none;
   height: 2px;
-  background: linear-gradient(90deg, transparent, #667eea, transparent);
+  background: linear-gradient(90deg, transparent, #4a7bff, transparent);
   margin: 3em 0;
   opacity: 0.5;
 }
@@ -1363,7 +1233,7 @@ watch(
 
 .nav-arrow {
   font-size: 1.5rem;
-  color: #667eea;
+  color: #4a7bff;
 }
 
 .nav-content {
@@ -1824,7 +1694,7 @@ html.dark .article-detail {
 }
 
 html.dark .article-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   border-bottom-color: #333;
 }
 
@@ -1870,7 +1740,7 @@ html.dark .content-body p {
 
 html.dark .content-body blockquote {
   background: linear-gradient(135deg, #333, #2a2a2a);
-  border-left-color: #667eea;
+  border-left-color: #4a7bff;
   color: #b0b0b0;
 }
 
@@ -1879,7 +1749,7 @@ html.dark .content-body table {
 }
 
 html.dark .content-body th {
-  background: linear-gradient(135deg, #667eea, #764ba2);
+  background: linear-gradient(135deg, #4a7bff, #6b8cff);
   color: white;
 }
 
@@ -1888,11 +1758,11 @@ html.dark .content-body tr:nth-child(even) {
 }
 
 html.dark .content-body tr:hover {
-  background: rgba(102, 126, 234, 0.1);
+  background: rgba(74, 123, 255, 0.1);
 }
 
 html.dark .content-body a {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .content-body a:hover {
@@ -1931,7 +1801,7 @@ html.dark .nav-link {
 
 html.dark .nav-link:hover {
   background: #444;
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .nav-label {

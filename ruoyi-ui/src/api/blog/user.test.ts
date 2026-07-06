@@ -1,10 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import {
-  blogLogin,
-  blogRegister,
-  blogLogout,
-  getBlogUserInfo
-} from './auth'
+import { blogLogin, blogRegister, blogLogout, getBlogUserInfo } from './auth'
 
 // Mock request
 vi.mock('@/utils/request', () => ({

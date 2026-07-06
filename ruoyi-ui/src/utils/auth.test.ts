@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import Cookies from 'js-cookie'
-import {
-  getToken,
-  setToken,
-  removeToken
-} from './auth'
+import { getToken, setToken, removeToken } from './auth'
 
 vi.mock('js-cookie', () => ({
   default: {

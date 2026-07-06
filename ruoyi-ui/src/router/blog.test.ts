@@ -97,7 +97,9 @@ describe('Blog Routes 详细测试', () => {
   })
 
   it('博客路由应该包含前台路由', () => {
-    const blogFrontendRoutes = blogRoutes.filter(r => r.path.startsWith('/blog') && !r.path.includes('/auth'))
+    const blogFrontendRoutes = blogRoutes.filter(
+      r => r.path.startsWith('/blog') && !r.path.includes('/auth')
+    )
 
     expect(blogFrontendRoutes.length).toBeGreaterThan(0)
   })

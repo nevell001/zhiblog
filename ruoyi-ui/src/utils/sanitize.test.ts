@@ -79,7 +79,8 @@ describe('Sanitize Utils 测试', () => {
     })
 
     it('应该允许更多文章标签', () => {
-      const input = '<p><sub>下标</sub><sup>上标</sup><figure>图表</figure><figcaption>说明</figcaption></p>'
+      const input =
+        '<p><sub>下标</sub><sup>上标</sup><figure>图表</figure><figcaption>说明</figcaption></p>'
       const result = sanitizeArticleContent(input)
 
       expect(result).toContain('<sub>')
@@ -104,7 +105,8 @@ describe('Sanitize Utils 测试', () => {
     })
 
     it('应该限制评论标签', () => {
-      const input = '<p><div>块级</div><br><strong>加粗</strong><em>斜体</em><a href="#">链接</a></p>'
+      const input =
+        '<p><div>块级</div><br><strong>加粗</strong><em>斜体</em><a href="#">链接</a></p>'
       const result = sanitizeComment(input)
 
       expect(result).toContain('<strong>')

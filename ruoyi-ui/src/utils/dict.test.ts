@@ -45,9 +45,7 @@ describe('useDict Hook 测试', () => {
     }
     const getDictsMock = vi.mocked(getDicts)
     getDictsMock.mockResolvedValue({
-      data: [
-        { dictLabel: '选项1', dictValue: '1', listClass: 'list', cssClass: 'css1' }
-      ]
+      data: [{ dictLabel: '选项1', dictValue: '1', listClass: 'list', cssClass: 'css1' }]
     })
 
     vi.mocked(useDictStore).mockReturnValue(dictStoreMock)
@@ -63,9 +61,7 @@ describe('useDict Hook 测试', () => {
   })
 
   it('当字典已存在时应该使用缓存数据', async () => {
-    const cachedData = [
-      { dictLabel: '缓存1', dictValue: '1', listClass: 'list', cssClass: 'css1' }
-    ]
+    const cachedData = [{ dictLabel: '缓存1', dictValue: '1', listClass: 'list', cssClass: 'css1' }]
     const dictStoreMock = {
       getDict: vi.fn(() => cachedData),
       setDict: vi.fn()

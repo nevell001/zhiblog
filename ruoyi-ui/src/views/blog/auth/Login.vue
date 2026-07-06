@@ -1,103 +1,85 @@
 <template>
   <div class="blog-login-container">
-    <BlogNav />
+    <BlogLayout>
+      <div class="login-wrapper">
+        <div class="login-card">
+          <div class="login-header">
+            <h1>用户登录</h1>
+            <p>欢迎回来</p>
+          </div>
 
-    <div class="login-wrapper">
-      <div class="login-card">
-        <div class="login-header">
-          <h1>用户登录</h1>
-          <p>欢迎回来</p>
-        </div>
-
-        <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          class="login-form"
-          @keyup.enter="handleLogin"
-        >
-          <el-form-item prop="username">
-            <el-input
-              v-model="loginForm.username"
-              placeholder="用户名 / 邮箱"
-              size="large"
-              clearable
-            >
-              <template #prefix>
-                <el-icon><User /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item prop="password">
-            <el-input
-              v-model="loginForm.password"
-              type="password"
-              placeholder="密码"
-              size="large"
-              show-password
-              clearable
-            >
-              <template #prefix>
-                <el-icon><Lock /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item
-            v-if="captchaEnabled"
-            prop="code"
+          <el-form
+            ref="loginFormRef"
+            :model="loginForm"
+            :rules="loginRules"
+            class="login-form"
+            @keyup.enter="handleLogin"
           >
-            <div class="captcha-row">
+            <el-form-item prop="username">
               <el-input
-                v-model="loginForm.code"
-                placeholder="验证码"
+                v-model="loginForm.username"
+                placeholder="用户名 / 邮箱"
                 size="large"
                 clearable
-                style="flex: 1"
               >
                 <template #prefix>
-                  <el-icon><Key /></el-icon>
+                  <el-icon><User /></el-icon>
                 </template>
               </el-input>
-              <img
-                :src="captchaUrl"
-                class="captcha-img"
-                alt="验证码"
-                @click="refreshCaptcha"
-              />
+            </el-form-item>
+
+            <el-form-item prop="password">
+              <el-input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="密码"
+                size="large"
+                show-password
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item v-if="captchaEnabled" prop="code">
+              <div class="captcha-row">
+                <el-input
+                  v-model="loginForm.code"
+                  placeholder="验证码"
+                  size="large"
+                  clearable
+                  style="flex: 1"
+                >
+                  <template #prefix>
+                    <el-icon><Key /></el-icon>
+                  </template>
+                </el-input>
+                <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+              </div>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                type="primary"
+                size="large"
+                :loading="loading"
+                class="login-button"
+                @click="handleLogin"
+              >
+                {{ loading ? '登录中...' : '登录' }}
+              </el-button>
+            </el-form-item>
+
+            <div class="login-footer">
+              <router-link to="/blog/auth/register" class="link">还没有账号？立即注册</router-link>
+              <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
             </div>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button
-              type="primary"
-              size="large"
-              :loading="loading"
-              class="login-button"
-              @click="handleLogin"
-            >
-              {{ loading ? '登录中...' : '登录' }}
-            </el-button>
-          </el-form-item>
-
-          <div class="login-footer">
-            <router-link
-              to="/blog/auth/register"
-              class="link"
-            >
-              还没有账号？立即注册
-            </router-link>
-            <router-link
-              to="/blog/auth/forgot-password"
-              class="link"
-            >
-              忘记密码？
-            </router-link>
-          </div>
-        </el-form>
+          </el-form>
+        </div>
       </div>
-    </div>
+    </BlogLayout>
   </div>
 </template>
 
@@ -108,7 +90,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getCodeImg } from '@/api/login'
-import BlogNav from '@/components/BlogNav.vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -190,8 +172,9 @@ onMounted(() => {
 
 <style scoped>
 .blog-login-container {
+  padding-top: 64px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   position: relative;
 }
 
@@ -261,7 +244,7 @@ onMounted(() => {
 }
 
 .captcha-img:hover {
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 .login-button {
@@ -279,12 +262,12 @@ onMounted(() => {
 }
 
 .login-footer .link {
-  color: #667eea;
+  color: #4a7bff;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .login-footer .link:hover {
-  color: #764ba2;
+  color: #6b8cff;
 }
 </style>

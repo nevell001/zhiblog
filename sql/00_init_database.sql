@@ -42,13 +42,13 @@
 -- 所有相关SQL文件已整合，包括系统管理、系统监控、数据统计、代码生成器等模块
 --
 -- ✅ 正确的初始化步骤：
--- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- 2. 导入本脚本：mysql -u root -p newblog < init_database.sql
--- 3. （可选）添加性能索引：mysql -u root -p newblog < performance_indexes.sql
+-- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 导入本脚本：mysql -u root -p zhiblog < init_database.sql
+-- 3. （可选）添加性能索引：mysql -u root -p zhiblog < performance_indexes.sql
 --
 -- 🎯 使用方法：
--- 1. 创建数据库：CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- 2. 选择数据库：USE newblog;
+-- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 选择数据库：USE zhiblog;
 -- 3. 执行脚本：source /path/to/init_database.sql;
 -- 4. 验证结果：查看最后的统计信息
 --
@@ -60,12 +60,12 @@
 -- ===============================================================
 
 -- 1. 创建数据库和设置权限
-CREATE DATABASE IF NOT EXISTS newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE newblog;
+CREATE DATABASE IF NOT EXISTS zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE zhiblog;
 
 -- 设置权限，允许从Docker容器网络连接
 CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'root';
-GRANT ALL PRIVILEGES ON newblog.* TO 'root'@'%';
+GRANT ALL PRIVILEGES ON zhiblog.* TO 'root'@'%';
 FLUSH PRIVILEGES;
 
 -- ========== 导入若依系统基础表结构 ==========
@@ -2008,10 +2008,10 @@ SELECT 'blog_setting' AS table_name, COUNT(*) AS record_count FROM blog_setting;
 -- ========== 数据库初始化完成 ==========
 
 SELECT '🎉 数据库初始化完成！' AS result;
-SELECT '✅ 若依系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'sys_%';
-SELECT '✅ 博客系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'blog_%';
-SELECT '✅ Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'QRTZ_%';
-SELECT '✅ 代码生成器表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'newblog' AND table_name LIKE 'gen_%';
+SELECT '✅ 若依系统基础表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'zhiblog' AND table_name LIKE 'sys_%';
+SELECT '✅ 博客系统表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'zhiblog' AND table_name LIKE 'blog_%';
+SELECT '✅ Quartz定时任务表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'zhiblog' AND table_name LIKE 'QRTZ_%';
+SELECT '✅ 代码生成器表数量：' AS info, COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'zhiblog' AND table_name LIKE 'gen_%';
 SELECT '✅ 博客管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_name = '博客管理' OR parent_id = 2000;
 SELECT '✅ 系统管理菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 100 AND 107;
 SELECT '✅ 系统监控菜单数量：' AS info, COUNT(*) as count FROM sys_menu WHERE menu_id BETWEEN 109 AND 114 OR menu_id BETWEEN 5000 AND 5013;
@@ -2084,7 +2084,7 @@ SELECT '📚 使用指南：' AS guide_title;
 SELECT '1. 启动后端服务：mvn spring-boot:run' AS step1;
 SELECT '2. 启动前端服务：cd ruoyi-ui && npm run dev' AS step2;
 SELECT '3. 访问管理后台：http://localhost:8080' AS step3;
-SELECT '4. 默认账号：admin / admin123' AS step4;
+SELECT '4. 默认账号：admin（首次登录请修改默认密码）' AS step4;
 SELECT '5. 访问前台首页：http://localhost:3000' AS step5;
 
 -- 验证关键配置
@@ -2115,7 +2115,7 @@ SELECT '⚡ 性能优化建议：' AS performance_title;
 SELECT '1. 定期清理软删除的数据：DELETE FROM blog_article WHERE del_flag = 1 AND update_time < DATE_SUB(NOW(), INTERVAL 30 DAY)' AS tip1;
 SELECT '2. 优化大表查询：使用分页和索引' AS tip2;
 SELECT '3. 启用Redis缓存：减轻数据库压力' AS tip3;
-SELECT '4. 定期备份数据：mysqldump -u root -p newblog > backup.sql' AS tip4;
+SELECT '4. 定期备份数据：mysqldump -u root -p zhiblog > backup.sql' AS tip4;
 
 -- ===============================================================
 -- 📌 文章收藏表 (v1.3.3 新增)
@@ -2136,7 +2136,7 @@ CREATE TABLE blog_bookmark (
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
-SELECT 'Gitee: https://gitee.com/nevell/newblog' AS gitee;
+SELECT 'Gitee: https://gitee.com/nevell/zhiblog' AS gitee;
 SELECT 'Email: nevell@foxmail.com' AS email;
 SELECT '✅ 初始化脚本执行完成！祝您使用愉快！' AS complete_message;
 

@@ -2,13 +2,8 @@
   <div>
     <h1>简单应用测试</h1>
     <p>这是一个简单的Vue应用，用于测试和调试 .on() 错误。</p>
-    <button @click="testError">
-      测试 undefined.on() 错误
-    </button>
-    <div
-      v-if="errorMessage"
-      class="error"
-    >
+    <button @click="testError">测试 undefined.on() 错误</button>
+    <div v-if="errorMessage" class="error">
       {{ errorMessage }}
     </div>
   </div>

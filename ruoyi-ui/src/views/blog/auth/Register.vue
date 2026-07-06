@@ -1,148 +1,125 @@
 <template>
   <div class="blog-register-container">
-    <BlogNav />
-
-    <div class="register-wrapper">
-      <div class="register-card">
-        <div class="register-header">
-          <h1>用户注册</h1>
-          <p>创建您的账号</p>
-        </div>
-
-        <el-form
-          ref="registerFormRef"
-          :model="registerForm"
-          :rules="registerRules"
-          class="register-form"
-        >
-          <el-form-item prop="username">
-            <el-input
-              v-model="registerForm.username"
-              placeholder="用户名"
-              size="large"
-              clearable
-            >
-              <template #prefix>
-                <el-icon><User /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item prop="email">
-            <el-input
-              v-model="registerForm.email"
-              placeholder="邮箱地址"
-              size="large"
-              clearable
-            >
-              <template #prefix>
-                <el-icon><Message /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item prop="emailCode">
-            <div class="email-code-row">
-              <el-input
-                v-model="registerForm.emailCode"
-                placeholder="邮箱验证码"
-                size="large"
-                clearable
-                style="flex: 1"
-              >
-                <template #prefix>
-                  <el-icon><Key /></el-icon>
-                </template>
-              </el-input>
-              <el-button
-                size="large"
-                :disabled="codeCountdown > 0"
-                :loading="codeSending"
-                @click="sendEmailCode"
-              >
-                {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '发送验证码' }}
-              </el-button>
-            </div>
-          </el-form-item>
-
-          <el-form-item prop="password">
-            <el-input
-              v-model="registerForm.password"
-              type="password"
-              placeholder="密码"
-              size="large"
-              show-password
-              clearable
-            >
-              <template #prefix>
-                <el-icon><Lock /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item prop="confirmPassword">
-            <el-input
-              v-model="registerForm.confirmPassword"
-              type="password"
-              placeholder="确认密码"
-              size="large"
-              show-password
-              clearable
-            >
-              <template #prefix>
-                <el-icon><Lock /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
-
-          <el-form-item
-            v-if="captchaEnabled"
-            prop="code"
-          >
-            <div class="captcha-row">
-              <el-input
-                v-model="registerForm.code"
-                placeholder="验证码"
-                size="large"
-                clearable
-                style="flex: 1"
-              >
-                <template #prefix>
-                  <el-icon><Key /></el-icon>
-                </template>
-              </el-input>
-              <img
-                :src="captchaUrl"
-                class="captcha-img"
-                alt="验证码"
-                @click="refreshCaptcha"
-              />
-            </div>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button
-              type="primary"
-              size="large"
-              :loading="loading"
-              class="register-button"
-              @click="handleRegister"
-            >
-              {{ loading ? '注册中...' : '注册' }}
-            </el-button>
-          </el-form-item>
-
-          <div class="register-footer">
-            <router-link
-              to="/login"
-              class="link"
-            >
-              已有账号？立即登录
-            </router-link>
+    <BlogLayout>
+      <div class="register-wrapper">
+        <div class="register-card">
+          <div class="register-header">
+            <h1>用户注册</h1>
+            <p>创建您的账号</p>
           </div>
-        </el-form>
+
+          <el-form
+            ref="registerFormRef"
+            :model="registerForm"
+            :rules="registerRules"
+            class="register-form"
+          >
+            <el-form-item prop="username">
+              <el-input v-model="registerForm.username" placeholder="用户名" size="large" clearable>
+                <template #prefix>
+                  <el-icon><User /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item prop="email">
+              <el-input v-model="registerForm.email" placeholder="邮箱地址" size="large" clearable>
+                <template #prefix>
+                  <el-icon><Message /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item prop="emailCode">
+              <div class="email-code-row">
+                <el-input
+                  v-model="registerForm.emailCode"
+                  placeholder="邮箱验证码"
+                  size="large"
+                  clearable
+                  style="flex: 1"
+                >
+                  <template #prefix>
+                    <el-icon><Key /></el-icon>
+                  </template>
+                </el-input>
+                <el-button
+                  size="large"
+                  :disabled="codeCountdown > 0"
+                  :loading="codeSending"
+                  @click="sendEmailCode"
+                >
+                  {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '发送验证码' }}
+                </el-button>
+              </div>
+            </el-form-item>
+
+            <el-form-item prop="password">
+              <el-input
+                v-model="registerForm.password"
+                type="password"
+                placeholder="密码"
+                size="large"
+                show-password
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item prop="confirmPassword">
+              <el-input
+                v-model="registerForm.confirmPassword"
+                type="password"
+                placeholder="确认密码"
+                size="large"
+                show-password
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item v-if="captchaEnabled" prop="code">
+              <div class="captcha-row">
+                <el-input
+                  v-model="registerForm.code"
+                  placeholder="验证码"
+                  size="large"
+                  clearable
+                  style="flex: 1"
+                >
+                  <template #prefix>
+                    <el-icon><Key /></el-icon>
+                  </template>
+                </el-input>
+                <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+              </div>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                type="primary"
+                size="large"
+                :loading="loading"
+                class="register-button"
+                @click="handleRegister"
+              >
+                {{ loading ? '注册中...' : '注册' }}
+              </el-button>
+            </el-form-item>
+
+            <div class="register-footer">
+              <router-link to="/login" class="link">已有账号？立即登录</router-link>
+            </div>
+          </el-form>
+        </div>
       </div>
-    </div>
+    </BlogLayout>
   </div>
 </template>
 
@@ -153,7 +130,7 @@ import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { User, Lock, Key, Message } from '@element-plus/icons-vue'
 import { useBlogUserStore } from '@/stores/blogUser'
 import { getCodeImg } from '@/api/blog/auth'
-import BlogNav from '@/components/BlogNav.vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 
 const router = useRouter()
 const blogUserStore = useBlogUserStore()
@@ -302,8 +279,9 @@ onMounted(() => {
 
 <style scoped>
 .blog-register-container {
+  padding-top: 64px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   position: relative;
 }
 
@@ -379,7 +357,7 @@ onMounted(() => {
 }
 
 .captcha-img:hover {
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 .register-button {
@@ -396,12 +374,12 @@ onMounted(() => {
 }
 
 .register-footer .link {
-  color: #667eea;
+  color: #4a7bff;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .register-footer .link:hover {
-  color: #764ba2;
+  color: #6b8cff;
 }
 </style>

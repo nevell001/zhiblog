@@ -1,15 +1,8 @@
 <template>
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
-    <div
-      v-if="isMobile"
-      class="hamburger-menu"
-      @click="toggleMobileMenu"
-    >
-      <div
-        class="hamburger-icon"
-        :class="{ active: isMobileMenuOpen }"
-      >
+    <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">
+      <div class="hamburger-icon" :class="{ active: isMobileMenuOpen }">
         <span></span>
         <span></span>
         <span></span>
@@ -17,10 +10,7 @@
     </div>
 
     <!-- 导航菜单 -->
-    <div
-      class="nav-menu"
-      :class="{ 'mobile-open': isMobileMenuOpen }"
-    >
+    <div class="nav-menu" :class="{ 'mobile-open': isMobileMenuOpen }">
       <router-link
         v-for="menu in frontendMenus"
         :key="menu.path"
@@ -28,11 +18,7 @@
         class="nav-item"
         @click="closeMobileMenu"
       >
-        <component
-          :is="getMenuIcon(menu.icon)"
-          :size="16"
-          style="vertical-align: middle"
-        />
+        <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle" />
         <span>{{ menu.name }}</span>
       </router-link>
     </div>
@@ -40,16 +26,9 @@
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
       <!-- 用户信息（已登录） -->
-      <el-dropdown
-        v-if="userStore.token"
-        trigger="click"
-        @command="handleUserCommand"
-      >
+      <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
         <div class="user-info">
-          <el-avatar
-            :size="36"
-            :src="userStore.avatar"
-          >
+          <el-avatar :size="36" :src="userStore.avatar">
             <el-icon><UserFilled /></el-icon>
           </el-avatar>
           <span class="username">{{ userStore.name }}</span>
@@ -60,10 +39,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <!-- 管理员显示管理后台入口 -->
-            <el-dropdown-item
-              v-if="userStore.userType === '00'"
-              @click="goToAdmin"
-            >
+            <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
               <el-icon><Setting /></el-icon>
               管理后台
             </el-dropdown-item>
@@ -71,10 +47,7 @@
               <el-icon><User /></el-icon>
               个人中心
             </el-dropdown-item>
-            <el-dropdown-item
-              divided
-              command="logout"
-            >
+            <el-dropdown-item divided command="logout">
               <el-icon><SwitchButton /></el-icon>
               退出登录
             </el-dropdown-item>
@@ -83,32 +56,15 @@
       </el-dropdown>
 
       <!-- 登录按钮（未登录） -->
-      <el-button
-        v-else
-        size="small"
-        type="primary"
-        @click="goToLogin"
-      >
-        登录
-      </el-button>
+      <el-button v-else size="small" type="primary" @click="goToLogin">登录</el-button>
 
-      <el-button
-        link
-        class="theme-toggle"
-        title="切换主题"
-        @click="toggleTheme"
-      >
+      <el-button link class="theme-toggle" title="切换主题" @click="toggleTheme">
         <el-icon :size="18">
           <Sunny v-if="isDarkTheme" />
           <Moon v-else />
         </el-icon>
       </el-button>
-      <el-button
-        link
-        class="scroll-top"
-        title="回到顶部"
-        @click="scrollToTop"
-      >
+      <el-button ref="scrollTopBtn" link class="scroll-top" title="回到顶部" @click="scrollToTop">
         <el-icon :size="18">
           <Top />
         </el-icon>
@@ -116,20 +72,17 @@
     </div>
 
     <!-- 遮罩层（移动端菜单打开时显示） -->
-    <div
-      v-if="isMobileMenuOpen"
-      class="overlay"
-      @click="closeMobileMenu"
-    ></div>
+    <div v-if="isMobileMenuOpen" class="overlay" @click="closeMobileMenu"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getFilteredMenus } from '@/config/menu'
 import { useUserStore } from '@/stores/user'
+import { useDevice } from '@/composables/useDevice'
 import {
   Setting,
   Sunny,
@@ -149,22 +102,13 @@ import {
 
 const router = useRouter()
 const userStore = useUserStore()
-
-// 监听 token 变化，确保组件正确更新
-watch(
-  () => userStore.token,
-  newToken => {
-    console.log('🔄 BlogNav 检测到 token 变化:', newToken ? '有 token' : '无 token')
-  },
-  { immediate: true }
-)
+const { isMobile } = useDevice()
+const scrollTopBtn = ref<HTMLElement | null>(null)
 
 // 主题状态
 const isDarkTheme = ref(false)
-const scrollHandler = null
 
 // 移动端菜单状态
-const isMobile = ref(false)
 const isMobileMenuOpen = ref(false)
 
 // 获取前台菜单
@@ -173,8 +117,8 @@ const frontendMenus = computed(() => {
 })
 
 // 获取菜单图标
-const getMenuIcon = icon => {
-  const iconMap = {
+const getMenuIcon = (icon: string) => {
+  const iconMap: Record<string, any> = {
     home: House,
     category: FolderOpened,
     tag: PriceTag,
@@ -187,11 +131,7 @@ const getMenuIcon = icon => {
 // 切换主题
 const toggleTheme = () => {
   isDarkTheme.value = !isDarkTheme.value
-  if (isDarkTheme.value) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
+  document.documentElement.classList.toggle('dark', isDarkTheme.value)
   localStorage.setItem('blog-theme', isDarkTheme.value ? 'dark' : 'light')
 }
 
@@ -211,16 +151,10 @@ const goToLogin = () => {
   router.push('/login')
 }
 
-// 跳转到注册页（博客用户注册）
-const goToRegister = () => {
-  router.push('/blog/auth/register')
-}
-
 // 处理用户下拉菜单命令
 const handleUserCommand = async (command: string) => {
   switch (command) {
     case 'profile':
-      // 跳转到管理后台的个人中心页面
       window.location.href = '/user/profile'
       break
     case 'logout':
@@ -250,17 +184,11 @@ const closeMobileMenu = () => {
   isMobileMenuOpen.value = false
 }
 
-// 检测是否为移动端
-const checkMobile = () => {
-  isMobile.value = window.innerWidth <= 768
-}
-
 // 显示/隐藏回到顶部按钮
 const handleScroll = () => {
   const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-  const scrollTopBtn = document.querySelector('.scroll-top') as HTMLElement
-  if (scrollTopBtn) {
-    scrollTopBtn.style.opacity = scrollTop > 300 ? '1' : '0'
+  if (scrollTopBtn.value) {
+    scrollTopBtn.value.style.opacity = scrollTop > 300 ? '1' : '0'
   }
 }
 
@@ -268,24 +196,15 @@ const handleScroll = () => {
 onMounted(() => {
   const savedTheme = localStorage.getItem('blog-theme') || 'light'
   isDarkTheme.value = savedTheme === 'dark'
-  if (savedTheme === 'dark') {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
+  document.documentElement.classList.toggle('dark', isDarkTheme.value)
 
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll)
-
-  // 检测移动端
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
 })
 
 onUnmounted(() => {
   // 移除滚动监听
   window.removeEventListener('scroll', handleScroll)
-  window.removeEventListener('resize', checkMobile)
 })
 </script>
 
@@ -305,15 +224,15 @@ onUnmounted(() => {
   display: none;
   cursor: pointer;
   padding: 8px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--tech-bg-light);
   border-radius: 50%;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
   z-index: 1002;
 }
 
 .hamburger-menu:hover {
-  background: #409eff;
+  background: var(--tech-primary);
   transform: scale(1.1);
 }
 
@@ -330,13 +249,13 @@ onUnmounted(() => {
 .hamburger-icon span {
   width: 100%;
   height: 2px;
-  background: #333;
+  background: var(--tech-text);
   border-radius: 2px;
   transition: all 0.3s ease;
 }
 
 .hamburger-menu:hover .hamburger-icon span {
-  background: white;
+  background: var(--tech-bg);
 }
 
 .hamburger-icon.active span:nth-child(1) {
@@ -361,15 +280,14 @@ onUnmounted(() => {
 
 .nav-item {
   padding: 10px 18px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--tech-bg-light);
   border-radius: 25px;
   text-decoration: none;
-  color: #333;
+  color: var(--tech-text);
   font-size: 0.9rem;
   font-weight: 500;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--tech-bg);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -377,17 +295,10 @@ onUnmounted(() => {
 }
 
 .nav-item:hover {
-  background: #409eff;
-  color: white;
+  background: var(--tech-primary);
+  color: var(--tech-bg);
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.3);
-}
-
-.admin-link:hover {
-  background: #f56c6c;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(245, 108, 108, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 212, 255, 0.3);
 }
 
 .nav-item i {
@@ -405,19 +316,17 @@ onUnmounted(() => {
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--tech-bg-light);
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--tech-bg);
 }
 
 .user-info:hover {
-  background: #409eff;
-  color: white;
+  background: var(--tech-primary);
+  color: var(--tech-bg);
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.3);
 }
 
 .user-info .username {
@@ -429,28 +338,14 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
-.user-info .dropdown-icon {
-  font-size: 12px;
-  transition: transform 0.3s ease;
-}
-
-.user-info:hover .dropdown-icon {
-  transform: rotate(180deg);
-}
-
-.auth-buttons {
-  display: flex;
-  gap: 8px;
-}
-
 .theme-toggle,
 .scroll-top {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #666;
+  background: var(--tech-bg-light);
+  border: 1px solid var(--tech-bg);
+  color: var(--tech-text);
   transition: all 0.3s ease;
   display: flex;
   align-items: center;
@@ -459,10 +354,10 @@ onUnmounted(() => {
 
 .theme-toggle:hover,
 .scroll-top:hover {
-  background: #409eff;
-  color: white;
+  background: var(--tech-primary);
+  color: var(--tech-bg);
   transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
 }
 
 .scroll-top {
@@ -477,7 +372,7 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 25, 47, 0.7);
   z-index: 1000;
   animation: fadeIn 0.3s ease;
 }
@@ -491,42 +386,6 @@ onUnmounted(() => {
   }
 }
 
-/* 深色主题 */
-html.dark .blog-nav .nav-item {
-  background: rgba(30, 30, 30, 0.95);
-  color: #e0e0e0;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-html.dark .blog-nav .nav-item:hover {
-  background: #667eea;
-  color: white;
-}
-
-html.dark .theme-toggle,
-html.dark .scroll-top,
-html.dark .hamburger-menu {
-  background: rgba(30, 30, 30, 0.95);
-  color: #e0e0e0;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-html.dark .hamburger-icon span {
-  background: #e0e0e0;
-}
-
-html.dark .hamburger-menu:hover .hamburger-icon span {
-  background: white;
-}
-
-html.dark .theme-toggle:hover,
-html.dark .scroll-top:hover {
-  background: #667eea;
-  color: white;
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
 /* 平板响应式 */
 @media (max-width: 1024px) {
   .blog-nav {
@@ -534,12 +393,10 @@ html.dark .scroll-top:hover {
     right: 15px;
     gap: 12px;
   }
-
   .nav-item {
     padding: 8px 14px;
     font-size: 0.85rem;
   }
-
   .theme-toggle,
   .scroll-top {
     width: 36px;
@@ -554,25 +411,22 @@ html.dark .scroll-top:hover {
     right: 15px;
     gap: 10px;
   }
-
-  /* 显示汉堡菜单 */
   .hamburger-menu {
     display: block;
   }
 
-  /* 隐藏导航菜单，直到点击汉堡菜单 */
   .nav-menu {
     position: fixed;
     top: 0;
     right: -100%;
     width: 280px;
     height: 100vh;
-    background: rgba(255, 255, 255, 0.98);
+    background: var(--tech-bg);
     flex-direction: column;
     align-items: flex-start;
     padding: 80px 20px 20px;
     gap: 12px;
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
     transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1001;
   }
@@ -580,54 +434,11 @@ html.dark .scroll-top:hover {
   .nav-menu.mobile-open {
     right: 0;
   }
-
   .nav-item {
     width: 100%;
     padding: 12px 16px;
     border-radius: 12px;
     font-size: 0.95rem;
-    justify-content: flex-start;
-  }
-
-  .nav-item span {
-    display: inline;
-  }
-
-  .theme-toggle,
-  .scroll-top {
-    width: 35px;
-    height: 35px;
-  }
-}
-
-@media (max-width: 480px) {
-  .blog-nav {
-    top: 10px;
-    right: 10px;
-  }
-
-  .hamburger-menu {
-    padding: 6px;
-  }
-
-  .hamburger-icon {
-    width: 20px;
-    height: 16px;
-  }
-
-  .nav-menu {
-    width: 260px;
-    padding-top: 70px;
-  }
-
-  .nav-actions {
-    gap: 5px;
-  }
-
-  .theme-toggle,
-  .scroll-top {
-    width: 32px;
-    height: 32px;
   }
 }
 </style>

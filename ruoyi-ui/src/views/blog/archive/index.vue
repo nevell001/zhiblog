@@ -1,238 +1,199 @@
 <template>
-  <div class="archive-page">
-    <!-- 页面头部 -->
-    <header class="page-header">
-      <div class="header-bg"></div>
-      <div class="header-content">
-        <div class="header-icon">
-          <el-icon :size="48">
-            <Calendar />
-          </el-icon>
-        </div>
-        <h1 class="page-title">
-          文章归档
-        </h1>
-        <p class="page-description">
-          共
-          <span class="highlight-number">{{ totalArticles }}</span>
-          篇文章， 记录了
-          <span class="highlight-number">{{ archiveList.length }}</span>
-          个月的写作历程
-        </p>
-        <div class="back-button">
-          <router-link
-            to="/"
-            class="back-link"
-          >
-            <el-button
-              type="default"
-              plain
-              size="large"
-              round
-            >
-              <el-icon><ArrowLeft /></el-icon>
-              返回首页
-            </el-button>
-          </router-link>
-        </div>
-      </div>
-    </header>
-
-    <!-- 归档内容 -->
-    <main class="archive-main">
-      <div
-        v-loading="loading"
-        element-loading-text="加载归档中..."
-        element-loading-background="rgba(255, 255, 255, 0.9)"
-        class="archive-content"
-      >
-        <!-- 空状态 -->
-        <div
-          v-if="archiveList.length === 0 && !loading"
-          class="no-data"
-        >
-          <div class="empty-icon">
-            <el-icon :size="80">
+  <BlogLayout>
+    <div class="archive-page">
+      <!-- 页面头部 -->
+      <header class="page-header">
+        <div class="header-bg"></div>
+        <div class="header-content">
+          <div class="header-icon">
+            <el-icon :size="48">
               <Calendar />
             </el-icon>
           </div>
-          <h3>暂无归档数据</h3>
-          <p>还没有发布任何文章，快去创作吧！</p>
-          <router-link
-            to="/"
-            class="go-home-link"
-          >
-            <el-button
-              type="primary"
-              round
-            >
-              返回首页
-            </el-button>
-          </router-link>
+          <h1 class="page-title">文章归档</h1>
+          <p class="page-description">
+            共
+            <span class="highlight-number">{{ totalArticles }}</span>
+            篇文章， 记录了
+            <span class="highlight-number">{{ archiveList.length }}</span>
+            个月的写作历程
+          </p>
+          <div class="back-button">
+            <router-link to="/" class="back-link">
+              <el-button type="default" plain size="large" round>
+                <el-icon><ArrowLeft /></el-icon>
+                返回首页
+              </el-button>
+            </router-link>
+          </div>
         </div>
+      </header>
 
-        <!-- 归档列表 -->
+      <!-- 归档内容 -->
+      <main class="archive-main">
         <div
-          v-else
-          class="timeline-container"
+          v-loading="loading"
+          element-loading-text="加载归档中..."
+          element-loading-background="rgba(255, 255, 255, 0.9)"
+          class="archive-content"
         >
-          <div class="timeline-line"></div>
+          <!-- 空状态 -->
+          <div v-if="archiveList.length === 0 && !loading" class="no-data">
+            <div class="empty-icon">
+              <el-icon :size="80">
+                <Calendar />
+              </el-icon>
+            </div>
+            <h3>暂无归档数据</h3>
+            <p>还没有发布任何文章，快去创作吧！</p>
+            <router-link to="/" class="go-home-link">
+              <el-button type="primary" round>返回首页</el-button>
+            </router-link>
+          </div>
 
-          <div
-            v-for="(archive, index) in archiveList"
-            :key="archive.archive_date"
-            class="timeline-item"
-            :style="{ animationDelay: `${index * 0.1}s` }"
-          >
-            <!-- 时间轴节点 -->
-            <div class="timeline-dot"></div>
+          <!-- 归档列表 -->
+          <div v-else class="timeline-container">
+            <div class="timeline-line"></div>
 
-            <!-- 归档卡片 -->
-            <div class="archive-card">
-              <!-- 归档头部 -->
-              <div
-                class="archive-header"
-                @click="toggleArchive(archive.archive_date)"
-              >
-                <div class="archive-date-wrapper">
-                  <div class="archive-year">
-                    {{ archive.archive_date.split('-')[0] }}
-                  </div>
-                  <div class="archive-month">
-                    {{ formatMonth(archive.archive_date.split('-')[1]) }}
-                  </div>
-                </div>
+            <div
+              v-for="(archive, index) in archiveList"
+              :key="archive.archive_date"
+              class="timeline-item"
+              :style="{ animationDelay: `${index * 0.1}s` }"
+            >
+              <!-- 时间轴节点 -->
+              <div class="timeline-dot"></div>
 
-                <div class="archive-meta">
-                  <span class="archive-count">
-                    <el-icon><Document /></el-icon>
-                    {{ archive.article_count }} 篇文章
-                  </span>
-                  <el-icon
-                    :size="20"
-                    class="toggle-icon"
-                    :class="{ expanded: expandedArchives.includes(archive.archive_date) }"
-                  >
-                    <ArrowDown />
-                  </el-icon>
-                </div>
-              </div>
-
-              <!-- 文章列表 -->
-              <transition
-                name="expand"
-                @enter="onEnter"
-                @after-enter="onAfterEnter"
-                @leave="onLeave"
-              >
-                <div
-                  v-show="expandedArchives.includes(archive.archive_date)"
-                  class="archive-articles"
-                >
-                  <!-- 加载状态 -->
-                  <div
-                    v-if="loadingArticles[archive.archive_date]"
-                    class="loading-articles"
-                  >
-                    <el-icon
-                      :size="32"
-                      class="is-loading"
-                    >
-                      <Loading />
-                    </el-icon>
-                    <span>加载文章中...</span>
-                  </div>
-
-                  <!-- 文章列表 -->
-                  <div
-                    v-else-if="
-                      articlesByArchive[archive.archive_date] &&
-                        articlesByArchive[archive.archive_date].length > 0
-                    "
-                    class="article-list"
-                  >
-                    <div
-                      v-for="(article, articleIndex) in articlesByArchive[archive.archive_date]"
-                      :key="article.id"
-                      class="article-item"
-                      :style="{ animationDelay: `${articleIndex * 0.05}s` }"
-                    >
-                      <!-- 文章封面 -->
-                      <div
-                        v-if="article.coverUrl || article.coverImage"
-                        class="article-cover"
-                      >
-                        <img
-                          :src="article.coverUrl || article.coverImage"
-                          :alt="article.title"
-                          loading="lazy"
-                        />
-                        <div class="cover-overlay"></div>
-                      </div>
-
-                      <!-- 文章信息 -->
-                      <div class="article-info">
-                        <router-link
-                          :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }"
-                          class="article-title"
-                        >
-                          {{ article.title }}
-                        </router-link>
-
-                        <p class="article-summary">
-                          {{
-                            article.summary ||
-                              stripHtmlTags(article.content).substring(0, 150) + '...'
-                          }}
-                        </p>
-
-                        <div class="article-meta">
-                          <span class="meta-item">
-                            <el-icon :size="14"><Calendar /></el-icon>
-                            {{ formatDate(article.createTime) }}
-                          </span>
-                          <span class="meta-item">
-                            <el-icon :size="14"><View /></el-icon>
-                            {{ article.viewCount || 0 }}
-                          </span>
-                          <span class="meta-item">
-                            <el-icon :size="14"><ChatDotRound /></el-icon>
-                            {{ article.commentCount || 0 }}
-                          </span>
-                          <span
-                            v-if="article.likeCount"
-                            class="meta-item"
-                          >
-                            <el-icon :size="14"><Star /></el-icon>
-                            {{ article.likeCount }}
-                          </span>
-                        </div>
-                      </div>
+              <!-- 归档卡片 -->
+              <div class="archive-card">
+                <!-- 归档头部 -->
+                <div class="archive-header" @click="toggleArchive(archive.archive_date)">
+                  <div class="archive-date-wrapper">
+                    <div class="archive-year">
+                      {{ archive.archive_date.split('-')[0] }}
+                    </div>
+                    <div class="archive-month">
+                      {{ formatMonth(archive.archive_date.split('-')[1]) }}
                     </div>
                   </div>
 
-                  <!-- 无文章状态 -->
-                  <div
-                    v-else
-                    class="no-articles"
-                  >
-                    <el-icon :size="48">
-                      <DocumentDelete />
+                  <div class="archive-meta">
+                    <span class="archive-count">
+                      <el-icon><Document /></el-icon>
+                      {{ archive.article_count }} 篇文章
+                    </span>
+                    <el-icon
+                      :size="20"
+                      class="toggle-icon"
+                      :class="{ expanded: expandedArchives.includes(archive.archive_date) }"
+                    >
+                      <ArrowDown />
                     </el-icon>
-                    <p>该月份暂无文章</p>
                   </div>
                 </div>
-              </transition>
+
+                <!-- 文章列表 -->
+                <transition
+                  name="expand"
+                  @enter="onEnter"
+                  @after-enter="onAfterEnter"
+                  @leave="onLeave"
+                >
+                  <div
+                    v-show="expandedArchives.includes(archive.archive_date)"
+                    class="archive-articles"
+                  >
+                    <!-- 加载状态 -->
+                    <div v-if="loadingArticles[archive.archive_date]" class="loading-articles">
+                      <el-icon :size="32" class="is-loading">
+                        <Loading />
+                      </el-icon>
+                      <span>加载文章中...</span>
+                    </div>
+
+                    <!-- 文章列表 -->
+                    <div
+                      v-else-if="
+                        articlesByArchive[archive.archive_date] &&
+                        articlesByArchive[archive.archive_date].length > 0
+                      "
+                      class="article-list"
+                    >
+                      <div
+                        v-for="(article, articleIndex) in articlesByArchive[archive.archive_date]"
+                        :key="article.id"
+                        class="article-item"
+                        :style="{ animationDelay: `${articleIndex * 0.05}s` }"
+                      >
+                        <!-- 文章封面 -->
+                        <div v-if="article.coverUrl || article.coverImage" class="article-cover">
+                          <img
+                            :src="article.coverUrl || article.coverImage"
+                            :alt="article.title"
+                            loading="lazy"
+                          />
+                          <div class="cover-overlay"></div>
+                        </div>
+
+                        <!-- 文章信息 -->
+                        <div class="article-info">
+                          <router-link
+                            :to="{ name: 'PublicBlogArticleDetail', params: { id: article.id } }"
+                            class="article-title"
+                          >
+                            {{ article.title }}
+                          </router-link>
+
+                          <p class="article-summary">
+                            {{
+                              article.summary ||
+                              stripHtmlTags(article.content).substring(0, 150) + '...'
+                            }}
+                          </p>
+
+                          <div class="article-meta">
+                            <span class="meta-item">
+                              <el-icon :size="14"><Calendar /></el-icon>
+                              {{ formatDate(article.createTime) }}
+                            </span>
+                            <span class="meta-item">
+                              <el-icon :size="14"><View /></el-icon>
+                              {{ article.viewCount || 0 }}
+                            </span>
+                            <span class="meta-item">
+                              <el-icon :size="14"><ChatDotRound /></el-icon>
+                              {{ article.commentCount || 0 }}
+                            </span>
+                            <span v-if="article.likeCount" class="meta-item">
+                              <el-icon :size="14"><Star /></el-icon>
+                              {{ article.likeCount }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- 无文章状态 -->
+                    <div v-else class="no-articles">
+                      <el-icon :size="48">
+                        <DocumentDelete />
+                      </el-icon>
+                      <p>该月份暂无文章</p>
+                    </div>
+                  </div>
+                </transition>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleArchive, getArticlesByArchive } from '@/api/blog/article'
 import {
   Calendar,
@@ -284,7 +245,10 @@ const loadArticlesByArchive = async (archiveDate: string) => {
   try {
     loadingArticles.value[archiveDate] = true
     const [year, month] = archiveDate.split('-')
-    const response = await getArticlesByArchive(Number(year), Number(month), { pageNum: 1, pageSize: 100 })
+    const response = await getArticlesByArchive(Number(year), Number(month), {
+      pageNum: 1,
+      pageSize: 100
+    })
 
     if (response && response.code === 200) {
       articlesByArchive.value[archiveDate] = response.rows || response.data || []
@@ -383,18 +347,32 @@ onMounted(() => {
 <style scoped>
 /* 页面容器 */
 .archive-page {
+  padding-top: 64px;
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding-bottom: 60px;
+  background: #fafbfc;
+  padding-bottom: 0;
 }
 
 /* 页面头部 */
 .page-header {
   position: relative;
-  padding: 100px 20px 60px;
+  padding: 100px 20px 80px;
   text-align: center;
   color: white;
   overflow: hidden;
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
+}
+
+/* 页面头部底部波浪过渡 */
+.page-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: #fafbfc;
+  border-radius: 40px 40px 0 0;
 }
 
 .header-bg {
@@ -488,8 +466,8 @@ onMounted(() => {
 /* 主要内容区域 */
 .archive-main {
   max-width: 900px;
-  margin: -40px auto 0;
-  padding: 0 20px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
   position: relative;
   z-index: 2;
 }
@@ -497,7 +475,7 @@ onMounted(() => {
 .archive-content {
   background: white;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   min-height: 400px;
 }
@@ -555,7 +533,7 @@ onMounted(() => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #4a7bff 0%, #6b8cff 100%);
   border-radius: 2px;
 }
 
@@ -591,15 +569,15 @@ onMounted(() => {
   height: 16px;
   border-radius: 50%;
   background: white;
-  border: 4px solid #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+  border: 4px solid #4a7bff;
+  box-shadow: 0 0 0 4px rgba(74, 123, 255, 0.2);
   z-index: 1;
   transition: all 0.3s ease;
 }
 
 .timeline-item:hover .timeline-dot {
-  background: #667eea;
-  box-shadow: 0 0 0 8px rgba(102, 126, 234, 0.3);
+  background: #4a7bff;
+  box-shadow: 0 0 0 8px rgba(74, 123, 255, 0.3);
   transform: scale(1.2);
 }
 
@@ -613,7 +591,7 @@ onMounted(() => {
 }
 
 .archive-card:hover {
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.2);
 }
 
 /* 归档头部 */
@@ -631,7 +609,7 @@ onMounted(() => {
 
 .archive-header:hover {
   background: linear-gradient(135deg, #e8e9ff 0%, #e5e5ff 100%);
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 .archive-date-wrapper {
@@ -643,7 +621,7 @@ onMounted(() => {
 .archive-year {
   font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -670,13 +648,13 @@ onMounted(() => {
   border-radius: 20px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #667eea;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  color: #4a7bff;
+  box-shadow: 0 2px 8px rgba(74, 123, 255, 0.15);
 }
 
 .toggle-icon {
   transition: transform 0.3s ease;
-  color: #667eea;
+  color: #4a7bff;
 }
 
 .toggle-icon.expanded {
@@ -735,8 +713,8 @@ onMounted(() => {
 
 .article-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.15);
-  border-color: #667eea;
+  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.15);
+  border-color: #4a7bff;
 }
 
 /* 文章封面 */
@@ -766,7 +744,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.3) 0%, rgba(118, 75, 162, 0.3) 100%);
+  background: linear-gradient(135deg, rgba(74, 123, 255, 0.3) 0%, rgba(107, 140, 255, 0.3) 100%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -800,7 +778,7 @@ onMounted(() => {
 }
 
 .article-title:hover {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 .article-summary {
@@ -831,7 +809,7 @@ onMounted(() => {
 }
 
 .article-item:hover .meta-item {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 /* 无文章状态 */
@@ -994,12 +972,20 @@ onMounted(() => {
 
 /* 深色主题 */
 html.dark .archive-page {
+  background: #1e1e2e;
+}
+
+html.dark .page-header {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
 }
 
-html.dark .archive-content {
+html.dark .page-header::after {
   background: #1e1e2e;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .archive-content {
+  background: #252535;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .no-data {
@@ -1015,16 +1001,16 @@ html.dark .no-data h3 {
 }
 
 html.dark .timeline-line {
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(180deg, #4a7bff 0%, #6b8cff 100%);
 }
 
 html.dark .timeline-dot {
   background: #1e1e2e;
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 html.dark .timeline-item:hover .timeline-dot {
-  background: #667eea;
+  background: #4a7bff;
 }
 
 html.dark .archive-card {
@@ -1033,7 +1019,7 @@ html.dark .archive-card {
 }
 
 html.dark .archive-card:hover {
-  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.2);
+  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.2);
 }
 
 html.dark .archive-header {
@@ -1042,7 +1028,7 @@ html.dark .archive-header {
 
 html.dark .archive-header:hover {
   background: linear-gradient(135deg, #35354a 0%, #3a3a55 100%);
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 html.dark .archive-month {
@@ -1051,7 +1037,7 @@ html.dark .archive-month {
 
 html.dark .archive-count {
   background: #2a2a3e;
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .archive-articles {
@@ -1064,7 +1050,7 @@ html.dark .article-item {
 }
 
 html.dark .article-item:hover {
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 html.dark .article-title {
@@ -1072,7 +1058,7 @@ html.dark .article-title {
 }
 
 html.dark .article-title:hover {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .article-summary {
@@ -1084,7 +1070,7 @@ html.dark .article-meta {
 }
 
 html.dark .article-item:hover .meta-item {
-  color: #667eea;
+  color: #4a7bff;
 }
 
 html.dark .no-articles {

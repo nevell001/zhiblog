@@ -5,11 +5,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
     <groupId>top.nevell</groupId>
-    <artifactId>newblog</artifactId>
+    <artifactId>zhiblog</artifactId>
     <version>1.3.2</version>
 
-    <name>newblog</name>
-    <url>http://www.gitee.com/nevell/newblog</url>
+    <name>zhiblog</name>
+    <url>http://www.gitee.com/nevell/zhiblog</url>
     <description>博客管理系统</description>
 
     <properties>

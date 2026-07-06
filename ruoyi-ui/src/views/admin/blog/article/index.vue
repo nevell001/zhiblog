@@ -7,10 +7,7 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item
-        label="文章标题"
-        prop="title"
-      >
+      <el-form-item label="文章标题" prop="title">
         <el-input
           v-model="queryParams.title"
           placeholder="请输入文章标题"
@@ -18,10 +15,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="分类"
-        prop="categoryId"
-      >
+      <el-form-item label="分类" prop="categoryId">
         <el-select
           v-model="queryParams.categoryId"
           placeholder="请选择分类"
@@ -36,76 +30,34 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="状态"
-        prop="status"
-      >
+      <el-form-item label="状态" prop="status">
         <el-select
           v-model="queryParams.status"
           placeholder="请选择状态"
           clearable
           class="status-select"
         >
-          <el-option
-            label="草稿"
-            value="0"
-          />
-          <el-option
-            label="发布"
-            value="1"
-          />
+          <el-option label="草稿" value="0" />
+          <el-option label="发布" value="1" />
         </el-select>
       </el-form-item>
       <el-form-item label="">
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-        >
-          新增
-        </el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-        >
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">
           修改
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-        >
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">
           删除
         </el-button>
       </el-col>
@@ -133,28 +85,12 @@
           批量推荐
         </el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="articleList"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        width="55"
-        align="center"
-      />
-      <el-table-column
-        label="文章ID"
-        align="center"
-        prop="id"
-        width="60"
-      />
+    <el-table v-loading="loading" :data="articleList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="文章ID" align="center" prop="id" width="60" />
       <el-table-column
         label="文章标题"
         align="left"
@@ -184,40 +120,17 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column
-        label="分类"
-        align="center"
-        prop="categoryName"
-        width="100"
-      >
+      <el-table-column label="分类" align="center" prop="categoryName" width="100">
         <template #default="scope">
-          <el-tag
-            v-if="scope.row.categoryName"
-            type="info"
-            size="small"
-            class="category-tag"
-          >
+          <el-tag v-if="scope.row.categoryName" type="info" size="small" class="category-tag">
             {{ scope.row.categoryName }}
           </el-tag>
-          <span
-            v-else
-            class="text-muted"
-          >未分类</span>
+          <span v-else class="text-muted">未分类</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="作者"
-        align="center"
-        prop="authorName"
-        width="80"
-      />
+      <el-table-column label="作者" align="center" prop="authorName" width="80" />
 
-      <el-table-column
-        label="标签"
-        align="center"
-        prop="tags"
-        min-width="100"
-      >
+      <el-table-column label="标签" align="center" prop="tags" min-width="100">
         <template #default="scope">
           <el-tag
             v-for="(tag, index) in formatTagList(scope.row.tags)"
@@ -230,12 +143,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column
-        label="状态"
-        align="center"
-        prop="status"
-        width="80"
-      >
+      <el-table-column label="状态" align="center" prop="status" width="80">
         <template #default="scope">
           <el-tag
             :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'"
@@ -246,18 +154,8 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column
-        label="浏览量"
-        align="center"
-        prop="viewCount"
-        width="70"
-      />
-      <el-table-column
-        label="创建时间"
-        align="center"
-        prop="createTime"
-        width="100"
-      >
+      <el-table-column label="浏览量" align="center" prop="viewCount" width="70" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="100">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
@@ -327,40 +225,17 @@
     />
 
     <!-- 添加或修改博客文章对话框 -->
-    <el-dialog
-      v-model="open"
-      :title="title"
-      width="800px"
-      append-to-body
-      @close="cancel"
-    >
-      <el-form
-        ref="articleRef"
-        :model="form"
-        :rules="rules"
-        label-width="80px"
-      >
+    <el-dialog v-model="open" :title="title" width="800px" append-to-body @close="cancel">
+      <el-form ref="articleRef" :model="form" :rules="rules" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item
-              label="文章标题"
-              prop="title"
-            >
-              <el-input
-                v-model="form.title"
-                placeholder="请输入文章标题"
-              />
+            <el-form-item label="文章标题" prop="title">
+              <el-input v-model="form.title" placeholder="请输入文章标题" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              label="分类"
-              prop="categoryId"
-            >
-              <el-select
-                v-model="form.categoryId"
-                placeholder="请选择分类"
-              >
+            <el-form-item label="分类" prop="categoryId">
+              <el-select v-model="form.categoryId" placeholder="请选择分类">
                 <el-option
                   v-for="category in categoryOptions"
                   :key="category.id"
@@ -371,38 +246,15 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item
-          label="摘要"
-          prop="summary"
-        >
-          <el-input
-            v-model="form.summary"
-            type="textarea"
-            placeholder="请输入摘要"
-          />
+        <el-form-item label="摘要" prop="summary">
+          <el-input v-model="form.summary" type="textarea" placeholder="请输入摘要" />
         </el-form-item>
-        <el-form-item
-          label="文章内容"
-          prop="content"
-        >
-          <editor
-            :key="editorKey"
-            v-model="form.content"
-            :min-height="192"
-          />
+        <el-form-item label="文章内容" prop="content">
+          <editor :key="editorKey" v-model="form.content" :min-height="192" />
         </el-form-item>
-        <el-form-item
-          label="封面图片"
-          prop="coverUrl"
-        >
-          <image-upload
-            v-model="form.coverUrl"
-            action="/common/upload/article-cover"
-          />
-          <div
-            v-if="form.coverUrl"
-            style="margin-top: 10px"
-          >
+        <el-form-item label="封面图片" prop="coverUrl">
+          <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
+          <div v-if="form.coverUrl" style="margin-top: 10px">
             <img
               :src="getCoverUrl(form.coverUrl)"
               style="
@@ -413,65 +265,35 @@
               "
             />
             <div style="margin-top: 8px">
-              <el-button
-                type="danger"
-                size="small"
-                @click="form.coverUrl = ''"
-              >
-                删除封面
-              </el-button>
+              <el-button type="danger" size="small" @click="form.coverUrl = ''">删除封面</el-button>
             </div>
           </div>
         </el-form-item>
         <el-row>
           <el-col :span="12">
-            <el-form-item
-              label="是否置顶"
-              prop="isTop"
-            >
+            <el-form-item label="是否置顶" prop="isTop">
               <el-radio-group v-model="form.isTop">
-                <el-radio :label="1">
-                  是
-                </el-radio>
-                <el-radio :label="0">
-                  否
-                </el-radio>
+                <el-radio :label="1">是</el-radio>
+                <el-radio :label="0">否</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item
-              label="是否推荐"
-              prop="isRecommend"
-            >
+            <el-form-item label="是否推荐" prop="isRecommend">
               <el-radio-group v-model="form.isRecommend">
-                <el-radio :label="1">
-                  是
-                </el-radio>
-                <el-radio :label="0">
-                  否
-                </el-radio>
+                <el-radio :label="1">是</el-radio>
+                <el-radio :label="0">否</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item
-          label="状态"
-          prop="status"
-        >
+        <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio :label="1">
-              发布
-            </el-radio>
-            <el-radio :label="0">
-              草稿
-            </el-radio>
+            <el-radio :label="1">发布</el-radio>
+            <el-radio :label="0">草稿</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item
-          label="标签分类"
-          prop="tagIds"
-        >
+        <el-form-item label="标签分类" prop="tagIds">
           <TagCategorySelector
             v-model:selected-tags="form.tagIds"
             v-model:selected-category="form.categoryId"
@@ -479,40 +301,17 @@
             placeholder="选择或创建标签"
           />
         </el-form-item>
-        <el-form-item
-          v-if="form.id"
-          label="作者"
-          prop="authorName"
-        >
-          <el-input
-            v-model="form.authorName"
-            placeholder="请输入作者"
-            readonly
-          />
+        <el-form-item v-if="form.id" label="作者" prop="authorName">
+          <el-input v-model="form.authorName" placeholder="请输入作者" readonly />
         </el-form-item>
-        <el-form-item
-          v-else
-          label="作者"
-          prop="authorName"
-        >
-          <el-input
-            v-model="form.authorName"
-            placeholder="自动填充为博客设置中的作者"
-            readonly
-          />
+        <el-form-item v-else label="作者" prop="authorName">
+          <el-input v-model="form.authorName" placeholder="自动填充为博客设置中的作者" readonly />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="submitForm"
-          >
-            确 定
-          </el-button>
-          <el-button @click="cancel">
-            取 消
-          </el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
     </el-dialog>

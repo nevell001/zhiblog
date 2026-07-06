@@ -119,16 +119,16 @@ docker compose -f docker-compose.dev.yml down
 ```bash
 # Create database
 mysql -u root -p
-CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # Initialize database with all tables and sample data
-mysql -u root -p newblog < sql/init_database.sql
+mysql -u root -p zhiblog < sql/00_init_database.sql
 
 # Optional: Execute permissions setup
 mysql -u root -p < sql/00_setup_permissions.sql
 
 # Optional: Add performance indexes
-mysql -u root -p newblog < sql/performance_indexes.sql
+mysql -u root -p zhiblog < sql/performance_indexes.sql
 ```
 
 ## Module Architecture
@@ -224,7 +224,7 @@ Located in `ruoyi-framework/config/SecurityConfig.java`:
 ### Key Environment Variables
 
 ```yaml
-# Database (defaults to localhost:3306/newblog)
+# Database (defaults to localhost:3306/zhiblog)
 DB_HOST
 DB_USERNAME
 DB_PASSWORD
@@ -552,7 +552,7 @@ Examples from recent commits:
 **Database connection fails**:
 - Verify MySQL 8.4+ is running: `mysql --version`
 - Check connection string in `application.yml`
-- Ensure database exists: `CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
+- Ensure database exists: `CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`
 
 **Application startup fails with security validation errors**:
 - This happens in production when required security configs are missing or invalid

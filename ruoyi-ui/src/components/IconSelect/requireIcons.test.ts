@@ -16,9 +16,7 @@ describe('requireIcons 测试', () => {
   })
 
   it('icons 数组应该去重', () => {
-    const hasDuplicates = icons.some((item, index) => 
-      icons.indexOf(item) !== index
-    )
+    const hasDuplicates = icons.some((item, index) => icons.indexOf(item) !== index)
     expect(hasDuplicates).toBe(false)
   })
 })

@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="top-right-btn"
-    :style="style"
-  >
+  <div class="top-right-btn" :style="style">
     <el-row>
       <el-tooltip
         v-if="search"
@@ -11,23 +8,10 @@
         :content="showSearch ? '隐藏搜索' : '显示搜索'"
         placement="top"
       >
-        <el-button
-          circle
-          icon="Search"
-          @click="toggleSearch()"
-        />
+        <el-button circle icon="Search" @click="toggleSearch()" />
       </el-tooltip>
-      <el-tooltip
-        class="item"
-        effect="dark"
-        content="刷新"
-        placement="top"
-      >
-        <el-button
-          circle
-          icon="Refresh"
-          @click="refresh()"
-        />
+      <el-tooltip class="item" effect="dark" content="刷新" placement="top">
+        <el-button circle icon="Refresh" @click="refresh()" />
       </el-tooltip>
       <el-tooltip
         v-if="Object.keys(columns).length > 0"
@@ -36,22 +20,14 @@
         content="显隐列"
         placement="top"
       >
-        <el-button
-          v-if="showColumnsType === 'transfer'"
-          circle
-          icon="Menu"
-          @click="showColumn()"
-        />
+        <el-button v-if="showColumnsType === 'transfer'" circle icon="Menu" @click="showColumn()" />
         <el-dropdown
           v-if="showColumnsType === 'checkbox'"
           trigger="click"
           :hide-on-click="false"
           style="padding-left: 12px"
         >
-          <el-button
-            circle
-            icon="Menu"
-          />
+          <el-button circle icon="Menu" />
           <template #dropdown>
             <el-dropdown-menu>
               <!-- 全选/反选 按钮 -->
@@ -65,10 +41,7 @@
                 </el-checkbox>
               </el-dropdown-item>
               <div class="check-line"></div>
-              <template
-                v-for="(item, key) in columns"
-                :key="item.key"
-              >
+              <template v-for="(item, key) in columns" :key="item.key">
                 <el-dropdown-item>
                   <el-checkbox
                     v-model="item.visible"
@@ -82,11 +55,7 @@
         </el-dropdown>
       </el-tooltip>
     </el-row>
-    <el-dialog
-      v-model="open"
-      :title="title"
-      append-to-body
-    >
+    <el-dialog v-model="open" :title="title" append-to-body>
       <el-transfer
         v-model="value"
         :titles="['显示', '隐藏']"
@@ -162,15 +131,16 @@ const isChecked = computed({
 const isIndeterminate = computed(() =>
   Array.isArray(props.columns)
     ? props.columns.some(col => col.visible) && !isChecked.value
-    : Object.values(props.columns as Record<string, ColumnItem>).some(col => col.visible) && !isChecked.value
+    : Object.values(props.columns as Record<string, ColumnItem>).some(col => col.visible) &&
+      !isChecked.value
 )
 const transferData = computed(() =>
   Array.isArray(props.columns)
     ? props.columns.map((item, index) => ({ key: index, label: item.label }))
     : Object.keys(props.columns as Record<string, ColumnItem>).map((key, index) => ({
-      key: index,
-      label: (props.columns as Record<string, ColumnItem>)[key].label
-    }))
+        key: index,
+        label: (props.columns as Record<string, ColumnItem>)[key].label
+      }))
 )
 
 // 搜索
@@ -234,7 +204,9 @@ function toggleCheckAll() {
   if (Array.isArray(props.columns)) {
     props.columns.forEach(col => (col.visible = newValue))
   } else {
-    Object.values(props.columns as Record<string, ColumnItem>).forEach(col => (col.visible = newValue))
+    Object.values(props.columns as Record<string, ColumnItem>).forEach(
+      col => (col.visible = newValue)
+    )
   }
 }
 </script>

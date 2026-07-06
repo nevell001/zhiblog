@@ -220,4 +220,12 @@ public interface IBlogArticleService
      * @return 结果
      */
     public int likeArticle(Long id);
+
+    /**
+     * 获取相关文章（基于相同分类或标签）
+     *
+     * @param id 当前文章ID
+     * @return 相关文章列表
+     */
+    public List<BlogArticle> selectRelatedArticles(Long id);
 }

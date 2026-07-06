@@ -9,21 +9,14 @@
           <p>通过邮箱重置您的密码</p>
         </div>
 
-        <el-steps
-          :active="currentStep"
-          align-center
-          class="steps"
-        >
+        <el-steps :active="currentStep" align-center class="steps">
           <el-step title="验证邮箱" />
           <el-step title="重置密码" />
           <el-step title="完成" />
         </el-steps>
 
         <!-- 步骤1: 验证邮箱 -->
-        <div
-          v-if="currentStep === 0"
-          class="step-content"
-        >
+        <div v-if="currentStep === 0" class="step-content">
           <el-form
             ref="emailFormRef"
             :model="emailForm"
@@ -82,10 +75,7 @@
         </div>
 
         <!-- 步骤2: 重置密码 -->
-        <div
-          v-if="currentStep === 1"
-          class="step-content"
-        >
+        <div v-if="currentStep === 1" class="step-content">
           <el-form
             ref="passwordFormRef"
             :model="passwordForm"
@@ -132,11 +122,7 @@
               >
                 重置密码
               </el-button>
-              <el-button
-                size="large"
-                class="back-button"
-                @click="currentStep = 0"
-              >
+              <el-button size="large" class="back-button" @click="currentStep = 0">
                 上一步
               </el-button>
             </el-form-item>
@@ -144,46 +130,18 @@
         </div>
 
         <!-- 步骤3: 完成 -->
-        <div
-          v-if="currentStep === 2"
-          class="step-content success-content"
-        >
-          <el-result
-            icon="success"
-            title="密码重置成功"
-            sub-title="您的密码已成功重置"
-          >
+        <div v-if="currentStep === 2" class="step-content success-content">
+          <el-result icon="success" title="密码重置成功" sub-title="您的密码已成功重置">
             <template #extra>
-              <el-button
-                type="primary"
-                size="large"
-                @click="goToLogin"
-              >
-                立即登录
-              </el-button>
-              <el-button
-                size="large"
-                @click="goToHome"
-              >
-                返回首页
-              </el-button>
+              <el-button type="primary" size="large" @click="goToLogin">立即登录</el-button>
+              <el-button size="large" @click="goToHome">返回首页</el-button>
             </template>
           </el-result>
         </div>
 
         <div class="forgot-password-footer">
-          <router-link
-            to="/login"
-            class="link"
-          >
-            返回登录
-          </router-link>
-          <router-link
-            to="/blog/auth/register"
-            class="link"
-          >
-            注册账号
-          </router-link>
+          <router-link to="/login" class="link">返回登录</router-link>
+          <router-link to="/blog/auth/register" class="link">注册账号</router-link>
         </div>
       </div>
     </div>
@@ -339,7 +297,7 @@ const goToHome = () => {
 <style scoped>
 .blog-forgot-password-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   position: relative;
 }
 
@@ -435,12 +393,12 @@ const goToHome = () => {
 }
 
 .forgot-password-footer .link {
-  color: #667eea;
+  color: #4a7bff;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .forgot-password-footer .link:hover {
-  color: #764ba2;
+  color: #6b8cff;
 }
 </style>

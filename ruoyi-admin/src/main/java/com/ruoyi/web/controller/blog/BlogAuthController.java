@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.blog;
 
+import java.util.Map;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.entity.SysUser;
@@ -92,8 +93,9 @@ public class BlogAuthController extends BaseController
      * 发送注册验证码
      */
     @PostMapping("/send-register-code")
-    public AjaxResult sendRegisterCode(@RequestParam String email, HttpServletRequest request)
+    public AjaxResult sendRegisterCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
+        String email = params.get("email");
         if (StringUtils.isEmpty(email))
         {
             return AjaxResult.error("邮箱不能为空");
@@ -123,8 +125,9 @@ public class BlogAuthController extends BaseController
      * 发送密码重置验证码
      */
     @PostMapping("/send-reset-code")
-    public AjaxResult sendResetCode(@RequestParam String email, HttpServletRequest request)
+    public AjaxResult sendResetCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
+        String email = params.get("email");
         if (StringUtils.isEmpty(email))
         {
             return AjaxResult.error("邮箱不能为空");
@@ -148,11 +151,13 @@ public class BlogAuthController extends BaseController
      * 重置密码
      */
     @PostMapping("/reset-password")
-    public AjaxResult resetPassword(@RequestParam String email,
-                                    @RequestParam String code,
-                                    @RequestParam String newPassword,
-                                    @RequestParam String confirmPassword)
+    public AjaxResult resetPassword(@RequestBody Map<String, String> params)
     {
+        String email = params.get("email");
+        String code = params.get("code");
+        String newPassword = params.get("newPassword");
+        String confirmPassword = params.get("confirmPassword");
+
         if (StringUtils.isEmpty(email) || StringUtils.isEmpty(code) ||
                 StringUtils.isEmpty(newPassword) || StringUtils.isEmpty(confirmPassword))
         {

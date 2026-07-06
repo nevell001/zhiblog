@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  login,
-  register,
-  getInfo,
-  logout,
-  getCodeImg
-} from './login'
+import { login, register, getInfo, logout, getCodeImg } from './login'
 import request from '@/utils/request'
 
 // Mock request module

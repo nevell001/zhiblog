@@ -5,11 +5,13 @@ import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -29,6 +31,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
  * @date 2025-12-18
  */
 @Tag(name = "博客文章管理（前台）")
+@Anonymous
 @RestController("blogFrontArticleController")
 @RequestMapping("/common/blog/article")
 public class BlogArticleController extends BaseController {
@@ -100,30 +103,10 @@ public class BlogArticleController extends BaseController {
      * 增加文章浏览量
      */
     @Operation(summary = "增加文章浏览量")
-    @GetMapping("/view/{id}")
+    @PostMapping("/view/{id}")
     public AjaxResult addViewCount(@PathVariable("id") Long id) {
-        try {
-            BlogArticle article = blogArticleService.selectBlogArticleById(id);
-            if (article == null) {
-                return error("文章不存在");
-            }
-
-            // 增加浏览量
-            if (article.getViewCount() == null) {
-                article.setViewCount(0L);
-            }
-            article.setViewCount(article.getViewCount() + 1);
-
-            int result = blogArticleService.updateBlogArticle(article);
-            if (result > 0) {
-                return success("浏览量更新成功");
-            } else {
-                return error("浏览量更新失败");
-            }
-        } catch (Exception e) {
-            logger.error("增加文章浏览量失败: {}", id, e);
-            return error("增加文章浏览量失败");
-        }
+        blogArticleService.addViewCount(id);
+        return success("浏览量更新成功");
     }
 
     /**

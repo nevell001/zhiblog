@@ -159,7 +159,7 @@ describe('Blog Article API 测试', () => {
 
       expect(request).toHaveBeenCalledWith({
         url: '/blog/article/view/123',
-        method: 'get',
+        method: 'post',
         headers: { isToken: false }
       })
     })

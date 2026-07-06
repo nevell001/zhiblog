@@ -52,7 +52,7 @@ describe('scroll-to 工具测试', () => {
       expect(typeof scrollTo).toBe('function')
     })
 
-    it('应该平滑滚动到指定位置', (done) => {
+    it('应该平滑滚动到指定位置', done => {
       const callback = vi.fn()
       scrollTo(500, 100, callback)
 
@@ -65,7 +65,7 @@ describe('scroll-to 工具测试', () => {
       }, 10)
     })
 
-    it('应该使用默认持续时间 500ms', (done) => {
+    it('应该使用默认持续时间 500ms', done => {
       const callback = vi.fn()
       scrollTo(200, undefined, callback)
 
@@ -77,7 +77,7 @@ describe('scroll-to 工具测试', () => {
       }, 10)
     })
 
-    it('应该滚动到 0 位置', (done) => {
+    it('应该滚动到 0 位置', done => {
       mockScrollTop.value = 1000
       const callback = vi.fn()
       scrollTo(0, 200, callback)
@@ -91,7 +91,7 @@ describe('scroll-to 工具测试', () => {
       }, 10)
     })
 
-    it('应该在不提供回调时正常工作', (done) => {
+    it('应该在不提供回调时正常工作', done => {
       scrollTo(300, 200)
 
       vi.advanceTimersByTime(220)

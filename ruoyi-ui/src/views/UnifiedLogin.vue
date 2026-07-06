@@ -7,12 +7,7 @@
           <p>统一登录入口</p>
         </div>
 
-        <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          class="login-form"
-        >
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form">
           <el-form-item prop="username">
             <el-input
               ref="usernameInputRef"
@@ -45,10 +40,7 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item
-            v-if="captchaEnabled"
-            prop="code"
-          >
+          <el-form-item v-if="captchaEnabled" prop="code">
             <div class="captcha-row">
               <el-input
                 ref="codeInputRef"
@@ -63,12 +55,7 @@
                   <el-icon><Key /></el-icon>
                 </template>
               </el-input>
-              <img
-                :src="captchaUrl"
-                class="captcha-img"
-                alt="验证码"
-                @click="refreshCaptcha"
-              />
+              <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
             </div>
           </el-form-item>
 
@@ -87,19 +74,9 @@
 
         <div class="login-footer">
           <div class="footer-links">
-            <router-link
-              to="/blog/auth/register"
-              class="link"
-            >
-              用户注册
-            </router-link>
+            <router-link to="/blog/auth/register" class="link">用户注册</router-link>
             <span class="divider">|</span>
-            <router-link
-              to="/blog/auth/forgot-password"
-              class="link"
-            >
-              忘记密码？
-            </router-link>
+            <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
           </div>
         </div>
       </div>
@@ -293,7 +270,7 @@ onMounted(() => {
 <style scoped>
 .unified-login-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -361,7 +338,7 @@ onMounted(() => {
 }
 
 .captcha-img:hover {
-  border-color: #667eea;
+  border-color: #4a7bff;
 }
 
 .login-button {
@@ -385,13 +362,13 @@ onMounted(() => {
 }
 
 .footer-links .link {
-  color: #667eea;
+  color: #4a7bff;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .footer-links .link:hover {
-  color: #764ba2;
+  color: #6b8cff;
 }
 
 .footer-links .divider {

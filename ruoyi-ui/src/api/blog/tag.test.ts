@@ -1,10 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  getTagList,
-  getTagDetail,
-  getTagCloud,
-  getArticlesByTag
-} from './tag'
+import { getTagList, getTagDetail, getTagCloud, getArticlesByTag } from './tag'
 import type { Tag } from '@/types'
 import request from '@/utils/request'
 

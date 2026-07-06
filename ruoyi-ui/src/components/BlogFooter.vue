@@ -1,13 +1,7 @@
 <template>
-  <footer
-    v-if="shouldShowFooter"
-    class="blog-footer"
-  >
+  <footer v-if="shouldShowFooter" class="blog-footer">
     <div class="footer-content">
-      <div
-        v-if="blogSettingsStore.isFeatureEnabled('footer_enabled')"
-        class="footer-info"
-      >
+      <div v-if="blogSettingsStore.isFeatureEnabled('footer_enabled')" class="footer-info">
         <div class="footer-section">
           <h4>关于博客</h4>
           <p>{{ blogSettings.blog_desc || '一个基于RuoYi-Vue的博客系统' }}</p>
@@ -22,36 +16,22 @@
           <h4>快速链接</h4>
           <ul class="footer-links">
             <li>
-              <router-link to="/blog">
-                首页
-              </router-link>
+              <router-link to="/blog">首页</router-link>
             </li>
             <li>
-              <router-link to="/blog/about">
-                关于
-              </router-link>
+              <router-link to="/blog/about">关于</router-link>
             </li>
             <li>
-              <router-link to="/blog/category">
-                分类
-              </router-link>
+              <router-link to="/blog/category">分类</router-link>
             </li>
             <li>
-              <router-link to="/blog/tag">
-                标签
-              </router-link>
+              <router-link to="/blog/tag">标签</router-link>
             </li>
             <li>
-              <router-link to="/blog/archive">
-                归档
-              </router-link>
+              <router-link to="/blog/archive">归档</router-link>
             </li>
             <li>
-              <a
-                :href="rssUrl"
-                target="_blank"
-                title="RSS订阅"
-              >RSS订阅</a>
+              <a :href="rssUrl" target="_blank" title="RSS订阅">RSS订阅</a>
             </li>
           </ul>
         </div>
@@ -71,10 +51,7 @@
         </div>
       </div>
 
-      <div
-        v-if="shouldShowCopyright"
-        class="footer-copyright"
-      >
+      <div v-if="shouldShowCopyright" class="footer-copyright">
         <div class="copyright-content">
           <p>
             <span v-if="blogSettings.blog_copyright">{{ blogSettings.blog_copyright }}</span>
@@ -84,15 +61,9 @@
           </p>
           <p class="tech-info">
             Powered by
-            <a
-              href="#"
-              target="_blank"
-            >RuoYi-Vue</a>
+            <a href="#" target="_blank">RuoYi-Vue</a>
             &
-            <a
-              href="#"
-              target="_blank"
-            >Element Plus</a>
+            <a href="#" target="_blank">Element Plus</a>
           </p>
         </div>
       </div>

@@ -1,7 +1,7 @@
 # 项目相关配置
 ruoyi:
   # 名称
-  name: RuoYi
+  name: ZhiBlog
   # 版本（从 Maven 属性读取，统一管理）
   version: @app.version@
   # 版权年份
@@ -54,7 +54,7 @@ spring:
     druid:
       # 主库数据源
       master:
-        url: jdbc:mysql://${DB_HOST:localhost}:3306/newblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
+        url: jdbc:mysql://${DB_HOST:localhost}:3306/zhiblog?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&characterEncoding=utf8&useUnicode=true
         username: ${DB_USERNAME:root}
         password: ${DB_PASSWORD:#{null}}
         driverClassName: com.mysql.cj.jdbc.Driver

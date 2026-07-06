@@ -298,7 +298,7 @@ describe('ruoyi 工具测试', () => {
     it('应该验证是否为 blob 格式', () => {
       const jsonBlob = new Blob(['{"test": "data"}'], { type: 'application/json' })
       const imageBlob = new Blob(['test'], { type: 'image/jpeg' })
-      
+
       expect(blobValidate(jsonBlob)).toBe(false)
       expect(blobValidate(imageBlob)).toBe(true)
     })

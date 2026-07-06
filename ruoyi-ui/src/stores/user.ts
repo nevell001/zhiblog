@@ -34,80 +34,41 @@ export const useUserStore = defineStore('user', {
     /**
      * 登录
      */
-    login(userInfo: UserInfo): Promise<void> {
+    async login(userInfo: UserInfo): Promise<void> {
       const username = userInfo.username.trim()
-      const password = userInfo.password
-      const code = userInfo.code
-      const uuid = userInfo.uuid
-      return new Promise((resolve, reject) => {
-        login(username, password, code, uuid)
-          .then((res: any) => {
-            setToken(res.token)
-            this.token = res.token
-            resolve()
-          })
-          .catch(error => {
-            reject(error)
-          })
-      })
+      const { password, code, uuid } = userInfo
+      const res = await login(username, password, code, uuid)
+      setToken(res.token)
+      this.token = res.token
     },
 
     /**
      * 获取用户信息
      */
-    getInfo(): Promise<any> {
-      return new Promise((resolve, reject) => {
-        console.log('📋 开始获取用户信息...')
-        // 使用统一的认证接口获取用户信息
-        getUserInfo()
-          .then((res: any) => {
-            console.log('✅ 获取用户信息成功:', res)
-            const data = res.data || res
-            console.log('📊 data 对象:', data)
-            console.log('📊 data.userType:', data.userType)
-            console.log('📊 data.user:', data.user)
-            console.log('📊 data.user.userType:', data.user?.userType)
-            const user = data.user
-            const avatar =
-              user.avatar == '' || user.avatar == null
-                ? defaultAvatar
-                : (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + user.avatar
+    async getInfo(): Promise<any> {
+      const res = await getUserInfo()
+      const data = res.data || res
+      const user = data.user
+      const avatar =
+        user.avatar == '' || user.avatar == null
+          ? defaultAvatar
+          : (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + user.avatar
 
-            if (data.roles && data.roles.length > 0) {
-              // 验证返回的roles是否是一个非空数组
-              this.roles = data.roles
-              this.permissions = data.permissions
-              console.log('✅ 设置 roles:', this.roles)
-            } else {
-              this.roles = ['ROLE_DEFAULT']
-              console.log('⚠️ roles 为空，使用默认值')
-            }
-            this.name = user.userName
-            this.avatar = avatar
-            this.userType = data.userType || user.userType || '00'
-            // 确保 token 状态与 localStorage 同步
-            const token = getToken()
-            if (token && token !== this.token) {
-              this.token = token
-              console.log('✅ 更新 store 中的 token')
-            }
-            console.log(
-              '✅ 用户信息设置完成: name =',
-              this.name,
-              ', avatar =',
-              this.avatar,
-              ', userType =',
-              this.userType,
-              ', token =',
-              this.token ? '有' : '无'
-            )
-            resolve(res)
-          })
-          .catch(error => {
-            console.error('❌ 获取用户信息失败:', error)
-            reject(error)
-          })
-      })
+      if (data.roles && data.roles.length > 0) {
+        this.roles = data.roles
+        this.permissions = data.permissions
+      } else {
+        this.roles = ['ROLE_DEFAULT']
+      }
+      this.name = user.userName
+      this.avatar = avatar
+      this.userType = data.userType || user.userType || '00'
+
+      const token = getToken()
+      if (token && token !== this.token) {
+        this.token = token
+      }
+      return res
     },
 
     /**

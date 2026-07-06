@@ -83,7 +83,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
-     * 批量加载文章的标签数据（解决N+1查询问题）
+     * 批量加载文章的标签数据（优化为 Stream 映射）
      *
      * @param articleList 文章列表
      */
@@ -92,55 +92,44 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             return;
         }
 
-        // 提取所有文章ID
-        List<Long> articleIds = new ArrayList<>();
-        for (BlogArticle article : articleList) {
-            if (article != null && article.getId() != null) {
-                articleIds.add(article.getId());
-            }
-        }
+        List<Long> articleIds = articleList.stream()
+                .filter(a -> a != null && a.getId() != null)
+                .map(BlogArticle::getId)
+                .toList();
 
         if (articleIds.isEmpty()) {
             return;
         }
 
-        // 批量查询所有标签映射（每行包含 articleId 和标签信息）
         List<Map<String, Object>> tagMappings = blogTagMapper.selectTagsByArticleIds(articleIds);
 
-        // 将标签映射转换为 Map<Long, List<BlogTag>>
-        Map<Long, List<BlogTag>> tagsMap = new HashMap<>();
-        for (Map<String, Object> mapping : tagMappings) {
-            Long articleId = (Long) mapping.get("articleId");
-            if (articleId != null) {
-                tagsMap.computeIfAbsent(articleId, k -> new ArrayList<>());
-                // 创建 BlogTag 对象并添加到列表
-                BlogTag tag = new BlogTag();
-                tag.setId((Long) mapping.get("id"));
-                tag.setName((String) mapping.get("name"));
-                tag.setDescription((String) mapping.get("description"));
-                tag.setColor((String) mapping.get("color"));
-                tag.setIcon((String) mapping.get("icon"));
-                tag.setDelFlag((Integer) mapping.get("delFlag"));
-                tagsMap.get(articleId).add(tag);
-            }
-        }
+        Map<Long, List<BlogTag>> tagsMap = tagMappings.stream()
+                .filter(m -> m.get("articleId") != null)
+                .collect(java.util.stream.Collectors.groupingBy(
+                        m -> (Long) m.get("articleId"),
+                        java.util.stream.Collectors.mapping(m -> {
+                            BlogTag tag = new BlogTag();
+                            tag.setId((Long) m.get("id"));
+                            tag.setName((String) m.get("name"));
+                            tag.setDescription((String) m.get("description"));
+                            tag.setColor((String) m.get("color"));
+                            tag.setIcon((String) m.get("icon"));
+                            tag.setDelFlag((Integer) m.get("delFlag"));
+                            return tag;
+                        }, java.util.stream.Collectors.toList())
+                ));
 
-        // 为每篇文章设置标签
-        for (BlogArticle article : articleList) {
-            if (article != null && article.getId() != null) {
-                List<BlogTag> tags = tagsMap.getOrDefault(article.getId(), new ArrayList<>());
-                article.setTags(tags);
-
-                // 设置标签ID列表
-                List<Long> tagIds = new ArrayList<>();
-                for (BlogTag tag : tags) {
-                    if (tag != null && tag.getId() != null) {
-                        tagIds.add(tag.getId());
-                    }
-                }
-                article.setTagIds(tagIds);
-            }
-        }
+        articleList.stream()
+                .filter(a -> a != null && a.getId() != null)
+                .forEach(article -> {
+                    List<BlogTag> tags = tagsMap.getOrDefault(article.getId(), new ArrayList<>());
+                    article.setTags(tags);
+                    // 过滤掉 ID 为 null 的标签
+                    article.setTagIds(tags.stream()
+                            .filter(t -> t != null && t.getId() != null)
+                            .map(BlogTag::getId)
+                            .toList());
+                });
     }
 
 
@@ -345,8 +334,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBlogArticleById(Long id)
     {
+        // 先删除标签关联
+        blogArticleTagMapper.deleteByArticleId(id);
         return blogArticleMapper.deleteBlogArticleById(id);
     }
 
@@ -606,5 +598,28 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             return 0;
         }
         return blogArticleMapper.likeArticle(id);
+    }
+
+    /**
+     * 获取相关文章（基于相同分类）
+     *
+     * @param id 当前文章ID
+     * @return 相关文章列表
+     */
+    @Override
+    public List<BlogArticle> selectRelatedArticles(Long id)
+    {
+        List<BlogArticle> relatedList = blogArticleMapper.selectRelatedArticles(id, 6);
+        if (relatedList == null || relatedList.isEmpty()) {
+            // 如果没有同分类文章，返回热门文章作为推荐
+            BlogArticle query = new BlogArticle();
+            query.setStatus(1L);
+            query.setDelFlag(0L);
+            relatedList = blogArticleMapper.selectHotArticles(query);
+            if (relatedList != null && relatedList.size() > 6) {
+                relatedList = relatedList.subList(0, 6);
+            }
+        }
+        return relatedList;
     }
 }

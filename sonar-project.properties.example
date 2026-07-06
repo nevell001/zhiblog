@@ -6,7 +6,7 @@
 sonar.projectKey=your-project-key
 
 # SonarQube 项目名称
-sonar.projectName=newblog
+sonar.projectName=zhiblog
 
 # 源代码目录
 sonar.sources=.

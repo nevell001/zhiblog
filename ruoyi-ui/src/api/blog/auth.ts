@@ -64,7 +64,7 @@ export function sendRegisterCode(email: string): Promise<any> {
       repeatSubmit: false
     },
     method: 'post',
-    params: { email }
+    data: { email }
   })
 }
 
@@ -79,7 +79,7 @@ export function sendResetCode(email: string): Promise<any> {
       repeatSubmit: false
     },
     method: 'post',
-    params: { email }
+    data: { email }
   })
 }
 
@@ -99,7 +99,7 @@ export function resetPassword(data: {
       repeatSubmit: false
     },
     method: 'post',
-    params: data
+    data: data
   })
 }
 

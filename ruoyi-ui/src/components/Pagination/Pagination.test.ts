@@ -71,7 +71,7 @@ describe('Pagination 组件测试', () => {
     const wrapper = mountPagination({ total: 100, page: 11, limit: 20 })
 
     expect(wrapper.vm.currentPage).toBe(11)
-    
+
     await wrapper.vm.handleSizeChange(10)
 
     expect(wrapper.emitted('update:page')?.[0]).toEqual([1])

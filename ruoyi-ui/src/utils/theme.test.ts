@@ -1,11 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import {
-  handleThemeStyle,
-  hexToRgb,
-  rgbToHex,
-  getLightColor,
-  getDarkColor
-} from './theme'
+import { handleThemeStyle, hexToRgb, rgbToHex, getLightColor, getDarkColor } from './theme'
 
 // Mock document
 const mockStyle: any = {

@@ -9,7 +9,7 @@ vi.mock('@/utils/request', () => ({
 }))
 
 vi.mock('@/utils/ruoyi', () => ({
-  parseStrEmpty: vi.fn((val) => val || '')
+  parseStrEmpty: vi.fn(val => val || '')
 }))
 
 describe('System User API 测试', () => {

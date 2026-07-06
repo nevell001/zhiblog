@@ -94,7 +94,7 @@ export function getArticleDetail(id: number): Promise<any> {
 export function updateArticleViewCount(id: number): Promise<any> {
   return request({
     url: '/blog/article/view/' + id,
-    method: 'get',
+    method: 'post',
     headers: { isToken: false }
   })
 }
@@ -144,7 +144,7 @@ export function searchArticles(
 /**
  * 获取相关文章
  */
-export function getRelatedArticles(id: number): Promise<Article[]> {
+export function getRelatedArticles(id: number): Promise<any> {
   return request({
     url: '/blog/article/related/' + id,
     method: 'get',

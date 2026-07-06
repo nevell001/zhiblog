@@ -1,10 +1,5 @@
 <template>
-  <el-menu
-    :default-active="activeMenu"
-    mode="horizontal"
-    :ellipsis="false"
-    @select="handleSelect"
-  >
+  <el-menu :default-active="activeMenu" mode="horizontal" :ellipsis="false" @select="handleSelect">
     <template v-for="(item, index) in topMenus">
       <el-menu-item
         v-if="index < visibleNumber"
@@ -21,20 +16,10 @@
     </template>
 
     <!-- 顶部菜单超出数量折叠 -->
-    <el-sub-menu
-      v-if="topMenus.length > visibleNumber"
-      :style="{ '--theme': theme }"
-      index="more"
-    >
-      <template #title>
-        更多菜单
-      </template>
+    <el-sub-menu v-if="topMenus.length > visibleNumber" :style="{ '--theme': theme }" index="more">
+      <template #title>更多菜单</template>
       <template v-for="(item, index) in topMenus">
-        <el-menu-item
-          v-if="index >= visibleNumber"
-          :key="index"
-          :index="item.path"
-        >
+        <el-menu-item v-if="index >= visibleNumber" :key="index" :index="item.path">
           <svg-icon
             v-if="item.meta && item.meta.icon && item.meta.icon !== '#'"
             :icon-class="item.meta.icon"

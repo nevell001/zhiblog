@@ -54,7 +54,7 @@
         left join blog_article_tag bat on ba.id = bat.article_id
         left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         <where>
-            <if test="title != null  and title != ''"> and ba.title = #{title}</if>
+            <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
             <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
             <if test="content != null  and content != ''"> and ba.content = #{content}</if>
             <if test="coverUrl != null  and coverUrl != ''"> and ba.cover_url = #{coverUrl}</if>
@@ -63,6 +63,7 @@
             <if test="isTop != null "> and ba.is_top = #{isTop}</if>
             <if test="isRecommend != null "> and ba.is_recommend = #{isRecommend}</if>
             <if test="status != null "> and ba.status = #{status}</if>
+            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
             <if test="viewCount != null "> and ba.view_count = #{viewCount}</if>
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
@@ -274,7 +275,10 @@
         <if test="status != null">
             AND ba.status = #{status}
         </if>
-        GROUP BY ba.id
+        GROUP BY ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+                 bc.name
         ORDER BY ba.view_count DESC, ba.create_time DESC
     </select>
 
@@ -298,7 +302,10 @@
         <if test="archiveDate != null and archiveDate != ''">
             AND DATE_FORMAT(ba.create_time, '%Y-%m') = #{archiveDate}
         </if>
-        GROUP BY ba.id
+        GROUP BY ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+                 bc.name
         ORDER BY ba.create_time DESC
     </select>
 
@@ -327,8 +334,23 @@
     <!-- 点赞文章 -->
     <update id="likeArticle">
         UPDATE blog_article
-        SET like_count = like_count + 1
+        SET like_count = IFNULL(like_count, 0) + 1
         WHERE id = #{id}
         AND del_flag = 0
     </update>
+
+    <!-- 获取相关文章（基于相同分类，排除当前文章） -->
+    <select id="selectRelatedArticles" resultMap="BlogArticleResult">
+        SELECT
+            ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
+            ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+            ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+            bc.name as category_name
+        FROM blog_article ba
+        LEFT JOIN blog_category bc ON ba.category_id = bc.id AND bc.del_flag = 0
+        WHERE ba.status = 1 AND ba.del_flag = 0 AND ba.id != #{id}
+        AND ba.category_id = (SELECT category_id FROM blog_article WHERE id = #{id} AND del_flag = 0)
+        ORDER BY ba.view_count DESC, ba.create_time DESC
+        LIMIT #{limit}
+    </select>
 </mapper>

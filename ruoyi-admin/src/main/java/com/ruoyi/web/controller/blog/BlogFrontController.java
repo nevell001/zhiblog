@@ -511,7 +511,8 @@ public class BlogFrontController extends BaseController
     /**
      * 更新文章浏览量（前台用）
      */
-    @GetMapping("/article/view/{id}")
+    @Anonymous
+    @PostMapping("/article/view/{id}")
     public AjaxResult addArticleView(@PathVariable("id") Long id)
     {
         // 检查浏览统计开关
@@ -533,8 +534,20 @@ public class BlogFrontController extends BaseController
     }
 
     /**
+     * 获取相关文章（前台用）
+     */
+    @Anonymous
+    @GetMapping("/article/related/{id}")
+    public AjaxResult getRelatedArticles(@PathVariable("id") Long id)
+    {
+        List<BlogArticle> relatedArticles = blogArticleService.selectRelatedArticles(id);
+        return success(relatedArticles);
+    }
+
+    /**
      * 获取文章评论列表（前台用）
      */
+    @Anonymous
     @GetMapping("/comment/article/{articleId}")
     public AjaxResult getArticleComments(@PathVariable("articleId") Long articleId)
     {
@@ -548,6 +561,7 @@ public class BlogFrontController extends BaseController
     /**
      * 添加评论（前台用）
      */
+    @Anonymous
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
@@ -587,6 +601,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取分类详情（前台用）
      */
+    @Anonymous
     @GetMapping("/category/{id}")
     public AjaxResult getCategory(@PathVariable(value = "id", required = false) String idStr)
     {
@@ -632,6 +647,7 @@ public class BlogFrontController extends BaseController
     /**
      * 获取标签详情（前台用）
      */
+    @Anonymous
     @GetMapping("/tag/{id}")
     public AjaxResult getTag(@PathVariable("id") Long id)
     {

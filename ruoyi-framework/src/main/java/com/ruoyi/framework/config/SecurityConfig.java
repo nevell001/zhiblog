@@ -132,34 +132,34 @@ public class SecurityConfig
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.js"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
                 
-                // Actuator 监控端点（所有环境都允许访问）
+                // Actuator 安全监控端点（所有环境允许访问，不含敏感信息）
                 requests.requestMatchers(
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/health/**"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/info"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/metrics/**"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/prometheus"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env/**"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops/**")
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/prometheus")
                 ).permitAll();
 
-                // 开发环境允许访问Swagger
+                // 开发环境允许访问Swagger和Actuator敏感端点
                 if (!"prod".equals(activeProfile)) {
                     requests.requestMatchers(
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui.html"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-ui/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/v3/api-docs/**"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/swagger-resources/**"),
-                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**")
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/webjars/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/env/**"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/manage/actuator/configprops/**")
                     ).permitAll();
                 }
 
-                // 博客前台接口允许匿名访问
+                // 博客前台接口：@Anonymous注解机制自动处理匿名访问
+                // 不使用 /blog/** 和 /common/blog/** 全路径permitAll，
+                // 以确保写操作（如修改设置、清除缓存）需要认证
                 requests.requestMatchers(
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/blog/**"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/common/blog/**"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/index"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/about"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/system/friendLink/front/**")

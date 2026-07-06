@@ -60,6 +60,7 @@ export function delFriendLink(id: number): Promise<any> {
 export function getFrontFriendLinkList(): Promise<FriendLink[] & { data?: FriendLink[] }> {
   return request({
     url: '/system/friendLink/front/list',
-    method: 'get'
+    method: 'get',
+    headers: { isToken: false }
   })
 }

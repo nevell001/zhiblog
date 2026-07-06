@@ -13,7 +13,10 @@ describe('Screenfull 组件测试', () => {
 
   it('应该检查全屏支持', () => {
     const isFullscreenSupported = () => {
-      return typeof document !== 'undefined' && typeof document.documentElement.requestFullscreen === 'function'
+      return (
+        typeof document !== 'undefined' &&
+        typeof document.documentElement.requestFullscreen === 'function'
+      )
     }
     expect(typeof isFullscreenSupported).toBe('function')
   })
@@ -55,7 +58,12 @@ describe('Screenfull 组件测试', () => {
   })
 
   it('应该有全屏事件监听器', () => {
-    const eventTypes = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange']
+    const eventTypes = [
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'mozfullscreenchange',
+      'msfullscreenchange'
+    ]
     expect(eventTypes).toContain('fullscreenchange')
   })
 })

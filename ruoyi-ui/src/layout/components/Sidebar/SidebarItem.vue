@@ -96,10 +96,7 @@
       >
         [{{ item.meta?.title }}:{{ item.children?.length }}]
       </div>
-      <template
-        v-if="item.meta"
-        #title
-      >
+      <template v-if="item.meta" #title>
         <svg-icon :icon-class="(item.meta && item.meta.icon) || 'documentation'" />
         <span
           class="menu-title"

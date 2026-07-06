@@ -276,7 +276,7 @@ describe('validate 工具测试', () => {
 
     it('应该拒绝纯数字', () => {
       expect(validAlphabets('123')).toBe(false)
-    expect(validAlphabets('123456')).toBe(false)
+      expect(validAlphabets('123456')).toBe(false)
     })
 
     it('应该拒绝特殊字符', () => {

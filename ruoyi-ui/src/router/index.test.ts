@@ -129,7 +129,9 @@ describe('Router Index 测试', () => {
   })
 
   it('后台管理路由应该有 redirect 属性', () => {
-    const adminRoutes = constantRoutes.filter(route => route.path.startsWith('/admin') && route.path !== '/admin')
+    const adminRoutes = constantRoutes.filter(
+      route => route.path.startsWith('/admin') && route.path !== '/admin'
+    )
 
     expect(adminRoutes.every(route => route.redirect)).toBe(true)
   })

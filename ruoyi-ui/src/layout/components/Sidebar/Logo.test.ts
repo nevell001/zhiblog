@@ -34,8 +34,8 @@ describe('Logo 组件测试', () => {
   })
 
   it('应该有标题文字', () => {
-    const title = 'NewBlog'
-    expect(title).toBe('NewBlog')
+    const title = 'ZhiBlog'
+    expect(title).toBe('ZhiBlog')
   })
 
   it('应该支持自定义Logo', () => {

@@ -1,4 +1,4 @@
-# NewBlog - 基于 RuoYi-Vue 的博客系统
+# ZhiBlog - 知博
 
 基于 RuoYi-Vue 快速开发平台打造的现代化、前后端分离的企业级博客系统。采用 Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript 技术栈。
 
@@ -16,15 +16,15 @@
 
 ## 📦 最新更新 (v1.3.2)
 
-- 🔧 **修复登录状态同步**：登录成功后立即显示登录状态，无需刷新页面
-- 🏠 **优化首页访问**：修复访问博客首页时可能跳转到登录页的问题
-- 🎯 **优化登录体验**：自动聚焦到用户名输入框，支持回车键快速登录
-- 💬 **优雅错误提示**：根据环境显示不同的错误提示（开发环境详细，生产环境模糊）
-- 🔐 **安全增强**：生产环境隐藏具体错误信息，防止信息泄露
-- 📝 **统一版本管理**：建立版本号统一管理机制，简化版本更新流程
-- 📚 **完善文档**：新增版本管理指南文档
-- 🛠️ **全局错误处理**：实现了全面的全局保护机制，防止 .on() 方法调用错误
-- 🖼️ **修复静态资源**：添加 favicon.ico 文件，解决 404 错误
+- 修复登录成功后需要刷新页面才能显示登录状态的问题
+- 修复访问博客首页时可能跳转到登录页的问题
+- 优化登录页面用户体验（自动聚焦、回车键快速登录）
+- 优化错误提示（生产环境模糊错误信息，开发环境详细）
+- 建立统一的版本号管理机制
+- 新增版本管理指南文档
+- 实现全局错误处理和保护机制，防止 .on() 方法调用错误
+- 添加 favicon.ico 文件，解决 404 错误
+- 清理旧项目名称残留 (newblog → zhiblog)
 
 ## 🌐 访问方式
 
@@ -46,18 +46,18 @@
 
 ### 1. 克隆项目
 ```bash
-git clone https://gitee.com/nevell/newblog.git
-cd newblog
+git clone https://gitee.com/nevell/zhiblog.git
+cd ZhiBlog
 ```
 
 ### 2. 数据库初始化
 ```bash
 # 创建数据库
 mysql -u root -p
-CREATE DATABASE newblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 # 导入数据库
-mysql -u root -p newblog < sql/00_init_database.sql
+mysql -u root -p zhiblog < sql/00_init_database.sql
 ```
 
 ### 3. 后端启动
@@ -89,7 +89,7 @@ docker compose -f docker-compose.prod.yml up -d
 ## 📁 项目结构
 
 ```
-newblog/
+ZhiBlog/
 ├── ruoyi-admin/          # 后端主模块
 ├── ruoyi-system/         # 系统模块（博客功能）
 ├── ruoyi-framework/      # 框架核心
@@ -175,7 +175,7 @@ newblog/
 DB_HOST=localhost
 DB_USERNAME=root
 DB_PASSWORD={your_password}
-DB_NAME=newblog
+DB_NAME=zhiblog
 
 # Redis
 REDIS_HOST=localhost
@@ -186,7 +186,7 @@ REDIS_PASSWORD={your_password}
 R_TOKEN_SECRET={your_secret_key}
 
 # Druid
-DRUID_USERNAME=ruoyi
+DRUID_USERNAME=nevell
 DRUID_PASSWORD={your_password}
 ```
 
@@ -303,9 +303,9 @@ chore: 构建/工具
 
 ## 📊 项目信息
 
-- **项目名称**: NewBlog
+- **项目名称**: ZhiBlog（知博）
 - **当前版本**: v1.3.2
 - **Maven GroupId**: top.nevell
-- **项目地址**: https://gitee.com/nevell/newblog
+- **项目地址**: https://gitee.com/nevell/zhiblog
 - **维护者**: nevell
-- **最后更新**: 2026-04-05
+- **最后更新**: 2026-07-06

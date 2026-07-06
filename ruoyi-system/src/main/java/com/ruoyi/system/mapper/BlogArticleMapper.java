@@ -186,4 +186,13 @@ public interface BlogArticleMapper
      * @return 结果
      */
     int likeArticle(@Param("id") Long id);
+
+    /**
+     * 获取相关文章（基于相同分类或标签）
+     *
+     * @param id 当前文章ID
+     * @param limit 最大返回数量
+     * @return 相关文章列表
+     */
+    List<BlogArticle> selectRelatedArticles(@Param("id") Long id, @Param("limit") int limit);
 }
