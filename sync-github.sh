@@ -16,7 +16,7 @@ echo -e "${BLUE}======================================${NC}"
 echo ""
 
 # GitHub 仓库地址（请修改为你的仓库地址）
-GITHUB_REPO="https://github.com/nevell/zhiblog.git"
+GITHUB_REPO="https://github.com/nevell001/zhiblog.git"
 
 # 检查是否已添加 github 远端
 if git remote | grep -q "^github$"; then
