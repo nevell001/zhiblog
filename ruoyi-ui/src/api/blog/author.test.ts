@@ -11,7 +11,7 @@ const localStorageMock = {
 describe('Author API 测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // @ts-ignore - mocking localStorage
+    // @ts-expect-error - mocking localStorage
     global.localStorage = localStorageMock
   })
 

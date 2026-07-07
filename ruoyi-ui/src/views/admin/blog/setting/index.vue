@@ -822,8 +822,6 @@ async function getAllSettings() {
           successfulQueries += validResults.length
           totalFound += validResults.length
           allSettings.push(...validResults)
-
-          console.log(`✅ 并行查询完成，找到 ${validResults.length} 项设置`)
         }
       }
     }
@@ -1274,13 +1272,6 @@ async function saveAllSettings() {
     }
 
     // 注释掉复杂的重新加载逻辑，避免可能的认证问题
-    // try {
-    //   await reloadBlogSettings();
-    //   console.log('重新加载博客设置完成');
-    // } catch (error) {
-    //   console.warn('重新加载设置失败，但不影响保存:', error);
-    // }
-
     // 清除前台API缓存，确保前台能获取到最新设置
     // 使用异步方式，避免阻塞保存流程
     setTimeout(async () => {

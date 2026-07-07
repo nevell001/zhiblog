@@ -107,19 +107,6 @@ function onlyOneChild(children) {
 // function handleMenuClick(event) {
 //   console.log('菜单点击事件:', event)
 //
-//   // 查找最近的el-menu-item或el-sub-menu元素
-//   const menuItem = event.target.closest('el-menu-item, .el-sub-menu')
-//   if (menuItem) {
-//     // 获取index属性作为路由路径
-//     const index = menuItem.getAttribute('index')
-//     if (index && index.trim()) {
-//       // 直接使用window.location跳转
-//       console.log('从click事件获取的路径:', index)
-//       window.location.href = index
-//     }
-//   }
-// }
-
 // 处理菜单选择事件
 function handleSelect(_key, _keyPath) {
   // Element Plus的:router="true"会自动处理路由跳转
