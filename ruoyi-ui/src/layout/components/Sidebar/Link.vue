@@ -1,5 +1,10 @@
 <template>
-  <component :is="type" v-bind="linkProps()" @click="handleLinkClick" @error="handleLinkError">
+  <component
+    :is="type"
+    v-bind="linkProps()"
+    @click="handleLinkClick"
+    @error="handleLinkError"
+  >
     <slot></slot>
   </component>
 </template>

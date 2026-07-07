@@ -1,8 +1,15 @@
 <template>
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
-    <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">
-      <div class="hamburger-icon" :class="{ active: isMobileMenuOpen }">
+    <div
+      v-if="isMobile"
+      class="hamburger-menu"
+      @click="toggleMobileMenu"
+    >
+      <div
+        class="hamburger-icon"
+        :class="{ active: isMobileMenuOpen }"
+      >
         <span></span>
         <span></span>
         <span></span>
@@ -10,7 +17,10 @@
     </div>
 
     <!-- 导航菜单 -->
-    <div class="nav-menu" :class="{ 'mobile-open': isMobileMenuOpen }">
+    <div
+      class="nav-menu"
+      :class="{ 'mobile-open': isMobileMenuOpen }"
+    >
       <router-link
         v-for="menu in frontendMenus"
         :key="menu.path"
@@ -18,7 +28,11 @@
         class="nav-item"
         @click="closeMobileMenu"
       >
-        <component :is="getMenuIcon(menu.icon)" :size="16" style="vertical-align: middle" />
+        <component
+          :is="getMenuIcon(menu.icon)"
+          :size="16"
+          style="vertical-align: middle"
+        />
         <span>{{ menu.name }}</span>
       </router-link>
     </div>
@@ -26,9 +40,16 @@
     <!-- 右侧操作按钮 -->
     <div class="nav-actions">
       <!-- 用户信息（已登录） -->
-      <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
+      <el-dropdown
+        v-if="userStore.token"
+        trigger="click"
+        @command="handleUserCommand"
+      >
         <div class="user-info">
-          <el-avatar :size="36" :src="userStore.avatar">
+          <el-avatar
+            :size="36"
+            :src="userStore.avatar"
+          >
             <el-icon><UserFilled /></el-icon>
           </el-avatar>
           <span class="username">{{ userStore.name }}</span>
@@ -39,7 +60,10 @@
         <template #dropdown>
           <el-dropdown-menu>
             <!-- 管理员显示管理后台入口 -->
-            <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
+            <el-dropdown-item
+              v-if="userStore.userType === '00'"
+              @click="goToAdmin"
+            >
               <el-icon><Setting /></el-icon>
               管理后台
             </el-dropdown-item>
@@ -47,7 +71,10 @@
               <el-icon><User /></el-icon>
               个人中心
             </el-dropdown-item>
-            <el-dropdown-item divided command="logout">
+            <el-dropdown-item
+              divided
+              command="logout"
+            >
               <el-icon><SwitchButton /></el-icon>
               退出登录
             </el-dropdown-item>
@@ -56,15 +83,33 @@
       </el-dropdown>
 
       <!-- 登录按钮（未登录） -->
-      <el-button v-else size="small" type="primary" @click="goToLogin">登录</el-button>
+      <el-button
+        v-else
+        size="small"
+        type="primary"
+        @click="goToLogin"
+      >
+        登录
+      </el-button>
 
-      <el-button link class="theme-toggle" title="切换主题" @click="toggleTheme">
+      <el-button
+        link
+        class="theme-toggle"
+        title="切换主题"
+        @click="toggleTheme"
+      >
         <el-icon :size="18">
           <Sunny v-if="isDarkTheme" />
           <Moon v-else />
         </el-icon>
       </el-button>
-      <el-button ref="scrollTopBtn" link class="scroll-top" title="回到顶部" @click="scrollToTop">
+      <el-button
+        ref="scrollTopBtn"
+        link
+        class="scroll-top"
+        title="回到顶部"
+        @click="scrollToTop"
+      >
         <el-icon :size="18">
           <Top />
         </el-icon>
@@ -72,7 +117,11 @@
     </div>
 
     <!-- 遮罩层（移动端菜单打开时显示） -->
-    <div v-if="isMobileMenuOpen" class="overlay" @click="closeMobileMenu"></div>
+    <div
+      v-if="isMobileMenuOpen"
+      class="overlay"
+      @click="closeMobileMenu"
+    ></div>
   </div>
 </template>
 

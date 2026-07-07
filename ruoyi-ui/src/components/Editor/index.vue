@@ -11,7 +11,10 @@
       :headers="headers"
       class="editor-img-uploader"
     >
-      <i ref="uploadRef" class="editor-img-uploader"></i>
+      <i
+        ref="uploadRef"
+        class="editor-img-uploader"
+      ></i>
     </el-upload>
   </div>
   <div class="editor">

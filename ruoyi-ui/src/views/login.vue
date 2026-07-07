@@ -1,6 +1,11 @@
 <template>
   <div class="login">
-    <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">
+    <el-form
+      ref="loginRef"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+    >
       <h3 class="title">
         {{ title }}
       </h3>
@@ -13,7 +18,10 @@
           placeholder="账号"
         >
           <template #prefix>
-            <svg-icon icon-class="user" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="user"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
       </el-form-item>
@@ -27,7 +35,10 @@
           @keyup.enter="handleLogin"
         >
           <template #prefix>
-            <svg-icon icon-class="password" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="password"
+              class="el-input__icon input-icon"
+            />
           </template>
           <template #suffix>
             <span
@@ -42,7 +53,10 @@
       </el-form-item>
 
       <!-- 验证码 -->
-      <el-form-item v-if="captchaEnabled" prop="code">
+      <el-form-item
+        v-if="captchaEnabled"
+        prop="code"
+      >
         <el-input
           v-model="loginForm.code"
           size="large"
@@ -53,7 +67,10 @@
           @keyup.enter="handleLogin"
         >
           <template #prefix>
-            <svg-icon icon-class="validCode" class="el-input__icon input-icon" />
+            <svg-icon
+              icon-class="validCode"
+              class="el-input__icon input-icon"
+            />
           </template>
         </el-input>
         <div class="login-code">
@@ -70,7 +87,10 @@
         </div>
       </el-form-item>
 
-      <el-checkbox v-model="loginForm.rememberMe" style="margin: 0px 0px 25px 0px">
+      <el-checkbox
+        v-model="loginForm.rememberMe"
+        style="margin: 0px 0px 25px 0px"
+      >
         记住密码
       </el-checkbox>
       <el-form-item style="width: 100%">
@@ -90,8 +110,16 @@
           <span v-if="!loading">登 录</span>
           <span v-else>登 录 中...</span>
         </el-button>
-        <div v-if="register" style="float: right">
-          <router-link class="link-type" :to="'/register'">立即注册</router-link>
+        <div
+          v-if="register"
+          style="float: right"
+        >
+          <router-link
+            class="link-type"
+            :to="'/register'"
+          >
+            立即注册
+          </router-link>
         </div>
       </el-form-item>
     </el-form>

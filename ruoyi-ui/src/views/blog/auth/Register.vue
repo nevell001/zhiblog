@@ -15,7 +15,12 @@
             class="register-form"
           >
             <el-form-item prop="username">
-              <el-input v-model="registerForm.username" placeholder="用户名" size="large" clearable>
+              <el-input
+                v-model="registerForm.username"
+                placeholder="用户名"
+                size="large"
+                clearable
+              >
                 <template #prefix>
                   <el-icon><User /></el-icon>
                 </template>
@@ -23,7 +28,12 @@
             </el-form-item>
 
             <el-form-item prop="email">
-              <el-input v-model="registerForm.email" placeholder="邮箱地址" size="large" clearable>
+              <el-input
+                v-model="registerForm.email"
+                placeholder="邮箱地址"
+                size="large"
+                clearable
+              >
                 <template #prefix>
                   <el-icon><Message /></el-icon>
                 </template>
@@ -84,7 +94,10 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item v-if="captchaEnabled" prop="code">
+            <el-form-item
+              v-if="captchaEnabled"
+              prop="code"
+            >
               <div class="captcha-row">
                 <el-input
                   v-model="registerForm.code"
@@ -97,7 +110,12 @@
                     <el-icon><Key /></el-icon>
                   </template>
                 </el-input>
-                <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+                <img
+                  :src="captchaUrl"
+                  class="captcha-img"
+                  alt="验证码"
+                  @click="refreshCaptcha"
+                />
               </div>
             </el-form-item>
 
@@ -114,7 +132,12 @@
             </el-form-item>
 
             <div class="register-footer">
-              <router-link to="/login" class="link">已有账号？立即登录</router-link>
+              <router-link
+                to="/login"
+                class="link"
+              >
+                已有账号？立即登录
+              </router-link>
             </div>
           </el-form>
         </div>

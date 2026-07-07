@@ -1,6 +1,14 @@
 <template>
-  <div v-loading="loading" :style="'height:' + height">
-    <iframe :src="url" frameborder="no" style="width: 100%; height: 100%" scrolling="auto"></iframe>
+  <div
+    v-loading="loading"
+    :style="'height:' + height"
+  >
+    <iframe
+      :src="url"
+      frameborder="no"
+      style="width: 100%; height: 100%"
+      scrolling="auto"
+    ></iframe>
   </div>
 </template>
 

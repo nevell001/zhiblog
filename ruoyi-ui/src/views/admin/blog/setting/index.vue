@@ -1,15 +1,28 @@
 <template>
   <div class="app-container">
-    <el-card shadow="never" class="blog-setting-card">
+    <el-card
+      shadow="never"
+      class="blog-setting-card"
+    >
       <template #header>
         <div class="card-header">
           <span class="card-title">{{ tabTitle }}</span>
           <div class="card-extra">
-            <el-button type="primary" size="small" :loading="loading" @click="saveAllSettings">
+            <el-button
+              type="primary"
+              size="small"
+              :loading="loading"
+              @click="saveAllSettings"
+            >
               <i class="el-icon-check"></i>
               保存所有设置
             </el-button>
-            <el-button type="warning" size="small" :loading="loading" @click="resetSettings">
+            <el-button
+              type="warning"
+              size="small"
+              :loading="loading"
+              @click="resetSettings"
+            >
               <i class="el-icon-refresh"></i>
               重置设置
             </el-button>
@@ -17,17 +30,30 @@
         </div>
       </template>
 
-      <el-tabs v-model="activeTab" class="blog-setting-tabs">
+      <el-tabs
+        v-model="activeTab"
+        class="blog-setting-tabs"
+      >
         <!-- 站点信息 -->
-        <el-tab-pane label="站点信息" name="basic">
-          <el-form ref="basicForm" :model="settingsMap" label-width="120px">
+        <el-tab-pane
+          label="站点信息"
+          name="basic"
+        >
+          <el-form
+            ref="basicForm"
+            :model="settingsMap"
+            label-width="120px"
+          >
             <el-alert
               title="站点信息将在博客首页、关于页面等位置显示"
               type="info"
               :closable="false"
               style="margin-bottom: 20px"
             />
-            <el-form-item label="博客名称" prop="blog_name">
+            <el-form-item
+              label="博客名称"
+              prop="blog_name"
+            >
               <el-input
                 v-model="settingsMap.blog_name"
                 placeholder="请输入博客名称"
@@ -35,7 +61,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="博客描述" prop="blog_desc">
+            <el-form-item
+              label="博客描述"
+              prop="blog_desc"
+            >
               <el-input
                 v-model="settingsMap.blog_desc"
                 type="textarea"
@@ -45,7 +74,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="博客作者" prop="blog_author">
+            <el-form-item
+              label="博客作者"
+              prop="blog_author"
+            >
               <el-input
                 v-model="settingsMap.blog_author"
                 placeholder="请输入博客作者"
@@ -53,7 +85,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="版权信息" prop="blog_copyright">
+            <el-form-item
+              label="版权信息"
+              prop="blog_copyright"
+            >
               <el-input
                 v-model="settingsMap.blog_copyright"
                 placeholder="请输入版权信息，如：© 2025 My Blog"
@@ -61,7 +96,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="备案信息" prop="blog_beian">
+            <el-form-item
+              label="备案信息"
+              prop="blog_beian"
+            >
               <el-input
                 v-model="settingsMap.blog_beian"
                 placeholder="请输入ICP备案信息，如：京ICP备12345678号"
@@ -122,15 +160,25 @@
         </el-tab-pane>
 
         <!-- 功能设置 -->
-        <el-tab-pane label="功能设置" name="features">
-          <el-form ref="featuresForm" :model="settingsMap" label-width="120px">
+        <el-tab-pane
+          label="功能设置"
+          name="features"
+        >
+          <el-form
+            ref="featuresForm"
+            :model="settingsMap"
+            label-width="120px"
+          >
             <!-- 互动功能 -->
             <el-divider content-position="left">
               <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
                 互动功能
               </span>
             </el-divider>
-            <el-form-item label="评论功能" prop="comment_enabled">
+            <el-form-item
+              label="评论功能"
+              prop="comment_enabled"
+            >
               <el-switch v-model="settingsMap.comment_enabled" />
               <span
                 style="
@@ -158,7 +206,10 @@
                 新评论需要管理员审核后才能显示
               </span>
             </el-form-item>
-            <el-form-item label="点赞功能" prop="like_enabled">
+            <el-form-item
+              label="点赞功能"
+              prop="like_enabled"
+            >
               <el-switch v-model="settingsMap.like_enabled" />
               <span
                 style="
@@ -177,7 +228,10 @@
                 内容功能
               </span>
             </el-divider>
-            <el-form-item label="浏览统计" prop="view_count_enabled">
+            <el-form-item
+              label="浏览统计"
+              prop="view_count_enabled"
+            >
               <el-switch v-model="settingsMap.view_count_enabled" />
               <span
                 style="
@@ -189,7 +243,10 @@
                 统计文章浏览次数
               </span>
             </el-form-item>
-            <el-form-item label="分享功能" prop="share_enabled">
+            <el-form-item
+              label="分享功能"
+              prop="share_enabled"
+            >
               <el-switch v-model="settingsMap.share_enabled" />
               <span
                 style="
@@ -201,7 +258,10 @@
                 允许访客分享文章到社交媒体
               </span>
             </el-form-item>
-            <el-form-item label="搜索功能" prop="search_enabled">
+            <el-form-item
+              label="搜索功能"
+              prop="search_enabled"
+            >
               <el-switch v-model="settingsMap.search_enabled" />
               <span
                 style="
@@ -220,7 +280,10 @@
                 界面设置
               </span>
             </el-divider>
-            <el-form-item label="显示侧边栏" prop="sidebar_enabled">
+            <el-form-item
+              label="显示侧边栏"
+              prop="sidebar_enabled"
+            >
               <el-switch v-model="settingsMap.sidebar_enabled" />
               <span
                 style="
@@ -232,7 +295,10 @@
                 在博客首页显示侧边栏
               </span>
             </el-form-item>
-            <el-form-item label="显示底部" prop="footer_enabled">
+            <el-form-item
+              label="显示底部"
+              prop="footer_enabled"
+            >
               <el-switch v-model="settingsMap.footer_enabled" />
               <span
                 style="
@@ -244,7 +310,10 @@
                 在博客页面底部显示页脚信息
               </span>
             </el-form-item>
-            <el-form-item label="显示版权" prop="copyright_enabled">
+            <el-form-item
+              label="显示版权"
+              prop="copyright_enabled"
+            >
               <el-switch v-model="settingsMap.copyright_enabled" />
               <span
                 style="
@@ -260,8 +329,15 @@
         </el-tab-pane>
 
         <!-- 个人信息 -->
-        <el-tab-pane label="个人信息" name="author">
-          <el-form ref="authorForm" :model="settingsMap" label-width="120px">
+        <el-tab-pane
+          label="个人信息"
+          name="author"
+        >
+          <el-form
+            ref="authorForm"
+            :model="settingsMap"
+            label-width="120px"
+          >
             <el-alert
               title="个人信息将在关于页面和博客侧边栏显示"
               type="info"
@@ -274,7 +350,10 @@
                 基本信息
               </span>
             </el-divider>
-            <el-form-item label="作者职位" prop="author_title">
+            <el-form-item
+              label="作者职位"
+              prop="author_title"
+            >
               <el-input
                 v-model="settingsMap.author_title"
                 placeholder="请输入作者职位，如：全栈开发工程师"
@@ -282,7 +361,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="个人简介" prop="author_bio">
+            <el-form-item
+              label="个人简介"
+              prop="author_bio"
+            >
               <el-input
                 v-model="settingsMap.author_bio"
                 type="textarea"
@@ -292,7 +374,10 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item label="位置信息" prop="author_location">
+            <el-form-item
+              label="位置信息"
+              prop="author_location"
+            >
               <el-input
                 v-model="settingsMap.author_location"
                 placeholder="请输入位置信息，如：中国·北京"
@@ -307,7 +392,10 @@
                 联系方式
               </span>
             </el-divider>
-            <el-form-item label="联系邮箱" prop="blog_email">
+            <el-form-item
+              label="联系邮箱"
+              prop="blog_email"
+            >
               <el-input
                 v-model="settingsMap.blog_email"
                 placeholder="请输入联系邮箱"
@@ -322,7 +410,10 @@
                 社交媒体
               </span>
             </el-divider>
-            <el-form-item label="GitHub地址" prop="github_url">
+            <el-form-item
+              label="GitHub地址"
+              prop="github_url"
+            >
               <el-input
                 v-model="settingsMap.github_url"
                 placeholder="请输入GitHub地址"
@@ -334,7 +425,10 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item label="微博地址" prop="weibo_url">
+            <el-form-item
+              label="微博地址"
+              prop="weibo_url"
+            >
               <el-input
                 v-model="settingsMap.weibo_url"
                 placeholder="请输入微博地址"
@@ -346,7 +440,10 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item label="个人网站" prop="personal_website">
+            <el-form-item
+              label="个人网站"
+              prop="personal_website"
+            >
               <el-input
                 v-model="settingsMap.personal_website"
                 placeholder="请输入个人网站地址"
@@ -362,16 +459,29 @@
         </el-tab-pane>
 
         <!-- 关于页面 -->
-        <el-tab-pane label="关于页面" name="other">
-          <el-form ref="otherForm" :model="settingsMap" label-width="120px">
+        <el-tab-pane
+          label="关于页面"
+          name="other"
+        >
+          <el-form
+            ref="otherForm"
+            :model="settingsMap"
+            label-width="120px"
+          >
             <el-alert
               title="关于页面内容将在博客的关于页面显示，支持富文本编辑"
               type="info"
               :closable="false"
               style="margin-bottom: 20px"
             />
-            <el-form-item label="关于页面内容" prop="about_content">
-              <editor v-model="settingsMap.about_content" :min-height="400" />
+            <el-form-item
+              label="关于页面内容"
+              prop="about_content"
+            >
+              <editor
+                v-model="settingsMap.about_content"
+                :min-height="400"
+              />
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -387,7 +497,13 @@
             <span style="color: var(--el-color-primary, #409eff); font-weight: bold">
               🎨 图片压缩功能
             </span>
-            <el-tag type="success" size="small" style="margin-left: 10px">已启用</el-tag>
+            <el-tag
+              type="success"
+              size="small"
+              style="margin-left: 10px"
+            >
+              已启用
+            </el-tag>
           </div>
         </template>
         <el-row :gutter="20">
@@ -515,18 +631,15 @@ const tabTitle = computed(() => {
     other: '关于页面'
   }
   const title = titleMap[activeTab.value] || '博客设置管理'
-  console.log('🏷️ tabTitle计算:', { activeTab: activeTab.value, title })
   return title
 })
 
 // 监听activeTab变化，用于调试
 watch(activeTab, (newVal, oldVal) => {
-  console.log('🔄 activeTab变化:', { oldVal, newVal, tabTitle: tabTitle.value })
 })
 
 // 监听tabTitle变化，确保标题正确更新
 watch(tabTitle, newVal => {
-  console.log('📝 tabTitle更新:', newVal)
   // 更新页面标题
   settingsStore.setTitle(newVal)
 })
@@ -535,10 +648,6 @@ watch(tabTitle, newVal => {
 const processedAvatarUrl = computed(() => {
   const avatarUrl = settingsMap.value.blog_avatar
   const processedUrl = processAvatarUrl(avatarUrl)
-  console.log('🖼️ 后台头像URL处理:', {
-    original: avatarUrl,
-    processed: processedUrl
-  })
   return processedUrl
 })
 
@@ -550,14 +659,11 @@ const processedAvatarUrl = computed(() => {
 async function getAllSettings() {
   loading.value = true
   try {
-    console.log('🚀 开始强制刷新获取博客设置...')
 
     // 强制清除可能的缓存，使用多重策略
     const timestamp = new Date().getTime()
     const randomNonce = Math.random().toString(36).substring(7)
     const cacheBuster = `${timestamp}_${randomNonce}`
-
-    console.log(`🔄 使用缓存破坏器: ${cacheBuster}`)
 
     // 尝试多种查询策略来获取博客设置
     let allSettings = []
@@ -633,7 +739,6 @@ async function getAllSettings() {
 
     // 策略1: 先尝试标准查询
     try {
-      console.log('📡 执行标准查询(大页面)')
       const response = await listSetting(queryStrategies[0].params)
       const settingList = response.rows || response.data || []
 
@@ -642,7 +747,6 @@ async function getAllSettings() {
         totalFound += settingList.length
 
         const foundKeys = settingList.map(s => s.configKey).filter(Boolean)
-        console.log(`✅ 标准查询找到 ${settingList.length} 项设置:`, foundKeys)
 
         allSettings.push(...settingList)
       }
@@ -656,13 +760,7 @@ async function getAllSettings() {
       .map(s => s.configKey)
       .filter(key => loadCriticalKeys.includes(key))
 
-    console.log(
-      `📊 检查关键设置: 已找到 ${foundCriticalKeys.length}/3 关键设置:`,
-      foundCriticalKeys
-    )
-
     if (foundCriticalKeys.length < 3) {
-      console.log('🔍 关键设置缺失，执行针对性查询...')
 
       // 只查询缺失的关键设置，减少API调用
       const missingKeys = loadCriticalKeys.filter(key => !foundCriticalKeys.includes(key))
@@ -673,7 +771,6 @@ async function getAllSettings() {
       }
 
       try {
-        console.log('📡 批量查询缺失的关键设置:', missingKeys)
         const batchResponse = await listSetting(batchQuery)
         const batchSettings = batchResponse.rows || batchResponse.data || []
 
@@ -682,7 +779,6 @@ async function getAllSettings() {
           totalFound += batchSettings.length
 
           const batchFoundKeys = batchSettings.map(s => s.configKey).filter(Boolean)
-          console.log(`✅ 批量查询找到 ${batchSettings.length} 项关键设置:`, batchFoundKeys)
 
           // 合并并去重
           batchSettings.forEach(setting => {
@@ -690,10 +786,8 @@ async function getAllSettings() {
               const existingIndex = allSettings.findIndex(s => s.configKey === setting.configKey)
               if (existingIndex >= 0) {
                 allSettings[existingIndex] = setting
-                console.log(`🔄 更新已存在的设置: ${setting.configKey}`)
               } else {
                 allSettings.push(setting)
-                console.log(`➕ 添加新设置: ${setting.configKey} = ${setting.configValue}`)
               }
             }
           })
@@ -703,10 +797,8 @@ async function getAllSettings() {
 
         // 回退策略：使用并行查询来提高速度
         if (missingKeys.length > 0) {
-          console.log('📡 并行查询缺失的关键设置...')
           const parallelQueries = missingKeys.map(async key => {
             try {
-              console.log(`📡 并行查询: ${key}`)
               const singleResponse = await listSetting({
                 _t: cacheBuster,
                 configKey: key,
@@ -715,7 +807,6 @@ async function getAllSettings() {
 
               const singleSettings = singleResponse.rows || singleResponse.data || []
               if (singleSettings.length > 0) {
-                console.log(`➕ 并行查询找到设置: ${key}`)
                 return singleSettings[0] // 返回找到的设置项
               }
             } catch (singleError) {
@@ -737,13 +828,8 @@ async function getAllSettings() {
       }
     }
 
-    console.log(
-      `📊 查询总结: ${successfulQueries}/${queryStrategies.length} 个策略成功，总共找到 ${allSettings.length} 项设置`
-    )
-
     // 如果还是没有找到博客设置，尝试强制刷新和延迟重试
     if (allSettings.length <= 10) {
-      console.log('⚠️ 找到的设置数量过少，尝试强制刷新...')
 
       // 减少延迟时间到500毫秒，提高响应速度
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -756,25 +842,14 @@ async function getAllSettings() {
         })
 
         const retrySettings = retryResponse.rows || retryResponse.data || []
-        console.log(`🔄 重试查询找到 ${retrySettings.length} 项设置`)
 
         if (retrySettings.length > allSettings.length) {
           allSettings = retrySettings
-          console.log('✅ 重试查询找到更多设置，已更新')
         }
       } catch (retryError) {
         console.warn('重试查询也失败:', retryError.message)
       }
     }
-
-    console.log(
-      '📋 最终合并的设置列表 (共 ' + allSettings.length + ' 项):',
-      allSettings.map(s => ({
-        key: s.configKey,
-        value: s.configValue,
-        type: typeof s.configValue
-      }))
-    )
 
     // 将设置项转换为Map格式，并处理特殊类型
     const settings = {}
@@ -786,10 +861,8 @@ async function getAllSettings() {
         // 处理布尔值转换
         if (value === 'true') {
           value = true
-          console.log(`🔄 布尔转换 ${setting.configKey}: 'true' → true`)
         } else if (value === 'false') {
           value = false
-          console.log(`🔄 布尔转换 ${setting.configKey}: 'false' → false`)
         }
 
         // 处理日期类型转换
@@ -798,9 +871,6 @@ async function getAllSettings() {
           const dateValue = new Date(value)
           if (!isNaN(dateValue.getTime())) {
             value = dateValue
-            console.log(
-              `📅 日期转换 ${setting.configKey}: '${setting.configValue}' → Date(${value.toISOString()})`
-            )
           } else {
             console.warn(`⚠️ 无效的日期格式 ${setting.configKey}: '${value}'`)
             value = null
@@ -833,18 +903,10 @@ async function getAllSettings() {
             'blog_signature'
           ].includes(setting.configKey)
         ) {
-          console.log(`🔍 关键字段 ${setting.configKey}:`, {
-            value: value,
-            valueType: typeof value,
-            originalValue: setting.configValue,
-            originalType: originalType,
-            isValid: value !== null && value !== undefined && value !== ''
-          })
+          // 关键字段调试已移除
         }
       }
     })
-
-    console.log('🗂️ 最终处理后的设置对象:', settings)
 
     // 设置默认值，确保所有必要的设置项都有值，并确保数值类型正确
     const defaultSettings = {
@@ -899,13 +961,6 @@ async function getAllSettings() {
     const criticalKeys = ['blog_start_time', 'blog_avatar', 'blog_signature']
     const retrievedCriticalKeys = serverSettingKeys.filter(key => criticalKeys.includes(key))
 
-    console.log(`📊 设置统计: 从服务器获取 ${serverSettingKeys.length} 项设置`)
-    console.log(
-      `🔑 关键键统计: 找到 ${retrievedCriticalKeys.length}/3 项关键设置:`,
-      retrievedCriticalKeys
-    )
-    console.log('📋 服务器设置键:', serverSettingKeys)
-
     // 用服务器获取的设置覆盖默认设置
     Object.keys(settings).forEach(key => {
       if (settings[key] !== undefined) {
@@ -916,28 +971,13 @@ async function getAllSettings() {
         if (['page_size', 'hot_article_count', 'recent_comment_count'].includes(key)) {
           mergedSettings[key] = Number(settings[key]) || defaultSettings[key]
         }
-
-        // 为关键字段添加详细日志
-        if (criticalKeys.includes(key)) {
-          console.log(`✅ 应用关键设置 ${key}:`, {
-            value: settings[key],
-            valueType: typeof settings[key],
-            isEmpty: settings[key] === '' || settings[key] === null || settings[key] === undefined
-          })
-        }
       }
     })
 
     // 验证关键字段是否正确加载
-    console.log('🔍 关键字段最终验证:')
     criticalKeys.forEach(key => {
       const finalValue = mergedSettings[key]
-      console.log(`  ${key}:`, {
-        value: finalValue,
-        type: typeof finalValue,
-        isEmpty: finalValue === '' || finalValue === null || finalValue === undefined,
-        fromServer: serverSettingKeys.includes(key)
-      })
+      // 验证调试已移除
     })
 
     // 特别处理头像URL，确保格式正确
@@ -983,7 +1023,7 @@ async function getAllSettings() {
           'blog_signature'
         ].includes(key)
       ) {
-        console.log(`原始设置 ${key} (${originalType}):`, value)
+        // 调试代码已移除
       }
     })
   } catch (error) {
@@ -1073,7 +1113,7 @@ async function getAllSettings() {
           'personal_website'
         ].includes(key)
       ) {
-        console.log(`错误处理-原始设置 ${key} (${originalType}):`, value)
+        // 调试代码已移除
       }
     })
 
@@ -1122,14 +1162,7 @@ async function saveAllSettings() {
           'blog_signature'
         ].includes(key)
       ) {
-        console.log(`字段比较 ${key}:`, {
-          current: currentValue,
-          currentType: typeof currentValue,
-          original: originalValue,
-          originalType: typeof originalValue,
-          comparable: comparableCurrentValue,
-          hasChanged: comparableCurrentValue !== originalValue
-        })
+        // 字段比较调试已移除
       }
 
       // 如果值有变化，则加入保存列表
@@ -1150,7 +1183,6 @@ async function saveAllSettings() {
           value: value
         })
 
-        console.log(`检测到修改 ${key}:`, value)
       }
     }
 
@@ -1159,8 +1191,6 @@ async function saveAllSettings() {
       return
     }
 
-    console.log('开始保存设置，修改项数量:', modifiedSettings.length)
-
     // 移除获取配置列表的步骤，直接在保存时动态检测是否存在
     // 这可以减少一次API调用，提高性能
 
@@ -1168,7 +1198,6 @@ async function saveAllSettings() {
     const results = []
 
     for (const setting of modifiedSettings) {
-      console.log(`正在保存设置: ${setting.key} = ${setting.value} (${typeof setting.value})`)
 
       try {
         // 处理日期类型的值
@@ -1176,7 +1205,6 @@ async function saveAllSettings() {
         if (setting.value instanceof Date) {
           // 将日期转换为YYYY-MM-DD格式
           processedValue = setting.value.toISOString().split('T')[0]
-          console.log(`日期 ${setting.key} 转换为: ${processedValue}`)
         }
 
         // 验证字段长度以符合数据库约束（现已更新为1000字符）
@@ -1203,14 +1231,11 @@ async function saveAllSettings() {
         }
 
         // 使用 updateSettingValueByKey 方法，它会自动处理不存在的情况
-        console.log(`使用 updateSettingValueByKey 保存 ${setting.key}`)
         const response = await updateSettingValueByKey(setting.key, processedValue)
-
-        console.log(`设置 ${setting.key} 保存响应:`, response)
 
         const success = response.code === 200
         if (success) {
-          console.log(`✅ 设置 ${setting.key} 保存成功`)
+          // 保存成功
         } else {
           console.error(
             `❌ 设置 ${setting.key} 保存失败，返回码: ${response.code}, 消息: ${response.msg}`
@@ -1260,11 +1285,9 @@ async function saveAllSettings() {
     // 使用异步方式，避免阻塞保存流程
     setTimeout(async () => {
       try {
-        console.log('清除前台API缓存...')
         // 确保 clearBlogCache 函数存在且可调用
         if (typeof clearBlogCache === 'function') {
           await clearBlogCache()
-          console.log('前台API缓存清除完成')
         } else {
           console.warn('clearBlogCache 函数未定义，跳过缓存清除')
         }
@@ -1293,7 +1316,6 @@ async function saveAllSettings() {
       })
 
       blogSettingsStore.updateBlogSettings(latestSettings)
-      console.log('博客设置全局状态已更新，前台页面将收到通知')
 
       // 触发自定义事件，通知其他组件
       window.dispatchEvent(
@@ -1306,7 +1328,6 @@ async function saveAllSettings() {
     }
 
     // 保存后立即重新获取设置数据，确保显示最新值
-    console.log('💾 保存成功后立即获取最新数据...')
 
     // 减少延迟时间，提高响应速度
     await new Promise(resolve => setTimeout(resolve, 300))
@@ -1350,7 +1371,7 @@ async function saveAllSettings() {
           'blog_signature'
         ].includes(key)
       ) {
-        console.log(`保存后-原始设置 ${key} (${originalType}):`, value)
+        // 调试代码已移除
       }
     })
 
@@ -1396,25 +1417,21 @@ function validateAvatarUrl(url) {
  */
 async function handleSingleSettingChange(key, value) {
   try {
-    console.log(`开始保存单个设置: ${key} = ${value}`)
 
     // 处理日期类型的值
     let processedValue = value
     if (value instanceof Date) {
       processedValue = value.toISOString().split('T')[0]
-      console.log(`日期 ${key} 转换为: ${processedValue}`)
     }
 
     // 使用 updateSettingValueByKey 方法，这个方法会自动处理不存在的情况
     const response = await updateSettingValueByKey(key, processedValue)
 
     if (response.code === 200) {
-      console.log(`✅ ${key} 保存成功`)
       ElMessage.success(`设置 ${key} 保存成功`)
 
       // 更新原始设置以避免重复保存
       originalSettings.value[key] = processedValue
-      console.log(`原始设置已更新: ${key} = ${processedValue}`)
 
       // 博客头像已移除，不再需要同步到前台store
     } else {
@@ -1489,22 +1506,16 @@ function handleAvatarUploadSuccess(response, uploadFile) {
 
 // 添加一个测试函数用于验证数据库连接
 async function testDatabaseConnection() {
-  console.log('=== 开始数据库连接测试 ===')
 
   try {
     // 1. 测试获取所有设置
-    console.log('1. 测试获取所有设置...')
     const allSettingsResponse = await listSetting({})
-    console.log('获取所有设置成功:', allSettingsResponse)
 
     // 2. 测试获取特定设置（如果存在）
-    console.log('2. 测试获取特定设置...')
     const testKey = 'blog_name' // 尝试获取一个可能存在的设置
     const specificResponse = await listSetting({ configKey: testKey })
-    console.log(`获取设置 ${testKey}:`, specificResponse)
 
     // 3. 测试添加一个测试设置
-    console.log('3. 测试添加测试设置...')
     const testConfig = {
       configKey: 'test_setting_' + Date.now(),
       configValue: 'test_value_' + Date.now(),
@@ -1514,21 +1525,17 @@ async function testDatabaseConnection() {
 
     try {
       const addResponse = await addSetting(testConfig)
-      console.log('添加测试设置成功:', addResponse)
 
       // 4. 测试更新刚添加的设置
-      console.log('4. 测试更新测试设置...')
       const updateData = {
         ...testConfig,
         configValue: 'updated_value_' + Date.now()
       }
       const updateResponse = await updateSetting(updateData)
-      console.log('更新测试设置成功:', updateResponse)
     } catch (testErr) {
       console.error('测试设置操作失败:', testErr)
     }
 
-    console.log('=== 数据库连接测试完成 ===')
   } catch (error) {
     console.error('数据库连接测试失败:', error)
   }

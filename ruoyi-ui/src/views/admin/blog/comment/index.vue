@@ -7,7 +7,10 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item label="文章标题" prop="articleTitle">
+      <el-form-item
+        label="文章标题"
+        prop="articleTitle"
+      >
         <el-input
           v-model="queryParams.articleTitle"
           placeholder="请输入文章标题"
@@ -15,7 +18,10 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="评论内容" prop="content">
+      <el-form-item
+        label="评论内容"
+        prop="content"
+      >
         <el-input
           v-model="queryParams.content"
           placeholder="请输入评论内容"
@@ -23,25 +29,51 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="状态" prop="status">
+      <el-form-item
+        label="状态"
+        prop="status"
+      >
         <el-select
           v-model="queryParams.status"
           placeholder="评论状态"
           clearable
           class="status-select"
         >
-          <el-option label="待审核" value="0" />
-          <el-option label="已审核" value="1" />
-          <el-option label="已删除" value="2" />
+          <el-option
+            label="待审核"
+            value="0"
+          />
+          <el-option
+            label="已审核"
+            value="1"
+          />
+          <el-option
+            label="已删除"
+            value="2"
+          />
         </el-select>
       </el-form-item>
       <el-form-item label="">
-        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
-        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
+        <el-button
+          type="primary"
+          icon="Search"
+          @click="handleQuery"
+        >
+          搜索
+        </el-button>
+        <el-button
+          icon="Refresh"
+          @click="resetQuery"
+        >
+          重置
+        </el-button>
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
+    <el-row
+      :gutter="10"
+      class="mb8"
+    >
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['blog:comment:remove']"
@@ -89,12 +121,27 @@
           导出
         </el-button>
       </el-col>
-      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
+      <right-toolbar
+        v-model:show-search="showSearch"
+        @query-table="getList"
+      />
     </el-row>
 
-    <el-table v-loading="loading" :data="commentList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="评论ID" align="center" prop="id" />
+    <el-table
+      v-loading="loading"
+      :data="commentList"
+      @selection-change="handleSelectionChange"
+    >
+      <el-table-column
+        type="selection"
+        width="55"
+        align="center"
+      />
+      <el-table-column
+        label="评论ID"
+        align="center"
+        prop="id"
+      />
       <el-table-column
         label="文章标题"
         align="center"
@@ -107,10 +154,27 @@
         prop="content"
         :show-overflow-tooltip="true"
       />
-      <el-table-column label="评论人" align="center" prop="authorName" />
-      <el-table-column label="邮箱" align="center" prop="email" />
-      <el-table-column label="IP地址" align="center" prop="ipAddress" />
-      <el-table-column label="状态" align="center" prop="status" width="100">
+      <el-table-column
+        label="评论人"
+        align="center"
+        prop="authorName"
+      />
+      <el-table-column
+        label="邮箱"
+        align="center"
+        prop="email"
+      />
+      <el-table-column
+        label="IP地址"
+        align="center"
+        prop="ipAddress"
+      />
+      <el-table-column
+        label="状态"
+        align="center"
+        prop="status"
+        width="100"
+      >
         <template #default="scope">
           <dict-tag
             :options="comment_status"
@@ -119,7 +183,12 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
+      <el-table-column
+        label="创建时间"
+        align="center"
+        prop="createTime"
+        width="180"
+      >
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -131,7 +200,11 @@
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
-          <el-tooltip v-if="scope.row.status === '0'" content="审核通过" placement="top">
+          <el-tooltip
+            v-if="scope.row.status === '0'"
+            content="审核通过"
+            placement="top"
+          >
             <el-button
               v-hasPermi="['blog:comment:audit']"
               link
@@ -140,7 +213,11 @@
               @click="handleAudit(scope.row)"
             />
           </el-tooltip>
-          <el-tooltip v-if="scope.row.status === '0'" content="审核拒绝" placement="top">
+          <el-tooltip
+            v-if="scope.row.status === '0'"
+            content="审核拒绝"
+            placement="top"
+          >
             <el-button
               v-hasPermi="['blog:comment:reject']"
               link
@@ -149,7 +226,10 @@
               @click="handleReject(scope.row)"
             />
           </el-tooltip>
-          <el-tooltip content="删除" placement="top">
+          <el-tooltip
+            content="删除"
+            placement="top"
+          >
             <el-button
               v-hasPermi="['blog:comment:remove']"
               link

@@ -22,7 +22,10 @@
             :span="12"
             style="margin-bottom: 15px"
           >
-            <el-card shadow="hover" class="endpoint-card">
+            <el-card
+              shadow="hover"
+              class="endpoint-card"
+            >
               <template #header>
                 <div class="endpoint-header">
                   <el-icon><Link /></el-icon>
@@ -38,7 +41,13 @@
                   content="这是一个模板端点，请先查看指标列表，然后从列表中选择具体指标查看详情"
                   placement="top"
                 >
-                  <el-button type="primary" size="small" disabled>查看详情</el-button>
+                  <el-button
+                    type="primary"
+                    size="small"
+                    disabled
+                  >
+                    查看详情
+                  </el-button>
                 </el-tooltip>
                 <el-button
                   v-else
@@ -64,10 +73,20 @@
       destroy-on-close
     >
       <div v-loading="detailLoading">
-        <div v-if="detailData" class="detail-content">
+        <div
+          v-if="detailData"
+          class="detail-content"
+        >
           <!-- 搜索框 -->
-          <div v-if="isEnvEndpoint" style="margin-bottom: 15px">
-            <el-input v-model="searchText" placeholder="搜索配置项..." clearable>
+          <div
+            v-if="isEnvEndpoint"
+            style="margin-bottom: 15px"
+          >
+            <el-input
+              v-model="searchText"
+              placeholder="搜索配置项..."
+              clearable
+            >
               <template #prefix>
                 <el-icon><Search /></el-icon>
               </template>
@@ -94,9 +113,16 @@
           </el-button>
 
           <!-- 如果是 health 端点，显示为折叠面板 -->
-          <div v-if="isHealthEndpoint" class="health-display">
+          <div
+            v-if="isHealthEndpoint"
+            class="health-display"
+          >
             <el-collapse v-model="activeNames">
-              <el-collapse-item v-for="(component, key) in healthComponents" :key="key" :name="key">
+              <el-collapse-item
+                v-for="(component, key) in healthComponents"
+                :key="key"
+                :name="key"
+              >
                 <template #title>
                   <div class="health-component-title">
                     <el-icon>
@@ -104,7 +130,10 @@
                       <CircleClose v-else />
                     </el-icon>
                     <span class="component-name">{{ formatHealthComponentName(key) }}</span>
-                    <el-tag size="small" :type="component.status === 'UP' ? 'success' : 'danger'">
+                    <el-tag
+                      size="small"
+                      :type="component.status === 'UP' ? 'success' : 'danger'"
+                    >
                       {{ component.status }}
                     </el-tag>
                   </div>
@@ -117,9 +146,16 @@
           </div>
 
           <!-- 如果是 info 端点，显示为折叠面板 -->
-          <div v-if="isInfoEndpoint" class="info-display">
+          <div
+            v-if="isInfoEndpoint"
+            class="info-display"
+          >
             <el-collapse v-model="activeNames">
-              <el-collapse-item v-for="(value, key) in infoData" :key="key" :name="key">
+              <el-collapse-item
+                v-for="(value, key) in infoData"
+                :key="key"
+                :name="key"
+              >
                 <template #title>
                   <div class="info-item-title">
                     <el-icon><Document /></el-icon>
@@ -134,7 +170,10 @@
           </div>
 
           <!-- 如果是 configprops 端点，显示为折叠面板 -->
-          <div v-if="isConfigPropsEndpoint" class="configprops-display">
+          <div
+            v-if="isConfigPropsEndpoint"
+            class="configprops-display"
+          >
             <el-input
               v-model="searchText"
               placeholder="搜索配置类..."
@@ -146,12 +185,21 @@
               </template>
             </el-input>
             <el-collapse v-model="activeNames">
-              <el-collapse-item v-for="(config, key) in filteredConfigProps" :key="key" :name="key">
+              <el-collapse-item
+                v-for="(config, key) in filteredConfigProps"
+                :key="key"
+                :name="key"
+              >
                 <template #title>
                   <div class="configprops-title">
                     <el-icon><Document /></el-icon>
                     <span class="config-name">{{ key }}</span>
-                    <el-tag size="small" type="info">{{ getPropertyCount(config) }} 个属性</el-tag>
+                    <el-tag
+                      size="small"
+                      type="info"
+                    >
+                      {{ getPropertyCount(config) }} 个属性
+                    </el-tag>
                   </div>
                 </template>
                 <div class="configprops-detail">
@@ -180,7 +228,10 @@
           </div>
 
           <!-- 如果是 env 端点，显示为折叠面板 -->
-          <div v-if="isEnvEndpoint" class="env-display">
+          <div
+            v-if="isEnvEndpoint"
+            class="env-display"
+          >
             <el-input
               v-model="searchText"
               placeholder="搜索配置项..."
@@ -201,7 +252,10 @@
                   <div class="env-source-title">
                     <el-icon><Document /></el-icon>
                     <span class="source-name">{{ source.name }}</span>
-                    <el-tag size="small" type="info">
+                    <el-tag
+                      size="small"
+                      type="info"
+                    >
                       {{ getPropertyCount(source) }} 个配置项
                     </el-tag>
                   </div>
@@ -233,20 +287,48 @@
                     />
                   </el-table>
                 </div>
-                <div v-else class="empty-properties">
-                  <el-empty description="无配置项" :image-size="60" />
+                <div
+                  v-else
+                  class="empty-properties"
+                >
+                  <el-empty
+                    description="无配置项"
+                    :image-size="60"
+                  />
                 </div>
               </el-collapse-item>
             </el-collapse>
           </div>
           <!-- 如果是 metrics 列表，显示为表格 -->
-          <div v-else-if="isMetricsList" class="metrics-list">
-            <el-table :data="metricsListData" style="width: 100%" max-height="500">
-              <el-table-column type="index" label="序号" width="80" />
-              <el-table-column prop="name" label="指标名称" min-width="200" />
-              <el-table-column label="操作" width="200">
+          <div
+            v-else-if="isMetricsList"
+            class="metrics-list"
+          >
+            <el-table
+              :data="metricsListData"
+              style="width: 100%"
+              max-height="500"
+            >
+              <el-table-column
+                type="index"
+                label="序号"
+                width="80"
+              />
+              <el-table-column
+                prop="name"
+                label="指标名称"
+                min-width="200"
+              />
+              <el-table-column
+                label="操作"
+                width="200"
+              >
                 <template #default="scope">
-                  <el-button size="small" type="primary" @click="viewMetricDetail(scope.row.name)">
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="viewMetricDetail(scope.row.name)"
+                  >
                     查看详情
                   </el-button>
                 </template>
@@ -254,7 +336,10 @@
             </el-table>
           </div>
           <!-- 其他数据显示为 JSON -->
-          <pre v-else class="json-display">{{ formattedData }}</pre>
+          <pre
+            v-else
+            class="json-display"
+          >{{ formattedData }}</pre>
         </div>
       </div>
     </el-dialog>

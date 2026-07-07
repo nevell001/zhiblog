@@ -1,6 +1,9 @@
 <template>
   <div class="tinymce-container">
-    <textarea :id="id" style="visibility: hidden"></textarea>
+    <textarea
+      :id="id"
+      style="visibility: hidden"
+    ></textarea>
   </div>
 </template>
 

@@ -7,11 +7,19 @@
         sub-title="在生产环境下，系统接口（Swagger）已禁用以确保系统安全"
       >
         <template #extra>
-          <el-button type="primary" @click="goToDevEnvironment">前往开发环境</el-button>
+          <el-button
+            type="primary"
+            @click="goToDevEnvironment"
+          >
+            前往开发环境
+          </el-button>
         </template>
       </el-result>
     </el-card>
-    <i-frame v-else v-model:src="url" />
+    <i-frame
+      v-else
+      v-model:src="url"
+    />
   </div>
 </template>
 

@@ -22,7 +22,11 @@
             style="width: 100%"
             @row-click="getCacheKeys"
           >
-            <el-table-column label="序号" width="60" type="index" />
+            <el-table-column
+              label="序号"
+              width="60"
+              type="index"
+            />
 
             <el-table-column
               label="缓存名称"
@@ -78,7 +82,11 @@
             style="width: 100%"
             @row-click="handleCacheValue"
           >
-            <el-table-column label="序号" width="60" type="index" />
+            <el-table-column
+              label="序号"
+              width="60"
+              type="index"
+            />
             <el-table-column
               label="缓存键名"
               align="center"
@@ -105,7 +113,10 @@
       </el-col>
 
       <el-col :span="8">
-        <el-card :bordered="false" style="height: calc(100vh - 125px)">
+        <el-card
+          :bordered="false"
+          style="height: calc(100vh - 125px)"
+        >
           <template #header>
             <Document style="width: 1em; height: 1em; vertical-align: middle" />
             <span style="vertical-align: middle">缓存内容</span>
@@ -121,18 +132,42 @@
           </template>
           <el-form :model="cacheForm">
             <el-row :gutter="32">
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存名称:" prop="cacheName">
-                  <el-input v-model="cacheForm.cacheName" :read-only="true" />
+              <el-col
+                :offset="1"
+                :span="22"
+              >
+                <el-form-item
+                  label="缓存名称:"
+                  prop="cacheName"
+                >
+                  <el-input
+                    v-model="cacheForm.cacheName"
+                    :read-only="true"
+                  />
                 </el-form-item>
               </el-col>
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存键名:" prop="cacheKey">
-                  <el-input v-model="cacheForm.cacheKey" :read-only="true" />
+              <el-col
+                :offset="1"
+                :span="22"
+              >
+                <el-form-item
+                  label="缓存键名:"
+                  prop="cacheKey"
+                >
+                  <el-input
+                    v-model="cacheForm.cacheKey"
+                    :read-only="true"
+                  />
                 </el-form-item>
               </el-col>
-              <el-col :offset="1" :span="22">
-                <el-form-item label="缓存内容:" prop="cacheValue">
+              <el-col
+                :offset="1"
+                :span="22"
+              >
+                <el-form-item
+                  label="缓存内容:"
+                  prop="cacheValue"
+                >
                   <el-input
                     v-model="cacheForm.cacheValue"
                     type="textarea"

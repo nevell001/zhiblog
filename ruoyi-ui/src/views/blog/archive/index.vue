@@ -10,7 +10,9 @@
               <Calendar />
             </el-icon>
           </div>
-          <h1 class="page-title">文章归档</h1>
+          <h1 class="page-title">
+            文章归档
+          </h1>
           <p class="page-description">
             共
             <span class="highlight-number">{{ totalArticles }}</span>
@@ -19,8 +21,16 @@
             个月的写作历程
           </p>
           <div class="back-button">
-            <router-link to="/" class="back-link">
-              <el-button type="default" plain size="large" round>
+            <router-link
+              to="/"
+              class="back-link"
+            >
+              <el-button
+                type="default"
+                plain
+                size="large"
+                round
+              >
                 <el-icon><ArrowLeft /></el-icon>
                 返回首页
               </el-button>
@@ -38,7 +48,10 @@
           class="archive-content"
         >
           <!-- 空状态 -->
-          <div v-if="archiveList.length === 0 && !loading" class="no-data">
+          <div
+            v-if="archiveList.length === 0 && !loading"
+            class="no-data"
+          >
             <div class="empty-icon">
               <el-icon :size="80">
                 <Calendar />
@@ -46,13 +59,24 @@
             </div>
             <h3>暂无归档数据</h3>
             <p>还没有发布任何文章，快去创作吧！</p>
-            <router-link to="/" class="go-home-link">
-              <el-button type="primary" round>返回首页</el-button>
+            <router-link
+              to="/"
+              class="go-home-link"
+            >
+              <el-button
+                type="primary"
+                round
+              >
+                返回首页
+              </el-button>
             </router-link>
           </div>
 
           <!-- 归档列表 -->
-          <div v-else class="timeline-container">
+          <div
+            v-else
+            class="timeline-container"
+          >
             <div class="timeline-line"></div>
 
             <div
@@ -67,7 +91,10 @@
               <!-- 归档卡片 -->
               <div class="archive-card">
                 <!-- 归档头部 -->
-                <div class="archive-header" @click="toggleArchive(archive.archive_date)">
+                <div
+                  class="archive-header"
+                  @click="toggleArchive(archive.archive_date)"
+                >
                   <div class="archive-date-wrapper">
                     <div class="archive-year">
                       {{ archive.archive_date.split('-')[0] }}
@@ -104,8 +131,14 @@
                     class="archive-articles"
                   >
                     <!-- 加载状态 -->
-                    <div v-if="loadingArticles[archive.archive_date]" class="loading-articles">
-                      <el-icon :size="32" class="is-loading">
+                    <div
+                      v-if="loadingArticles[archive.archive_date]"
+                      class="loading-articles"
+                    >
+                      <el-icon
+                        :size="32"
+                        class="is-loading"
+                      >
                         <Loading />
                       </el-icon>
                       <span>加载文章中...</span>
@@ -115,7 +148,7 @@
                     <div
                       v-else-if="
                         articlesByArchive[archive.archive_date] &&
-                        articlesByArchive[archive.archive_date].length > 0
+                          articlesByArchive[archive.archive_date].length > 0
                       "
                       class="article-list"
                     >
@@ -126,7 +159,10 @@
                         :style="{ animationDelay: `${articleIndex * 0.05}s` }"
                       >
                         <!-- 文章封面 -->
-                        <div v-if="article.coverUrl || article.coverImage" class="article-cover">
+                        <div
+                          v-if="article.coverUrl || article.coverImage"
+                          class="article-cover"
+                        >
                           <img
                             :src="article.coverUrl || article.coverImage"
                             :alt="article.title"
@@ -147,7 +183,7 @@
                           <p class="article-summary">
                             {{
                               article.summary ||
-                              stripHtmlTags(article.content).substring(0, 150) + '...'
+                                stripHtmlTags(article.content).substring(0, 150) + '...'
                             }}
                           </p>
 
@@ -164,7 +200,10 @@
                               <el-icon :size="14"><ChatDotRound /></el-icon>
                               {{ article.commentCount || 0 }}
                             </span>
-                            <span v-if="article.likeCount" class="meta-item">
+                            <span
+                              v-if="article.likeCount"
+                              class="meta-item"
+                            >
                               <el-icon :size="14"><Star /></el-icon>
                               {{ article.likeCount }}
                             </span>
@@ -174,7 +213,10 @@
                     </div>
 
                     <!-- 无文章状态 -->
-                    <div v-else class="no-articles">
+                    <div
+                      v-else
+                      class="no-articles"
+                    >
                       <el-icon :size="48">
                         <DocumentDelete />
                       </el-icon>

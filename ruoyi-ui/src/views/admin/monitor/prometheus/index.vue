@@ -25,7 +25,11 @@
                 </div>
               </template>
               <div class="metric-content">
-                <el-button type="primary" style="width: 100%" @click="viewMetrics">
+                <el-button
+                  type="primary"
+                  style="width: 100%"
+                  @click="viewMetrics"
+                >
                   查看指标数据
                 </el-button>
                 <p class="metric-url">
@@ -43,15 +47,24 @@
                 </div>
               </template>
               <div class="metric-content">
-                <el-button type="success" style="width: 100%" @click="openPrometheus">
+                <el-button
+                  type="success"
+                  style="width: 100%"
+                  @click="openPrometheus"
+                >
                   访问 Prometheus UI
                 </el-button>
-                <p class="metric-url">http://localhost:9090</p>
+                <p class="metric-url">
+                  http://localhost:9090
+                </p>
               </div>
             </el-card>
           </el-col>
         </el-row>
-        <el-card shadow="hover" style="margin-top: 20px">
+        <el-card
+          shadow="hover"
+          style="margin-top: 20px"
+        >
           <template #header>
             <div class="card-header-item">
               <el-icon><InfoFilled /></el-icon>
@@ -59,12 +72,29 @@
             </div>
           </template>
           <div class="metric-examples">
-            <el-table :data="metricExamples" style="width: 100%">
-              <el-table-column prop="name" label="指标名称" width="250" />
-              <el-table-column prop="query" label="PromQL 查询" />
-              <el-table-column label="操作" width="150">
+            <el-table
+              :data="metricExamples"
+              style="width: 100%"
+            >
+              <el-table-column
+                prop="name"
+                label="指标名称"
+                width="250"
+              />
+              <el-table-column
+                prop="query"
+                label="PromQL 查询"
+              />
+              <el-table-column
+                label="操作"
+                width="150"
+              >
                 <template #default="scope">
-                  <el-button size="small" type="primary" @click="runQuery(scope.row.query)">
+                  <el-button
+                    size="small"
+                    type="primary"
+                    @click="runQuery(scope.row.query)"
+                  >
                     在 Prometheus 中运行
                   </el-button>
                 </template>
@@ -84,8 +114,16 @@
       destroy-on-close
     >
       <div v-loading="metricsLoading">
-        <div v-if="metricsData" class="metrics-content">
-          <el-button type="primary" size="small" style="margin-bottom: 10px" @click="copyMetrics">
+        <div
+          v-if="metricsData"
+          class="metrics-content"
+        >
+          <el-button
+            type="primary"
+            size="small"
+            style="margin-bottom: 10px"
+            @click="copyMetrics"
+          >
             <el-icon><CopyDocument /></el-icon>
             复制数据
           </el-button>

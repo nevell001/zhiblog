@@ -1,7 +1,11 @@
 <template>
   <div class="tag-category-selector">
     <!-- 分类选择 -->
-    <el-form-item v-if="showCategory" label="分类" prop="categoryId">
+    <el-form-item
+      v-if="showCategory"
+      label="分类"
+      prop="categoryId"
+    >
       <el-select
         v-model="localSelectedCategory"
         placeholder="请选择分类"
@@ -18,7 +22,11 @@
         >
           <div style="display: flex; justify-content: space-between; align-items: center">
             <span>{{ category.name }}</span>
-            <el-tag v-if="category.articleCount" size="small" type="info">
+            <el-tag
+              v-if="category.articleCount"
+              size="small"
+              type="info"
+            >
               {{ category.articleCount }}篇
             </el-tag>
           </div>
@@ -27,7 +35,11 @@
     </el-form-item>
 
     <!-- 标签选择 -->
-    <el-form-item v-if="showTags" label="标签" prop="tagIds">
+    <el-form-item
+      v-if="showTags"
+      label="标签"
+      prop="tagIds"
+    >
       <div class="tag-selector-container">
         <!-- 标签选择器 -->
         <el-select
@@ -56,7 +68,11 @@
                 }"
                 size="small"
               >
-                <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px"></i>
+                <i
+                  v-if="tag.icon"
+                  :class="tag.icon"
+                  style="margin-right: 4px"
+                ></i>
                 {{ tag.name || tag.tagName }}
               </el-tag>
             </div>
@@ -64,8 +80,13 @@
         </el-select>
 
         <!-- 已选标签展示 -->
-        <div v-if="selectedTagsDisplay.length > 0" class="selected-tags">
-          <div class="selected-tags-label">已选标签：</div>
+        <div
+          v-if="selectedTagsDisplay.length > 0"
+          class="selected-tags"
+        >
+          <div class="selected-tags-label">
+            已选标签：
+          </div>
           <div class="selected-tags-list">
             <el-tag
               v-for="tag in selectedTagsDisplay"
@@ -79,14 +100,21 @@
               closable
               @close="removeTag(tag.id || tag.tagId)"
             >
-              <i v-if="tag.icon" :class="tag.icon" style="margin-right: 4px"></i>
+              <i
+                v-if="tag.icon"
+                :class="tag.icon"
+                style="margin-right: 4px"
+              ></i>
               {{ tag.name || tag.tagName }}
             </el-tag>
           </div>
         </div>
 
         <!-- 快速添加标签 -->
-        <div v-if="allowQuickAdd" class="quick-add-tag">
+        <div
+          v-if="allowQuickAdd"
+          class="quick-add-tag"
+        >
           <el-input
             v-model="newTagName"
             placeholder="输入新标签名称"
@@ -94,7 +122,12 @@
             style="width: 200px; margin-right: 8px"
             @keyup.enter="addNewTag"
           />
-          <el-button type="primary" size="small" :disabled="!newTagName.trim()" @click="addNewTag">
+          <el-button
+            type="primary"
+            size="small"
+            :disabled="!newTagName.trim()"
+            @click="addNewTag"
+          >
             添加标签
           </el-button>
         </div>

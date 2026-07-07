@@ -1,8 +1,13 @@
 <template>
   <div>
     <h2>测试 .on() 错误</h2>
-    <button @click="testError">触发 .on() 错误</button>
-    <div v-if="errorMessage" class="error-message">
+    <button @click="testError">
+      触发 .on() 错误
+    </button>
+    <div
+      v-if="errorMessage"
+      class="error-message"
+    >
       {{ errorMessage }}
     </div>
   </div>

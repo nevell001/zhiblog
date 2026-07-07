@@ -4,19 +4,25 @@
       <!-- Hero 区域 -->
       <header class="hero-section">
         <div class="hero-wave-bg">
-          <svg class="wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+          <svg
+            class="wave-svg"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+          >
             <path
               fill="rgba(255,255,255,0.08)"
               d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,181.3C960,203,1056,213,1152,192C1248,171,1344,117,1392,90.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            ></path>
+            />
             <path
               fill="rgba(255,255,255,0.05)"
               d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            ></path>
+            />
           </svg>
         </div>
         <div class="hero-content">
-          <h1 class="hero-title">{{ blogSettings.blog_name || '我的博客' }}</h1>
+          <h1 class="hero-title">
+            {{ blogSettings.blog_name || '我的博客' }}
+          </h1>
           <p class="hero-subtitle">
             {{ blogSettings.blog_desc || '发现故事、思考与专业知识，涵盖任何你感兴趣的话题' }}
           </p>
@@ -30,8 +36,17 @@
               stroke="currentColor"
               stroke-width="2"
             >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <circle
+                cx="11"
+                cy="11"
+                r="8"
+              />
+              <line
+                x1="21"
+                y1="21"
+                x2="16.65"
+                y2="16.65"
+              />
             </svg>
             <input
               v-model="searchKeyword"
@@ -40,10 +55,10 @@
               @keyup.enter="handleSearch"
             />
             <button
-              class="search-clear-btn"
               v-if="searchKeyword"
-              @click="clearSearch"
+              class="search-clear-btn"
               title="清除搜索"
+              @click="clearSearch"
             >
               <svg
                 width="16"
@@ -53,8 +68,18 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
+                <line
+                  x1="18"
+                  y1="6"
+                  x2="6"
+                  y2="18"
+                />
+                <line
+                  x1="6"
+                  y1="6"
+                  x2="18"
+                  y2="18"
+                />
               </svg>
             </button>
           </div>
@@ -62,25 +87,39 @@
       </header>
 
       <!-- POPULAR 热门文章（搜索时隐藏） -->
-      <section class="popular-section" v-if="popularArticles.length > 0 && !isSearching">
+      <section
+        v-if="popularArticles.length > 0 && !isSearching"
+        class="popular-section"
+      >
         <div class="section-inner">
           <span class="section-label">热门推荐</span>
           <div class="popular-featured">
             <div class="popular-text">
-              <h2 class="popular-title">{{ popularArticles[0]?.title || '精选文章' }}</h2>
+              <h2 class="popular-title">
+                {{ popularArticles[0]?.title || '精选文章' }}
+              </h2>
               <p class="popular-desc">
                 {{ popularArticles[0]?.summary || '一段引人入胜的故事，呈现现代博客的核心精髓' }}
               </p>
               <div class="popular-tags">
-                <span class="tag" v-if="popularArticles[0]?.tags?.length">
+                <span
+                  v-if="popularArticles[0]?.tags?.length"
+                  class="tag"
+                >
                   {{ popularArticles[0].tags[0].name }}
                 </span>
-                <span class="tag" v-if="popularArticles[0]?.tags?.length > 1">
+                <span
+                  v-if="popularArticles[0]?.tags?.length > 1"
+                  class="tag"
+                >
                   {{ popularArticles[0].tags[1].name }}
                 </span>
               </div>
             </div>
-            <div class="popular-image" @click="goToArticle(popularArticles[0]?.id)">
+            <div
+              class="popular-image"
+              @click="goToArticle(popularArticles[0]?.id)"
+            >
               <img
                 :src="popularArticles[0]?.coverUrl || '/default-cover.jpg'"
                 alt="Featured"
@@ -92,51 +131,95 @@
           <!-- 3张小卡片 -->
           <div class="popular-cards">
             <div
-              class="popular-card"
-              v-for="(article, idx) in popularCards"
+              v-for="article in popularCards"
               :key="article.id"
+              class="popular-card"
               @click="goToArticle(article.id)"
             >
               <div class="card-image">
-                <img :src="article.coverUrl || '/default-cover.jpg'" alt="" loading="lazy" />
+                <img
+                  :src="article.coverUrl || '/default-cover.jpg'"
+                  alt=""
+                  loading="lazy"
+                />
               </div>
-              <h3 class="card-title">{{ article.title }}</h3>
-              <p class="card-desc">{{ article.summary }}</p>
+              <h3 class="card-title">
+                {{ article.title }}
+              </h3>
+              <p class="card-desc">
+                {{ article.summary }}
+              </p>
               <div class="card-tags">
-                <span class="tag" v-if="article.tags?.length">{{ article.tags[0].name }}</span>
+                <span
+                  v-if="article.tags?.length"
+                  class="tag"
+                >{{ article.tags[0].name }}</span>
               </div>
             </div>
           </div>
 
-          <div class="section-footer-link" v-if="popularArticles.length > 4">
-            <a href="#" @click.prevent="scrollToAllArticles">查看更多热门文章</a>
+          <div
+            v-if="popularArticles.length > 4"
+            class="section-footer-link"
+          >
+            <a
+              href="#"
+              @click.prevent="scrollToAllArticles"
+            >查看更多热门文章</a>
           </div>
         </div>
       </section>
 
       <!-- ALL ARTICLE 全部文章 / 搜索结果 -->
-      <section class="all-articles-section" id="all-articles">
+      <section
+        id="all-articles"
+        class="all-articles-section"
+      >
         <div class="section-inner">
-          <span class="section-label" v-if="isSearching">
+          <span
+            v-if="isSearching"
+            class="section-label"
+          >
             搜索结果：{{ searchKeyword }}（共 {{ total }} 篇）
-            <button class="clear-search-link" @click="clearSearch">返回全部文章</button>
+            <button
+              class="clear-search-link"
+              @click="clearSearch"
+            >返回全部文章</button>
           </span>
-          <span class="section-label" v-else>全部文章</span>
+          <span
+            v-else
+            class="section-label"
+          >全部文章</span>
           <div class="articles-list-v2">
             <div
-              class="article-row"
               v-for="article in articles"
               :key="article.id"
+              class="article-row"
               @click="goToArticle(article.id)"
             >
               <div class="row-image">
-                <img :src="article.coverUrl || '/default-cover.jpg'" alt="" loading="lazy" />
+                <img
+                  :src="article.coverUrl || '/default-cover.jpg'"
+                  alt=""
+                  loading="lazy"
+                />
               </div>
               <div class="row-body">
-                <h3 class="row-title">{{ article.title }}</h3>
-                <p class="row-desc">{{ article.summary }}</p>
-                <div class="row-tags" v-if="article.tags?.length">
-                  <span class="tag" v-for="tag in article.tags.slice(0, 2)" :key="tag.id">
+                <h3 class="row-title">
+                  {{ article.title }}
+                </h3>
+                <p class="row-desc">
+                  {{ article.summary }}
+                </p>
+                <div
+                  v-if="article.tags?.length"
+                  class="row-tags"
+                >
+                  <span
+                    v-for="tag in article.tags.slice(0, 2)"
+                    :key="tag.id"
+                    class="tag"
+                  >
                     {{ tag.name }}
                   </span>
                 </div>
@@ -149,7 +232,10 @@
           </div>
 
           <!-- 分页 -->
-          <div class="pagination-v2" v-if="total > 0">
+          <div
+            v-if="total > 0"
+            class="pagination-v2"
+          >
             <button
               class="page-btn"
               :disabled="currentPage <= 1"
@@ -200,23 +286,40 @@
             <p class="cta-desc">
               无论你是想交流技术、分享见解，还是寻求合作机会，我们都期待与你建立联系。
             </p>
-            <button class="cta-btn" @click="showContact = true">联系我们</button>
+            <button
+              class="cta-btn"
+              @click="showContact = true"
+            >
+              联系我们
+            </button>
           </div>
         </div>
         <div class="cta-wave-bottom">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
+          <svg
+            viewBox="0 0 1440 120"
+            preserveAspectRatio="none"
+          >
             <path
               fill="#4a7bff"
               d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"
-            ></path>
+            />
           </svg>
         </div>
       </section>
 
       <!-- 联系弹窗 -->
-      <div class="contact-modal" v-if="showContact" @click.self="showContact = false">
+      <div
+        v-if="showContact"
+        class="contact-modal"
+        @click.self="showContact = false"
+      >
         <div class="contact-card">
-          <button class="contact-close" @click="showContact = false">&times;</button>
+          <button
+            class="contact-close"
+            @click="showContact = false"
+          >
+            &times;
+          </button>
           <h3>联系我们</h3>
           <p>邮箱：{{ blogSettings.blog_email || 'hello@example.com' }}</p>
         </div>

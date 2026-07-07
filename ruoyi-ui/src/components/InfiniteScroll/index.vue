@@ -1,9 +1,19 @@
 <template>
-  <div ref="scrollContainer" class="infinite-scroll-container">
-    <slot :items="items" :loading="loading" :has-more="hasMore"></slot>
+  <div
+    ref="scrollContainer"
+    class="infinite-scroll-container"
+  >
+    <slot
+      :items="items"
+      :loading="loading"
+      :has-more="hasMore"
+    ></slot>
 
     <!-- 加载状态指示器 -->
-    <div v-if="loading" class="loading-indicator">
+    <div
+      v-if="loading"
+      class="loading-indicator"
+    >
       <el-icon class="is-loading">
         <Loading />
       </el-icon>
@@ -11,12 +21,18 @@
     </div>
 
     <!-- 没有更多内容 -->
-    <div v-else-if="!hasMore && items.length > 0" class="no-more-indicator">
+    <div
+      v-else-if="!hasMore && items.length > 0"
+      class="no-more-indicator"
+    >
       <span>没有更多内容了</span>
     </div>
 
     <!-- 空状态 -->
-    <div v-else-if="!loading && items.length === 0" class="empty-indicator">
+    <div
+      v-else-if="!loading && items.length === 0"
+      class="empty-indicator"
+    >
       <slot name="empty">
         <el-empty description="暂无数据" />
       </slot>

@@ -3,11 +3,18 @@
     <!-- 欢迎区域 -->
     <div class="welcome-section">
       <div class="welcome-content">
-        <h1 class="welcome-title">{{ greeting }}，{{ userName }}</h1>
-        <p class="welcome-subtitle">欢迎回到博客后台管理系统，今天是 {{ currentDate }}</p>
+        <h1 class="welcome-title">
+          {{ greeting }}，{{ userName }}
+        </h1>
+        <p class="welcome-subtitle">
+          欢迎回到博客后台管理系统，今天是 {{ currentDate }}
+        </p>
       </div>
       <div class="welcome-actions">
-        <el-button type="primary" @click="$router.push('/admin/blog/article')">
+        <el-button
+          type="primary"
+          @click="$router.push('/admin/blog/article')"
+        >
           <el-icon><Document /></el-icon>
           写文章
         </el-button>
@@ -19,8 +26,15 @@
     </div>
 
     <!-- 统计卡片 -->
-    <el-row :gutter="20" class="stats-section">
-      <el-col :xs="24" :sm="12" :lg="6">
+    <el-row
+      :gutter="20"
+      class="stats-section"
+    >
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
         <div class="stat-card stat-card-blue">
           <div class="stat-icon">
             <el-icon><Document /></el-icon>
@@ -29,8 +43,13 @@
             <div class="stat-value">
               {{ formatNumber(stats.articleCount) }}
             </div>
-            <div class="stat-label">文章总数</div>
-            <div class="stat-trend" :class="getTrendClass(stats.articleTrend)">
+            <div class="stat-label">
+              文章总数
+            </div>
+            <div
+              class="stat-trend"
+              :class="getTrendClass(stats.articleTrend)"
+            >
               <el-icon>
                 <Top v-if="stats.articleTrend > 0" />
                 <Bottom v-else />
@@ -40,7 +59,11 @@
           </div>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
         <div class="stat-card stat-card-green">
           <div class="stat-icon">
             <el-icon><User /></el-icon>
@@ -49,8 +72,13 @@
             <div class="stat-value">
               {{ formatNumber(stats.userCount) }}
             </div>
-            <div class="stat-label">用户数量</div>
-            <div class="stat-trend" :class="getTrendClass(stats.userTrend)">
+            <div class="stat-label">
+              用户数量
+            </div>
+            <div
+              class="stat-trend"
+              :class="getTrendClass(stats.userTrend)"
+            >
               <el-icon>
                 <Top v-if="stats.userTrend > 0" />
                 <Bottom v-else />
@@ -60,7 +88,11 @@
           </div>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
         <div class="stat-card stat-card-orange">
           <div class="stat-icon">
             <el-icon><ChatDotRound /></el-icon>
@@ -69,8 +101,13 @@
             <div class="stat-value">
               {{ formatNumber(stats.commentCount) }}
             </div>
-            <div class="stat-label">评论数量</div>
-            <div class="stat-trend" :class="getTrendClass(stats.commentTrend)">
+            <div class="stat-label">
+              评论数量
+            </div>
+            <div
+              class="stat-trend"
+              :class="getTrendClass(stats.commentTrend)"
+            >
               <el-icon>
                 <Top v-if="stats.commentTrend > 0" />
                 <Bottom v-else />
@@ -80,7 +117,11 @@
           </div>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :lg="6">
+      <el-col
+        :xs="24"
+        :sm="12"
+        :lg="6"
+      >
         <div class="stat-card stat-card-purple">
           <div class="stat-icon">
             <el-icon><View /></el-icon>
@@ -89,8 +130,13 @@
             <div class="stat-value">
               {{ formatNumber(stats.viewCount) }}
             </div>
-            <div class="stat-label">总浏览量</div>
-            <div class="stat-trend" :class="getTrendClass(stats.viewTrend)">
+            <div class="stat-label">
+              总浏览量
+            </div>
+            <div
+              class="stat-trend"
+              :class="getTrendClass(stats.viewTrend)"
+            >
               <el-icon>
                 <Top v-if="stats.viewTrend > 0" />
                 <Bottom v-else />
@@ -103,9 +149,18 @@
     </el-row>
 
     <!-- 快速操作和系统状态 -->
-    <el-row :gutter="20" class="content-section">
-      <el-col :xs="24" :lg="16">
-        <el-card class="quick-actions-card" shadow="never">
+    <el-row
+      :gutter="20"
+      class="content-section"
+    >
+      <el-col
+        :xs="24"
+        :lg="16"
+      >
+        <el-card
+          class="quick-actions-card"
+          shadow="never"
+        >
           <template #header>
             <div class="card-header">
               <span class="card-title">
@@ -115,66 +170,114 @@
             </div>
           </template>
           <div class="quick-actions">
-            <div class="quick-action-item" @click="$router.push('/admin/blog/article')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/blog/article')"
+            >
               <div class="action-icon action-icon-blue">
                 <el-icon><Document /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">文章管理</div>
-                <div class="action-desc">发布、编辑、删除文章</div>
+                <div class="action-title">
+                  文章管理
+                </div>
+                <div class="action-desc">
+                  发布、编辑、删除文章
+                </div>
               </div>
             </div>
-            <div class="quick-action-item" @click="$router.push('/admin/blog/category')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/blog/category')"
+            >
               <div class="action-icon action-icon-green">
                 <el-icon><Folder /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">分类标签</div>
-                <div class="action-desc">管理分类和标签</div>
+                <div class="action-title">
+                  分类标签
+                </div>
+                <div class="action-desc">
+                  管理分类和标签
+                </div>
               </div>
             </div>
-            <div class="quick-action-item" @click="$router.push('/admin/blog/comment')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/blog/comment')"
+            >
               <div class="action-icon action-icon-orange">
                 <el-icon><ChatDotRound /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">评论管理</div>
-                <div class="action-desc">审核和管理评论</div>
+                <div class="action-title">
+                  评论管理
+                </div>
+                <div class="action-desc">
+                  审核和管理评论
+                </div>
               </div>
             </div>
-            <div class="quick-action-item" @click="$router.push('/admin/blog/friendLink')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/blog/friendLink')"
+            >
               <div class="action-icon action-icon-purple">
                 <el-icon><Link /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">友情链接</div>
-                <div class="action-desc">管理友情链接</div>
+                <div class="action-title">
+                  友情链接
+                </div>
+                <div class="action-desc">
+                  管理友情链接
+                </div>
               </div>
             </div>
-            <div class="quick-action-item" @click="$router.push('/admin/system/user')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/system/user')"
+            >
               <div class="action-icon action-icon-cyan">
                 <el-icon><User /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">用户管理</div>
-                <div class="action-desc">管理系统用户</div>
+                <div class="action-title">
+                  用户管理
+                </div>
+                <div class="action-desc">
+                  管理系统用户
+                </div>
               </div>
             </div>
-            <div class="quick-action-item" @click="$router.push('/admin/blog/setting')">
+            <div
+              class="quick-action-item"
+              @click="$router.push('/admin/blog/setting')"
+            >
               <div class="action-icon action-icon-pink">
                 <el-icon><Setting /></el-icon>
               </div>
               <div class="action-text">
-                <div class="action-title">系统设置</div>
-                <div class="action-desc">配置博客设置</div>
+                <div class="action-title">
+                  系统设置
+                </div>
+                <div class="action-desc">
+                  配置博客设置
+                </div>
               </div>
             </div>
           </div>
         </el-card>
       </el-col>
 
-      <el-col :xs="24" :lg="8">
-        <el-card class="system-status-card" shadow="never">
+      <el-col
+        :xs="24"
+        :lg="8"
+      >
+        <el-card
+          class="system-status-card"
+          shadow="never"
+        >
           <template #header>
             <span class="card-title">
               <el-icon><Monitor /></el-icon>
@@ -183,32 +286,44 @@
           </template>
           <div class="system-status">
             <div class="status-item">
-              <div class="status-label">在线用户</div>
+              <div class="status-label">
+                在线用户
+              </div>
               <div class="status-value">
                 {{ stats.onlineUsers || 0 }}
               </div>
             </div>
             <div class="status-item">
-              <div class="status-label">今日访问</div>
+              <div class="status-label">
+                今日访问
+              </div>
               <div class="status-value">
                 {{ formatNumber(stats.todayVisits) }}
               </div>
             </div>
             <div class="status-item">
-              <div class="status-label">系统运行</div>
+              <div class="status-label">
+                系统运行
+              </div>
               <div class="status-value">
                 {{ stats.systemUptime || '0天' }}
               </div>
             </div>
             <div class="status-item">
-              <div class="status-label">内存使用</div>
+              <div class="status-label">
+                内存使用
+              </div>
               <div class="status-value">
                 {{ stats.memoryUsage || '0%' }}
               </div>
             </div>
             <div class="status-item">
-              <div class="status-label">系统版本</div>
-              <div class="status-value">v{{ version }}</div>
+              <div class="status-label">
+                系统版本
+              </div>
+              <div class="status-value">
+                v{{ version }}
+              </div>
             </div>
           </div>
         </el-card>

@@ -4,7 +4,9 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <div class="stat-item">
-            <div class="stat-title">发布文章数</div>
+            <div class="stat-title">
+              发布文章数
+            </div>
             <div class="stat-value">
               {{ articleStats.publishedCount || 0 }}
             </div>
@@ -12,7 +14,9 @@
         </el-col>
         <el-col :span="8">
           <div class="stat-item">
-            <div class="stat-title">草稿文章数</div>
+            <div class="stat-title">
+              草稿文章数
+            </div>
             <div class="stat-value">
               {{ articleStats.draftCount || 0 }}
             </div>
@@ -20,7 +24,9 @@
         </el-col>
         <el-col :span="8">
           <div class="stat-item">
-            <div class="stat-title">平均浏览量</div>
+            <div class="stat-title">
+              平均浏览量
+            </div>
             <div class="stat-value">
               {{ articleStats.avgViews || 0 }}
             </div>
@@ -28,15 +34,24 @@
         </el-col>
       </el-row>
 
-      <el-row :gutter="20" style="margin-top: 30px">
+      <el-row
+        :gutter="20"
+        style="margin-top: 30px"
+      >
         <el-col :span="12">
           <el-card header="文章分类分布">
-            <div id="categoryChart" style="height: 300px"></div>
+            <div
+              id="categoryChart"
+              style="height: 300px"
+            ></div>
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card header="热门标签">
-            <div id="tagChart" style="height: 300px"></div>
+            <div
+              id="tagChart"
+              style="height: 300px"
+            ></div>
           </el-card>
         </el-col>
       </el-row>
@@ -106,15 +121,15 @@ const renderCategoryChart = data => {
           radius: '50%',
           data: data.labels
             ? data.labels.map((label, index) => ({
-                value: data.data[index],
-                name: label
-              }))
+              value: data.data[index],
+              name: label
+            }))
             : [
-                { value: 25, name: '技术' },
-                { value: 18, name: '生活' },
-                { value: 12, name: '学习' },
-                { value: 8, name: '其他' }
-              ],
+              { value: 25, name: '技术' },
+              { value: 18, name: '生活' },
+              { value: 12, name: '学习' },
+              { value: 8, name: '其他' }
+            ],
           emphasis: {
             itemStyle: {
               shadowBlur: 10,
