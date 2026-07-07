@@ -11,10 +11,6 @@ const InnerLink = () => import('@/layout/components/InnerLink')
 // 匹配views里面所有的.vue文件
 const modules = import.meta.glob('../views/**/*.vue')
 
-// 调试：输出 modules 的键（只输出前几个）
-console.log('📦 Modules 对象初始化完成，总共有', Object.keys(modules).length, '个组件')
-console.log('📦 前5个组件路径:', Object.keys(modules).slice(0, 5))
-
 interface ViewState {
   routes: RouteRecordRaw[]
   addRoutes: RouteRecordRaw[]
@@ -52,28 +48,22 @@ const usePermissionStore = defineStore('permission', {
 
     generateRoutes(): Promise<RouteRecordRaw[]> {
       return new Promise((resolve, reject) => {
-        console.log('🚀 开始获取路由数据...')
         // 向后端请求路由数据
         getRouters()
           .then((res: any) => {
-            console.log('✅ 成功获取路由数据:', res)
             const sdata = JSON.parse(JSON.stringify(res.data))
             const rdata = JSON.parse(JSON.stringify(res.data))
-            console.log('📋 开始过滤路由...')
             const sidebarRoutes = filterAsyncRouter(sdata)
-            console.log('📋 侧边栏路由:', sidebarRoutes)
             const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            console.log('📋 重写路由:', rewriteRoutes)
             rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
             this.setRoutes(constantRoutes)
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
             this.setTopbarRoutes(rewriteRoutes)
-            console.log('✅ 路由生成完成，总共', rewriteRoutes.length, '个路由')
             resolve(rewriteRoutes)
           })
           .catch(error => {
-            console.error('❌ 获取路由数据失败:', error)
+            console.error('获取路由数据失败:', error)
             reject(error)
           })
       })
@@ -148,7 +138,6 @@ export const loadView = (view: string) => {
 
   // 特殊处理个人中心路径
   if (view === 'user/profile' || view === 'profile') {
-    console.log(`🔍 loadView: 检测到个人中心路径 ${view}，使用固定路径`)
     res = () => import('../views/admin/system/user/user/profile/index.vue')
     return res
   }
@@ -193,9 +182,6 @@ export const loadView = (view: string) => {
   // 转换为数组
   const pathsArray = Array.from(possiblePaths)
 
-  console.log(`🔍 loadView: 尝试加载组件 ${view}`)
-  console.log('🔍 loadView: 尝试的路径:', pathsArray)
-
   // 在所有模块中查找匹配的路径
   for (const path in modules) {
     // 移除 ../views/ 前缀和 .vue 后缀，得到相对路径
@@ -204,26 +190,13 @@ export const loadView = (view: string) => {
     // 检查是否匹配任何可能的路径
     if (pathsArray.includes(dir)) {
       res = () => modules[path]()
-      console.log(`✅ 成功加载组件: ${view} -> ${dir}`)
       break
     }
   }
 
   // 如果没有找到匹配的组件，返回一个默认组件
   if (!res) {
-    console.error(`❌ 无法加载组件: ${view}，请检查组件路径是否正确`)
-    console.log('尝试的路径:', pathsArray)
-    // 只显示统计相关的可用路径，避免日志过多
-    const relevantPaths = Object.keys(modules)
-      .map(p => p.replace(/^\.\.\/views\//, '').replace('.vue', ''))
-      .filter(
-        p =>
-          p.includes('statistics') ||
-          p.includes('system') ||
-          p.includes('monitor') ||
-          p.includes('blog')
-      )
-    console.log('相关的可用组件路径:', relevantPaths)
+    console.error(`无法加载组件: ${view}，请检查组件路径是否正确`)
   }
 
   return res

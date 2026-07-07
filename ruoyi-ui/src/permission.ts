@@ -47,11 +47,8 @@ let isNavigating = false
 
 router.beforeEach(
   async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-    console.log('🔄 路由守卫触发: from =', from.path, 'to =', to.path)
-
     // 如果已经在导航中，且目标路径相同，则取消导航
     if (isNavigating && to.path === from.path) {
-      console.log('⚠️ 防止重复导航')
       return next(false)
     }
 
@@ -61,7 +58,6 @@ router.beforeEach(
 
     try {
       if (getToken()) {
-        console.log('✅ 有 token')
         to.meta.title && useSettingsStore().setTitle(to.meta.title as string)
         /* has token*/
         // 如果访问博客页面，需要获取用户信息但不需要生成路由
@@ -69,24 +65,19 @@ router.beforeEach(
           const userStore = useUserStore()
           // 如果用户信息为空，则获取用户信息
           if (!userStore.name || userStore.roles.length === 0) {
-            console.log('📝 访问博客页面但用户信息为空，开始获取用户信息...')
             try {
               await userStore.getInfo()
-              console.log('✅ 获取用户信息成功')
             } catch (err) {
-              console.error('❌ 获取用户信息失败:', err)
+              console.error('获取用户信息失败:', err)
               // 获取用户信息失败，清除 token 但继续访问博客页面（作为匿名用户）
               userStore.token = ''
               userStore.roles = []
               userStore.permissions = []
               removeToken()
-              console.log('⚠️ Token 已清除，以匿名用户身份继续访问博客页面')
             }
           }
-          console.log('📝 访问博客页面，直接放行')
           next()
         } else if (to.path === '/login') {
-          console.log('🔄 有 token 但访问登录页，重定向到首页')
           // 如果有redirect参数，则重定向到指定路径
           const redirect = to.query.redirect as string
           if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
@@ -101,29 +92,24 @@ router.beforeEach(
           const permissionStore = usePermissionStore()
 
           if (userStore.roles.length === 0) {
-            console.log('📋 roles 为空，开始获取用户信息和路由...')
             // 判断当前用户是否已拉取完user_info信息
             try {
               await userStore.getInfo()
-              console.log('✅ 获取用户信息成功, roles =', userStore.roles)
               // 生成可访问的路由表
               const accessRoutes = await permissionStore.generateRoutes()
-              console.log('✅ 生成路由成功, 路由数量 =', accessRoutes.length)
               // 根据roles权限生成可访问的路由表
               if (accessRoutes && Array.isArray(accessRoutes)) {
                 accessRoutes.forEach(route => {
                   if (route && route.name && !router.hasRoute(route.name as string)) {
-                    console.log('➕ 添加路由:', route.name, route.path)
                     router.addRoute(route) // 动态添加可访问路由表
                   }
                 })
               }
-              console.log('✅ 所有路由添加完成，准备跳转到:', to.path)
               // 确保addRoutes已完成
               next({ ...to, replace: true })
               // NProgress.done()
             } catch (err) {
-              console.error('❌ 获取用户信息或生成路由失败:', err)
+              console.error('获取用户信息或生成路由失败:', err)
               // 直接清除用户信息并重定向
               userStore.token = ''
               userStore.roles = []
@@ -133,19 +119,15 @@ router.beforeEach(
               next({ path: '/login', replace: true })
             }
           } else {
-            console.log('✅ roles 不为空，直接跳转')
             next()
           }
         }
       } else {
-        console.log('❌ 没有 token')
         // 没有token
         if (isWhiteList(to.path)) {
-          console.log('✅ 在白名单中，直接进入')
           // 在免登录白名单，直接进入
           next()
         } else {
-          console.log('⚠️ 不在白名单中，重定向到登录页')
           // 避免循环重定向
           if (to.path !== '/login') {
             next(`/login?redirect=${to.fullPath}`) // 否则全部重定向到登录页
@@ -156,7 +138,7 @@ router.beforeEach(
         }
       }
     } catch (error) {
-      console.error('❌ 路由守卫错误:', error)
+      console.error('路由守卫错误:', error)
       next(false)
     } finally {
       isNavigating = false
