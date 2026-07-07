@@ -453,7 +453,7 @@ The project uses `unplugin-auto-import` for Vue composition APIs:
 - **RSS Feed**: http://localhost:8080/blog/rss
 - **Unified Auth API**: http://localhost:8080/auth/login (POST - unified login for admin and blog users)
 
-**Default admin credentials**: admin / admin123
+**Default admin credentials**: admin（首次登录请修改默认密码）
 
 ## Special Considerations
 

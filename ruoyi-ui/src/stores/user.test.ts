@@ -69,7 +69,7 @@ describe('User Store 测试', () => {
     it('应该成功登录并设置 token', async () => {
       const userInfo = {
         username: 'admin',
-        password: 'admin123',
+        password: 'test-password',
         code: '1234',
         uuid: 'uuid-123'
       }
@@ -78,7 +78,7 @@ describe('User Store 测试', () => {
 
       await expect(userStore.login(userInfo)).resolves.toBeUndefined()
 
-      expect(mockLogin).toHaveBeenCalledWith('admin', 'admin123', '1234', 'uuid-123')
+      expect(mockLogin).toHaveBeenCalledWith('admin', 'test-password', '1234', 'uuid-123')
       expect(mockSetToken).toHaveBeenCalledWith('new-token')
       expect(userStore.token).toBe('new-token')
     })
@@ -101,7 +101,7 @@ describe('User Store 测试', () => {
     it('应该去除用户名首尾空格', async () => {
       const userInfo = {
         username: '  admin  ',
-        password: 'admin123',
+        password: 'test-password',
         code: '1234',
         uuid: 'uuid-123'
       }
@@ -109,7 +109,7 @@ describe('User Store 测试', () => {
 
       await userStore.login(userInfo)
 
-      expect(mockLogin).toHaveBeenCalledWith('admin', 'admin123', '1234', 'uuid-123')
+      expect(mockLogin).toHaveBeenCalledWith('admin', 'test-password', '1234', 'uuid-123')
     })
   })
 
@@ -219,7 +219,7 @@ describe('User Store 测试', () => {
       // 登录
       const userInfo = {
         username: 'admin',
-        password: 'admin123',
+        password: 'test-password',
         code: '1234',
         uuid: 'uuid-123'
       }

@@ -9,6 +9,9 @@ target/
 *.iml
 *.class
 
+# Eclipse 构建产物（包含硬编码默认密码，不应提交）
+ruoyi-admin/bin/
+
 # Git Hooks (husky 需要提交)
 !.husky/**
 

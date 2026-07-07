@@ -33,7 +33,7 @@
 - **API文档**: http://localhost:8080/swagger-ui.html
 - **Prometheus监控**: http://localhost:9090
 - **Grafana可视化**: http://localhost:3001
-- **默认账号**: admin / admin123
+- **默认账号**: admin（首次登录请修改默认密码）
 
 ## 🚀 快速开始
 
