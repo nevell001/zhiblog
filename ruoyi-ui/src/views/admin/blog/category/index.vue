@@ -7,10 +7,7 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item
-        label="分类名称"
-        prop="name"
-      >
+      <el-form-item label="分类名称" prop="name">
         <el-input
           v-model="queryParams.name"
           placeholder="请输入分类名称"
@@ -19,105 +16,37 @@
         />
       </el-form-item>
       <el-form-item label="">
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="Plus"
-          @click="handleAdd"
-        >
-          新增
-        </el-button>
+        <el-button type="primary" plain icon="Plus" @click="handleAdd">新增</el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="Edit"
-          :disabled="single"
-          @click="handleUpdate"
-        >
+        <el-button type="success" plain icon="Edit" :disabled="single" @click="handleUpdate">
           修改
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="Delete"
-          :disabled="multiple"
-          @click="handleDelete"
-        >
+        <el-button type="danger" plain icon="Delete" :disabled="multiple" @click="handleDelete">
           删除
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Download"
-          @click="handleExport"
-        >
-          导出
-        </el-button>
+        <el-button type="warning" plain icon="Download" @click="handleExport">导出</el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="categoryList"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        width="55"
-        align="center"
-      />
-      <el-table-column
-        label="分类ID"
-        align="center"
-        prop="id"
-      />
-      <el-table-column
-        label="分类名称"
-        align="center"
-        prop="name"
-      />
-      <el-table-column
-        label="排序"
-        align="center"
-        prop="sort"
-      />
-      <el-table-column
-        label="创建时间"
-        align="center"
-        prop="createTime"
-        width="180"
-      >
+    <el-table v-loading="loading" :data="categoryList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="分类ID" align="center" prop="id" />
+      <el-table-column label="分类名称" align="center" prop="name" />
+      <el-table-column label="排序" align="center" prop="sort" />
+      <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
@@ -129,27 +58,11 @@
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
-          <el-tooltip
-            content="修改"
-            placement="top"
-          >
-            <el-button
-              link
-              type="primary"
-              icon="Edit"
-              @click="handleUpdate(scope.row)"
-            />
+          <el-tooltip content="修改" placement="top">
+            <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)" />
           </el-tooltip>
-          <el-tooltip
-            content="删除"
-            placement="top"
-          >
-            <el-button
-              link
-              type="primary"
-              icon="Delete"
-              @click="handleDelete(scope.row)"
-            />
+          <el-tooltip content="删除" placement="top">
+            <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" />
           </el-tooltip>
         </template>
       </el-table-column>
@@ -164,56 +77,26 @@
     />
 
     <!-- 添加或修改分类对话框 -->
-    <el-dialog
-      v-model="open"
-      :title="title"
-      width="500px"
-      append-to-body
-    >
-      <el-form
-        ref="categoryRef"
-        :model="form"
-        :rules="rules"
-        label-width="80px"
-      >
-        <el-form-item
-          label="分类名称"
-          prop="name"
-        >
-          <el-input
-            v-model="form.name"
-            placeholder="请输入分类名称"
-          />
+    <el-dialog v-model="open" :title="title" width="500px" append-to-body>
+      <el-form ref="categoryRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="form.name" placeholder="请输入分类名称" />
         </el-form-item>
-        <el-form-item
-          label="排序"
-          prop="sort"
-        >
-          <el-input-number
-            v-model="form.sort"
-            controls-position="right"
-            :min="0"
-          />
+        <el-form-item label="排序" prop="sort">
+          <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="submitForm"
-          >
-            确 定
-          </el-button>
-          <el-button @click="cancel">
-            取 消
-          </el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup name="BlogCategory">
+<script setup lang="ts" name="BlogCategory">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
 import {
   listCategory,

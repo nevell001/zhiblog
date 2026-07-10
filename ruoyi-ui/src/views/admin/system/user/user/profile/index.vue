@@ -1,10 +1,7 @@
 <template>
   <div class="app-container">
     <el-row :gutter="20">
-      <el-col
-        :span="6"
-        :xs="24"
-      >
+      <el-col :span="6" :xs="24">
         <el-card class="box-card">
           <template #header>
             <div class="clearfix">
@@ -40,10 +37,7 @@
               <li class="list-group-item">
                 <svg-icon icon-class="tree" />
                 所属部门
-                <div
-                  v-if="state.user.dept"
-                  class="pull-right"
-                >
+                <div v-if="state.user.dept" class="pull-right">
                   {{ state.user.dept.deptName }} / {{ state.postGroup }}
                 </div>
               </li>
@@ -65,10 +59,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col
-        :span="18"
-        :xs="24"
-      >
+      <el-col :span="18" :xs="24">
         <el-card>
           <template #header>
             <div class="clearfix">
@@ -76,16 +67,10 @@
             </div>
           </template>
           <el-tabs v-model="selectedTab">
-            <el-tab-pane
-              label="基本资料"
-              name="userinfo"
-            >
+            <el-tab-pane label="基本资料" name="userinfo">
               <userInfo :user="state.user" />
             </el-tab-pane>
-            <el-tab-pane
-              label="修改密码"
-              name="resetPwd"
-            >
+            <el-tab-pane label="修改密码" name="resetPwd">
               <resetPwd />
             </el-tab-pane>
           </el-tabs>
@@ -95,7 +80,7 @@
   </div>
 </template>
 
-<script setup name="Profile">
+<script setup lang="ts" name="Profile">
 import userAvatar from './userAvatar'
 import userInfo from './userInfo'
 import resetPwd from './resetPwd'

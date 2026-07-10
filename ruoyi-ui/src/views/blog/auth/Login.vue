@@ -43,10 +43,7 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item
-              v-if="captchaEnabled"
-              prop="code"
-            >
+            <el-form-item v-if="captchaEnabled" prop="code">
               <div class="captcha-row">
                 <el-input
                   v-model="loginForm.code"
@@ -59,12 +56,7 @@
                     <el-icon><Key /></el-icon>
                   </template>
                 </el-input>
-                <img
-                  :src="captchaUrl"
-                  class="captcha-img"
-                  alt="验证码"
-                  @click="refreshCaptcha"
-                />
+                <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
               </div>
             </el-form-item>
 
@@ -81,18 +73,8 @@
             </el-form-item>
 
             <div class="login-footer">
-              <router-link
-                to="/blog/auth/register"
-                class="link"
-              >
-                还没有账号？立即注册
-              </router-link>
-              <router-link
-                to="/blog/auth/forgot-password"
-                class="link"
-              >
-                忘记密码？
-              </router-link>
+              <router-link to="/blog/auth/register" class="link">还没有账号？立即注册</router-link>
+              <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
             </div>
           </el-form>
         </div>

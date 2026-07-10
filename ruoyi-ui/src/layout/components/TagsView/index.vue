@@ -1,13 +1,6 @@
 <template>
-  <div
-    id="tags-view-container"
-    class="tags-view-container"
-  >
-    <scroll-pane
-      ref="scrollPaneRef"
-      class="tags-view-wrapper"
-      @scroll="handleScroll"
-    >
+  <div id="tags-view-container" class="tags-view-container">
+    <scroll-pane ref="scrollPaneRef" class="tags-view-wrapper" @scroll="handleScroll">
       <router-link
         v-for="tag in visitedViews"
         :key="tag.path"
@@ -24,30 +17,17 @@
           :icon-class="tag.meta.icon"
         />
         {{ tag.title }}
-        <span
-          v-if="!isAffix(tag)"
-          @click.prevent.stop="closeSelectedTag(tag)"
-        >
-          <close
-            class="el-icon-close"
-            style="width: 1em; height: 1em; vertical-align: middle"
-          />
+        <span v-if="!isAffix(tag)" @click.prevent.stop="closeSelectedTag(tag)">
+          <close class="el-icon-close" style="width: 1em; height: 1em; vertical-align: middle" />
         </span>
       </router-link>
     </scroll-pane>
-    <ul
-      v-show="visible"
-      :style="{ left: left + 'px', top: top + 'px' }"
-      class="contextmenu"
-    >
+    <ul v-show="visible" :style="{ left: left + 'px', top: top + 'px' }" class="contextmenu">
       <li @click="refreshSelectedTag(selectedTag)">
         <refresh-right style="width: 1em; height: 1em" />
         刷新页面
       </li>
-      <li
-        v-if="!isAffix(selectedTag)"
-        @click="closeSelectedTag(selectedTag)"
-      >
+      <li v-if="!isAffix(selectedTag)" @click="closeSelectedTag(selectedTag)">
         <close style="width: 1em; height: 1em" />
         关闭当前
       </li>
@@ -55,17 +35,11 @@
         <circle-close style="width: 1em; height: 1em" />
         关闭其他
       </li>
-      <li
-        v-if="!isFirstView()"
-        @click="closeLeftTags"
-      >
+      <li v-if="!isFirstView()" @click="closeLeftTags">
         <back style="width: 1em; height: 1em" />
         关闭左侧
       </li>
-      <li
-        v-if="!isLastView()"
-        @click="closeRightTags"
-      >
+      <li v-if="!isLastView()" @click="closeRightTags">
         <right style="width: 1em; height: 1em" />
         关闭右侧
       </li>

@@ -10,36 +10,15 @@
         </div>
       </template>
 
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-width="120px"
-      >
-        <el-tabs
-          v-model="activeTab"
-          type="border-card"
-        >
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
+        <el-tabs v-model="activeTab" type="border-card">
           <!-- 基本信息 -->
-          <el-tab-pane
-            label="基本信息"
-            name="basic"
-          >
-            <el-form-item
-              label="博主姓名"
-              prop="blog_author"
-            >
-              <el-input
-                v-model="form.blog_author"
-                placeholder="请输入博主姓名"
-                maxlength="50"
-              />
+          <el-tab-pane label="基本信息" name="basic">
+            <el-form-item label="博主姓名" prop="blog_author">
+              <el-input v-model="form.blog_author" placeholder="请输入博主姓名" maxlength="50" />
             </el-form-item>
 
-            <el-form-item
-              label="职位标题"
-              prop="author_title"
-            >
+            <el-form-item label="职位标题" prop="author_title">
               <el-input
                 v-model="form.author_title"
                 placeholder="请输入职位标题，如：全栈开发工程师"
@@ -47,10 +26,7 @@
               />
             </el-form-item>
 
-            <el-form-item
-              label="个人简介"
-              prop="blog_desc"
-            >
+            <el-form-item label="个人简介" prop="blog_desc">
               <el-input
                 v-model="form.blog_desc"
                 type="textarea"
@@ -61,37 +37,20 @@
               />
             </el-form-item>
 
-            <el-form-item
-              label="头像URL"
-              prop="blog_avatar"
-            >
-              <el-input
-                v-model="form.blog_avatar"
-                placeholder="请输入头像图片URL"
-              >
+            <el-form-item label="头像URL" prop="blog_avatar">
+              <el-input v-model="form.blog_avatar" placeholder="请输入头像图片URL">
                 <template #append>
-                  <el-button @click="showImageUpload = true">
-                    上传
-                  </el-button>
+                  <el-button @click="showImageUpload = true">上传</el-button>
                 </template>
               </el-input>
-              <div
-                v-if="form.blog_avatar"
-                class="avatar-preview"
-              >
-                <img
-                  :src="form.blog_avatar"
-                  alt="头像预览"
-                />
+              <div v-if="form.blog_avatar" class="avatar-preview">
+                <img :src="form.blog_avatar" alt="头像预览" />
               </div>
             </el-form-item>
           </el-tab-pane>
 
           <!-- 技能专长 -->
-          <el-tab-pane
-            label="技能专长"
-            name="skills"
-          >
+          <el-tab-pane label="技能专长" name="skills">
             <el-form-item label="技能标签">
               <el-tag
                 v-for="(skill, index) in skillsList"
@@ -111,116 +70,53 @@
                 @keyup.enter="handleInputConfirm"
                 @blur="handleInputConfirm"
               />
-              <el-button
-                v-else
-                class="button-new-tag"
-                size="small"
-                @click="showInput"
-              >
+              <el-button v-else class="button-new-tag" size="small" @click="showInput">
                 + 添加技能
               </el-button>
             </el-form-item>
 
-            <el-alert
-              title="提示"
-              type="info"
-              :closable="false"
-              style="margin-top: 20px"
-            >
+            <el-alert title="提示" type="info" :closable="false" style="margin-top: 20px">
               技能标签将在"关于博主"模块中展示，建议添加 4-8 个核心技能
             </el-alert>
           </el-tab-pane>
 
           <!-- 联系方式 -->
-          <el-tab-pane
-            label="联系方式"
-            name="contact"
-          >
-            <el-form-item
-              label="邮箱地址"
-              prop="email"
-            >
-              <el-input
-                v-model="form.email"
-                placeholder="请输入邮箱地址"
-                type="email"
-              />
+          <el-tab-pane label="联系方式" name="contact">
+            <el-form-item label="邮箱地址" prop="email">
+              <el-input v-model="form.email" placeholder="请输入邮箱地址" type="email" />
             </el-form-item>
 
-            <el-form-item
-              label="GitHub"
-              prop="github_url"
-            >
-              <el-input
-                v-model="form.github_url"
-                placeholder="请输入GitHub主页链接"
-              >
-                <template #prepend>
-                  https://
-                </template>
+            <el-form-item label="GitHub" prop="github_url">
+              <el-input v-model="form.github_url" placeholder="请输入GitHub主页链接">
+                <template #prepend>https://</template>
               </el-input>
             </el-form-item>
 
-            <el-form-item
-              label="微博"
-              prop="weibo_url"
-            >
-              <el-input
-                v-model="form.weibo_url"
-                placeholder="请输入微博主页链接"
-              >
-                <template #prepend>
-                  https://
-                </template>
+            <el-form-item label="微博" prop="weibo_url">
+              <el-input v-model="form.weibo_url" placeholder="请输入微博主页链接">
+                <template #prepend>https://</template>
               </el-input>
             </el-form-item>
 
-            <el-form-item
-              label="微信二维码"
-              prop="wechat_qr"
-            >
-              <el-input
-                v-model="form.wechat_qr"
-                placeholder="请输入微信二维码图片URL"
-              >
+            <el-form-item label="微信二维码" prop="wechat_qr">
+              <el-input v-model="form.wechat_qr" placeholder="请输入微信二维码图片URL">
                 <template #append>
-                  <el-button @click="showQRUpload = true">
-                    上传
-                  </el-button>
+                  <el-button @click="showQRUpload = true">上传</el-button>
                 </template>
               </el-input>
-              <div
-                v-if="form.wechat_qr"
-                class="qr-preview"
-              >
-                <img
-                  :src="form.wechat_qr"
-                  alt="二维码预览"
-                />
+              <div v-if="form.wechat_qr" class="qr-preview">
+                <img :src="form.wechat_qr" alt="二维码预览" />
               </div>
             </el-form-item>
           </el-tab-pane>
 
           <!-- 博客信息 -->
-          <el-tab-pane
-            label="博客信息"
-            name="blog"
-          >
-            <el-form-item
-              label="博客名称"
-              prop="blog_name"
-            >
-              <el-input
-                v-model="form.blog_name"
-                placeholder="请输入博客名称"
-                maxlength="100"
-              />
+          <el-tab-pane label="博客信息" name="blog">
+            <el-form-item label="博客名称" prop="blog_name">
+              <el-input v-model="form.blog_name" placeholder="请输入博客名称" maxlength="100" />
             </el-form-item>
 
-            <el-form-item
-              label="博客副标题"
-              prop="blog_subtitle"
-            >
+            <el-form-item label="博客副标题" prop="blog_subtitle">
               <el-input
                 v-model="form.blog_subtitle"
                 placeholder="请输入博客副标题"
@@ -228,10 +124,7 @@
               />
             </el-form-item>
 
-            <el-form-item
-              label="关键词"
-              prop="blog_keywords"
-            >
+            <el-form-item label="关键词" prop="blog_keywords">
               <el-input
                 v-model="form.blog_keywords"
                 type="textarea"
@@ -240,24 +133,14 @@
               />
             </el-form-item>
 
-            <el-form-item
-              label="ICP备案号"
-              prop="icp_number"
-            >
-              <el-input
-                v-model="form.icp_number"
-                placeholder="请输入ICP备案号"
-              />
+            <el-form-item label="ICP备案号" prop="icp_number">
+              <el-input v-model="form.icp_number" placeholder="请输入ICP备案号" />
             </el-form-item>
           </el-tab-pane>
         </el-tabs>
 
         <el-form-item style="margin-top: 20px">
-          <el-button
-            type="primary"
-            :loading="loading"
-            @click="submitForm"
-          >
+          <el-button type="primary" :loading="loading" @click="submitForm">
             <i class="el-icon-check"></i>
             保存设置
           </el-button>
@@ -265,10 +148,7 @@
             <i class="el-icon-refresh"></i>
             重置
           </el-button>
-          <el-button
-            type="success"
-            @click="previewSettings"
-          >
+          <el-button type="success" @click="previewSettings">
             <i class="el-icon-view"></i>
             预览效果
           </el-button>
@@ -277,11 +157,7 @@
     </el-card>
 
     <!-- 图片上传对话框 -->
-    <el-dialog
-      v-model="showImageUpload"
-      title="上传头像"
-      width="500px"
-    >
+    <el-dialog v-model="showImageUpload" title="上传头像" width="500px">
       <el-upload
         class="upload-demo"
         drag
@@ -295,19 +171,13 @@
           <em>点击上传</em>
         </div>
         <template #tip>
-          <div class="el-upload__tip">
-            只能上传jpg/png文件，且不超过2MB
-          </div>
+          <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
         </template>
       </el-upload>
     </el-dialog>
 
     <!-- 二维码上传对话框 -->
-    <el-dialog
-      v-model="showQRUpload"
-      title="上传微信二维码"
-      width="500px"
-    >
+    <el-dialog v-model="showQRUpload" title="上传微信二维码" width="500px">
       <el-upload
         class="upload-demo"
         drag
@@ -321,9 +191,7 @@
           <em>点击上传</em>
         </div>
         <template #tip>
-          <div class="el-upload__tip">
-            只能上传jpg/png文件，且不超过2MB
-          </div>
+          <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
         </template>
       </el-upload>
     </el-dialog>

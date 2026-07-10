@@ -8,31 +8,19 @@
       <h3>📊 推荐使用以下监控方式</h3>
       <ul>
         <li>
-          <el-link
-            type="primary"
-            href="/admin/monitor/prometheus"
-            target="_blank"
-          >
+          <el-link type="primary" href="/admin/monitor/prometheus" target="_blank">
             Prometheus 监控
           </el-link>
           - 提供更全面的系统监控指标
         </li>
         <li>
-          <el-link
-            type="primary"
-            href="/admin/monitor/actuator"
-            target="_blank"
-          >
+          <el-link type="primary" href="/admin/monitor/actuator" target="_blank">
             Actuator 监控
           </el-link>
           - Spring Boot 应用健康检查和指标
         </li>
         <li>
-          <el-link
-            type="primary"
-            href="http://localhost:9090"
-            target="_blank"
-          >
+          <el-link type="primary" href="http://localhost:9090" target="_blank">
             Grafana 可视化
           </el-link>
           - 数据可视化仪表板（端口：9090）

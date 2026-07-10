@@ -9,7 +9,7 @@
   </el-scrollbar>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, computed, getCurrentInstance, onMounted, onBeforeUnmount } from 'vue'
 import { useTagsViewStore } from '@/stores/tagsView'
 

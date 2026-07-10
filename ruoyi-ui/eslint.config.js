@@ -194,6 +194,10 @@ export default [
       // Vue 规则
       'vue/multi-word-component-names': 'off',
       'vue/no-v-html': 'off',
+      'vue/html-indent': 'off',
+      'vue/html-quotes': 'off',
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
       'vue/require-default-prop': 'off',
       'vue/require-explicit-emits': 'off',
       'vue/no-mutating-props': 'off',
@@ -222,7 +226,7 @@ export default [
       'no-useless-escape': 'off',
 
       // 代码风格
-      indent: ['error', 2, { SwitchCase: 1 }],
+      indent: 'off',
       quotes: ['error', 'single', { avoidEscape: true }],
       semi: ['error', 'never'],
       'comma-dangle': ['error', 'never'],

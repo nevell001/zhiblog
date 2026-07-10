@@ -3,36 +3,21 @@
     <!-- 统一顶部导航 -->
     <nav class="blog-top-nav">
       <div class="nav-inner">
-        <router-link
-          to="/blog"
-          class="nav-left"
-        >
+        <router-link to="/blog" class="nav-left">
           <div class="brand-logo">
             {{ blogSettings.blog_name?.charAt(0) || '博' }}
           </div>
           <span class="brand-name">{{ blogSettings.blog_name || '我的博客' }}</span>
         </router-link>
         <div class="nav-center">
-          <router-link
-            v-for="menu in menus"
-            :key="menu.path"
-            :to="menu.path"
-            class="nav-link"
-          >
+          <router-link v-for="menu in menus" :key="menu.path" :to="menu.path" class="nav-link">
             {{ menu.name }}
           </router-link>
         </div>
         <div class="nav-right">
-          <el-dropdown
-            v-if="userStore.token"
-            trigger="click"
-            @command="handleUserCommand"
-          >
+          <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
             <div class="user-info">
-              <el-avatar
-                :size="30"
-                :src="userStore.avatar"
-              >
+              <el-avatar :size="30" :src="userStore.avatar">
                 <el-icon><UserFilled /></el-icon>
               </el-avatar>
               <span class="username">{{ userStore.name }}</span>
@@ -42,10 +27,7 @@
             </div>
             <template #dropdown>
               <el-dropdown-menu>
-                <el-dropdown-item
-                  v-if="userStore.userType === '00'"
-                  @click="goToAdmin"
-                >
+                <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
                   <el-icon><Setting /></el-icon>
                   管理后台
                 </el-dropdown-item>
@@ -53,29 +35,17 @@
                   <el-icon><User /></el-icon>
                   个人中心
                 </el-dropdown-item>
-                <el-dropdown-item
-                  divided
-                  command="logout"
-                >
+                <el-dropdown-item divided command="logout">
                   <el-icon><SwitchButton /></el-icon>
                   退出登录
                 </el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
-          <el-button
-            v-else
-            size="small"
-            type="primary"
-            @click="$router.push('/login')"
-          >
+          <el-button v-else size="small" type="primary" @click="$router.push('/login')">
             登录
           </el-button>
-          <button
-            class="theme-btn"
-            :title="isDark ? '切换亮色' : '切换深色'"
-            @click="toggleTheme"
-          >
+          <button class="theme-btn" :title="isDark ? '切换亮色' : '切换深色'" @click="toggleTheme">
             <svg
               v-if="isDark"
               width="18"
@@ -85,59 +55,15 @@
               stroke="currentColor"
               stroke-width="2"
             >
-              <circle
-                cx="12"
-                cy="12"
-                r="5"
-              />
-              <line
-                x1="12"
-                y1="1"
-                x2="12"
-                y2="3"
-              />
-              <line
-                x1="12"
-                y1="21"
-                x2="12"
-                y2="23"
-              />
-              <line
-                x1="4.22"
-                y1="4.22"
-                x2="5.64"
-                y2="5.64"
-              />
-              <line
-                x1="18.36"
-                y1="18.36"
-                x2="19.78"
-                y2="19.78"
-              />
-              <line
-                x1="1"
-                y1="12"
-                x2="3"
-                y2="12"
-              />
-              <line
-                x1="21"
-                y1="12"
-                x2="23"
-                y2="12"
-              />
-              <line
-                x1="4.22"
-                y1="19.78"
-                x2="5.64"
-                y2="18.36"
-              />
-              <line
-                x1="18.36"
-                y1="5.64"
-                x2="19.78"
-                y2="4.22"
-              />
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
             </svg>
             <svg
               v-else
@@ -161,10 +87,7 @@
     <!-- 统一底部 -->
     <footer class="blog-site-footer">
       <div class="footer-wave">
-        <svg
-          viewBox="0 0 1440 60"
-          preserveAspectRatio="none"
-        >
+        <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
           <path
             fill="currentColor"
             d="M0,30L80,25C160,20,320,15,480,20C640,25,800,35,960,30C1120,25,1280,15,1360,10L1440,5L1440,60L1360,60C1280,60,1120,60,960,60C800,60,640,60,480,60C320,60,160,60,80,60L0,60Z"
@@ -186,21 +109,11 @@
         <div class="footer-links">
           <div class="footer-col">
             <h4>快速导航</h4>
-            <router-link to="/blog">
-              首页
-            </router-link>
-            <router-link to="/blog/category">
-              分类
-            </router-link>
-            <router-link to="/blog/tag">
-              标签
-            </router-link>
-            <router-link to="/blog/archive">
-              归档
-            </router-link>
-            <router-link to="/blog/about">
-              关于
-            </router-link>
+            <router-link to="/blog">首页</router-link>
+            <router-link to="/blog/category">分类</router-link>
+            <router-link to="/blog/tag">标签</router-link>
+            <router-link to="/blog/archive">归档</router-link>
+            <router-link to="/blog/about">关于</router-link>
           </div>
           <div class="footer-col">
             <h4>社交平台</h4>
@@ -218,10 +131,7 @@
             >
               微博
             </a>
-            <a
-              :href="rssUrl"
-              target="_blank"
-            >RSS订阅</a>
+            <a :href="rssUrl" target="_blank">RSS订阅</a>
           </div>
         </div>
       </div>
@@ -230,9 +140,7 @@
           © {{ currentYear }}
           {{ blogSettings.blog_author || blogSettings.blog_name || '我的博客' }} · 保留所有权利
         </p>
-        <p class="tech-info">
-          Powered by RuoYi-Vue & Element Plus
-        </p>
+        <p class="tech-info">Powered by RuoYi-Vue & Element Plus</p>
       </div>
     </footer>
   </div>

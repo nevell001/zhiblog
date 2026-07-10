@@ -4,9 +4,7 @@
       <el-row :gutter="20">
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">
-              总用户数
-            </div>
+            <div class="stat-title">总用户数</div>
             <div class="stat-value">
               {{ userStats.totalCount || 0 }}
             </div>
@@ -14,9 +12,7 @@
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">
-              活跃用户
-            </div>
+            <div class="stat-title">活跃用户</div>
             <div class="stat-value">
               {{ userStats.activeCount || 0 }}
             </div>
@@ -24,9 +20,7 @@
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">
-              新增用户
-            </div>
+            <div class="stat-title">新增用户</div>
             <div class="stat-value">
               {{ userStats.newCount || 0 }}
             </div>
@@ -34,9 +28,7 @@
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">
-              管理员数
-            </div>
+            <div class="stat-title">管理员数</div>
             <div class="stat-value">
               {{ userStats.adminCount || 0 }}
             </div>
@@ -44,24 +36,15 @@
         </el-col>
       </el-row>
 
-      <el-row
-        :gutter="20"
-        style="margin-top: 30px"
-      >
+      <el-row :gutter="20" style="margin-top: 30px">
         <el-col :span="12">
           <el-card header="用户注册趋势">
-            <div
-              id="registerChart"
-              style="height: 300px"
-            ></div>
+            <div id="registerChart" style="height: 300px"></div>
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card header="用户角色分布">
-            <div
-              id="roleChart"
-              style="height: 300px"
-            ></div>
+            <div id="roleChart" style="height: 300px"></div>
           </el-card>
         </el-col>
       </el-row>

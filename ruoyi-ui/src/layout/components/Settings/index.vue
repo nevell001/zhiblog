@@ -7,28 +7,17 @@
     size="300px"
   >
     <div class="setting-drawer-title">
-      <h3 class="drawer-title">
-        主题风格设置
-      </h3>
+      <h3 class="drawer-title">主题风格设置</h3>
     </div>
     <div class="setting-drawer-block-checbox">
-      <div
-        class="setting-drawer-block-checbox-item"
-        @click="handleTheme('theme-dark')"
-      >
-        <img
-          src="@/assets/images/dark.svg"
-          alt="dark"
-        />
+      <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-dark')">
+        <img src="@/assets/images/dark.svg" alt="dark" />
         <div
           v-if="sideTheme === 'theme-dark'"
           class="setting-drawer-block-checbox-selectIcon"
           style="display: block"
         >
-          <i
-            aria-label="图标: check"
-            class="anticon anticon-check"
-          >
+          <i aria-label="图标: check" class="anticon anticon-check">
             <svg
               viewBox="64 64 896 896"
               data-icon="check"
@@ -46,23 +35,14 @@
           </i>
         </div>
       </div>
-      <div
-        class="setting-drawer-block-checbox-item"
-        @click="handleTheme('theme-light')"
-      >
-        <img
-          src="@/assets/images/light.svg"
-          alt="light"
-        />
+      <div class="setting-drawer-block-checbox-item" @click="handleTheme('theme-light')">
+        <img src="@/assets/images/light.svg" alt="light" />
         <div
           v-if="sideTheme === 'theme-light'"
           class="setting-drawer-block-checbox-selectIcon"
           style="display: block"
         >
-          <i
-            aria-label="图标: check"
-            class="anticon anticon-check"
-          >
+          <i aria-label="图标: check" class="anticon anticon-check">
             <svg
               viewBox="64 64 896 896"
               data-icon="check"
@@ -84,37 +64,24 @@
     <div class="drawer-item">
       <span>主题颜色</span>
       <span class="comp-style">
-        <el-color-picker
-          v-model="theme"
-          :predefine="predefineColors"
-          @change="themeChange"
-        />
+        <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
       </span>
     </div>
     <el-divider />
 
-    <h3 class="drawer-title">
-      系统布局配置
-    </h3>
+    <h3 class="drawer-title">系统布局配置</h3>
 
     <div class="drawer-item">
       <span>开启 TopNav</span>
       <span class="comp-style">
-        <el-switch
-          v-model="settingsStore.topNav"
-          class="drawer-switch"
-          @change="topNavChange"
-        />
+        <el-switch v-model="settingsStore.topNav" class="drawer-switch" @change="topNavChange" />
       </span>
     </div>
 
     <div class="drawer-item">
       <span>开启 Tags-Views</span>
       <span class="comp-style">
-        <el-switch
-          v-model="settingsStore.tagsView"
-          class="drawer-switch"
-        />
+        <el-switch v-model="settingsStore.tagsView" class="drawer-switch" />
       </span>
     </div>
 
@@ -132,20 +99,14 @@
     <div class="drawer-item">
       <span>固定 Header</span>
       <span class="comp-style">
-        <el-switch
-          v-model="settingsStore.fixedHeader"
-          class="drawer-switch"
-        />
+        <el-switch v-model="settingsStore.fixedHeader" class="drawer-switch" />
       </span>
     </div>
 
     <div class="drawer-item">
       <span>显示 Logo</span>
       <span class="comp-style">
-        <el-switch
-          v-model="settingsStore.sidebarLogo"
-          class="drawer-switch"
-        />
+        <el-switch v-model="settingsStore.sidebarLogo" class="drawer-switch" />
       </span>
     </div>
 
@@ -163,34 +124,18 @@
     <div class="drawer-item">
       <span>底部版权</span>
       <span class="comp-style">
-        <el-switch
-          v-model="settingsStore.footerVisible"
-          class="drawer-switch"
-        />
+        <el-switch v-model="settingsStore.footerVisible" class="drawer-switch" />
       </span>
     </div>
 
     <el-divider />
 
-    <el-button
-      type="primary"
-      plain
-      icon="DocumentAdd"
-      @click="saveSetting"
-    >
-      保存配置
-    </el-button>
-    <el-button
-      plain
-      icon="Refresh"
-      @click="resetSetting"
-    >
-      重置配置
-    </el-button>
+    <el-button type="primary" plain icon="DocumentAdd" @click="saveSetting">保存配置</el-button>
+    <el-button plain icon="Refresh" @click="resetSetting">重置配置</el-button>
   </el-drawer>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { getCurrentInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'

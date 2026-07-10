@@ -8,10 +8,7 @@
       label-width="68px"
       class="search-form"
     >
-      <el-form-item
-        label="友链名称"
-        prop="name"
-      >
+      <el-form-item label="友链名称" prop="name">
         <el-input
           v-model="queryParams.name"
           placeholder="请输入友链名称"
@@ -21,11 +18,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="URL"
-        prop="url"
-        class="hidden-sm-and-down"
-      >
+      <el-form-item label="URL" prop="url" class="hidden-sm-and-down">
         <el-input
           v-model="queryParams.url"
           placeholder="请输入URL"
@@ -36,33 +29,13 @@
         />
       </el-form-item>
       <el-form-item label="">
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
-      <el-col
-        :xs="6"
-        :sm="6"
-        :md="4"
-        :lg="3"
-        :xl="1.5"
-      >
+    <el-row :gutter="10" class="mb8">
+      <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
           v-hasPermi="['blog:friendLink:add']"
           type="primary"
@@ -74,13 +47,7 @@
           新增
         </el-button>
       </el-col>
-      <el-col
-        :xs="6"
-        :sm="6"
-        :md="4"
-        :lg="3"
-        :xl="1.5"
-      >
+      <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
           v-hasPermi="['blog:friendLink:edit']"
           type="success"
@@ -93,13 +60,7 @@
           修改
         </el-button>
       </el-col>
-      <el-col
-        :xs="6"
-        :sm="6"
-        :md="4"
-        :lg="3"
-        :xl="1.5"
-      >
+      <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
           v-hasPermi="['blog:friendLink:remove']"
           type="danger"
@@ -112,13 +73,7 @@
           删除
         </el-button>
       </el-col>
-      <el-col
-        :xs="6"
-        :sm="6"
-        :md="4"
-        :lg="3"
-        :xl="1.5"
-      >
+      <el-col :xs="6" :sm="6" :md="4" :lg="3" :xl="1.5">
         <el-button
           v-hasPermi="['blog:friendLink:export']"
           type="warning"
@@ -145,23 +100,9 @@
       border
       @selection-change="handleSelectionChange"
     >
-      <el-table-column
-        type="selection"
-        width="55"
-        align="center"
-      />
-      <el-table-column
-        label="友链ID"
-        align="center"
-        prop="id"
-        width="80"
-      />
-      <el-table-column
-        label="友链名称"
-        align="center"
-        prop="name"
-        min-width="120"
-      />
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="友链ID" align="center" prop="id" width="80" />
+      <el-table-column label="友链名称" align="center" prop="name" min-width="120" />
       <el-table-column
         label="URL"
         align="center"
@@ -203,12 +144,7 @@
         width="70"
         class="hidden-sm-and-down"
       />
-      <el-table-column
-        label="状态"
-        align="center"
-        prop="status"
-        width="100"
-      >
+      <el-table-column label="状态" align="center" prop="status" width="100">
         <template #default="scope">
           <el-switch
             v-model="scope.row.status"
@@ -242,10 +178,7 @@
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
-          <el-tooltip
-            content="修改"
-            placement="top"
-          >
+          <el-tooltip content="修改" placement="top">
             <el-button
               v-hasPermi="['blog:friendLink:edit']"
               link
@@ -255,10 +188,7 @@
               @click="handleUpdate(scope.row)"
             />
           </el-tooltip>
-          <el-tooltip
-            content="删除"
-            placement="top"
-          >
+          <el-tooltip content="删除" placement="top">
             <el-button
               v-hasPermi="['blog:friendLink:remove']"
               link
@@ -282,22 +212,9 @@
     />
 
     <!-- 添加或修改友链对话框 -->
-    <el-dialog
-      v-model="open"
-      :title="title"
-      :width="dialogWidth"
-      append-to-body
-    >
-      <el-form
-        ref="friendLinkRef"
-        :model="form"
-        :rules="rules"
-        label-width="80px"
-      >
-        <el-form-item
-          label="友链名称"
-          prop="name"
-        >
+    <el-dialog v-model="open" :title="title" :width="dialogWidth" append-to-body>
+      <el-form ref="friendLinkRef" :model="form" :rules="rules" label-width="80px">
+        <el-form-item label="友链名称" prop="name">
           <el-input
             v-model="form.name"
             placeholder="请输入友链名称"
@@ -305,21 +222,10 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item
-          label="URL"
-          prop="url"
-        >
-          <el-input
-            v-model="form.url"
-            placeholder="请输入URL"
-            :maxlength="200"
-            show-word-limit
-          />
+        <el-form-item label="URL" prop="url">
+          <el-input v-model="form.url" placeholder="请输入URL" :maxlength="200" show-word-limit />
         </el-form-item>
-        <el-form-item
-          label="Logo"
-          prop="logo"
-        >
+        <el-form-item label="Logo" prop="logo">
           <el-input
             v-model="form.logo"
             placeholder="请输入Logo URL"
@@ -327,10 +233,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item
-          label="描述"
-          prop="description"
-        >
+        <el-form-item label="描述" prop="description">
           <el-input
             v-model="form.description"
             type="textarea"
@@ -340,10 +243,7 @@
             :rows="3"
           />
         </el-form-item>
-        <el-form-item
-          label="排序"
-          prop="sort"
-        >
+        <el-form-item label="排序" prop="sort">
           <el-input-number
             v-model="form.sort"
             :min="0"
@@ -352,38 +252,24 @@
             controls-position="right"
           />
         </el-form-item>
-        <el-form-item
-          label="状态"
-          prop="status"
-        >
+        <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="1">
-              正常
-            </el-radio>
-            <el-radio label="0">
-              停用
-            </el-radio>
+            <el-radio label="1">正常</el-radio>
+            <el-radio label="0">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button
-            type="primary"
-            @click="submitForm"
-          >
-            确 定
-          </el-button>
-          <el-button @click="cancel">
-            取 消
-          </el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
         </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup name="BlogFriendLink">
+<script setup lang="ts" name="BlogFriendLink">
 import { ref, reactive, toRefs, getCurrentInstance, onMounted, computed, onUnmounted } from 'vue'
 import {
   listFriendLink,

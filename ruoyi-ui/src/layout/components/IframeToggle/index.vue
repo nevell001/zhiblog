@@ -8,7 +8,7 @@
   />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import InnerLink from '../InnerLink/index'
 import { useTagsViewStore } from '@/stores/tagsView'
 

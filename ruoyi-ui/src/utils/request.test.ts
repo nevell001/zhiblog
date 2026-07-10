@@ -596,14 +596,14 @@ describe('Request 工具函数测试', () => {
     })
 
     it('应该检查请求大小限制', () => {
-      const largeData = 'a'.repeat(10 * 1024 * 1024) // 10MB
-      const requestObj = {
+      const largeDataLength = 10 * 1024 * 1024 // 10MB
+      const requestObjWithoutData = {
         url: '/api/test',
-        data: largeData,
+        data: '',
         time: new Date().getTime()
       }
 
-      const requestSize = Object.keys(JSON.stringify(requestObj)).length
+      const requestSize = JSON.stringify(requestObjWithoutData).length + largeDataLength
       const limitSize = 5 * 1024 * 1024
 
       expect(requestSize).toBeGreaterThan(limitSize)

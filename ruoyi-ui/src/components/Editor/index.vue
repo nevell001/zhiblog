@@ -11,10 +11,7 @@
       :headers="headers"
       class="editor-img-uploader"
     >
-      <i
-        ref="uploadRef"
-        class="editor-img-uploader"
-      ></i>
+      <i ref="uploadRef" class="editor-img-uploader"></i>
     </el-upload>
   </div>
   <div class="editor">
@@ -344,7 +341,7 @@ function handleUploadSuccess(res, file) {
       quill.insertEmbed(length, 'image', baseApi + res.fileName)
     } else if (fileType.startsWith('video/')) {
       // 插入视频
-      quill.insertEmbed(length, 'video', import.meta.env.VITE_APP_BASE_API + res.fileName)
+      quill.insertEmbed(length, 'video', baseApi + res.fileName)
     }
 
     // 调整光标到最后

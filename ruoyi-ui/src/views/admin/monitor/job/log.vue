@@ -7,10 +7,7 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item
-        label="任务名称"
-        prop="jobName"
-      >
+      <el-form-item label="任务名称" prop="jobName">
         <el-input
           v-model="queryParams.jobName"
           placeholder="请输入任务名称"
@@ -19,10 +16,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="任务组名"
-        prop="jobGroup"
-      >
+      <el-form-item label="任务组名" prop="jobGroup">
         <el-select
           v-model="queryParams.jobGroup"
           placeholder="请选择任务组名"
@@ -37,10 +31,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="执行状态"
-        prop="status"
-      >
+      <el-form-item label="执行状态" prop="status">
         <el-select
           v-model="queryParams.status"
           placeholder="请选择执行状态"
@@ -55,10 +46,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="执行时间"
-        style="width: 308px"
-      >
+      <el-form-item label="执行时间" style="width: 308px">
         <el-date-picker
           v-model="dateRange"
           value-format="YYYY-MM-DD"
@@ -69,26 +57,12 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['monitor:job:remove']"
@@ -124,37 +98,14 @@
         </el-button>
       </el-col>
       <el-col :span="1.5">
-        <el-button
-          type="warning"
-          plain
-          icon="Close"
-          @click="handleClose"
-        >
-          关闭
-        </el-button>
+        <el-button type="warning" plain icon="Close" @click="handleClose">关闭</el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
-    <el-table
-      v-loading="loading"
-      :data="jobLogList"
-      @selection-change="handleSelectionChange"
-    >
-      <el-table-column
-        type="selection"
-        width="55"
-        align="center"
-      />
-      <el-table-column
-        label="日志编号"
-        width="80"
-        align="center"
-        prop="jobLogId"
-      />
+    <el-table v-loading="loading" :data="jobLogList" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="55" align="center" />
+      <el-table-column label="日志编号" width="80" align="center" prop="jobLogId" />
       <el-table-column
         label="任务名称"
         align="center"
@@ -168,10 +119,7 @@
         :show-overflow-tooltip="true"
       >
         <template #default="scope">
-          <dict-tag
-            :options="sys_job_group"
-            :value="scope.row.jobGroup"
-          />
+          <dict-tag :options="sys_job_group" :value="scope.row.jobGroup" />
         </template>
       </el-table-column>
       <el-table-column
@@ -186,33 +134,17 @@
         prop="jobMessage"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        label="执行状态"
-        align="center"
-        prop="status"
-      >
+      <el-table-column label="执行状态" align="center" prop="status">
         <template #default="scope">
-          <dict-tag
-            :options="sys_common_status"
-            :value="scope.row.status"
-          />
+          <dict-tag :options="sys_common_status" :value="scope.row.status" />
         </template>
       </el-table-column>
-      <el-table-column
-        label="执行时间"
-        align="center"
-        prop="createTime"
-        width="180"
-      >
+      <el-table-column label="执行时间" align="center" prop="createTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
             v-hasPermi="['monitor:job:query']"
@@ -236,16 +168,8 @@
     />
 
     <!-- 调度日志详细 -->
-    <el-dialog
-      v-model="open"
-      title="调度日志详细"
-      width="700px"
-      append-to-body
-    >
-      <el-form
-        :model="form"
-        label-width="100px"
-      >
+    <el-dialog v-model="open" title="调度日志详细" width="700px" append-to-body>
+      <el-form :model="form" label-width="100px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="日志序号：">
@@ -275,19 +199,12 @@
           </el-col>
           <el-col :span="24">
             <el-form-item label="执行状态：">
-              <div v-if="form.status == 0">
-                正常
-              </div>
-              <div v-else-if="form.status == 1">
-                失败
-              </div>
+              <div v-if="form.status == 0">正常</div>
+              <div v-else-if="form.status == 1">失败</div>
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item
-              v-if="form.status == 1"
-              label="异常信息："
-            >
+            <el-form-item v-if="form.status == 1" label="异常信息：">
               {{ form.exceptionInfo }}
             </el-form-item>
           </el-col>
@@ -295,16 +212,14 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="open = false">
-            关 闭
-          </el-button>
+          <el-button @click="open = false">关 闭</el-button>
         </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup name="JobLog">
+<script setup lang="ts" name="JobLog">
 import { getJob } from '@/api/monitor/job'
 import { listJobLog, delJobLog, cleanJobLog } from '@/api/monitor/jobLog'
 

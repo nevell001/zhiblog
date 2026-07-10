@@ -1,28 +1,15 @@
 <template>
   <div class="app-container">
-    <el-card
-      shadow="never"
-      class="blog-setting-card"
-    >
+    <el-card shadow="never" class="blog-setting-card">
       <template #header>
         <div class="card-header">
           <span class="card-title">{{ tabTitle }}</span>
           <div class="card-extra">
-            <el-button
-              type="primary"
-              size="small"
-              :loading="loading"
-              @click="saveAllSettings"
-            >
+            <el-button type="primary" size="small" :loading="loading" @click="saveAllSettings">
               <i class="el-icon-check"></i>
               保存所有设置
             </el-button>
-            <el-button
-              type="warning"
-              size="small"
-              :loading="loading"
-              @click="resetSettings"
-            >
+            <el-button type="warning" size="small" :loading="loading" @click="resetSettings">
               <i class="el-icon-refresh"></i>
               重置设置
             </el-button>
@@ -30,30 +17,17 @@
         </div>
       </template>
 
-      <el-tabs
-        v-model="activeTab"
-        class="blog-setting-tabs"
-      >
+      <el-tabs v-model="activeTab" class="blog-setting-tabs">
         <!-- 站点信息 -->
-        <el-tab-pane
-          label="站点信息"
-          name="basic"
-        >
-          <el-form
-            ref="basicForm"
-            :model="settingsMap"
-            label-width="120px"
-          >
+        <el-tab-pane label="站点信息" name="basic">
+          <el-form ref="basicForm" :model="settingsMap" label-width="120px">
             <el-alert
               title="站点信息将在博客首页、关于页面等位置显示"
               type="info"
               :closable="false"
               style="margin-bottom: 20px"
             />
-            <el-form-item
-              label="博客名称"
-              prop="blog_name"
-            >
+            <el-form-item label="博客名称" prop="blog_name">
               <el-input
                 v-model="settingsMap.blog_name"
                 placeholder="请输入博客名称"
@@ -61,10 +35,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="博客描述"
-              prop="blog_desc"
-            >
+            <el-form-item label="博客描述" prop="blog_desc">
               <el-input
                 v-model="settingsMap.blog_desc"
                 type="textarea"
@@ -74,10 +45,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="博客作者"
-              prop="blog_author"
-            >
+            <el-form-item label="博客作者" prop="blog_author">
               <el-input
                 v-model="settingsMap.blog_author"
                 placeholder="请输入博客作者"
@@ -85,10 +53,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="版权信息"
-              prop="blog_copyright"
-            >
+            <el-form-item label="版权信息" prop="blog_copyright">
               <el-input
                 v-model="settingsMap.blog_copyright"
                 placeholder="请输入版权信息，如：© 2025 My Blog"
@@ -96,10 +61,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="备案信息"
-              prop="blog_beian"
-            >
+            <el-form-item label="备案信息" prop="blog_beian">
               <el-input
                 v-model="settingsMap.blog_beian"
                 placeholder="请输入ICP备案信息，如：京ICP备12345678号"
@@ -160,25 +122,15 @@
         </el-tab-pane>
 
         <!-- 功能设置 -->
-        <el-tab-pane
-          label="功能设置"
-          name="features"
-        >
-          <el-form
-            ref="featuresForm"
-            :model="settingsMap"
-            label-width="120px"
-          >
+        <el-tab-pane label="功能设置" name="features">
+          <el-form ref="featuresForm" :model="settingsMap" label-width="120px">
             <!-- 互动功能 -->
             <el-divider content-position="left">
               <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
                 互动功能
               </span>
             </el-divider>
-            <el-form-item
-              label="评论功能"
-              prop="comment_enabled"
-            >
+            <el-form-item label="评论功能" prop="comment_enabled">
               <el-switch v-model="settingsMap.comment_enabled" />
               <span
                 style="
@@ -206,10 +158,7 @@
                 新评论需要管理员审核后才能显示
               </span>
             </el-form-item>
-            <el-form-item
-              label="点赞功能"
-              prop="like_enabled"
-            >
+            <el-form-item label="点赞功能" prop="like_enabled">
               <el-switch v-model="settingsMap.like_enabled" />
               <span
                 style="
@@ -228,10 +177,7 @@
                 内容功能
               </span>
             </el-divider>
-            <el-form-item
-              label="浏览统计"
-              prop="view_count_enabled"
-            >
+            <el-form-item label="浏览统计" prop="view_count_enabled">
               <el-switch v-model="settingsMap.view_count_enabled" />
               <span
                 style="
@@ -243,10 +189,7 @@
                 统计文章浏览次数
               </span>
             </el-form-item>
-            <el-form-item
-              label="分享功能"
-              prop="share_enabled"
-            >
+            <el-form-item label="分享功能" prop="share_enabled">
               <el-switch v-model="settingsMap.share_enabled" />
               <span
                 style="
@@ -258,10 +201,7 @@
                 允许访客分享文章到社交媒体
               </span>
             </el-form-item>
-            <el-form-item
-              label="搜索功能"
-              prop="search_enabled"
-            >
+            <el-form-item label="搜索功能" prop="search_enabled">
               <el-switch v-model="settingsMap.search_enabled" />
               <span
                 style="
@@ -280,10 +220,7 @@
                 界面设置
               </span>
             </el-divider>
-            <el-form-item
-              label="显示侧边栏"
-              prop="sidebar_enabled"
-            >
+            <el-form-item label="显示侧边栏" prop="sidebar_enabled">
               <el-switch v-model="settingsMap.sidebar_enabled" />
               <span
                 style="
@@ -295,10 +232,7 @@
                 在博客首页显示侧边栏
               </span>
             </el-form-item>
-            <el-form-item
-              label="显示底部"
-              prop="footer_enabled"
-            >
+            <el-form-item label="显示底部" prop="footer_enabled">
               <el-switch v-model="settingsMap.footer_enabled" />
               <span
                 style="
@@ -310,10 +244,7 @@
                 在博客页面底部显示页脚信息
               </span>
             </el-form-item>
-            <el-form-item
-              label="显示版权"
-              prop="copyright_enabled"
-            >
+            <el-form-item label="显示版权" prop="copyright_enabled">
               <el-switch v-model="settingsMap.copyright_enabled" />
               <span
                 style="
@@ -329,15 +260,8 @@
         </el-tab-pane>
 
         <!-- 个人信息 -->
-        <el-tab-pane
-          label="个人信息"
-          name="author"
-        >
-          <el-form
-            ref="authorForm"
-            :model="settingsMap"
-            label-width="120px"
-          >
+        <el-tab-pane label="个人信息" name="author">
+          <el-form ref="authorForm" :model="settingsMap" label-width="120px">
             <el-alert
               title="个人信息将在关于页面和博客侧边栏显示"
               type="info"
@@ -350,10 +274,7 @@
                 基本信息
               </span>
             </el-divider>
-            <el-form-item
-              label="作者职位"
-              prop="author_title"
-            >
+            <el-form-item label="作者职位" prop="author_title">
               <el-input
                 v-model="settingsMap.author_title"
                 placeholder="请输入作者职位，如：全栈开发工程师"
@@ -361,10 +282,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="个人简介"
-              prop="author_bio"
-            >
+            <el-form-item label="个人简介" prop="author_bio">
               <el-input
                 v-model="settingsMap.author_bio"
                 type="textarea"
@@ -374,10 +292,7 @@
                 show-word-limit
               />
             </el-form-item>
-            <el-form-item
-              label="位置信息"
-              prop="author_location"
-            >
+            <el-form-item label="位置信息" prop="author_location">
               <el-input
                 v-model="settingsMap.author_location"
                 placeholder="请输入位置信息，如：中国·北京"
@@ -392,10 +307,7 @@
                 联系方式
               </span>
             </el-divider>
-            <el-form-item
-              label="联系邮箱"
-              prop="blog_email"
-            >
+            <el-form-item label="联系邮箱" prop="blog_email">
               <el-input
                 v-model="settingsMap.blog_email"
                 placeholder="请输入联系邮箱"
@@ -410,10 +322,7 @@
                 社交媒体
               </span>
             </el-divider>
-            <el-form-item
-              label="GitHub地址"
-              prop="github_url"
-            >
+            <el-form-item label="GitHub地址" prop="github_url">
               <el-input
                 v-model="settingsMap.github_url"
                 placeholder="请输入GitHub地址"
@@ -425,10 +334,7 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item
-              label="微博地址"
-              prop="weibo_url"
-            >
+            <el-form-item label="微博地址" prop="weibo_url">
               <el-input
                 v-model="settingsMap.weibo_url"
                 placeholder="请输入微博地址"
@@ -440,10 +346,7 @@
                 </template>
               </el-input>
             </el-form-item>
-            <el-form-item
-              label="个人网站"
-              prop="personal_website"
-            >
+            <el-form-item label="个人网站" prop="personal_website">
               <el-input
                 v-model="settingsMap.personal_website"
                 placeholder="请输入个人网站地址"
@@ -459,29 +362,16 @@
         </el-tab-pane>
 
         <!-- 关于页面 -->
-        <el-tab-pane
-          label="关于页面"
-          name="other"
-        >
-          <el-form
-            ref="otherForm"
-            :model="settingsMap"
-            label-width="120px"
-          >
+        <el-tab-pane label="关于页面" name="other">
+          <el-form ref="otherForm" :model="settingsMap" label-width="120px">
             <el-alert
               title="关于页面内容将在博客的关于页面显示，支持富文本编辑"
               type="info"
               :closable="false"
               style="margin-bottom: 20px"
             />
-            <el-form-item
-              label="关于页面内容"
-              prop="about_content"
-            >
-              <editor
-                v-model="settingsMap.about_content"
-                :min-height="400"
-              />
+            <el-form-item label="关于页面内容" prop="about_content">
+              <editor v-model="settingsMap.about_content" :min-height="400" />
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -497,13 +387,7 @@
             <span style="color: var(--el-color-primary, #409eff); font-weight: bold">
               🎨 图片压缩功能
             </span>
-            <el-tag
-              type="success"
-              size="small"
-              style="margin-left: 10px"
-            >
-              已启用
-            </el-tag>
+            <el-tag type="success" size="small" style="margin-left: 10px">已启用</el-tag>
           </div>
         </template>
         <el-row :gutter="20">
@@ -564,7 +448,7 @@
   </div>
 </template>
 
-<script setup name="BlogSetting">
+<script setup lang="ts" name="BlogSetting">
 import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import {
@@ -635,8 +519,7 @@ const tabTitle = computed(() => {
 })
 
 // 监听activeTab变化，用于调试
-watch(activeTab, (newVal, oldVal) => {
-})
+watch(activeTab, (newVal, oldVal) => {})
 
 // 监听tabTitle变化，确保标题正确更新
 watch(tabTitle, newVal => {
@@ -659,7 +542,6 @@ const processedAvatarUrl = computed(() => {
 async function getAllSettings() {
   loading.value = true
   try {
-
     // 强制清除可能的缓存，使用多重策略
     const timestamp = new Date().getTime()
     const randomNonce = Math.random().toString(36).substring(7)
@@ -761,7 +643,6 @@ async function getAllSettings() {
       .filter(key => loadCriticalKeys.includes(key))
 
     if (foundCriticalKeys.length < 3) {
-
       // 只查询缺失的关键设置，减少API调用
       const missingKeys = loadCriticalKeys.filter(key => !foundCriticalKeys.includes(key))
       const batchQuery = {
@@ -828,7 +709,6 @@ async function getAllSettings() {
 
     // 如果还是没有找到博客设置，尝试强制刷新和延迟重试
     if (allSettings.length <= 10) {
-
       // 减少延迟时间到500毫秒，提高响应速度
       await new Promise(resolve => setTimeout(resolve, 500))
 
@@ -1180,7 +1060,6 @@ async function saveAllSettings() {
           key,
           value: value
         })
-
       }
     }
 
@@ -1196,7 +1075,6 @@ async function saveAllSettings() {
     const results = []
 
     for (const setting of modifiedSettings) {
-
       try {
         // 处理日期类型的值
         let processedValue = setting.value
@@ -1408,7 +1286,6 @@ function validateAvatarUrl(url) {
  */
 async function handleSingleSettingChange(key, value) {
   try {
-
     // 处理日期类型的值
     let processedValue = value
     if (value instanceof Date) {
@@ -1497,7 +1374,6 @@ function handleAvatarUploadSuccess(response, uploadFile) {
 
 // 添加一个测试函数用于验证数据库连接
 async function testDatabaseConnection() {
-
   try {
     // 1. 测试获取所有设置
     const allSettingsResponse = await listSetting({})
@@ -1526,7 +1402,6 @@ async function testDatabaseConnection() {
     } catch (testErr) {
       console.error('测试设置操作失败:', testErr)
     }
-
   } catch (error) {
     console.error('数据库连接测试失败:', error)
   }

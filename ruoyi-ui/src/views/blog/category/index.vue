@@ -22,14 +22,8 @@
 
           <!-- 返回按钮 -->
           <div class="back-button">
-            <router-link
-              to="/"
-              class="back-link"
-            >
-              <el-button
-                type="default"
-                plain
-              >
+            <router-link to="/" class="back-link">
+              <el-button type="default" plain>
                 <i class="el-icon-arrow-left"></i>
                 返回首页
               </el-button>
@@ -42,10 +36,7 @@
       <div class="category-main">
         <div class="main-content">
           <!-- 加载状态 -->
-          <div
-            v-if="loading"
-            class="loading-container"
-          >
+          <div v-if="loading" class="loading-container">
             <div class="loading-grid">
               <el-skeleton
                 v-for="i in 6"
@@ -57,42 +48,18 @@
                 <template #template>
                   <div class="article-item">
                     <div class="article-cover">
-                      <el-skeleton-item
-                        variant="image"
-                        style="width: 100%; height: 200px"
-                      />
+                      <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
                     </div>
                     <div class="article-content">
-                      <el-skeleton-item
-                        variant="h3"
-                        style="width: 70%; margin-bottom: 15px"
-                      />
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 100%; margin-bottom: 10px"
-                      />
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 90%; margin-bottom: 10px"
-                      />
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 60%; margin-bottom: 15px"
-                      />
+                      <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
+                      <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
+                      <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
+                      <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
                       <div style="display: flex; gap: 8px; margin-bottom: 15px">
-                        <el-skeleton-item
-                          variant="text"
-                          style="width: 60px; height: 24px"
-                        />
-                        <el-skeleton-item
-                          variant="text"
-                          style="width: 50px; height: 24px"
-                        />
+                        <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
+                        <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
                       </div>
-                      <el-skeleton-item
-                        variant="text"
-                        style="width: 80px; height: 20px"
-                      />
+                      <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
                     </div>
                   </div>
                 </template>
@@ -101,58 +68,34 @@
           </div>
 
           <!-- 空状态 -->
-          <div
-            v-else-if="articleList.length === 0"
-            class="empty-state"
-          >
+          <div v-else-if="articleList.length === 0" class="empty-state">
             <div class="empty-content">
               <i class="el-icon-document-copy empty-icon"></i>
               <h3>暂无文章</h3>
               <p>该分类下还没有文章，敬请期待...</p>
-              <router-link
-                to="/"
-                class="back-home-btn"
-              >
-                <el-button type="primary">
-                  返回首页
-                </el-button>
+              <router-link to="/" class="back-home-btn">
+                <el-button type="primary">返回首页</el-button>
               </router-link>
             </div>
           </div>
 
           <!-- 文章列表 -->
-          <div
-            v-else
-            class="article-list"
-          >
+          <div v-else class="article-list">
             <div
               v-for="(article, index) in articleList"
               :key="article.id"
               class="article-item"
               :style="{ animationDelay: `${index * 0.1}s` }"
             >
-              <div
-                v-if="article.coverUrl"
-                class="article-cover"
-              >
-                <img
-                  :src="article.coverUrl"
-                  :alt="article.title"
-                  loading="lazy"
-                />
-                <div
-                  v-if="article.categoryName"
-                  class="article-category-badge"
-                >
+              <div v-if="article.coverUrl" class="article-cover">
+                <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
+                <div v-if="article.categoryName" class="article-category-badge">
                   {{ article.categoryName }}
                 </div>
               </div>
               <div class="article-content">
                 <h2 class="article-title">
-                  <router-link
-                    :to="`/blog/article/${article.id}`"
-                    :title="article.title"
-                  >
+                  <router-link :to="`/blog/article/${article.id}`" :title="article.title">
                     {{ article.title }}
                   </router-link>
                 </h2>
@@ -165,17 +108,11 @@
                     <i class="el-icon-view"></i>
                     {{ article.viewCount || 0 }} 阅读
                   </span>
-                  <span
-                    v-if="article.likeCount"
-                    class="meta-item"
-                  >
+                  <span v-if="article.likeCount" class="meta-item">
                     <i class="el-icon-star-off"></i>
                     {{ article.likeCount }} 点赞
                   </span>
-                  <span
-                    v-if="article.commentCount"
-                    class="meta-item"
-                  >
+                  <span v-if="article.commentCount" class="meta-item">
                     <i class="el-icon-chat-line-round"></i>
                     {{ article.commentCount }} 评论
                   </span>
@@ -183,10 +120,7 @@
                 <p class="article-summary">
                   {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
                 </p>
-                <div
-                  v-if="article.tags && article.tags.length"
-                  class="article-tags"
-                >
+                <div v-if="article.tags && article.tags.length" class="article-tags">
                   <span
                     v-for="tag in article.tags.slice(0, 3)"
                     :key="tag.id"
@@ -197,10 +131,7 @@
                   </span>
                 </div>
                 <div class="article-footer">
-                  <router-link
-                    :to="`/blog/article/${article.id}`"
-                    class="read-more"
-                  >
+                  <router-link :to="`/blog/article/${article.id}`" class="read-more">
                     阅读全文
                     <i class="el-icon-arrow-right"></i>
                   </router-link>
@@ -210,25 +141,14 @@
           </div>
 
           <!-- 加载更多 -->
-          <div
-            v-if="articleList.length < total && !loading"
-            class="load-more-container"
-          >
-            <el-button
-              type="primary"
-              :loading="loadingMore"
-              round
-              @click="loadMoreArticles"
-            >
+          <div v-if="articleList.length < total && !loading" class="load-more-container">
+            <el-button type="primary" :loading="loadingMore" round @click="loadMoreArticles">
               {{ loadingMore ? '加载中...' : '加载更多' }}
             </el-button>
           </div>
 
           <!-- 分页 -->
-          <div
-            v-if="total > queryParams.pageSize"
-            class="pagination-container"
-          >
+          <div v-if="total > queryParams.pageSize" class="pagination-container">
             <el-pagination
               background
               layout="prev, pager, next"
@@ -243,10 +163,7 @@
         <!-- 侧边栏 -->
         <div class="sidebar">
           <!-- 关于这个分类 -->
-          <div
-            class="sidebar-widget"
-            :style="{ animationDelay: '0.1s' }"
-          >
+          <div class="sidebar-widget" :style="{ animationDelay: '0.1s' }">
             <h3 class="widget-title">
               <i class="el-icon-menu"></i>
               关于这个分类
@@ -275,10 +192,7 @@
           </div>
 
           <!-- 相关分类 -->
-          <div
-            class="sidebar-widget"
-            :style="{ animationDelay: '0.2s' }"
-          >
+          <div class="sidebar-widget" :style="{ animationDelay: '0.2s' }">
             <h3 class="widget-title">
               <i class="el-icon-share"></i>
               相关分类
@@ -303,10 +217,7 @@
           </div>
 
           <!-- 热门标签 -->
-          <div
-            class="sidebar-widget"
-            :style="{ animationDelay: '0.3s' }"
-          >
+          <div class="sidebar-widget" :style="{ animationDelay: '0.3s' }">
             <h3 class="widget-title">
               <i class="el-icon-collection-tag"></i>
               热门标签
@@ -332,10 +243,7 @@
           </div>
 
           <!-- 最新文章 -->
-          <div
-            class="sidebar-widget"
-            :style="{ animationDelay: '0.4s' }"
-          >
+          <div class="sidebar-widget" :style="{ animationDelay: '0.4s' }">
             <h3 class="widget-title">
               <i class="el-icon-star-on"></i>
               最新文章
@@ -564,7 +472,6 @@ const stripHtmlTags = html => {
 watch(
   () => route.params.id,
   newId => {
-
     if (newId) {
       // 有分类ID，加载特定分类的文章
       const parsedId = parseInt(newId as string)

@@ -7,12 +7,7 @@
           <p>统一登录入口</p>
         </div>
 
-        <el-form
-          ref="loginFormRef"
-          :model="loginForm"
-          :rules="loginRules"
-          class="login-form"
-        >
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form">
           <el-form-item prop="username">
             <el-input
               ref="usernameInputRef"
@@ -45,10 +40,7 @@
             </el-input>
           </el-form-item>
 
-          <el-form-item
-            v-if="captchaEnabled"
-            prop="code"
-          >
+          <el-form-item v-if="captchaEnabled" prop="code">
             <div class="captcha-row">
               <el-input
                 ref="codeInputRef"
@@ -63,12 +55,7 @@
                   <el-icon><Key /></el-icon>
                 </template>
               </el-input>
-              <img
-                :src="captchaUrl"
-                class="captcha-img"
-                alt="验证码"
-                @click="refreshCaptcha"
-              />
+              <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
             </div>
           </el-form-item>
 
@@ -87,19 +74,9 @@
 
         <div class="login-footer">
           <div class="footer-links">
-            <router-link
-              to="/blog/auth/register"
-              class="link"
-            >
-              用户注册
-            </router-link>
+            <router-link to="/blog/auth/register" class="link">用户注册</router-link>
             <span class="divider">|</span>
-            <router-link
-              to="/blog/auth/forgot-password"
-              class="link"
-            >
-              忘记密码？
-            </router-link>
+            <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
           </div>
         </div>
       </div>
@@ -164,7 +141,7 @@ const refreshCaptcha = async () => {
 // 获取友好的错误提示
 const getErrorMessage = (error: any): string => {
   const errorMessage = error.message || error.msg || error.data?.msg || ''
-  const isProduction = import.meta.env.MODE === 'production'
+  const isProduction = import.meta.env?.MODE === 'production'
 
   // 生产环境：隐藏敏感信息，只显示通用错误
   if (isProduction) {

@@ -1,15 +1,10 @@
 <template>
-  <component
-    :is="type"
-    v-bind="linkProps()"
-    @click="handleLinkClick"
-    @error="handleLinkError"
-  >
+  <component :is="type" v-bind="linkProps()" @click="handleLinkClick" @error="handleLinkError">
     <slot></slot>
   </component>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'

@@ -252,7 +252,7 @@ function hasRole(requiredRoles: string[]): boolean {
       return super_admin === v || requiredRoles.includes(v)
     })
   } else {
-    return import.meta.env.DEV
+    return Boolean(import.meta.env?.DEV)
   }
 }
 

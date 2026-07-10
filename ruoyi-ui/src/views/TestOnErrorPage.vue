@@ -4,30 +4,12 @@
     <p>这个页面用于测试全局保护机制是否能正确处理 .on() 错误</p>
 
     <div class="test-buttons">
-      <el-button
-        type="primary"
-        @click="testUndefinedOn"
-      >
-        测试 undefined.on()
-      </el-button>
-      <el-button
-        type="primary"
-        @click="testNullOn"
-      >
-        测试 null.on()
-      </el-button>
-      <el-button
-        type="primary"
-        @click="testObjectOn"
-      >
-        测试普通对象.on()
-      </el-button>
+      <el-button type="primary" @click="testUndefinedOn">测试 undefined.on()</el-button>
+      <el-button type="primary" @click="testNullOn">测试 null.on()</el-button>
+      <el-button type="primary" @click="testObjectOn">测试普通对象.on()</el-button>
     </div>
 
-    <div
-      v-if="result"
-      class="test-result"
-    >
+    <div v-if="result" class="test-result">
       <h3>测试结果:</h3>
       <pre>{{ result }}</pre>
     </div>

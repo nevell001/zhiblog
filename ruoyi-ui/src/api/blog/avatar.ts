@@ -34,7 +34,7 @@ export function processAvatarUrl(avatarUrl: string | null | undefined): string {
   }
 
   // 如果是相对路径，添加基础路径
-  const baseURL = import.meta.env.VITE_APP_BASE_API || ''
+  const baseURL = import.meta.env?.VITE_APP_BASE_API || ''
   if (avatarUrl.startsWith('/')) {
     return baseURL + avatarUrl
   }

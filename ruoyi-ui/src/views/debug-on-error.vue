@@ -1,33 +1,15 @@
 <template>
   <div class="debug-container">
     <h2>调试 .on() 错误</h2>
-    <div
-      v-if="errorMsg"
-      class="error-message"
-    >
+    <div v-if="errorMsg" class="error-message">
       <h3>捕获到错误：</h3>
       <p>{{ errorMsg }}</p>
     </div>
     <div class="test-section">
       <h3>测试对象：</h3>
-      <el-button
-        type="danger"
-        @click="testUndefinedOn"
-      >
-        测试 undefined.on()
-      </el-button>
-      <el-button
-        type="warning"
-        @click="testNullOn"
-      >
-        测试 null.on()
-      </el-button>
-      <el-button
-        type="primary"
-        @click="testAPI"
-      >
-        测试 API 导入
-      </el-button>
+      <el-button type="danger" @click="testUndefinedOn">测试 undefined.on()</el-button>
+      <el-button type="warning" @click="testNullOn">测试 null.on()</el-button>
+      <el-button type="primary" @click="testAPI">测试 API 导入</el-button>
     </div>
     <div class="info-section">
       <h3>环境信息：</h3>

@@ -25,6 +25,10 @@ public class ImageUtils
     public static byte[] getImage(String imagePath)
     {
         InputStream is = getFile(imagePath);
+        if (is == null)
+        {
+            return null;
+        }
         try
         {
             return IOUtils.toByteArray(is);
@@ -66,6 +70,10 @@ public class ImageUtils
      */
     public static byte[] readFile(String url)
     {
+        if (StringUtils.isEmpty(url))
+        {
+            return null;
+        }
         InputStream in = null;
         try
         {
@@ -79,18 +87,22 @@ public class ImageUtils
                 urlConnection.setDoInput(true);
                 in = urlConnection.getInputStream();
             }
-            else
+            else if (url.startsWith(Constants.RESOURCE_PREFIX) && StringUtils.isNotEmpty(RuoYiConfig.getProfile()))
             {
                 // 本机地址
                 String localPath = RuoYiConfig.getProfile();
                 String downloadPath = localPath + StringUtils.substringAfter(url, Constants.RESOURCE_PREFIX);
                 in = new FileInputStream(downloadPath);
             }
+            else
+            {
+                return null;
+            }
             return IOUtils.toByteArray(in);
         }
         catch (Exception e)
         {
-            log.error("获取文件路径异常 {}", e);
+            log.debug("获取文件路径异常", e);
             return null;
         }
         finally

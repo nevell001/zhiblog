@@ -7,10 +7,7 @@
       :inline="true"
       label-width="68px"
     >
-      <el-form-item
-        label="操作地址"
-        prop="operIp"
-      >
+      <el-form-item label="操作地址" prop="operIp">
         <el-input
           v-model="queryParams.operIp"
           placeholder="请输入操作地址"
@@ -19,10 +16,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="系统模块"
-        prop="title"
-      >
+      <el-form-item label="系统模块" prop="title">
         <el-input
           v-model="queryParams.title"
           placeholder="请输入系统模块"
@@ -31,10 +25,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="操作人员"
-        prop="operName"
-      >
+      <el-form-item label="操作人员" prop="operName">
         <el-input
           v-model="queryParams.operName"
           placeholder="请输入操作人员"
@@ -43,10 +34,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="类型"
-        prop="businessType"
-      >
+      <el-form-item label="类型" prop="businessType">
         <el-select
           v-model="queryParams.businessType"
           placeholder="操作类型"
@@ -61,10 +49,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="状态"
-        prop="status"
-      >
+      <el-form-item label="状态" prop="status">
         <el-select
           v-model="queryParams.status"
           placeholder="操作状态"
@@ -79,10 +64,7 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item
-        label="操作时间"
-        style="width: 308px"
-      >
+      <el-form-item label="操作时间" style="width: 308px">
         <el-date-picker
           v-model="dateRange"
           value-format="YYYY-MM-DD HH:mm:ss"
@@ -94,26 +76,12 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
 
-    <el-row
-      :gutter="10"
-      class="mb8"
-    >
+    <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
         <el-button
           v-hasPermi="['monitor:operlog:remove']"
@@ -148,10 +116,7 @@
           导出
         </el-button>
       </el-col>
-      <right-toolbar
-        v-model:show-search="showSearch"
-        @query-table="getList"
-      />
+      <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
     <el-table
@@ -162,32 +127,12 @@
       @selection-change="handleSelectionChange"
       @sort-change="handleSortChange"
     >
-      <el-table-column
-        type="selection"
-        width="50"
-        align="center"
-      />
-      <el-table-column
-        label="日志编号"
-        align="center"
-        prop="operId"
-      />
-      <el-table-column
-        label="系统模块"
-        align="center"
-        prop="title"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        label="操作类型"
-        align="center"
-        prop="businessType"
-      >
+      <el-table-column type="selection" width="50" align="center" />
+      <el-table-column label="日志编号" align="center" prop="operId" />
+      <el-table-column label="系统模块" align="center" prop="title" :show-overflow-tooltip="true" />
+      <el-table-column label="操作类型" align="center" prop="businessType">
         <template #default="scope">
-          <dict-tag
-            :options="sys_oper_type"
-            :value="scope.row.businessType"
-          />
+          <dict-tag :options="sys_oper_type" :value="scope.row.businessType" />
         </template>
       </el-table-column>
       <el-table-column
@@ -206,16 +151,9 @@
         width="130"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        label="操作状态"
-        align="center"
-        prop="status"
-      >
+      <el-table-column label="操作状态" align="center" prop="status">
         <template #default="scope">
-          <dict-tag
-            :options="sys_common_status"
-            :value="scope.row.status"
-          />
+          <dict-tag :options="sys_common_status" :value="scope.row.status" />
         </template>
       </el-table-column>
       <el-table-column
@@ -243,11 +181,7 @@
           <span>{{ scope.row.costTime }}毫秒</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
             v-hasPermi="['monitor:operlog:query']"
@@ -271,16 +205,8 @@
     />
 
     <!-- 操作日志详细 -->
-    <el-dialog
-      v-model="open"
-      title="操作日志详细"
-      width="800px"
-      append-to-body
-    >
-      <el-form
-        :model="form"
-        label-width="100px"
-      >
+    <el-dialog v-model="open" title="操作日志详细" width="800px" append-to-body>
+      <el-form :model="form" label-width="100px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="操作模块：">
@@ -315,18 +241,12 @@
           </el-col>
           <el-col :span="8">
             <el-form-item label="操作状态：">
-              <div v-if="form.status === 0">
-                正常
-              </div>
-              <div v-else-if="form.status === 1">
-                失败
-              </div>
+              <div v-if="form.status === 0">正常</div>
+              <div v-else-if="form.status === 1">失败</div>
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="消耗时间：">
-              {{ form.costTime }}毫秒
-            </el-form-item>
+            <el-form-item label="消耗时间：">{{ form.costTime }}毫秒</el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item label="操作时间：">
@@ -334,10 +254,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item
-              v-if="form.status === 1"
-              label="异常信息："
-            >
+            <el-form-item v-if="form.status === 1" label="异常信息：">
               {{ form.errorMsg }}
             </el-form-item>
           </el-col>
@@ -345,16 +262,14 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="open = false">
-            关 闭
-          </el-button>
+          <el-button @click="open = false">关 闭</el-button>
         </div>
       </template>
     </el-dialog>
   </div>
 </template>
 
-<script setup name="Operlog">
+<script setup lang="ts" name="Operlog">
 import { list, delOperlog, cleanOperlog } from '@/api/monitor/operlog'
 
 const { proxy } = getCurrentInstance()

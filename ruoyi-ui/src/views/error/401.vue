@@ -1,46 +1,23 @@
 <template>
   <div class="errPage-container">
-    <el-button
-      icon="arrow-left"
-      class="back-btn"
-      @click="back"
-    >
-      返回上一页
-    </el-button>
-    <el-row
-      justify="center"
-      align="middle"
-    >
+    <el-button icon="arrow-left" class="back-btn" @click="back">返回上一页</el-button>
+    <el-row justify="center" align="middle">
       <el-col :span="12">
-        <h1 class="text-jumbo">
-          401
-        </h1>
+        <h1 class="text-jumbo">401</h1>
         <h2>需要权限访问</h2>
         <p>您目前没有足够的权限访问此页面</p>
         <div class="action-buttons">
-          <router-link
-            to="/"
-            class="home-link"
-          >
-            返回首页
-          </router-link>
+          <router-link to="/" class="home-link">返回首页</router-link>
         </div>
       </el-col>
-      <el-col
-        :span="12"
-        class="image-container"
-      >
-        <img
-          :src="errGif"
-          alt="权限不足提示"
-          class="error-image"
-        />
+      <el-col :span="12" class="image-container">
+        <img :src="errGif" alt="权限不足提示" class="error-image" />
       </el-col>
     </el-row>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import errImage from '@/assets/401_images/401.gif'
 
 const { proxy } = getCurrentInstance()

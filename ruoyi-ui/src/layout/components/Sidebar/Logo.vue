@@ -1,38 +1,14 @@
 <template>
-  <div
-    class="sidebar-logo-container"
-    :class="{ collapse: collapse }"
-  >
+  <div class="sidebar-logo-container" :class="{ collapse: collapse }">
     <transition name="sidebarLogoFade">
-      <router-link
-        v-if="collapse"
-        key="collapse"
-        class="sidebar-logo-link"
-        to="/"
-      >
-        <img
-          v-if="logo"
-          :src="logo"
-          class="sidebar-logo"
-        />
-        <h1
-          v-else
-          class="sidebar-title"
-        >
+      <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
+        <img v-if="logo" :src="logo" class="sidebar-logo" />
+        <h1 v-else class="sidebar-title">
           {{ title }}
         </h1>
       </router-link>
-      <router-link
-        v-else
-        key="expand"
-        class="sidebar-logo-link"
-        to="/"
-      >
-        <img
-          v-if="logo"
-          :src="logo"
-          class="sidebar-logo"
-        />
+      <router-link v-else key="expand" class="sidebar-logo-link" to="/">
+        <img v-if="logo" :src="logo" class="sidebar-logo" />
         <h1 class="sidebar-title">
           {{ title }}
         </h1>
@@ -41,7 +17,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import logo from '@/assets/logo/logo.png'
 import { computed } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
@@ -54,7 +30,7 @@ defineProps({
   }
 })
 
-const title = import.meta.env.VITE_APP_TITLE
+const title = import.meta.env?.VITE_APP_TITLE || 'RuoYi-Vue'
 const settingsStore = useSettingsStore()
 const sideTheme = computed(() => settingsStore.sideTheme)
 

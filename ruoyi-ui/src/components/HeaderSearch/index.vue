@@ -1,17 +1,7 @@
 <template>
   <div class="header-search">
-    <svg-icon
-      class-name="search-icon"
-      icon-class="search"
-      @click.stop="click"
-    />
-    <el-dialog
-      v-model="show"
-      width="600"
-      :show-close="false"
-      append-to-body
-      @close="close"
-    >
+    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
+    <el-dialog v-model="show" width="600" :show-close="false" append-to-body @close="close">
       <el-input
         ref="headerSearchSelectRef"
         v-model="search"
@@ -37,15 +27,9 @@
             @mouseleave="activeIndex = -1"
           >
             <div class="left">
-              <svg-icon
-                class="menu-icon"
-                :icon-class="item.icon"
-              />
+              <svg-icon class="menu-icon" :icon-class="item.icon" />
             </div>
-            <div
-              class="search-info"
-              @click="change(item)"
-            >
+            <div class="search-info" @click="change(item)">
               <div class="menu-title">
                 {{ item.title.join(' / ') }}
               </div>
@@ -53,10 +37,7 @@
                 {{ item.path }}
               </div>
             </div>
-            <svg-icon
-              v-show="index === activeIndex"
-              icon-class="enter"
-            />
+            <svg-icon v-show="index === activeIndex" icon-class="enter" />
           </div>
         </el-scrollbar>
       </div>

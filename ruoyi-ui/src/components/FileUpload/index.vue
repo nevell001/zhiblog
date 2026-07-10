@@ -17,15 +17,10 @@
       class="upload-file-uploader"
     >
       <!-- 上传按钮 -->
-      <el-button type="primary">
-        选取文件
-      </el-button>
+      <el-button type="primary">选取文件</el-button>
     </el-upload>
     <!-- 上传提示 -->
-    <div
-      v-if="showTip && !disabled"
-      class="el-upload__tip"
-    >
+    <div v-if="showTip && !disabled" class="el-upload__tip">
       请上传
       <template v-if="fileSize">
         大小不超过
@@ -49,20 +44,11 @@
         :key="file.uid"
         class="el-upload-list__item ele-upload-list__item-content"
       >
-        <el-link
-          :href="`${baseUrl}${file.url}`"
-          :underline="false"
-          target="_blank"
-        >
+        <el-link :href="`${baseUrl}${file.url}`" :underline="false" target="_blank">
           <span class="el-icon-document">{{ getFileName(file.name) }}</span>
         </el-link>
         <div class="ele-upload-list__item-content-action">
-          <el-link
-            v-if="!disabled"
-            :underline="false"
-            type="danger"
-            @click="handleDelete(index)"
-          >
+          <el-link v-if="!disabled" :underline="false" type="danger" @click="handleDelete(index)">
             &nbsp;删除
           </el-link>
         </div>

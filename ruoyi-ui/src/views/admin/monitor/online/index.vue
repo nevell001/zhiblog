@@ -1,14 +1,7 @@
 <template>
   <div class="app-container">
-    <el-form
-      ref="queryRef"
-      :model="queryParams"
-      :inline="true"
-    >
-      <el-form-item
-        label="登录地址"
-        prop="ipaddr"
-      >
+    <el-form ref="queryRef" :model="queryParams" :inline="true">
+      <el-form-item label="登录地址" prop="ipaddr">
         <el-input
           v-model="queryParams.ipaddr"
           placeholder="请输入登录地址"
@@ -17,10 +10,7 @@
           @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item
-        label="用户名称"
-        prop="userName"
-      >
+      <el-form-item label="用户名称" prop="userName">
         <el-input
           v-model="queryParams.userName"
           placeholder="请输入用户名称"
@@ -30,19 +20,8 @@
         />
       </el-form-item>
       <el-form-item>
-        <el-button
-          type="primary"
-          icon="Search"
-          @click="handleQuery"
-        >
-          搜索
-        </el-button>
-        <el-button
-          icon="Refresh"
-          @click="resetQuery"
-        >
-          重置
-        </el-button>
+        <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
+        <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
     <el-table
@@ -50,12 +29,7 @@
       :data="onlineList.slice((pageNum - 1) * pageSize, pageNum * pageSize)"
       style="width: 100%"
     >
-      <el-table-column
-        label="序号"
-        width="50"
-        type="index"
-        align="center"
-      >
+      <el-table-column label="序号" width="50" type="index" align="center">
         <template #default="scope">
           <span>{{ (pageNum - 1) * pageSize + scope.$index + 1 }}</span>
         </template>
@@ -78,45 +52,21 @@
         prop="deptName"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        label="主机"
-        align="center"
-        prop="ipaddr"
-        :show-overflow-tooltip="true"
-      />
+      <el-table-column label="主机" align="center" prop="ipaddr" :show-overflow-tooltip="true" />
       <el-table-column
         label="登录地点"
         align="center"
         prop="loginLocation"
         :show-overflow-tooltip="true"
       />
-      <el-table-column
-        label="操作系统"
-        align="center"
-        prop="os"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        label="浏览器"
-        align="center"
-        prop="browser"
-        :show-overflow-tooltip="true"
-      />
-      <el-table-column
-        label="登录时间"
-        align="center"
-        prop="loginTime"
-        width="180"
-      >
+      <el-table-column label="操作系统" align="center" prop="os" :show-overflow-tooltip="true" />
+      <el-table-column label="浏览器" align="center" prop="browser" :show-overflow-tooltip="true" />
+      <el-table-column label="登录时间" align="center" prop="loginTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.loginTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column
-        label="操作"
-        align="center"
-        class-name="small-padding fixed-width"
-      >
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button
             v-hasPermi="['monitor:online:forceLogout']"
@@ -131,16 +81,11 @@
       </el-table-column>
     </el-table>
 
-    <pagination
-      v-show="total > 0"
-      v-model:page="pageNum"
-      v-model:limit="pageSize"
-      :total="total"
-    />
+    <pagination v-show="total > 0" v-model:page="pageNum" v-model:limit="pageSize" :total="total" />
   </div>
 </template>
 
-<script setup name="Online">
+<script setup lang="ts" name="Online">
 import { forceLogout, list as initData } from '@/api/monitor/online'
 
 const { proxy } = getCurrentInstance()
