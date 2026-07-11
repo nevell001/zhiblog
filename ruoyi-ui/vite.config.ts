@@ -4,7 +4,7 @@ import createVitePlugins from './vite/plugins'
 import type { UserConfig, ConfigEnv } from 'vite'
 
 // 判断是否在 Docker 容器内运行
-// 通过环境变量 DOCKER 来控制（docker-compose.yml 中设置）
+// 通过环境变量 DOCKER 来控制（docker-compose.dev.yml / docker-compose.prod.yml 中设置）
 const inDocker = process.env.DOCKER === 'true'
 
 // 如果在容器内 → 用 ruoyi-admin 访问同网络下的后端服务

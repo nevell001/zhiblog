@@ -8,7 +8,7 @@
 
 **后端版本号**：
 - **主配置文件**：`pom.xml` 中的 `<version>` 和 `<app.version>` 属性
-- **当前版本**：`1.3.2`
+- **当前版本**：`1.3.3`
 
 **前端版本号**：
 - **配置文件**：`ruoyi-ui/package.json` 中的 `version` 字段
@@ -22,10 +22,10 @@
    ```xml
    <groupId>top.nevell</groupId>
    <artifactId>zhiblog</artifactId>
-   <version>1.3.2</version>  <!-- 项目版本 -->
+   <version>1.3.3</version>  <!-- 项目版本 -->
    
    <properties>
-       <app.version>1.3.2</app.version>  <!-- 应用版本 -->
+       <app.version>1.3.3</app.version>  <!-- 应用版本 -->
    </properties>
    ```
 
@@ -44,13 +44,13 @@
 
 4. **配置类** (`ruoyi-common/src/main/java/com/ruoyi/common/config/RuoYiConfig.java`)
    ```java
-   @Value("${ruoyi.version:1.3.2}")
+   @Value("${ruoyi.version:1.3.3}")
    private String version;
    ```
 
 5. **API 接口** (`SysIndexController.java`)
    - 接口路径：`GET /system/version`
-   - 返回数据：`{ "version": "1.3.2", "name": "RuoYi" }`
+   - 返回数据：`{ "version": "1.3.3", "name": "RuoYi" }`
 
 6. **子模块 parent 版本**：
    - `ruoyi-common/pom.xml`
@@ -63,7 +63,7 @@
    <parent>
        <groupId>top.nevell</groupId>
        <artifactId>zhiblog</artifactId>
-       <version>1.3.2</version>  <!-- 必须与父 POM 版本一致 -->
+       <version>1.3.3</version>  <!-- 必须与父 POM 版本一致 -->
    </parent>
    ```
 
@@ -71,7 +71,7 @@
 
 1. **管理后台首页** (`ruoyi-ui/src/views/admin/dashboard/index.vue`)
    ```typescript
-   const version = ref('1.3.2')
+   const version = ref('1.3.3')
    ```
    - 显示位置：系统状态卡片
    - 数据来源：后端 API `/system/version`
@@ -83,8 +83,8 @@
 **需要修改多个地方**（重要！）：
 
 1. **修改父 POM** (`pom.xml`)
-   - 第 8 行：`<version>1.3.1</version>` → `<version>1.3.2</version>`
-   - 第 28 行：`<app.version>1.3.1</app.version>` → `<app.version>1.3.2</app.version>`
+   - 第 8 行：`<version>1.3.2</version>` → `<version>1.3.3</version>`
+   - 第 28 行：`<app.version>1.3.2</app.version>` → `<app.version>1.3.3</app.version>`
 
 2. **修改所有子模块的 parent 版本**：
    - `ruoyi-common/pom.xml`
@@ -96,7 +96,7 @@
    
    每个文件中的：
    ```xml
-   <version>1.3.1</version>  →  <version>1.3.2</version>
+   <version>1.3.2</version>  →  <version>1.3.3</version>
    ```
 
 3. **重新编译项目**：
@@ -116,11 +116,11 @@
 
 ```bash
 # 1. 修改父 POM 的版本号
-sed -i 's/<version>1.3.1<\/version>/<version>1.3.2<\/version>/g' pom.xml
-sed -i 's/<app.version>1.3.1<\/app.version>/<app.version>1.3.2<\/app.version>/g' pom.xml
+sed -i 's/<version>1.3.2<\/version>/<version>1.3.3<\/version>/g' pom.xml
+sed -i 's/<app.version>1.3.2<\/app.version>/<app.version>1.3.3<\/app.version>/g' pom.xml
 
 # 2. 批量更新所有子模块的 parent 版本
-sed -i 's/<version>1.3.1<\/version>/<version>1.3.2<\/version>/g' \
+sed -i 's/<version>1.3.2<\/version>/<version>1.3.3<\/version>/g' \
     ruoyi-common/pom.xml \
     ruoyi-system/pom.xml \
     ruoyi-framework/pom.xml \
@@ -148,10 +148,10 @@ mvn clean install -DskipTests
 - **次版本号（MINOR）**：向下兼容的功能性新增
 - **修订号（PATCH）**：向下兼容的问题修正
 
-示例：`1.3.2`
+示例：`1.3.3`
 - `1`：主版本号
 - `3`：次版本号
-- `2`：修订号
+- `3`：修订号
 
 ### 版本号检查
 
@@ -230,7 +230,7 @@ A: 这是 Maven 资源过滤的占位符，在构建时会自动替换为 `pom.x
 
 **Q: 为什么前端版本号和后端版本号不一样？**
 
-A: 前端版本号（4.1.0）和后端版本号（1.3.2）是独立的，分别跟踪前端框架和后端应用的版本更新。
+A: 前端版本号（4.1.0）和后端版本号（1.3.3）是独立的，分别跟踪前端框架和后端应用的版本更新。
 
 **Q: 如何确保所有地方的版本号一致？**
 

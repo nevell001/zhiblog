@@ -19,7 +19,7 @@ services:
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done
         java -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/ruoyi-admin.jar \
-          --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/zhiblog?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
+          --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/${DB_NAME:-zhiblog}?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
           --spring.datasource.druid.master.username=$DB_USERNAME \
           --spring.datasource.druid.master.password=$DB_PASSWORD \
           --spring.redis.host=redis \

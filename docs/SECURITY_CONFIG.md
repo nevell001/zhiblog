@@ -77,7 +77,7 @@ export DB_PASSWORD=$(openssl rand -base64 32)
 
 ### 方法 3：在 Docker Compose 中配置
 
-在 `docker-compose.yml` 或 `docker-compose.prod.yml` 中使用 `env_file`：
+在 `docker-compose.dev.yml` 或 `docker-compose.prod.yml` 中使用 `env_file`：
 
 ```yaml
 services:

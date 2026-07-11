@@ -8,23 +8,17 @@
 - 📱 **前后端分离**：Vue 3 + Spring Boot，TypeScript 类型安全
 - 🎨 **美观界面**：Element Plus 组件库，紫色主题设计
 - 🔒 **权限完善**：基于 Spring Security 的细粒度权限控制
-- 🐳 **容器化部署**：Docker + Docker Compose 一键部署
+- 🐳 **容器化部署**：Docker Compose 管理前端、后端、MySQL、Redis 与监控服务
 - 📈 **监控完善**：Prometheus + Grafana 全链路监控
-- ✅ **测试完善**：656个测试用例，覆盖率≥60%
+- ✅ **测试完善**：后端 JUnit + 前端 Vitest，覆盖核心工具、接口与页面组件
 - 🔄 **版本管理**：统一的版本号管理机制，确保版本一致性
 - 🛡️ **增强安全性**：全局错误处理和保护机制，防止运行时错误
 
-## 📦 最新更新 (v1.3.2)
+## 📦 最新更新 (v1.3.3)
 
-- 修复登录成功后需要刷新页面才能显示登录状态的问题
-- 修复访问博客首页时可能跳转到登录页的问题
-- 优化登录页面用户体验（自动聚焦、回车键快速登录）
-- 优化错误提示（生产环境模糊错误信息，开发环境详细）
-- 建立统一的版本号管理机制
-- 新增版本管理指南文档
-- 实现全局错误处理和保护机制，防止 .on() 方法调用错误
-- 添加 favicon.ico 文件，解决 404 错误
-- 清理旧项目名称残留 (newblog → zhiblog)
+- 统一 Docker 开发环境数据库配置，默认使用 `zhiblog`
+- 精简过期文档和默认 Compose 文件，保留 dev/prod 两套明确部署入口
+- 修复 UUID 性能类测试的偶发失败问题
 
 ## 🌐 访问方式
 
@@ -43,6 +37,7 @@
 - **MySQL**: 8.4+
 - **Redis**: 6.2+
 - **Maven**: 3.6+
+- **Docker**: Docker Engine / Docker Desktop / Colima（推荐用于完整本地环境）
 
 ### 1. 克隆项目
 ```bash
@@ -50,40 +45,65 @@ git clone https://gitee.com/nevell/zhiblog.git
 cd ZhiBlog
 ```
 
-### 2. 数据库初始化
+### 2. 推荐启动方式：Docker Compose
+
+复制环境变量示例文件并检查关键配置：
+
 ```bash
-# 创建数据库
+cp .env.example .env
+```
+
+开发环境默认数据库名应保持为：
+
+```env
+DB_NAME=zhiblog
+```
+
+启动完整开发环境：
+
+```bash
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+查看服务状态和后端日志：
+
+```bash
+docker compose -f docker-compose.dev.yml ps
+docker compose -f docker-compose.dev.yml logs -f ruoyi-admin
+```
+
+生产或接近生产环境使用：
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+> 项目已移除默认 `docker-compose.yml`，请明确选择 `docker-compose.dev.yml` 或 `docker-compose.prod.yml`。
+
+### 3. 手动开发启动（可选）
+
+如果不使用 Docker，需要自行启动 MySQL 和 Redis，并初始化数据库：
+
+```bash
 mysql -u root -p
 CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
-# 导入数据库
 mysql -u root -p zhiblog < sql/00_init_database.sql
 ```
 
-### 3. 后端启动
-```bash
-# 编译项目
-mvn clean install -DskipTests
+后端启动：
 
-# 启动后端服务
+```bash
+mvn clean install -DskipTests
 cd ruoyi-admin
 mvn spring-boot:run
 ```
 
-### 4. 前端启动
+前端启动：
+
 ```bash
 cd ruoyi-ui
 npm install
 npm run dev
-```
-
-### 5. Docker 一键部署
-```bash
-# 开发环境
-docker compose -f docker-compose.dev.yml up -d
-
-# 生产环境
-docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## 📁 项目结构
@@ -104,7 +124,8 @@ ZhiBlog/
 ├── prometheus/           # Prometheus配置
 ├── grafana/              # Grafana配置
 ├── docs/                 # 项目文档
-└── docker-compose.yml    # Docker编排
+├── docker-compose.dev.yml  # Docker开发环境编排
+└── docker-compose.prod.yml # Docker生产环境编排
 ```
 
 ## 🎯 核心功能
@@ -237,6 +258,11 @@ chore: 构建/工具
 
 ## 📦 版本历史
 
+### v1.3.3 (2026-01-27)
+- 统一 Docker 开发环境数据库配置，默认使用 `zhiblog`
+- 精简过期文档和默认 Compose 文件，保留 dev/prod 两套明确部署入口
+- 修复 UUID 性能类测试的偶发失败问题
+
 ### v1.3.2 (2026-01-27)
 - 修复登录成功后需要刷新页面才能显示登录状态的问题
 - 修复访问博客首页时可能跳转到登录页的问题
@@ -282,7 +308,9 @@ chore: 构建/工具
 
 ### 相关文档
 - [版本管理指南](docs/VERSION_MANAGEMENT.md)
+- [安全配置说明](docs/SECURITY_CONFIG.md)
 - [图片压缩功能使用指南](docs/图片压缩功能使用指南.md)
+- [GitHub 同步说明](SYNC_GITHUB.md)
 - [RuoYi官方文档](http://doc.ruoyi.vip/)
 - [Vue 3文档](https://cn.vuejs.org/)
 - [Element Plus文档](https://element-plus.org/)
@@ -296,6 +324,7 @@ chore: 构建/工具
 5. **构建失败提示 "Non-resolvable parent POM"**：检查父 POM 和子模块的版本号是否一致
 6. **.on() 方法调用错误**：已实现全局保护机制，确保系统稳定运行
 7. **favicon.ico 404**：已添加 favicon.ico 文件到 public 目录
+8. **Docker 后端提示 `sys_config` 表不存在**：确认 `.env` 中 `DB_NAME=zhiblog`，并使用 `docker-compose.dev.yml` 或 `docker-compose.prod.yml` 重新构建启动
 
 ## 📄 许可证
 
@@ -304,7 +333,7 @@ chore: 构建/工具
 ## 📊 项目信息
 
 - **项目名称**: ZhiBlog（知博）
-- **当前版本**: v1.3.2
+- **当前版本**: v1.3.3
 - **Maven GroupId**: top.nevell
 - **项目地址**: https://gitee.com/nevell/zhiblog
 - **维护者**: nevell

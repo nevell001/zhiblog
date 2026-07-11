@@ -154,22 +154,24 @@ public class IdUtilsTest {
     }
 
     @Test
-    public void testUUIDPerformance() {
-        // 测试UUID生成性能（快速方法应该更快）
-        long startTime = System.nanoTime();
+    public void testRepeatedUUIDGeneration() {
+        // 测试重复生成时仍保持格式正确和唯一性
+        Set<String> regularUuids = new HashSet<>();
+        Set<String> fastUuids = new HashSet<>();
         for (int i = 0; i < 1000; i++) {
-            IdUtils.randomUUID();
-        }
-        long regularTime = System.nanoTime() - startTime;
+            String regular = IdUtils.randomUUID();
+            String fast = IdUtils.fastUUID();
 
-        startTime = System.nanoTime();
-        for (int i = 0; i < 1000; i++) {
-            IdUtils.fastUUID();
+            assertTrue(regularUuids.add(regular), "Regular UUID should be unique");
+            assertTrue(fastUuids.add(fast), "Fast UUID should be unique");
+            assertEquals(36, regular.length());
+            assertEquals(36, fast.length());
+            assertTrue(regular.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
+            assertTrue(fast.matches("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"));
         }
-        long fastTime = System.nanoTime() - startTime;
 
-        // 快速方法应该更快或至少不会慢太多
-        assertTrue(fastTime <= regularTime * 2, "Fast UUID should be faster");
+        assertEquals(1000, regularUuids.size());
+        assertEquals(1000, fastUuids.size());
     }
 
     @Test

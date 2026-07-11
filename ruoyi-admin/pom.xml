@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zhiblog</artifactId>
         <groupId>top.nevell</groupId>
-        <version>1.3.2</version>
+        <version>1.3.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -114,7 +114,6 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <fork>true</fork> <!-- 如果没有该配置，devtools不会生效 -->
                     <!-- 启用分层 JAR 构建，提高启动速度和构建效率 -->
                     <layers>
                         <enabled>true</enabled>
