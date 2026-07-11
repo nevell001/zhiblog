@@ -111,6 +111,18 @@ public class RedisCache
     }
 
     /**
+     * 缓存自增操作
+     *
+     * @param key 缓存的键值
+     * @param delta 增加的数值
+     * @return 自增后的值
+     */
+    public long incrementCacheObject(final String key, final long delta)
+    {
+        return redisTemplate.opsForValue().increment(key, delta);
+    }
+
+    /**
      * 删除单个对象
      *
      * @param key
