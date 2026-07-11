@@ -453,6 +453,7 @@ describe('Request 工具函数测试', () => {
     it('应该处理下载错误', async () => {
       const mockLoading = { close: vi.fn() }
       mockElLoading.service.mockReturnValue(mockLoading)
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
       const mockPost = vi.fn().mockRejectedValue(new Error('下载错误'))
       // Mock service.post
@@ -464,6 +465,7 @@ describe('Request 工具函数测试', () => {
       await new Promise(resolve => setTimeout(resolve, 100))
 
       expect(mockElMessage.error).toHaveBeenCalledWith('下载文件出现错误，请联系管理员！')
+      consoleErrorSpy.mockRestore()
     })
   })
 

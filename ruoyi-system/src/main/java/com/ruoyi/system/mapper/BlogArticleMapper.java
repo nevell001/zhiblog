@@ -74,6 +74,8 @@ public interface BlogArticleMapper
      */
     void addViewCount(Long id);
 
+    void addIncrementViewCount(@org.apache.ibatis.annotations.Param("id") Long id, @org.apache.ibatis.annotations.Param("increment") Long increment);
+
     /**
      * 根据标签ID查询文章列表
      * @param tagId 标签ID

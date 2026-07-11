@@ -198,12 +198,14 @@ describe('BlogSettings Store 测试', () => {
 
     it('当发生错误时应该返回 false', async () => {
       const { listSetting } = await import('@/api/admin/blog/setting')
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       vi.mocked(listSetting).mockRejectedValue(new Error('Network error'))
 
       const store = useBlogSettingsStore()
       const result = await store.refreshFromAdmin()
 
       expect(result).toBe(false)
+      consoleErrorSpy.mockRestore()
     })
   })
 

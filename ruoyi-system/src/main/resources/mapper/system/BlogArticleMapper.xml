@@ -137,6 +137,10 @@
         update blog_article set view_count = IFNULL(view_count, 0) + 1 where id = #{id}
     </update>
 
+    <update id="addIncrementViewCount">
+        update blog_article set view_count = IFNULL(view_count, 0) + #{increment} where id = #{id}
+    </update>
+
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,

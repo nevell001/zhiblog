@@ -50,7 +50,7 @@
 
 5. **API 接口** (`SysIndexController.java`)
    - 接口路径：`GET /system/version`
-   - 返回数据：`{ "version": "1.3.3", "name": "RuoYi" }`
+   - 返回数据：`{ "version": "1.3.3", "name": "ZhiBlog" }`
 
 6. **子模块 parent 版本**：
    - `ruoyi-common/pom.xml`

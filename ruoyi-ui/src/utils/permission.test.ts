@@ -23,7 +23,9 @@ describe('Permission Utils 测试', () => {
     })
 
     it('应该拒绝空权限数组', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       expect(checkPermi([])).toBe(false)
+      consoleErrorSpy.mockRestore()
     })
 
     it('应该处理权限数组', () => {
@@ -40,7 +42,9 @@ describe('Permission Utils 测试', () => {
     })
 
     it('应该拒绝空角色数组', () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
       expect(checkRole([])).toBe(false)
+      consoleErrorSpy.mockRestore()
     })
 
     it('应该处理角色数组', () => {

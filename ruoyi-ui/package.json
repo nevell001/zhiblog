@@ -63,6 +63,7 @@
     "globals": "^17.0.0",
     "jsdom": "^25.0.1",
     "prettier": "^3.4.2",
+    "rollup-plugin-visualizer": "^7.0.1",
     "sass-embedded": "1.89.1",
     "typescript": "^5.9.3",
     "unplugin-auto-import": "0.18.6",

@@ -53,7 +53,7 @@ server:
 # 生产环境安全配置
 ruoyi:
   # 名称
-  name: RuoYi
+  name: ZhiBlog
   # 版本
   version: @app.version@
   # 版权年份

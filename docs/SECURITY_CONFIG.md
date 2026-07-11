@@ -23,8 +23,9 @@
 - **生成命令**：`openssl rand -base64 32`
 - **严重性**：生产环境未设置将阻止应用启动
 
-### 4. 数据库密码 (DB_PASSWORD)
-- **要求**：必须设置且不能是弱密码（root, password, 123456 等）
+### 4. 数据库密码 (DB_PASSWORD / DB_ROOT_PASSWORD)
+- **要求**：`DB_PASSWORD` 为应用账号密码，必须设置且不能是弱密码（root, password, 123456 等）
+- **要求**：`DB_ROOT_PASSWORD` 为 MySQL root 初始化密码，仅用于容器初始化和健康检查，生产环境必须单独设置
 - **生成命令**：`openssl rand -base64 32`
 - **严重性**：未设置或使用弱密码将阻止应用启动（所有环境）
 

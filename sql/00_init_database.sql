@@ -59,13 +59,14 @@
 -- - 包含触发器和索引，执行时间约2-3分钟
 -- ===============================================================
 
--- 1. 创建数据库和设置权限
+-- 1. 创建数据库和设置应用账号
 CREATE DATABASE IF NOT EXISTS zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE zhiblog;
 
--- 设置权限，允许从Docker容器网络连接
-CREATE USER IF NOT EXISTS 'root'@'%' IDENTIFIED BY 'root';
-GRANT ALL PRIVILEGES ON zhiblog.* TO 'root'@'%';
+-- 创建专用应用账号，避免应用服务依赖root远程访问
+CREATE USER IF NOT EXISTS 'zhiblog_app'@'%' IDENTIFIED BY 'ZhiBlog_app_ChangeMe_2026!';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, TRIGGER
+ON zhiblog.* TO 'zhiblog_app'@'%';
 FLUSH PRIVILEGES;
 
 -- ========== 导入若依系统基础表结构 ==========

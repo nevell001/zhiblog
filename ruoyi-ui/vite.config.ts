@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import path from 'path'
 import createVitePlugins from './vite/plugins'
 import type { UserConfig, ConfigEnv } from 'vite'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // 判断是否在 Docker 容器内运行
 // 通过环境变量 DOCKER 来控制（docker-compose.dev.yml / docker-compose.prod.yml 中设置）
@@ -39,6 +40,14 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       assetsDir: 'assets',
       chunkSizeWarningLimit: 1200,
       rollupOptions: {
+        plugins: [
+          visualizer({
+            open: false,
+            filename: 'stats.html',
+            gzipSize: true,
+            brotliSize: true
+          })
+        ],
         output: {
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
@@ -48,7 +57,6 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
             // 将大型第三方库拆分为独立 chunks
             'vue-vendor': ['vue', 'vue-router', 'pinia'],
             'element-plus': ['element-plus', '@element-plus/icons-vue'],
-            echarts: ['echarts'],
             quill: ['@vueup/vue-quill'],
             // 将通用工具库拆分为独立 chunk
             utils: ['axios', 'js-cookie', 'file-saver', 'fuse.js', '@vueuse/core']

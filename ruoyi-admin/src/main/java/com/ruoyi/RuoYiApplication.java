@@ -16,6 +16,7 @@ import com.ruoyi.common.config.ImageCompressConfig;
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class, RedisAutoConfiguration.class })
 @ComponentScan(basePackages = {"com.ruoyi", "com.ruoyi.system.controller"})
 @EnableConfigurationProperties({ImageCompressConfig.class})
+@org.springframework.scheduling.annotation.EnableScheduling
 public class RuoYiApplication
 {
     public static void main(String[] args)

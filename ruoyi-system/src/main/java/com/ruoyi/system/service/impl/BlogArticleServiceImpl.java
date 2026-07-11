@@ -38,6 +38,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Autowired
     private BlogTagMapper blogTagMapper;
 
+    @Autowired
+    private com.ruoyi.common.core.redis.RedisCache redisCache;
+
     /**
      * 查询博客文章
      *
@@ -344,7 +347,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     @Override
     public void addViewCount(Long id) {
-        blogArticleMapper.addViewCount(id);
+        // 使用 Redis 缓冲，将浏览量增加操作放入 Redis
+        String key = "blog:article:view:" + id;
+        redisCache.incrementCacheObject(key, 1);
     }
 
     @Override

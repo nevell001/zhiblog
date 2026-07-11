@@ -7,31 +7,56 @@
 -- 1. 博客文章表索引优化
 -- -------------------------------------------
 
+DELIMITER $$
+
+DROP PROCEDURE IF EXISTS sp_create_index_if_not_exists$$
+CREATE PROCEDURE sp_create_index_if_not_exists(
+    IN table_name_param VARCHAR(64),
+    IN index_name_param VARCHAR(64),
+    IN create_sql_param TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = table_name_param
+          AND INDEX_NAME = index_name_param
+    ) THEN
+        SET @create_index_sql = create_sql_param;
+        PREPARE create_index_stmt FROM @create_index_sql;
+        EXECUTE create_index_stmt;
+        DEALLOCATE PREPARE create_index_stmt;
+    END IF;
+END$$
+
+DELIMITER ;
+
 -- 文章主键索引（已存在，无需重复创建）
 -- ALTER TABLE blog_article ADD PRIMARY KEY (id);
 
 -- 文章状态和删除标志复合索引（用于列表查询）
-CREATE INDEX IF NOT EXISTS idx_article_status_del_flag ON blog_article(status, del_flag);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_status_del_flag', 'CREATE INDEX idx_article_status_del_flag ON blog_article(status, del_flag)');
 
 -- 文章分类ID索引（用于按分类查询）
-CREATE INDEX IF NOT EXISTS idx_article_category_id ON blog_article(category_id);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_category_id', 'CREATE INDEX idx_article_category_id ON blog_article(category_id)');
 
 -- 文章创建时间索引（用于排序和归档）
-CREATE INDEX IF NOT EXISTS idx_article_create_time ON blog_article(create_time);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_create_time', 'CREATE INDEX idx_article_create_time ON blog_article(create_time)');
 
 -- 文章浏览量索引（用于热门文章排序）
-CREATE INDEX IF NOT EXISTS idx_article_view_count ON blog_article(view_count DESC);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_view_count', 'CREATE INDEX idx_article_view_count ON blog_article(view_count DESC)');
 
 -- 文章置顶和推荐状态复合索引（用于首页展示）
-CREATE INDEX IF NOT EXISTS idx_article_is_top_recommend ON blog_article(is_top DESC, is_recommend DESC, status DESC, del_flag);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_is_top_recommend', 'CREATE INDEX idx_article_is_top_recommend ON blog_article(is_top DESC, is_recommend DESC, status DESC, del_flag)');
 
 -- 作者ID索引（用于用户文章查询）
-CREATE INDEX IF NOT EXISTS idx_article_author_id ON blog_article(author_id);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_author_id', 'CREATE INDEX idx_article_author_id ON blog_article(author_id)');
 
 -- 文章标题全文索引（用于搜索功能）
-CREATE FULLTEXT INDEX IF NOT EXISTS ft_article_title ON blog_article(title);
-CREATE FULLTEXT INDEX IF NOT EXISTS ft_article_content ON blog_article(content);
-CREATE FULLTEXT INDEX IF NOT EXISTS ft_article_title_content ON blog_article(title, content);
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title', 'CREATE FULLTEXT INDEX ft_article_title ON blog_article(title)');
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_content', 'CREATE FULLTEXT INDEX ft_article_content ON blog_article(content)');
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title_content', 'CREATE FULLTEXT INDEX ft_article_title_content ON blog_article(title, content)');
 
 -- 2. 博客分类表索引优化
 -- -------------------------------------------
@@ -40,10 +65,10 @@ CREATE FULLTEXT INDEX IF NOT EXISTS ft_article_title_content ON blog_article(tit
 -- ALTER TABLE blog_category ADD PRIMARY KEY (id);
 
 -- 分类删除标志索引
-CREATE INDEX IF NOT EXISTS idx_category_del_flag ON blog_category(del_flag);
+CALL sp_create_index_if_not_exists('blog_category', 'idx_category_del_flag', 'CREATE INDEX idx_category_del_flag ON blog_category(del_flag)');
 
 -- 分类排序索引
-CREATE INDEX IF NOT EXISTS idx_category_order_num ON blog_category(order_num);
+CALL sp_create_index_if_not_exists('blog_category', 'idx_category_sort_order', 'CREATE INDEX idx_category_sort_order ON blog_category(sort_order)');
 
 -- 3. 博客标签表索引优化
 -- -------------------------------------------
@@ -52,22 +77,22 @@ CREATE INDEX IF NOT EXISTS idx_category_order_num ON blog_category(order_num);
 -- ALTER TABLE blog_tag ADD PRIMARY KEY (id);
 
 -- 标签删除标志索引
-CREATE INDEX IF NOT EXISTS idx_tag_del_flag ON blog_tag(del_flag);
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_tag_del_flag', 'CREATE INDEX idx_tag_del_flag ON blog_tag(del_flag)');
 
 -- 标签使用次数索引（用于热门标签）
-CREATE INDEX IF NOT EXISTS idx_tag_article_count ON blog_tag(article_count DESC);
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_tag_article_count', 'CREATE INDEX idx_tag_article_count ON blog_tag(article_count DESC)');
 
 -- 4. 文章标签关联表索引优化
 -- -------------------------------------------
 
 -- 文章ID索引（用于查询文章的所有标签）
-CREATE INDEX IF NOT EXISTS idx_article_tag_article_id ON blog_article_tag(article_id);
+CALL sp_create_index_if_not_exists('blog_article_tag', 'idx_article_tag_article_id', 'CREATE INDEX idx_article_tag_article_id ON blog_article_tag(article_id)');
 
 -- 标签ID索引（用于查询标签的所有文章）
-CREATE INDEX IF NOT EXISTS idx_article_tag_tag_id ON blog_article_tag(tag_id);
+CALL sp_create_index_if_not_exists('blog_article_tag', 'idx_article_tag_tag_id', 'CREATE INDEX idx_article_tag_tag_id ON blog_article_tag(tag_id)');
 
 -- 复合唯一索引（防止重复关联）
-CREATE UNIQUE INDEX IF NOT EXISTS uk_article_tag_unique ON blog_article_tag(article_id, tag_id);
+CALL sp_create_index_if_not_exists('blog_article_tag', 'uk_article_tag_unique', 'CREATE UNIQUE INDEX uk_article_tag_unique ON blog_article_tag(article_id, tag_id)');
 
 -- 5. 博客评论表索引优化
 -- -------------------------------------------
@@ -76,16 +101,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS uk_article_tag_unique ON blog_article_tag(arti
 -- ALTER TABLE blog_comment ADD PRIMARY KEY (id);
 
 -- 文章ID索引（用于查询文章的评论）
-CREATE INDEX IF NOT EXISTS idx_comment_article_id ON blog_comment(article_id);
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_article_id', 'CREATE INDEX idx_comment_article_id ON blog_comment(article_id)');
 
 -- 评论状态索引（用于查询已发布评论）
-CREATE INDEX IF NOT EXISTS idx_comment_status ON blog_comment(status);
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_status', 'CREATE INDEX idx_comment_status ON blog_comment(status)');
 
 -- 评论创建时间索引（用于排序）
-CREATE INDEX IF NOT EXISTS idx_comment_create_time ON blog_comment(create_time DESC);
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_create_time', 'CREATE INDEX idx_comment_create_time ON blog_comment(create_time DESC)');
 
 -- 复合索引（用于前台展示评论）
-CREATE INDEX IF NOT EXISTS idx_comment_article_status_time ON blog_comment(article_id, status, create_time DESC);
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_article_status_time', 'CREATE INDEX idx_comment_article_status_time ON blog_comment(article_id, status, create_time DESC)');
 
 -- 6. 博客设置表索引优化
 -- -------------------------------------------
@@ -94,7 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_comment_article_status_time ON blog_comment(artic
 -- ALTER TABLE blog_setting ADD UNIQUE KEY uk_config_key (config_key);
 
 -- 更新时间索引（用于缓存失效判断）
-CREATE INDEX IF NOT EXISTS idx_setting_update_time ON blog_setting(update_time);
+CALL sp_create_index_if_not_exists('blog_setting', 'idx_setting_update_time', 'CREATE INDEX idx_setting_update_time ON blog_setting(update_time)');
 
 -- 7. 友情链接表索引优化
 -- -------------------------------------------
@@ -103,10 +128,10 @@ CREATE INDEX IF NOT EXISTS idx_setting_update_time ON blog_setting(update_time);
 -- ALTER TABLE blog_friend_link ADD PRIMARY KEY (id);
 
 -- 链接状态索引（用于查询有效链接）
-CREATE INDEX IF NOT EXISTS idx_friend_link_status ON blog_friend_link(status);
+CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_status', 'CREATE INDEX idx_friend_link_status ON blog_friend_link(status)');
 
 -- 链接排序索引
-CREATE INDEX IF NOT EXISTS idx_friend_link_order_num ON blog_friend_link(order_num DESC);
+CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_sort', 'CREATE INDEX idx_friend_link_sort ON blog_friend_link(sort DESC)');
 
 -- 8. 性能监控视图
 -- -------------------------------------------

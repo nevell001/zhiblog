@@ -4,6 +4,11 @@ import { createPinia, setActivePinia } from 'pinia'
 import SizeSelect from './index.vue'
 import { useAppStore } from '@/stores/app'
 
+vi.mock('vue-router', () => ({
+  useRoute: () => ({ path: '/admin/dashboard' }),
+  useRouter: () => ({ replace: vi.fn() })
+}))
+
 // Mock Pinia store
 const createTestingPinia = () => {
   const pinia = createPinia()

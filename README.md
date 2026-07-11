@@ -194,8 +194,9 @@ ZhiBlog/
 ```bash
 # 数据库
 DB_HOST=localhost
-DB_USERNAME=root
-DB_PASSWORD={your_password}
+DB_USERNAME=zhiblog_app
+DB_PASSWORD={your_app_password}
+DB_ROOT_PASSWORD={your_root_password}
 DB_NAME=zhiblog
 
 # Redis
