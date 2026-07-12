@@ -45,6 +45,7 @@ CODEBUDDY.md
 # 构建产物与依赖
 node_modules/
 dist/
+ruoyi-ui/stats.html
 /build/
 # 忽略后端静态目录里的构建产物
 ruoyi-admin/src/main/resources/static/static/js/
