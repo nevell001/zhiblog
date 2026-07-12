@@ -56,7 +56,7 @@ public class CacheAspect {
                 long ttl = blogCacheable.ttl();
                 TimeUnit timeUnit = blogCacheable.timeUnit();
                 blogCacheManager.set(cacheKey, result, ttl, timeUnit);
-                log.info("💾 CacheAspect: 已缓存结果，key = {}, TTL = {} {}", cacheKey, ttl, timeUnit);
+                log.debug("CacheAspect: 已缓存结果，key = {}, TTL = {} {}", cacheKey, ttl, timeUnit);
             }
             
             return result;
@@ -119,7 +119,7 @@ public class CacheAspect {
 
         // 解析SpEL表达式或使用字符串模板
         String resolvedKey = resolveSpEL(keyExpression, joinPoint);
-        log.info("🔑 CacheAspect: 缓存键解析 - 原始表达式: {}, 解析结果: {}", keyExpression, resolvedKey);
+        log.debug("CacheAspect: 缓存键解析 - 原始表达式: {}, 解析结果: {}", keyExpression, resolvedKey);
         return resolvedKey;
     }
 
@@ -150,7 +150,7 @@ public class CacheAspect {
      * 简化实现，支持常见的参数引用
      */
     private String resolveSpEL(String expression, ProceedingJoinPoint joinPoint) {
-        log.info("🔍 resolveSpEL: 开始解析表达式 = {}", expression);
+        log.debug("resolveSpEL: 开始解析表达式 = {}", expression);
         
         // 检查是否包含需要解析的参数引用（#开头的内容）
         if (expression.contains("#")) {
@@ -159,8 +159,8 @@ public class CacheAspect {
             String[] paramNames = signature.getParameterNames();
             Object[] args = joinPoint.getArgs();
 
-            log.info("🔍 resolveSpEL: 参数名数组 = {}", java.util.Arrays.toString(paramNames));
-            log.info("🔍 resolveSpEL: 参数值数组 = {}", java.util.Arrays.toString(args));
+            log.debug("resolveSpEL: 参数名数组 = {}", java.util.Arrays.toString(paramNames));
+            log.debug("resolveSpEL: 参数值数组 = {}", java.util.Arrays.toString(args));
 
             String result = expression;
 
@@ -182,19 +182,18 @@ public class CacheAspect {
                     String paramName = paramNames[i];
                     Object argValue = args[i];
 
-                    log.info("🔍 resolveSpEL: 处理参数名 = {}, 值 = {}", paramName, argValue);
+                    log.debug("resolveSpEL: 处理参数名 = {}, 值 = {}", paramName, argValue);
                     
-                    // 使用 replaceAll 替换所有匹配项
-                    result = result.replaceAll("#" + paramName,
-                                              argValue != null ? argValue.toString() : "null");
+                    result = result.replace("#" + paramName,
+                                            argValue != null ? argValue.toString() : "null");
                 }
             }
 
-            log.info("🔍 resolveSpEL: 解析完成，结果 = {}", result);
+            log.debug("resolveSpEL: 解析完成，结果 = {}", result);
             return result;
         } else {
             // 普通字符串，直接返回
-            log.info("🔍 resolveSpEL: 普通字符串，直接返回 = {}", expression);
+            log.debug("resolveSpEL: 普通字符串，直接返回 = {}", expression);
             return expression;
         }
     }

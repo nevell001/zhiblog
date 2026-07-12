@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import javax.sql.DataSource;
 import com.ruoyi.common.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.ruoyi.common.cache.annotation.BlogCacheable;
@@ -40,6 +41,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     @Autowired
     private com.ruoyi.common.core.redis.RedisCache redisCache;
+
+    @Autowired(required = false)
+    private DataSource dataSource;
+
+    private volatile Boolean mysqlDatabase;
 
     /**
      * 查询博客文章
@@ -377,9 +383,29 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     @BlogCacheable(key = "blog:search:#keyword + '_' + (#blogArticle != null ? #blogArticle.hashCode() : 'null')", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
-        List<BlogArticle> articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
+        boolean useFullText = keyword != null && !keyword.trim().isEmpty() && isMysqlDatabase();
+        List<BlogArticle> articleList = useFullText
+                ? blogArticleMapper.searchArticlesFullText(keyword, blogArticle)
+                : blogArticleMapper.searchArticles(keyword, blogArticle);
         loadTagsForArticles(articleList);
         return articleList;
+    }
+
+    private boolean isMysqlDatabase() {
+        if (mysqlDatabase != null) {
+            return mysqlDatabase;
+        }
+        if (dataSource == null) {
+            mysqlDatabase = false;
+            return false;
+        }
+        try (java.sql.Connection connection = dataSource.getConnection()) {
+            String productName = connection.getMetaData().getDatabaseProductName();
+            mysqlDatabase = productName != null && productName.toLowerCase().contains("mysql");
+        } catch (Exception e) {
+            mysqlDatabase = false;
+        }
+        return mysqlDatabase;
     }
 
     /**

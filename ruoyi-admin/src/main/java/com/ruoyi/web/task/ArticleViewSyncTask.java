@@ -31,17 +31,16 @@ public class ArticleViewSyncTask {
     @Scheduled(cron = "0 0/10 * * * ?")
     public void syncArticleViewCount() {
         log.info("开始同步博客文章浏览量...");
-        Collection<String> keys = redisCache.keys("blog:article:view:*");
+        Collection<String> keys = redisCache.scanKeys("blog:article:view:*");
         
         for (String key : keys) {
             try {
                 String articleIdStr = key.substring(key.lastIndexOf(":") + 1);
                 Long articleId = Long.parseLong(articleIdStr);
-                Integer increment = redisCache.getCacheObject(key);
+                Integer increment = redisCache.getAndDeleteCacheObject(key);
                 
                 if (increment != null && increment > 0) {
                     blogArticleMapper.addIncrementViewCount(articleId, increment.longValue());
-                    redisCache.deleteObject(key);
                     log.debug("已同步文章 {} 的浏览量增量: {}", articleId, increment);
                 }
             } catch (Exception e) {

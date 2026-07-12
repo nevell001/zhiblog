@@ -6,6 +6,7 @@ import com.ruoyi.system.mapper.BlogArticleMapper;
 import com.ruoyi.system.mapper.BlogArticleTagMapper;
 import com.ruoyi.system.mapper.BlogTagMapper;
 import com.ruoyi.system.service.IBlogArticleTagService;
+import com.ruoyi.common.core.redis.RedisCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,6 +52,9 @@ class BlogArticleServiceImplTest {
 
     @Mock
     private IBlogArticleTagService blogArticleTagService;
+
+    @Mock
+    private RedisCache redisCache;
 
     @InjectMocks
     private BlogArticleServiceImpl blogArticleService;
@@ -447,7 +451,8 @@ class BlogArticleServiceImplTest {
         blogArticleService.addViewCount(1L);
 
         // 验证结果
-        verify(blogArticleMapper).addViewCount(1L);
+        verify(redisCache).incrementCacheObject("blog:article:view:1", 1);
+        verify(blogArticleMapper, never()).addViewCount(anyLong());
     }
 
     /**

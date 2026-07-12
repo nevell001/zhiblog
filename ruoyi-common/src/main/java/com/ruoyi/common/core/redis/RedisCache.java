@@ -1,15 +1,19 @@
 package com.ruoyi.common.core.redis;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundSetOperations;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
@@ -108,6 +112,18 @@ public class RedisCache
     {
         ValueOperations<String, T> operation = redisTemplate.opsForValue();
         return operation.get(key);
+    }
+
+    /**
+     * 获取缓存对象并原子删除，适用于消费型计数同步场景
+     *
+     * @param key 缓存键值
+     * @return 缓存键值对应的数据
+     */
+    public <T> T getAndDeleteCacheObject(final String key)
+    {
+        ValueOperations<String, T> operation = redisTemplate.opsForValue();
+        return operation.getAndDelete(key);
     }
 
     /**
@@ -278,6 +294,27 @@ public class RedisCache
      */
     public Collection<String> keys(final String pattern)
     {
-        return redisTemplate.keys(pattern);
+        return scanKeys(pattern);
+    }
+
+    /**
+     * 使用 SCAN 分批获取匹配 key，避免 KEYS 在生产环境阻塞 Redis
+     *
+     * @param pattern 字符串模式
+     * @return 匹配的 key 集合
+     */
+    public Collection<String> scanKeys(final String pattern)
+    {
+        Set<String> keys = new LinkedHashSet<>();
+        redisTemplate.execute((RedisConnection connection) -> {
+            try (Cursor<byte[]> cursor = connection.scan(
+                    ScanOptions.scanOptions().match(pattern).count(1000).build())) {
+                while (cursor.hasNext()) {
+                    keys.add(redisTemplate.getStringSerializer().deserialize(cursor.next()));
+                }
+            }
+            return null;
+        });
+        return keys;
     }
 }

@@ -92,6 +92,14 @@ public interface BlogArticleMapper
     List<BlogArticle> searchArticles(@Param("keyword") String keyword, @Param("blogArticle") BlogArticle blogArticle);
 
     /**
+     * 使用 MySQL FULLTEXT 索引搜索文章
+     * @param keyword 搜索关键词
+     * @param blogArticle 查询条件
+     * @return 文章列表
+     */
+    List<BlogArticle> searchArticlesFullText(@Param("keyword") String keyword, @Param("blogArticle") BlogArticle blogArticle);
+
+    /**
      * 获取文章归档（按年月分组）
      * @return 归档列表
      */

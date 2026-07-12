@@ -1,10 +1,14 @@
 package com.ruoyi.common.cache;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -105,7 +109,7 @@ public class UnifiedCacheManager {
      */
     public void deleteByPattern(String pattern) {
         try {
-            Set<String> keys = redisTemplate.keys(pattern);
+            Set<String> keys = scanKeys(pattern);
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
                 log.debug("Cache delete by pattern: pattern={}, keys={}", pattern, keys.size());
@@ -158,7 +162,7 @@ public class UnifiedCacheManager {
      */
     public Set<String> keys(String pattern) {
         try {
-            return redisTemplate.keys(pattern);
+            return scanKeys(pattern);
         } catch (Exception e) {
             log.error("Failed to get cache keys: pattern={}", pattern, e);
             return null;
@@ -170,7 +174,7 @@ public class UnifiedCacheManager {
      */
     public void clear() {
         try {
-            Set<String> keys = redisTemplate.keys("*");
+            Set<String> keys = scanKeys("*");
             if (keys != null && !keys.isEmpty()) {
                 redisTemplate.delete(keys);
                 log.debug("Cache cleared: {} keys", keys.size());
@@ -198,5 +202,19 @@ public class UnifiedCacheManager {
             log.error("Failed to get cache stats", e);
             return Map.of("error", e.getMessage());
         }
+    }
+
+    private Set<String> scanKeys(String pattern) {
+        Set<String> keys = new LinkedHashSet<>();
+        redisTemplate.execute((RedisConnection connection) -> {
+            try (Cursor<byte[]> cursor = connection.scan(
+                    ScanOptions.scanOptions().match(pattern).count(1000).build())) {
+                while (cursor.hasNext()) {
+                    keys.add(redisTemplate.getStringSerializer().deserialize(cursor.next()));
+                }
+            }
+            return null;
+        });
+        return keys;
     }
 }
