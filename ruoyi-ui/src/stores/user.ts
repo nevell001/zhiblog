@@ -13,7 +13,9 @@ interface UserInfo {
 
 interface UserState {
   token: string
+  userId?: number | string
   name: string
+  nickName: string
   avatar: string
   roles: string[]
   permissions: string[]
@@ -23,7 +25,9 @@ interface UserState {
 export const useUserStore = defineStore('user', {
   state: (): UserState => ({
     token: getToken() || '',
+    userId: undefined,
     name: '',
+    nickName: '',
     avatar: '',
     roles: [],
     permissions: [],
@@ -60,7 +64,9 @@ export const useUserStore = defineStore('user', {
       } else {
         this.roles = ['ROLE_DEFAULT']
       }
+      this.userId = user.userId
       this.name = user.userName
+      this.nickName = user.nickName || user.userName || ''
       this.avatar = avatar
       this.userType = data.userType || user.userType || '00'
 

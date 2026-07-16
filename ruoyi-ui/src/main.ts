@@ -76,7 +76,6 @@ import type { App as VueApp } from 'vue'
 
 import Cookies from 'js-cookie'
 
-import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
 import locale from 'element-plus/es/locale/lang/zh-cn'
@@ -94,6 +93,7 @@ import animateDirective from './directives/animate'
 
 // 注册指令
 import plugins from './plugins' // plugins
+import installElementPlus from './plugins/element-plus'
 import { download } from '@/utils/request'
 
 // svg图标
@@ -168,8 +168,8 @@ const _settingsStore = useSettingsStore()
 
 directive(app)
 
-// 使用element-plus 并且设置全局的大小
-app.use(ElementPlus, {
+// 使用按需注册的 Element Plus 组件，并设置全局大小与语言
+installElementPlus(app, {
   locale: locale,
   // 支持 large、default、small
   size: Cookies.get('size') || 'default'

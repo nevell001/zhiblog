@@ -31,15 +31,14 @@
 </template>
 
 <script setup lang="ts">
-import Logo from './Logo'
-import SidebarItem from './SidebarItem'
+import Logo from './Logo.vue'
+import SidebarItem from './SidebarItem.vue'
 import variables from '@/assets/styles/variables.module.scss'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
 import { computed, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import router from '@/router'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -48,7 +47,7 @@ const permissionStore = usePermissionStore()
 
 // 使用动态生成的路由数据
 const sidebarRouters = computed(() => {
-  return permissionStore.sidebarRouters || []
+  return (permissionStore.sidebarRouters || []) as any[]
 })
 const showLogo = computed(() => settingsStore.sidebarLogo)
 const sideTheme = computed(() => settingsStore.sideTheme)
@@ -80,7 +79,7 @@ const activeMenu = computed(() => {
 })
 
 // 判断是否只有一个子菜单并生成标题
-function onlyOneChild(children) {
+function onlyOneChild(children: any[]) {
   // 确保children是数组
   if (!Array.isArray(children)) {
     return false
@@ -102,17 +101,17 @@ function onlyOneChild(children) {
 //   console.log('菜单点击事件:', event)
 //
 // 处理菜单选择事件
-function handleSelect(_key, _keyPath) {
+function handleSelect(_key: string, _keyPath: string[]) {
   // Element Plus的:router="true"会自动处理路由跳转
 }
 
 // 处理子菜单展开事件
-function handleOpen(_key, _keyPath) {
+function handleOpen(_key: string, _keyPath: string[]) {
   // 子菜单展开处理
 }
 
 // 处理子菜单关闭事件
-function handleClose(_key, _keyPath) {
+function handleClose(_key: string, _keyPath: string[]) {
   // 子菜单关闭处理
 }
 

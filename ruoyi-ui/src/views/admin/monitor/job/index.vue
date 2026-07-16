@@ -374,7 +374,7 @@
 </template>
 
 <script setup lang="ts" name="Job">
-import Crontab from '@/components/Crontab'
+import Crontab from '@/components/Crontab/index.vue'
 import {
   listJob,
   getJob,
@@ -402,8 +402,8 @@ const openView = ref(false)
 const openCron = ref(false)
 const expression = ref('')
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -431,7 +431,7 @@ function getList() {
 }
 
 /** 任务组名字典翻译 */
-function jobGroupFormat(row, column) {
+function jobGroupFormat(row, column?: any) {
   return proxy.selectDictLabel(sys_job_group.value, row.jobGroup)
 }
 

@@ -514,8 +514,8 @@ const columns = ref({
   createTime: { label: '创建时间', visible: true }
 })
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,

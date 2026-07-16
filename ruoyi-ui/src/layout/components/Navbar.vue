@@ -77,14 +77,14 @@
 
 <script setup lang="ts">
 import { ElMessageBox } from 'element-plus'
-import Breadcrumb from '@/components/Breadcrumb'
-import TopNav from '@/components/TopNav'
-import Hamburger from '@/components/Hamburger'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
-import HeaderSearch from '@/components/HeaderSearch'
-import RuoYiGit from '@/components/RuoYi/Git'
-import RuoYiDoc from '@/components/RuoYi/Doc'
+import Breadcrumb from '@/components/Breadcrumb/index.vue'
+import TopNav from '@/components/TopNav/index.vue'
+import Hamburger from '@/components/Hamburger/index.vue'
+import Screenfull from '@/components/Screenfull/index.vue'
+import SizeSelect from '@/components/SizeSelect/index.vue'
+import HeaderSearch from '@/components/HeaderSearch/index.vue'
+import RuoYiGit from '@/components/RuoYi/Git/index.vue'
+import RuoYiDoc from '@/components/RuoYi/Doc/index.vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
@@ -97,7 +97,7 @@ function toggleSideBar() {
   appStore.toggleSideBar()
 }
 
-function handleCommand(command) {
+function handleCommand(command: string) {
   switch (command) {
     case 'setLayout':
       setLayout()

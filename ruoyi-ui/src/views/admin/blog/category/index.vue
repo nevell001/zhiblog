@@ -119,8 +119,8 @@ const multiple = ref(true)
 const total = ref(0)
 const title = ref('')
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -237,11 +237,11 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const ids = row.id || ids.value
+  const deleteIds = row.id || ids.value
   proxy.$modal
-    .confirm('是否确认删除分类编号为"' + ids + '"的数据项？')
+    .confirm('是否确认删除分类编号为"' + deleteIds + '"的数据项？')
     .then(function () {
-      return delCategory(ids)
+      return delCategory(deleteIds)
     })
     .then(() => {
       getList()

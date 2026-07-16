@@ -20,7 +20,7 @@ const props = defineProps({
 const router = useRouter()
 
 const isExt = computed(() => {
-  return isExternal(props.to)
+  return typeof props.to === 'string' && isExternal(props.to)
 })
 
 const type = computed(() => {
@@ -44,7 +44,7 @@ function linkProps() {
 }
 
 // 🔥 关键改进2: 优化事件绑定处理
-function handleLinkClick(event) {
+function handleLinkClick(event: MouseEvent) {
   // 对于外部链接，让浏览器默认处理
   if (isExt.value) {
     return true
@@ -59,7 +59,7 @@ function handleLinkClick(event) {
     const targetPath = typeof props.to === 'string' ? props.to : props.to.path
 
     // 直接使用window.location跳转
-    window.location.href = targetPath
+    window.location.href = targetPath || '/'
 
     return false
   } catch (error) {
@@ -70,7 +70,7 @@ function handleLinkClick(event) {
 }
 
 // 错误处理
-function handleLinkError(error) {
+function handleLinkError(error: unknown) {
   console.error('Link组件错误:', error)
   ElMessage.error('链接加载失败')
 }

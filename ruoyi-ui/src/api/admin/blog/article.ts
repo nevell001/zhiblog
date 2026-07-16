@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { Article, ArticleParams, QueryResult } from '@/types'
+import type { Article, ArticleParams, DataResult, QueryResult } from '@/types'
 
 /**
  * 查询文章列表
@@ -15,7 +15,7 @@ export function listArticle(query?: ArticleParams): Promise<QueryResult<Article>
 /**
  * 查询文章详细
  */
-export function getArticle(id: number): Promise<Article> {
+export function getArticle(id: number): Promise<DataResult<Article>> {
   return request({
     url: '/system/article/' + id,
     method: 'get'
@@ -25,7 +25,7 @@ export function getArticle(id: number): Promise<Article> {
 /**
  * 新增文章
  */
-export function addArticle(data: Article): Promise<any> {
+export function addArticle(data: Partial<Article> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/article',
     method: 'post',
@@ -36,7 +36,7 @@ export function addArticle(data: Article): Promise<any> {
 /**
  * 修改文章
  */
-export function updateArticle(data: Article): Promise<any> {
+export function updateArticle(data: Partial<Article> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/article',
     method: 'put',
@@ -77,21 +77,29 @@ export function likeArticle(id: number): Promise<any> {
 /**
  * 批量更新文章置顶状态
  */
-export function updateArticleTopStatus(ids: number[], isTop: number): Promise<any> {
+export function updateArticleTopStatus(
+  ids: number[] | { ids: number[]; isTop: number },
+  isTop = 1
+): Promise<any> {
+  const data = Array.isArray(ids) ? { ids, isTop } : ids
   return request({
     url: '/system/article/top',
     method: 'put',
-    data: { ids, isTop }
+    data
   })
 }
 
 /**
  * 批量更新文章推荐状态
  */
-export function updateArticleRecommendStatus(ids: number[], isRecommend: number): Promise<any> {
+export function updateArticleRecommendStatus(
+  ids: number[] | { ids: number[]; isRecommend: number },
+  isRecommend = 1
+): Promise<any> {
+  const data = Array.isArray(ids) ? { ids, isRecommend } : ids
   return request({
     url: '/system/article/recommend',
     method: 'put',
-    data: { ids, isRecommend }
+    data
   })
 }

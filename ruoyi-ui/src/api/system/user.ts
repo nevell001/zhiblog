@@ -17,7 +17,7 @@ export function listUser(query?: UserParams): Promise<QueryResult<UserInfo>> {
 /**
  * 查询用户详细
  */
-export function getUser(userId?: number | string): Promise<UserInfo> {
+export function getUser(userId?: number | string): Promise<any> {
   return request({
     url: '/system/user/' + parseStrEmpty(userId),
     method: 'get'
@@ -27,7 +27,7 @@ export function getUser(userId?: number | string): Promise<UserInfo> {
 /**
  * 新增用户
  */
-export function addUser(data: UserInfo): Promise<any> {
+export function addUser(data: Partial<UserInfo> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/user',
     method: 'post',
@@ -38,7 +38,7 @@ export function addUser(data: UserInfo): Promise<any> {
 /**
  * 修改用户
  */
-export function updateUser(data: UserInfo): Promise<any> {
+export function updateUser(data: Partial<UserInfo> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/user',
     method: 'put',
@@ -89,7 +89,7 @@ export function changeUserStatus(userId: number, status: string): Promise<any> {
 /**
  * 查询用户个人信息
  */
-export function getUserProfile(): Promise<UserInfo> {
+export function getUserProfile(): Promise<any> {
   return request({
     url: '/system/user/profile',
     method: 'get'
@@ -99,7 +99,7 @@ export function getUserProfile(): Promise<UserInfo> {
 /**
  * 修改用户个人信息
  */
-export function updateUserProfile(data: UserInfo): Promise<any> {
+export function updateUserProfile(data: Partial<UserInfo> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/user/profile',
     method: 'put',

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { DictData, DictParams, QueryResult } from '@/types'
+import type { DataResult, DictData, DictParams, QueryResult } from '@/types'
 
 /**
  * 查询字典数据列表
@@ -15,7 +15,7 @@ export function listData(query?: DictParams): Promise<QueryResult<DictData>> {
 /**
  * 查询字典数据详细
  */
-export function getData(dictCode: number): Promise<DictData> {
+export function getData(dictCode: number): Promise<DataResult<DictData>> {
   return request({
     url: '/system/dict/data/' + dictCode,
     method: 'get'
@@ -35,7 +35,7 @@ export function getDicts(dictType: string): Promise<DictData[]> {
 /**
  * 新增字典数据
  */
-export function addData(data: DictData): Promise<any> {
+export function addData(data: Partial<DictData> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dict/data',
     method: 'post',
@@ -46,7 +46,7 @@ export function addData(data: DictData): Promise<any> {
 /**
  * 修改字典数据
  */
-export function updateData(data: DictData): Promise<any> {
+export function updateData(data: Partial<DictData> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dict/data',
     method: 'put',

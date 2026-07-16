@@ -1,42 +1,24 @@
 <template>
   <BlogLayout>
     <div class="about-page">
-      <!-- Hero 区域 -->
-      <header class="hero-section">
-        <div class="hero-wave-bg">
-          <svg class="wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
-            <path
-              fill="rgba(255,255,255,0.08)"
-              d="M0,160L48,176C96,192,192,224,288,213.3C384,203,480,149,576,138.7C672,128,768,160,864,181.3C960,203,1056,213,1152,192C1248,171,1344,117,1392,90.7L1440,64L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            />
-            <path
-              fill="rgba(255,255,255,0.05)"
-              d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,208C1248,192,1344,192,1392,192L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
-            />
-          </svg>
-        </div>
-        <div class="hero-inner">
-          <div class="hero-avatar-wrap">
+      <!-- 个人简介 -->
+      <header class="about-intro">
+        <div class="about-intro-inner">
+          <div class="about-avatar-wrap">
             <img :src="blogAvatarUrl" :alt="blogSettings.blog_author" @error="handleAvatarError" />
           </div>
-          <h1 class="hero-name">
-            {{ blogSettings.blog_author || 'Nevell' }}
-          </h1>
-          <p class="hero-role">
-            {{ blogSettings.author_title || '全栈开发工程师' }}
-          </p>
-          <p class="hero-desc">
-            {{ blogSettings.blog_desc || '热爱技术，热爱生活，专注于Web开发和用户体验设计。' }}
-          </p>
-        </div>
-        <!-- Hero 底部圆角过渡 -->
-        <div class="hero-bottom-wave">
-          <svg viewBox="0 0 1440 120" preserveAspectRatio="none">
-            <path
-              fill="#fafbfc"
-              d="M0,64L48,69.3C96,75,192,85,288,80C384,75,480,53,576,48C672,43,768,53,864,64C960,75,1056,85,1152,80C1248,75,1344,53,1392,42.7L1440,32L1440,120L1392,120C1344,120,1248,120,1152,120C1056,120,960,120,864,120C768,120,672,120,576,120C480,120,384,120,288,120C192,120,96,120,48,120L0,120Z"
-            />
-          </svg>
+          <div class="about-intro-copy">
+            <span class="section-label">About</span>
+            <h1 class="about-name">
+              {{ blogSettings.blog_author || 'Nevell' }}
+            </h1>
+            <p class="about-role">
+              {{ blogSettings.author_title || '全栈开发工程师' }}
+            </p>
+            <p class="about-desc">
+              {{ blogSettings.blog_desc || '热爱技术，热爱生活，专注于Web开发和用户体验设计。' }}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -294,103 +276,76 @@ onMounted(() => {
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei',
     sans-serif;
-  color: #1a1a2e;
-  background: #fafbfc;
+  color: #1c1917;
+  background: #fafaf9;
   min-height: 100vh;
   padding-top: 0;
 }
 
-/* ===== Hero 区域 ===== */
-.hero-section {
-  position: relative;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  padding: 120px 24px 80px;
-  text-align: center;
-  overflow: hidden;
+/* ===== 个人简介 ===== */
+.about-intro {
+  padding: 96px 24px 56px;
+  background: #fafaf9;
 }
 
-.hero-wave-bg {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 160px;
-}
-
-.wave-svg {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-.hero-inner {
-  position: relative;
-  z-index: 2;
-  max-width: 640px;
+.about-intro-inner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 32px;
+  max-width: 900px;
   margin: 0 auto;
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  box-shadow: 0 14px 40px rgba(28, 25, 23, 0.06);
 }
 
-.hero-avatar-wrap {
-  margin-bottom: 24px;
-}
-
-.hero-avatar-wrap img {
+.about-avatar-wrap img {
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  border: 4px solid #eef2ff;
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.12);
   object-fit: cover;
   transition: transform 0.3s;
 }
 
-.hero-avatar-wrap img:hover {
+.about-avatar-wrap img:hover {
   transform: scale(1.05);
 }
 
-.hero-name {
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
+.about-intro-copy {
+  min-width: 0;
 }
 
-.hero-role {
+.about-name {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #1c1917;
+  margin-bottom: 8px;
+}
+
+.about-role {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: #4f46e5;
   margin-bottom: 16px;
   font-weight: 500;
 }
 
-.hero-desc {
+.about-desc {
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.85);
+  color: #57534e;
   line-height: 1.7;
   max-width: 480px;
-  margin: 0 auto;
-}
-
-/* Hero 底部波浪过渡到白色 */
-.hero-bottom-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 60px;
-  z-index: 3;
-}
-
-.hero-bottom-wave svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  margin: 0;
 }
 
 /* ===== 统计数据 ===== */
 .stats-section {
   padding: 60px 0;
-  background: #fafbfc;
+  background: #fafaf9;
 }
 
 .stats-inner {
@@ -417,20 +372,20 @@ onMounted(() => {
 
 .stat-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(74, 123, 255, 0.12);
+  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.12);
 }
 
 .stat-num {
   font-size: 2rem;
   font-weight: 800;
-  color: #4a7bff;
+  color: #4f46e5;
   line-height: 1;
   margin-bottom: 8px;
 }
 
 .stat-label {
   font-size: 0.85rem;
-  color: #7b7b9e;
+  color: #78716c;
   font-weight: 600;
   letter-spacing: 1px;
 }
@@ -441,7 +396,7 @@ onMounted(() => {
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: #9aa5b8;
+  color: #a8a29e;
   text-transform: uppercase;
   margin-bottom: 24px;
 }
@@ -459,7 +414,7 @@ onMounted(() => {
 }
 
 .content-card {
-  background: #fafbfc;
+  background: #fafaf9;
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   overflow: hidden;
@@ -468,14 +423,14 @@ onMounted(() => {
 .about-content {
   padding: 40px;
   line-height: 1.8;
-  color: #1a1a2e;
+  color: #1c1917;
   font-size: 0.95rem;
 }
 
 .about-content :deep(h1),
 .about-content :deep(h2),
 .about-content :deep(h3) {
-  color: #1a1a2e;
+  color: #1c1917;
   margin-top: 24px;
   margin-bottom: 16px;
   font-weight: 700;
@@ -486,7 +441,7 @@ onMounted(() => {
 }
 
 .about-content :deep(a) {
-  color: #4a7bff;
+  color: #4f46e5;
   text-decoration: none;
 }
 
@@ -497,7 +452,7 @@ onMounted(() => {
 /* ===== 联系方式 ===== */
 .contact-section {
   padding: 48px 0 80px;
-  background: #fafbfc;
+  background: #fafaf9;
 }
 
 .contact-inner {
@@ -527,7 +482,7 @@ onMounted(() => {
 
 .contact-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(74, 123, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.1);
 }
 
 .contact-icon {
@@ -537,24 +492,25 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
+  background: #eef2ff;
+  color: #4f46e5;
   flex-shrink: 0;
 }
 
 .email-icon {
-  background: #ea4335;
+  background: #eef2ff;
 }
 .location-icon {
-  background: #4caf50;
+  background: #eef2ff;
 }
 .github-icon {
-  background: #24292e;
+  background: #eef2ff;
 }
 .weibo-icon {
-  background: #e6162d;
+  background: #eef2ff;
 }
 .website-icon {
-  background: #4a7bff;
+  background: #eef2ff;
 }
 
 .contact-info {
@@ -564,7 +520,7 @@ onMounted(() => {
 
 .contact-type {
   font-size: 0.8rem;
-  color: #7b7b9e;
+  color: #78716c;
   font-weight: 600;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
@@ -572,14 +528,14 @@ onMounted(() => {
 
 .contact-value {
   font-size: 0.95rem;
-  color: #1a1a2e;
+  color: #1c1917;
   font-weight: 600;
   text-decoration: none;
   word-break: break-all;
 }
 
 a.contact-value {
-  color: #4a7bff;
+  color: #4f46e5;
 }
 
 a.contact-value:hover {
@@ -588,7 +544,7 @@ a.contact-value:hover {
 
 /* ===== 响应式 ===== */
 @media (max-width: 900px) {
-  .hero-name {
+  .about-name {
     font-size: 2rem;
   }
   .stats-inner {
@@ -603,16 +559,30 @@ a.contact-value:hover {
 }
 
 @media (max-width: 640px) {
-  .hero-section {
-    padding: 100px 20px 60px;
+  .about-intro {
+    padding: 80px 16px 40px;
   }
-  .hero-avatar-wrap img {
+
+  .about-intro-inner {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  .about-avatar-wrap img {
     width: 110px;
     height: 110px;
   }
-  .hero-name {
+
+  .about-name {
     font-size: 1.6rem;
   }
+
+  .about-desc {
+    margin: 0 auto;
+  }
+
   .stats-inner {
     gap: 16px;
   }
@@ -633,29 +603,47 @@ a.contact-value:hover {
 
 /* ===== 深色模式 ===== */
 html.dark .about-page {
-  background: #1e1e2e;
+  background: #1c1917;
   color: #e2e8f0;
 }
 
-html.dark .hero-section {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+html.dark .about-intro {
+  background: #1c1917;
 }
 
-html.dark .hero-bottom-wave svg path {
-  fill: #1e1e2e;
+html.dark .about-intro-inner {
+  background: #292524;
+  border-color: #44403c;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .about-avatar-wrap img {
+  border-color: #3730a3;
+}
+
+html.dark .about-name {
+  color: #f5f5f4;
+}
+
+html.dark .about-role {
+  color: #a5b4fc;
+}
+
+html.dark .about-desc {
+  color: #d6d3d1;
 }
 
 html.dark .stats-section {
-  background: #1e1e2e;
+  background: #1c1917;
 }
 
 html.dark .stat-item {
-  background: #252535;
+  background: #292524;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .stat-num {
-  color: #60a5fa;
+  color: #a5b4fc;
 }
 
 html.dark .stat-label {
@@ -663,11 +651,11 @@ html.dark .stat-label {
 }
 
 html.dark .content-section {
-  background: #252535;
+  background: #292524;
 }
 
 html.dark .content-card {
-  background: #1e1e2e;
+  background: #1c1917;
 }
 
 html.dark .about-content {
@@ -681,15 +669,15 @@ html.dark .about-content :deep(h3) {
 }
 
 html.dark .about-content :deep(a) {
-  color: #60a5fa;
+  color: #a5b4fc;
 }
 
 html.dark .contact-section {
-  background: #1e1e2e;
+  background: #1c1917;
 }
 
 html.dark .contact-card {
-  background: #252535;
+  background: #292524;
 }
 
 html.dark .contact-type {
@@ -701,10 +689,10 @@ html.dark .contact-value {
 }
 
 html.dark a.contact-value {
-  color: #60a5fa;
+  color: #a5b4fc;
 }
 
 html.dark .section-label {
-  color: #64748b;
+  color: #78716c;
 }
 </style>

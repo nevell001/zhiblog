@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { FriendLink, PageParams, QueryResult } from '@/types'
+import type { DataResult, FriendLink, PageParams, QueryResult } from '@/types'
 
 /**
  * 查询友链列表
@@ -15,7 +15,7 @@ export function listFriendLink(query?: PageParams): Promise<QueryResult<FriendLi
 /**
  * 查询友链详细
  */
-export function getFriendLink(id: number): Promise<FriendLink> {
+export function getFriendLink(id: number): Promise<DataResult<FriendLink>> {
   return request({
     url: '/system/friendLink/' + id,
     method: 'get'
@@ -25,7 +25,7 @@ export function getFriendLink(id: number): Promise<FriendLink> {
 /**
  * 新增友链
  */
-export function addFriendLink(data: FriendLink): Promise<any> {
+export function addFriendLink(data: Partial<FriendLink> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/friendLink',
     method: 'post',
@@ -36,7 +36,7 @@ export function addFriendLink(data: FriendLink): Promise<any> {
 /**
  * 修改友链
  */
-export function updateFriendLink(data: FriendLink): Promise<any> {
+export function updateFriendLink(data: Partial<FriendLink> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/friendLink',
     method: 'put',

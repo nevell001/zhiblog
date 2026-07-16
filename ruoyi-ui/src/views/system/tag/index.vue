@@ -236,8 +236,8 @@ const normalizeColor = color => {
   return '#' + color
 }
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,

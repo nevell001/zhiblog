@@ -104,7 +104,7 @@
         insert into blog_article
         (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, #{createTime}, #{updateTime}, 
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>

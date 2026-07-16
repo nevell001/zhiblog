@@ -334,8 +334,8 @@ const deptExpand = ref(true)
 const deptNodeAll = ref(false)
 const deptOptions = ref([])
 const openDataScope = ref(false)
-const menuRef = ref(null)
-const deptRef = ref(null)
+const menuRef = ref<any>(null)
+const deptRef = ref<any>(null)
 
 /** 数据范围选项*/
 const dataScopeOptions = ref([
@@ -346,8 +346,8 @@ const dataScopeOptions = ref([
   { value: '5', label: '仅本人数据权限' }
 ])
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,

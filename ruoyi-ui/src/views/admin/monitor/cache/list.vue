@@ -159,11 +159,22 @@ import {
   clearCacheAll
 } from '@/api/monitor/cache'
 
-const { proxy } = getCurrentInstance()
+interface CacheNameRow {
+  cacheName: string
+  remark?: string
+}
 
-const cacheNames = ref([])
-const cacheKeys = ref([])
-const cacheForm = ref({})
+interface CacheForm {
+  cacheName?: string
+  cacheKey?: string
+  cacheValue?: string
+}
+
+const { proxy } = getCurrentInstance()!
+
+const cacheNames = ref<CacheNameRow[]>([])
+const cacheKeys = ref<string[]>([])
+const cacheForm = ref<CacheForm>({})
 const loading = ref(true)
 const subLoading = ref(false)
 const nowCacheName = ref('')
@@ -185,7 +196,7 @@ function refreshCacheNames() {
 }
 
 /** 清理指定名称缓存 */
-function handleClearCacheName(row) {
+function handleClearCacheName(row: CacheNameRow) {
   clearCacheName(row.cacheName).then(response => {
     proxy.$modal.msgSuccess('清理缓存名称[' + row.cacheName + ']成功')
     getCacheKeys()
@@ -193,7 +204,7 @@ function handleClearCacheName(row) {
 }
 
 /** 查询缓存键名列表 */
-function getCacheKeys(row) {
+function getCacheKeys(row?: CacheNameRow) {
   const cacheName = row !== undefined ? row.cacheName : nowCacheName.value
   if (cacheName === '') {
     return
@@ -213,7 +224,7 @@ function refreshCacheKeys() {
 }
 
 /** 清理指定键名缓存 */
-function handleClearCacheKey(cacheKey) {
+function handleClearCacheKey(cacheKey: string) {
   clearCacheKey(cacheKey).then(response => {
     proxy.$modal.msgSuccess('清理缓存键名[' + cacheKey + ']成功')
     getCacheKeys()
@@ -221,17 +232,17 @@ function handleClearCacheKey(cacheKey) {
 }
 
 /** 列表前缀去除 */
-function nameFormatter(row) {
+function nameFormatter(row: CacheNameRow) {
   return row.cacheName.replace(':', '')
 }
 
 /** 键名前缀去除 */
-function keyFormatter(cacheKey) {
+function keyFormatter(cacheKey: string) {
   return cacheKey.replace(nowCacheName.value, '')
 }
 
 /** 查询缓存内容详细 */
-function handleCacheValue(cacheKey) {
+function handleCacheValue(cacheKey: string) {
   getCacheValue(nowCacheName.value, cacheKey).then(response => {
     cacheForm.value = response.data
   })

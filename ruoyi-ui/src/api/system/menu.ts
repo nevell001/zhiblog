@@ -4,7 +4,7 @@ import type { Menu, MenuParams } from '@/types'
 /**
  * 查询菜单列表
  */
-export function listMenu(query?: MenuParams): Promise<Menu[]> {
+export function listMenu(query?: MenuParams): Promise<any> {
   return request({
     url: '/system/menu/list',
     method: 'get',
@@ -15,7 +15,7 @@ export function listMenu(query?: MenuParams): Promise<Menu[]> {
 /**
  * 查询菜单详细
  */
-export function getMenu(menuId: number): Promise<Menu> {
+export function getMenu(menuId: number): Promise<any> {
   return request({
     url: '/system/menu/' + menuId,
     method: 'get'
@@ -45,7 +45,7 @@ export function roleMenuTreeselect(roleId: number): Promise<any> {
 /**
  * 新增菜单
  */
-export function addMenu(data: Menu): Promise<any> {
+export function addMenu(data: Partial<Menu> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/menu',
     method: 'post',
@@ -56,7 +56,7 @@ export function addMenu(data: Menu): Promise<any> {
 /**
  * 修改菜单
  */
-export function updateMenu(data: Menu): Promise<any> {
+export function updateMenu(data: Partial<Menu> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/menu',
     method: 'put',

@@ -29,7 +29,7 @@ const props = defineProps({
 
 const loading = ref(true)
 const height = ref(document.documentElement.clientHeight - 94.5 + 'px')
-const iframeRef = ref(null)
+const iframeRef = ref<any>(null)
 
 onMounted(() => {
   if (iframeRef.value) {

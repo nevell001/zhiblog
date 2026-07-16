@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { PageParams, QueryResult } from '@/types'
+import type { DataResult, PageParams, QueryResult } from '@/types'
 
 /**
  * 配置信息
@@ -27,7 +27,7 @@ export function listConfig(query?: PageParams): Promise<QueryResult<Config>> {
 /**
  * 查询参数详细
  */
-export function getConfig(configId: number): Promise<Config> {
+export function getConfig(configId: number): Promise<DataResult<Config>> {
   return request({
     url: '/system/config/' + configId,
     method: 'get'
@@ -47,7 +47,7 @@ export function getConfigKey(configKey: string): Promise<Config> {
 /**
  * 新增参数配置
  */
-export function addConfig(data: Config): Promise<any> {
+export function addConfig(data: Partial<Config> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/config',
     method: 'post',
@@ -58,7 +58,7 @@ export function addConfig(data: Config): Promise<any> {
 /**
  * 修改参数配置
  */
-export function updateConfig(data: Config): Promise<any> {
+export function updateConfig(data: Partial<Config> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/config',
     method: 'put',

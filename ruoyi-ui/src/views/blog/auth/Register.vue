@@ -1,11 +1,40 @@
 <template>
-  <div class="blog-register-container">
+  <div class="blog-register-container mo-auth-page">
     <BlogLayout>
-      <div class="register-wrapper">
-        <div class="register-card">
-          <div class="register-header">
-            <h1>用户注册</h1>
-            <p>创建您的账号</p>
+      <div class="auth-wrapper">
+        <section class="auth-visual">
+          <div class="brand-lg">
+            墨
+            <span>Blog</span>
+          </div>
+          <div class="tagline">记录思考，分享洞见</div>
+          <div class="features">
+            <div class="feat">
+              <span class="check">✓</span>
+              沉浸式阅读体验，衬线排版
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              Markdown 写作，草稿自动保存
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              标签与分类，内容组织有序
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              评论互动，思想碰撞
+            </div>
+          </div>
+        </section>
+
+        <section class="auth-form">
+          <h2>创建账号</h2>
+          <p class="sub">填写信息，即刻开始创作</p>
+
+          <div class="auth-tabs">
+            <router-link to="/blog/auth/login" class="tab">登录</router-link>
+            <span class="tab active">注册</span>
           </div>
 
           <el-form
@@ -14,27 +43,40 @@
             :rules="registerRules"
             class="register-form"
           >
-            <el-form-item prop="username">
-              <el-input v-model="registerForm.username" placeholder="用户名" size="large" clearable>
+            <el-form-item prop="username" class="form-group">
+              <label>昵称</label>
+              <el-input
+                v-model="registerForm.username"
+                placeholder="你的昵称"
+                size="large"
+                clearable
+              >
                 <template #prefix>
                   <el-icon><User /></el-icon>
                 </template>
               </el-input>
             </el-form-item>
 
-            <el-form-item prop="email">
-              <el-input v-model="registerForm.email" placeholder="邮箱地址" size="large" clearable>
+            <el-form-item prop="email" class="form-group">
+              <label>邮箱</label>
+              <el-input
+                v-model="registerForm.email"
+                placeholder="name@example.com"
+                size="large"
+                clearable
+              >
                 <template #prefix>
                   <el-icon><Message /></el-icon>
                 </template>
               </el-input>
             </el-form-item>
 
-            <el-form-item prop="emailCode">
+            <el-form-item prop="emailCode" class="form-group">
+              <label>邮箱验证码</label>
               <div class="email-code-row">
                 <el-input
                   v-model="registerForm.emailCode"
-                  placeholder="邮箱验证码"
+                  placeholder="请输入验证码"
                   size="large"
                   clearable
                   style="flex: 1"
@@ -44,6 +86,7 @@
                   </template>
                 </el-input>
                 <el-button
+                  class="code-button"
                   size="large"
                   :disabled="codeCountdown > 0"
                   :loading="codeSending"
@@ -54,11 +97,12 @@
               </div>
             </el-form-item>
 
-            <el-form-item prop="password">
+            <el-form-item prop="password" class="form-group">
+              <label>密码</label>
               <el-input
                 v-model="registerForm.password"
                 type="password"
-                placeholder="密码"
+                placeholder="至少 8 位，含字母和数字"
                 size="large"
                 show-password
                 clearable
@@ -69,11 +113,12 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item prop="confirmPassword">
+            <el-form-item prop="confirmPassword" class="form-group">
+              <label>确认密码</label>
               <el-input
                 v-model="registerForm.confirmPassword"
                 type="password"
-                placeholder="确认密码"
+                placeholder="再次输入密码"
                 size="large"
                 show-password
                 clearable
@@ -84,7 +129,8 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item v-if="captchaEnabled" prop="code">
+            <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
+              <label>验证码</label>
               <div class="captcha-row">
                 <el-input
                   v-model="registerForm.code"
@@ -101,23 +147,29 @@
               </div>
             </el-form-item>
 
+            <div class="form-options">
+              <label class="remember">
+                <input type="checkbox" checked />
+                我已阅读并同意用户协议和隐私政策
+              </label>
+            </div>
+
             <el-form-item>
               <el-button
                 type="primary"
                 size="large"
                 :loading="loading"
-                class="register-button"
+                class="auth-submit"
                 @click="handleRegister"
               >
-                {{ loading ? '注册中...' : '注册' }}
+                {{ loading ? '注册中...' : '注 册' }}
               </el-button>
             </el-form-item>
 
-            <div class="register-footer">
-              <router-link to="/login" class="link">已有账号？立即登录</router-link>
-            </div>
+            <div class="auth-divider">已有账号？</div>
+            <router-link to="/blog/auth/login" class="auth-secondary">返回登录</router-link>
           </el-form>
-        </div>
+        </section>
       </div>
     </BlogLayout>
   </div>
@@ -278,108 +330,284 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.blog-register-container {
-  padding-top: 64px;
+.mo-auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  position: relative;
+  padding-top: 64px;
+  background: #fafaf9;
 }
 
-.register-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.auth-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: calc(100vh - 60px);
-  padding: 20px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
-.register-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+.auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 56px 48px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, #4f46e5, #3730a3);
+}
+
+.auth-visual::before,
+.auth-visual::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-visual::before {
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+}
+
+.auth-visual::after {
+  bottom: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+}
+
+.brand-lg {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.brand-lg span {
+  color: #c7d2fe;
+}
+
+.tagline {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 36px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   max-width: 420px;
-  animation: fadeInUp 0.5s ease-out;
+  margin: 0 auto;
+  padding: 48px;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.auth-form h2 {
+  margin: 0 0 6px;
+  color: #1c1917;
+  font-size: 26px;
+  font-weight: 700;
 }
 
-.register-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.register-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.register-header p {
-  color: #999;
+.sub {
+  margin: 0 0 28px;
+  color: #78716c;
   font-size: 14px;
-  margin: 0;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 28px;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 0;
+  color: #78716c;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab:hover {
+  color: #44403c;
+}
+
+.tab.active {
+  color: #4f46e5;
+  border-bottom-color: #4f46e5;
 }
 
 .register-form {
-  margin-top: 24px;
+  margin-top: 0;
 }
 
-.email-code-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.form-group {
+  display: block;
+  margin-bottom: 16px;
 }
 
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #44403c;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #d6d3d1 inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px #eef2ff;
+}
+
+.email-code-row,
 .captcha-row {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
+}
+
+.code-button {
+  border-radius: 8px;
 }
 
 .captcha-img {
   height: 40px;
   cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid #d6d3d1;
+  border-radius: 8px;
   transition: all 0.3s;
 }
 
 .captcha-img:hover {
-  border-color: #4a7bff;
+  border-color: #818cf8;
 }
 
-.register-button {
+.form-options {
+  margin-bottom: 22px;
+  font-size: 13px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #57534e;
+}
+
+.remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: #4f46e5;
+}
+
+.auth-submit {
   width: 100%;
-  height: 44px;
-  font-size: 16px;
-  margin-top: 8px;
+  height: 46px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-.register-footer {
-  text-align: center;
-  margin-top: 20px;
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 16px;
+  color: #a8a29e;
+  font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e7e5e4;
+}
+
+.auth-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  color: #4f46e5;
   font-size: 14px;
-}
-
-.register-footer .link {
-  color: #4a7bff;
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.3s;
+  border: 1px solid #d6d3d1;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
-.register-footer .link:hover {
-  color: #6b8cff;
+.auth-secondary:hover {
+  border-color: #818cf8;
+  background: #eef2ff;
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+    box-shadow: none;
+  }
+
+  .auth-visual {
+    display: none;
+  }
+
+  .auth-form {
+    padding: 32px 24px;
+  }
+
+  .email-code-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
 }
 </style>

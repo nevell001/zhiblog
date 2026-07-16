@@ -41,7 +41,7 @@ defineOptions({
 
 const { proxy } = getCurrentInstance()
 
-const quillEditorRef = ref()
+const quillEditorRef = ref<any>()
 // 添加安全检查，防止环境变量未定义
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const uploadUrl = ref(baseApi + '/common/upload/compressed') // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案

@@ -27,7 +27,7 @@ export function listNotice(query?: PageParams): Promise<QueryResult<Notice>> {
 /**
  * 查询公告详细
  */
-export function getNotice(noticeId: number): Promise<Notice> {
+export function getNotice(noticeId: number): Promise<any> {
   return request({
     url: '/system/notice/' + noticeId,
     method: 'get'
@@ -37,7 +37,7 @@ export function getNotice(noticeId: number): Promise<Notice> {
 /**
  * 新增公告
  */
-export function addNotice(data: Notice): Promise<any> {
+export function addNotice(data: Partial<Notice> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/notice',
     method: 'post',
@@ -48,7 +48,7 @@ export function addNotice(data: Notice): Promise<any> {
 /**
  * 修改公告
  */
-export function updateNotice(data: Notice): Promise<any> {
+export function updateNotice(data: Partial<Notice> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/notice',
     method: 'put',

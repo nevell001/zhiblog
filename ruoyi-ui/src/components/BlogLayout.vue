@@ -224,11 +224,9 @@ onMounted(() => {
 <style scoped>
 .blog-layout {
   min-height: 100vh;
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei',
-    sans-serif;
-  color: #1a1a2e;
-  background: #fff;
+  background: #fafaf9;
+  color: #292524;
+  font-family: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 }
 
 /* 导航栏 */
@@ -238,15 +236,15 @@ onMounted(() => {
   left: 0;
   right: 0;
   z-index: 100;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 .nav-inner {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
-  height: 64px;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -261,7 +259,7 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a7bff, #6b8cff);
+  background: linear-gradient(135deg, #4f46e5, #3730a3);
   color: #fff;
   display: flex;
   align-items: center;
@@ -272,8 +270,8 @@ onMounted(() => {
 .brand-name {
   font-weight: 700;
   font-size: 18px;
-  color: #1a1a2e;
-  letter-spacing: -0.5px;
+  color: #1c1917;
+  letter-spacing: 0;
 }
 .nav-center {
   display: flex;
@@ -284,14 +282,14 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #7b7b9e;
+  color: #57534e;
   text-decoration: none;
   transition: all 0.2s;
 }
 .nav-link:hover,
 .nav-link.router-link-active {
-  color: #4a7bff;
-  background: #f0f4ff;
+  background: #eef2ff;
+  color: #4338ca;
 }
 .nav-right {
   display: flex;
@@ -308,7 +306,7 @@ onMounted(() => {
   transition: background 0.2s;
 }
 .user-info:hover {
-  background: #f0f4ff;
+  background: #f5f5f4;
 }
 .username {
   font-size: 14px;
@@ -317,39 +315,40 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #1a1a2e;
+  color: #292524;
 }
 .dropdown-icon {
-  color: #9aa5b8;
+  color: #a8a29e;
 }
 .theme-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: #4a7bff;
+  color: #4f46e5;
   padding: 6px;
   border-radius: 8px;
   transition: background 0.2s;
 }
 .theme-btn:hover {
-  background: #f0f4ff;
+  background: #eef2ff;
 }
 
 /* 底部 */
 .blog-site-footer {
   position: relative;
-  background: #4a7bff;
-  color: #fff;
+  border-top: 1px solid #e7e5e4;
+  background: #f5f5f4;
+  color: #57534e;
   padding: 0 24px 24px;
 }
 .footer-wave {
   position: relative;
   margin-bottom: -2px;
-  color: #fafbfc;
+  color: #fafaf9;
 }
 .footer-wave svg {
   width: 100%;
-  height: 60px;
+  height: 52px;
   display: block;
 }
 .footer-inner {
@@ -360,7 +359,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 40px;
   padding-bottom: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid #e7e5e4;
 }
 .footer-brand {
   display: flex;
@@ -371,8 +370,8 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: #e0e7ff;
+  color: #4f46e5;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -386,7 +385,7 @@ onMounted(() => {
 }
 .brand-desc {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: #78716c;
   margin-top: 4px;
 }
 .footer-links {
@@ -396,20 +395,20 @@ onMounted(() => {
 .footer-col h4 {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.5);
-  letter-spacing: 1px;
+  color: #292524;
+  letter-spacing: 0;
   margin-bottom: 16px;
 }
 .footer-col a {
   display: block;
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #57534e;
   text-decoration: none;
   margin-bottom: 10px;
   transition: color 0.2s;
 }
 .footer-col a:hover {
-  color: #fff;
+  color: #4f46e5;
 }
 .footer-bottom {
   max-width: 1200px;
@@ -417,7 +416,7 @@ onMounted(() => {
   padding-top: 24px;
   text-align: center;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: #78716c;
 }
 .tech-info {
   margin-top: 6px;
@@ -426,42 +425,63 @@ onMounted(() => {
 
 /* 深色模式 */
 html.dark .blog-layout {
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #1c1917;
+  color: #e7e5e4;
 }
+
 html.dark .blog-top-nav {
-  background: rgba(15, 23, 42, 0.92);
-  border-bottom-color: rgba(255, 255, 255, 0.06);
+  border-bottom-color: rgba(68, 64, 60, 0.72);
+  background: rgba(28, 25, 23, 0.92);
 }
+
 html.dark .brand-name,
-html.dark .username {
-  color: #e2e8f0;
+html.dark .username,
+html.dark .footer-col h4 {
+  color: #f5f5f4;
 }
-html.dark .nav-link {
-  color: #94a3b8;
+
+html.dark .nav-link,
+html.dark .footer-col a,
+html.dark .blog-site-footer,
+html.dark .brand-desc,
+html.dark .footer-bottom {
+  color: #d6d3d1;
 }
+
 html.dark .nav-link:hover,
-html.dark .nav-link.router-link-active {
-  color: #60a5fa;
-  background: #1e3a5f;
+html.dark .nav-link.router-link-active,
+html.dark .theme-btn,
+html.dark .footer-col a:hover {
+  color: #a5b4fc;
 }
-html.dark .user-info:hover {
-  background: #1e3a5f;
-}
-html.dark .theme-btn {
-  color: #60a5fa;
-}
+
+html.dark .nav-link:hover,
+html.dark .nav-link.router-link-active,
+html.dark .user-info:hover,
 html.dark .theme-btn:hover {
-  background: #1e3a5f;
+  background: rgba(79, 70, 229, 0.18);
 }
+
 html.dark .blog-site-footer {
-  background: #1e40af;
+  border-top-color: #44403c;
+  background: #292524;
 }
+
 html.dark .footer-wave {
-  color: #1e293b;
+  color: #1c1917;
 }
+
+html.dark .footer-inner {
+  border-bottom-color: #44403c;
+}
+
+html.dark .footer-logo {
+  background: rgba(79, 70, 229, 0.18);
+  color: #a5b4fc;
+}
+
 html.dark .dropdown-icon {
-  color: #64748b;
+  color: #a8a29e;
 }
 
 /* 响应式 */

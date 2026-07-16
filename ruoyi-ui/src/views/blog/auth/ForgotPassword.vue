@@ -1,150 +1,150 @@
 <template>
-  <div class="blog-forgot-password-container">
-    <BlogNav />
+  <div class="blog-forgot-password-container mo-auth-page">
+    <BlogLayout>
+      <div class="forgot-password-wrapper">
+        <div class="forgot-password-card">
+          <div class="forgot-password-header">
+            <h1>找回密码</h1>
+            <p>通过邮箱重置您的密码</p>
+          </div>
 
-    <div class="forgot-password-wrapper">
-      <div class="forgot-password-card">
-        <div class="forgot-password-header">
-          <h1>找回密码</h1>
-          <p>通过邮箱重置您的密码</p>
-        </div>
+          <el-steps :active="currentStep" align-center class="steps">
+            <el-step title="验证邮箱" />
+            <el-step title="重置密码" />
+            <el-step title="完成" />
+          </el-steps>
 
-        <el-steps :active="currentStep" align-center class="steps">
-          <el-step title="验证邮箱" />
-          <el-step title="重置密码" />
-          <el-step title="完成" />
-        </el-steps>
-
-        <!-- 步骤1: 验证邮箱 -->
-        <div v-if="currentStep === 0" class="step-content">
-          <el-form
-            ref="emailFormRef"
-            :model="emailForm"
-            :rules="emailRules"
-            class="forgot-password-form"
-          >
-            <el-form-item prop="email">
-              <el-input
-                v-model="emailForm.email"
-                placeholder="请输入注册邮箱"
-                size="large"
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Message /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="emailCode">
-              <div class="email-code-row">
+          <!-- 步骤1: 验证邮箱 -->
+          <div v-if="currentStep === 0" class="step-content">
+            <el-form
+              ref="emailFormRef"
+              :model="emailForm"
+              :rules="emailRules"
+              class="forgot-password-form"
+            >
+              <el-form-item prop="email">
                 <el-input
-                  v-model="emailForm.emailCode"
-                  placeholder="邮箱验证码"
+                  v-model="emailForm.email"
+                  placeholder="请输入注册邮箱"
                   size="large"
                   clearable
-                  style="flex: 1"
                 >
                   <template #prefix>
-                    <el-icon><Key /></el-icon>
+                    <el-icon><Message /></el-icon>
                   </template>
                 </el-input>
+              </el-form-item>
+
+              <el-form-item prop="emailCode">
+                <div class="email-code-row">
+                  <el-input
+                    v-model="emailForm.emailCode"
+                    placeholder="邮箱验证码"
+                    size="large"
+                    clearable
+                    style="flex: 1"
+                  >
+                    <template #prefix>
+                      <el-icon><Key /></el-icon>
+                    </template>
+                  </el-input>
+                  <el-button
+                    size="large"
+                    :disabled="codeCountdown > 0"
+                    :loading="codeSending"
+                    @click="sendEmailCode"
+                  >
+                    {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '发送验证码' }}
+                  </el-button>
+                </div>
+              </el-form-item>
+
+              <el-form-item>
                 <el-button
+                  type="primary"
                   size="large"
-                  :disabled="codeCountdown > 0"
-                  :loading="codeSending"
-                  @click="sendEmailCode"
+                  :loading="loading"
+                  class="submit-button"
+                  @click="verifyEmail"
                 >
-                  {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '发送验证码' }}
+                  下一步
                 </el-button>
-              </div>
-            </el-form-item>
+              </el-form-item>
+            </el-form>
+          </div>
 
-            <el-form-item>
-              <el-button
-                type="primary"
-                size="large"
-                :loading="loading"
-                class="submit-button"
-                @click="verifyEmail"
-              >
-                下一步
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </div>
+          <!-- 步骤2: 重置密码 -->
+          <div v-if="currentStep === 1" class="step-content">
+            <el-form
+              ref="passwordFormRef"
+              :model="passwordForm"
+              :rules="passwordRules"
+              class="forgot-password-form"
+            >
+              <el-form-item prop="newPassword">
+                <el-input
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  placeholder="新密码"
+                  size="large"
+                  show-password
+                  clearable
+                >
+                  <template #prefix>
+                    <el-icon><Lock /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
 
-        <!-- 步骤2: 重置密码 -->
-        <div v-if="currentStep === 1" class="step-content">
-          <el-form
-            ref="passwordFormRef"
-            :model="passwordForm"
-            :rules="passwordRules"
-            class="forgot-password-form"
-          >
-            <el-form-item prop="newPassword">
-              <el-input
-                v-model="passwordForm.newPassword"
-                type="password"
-                placeholder="新密码"
-                size="large"
-                show-password
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
+              <el-form-item prop="confirmPassword">
+                <el-input
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  placeholder="确认新密码"
+                  size="large"
+                  show-password
+                  clearable
+                >
+                  <template #prefix>
+                    <el-icon><Lock /></el-icon>
+                  </template>
+                </el-input>
+              </el-form-item>
 
-            <el-form-item prop="confirmPassword">
-              <el-input
-                v-model="passwordForm.confirmPassword"
-                type="password"
-                placeholder="确认新密码"
-                size="large"
-                show-password
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
+              <el-form-item>
+                <el-button
+                  type="primary"
+                  size="large"
+                  :loading="loading"
+                  class="submit-button"
+                  @click="resetPassword"
+                >
+                  重置密码
+                </el-button>
+                <el-button size="large" class="back-button" @click="currentStep = 0">
+                  上一步
+                </el-button>
+              </el-form-item>
+            </el-form>
+          </div>
 
-            <el-form-item>
-              <el-button
-                type="primary"
-                size="large"
-                :loading="loading"
-                class="submit-button"
-                @click="resetPassword"
-              >
-                重置密码
-              </el-button>
-              <el-button size="large" class="back-button" @click="currentStep = 0">
-                上一步
-              </el-button>
-            </el-form-item>
-          </el-form>
-        </div>
+          <!-- 步骤3: 完成 -->
+          <div v-if="currentStep === 2" class="step-content success-content">
+            <el-result icon="success" title="密码重置成功" sub-title="您的密码已成功重置">
+              <template #extra>
+                <el-button type="primary" size="large" @click="goToLogin">立即登录</el-button>
+                <el-button size="large" @click="goToHome">返回首页</el-button>
+              </template>
+            </el-result>
+          </div>
 
-        <!-- 步骤3: 完成 -->
-        <div v-if="currentStep === 2" class="step-content success-content">
-          <el-result icon="success" title="密码重置成功" sub-title="您的密码已成功重置">
-            <template #extra>
-              <el-button type="primary" size="large" @click="goToLogin">立即登录</el-button>
-              <el-button size="large" @click="goToHome">返回首页</el-button>
-            </template>
-          </el-result>
-        </div>
-
-        <div class="forgot-password-footer">
-          <router-link to="/login" class="link">返回登录</router-link>
-          <router-link to="/blog/auth/register" class="link">注册账号</router-link>
+          <div class="forgot-password-footer">
+            <router-link to="/blog/auth/login" class="link">返回登录</router-link>
+            <router-link to="/blog/auth/register" class="link">注册账号</router-link>
+          </div>
         </div>
       </div>
-    </div>
+    </BlogLayout>
   </div>
 </template>
 
@@ -154,7 +154,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { Lock, Key, Message } from '@element-plus/icons-vue'
 import { sendResetCode, resetPassword as resetPasswordApi } from '@/api/blog/auth'
-import BlogNav from '@/components/BlogNav.vue'
+import BlogLayout from '@/components/BlogLayout.vue'
 
 const router = useRouter()
 
@@ -285,7 +285,7 @@ const resetPassword = async () => {
 
 // 跳转到统一登录页
 const goToLogin = () => {
-  router.push('/login')
+  router.push('/blog/auth/login')
 }
 
 // 返回首页
@@ -295,10 +295,10 @@ const goToHome = () => {
 </script>
 
 <style scoped>
-.blog-forgot-password-container {
+.mo-auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  position: relative;
+  padding-top: 64px;
+  background: #fafaf9;
 }
 
 .forgot-password-wrapper {
@@ -306,16 +306,19 @@ const goToHome = () => {
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 60px);
-  padding: 20px;
+  padding: 40px 20px;
 }
 
 .forgot-password-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  width: min(100%, 420px);
+  min-width: 0;
   padding: 40px;
-  width: 100%;
-  max-width: 420px;
+  background: #fff;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+  box-shadow:
+    0 18px 45px rgba(28, 25, 23, 0.08),
+    0 1px 2px rgba(28, 25, 23, 0.04);
   animation: fadeInUp 0.5s ease-out;
 }
 
@@ -338,12 +341,12 @@ const goToHome = () => {
 .forgot-password-header h1 {
   font-size: 28px;
   font-weight: 600;
-  color: #333;
+  color: #1c1917;
   margin: 0 0 8px 0;
 }
 
 .forgot-password-header p {
-  color: #999;
+  color: #78716c;
   font-size: 14px;
   margin: 0;
 }
@@ -364,6 +367,10 @@ const goToHome = () => {
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.email-code-row :deep(.el-input) {
+  min-width: 0;
 }
 
 .submit-button {
@@ -393,12 +400,86 @@ const goToHome = () => {
 }
 
 .forgot-password-footer .link {
-  color: #4a7bff;
+  color: #4f46e5;
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .forgot-password-footer .link:hover {
-  color: #6b8cff;
+  color: #4338ca;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #d6d3d1 inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px #eef2ff;
+}
+
+html.dark .mo-auth-page {
+  background: #1c1917;
+}
+
+html.dark .forgot-password-card {
+  background: #292524;
+  border-color: #44403c;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.25),
+    0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+html.dark .forgot-password-header h1 {
+  color: #f5f5f4;
+}
+
+html.dark .forgot-password-header p,
+html.dark :deep(.el-step__title),
+html.dark :deep(.el-step__description) {
+  color: #a8a29e;
+}
+
+html.dark .forgot-password-footer .link {
+  color: #a5b4fc;
+}
+
+html.dark .forgot-password-footer .link:hover {
+  color: #c7d2fe;
+}
+
+html.dark :deep(.el-input__wrapper) {
+  background: #1c1917;
+  box-shadow: 0 0 0 1px #57534e inset;
+}
+
+html.dark :deep(.el-input__inner) {
+  color: #f5f5f4;
+}
+
+html.dark :deep(.el-input__inner::placeholder) {
+  color: #78716c;
+}
+
+@media (max-width: 480px) {
+  .forgot-password-wrapper {
+    align-items: flex-start;
+    padding: 24px 16px;
+  }
+
+  .forgot-password-card {
+    padding: 28px 20px;
+  }
+
+  .email-code-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .email-code-row :deep(.el-button) {
+    width: 100%;
+  }
 }
 </style>

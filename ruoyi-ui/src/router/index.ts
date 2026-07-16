@@ -19,18 +19,6 @@ const routes: ExtendedRouteRecordRaw[] = [
     redirect: '/blog'
   },
   {
-    path: '/test',
-    component: () => import('@/views/test-simple.vue')
-  },
-  {
-    path: '/test-on-error',
-    component: () => import('@/views/TestOnErrorPage.vue')
-  },
-  {
-    path: '/debug-on-error',
-    component: () => import('@/views/debug-on-error.vue')
-  },
-  {
     path: '/login',
     component: () => import('@/views/UnifiedLogin.vue')
   },

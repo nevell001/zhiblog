@@ -303,8 +303,8 @@ const dialogWidth = computed(() => {
   return screenWidth.value < 768 ? '90%' : '500px'
 })
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -443,11 +443,11 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  const ids = row.id || ids.value
+  const deleteIds = row.id || ids.value
   proxy.$modal
-    .confirm('是否确认删除友链编号为"' + ids + '"的数据项？')
+    .confirm('是否确认删除友链编号为"' + deleteIds + '"的数据项？')
     .then(function () {
-      return delFriendLink(ids)
+      return delFriendLink(deleteIds)
     })
     .then(() => {
       getList()

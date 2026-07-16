@@ -209,8 +209,12 @@
         <el-tab-pane
           v-for="(value, key) in preview.data"
           :key="value"
-          :label="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
-          :name="key.substring(key.lastIndexOf('/') + 1, key.indexOf('.vm'))"
+          :label="
+            String(key).substring(String(key).lastIndexOf('/') + 1, String(key).indexOf('.vm'))
+          "
+          :name="
+            String(key).substring(String(key).lastIndexOf('/') + 1, String(key).indexOf('.vm'))
+          "
         >
           <el-link
             v-copyText="value"
@@ -233,8 +237,8 @@
 <script setup lang="ts" name="Gen">
 import { listTable, previewTable, delTable, genCode, synchDb } from '@/api/tool/gen'
 import router from '@/router'
-import importTable from './importTable'
-import createTable from './createTable'
+import importTable from './importTable.vue'
+import createTable from './createTable.vue'
 
 const route = useRoute()
 const { proxy } = getCurrentInstance()
@@ -251,7 +255,7 @@ const dateRange = ref([])
 const uniqueId = ref('')
 const defaultSort = ref({ prop: 'createTime', order: 'descending' })
 
-const data = reactive({
+const data = reactive<Record<string, any>>({
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -271,9 +275,10 @@ const data = reactive({
 const { queryParams, preview } = toRefs(data)
 
 onActivated(() => {
-  const time = route.query.t
+  const timeParam = route.query.t
+  const time = Array.isArray(timeParam) ? timeParam[0] : timeParam
   if (time !== null && time !== uniqueId.value) {
-    uniqueId.value = time
+    uniqueId.value = time || ''
     queryParams.value.pageNum = Number(route.query.pageNum)
     dateRange.value = []
     proxy.resetForm('queryForm')

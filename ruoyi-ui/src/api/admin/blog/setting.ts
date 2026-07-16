@@ -1,10 +1,12 @@
 import request from '@/utils/request'
-import type { BlogSetting, PageParams, QueryResult } from '@/types'
+import type { BlogSetting, DataResult, PageParams, QueryResult } from '@/types'
 
 /**
  * 查询博客设置列表
  */
-export function listSetting(query?: PageParams): Promise<QueryResult<BlogSetting>> {
+export function listSetting(
+  query?: PageParams
+): Promise<QueryResult<BlogSetting & Record<string, any>>> {
   return request({
     url: '/system/setting/list',
     method: 'get',
@@ -15,7 +17,7 @@ export function listSetting(query?: PageParams): Promise<QueryResult<BlogSetting
 /**
  * 查询博客设置详细
  */
-export function getSetting(id: number): Promise<BlogSetting> {
+export function getSetting(id: number): Promise<DataResult<BlogSetting>> {
   return request({
     url: '/system/setting/' + id,
     method: 'get'
@@ -35,7 +37,7 @@ export function getConfigByKey(configKey: string): Promise<any> {
 /**
  * 新增博客设置
  */
-export function addSetting(data: BlogSetting): Promise<any> {
+export function addSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/setting',
     method: 'post',
@@ -46,7 +48,7 @@ export function addSetting(data: BlogSetting): Promise<any> {
 /**
  * 修改博客设置
  */
-export function updateSetting(data: BlogSetting): Promise<any> {
+export function updateSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/setting',
     method: 'put',

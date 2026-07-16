@@ -4,6 +4,8 @@ import { useSettingsStore } from './settings'
 
 describe('Settings Store 测试', () => {
   beforeEach(() => {
+    localStorage.clear()
+    document.documentElement.classList.remove('theme-mo-blog')
     setActivePinia(createPinia())
   })
 
@@ -11,6 +13,7 @@ describe('Settings Store 测试', () => {
     it('应该初始化为默认值', () => {
       const store = useSettingsStore()
       expect(store.theme).toBeDefined()
+      expect(store.appTheme).toBe('default')
       expect(store.sideTheme).toBeDefined()
       expect(store.showSettings).toBeDefined()
       expect(store.topNav).toBeDefined()
@@ -38,6 +41,19 @@ describe('Settings Store 测试', () => {
         value: '#FF0000'
       })
       expect(store.theme).toBe('#FF0000')
+    })
+
+    it('应该初始化应用主题为持久化值', () => {
+      localStorage.setItem('app-theme', 'mo-blog')
+      const store = useSettingsStore()
+      expect(store.appTheme).toBe('mo-blog')
+    })
+
+    it('应该设置应用主题并同步根节点 class', () => {
+      const store = useSettingsStore()
+      store.setAppTheme('mo-blog')
+      expect(store.appTheme).toBe('mo-blog')
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
     })
 
     it('应该支持切换侧边栏主题', () => {

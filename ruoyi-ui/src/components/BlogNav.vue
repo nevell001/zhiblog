@@ -1,4 +1,5 @@
 <template>
+  <!-- Legacy compatibility navigation. Current public blog pages should use BlogLayout. -->
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
     <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">

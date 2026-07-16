@@ -1,14 +1,17 @@
 import { defineStore } from 'pinia'
 import defaultSettings from '@/settings'
+import { applyAppTheme, getStoredAppTheme, normalizeAppTheme, type AppTheme } from '@/utils/theme'
 
 interface SettingsState {
   title: string
+  appTheme: AppTheme
   theme: string
   sideTheme: string
   showSettings: boolean
   showTagsView: boolean
   tagsView: boolean
   showSidebarLogo: boolean
+  sidebarLogo: boolean
   fixedHeader: boolean
   sidebarTextTheme: string
   serverMessage: string
@@ -21,24 +24,31 @@ interface SettingsState {
 }
 
 export const useSettingsStore = defineStore('settings', {
-  state: (): SettingsState => ({
-    title: defaultSettings.title,
-    theme: defaultSettings.theme,
-    sideTheme: defaultSettings.sideTheme,
-    showSettings: defaultSettings.showSettings,
-    showTagsView: defaultSettings.tagsView,
-    tagsView: defaultSettings.tagsView,
-    showSidebarLogo: defaultSettings.sidebarLogo,
-    fixedHeader: defaultSettings.fixedHeader,
-    sidebarTextTheme: defaultSettings.sidebarTextTheme,
-    serverMessage: '',
-    isShowUpload: false,
-    topNav: defaultSettings.topNav,
-    tagsIcon: defaultSettings.tagsIcon,
-    dynamicTitle: defaultSettings.dynamicTitle,
-    footerVisible: defaultSettings.footerVisible,
-    footerContent: defaultSettings.footerContent
-  }),
+  state: (): SettingsState => {
+    const appTheme = getStoredAppTheme()
+    applyAppTheme(appTheme)
+
+    return {
+      title: defaultSettings.title,
+      appTheme,
+      theme: defaultSettings.theme,
+      sideTheme: defaultSettings.sideTheme,
+      showSettings: defaultSettings.showSettings,
+      showTagsView: defaultSettings.tagsView,
+      tagsView: defaultSettings.tagsView,
+      showSidebarLogo: defaultSettings.sidebarLogo,
+      sidebarLogo: defaultSettings.sidebarLogo,
+      fixedHeader: defaultSettings.fixedHeader,
+      sidebarTextTheme: defaultSettings.sidebarTextTheme,
+      serverMessage: '',
+      isShowUpload: false,
+      topNav: defaultSettings.topNav,
+      tagsIcon: defaultSettings.tagsIcon,
+      dynamicTitle: defaultSettings.dynamicTitle,
+      footerVisible: defaultSettings.footerVisible,
+      footerContent: defaultSettings.footerContent
+    }
+  },
 
   getters: {
     isDark(): boolean {
@@ -64,6 +74,12 @@ export const useSettingsStore = defineStore('settings', {
     toggleTheme(): void {
       // 简化主题切换逻辑，避免依赖 useColorMode
       this.sideTheme = this.sideTheme === 'theme-dark' ? 'theme-light' : 'theme-dark'
+    },
+
+    setAppTheme(theme: unknown): void {
+      const nextTheme = normalizeAppTheme(theme)
+      this.appTheme = nextTheme
+      applyAppTheme(nextTheme)
     },
 
     setServerMessage(message: string): void {

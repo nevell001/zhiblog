@@ -133,8 +133,8 @@
 <script setup lang="ts" name="GenEdit">
 import { getGenTable, updateGenTable } from '@/api/tool/gen'
 import { optionselect as getDictOptionselect } from '@/api/system/dict/type'
-import basicInfoForm from './basicInfoForm'
-import genInfoForm from './genInfoForm'
+import basicInfoForm from './basicInfoForm.vue'
+import genInfoForm from './genInfoForm.vue'
 import Sortable from 'sortablejs'
 
 const route = useRoute()
@@ -145,7 +145,7 @@ const tableHeight = ref(document.documentElement.scrollHeight - 245 + 'px')
 const tables = ref([])
 const columns = ref([])
 const dictOptions = ref([])
-const info = ref({})
+const info = ref<Record<string, any>>({})
 
 /** 提交按钮 */
 function submitForm() {
@@ -174,7 +174,7 @@ function submitForm() {
   })
 }
 
-function getFormPromise(form) {
+function getFormPromise(form: any) {
   return new Promise(resolve => {
     form.validate(res => {
       resolve(res)
@@ -188,10 +188,11 @@ function close() {
 }
 
 ;(() => {
-  const tableId = route.params && route.params.tableId
+  const tableIdParam = route.params && route.params.tableId
+  const tableId = Array.isArray(tableIdParam) ? tableIdParam[0] : tableIdParam
   if (tableId) {
     // 获取表详细信息
-    getGenTable(tableId).then(res => {
+    getGenTable(Number(tableId)).then(res => {
       columns.value = res.data.rows
       info.value = res.data.info
       tables.value = res.data.tables

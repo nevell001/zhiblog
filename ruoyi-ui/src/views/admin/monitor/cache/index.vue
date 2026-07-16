@@ -151,16 +151,24 @@
 import { getCache } from '@/api/monitor/cache'
 import * as echarts from 'echarts'
 
-const cache = ref([])
-const commandstats = ref(null)
-const usedmemory = ref(null)
-const { proxy } = getCurrentInstance()
+interface CacheMonitorData {
+  info: Record<string, string>
+  dbSize?: number
+  commandStats?: Array<Record<string, any>>
+}
+
+const cache = ref<CacheMonitorData>({ info: {} })
+const commandstats = ref<HTMLElement | null>(null)
+const usedmemory = ref<HTMLElement | null>(null)
+const { proxy } = getCurrentInstance()!
 
 function getList() {
   proxy.$modal.loading('正在加载缓存监控数据，请稍候！')
   getCache().then(response => {
     proxy.$modal.closeLoading()
     cache.value = response.data
+
+    if (!commandstats.value || !usedmemory.value) return
 
     const commandstatsIntance = echarts.init(commandstats.value, 'macarons')
     commandstatsIntance.setOption({
@@ -175,7 +183,7 @@ function getList() {
           roseType: 'radius',
           radius: [15, 95],
           center: ['50%', '38%'],
-          data: response.data.commandStats,
+          data: response.data.commandStats || [],
           animationEasing: 'cubicInOut',
           animationDuration: 1000
         }
@@ -197,7 +205,7 @@ function getList() {
           },
           data: [
             {
-              value: parseFloat(cache.value.info.used_memory_human),
+              value: parseFloat(cache.value.info.used_memory_human || '0'),
               name: '内存消耗'
             }
           ]

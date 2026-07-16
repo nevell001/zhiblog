@@ -1814,7 +1814,7 @@ BEGIN
     DECLARE category_count_updated BOOLEAN DEFAULT FALSE;
 
     -- 设置创建时间
-    IF NEW.create_time IS NULL OR NEW.create_time = '0000-00-00 00:00:00' THEN
+    IF NEW.create_time IS NULL THEN
         SET NEW.create_time = NOW();
     END IF;
     SET NEW.update_time = NOW();

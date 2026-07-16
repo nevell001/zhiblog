@@ -6,7 +6,7 @@
 
 - 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架
 - 📱 **前后端分离**：Vue 3 + Spring Boot，TypeScript 类型安全
-- 🎨 **美观界面**：Element Plus 组件库，紫色主题设计
+- 🎨 **美观界面**：Element Plus 组件库，蓝色主题设计
 - 🔒 **权限完善**：基于 Spring Security 的细粒度权限控制
 - 🐳 **容器化部署**：Docker Compose 管理前端、后端、MySQL、Redis 与监控服务
 - 📈 **监控完善**：Prometheus + Grafana 全链路监控

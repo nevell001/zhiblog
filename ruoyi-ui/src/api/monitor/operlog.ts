@@ -38,7 +38,7 @@ export function list(query?: PageParams): Promise<QueryResult<OperLog>> {
 /**
  * 删除操作日志
  */
-export function delOperlog(operId: number): Promise<any> {
+export function delOperlog(operId: number | number[]): Promise<any> {
   return request({
     url: '/monitor/operlog/' + operId,
     method: 'delete'

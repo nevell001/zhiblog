@@ -346,7 +346,7 @@
 <script setup lang="ts" name="Menu">
 import { addMenu, delMenu, getMenu, listMenu, updateMenu } from '@/api/system/menu'
 import SvgIcon from '@/components/SvgIcon'
-import IconSelect from '@/components/IconSelect'
+import IconSelect from '@/components/IconSelect/index.vue'
 import { usePermissionStore } from '@/stores/permission'
 import router from '@/router'
 
@@ -361,10 +361,10 @@ const title = ref('')
 const menuOptions = ref([])
 const isExpandAll = ref(false)
 const refreshTable = ref(true)
-const iconSelectRef = ref(null)
+const iconSelectRef = ref<any>(null)
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     menuName: undefined,
     visible: undefined

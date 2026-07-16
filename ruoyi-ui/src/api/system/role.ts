@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { Role, RoleParams, QueryResult } from '@/types'
+import type { DataResult, Role, RoleParams, QueryResult } from '@/types'
 
 /**
  * 查询角色列表
@@ -15,7 +15,7 @@ export function listRole(query?: RoleParams): Promise<QueryResult<Role>> {
 /**
  * 查询角色详细
  */
-export function getRole(roleId: number): Promise<Role> {
+export function getRole(roleId: number): Promise<DataResult<Role>> {
   return request({
     url: '/system/role/' + roleId,
     method: 'get'
@@ -25,7 +25,7 @@ export function getRole(roleId: number): Promise<Role> {
 /**
  * 新增角色
  */
-export function addRole(data: Role): Promise<any> {
+export function addRole(data: Partial<Role> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/role',
     method: 'post',
@@ -36,7 +36,7 @@ export function addRole(data: Role): Promise<any> {
 /**
  * 修改角色
  */
-export function updateRole(data: Role): Promise<any> {
+export function updateRole(data: Partial<Role> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/role',
     method: 'put',
@@ -47,7 +47,7 @@ export function updateRole(data: Role): Promise<any> {
 /**
  * 角色数据权限
  */
-export function dataScope(data: Role): Promise<any> {
+export function dataScope(data: Partial<Role> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/role/dataScope',
     method: 'put',

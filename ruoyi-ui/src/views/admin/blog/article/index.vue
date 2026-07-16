@@ -225,16 +225,75 @@
     />
 
     <!-- 添加或修改博客文章对话框 -->
-    <el-dialog v-model="open" :title="title" width="800px" append-to-body @close="cancel">
-      <el-form ref="articleRef" :model="form" :rules="rules" label-width="80px">
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="文章标题" prop="title">
-              <el-input v-model="form.title" placeholder="请输入文章标题" />
+    <el-dialog
+      v-model="open"
+      :title="title"
+      width="min(1180px, 96vw)"
+      class="mo-editor-dialog"
+      append-to-body
+      @close="cancel"
+    >
+      <el-form
+        ref="articleRef"
+        :model="form"
+        :rules="rules"
+        class="mo-editor-form"
+        label-position="top"
+      >
+        <div class="editor-topbar">
+          <button type="button" class="back-btn" @click="cancel">← 返回</button>
+          <el-form-item prop="title" class="title-field">
+            <el-input v-model="form.title" class="title-input" placeholder="请输入文章标题" />
+          </el-form-item>
+          <span class="save-status">
+            <span class="dot"></span>
+            草稿已保存 · 刚刚
+          </span>
+          <el-button plain size="small">预览</el-button>
+          <el-button type="primary" size="small" @click="submitForm">发布</el-button>
+        </div>
+
+        <div class="editor-toolbar">
+          <span class="tool"><b>B</b></span>
+          <span class="tool"><i>I</i></span>
+          <span class="tool"><s>S</s></span>
+          <span class="sep"></span>
+          <span class="tool">H1</span>
+          <span class="tool">H2</span>
+          <span class="tool">H3</span>
+          <span class="sep"></span>
+          <span class="tool">❝</span>
+          <span class="tool">&lt;/&gt;</span>
+          <span class="tool">{ }</span>
+          <span class="tool">🔗</span>
+          <span class="tool">🖼</span>
+          <span class="tool">▦</span>
+          <span class="sep"></span>
+          <span class="tool">1.</span>
+          <span class="tool">•</span>
+          <div class="view-modes">
+            <span class="tool active">分屏</span>
+            <span class="tool">仅编辑</span>
+            <span class="tool">仅预览</span>
+          </div>
+        </div>
+
+        <div class="editor-body">
+          <section class="editor-pane edit-pane">
+            <el-form-item prop="content" class="content-field">
+              <editor :key="editorKey" v-model="form.content" :min-height="360" />
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="分类" prop="categoryId">
+          </section>
+          <section class="editor-pane preview-pane">
+            <div v-if="form.content" class="editor-preview" v-html="form.content"></div>
+            <div v-else class="preview-empty">文章预览会显示在这里</div>
+          </section>
+        </div>
+
+        <div class="editor-sidebar">
+          <div class="field-group">
+            <label>分类</label>
+            <el-form-item prop="categoryId" class="compact-form-item">
               <el-select v-model="form.categoryId" placeholder="请选择分类">
                 <el-option
                   v-for="category in categoryOptions"
@@ -244,82 +303,85 @@
                 />
               </el-select>
             </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="摘要" prop="summary">
-          <el-input v-model="form.summary" type="textarea" placeholder="请输入摘要" />
-        </el-form-item>
-        <el-form-item label="文章内容" prop="content">
-          <editor :key="editorKey" v-model="form.content" :min-height="192" />
-        </el-form-item>
-        <el-form-item label="封面图片" prop="coverUrl">
-          <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
-          <div v-if="form.coverUrl" style="margin-top: 10px">
-            <img
-              :src="getCoverUrl(form.coverUrl)"
-              style="
-                max-width: 200px;
-                max-height: 150px;
-                border: 1px solid #e0e0e0;
-                border-radius: 4px;
-              "
-            />
-            <div style="margin-top: 8px">
-              <el-button type="danger" size="small" @click="form.coverUrl = ''">删除封面</el-button>
+          </div>
+          <div class="field-group">
+            <label>标签</label>
+            <el-form-item prop="tagIds" class="compact-form-item">
+              <TagCategorySelector
+                v-model:selected-tags="form.tagIds"
+                v-model:selected-category="form.categoryId"
+                :show-category="false"
+                placeholder="选择或创建标签"
+              />
+            </el-form-item>
+          </div>
+          <div class="field-group">
+            <label>封面图片</label>
+            <el-form-item prop="coverUrl" class="compact-form-item">
+              <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
+              <div v-if="form.coverUrl" class="cover-preview">
+                <img :src="coverPreviewUrl" alt="封面预览" />
+                <el-button type="danger" size="small" plain @click="form.coverUrl = ''">
+                  删除封面
+                </el-button>
+              </div>
+            </el-form-item>
+          </div>
+          <div class="field-group">
+            <label>摘要</label>
+            <el-form-item prop="summary" class="compact-form-item">
+              <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="请输入摘要" />
+            </el-form-item>
+          </div>
+          <div class="field-group">
+            <label>可见性</label>
+            <el-form-item prop="status" class="compact-form-item">
+              <el-radio-group v-model="form.status">
+                <el-radio-button :label="1">公开</el-radio-button>
+                <el-radio-button :label="0">草稿</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </div>
+          <div class="field-group">
+            <label>推荐位</label>
+            <div class="switch-row">
+              <span>置顶</span>
+              <el-switch v-model="form.isTop" :active-value="1" :inactive-value="0" />
+            </div>
+            <div class="switch-row">
+              <span>推荐</span>
+              <el-switch v-model="form.isRecommend" :active-value="1" :inactive-value="0" />
             </div>
           </div>
-        </el-form-item>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="是否置顶" prop="isTop">
-              <el-radio-group v-model="form.isTop">
-                <el-radio :label="1">是</el-radio>
-                <el-radio :label="0">否</el-radio>
-              </el-radio-group>
+          <div class="field-group">
+            <label>作者</label>
+            <el-form-item prop="authorName" class="compact-form-item">
+              <el-input
+                v-model="form.authorName"
+                :placeholder="form.id ? '请输入作者' : '自动填充为博客设置中的作者'"
+                readonly
+              />
             </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否推荐" prop="isRecommend">
-              <el-radio-group v-model="form.isRecommend">
-                <el-radio :label="1">是</el-radio>
-                <el-radio :label="0">否</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="form.status">
-            <el-radio :label="1">发布</el-radio>
-            <el-radio :label="0">草稿</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="标签分类" prop="tagIds">
-          <TagCategorySelector
-            v-model:selected-tags="form.tagIds"
-            v-model:selected-category="form.categoryId"
-            :show-category="false"
-            placeholder="选择或创建标签"
-          />
-        </el-form-item>
-        <el-form-item v-if="form.id" label="作者" prop="authorName">
-          <el-input v-model="form.authorName" placeholder="请输入作者" readonly />
-        </el-form-item>
-        <el-form-item v-else label="作者" prop="authorName">
-          <el-input v-model="form.authorName" placeholder="自动填充为博客设置中的作者" readonly />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="submitForm">确 定</el-button>
-          <el-button @click="cancel">取 消</el-button>
+          </div>
         </div>
-      </template>
+
+        <div class="editor-actions">
+          <span class="word-count">
+            字数：{{ articleWordCount }} · 预计阅读：{{ articleReadMinutes }} 分钟
+          </span>
+          <div class="action-buttons">
+            <el-button @click="cancel">取消</el-button>
+            <el-button @click="form.status = 0">存为草稿</el-button>
+            <el-button type="primary" @click="submitForm">发布文章</el-button>
+          </div>
+        </div>
+      </el-form>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts" name="Article">
-import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick } from 'vue'
+import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick, computed } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import {
@@ -356,8 +418,8 @@ const tagOptions = ref([])
 // 编辑器组件的渲染计数器，用于强制重新渲染
 const editorKey = ref(0)
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -380,6 +442,10 @@ const data = reactive({
 })
 
 const { queryParams, form, rules } = toRefs(data)
+const articlePlainText = computed(() => (form.value.content || '').replace(/<[^>]+>/g, '').trim())
+const articleWordCount = computed(() => articlePlainText.value.length)
+const articleReadMinutes = computed(() => Math.max(1, Math.ceil(articleWordCount.value / 500)))
+const coverPreviewUrl = computed(() => getCoverUrl(form.value.coverUrl))
 
 /** 查询博客文章列表 */
 async function getList() {
@@ -620,7 +686,7 @@ function formatTagList(tags) {
 }
 
 // 提交按钮
-const articleRef = ref()
+const articleRef = ref<any>()
 const submitForm = async () => {
   if (!articleRef.value) return
 
@@ -976,6 +1042,291 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.mo-editor-form {
+  overflow: hidden;
+  margin: -20px;
+  color: #44403c;
+  background: #fff;
+}
+
+:global(.mo-editor-dialog .el-dialog__header) {
+  display: none;
+}
+
+:global(.mo-editor-dialog .el-dialog__body) {
+  padding: 0;
+}
+
+.editor-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  padding: 0 24px;
+  background: #fff;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  color: #57534e;
+  font-size: 14px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.title-field {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+.title-field :deep(.el-form-item__content) {
+  line-height: 1;
+}
+
+.title-input :deep(.el-input__wrapper) {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.title-input :deep(.el-input__inner) {
+  height: 40px;
+  color: #1c1917;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #a8a29e;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.save-status .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+}
+
+.editor-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 44px;
+  padding: 0 24px;
+  overflow-x: auto;
+  background: #fafaf9;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  color: #57534e;
+  font-size: 14px;
+  white-space: nowrap;
+  cursor: default;
+  border-radius: 6px;
+  transition: all 0.1s;
+}
+
+.tool:hover,
+.tool.active {
+  color: #4f46e5;
+  background: #e0e7ff;
+}
+
+.sep {
+  flex-shrink: 0;
+  width: 1px;
+  height: 20px;
+  margin: 0 6px;
+  background: #d6d3d1;
+}
+
+.view-modes {
+  display: flex;
+  flex-shrink: 0;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.view-modes .tool {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.editor-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+  min-height: 460px;
+}
+
+.editor-pane {
+  min-width: 0;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.edit-pane {
+  background: #fff;
+  border-right: 1px solid #e7e5e4;
+}
+
+.preview-pane {
+  background: #fafaf9;
+}
+
+.content-field {
+  margin-bottom: 0;
+}
+
+.content-field :deep(.el-form-item__content) {
+  display: block;
+}
+
+.editor-preview {
+  color: #57534e;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.editor-preview :deep(h2) {
+  margin: 18px 0 10px;
+  padding-bottom: 6px;
+  color: #1c1917;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.editor-preview :deep(h3) {
+  margin: 14px 0 8px;
+  color: #292524;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.editor-preview :deep(p) {
+  margin-bottom: 12px;
+}
+
+.editor-preview :deep(code) {
+  padding: 2px 6px;
+  color: #4f46e5;
+  font-size: 13px;
+  background: #f5f5f4;
+  border-radius: 4px;
+}
+
+.editor-preview :deep(blockquote) {
+  margin: 12px 0;
+  padding: 10px 16px;
+  color: #57534e;
+  font-style: italic;
+  background: #eef2ff;
+  border-left: 3px solid #818cf8;
+  border-radius: 0 8px 8px 0;
+}
+
+.preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  color: #a8a29e;
+  font-size: 14px;
+}
+
+.editor-sidebar {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 20px 24px;
+  background: #fff;
+  border-top: 1px solid #e7e5e4;
+}
+
+.field-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: #57534e;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.compact-form-item {
+  margin-bottom: 0;
+}
+
+.compact-form-item :deep(.el-select),
+.compact-form-item :deep(.el-input),
+.compact-form-item :deep(.el-textarea) {
+  width: 100%;
+}
+
+.cover-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cover-preview img {
+  width: 92px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid #e7e5e4;
+  border-radius: 8px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  color: #57534e;
+  font-size: 13px;
+}
+
+.editor-actions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #fff;
+  border-top: 1px solid #e7e5e4;
+}
+
+.word-count {
+  color: #a8a29e;
+  font-size: 12px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+}
+
 /* 文章状态标签样式优化 */
 .article-status-tag {
   font-size: 13px;
@@ -1115,6 +1466,42 @@ onMounted(async () => {
 
 /* 响应式样式 */
 @media (max-width: 768px) {
+  .editor-topbar {
+    gap: 8px;
+    padding: 0 16px;
+  }
+
+  .save-status {
+    display: none;
+  }
+
+  .editor-toolbar {
+    padding: 0 12px;
+  }
+
+  .editor-body {
+    grid-template-columns: 1fr;
+  }
+
+  .edit-pane {
+    border-right: 0;
+    border-bottom: 1px solid #e7e5e4;
+  }
+
+  .editor-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-actions {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .action-buttons {
+    justify-content: flex-end;
+  }
+
   .category-select {
     width: 120px;
   }

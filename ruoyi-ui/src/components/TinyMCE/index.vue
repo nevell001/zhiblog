@@ -26,7 +26,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue'])
 
 const id = ref('tinymce-' + Date.now() + Math.random().toString(36).substr(2))
-const editorRef = ref(null)
+const editorRef = ref<any>(null)
 const inited = ref(false)
 
 // 设置 watch 监听器，返回的清理函数会自动处理

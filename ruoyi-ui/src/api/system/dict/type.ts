@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { DictType, DictParams, QueryResult } from '@/types'
+import type { DataResult, DictType, DictParams, QueryResult } from '@/types'
 
 /**
  * 查询字典类型列表
@@ -15,7 +15,7 @@ export function listType(query?: DictParams): Promise<QueryResult<DictType>> {
 /**
  * 查询字典类型详细
  */
-export function getType(dictId: number): Promise<DictType> {
+export function getType(dictId: number): Promise<DataResult<DictType>> {
   return request({
     url: '/system/dict/type/' + dictId,
     method: 'get'
@@ -25,7 +25,7 @@ export function getType(dictId: number): Promise<DictType> {
 /**
  * 新增字典类型
  */
-export function addType(data: DictType): Promise<any> {
+export function addType(data: Partial<DictType> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dict/type',
     method: 'post',
@@ -36,7 +36,7 @@ export function addType(data: DictType): Promise<any> {
 /**
  * 修改字典类型
  */
-export function updateType(data: DictType): Promise<any> {
+export function updateType(data: Partial<DictType> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dict/type',
     method: 'put',

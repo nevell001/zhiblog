@@ -25,6 +25,7 @@ declare global {
     on?: any
     webkitRequestAnimationFrame?: typeof requestAnimationFrame
     mozRequestAnimationFrame?: typeof requestAnimationFrame
+    testDatabaseConnection?: () => Promise<void>
   }
 
   interface Document {
@@ -42,10 +43,20 @@ declare module '@vue/runtime-core' {
     $modal: any
     $download: any
     $auth: any
+    $prompt: any
+    $alert: any
+    $refs: Record<string, any>
     $router: any
     $route: any
+    useDict: (...args: any[]) => any
+    download: (...args: any[]) => any
+    parseTime: (...args: any[]) => any
     resetForm: (refName: string) => void
     handleTree: (...args: any[]) => any
+    addDateRange: (...args: any[]) => any
+    getConfigKey: (...args: any[]) => any
+    selectDictLabel: (...args: any[]) => any
+    selectDictLabels: (...args: any[]) => any
   }
 }
 

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { PageParams, QueryResult } from '@/types'
+import type { DataResult, PageParams, QueryResult } from '@/types'
 
 interface Job {
   jobId?: number
@@ -26,7 +26,7 @@ export function listJob(query?: PageParams): Promise<QueryResult<Job>> {
 /**
  * 查询定时任务调度详细
  */
-export function getJob(jobId: number): Promise<Job> {
+export function getJob(jobId: number): Promise<DataResult<Job>> {
   return request({
     url: '/monitor/job/' + jobId,
     method: 'get'
@@ -36,7 +36,7 @@ export function getJob(jobId: number): Promise<Job> {
 /**
  * 新增定时任务调度
  */
-export function addJob(data: Job): Promise<any> {
+export function addJob(data: Partial<Job> | Record<string, any>): Promise<any> {
   return request({
     url: '/monitor/job',
     method: 'post',
@@ -47,7 +47,7 @@ export function addJob(data: Job): Promise<any> {
 /**
  * 修改定时任务调度
  */
-export function updateJob(data: Job): Promise<any> {
+export function updateJob(data: Partial<Job> | Record<string, any>): Promise<any> {
   return request({
     url: '/monitor/job',
     method: 'put',
@@ -83,7 +83,7 @@ export function changeJobStatus(jobId: number, status: string): Promise<any> {
 /**
  * 定时任务立即执行一次
  */
-export function runJob(jobId: number, jobGroup: string): Promise<any> {
+export function runJob(jobId: number, jobGroup = ''): Promise<any> {
   const data = {
     jobId,
     jobGroup
