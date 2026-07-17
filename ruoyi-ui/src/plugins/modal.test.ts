@@ -25,7 +25,7 @@ const mockElLoading = {
   service: vi.fn(() => ({ close: vi.fn() }))
 }
 
-vi.mock('element-plus', () => ({
+vi.mock('@/plugins/element-plus-service', () => ({
   ElMessage: mockElMessage,
   ElMessageBox: mockElMessageBox,
   ElNotification: mockElNotification,

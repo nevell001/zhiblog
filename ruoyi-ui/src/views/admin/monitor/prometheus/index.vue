@@ -107,7 +107,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { DataLine, TrendCharts, InfoFilled, CopyDocument, View } from '@element-plus/icons-vue'
 
 const loading = ref(false)

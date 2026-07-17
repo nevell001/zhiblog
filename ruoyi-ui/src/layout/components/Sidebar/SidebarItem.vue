@@ -129,7 +129,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, type PropType } from 'vue'
-import { ElNotification } from 'element-plus'
+import { ElNotification } from '@/plugins/element-plus-service'
 import { getNormalPath } from '@/utils/ruoyi'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'

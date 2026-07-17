@@ -74,7 +74,7 @@ vi.mock('@/stores/user', () => ({
     permissions: []
   }))
 }))
-vi.mock('element-plus', () => ({
+vi.mock('@/plugins/element-plus-service', () => ({
   ElNotification: {
     error: vi.fn()
   },
@@ -103,7 +103,7 @@ import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import { useUserStore } from '@/stores/user'
-import { ElNotification, ElMessage, ElLoading } from 'element-plus'
+import { ElNotification, ElMessage, ElLoading } from '@/plugins/element-plus-service'
 
 const mockTansParams = vi.mocked(tansParams)
 const mockBlobValidate = vi.mocked(blobValidate)

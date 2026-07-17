@@ -122,7 +122,8 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules, type InputInstance } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules, InputInstance } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCodeImg } from '@/api/login'
 import { unifiedLogin } from '@/api/unifiedAuth'

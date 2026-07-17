@@ -149,7 +149,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { Setting, UserFilled, ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'

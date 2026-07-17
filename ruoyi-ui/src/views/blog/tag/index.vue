@@ -271,7 +271,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 
 import { useRoute } from 'vue-router'
 
@@ -286,6 +286,7 @@ import { getArticleList } from '@/api/blog/article'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 
@@ -357,7 +358,7 @@ const loadTagArticles = async (append = false) => {
       newArticles = response.data
       totalCount = response.total || response.data.length
     } else {
-      console.warn('⚠️ 未知的响应格式:', response)
+      logger.warn('未知的响应格式:', response)
       newArticles = []
       totalCount = 0
     }
@@ -373,7 +374,7 @@ const loadTagArticles = async (append = false) => {
       total.value = totalCount
     }
   } catch (error) {
-    console.error('❌ 获取标签文章失败:', error)
+    logger.error('获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
     loading.value = false
@@ -397,7 +398,7 @@ const loadTagDetail = async () => {
       total.value = tag.articleCount
     }
   } catch (error) {
-    console.error('❌ 获取标签详情失败:', error)
+    logger.error('获取标签详情失败:', error)
     ElMessage.error('获取标签详情失败')
   }
 }
@@ -409,7 +410,7 @@ const loadRelatedTags = async () => {
     const tags = response.data || []
     relatedTags.value = tags.filter(tag => tag.id !== currentTagId.value).slice(0, 12)
   } catch (error) {
-    console.error('获取相关标签失败:', error)
+    logger.error('获取相关标签失败:', error)
   }
 }
 
@@ -419,7 +420,7 @@ const loadPopularTags = async () => {
     const response = await getTagCloud()
     popularTags.value = (response.data || []).slice(0, 10)
   } catch (error) {
-    console.error('获取热门标签失败:', error)
+    logger.error('获取热门标签失败:', error)
   }
 }
 
@@ -429,7 +430,7 @@ const loadRecentArticles = async () => {
     const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
     recentArticles.value = response.rows || []
   } catch (error) {
-    console.error('获取最新文章失败:', error)
+    logger.error('获取最新文章失败:', error)
   }
 }
 
@@ -495,7 +496,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('加载博客设置失败:', error)
+    logger.error('加载博客设置失败:', error)
     // 使用默认值
   }
 }

@@ -149,7 +149,8 @@
 
 <script setup lang="ts" name="Cache">
 import { getCache } from '@/api/monitor/cache'
-import * as echarts from 'echarts'
+import { loadEcharts } from '@/utils/echarts'
+import { logger } from '@/utils/logger'
 
 interface CacheMonitorData {
   info: Record<string, string>
@@ -161,17 +162,23 @@ const cache = ref<CacheMonitorData>({ info: {} })
 const commandstats = ref<HTMLElement | null>(null)
 const usedmemory = ref<HTMLElement | null>(null)
 const { proxy } = getCurrentInstance()!
+let resizeCharts: Array<{ resize: () => void }> = []
 
-function getList() {
+const resizeCacheCharts = () => {
+  resizeCharts.forEach(chart => chart.resize())
+}
+
+async function getList() {
   proxy.$modal.loading('正在加载缓存监控数据，请稍候！')
-  getCache().then(response => {
-    proxy.$modal.closeLoading()
+  try {
+    const response = await getCache()
     cache.value = response.data
 
     if (!commandstats.value || !usedmemory.value) return
 
-    const commandstatsIntance = echarts.init(commandstats.value, 'macarons')
-    commandstatsIntance.setOption({
+    const echarts = await loadEcharts()
+    const commandstatsInstance = echarts.init(commandstats.value, 'macarons')
+    commandstatsInstance.setOption({
       tooltip: {
         trigger: 'item',
         formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -212,12 +219,19 @@ function getList() {
         }
       ]
     })
-    window.addEventListener('resize', () => {
-      commandstatsIntance.resize()
-      usedmemoryInstance.resize()
-    })
-  })
+    resizeCharts = [commandstatsInstance, usedmemoryInstance]
+    window.removeEventListener('resize', resizeCacheCharts)
+    window.addEventListener('resize', resizeCacheCharts)
+  } catch (error) {
+    logger.error('获取缓存监控数据失败:', error)
+  } finally {
+    proxy.$modal.closeLoading()
+  }
 }
 
 getList()
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeCacheCharts)
+})
 </script>

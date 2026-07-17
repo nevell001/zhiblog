@@ -1,6 +1,7 @@
 /**
  * TinyMCE 动态加载工具函数
  */
+import { logger } from '@/utils/logger'
 
 /**
  * 动态导入 TinyMCE，仅在需要时加载
@@ -42,7 +43,7 @@ export const loadTinymce = async () => {
 
     return tinymce
   } catch (error) {
-    console.error('Failed to load TinyMCE:', error)
+    logger.error('Failed to load TinyMCE:', error)
     return null
   }
 }

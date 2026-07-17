@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import {
   blogLogin,
   blogRegister,

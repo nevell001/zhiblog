@@ -165,6 +165,7 @@ import { getArticleList, getBlogSettings, getHotArticles, searchArticles } from 
 import { getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { logger } from '@/utils/logger'
 import { parseTime } from '@/utils/ruoyi'
 
 const router = useRouter()
@@ -231,7 +232,7 @@ const handleSearch = async () => {
     articles.value = response.rows || []
     total.value = response.total || 0
   } catch (error) {
-    console.error('搜索失败:', error)
+    logger.error('搜索失败:', error)
   } finally {
     loading.value = false
   }
@@ -256,7 +257,7 @@ const loadArticles = async () => {
     articles.value = response.rows || []
     total.value = response.total || 0
   } catch (error) {
-    console.error('加载文章失败:', error)
+    logger.error('加载文章失败:', error)
   } finally {
     loading.value = false
   }
@@ -267,7 +268,7 @@ const loadPopularArticles = async () => {
     const response = await getHotArticles({ pageSize: 6 })
     popularArticles.value = response.rows || []
   } catch (error) {
-    console.error('加载热门文章失败:', error)
+    logger.error('加载热门文章失败:', error)
   }
 }
 
@@ -281,7 +282,7 @@ const loadSidebarData = async () => {
     const tagResult = tagResponse as any
     tags.value = Array.isArray(tagResult) ? tagResult : tagResult.data || []
   } catch (error) {
-    console.error('加载侧栏数据失败:', error)
+    logger.error('加载侧栏数据失败:', error)
     categories.value = []
     tags.value = []
   }
@@ -293,7 +294,7 @@ const loadBlogSettings = async () => {
     const settings = response.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('加载设置失败:', error)
+    logger.error('加载设置失败:', error)
   }
 }
 

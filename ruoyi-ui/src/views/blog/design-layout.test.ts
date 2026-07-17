@@ -8,6 +8,8 @@ const blogLayout = readFileSync(resolve(__dirname, '../../components/BlogLayout.
 const blogFooter = readFileSync(resolve(__dirname, '../../components/BlogFooter.vue'), 'utf8')
 const articleTOC = readFileSync(resolve(__dirname, '../../components/ArticleTOC.vue'), 'utf8')
 const forgotPasswordView = readFileSync(resolve(__dirname, 'auth/ForgotPassword.vue'), 'utf8')
+const loginView = readFileSync(resolve(__dirname, 'auth/Login.vue'), 'utf8')
+const registerView = readFileSync(resolve(__dirname, 'auth/Register.vue'), 'utf8')
 const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf8')
 const tagView = readFileSync(resolve(__dirname, 'tag/index.vue'), 'utf8')
 const archiveView = readFileSync(resolve(__dirname, 'archive/index.vue'), 'utf8')
@@ -21,6 +23,8 @@ const publicBlogSurfaces = [
   blogFooter,
   articleTOC,
   forgotPasswordView,
+  loginView,
+  registerView,
   categoryView,
   tagView,
   archiveView,
@@ -69,6 +73,12 @@ describe('blog design layout guards', () => {
     expect(articleDetailView).not.toContain('html.dark .article-detail {')
   })
 
+  it('公共博客页面不应直接输出生产调试日志', () => {
+    publicBlogSurfaces.forEach(surface => {
+      expect(surface).not.toMatch(/console\.(warn|error|log)/)
+    })
+  })
+
   it('目录组件应使用当前主题色和可清理的滚动监听', () => {
     expect(articleTOC).not.toContain('@media (prefers-color-scheme: dark)')
     expect(articleTOC).toContain('html.dark .article-toc')
@@ -98,7 +108,14 @@ describe('blog design layout guards', () => {
   })
 
   it('关于页应降噪为当前主题页面结构', () => {
-    expect(aboutView).toContain('class="about-intro"')
+    expect(aboutView).toContain('class="about-page mo-about-page"')
+    expect(aboutView).toContain('class="about-shell"')
+    expect(aboutView).toContain('class="about-panel about-hero"')
+    expect(aboutView).toContain('var(--mo-p600)')
+    expect(aboutView).toContain('var(--mo-n50)')
+    expect(aboutView).not.toContain('email-icon')
+    expect(aboutView).not.toContain('github-icon')
+    expect(aboutView).not.toContain('weibo-icon')
     expect(aboutView).not.toContain('hero-section')
     expect(aboutView).not.toContain('hero-wave-bg')
     expect(aboutView).not.toContain('hero-bottom-wave')

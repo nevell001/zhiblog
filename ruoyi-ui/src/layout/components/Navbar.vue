@@ -76,7 +76,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox } from '@/plugins/element-plus-service'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import TopNav from '@/components/TopNav/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'

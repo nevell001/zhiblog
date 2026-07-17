@@ -11,6 +11,17 @@ const inDocker = process.env.DOCKER === 'true'
 // 如果在容器内 → 用 ruoyi-admin 访问同网络下的后端服务
 // 如果在本机开发 → 用 localhost 访问后端
 const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
+const analyzePlugins =
+  process.env.ANALYZE === 'true'
+    ? [
+        visualizer({
+          open: false,
+          filename: 'stats.html',
+          gzipSize: true,
+          brotliSize: true
+        })
+      ]
+    : []
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
@@ -40,14 +51,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       assetsDir: 'assets',
       chunkSizeWarningLimit: 1200,
       rollupOptions: {
-        plugins: [
-          visualizer({
-            open: false,
-            filename: 'stats.html',
-            gzipSize: true,
-            brotliSize: true
-          })
-        ],
+        plugins: [...analyzePlugins],
         output: {
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
@@ -56,8 +60,8 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
           manualChunks: {
             // 将大型第三方库拆分为独立 chunks
             'vue-vendor': ['vue', 'vue-router', 'pinia'],
-            'element-plus': ['element-plus', '@element-plus/icons-vue'],
-            quill: ['@vueup/vue-quill'],
+            'element-icons': ['@element-plus/icons-vue'],
+            echarts: ['echarts'],
             // 将通用工具库拆分为独立 chunk
             utils: ['axios', 'js-cookie', 'file-saver', 'fuse.js', '@vueuse/core']
           }

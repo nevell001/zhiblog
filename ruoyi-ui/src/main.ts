@@ -76,8 +76,11 @@ import type { App as VueApp } from 'vue'
 
 import Cookies from 'js-cookie'
 
-import 'element-plus/dist/index.css'
 import 'element-plus/theme-chalk/dark/css-vars.css'
+import 'element-plus/es/components/loading/style/css'
+import 'element-plus/es/components/message/style/css'
+import 'element-plus/es/components/message-box/style/css'
+import 'element-plus/es/components/notification/style/css'
 import locale from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/assets/styles/index.scss' // global css
@@ -98,7 +101,6 @@ import { download } from '@/utils/request'
 
 // svg图标
 import 'virtual:svg-icons-register'
-import SvgIcon from '@/components/SvgIcon'
 import elementIcons from '@/components/SvgIcon/svgicon'
 
 import { useDict } from '@/utils/dict'
@@ -111,21 +113,6 @@ import {
   selectDictLabel,
   selectDictLabels
 } from '@/utils/ruoyi'
-
-// 分页组件
-import PaginationComponent from '@/components/Pagination'
-// 自定义表格工具组件
-import RightToolbar from '@/components/RightToolbar'
-// 富文本组件
-import RichTextEditor from '@/components/Editor/index.vue'
-// 文件上传组件
-import FileUpload from '@/components/FileUpload'
-// 图片上传组件
-import ImageUpload from '@/components/ImageUpload'
-// 图片预览组件
-import ImagePreview from '@/components/ImagePreview'
-// 字典标签组件
-import DictTag from '@/components/DictTag'
 
 const app: VueApp = createApp(App)
 
@@ -144,18 +131,6 @@ app.config.globalProperties.addDateRange = addDateRange
 app.config.globalProperties.getConfigKey = getConfigKey
 app.config.globalProperties.selectDictLabel = selectDictLabel
 app.config.globalProperties.selectDictLabels = selectDictLabels
-
-// 全局组件挂载
-app.component('DictTag', DictTag)
-// eslint-disable-next-line vue/multi-word-component-names
-app.component('Pagination', PaginationComponent)
-app.component('FileUpload', FileUpload)
-app.component('ImageUpload', ImageUpload)
-app.component('ImagePreview', ImagePreview)
-app.component('RightToolbar', RightToolbar)
-// eslint-disable-next-line vue/multi-word-component-names
-app.component('Editor', RichTextEditor)
-app.component('SvgIcon', SvgIcon)
 
 app.use(plugins)
 app.use(elementIcons)

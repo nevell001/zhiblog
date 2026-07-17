@@ -81,7 +81,8 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import { getStatisticsOverview, getArticleTrend, getUserActivity } from '@/api/statistics'
-import * as echarts from 'echarts'
+import { loadEcharts } from '@/utils/echarts'
+import { logger } from '@/utils/logger'
 
 interface OverviewStats {
   articleCount?: number
@@ -110,7 +111,7 @@ const loadData = async () => {
       await loadChartData()
     }
   } catch (error) {
-    console.error('获取统计数据失败:', error)
+    logger.error('获取统计数据失败:', error)
     // 使用模拟数据
     stats.value = {
       articleCount: 128,
@@ -128,10 +129,10 @@ const loadChartData = async () => {
     try {
       const articleTrendRes = await getArticleTrend()
       if (articleTrendRes.code === 200) {
-        renderArticleChart(articleTrendRes.data)
+        await renderArticleChart(articleTrendRes.data)
       } else {
         // 使用模拟数据
-        renderArticleChart({
+        await renderArticleChart({
           labels: [
             '1月',
             '2月',
@@ -150,9 +151,9 @@ const loadChartData = async () => {
         })
       }
     } catch (error) {
-      console.warn('文章趋势数据加载失败，使用模拟数据:', error)
+      logger.warn('文章趋势数据加载失败，使用模拟数据:', error)
       // 使用模拟数据
-      renderArticleChart({
+      await renderArticleChart({
         labels: [
           '1月',
           '2月',
@@ -175,10 +176,10 @@ const loadChartData = async () => {
     try {
       const userActivityRes = await getUserActivity()
       if (userActivityRes.code === 200) {
-        renderUserChart(userActivityRes.data)
+        await renderUserChart(userActivityRes.data)
       } else {
         // 使用模拟数据
-        renderUserChart({
+        await renderUserChart({
           labels: [
             '1月',
             '2月',
@@ -197,9 +198,9 @@ const loadChartData = async () => {
         })
       }
     } catch (error) {
-      console.warn('用户活跃度数据加载失败，使用模拟数据:', error)
+      logger.warn('用户活跃度数据加载失败，使用模拟数据:', error)
       // 使用模拟数据
-      renderUserChart({
+      await renderUserChart({
         labels: [
           '1月',
           '2月',
@@ -218,91 +219,97 @@ const loadChartData = async () => {
       })
     }
   } catch (error) {
-    console.error('加载图表数据失败:', error)
+    logger.error('加载图表数据失败:', error)
   }
 }
 
-const renderArticleChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('articleChart'))
-    const option = {
-      tooltip: {
-        trigger: 'axis'
-      },
-      xAxis: {
-        type: 'category',
-        data: data.labels || [
-          '1月',
-          '2月',
-          '3月',
-          '4月',
-          '5月',
-          '6月',
-          '7月',
-          '8月',
-          '9月',
-          '10月',
-          '11月',
-          '12月'
-        ]
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          data: data.data || [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11],
-          type: 'line',
-          smooth: true,
-          itemStyle: {
-            color: '#409EFF'
-          }
-        }
+const renderArticleChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('articleChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: data.labels || [
+        '1月',
+        '2月',
+        '3月',
+        '4月',
+        '5月',
+        '6月',
+        '7月',
+        '8月',
+        '9月',
+        '10月',
+        '11月',
+        '12月'
       ]
-    }
-    chart.setOption(option)
-  })
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data.data || [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11],
+        type: 'line',
+        smooth: true,
+        itemStyle: {
+          color: '#409EFF'
+        }
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
-const renderUserChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('userChart'))
-    const option = {
-      tooltip: {
-        trigger: 'axis'
-      },
-      xAxis: {
-        type: 'category',
-        data: data.labels || [
-          '1月',
-          '2月',
-          '3月',
-          '4月',
-          '5月',
-          '6月',
-          '7月',
-          '8月',
-          '9月',
-          '10月',
-          '11月',
-          '12月'
-        ]
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          data: data.data || [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48],
-          type: 'bar',
-          itemStyle: {
-            color: '#67C23A'
-          }
-        }
+const renderUserChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('userChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: data.labels || [
+        '1月',
+        '2月',
+        '3月',
+        '4月',
+        '5月',
+        '6月',
+        '7月',
+        '8月',
+        '9月',
+        '10月',
+        '11月',
+        '12月'
       ]
-    }
-    chart.setOption(option)
-  })
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data.data || [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48],
+        type: 'bar',
+        itemStyle: {
+          color: '#67C23A'
+        }
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
 onMounted(() => {

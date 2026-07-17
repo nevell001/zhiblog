@@ -260,7 +260,7 @@ import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/blog/article'
@@ -270,6 +270,7 @@ import { toggleBookmark } from '@/api/blog/bookmark'
 import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 const router = useRouter()
@@ -365,7 +366,7 @@ const loadArticleDetail = async () => {
 
     // 验证文章ID
     if (!articleId) {
-      console.error('文章ID为空')
+      logger.error('文章ID为空')
       ElMessage.error('文章ID不能为空')
       return
     }
@@ -373,7 +374,7 @@ const loadArticleDetail = async () => {
     // 确保ID是数字
     const numericId = Number(articleId)
     if (isNaN(numericId) || numericId <= 0) {
-      console.error('文章ID格式不正确:', articleId)
+      logger.error('文章ID格式不正确:', articleId)
       ElMessage.error('文章ID格式不正确')
       return
     }
@@ -383,12 +384,12 @@ const loadArticleDetail = async () => {
 
     // 检查响应状态
     if (response.code !== 200) {
-      console.error('API调用失败:', response.code, response.msg)
+      logger.error('API调用失败:', response.code, response.msg)
       return
     }
 
     if (!response.data) {
-      console.error('响应数据为空')
+      logger.error('响应数据为空')
       return
     }
 
@@ -420,16 +421,16 @@ const loadArticleDetail = async () => {
       // 获取评论列表
       await loadComments()
     } else {
-      console.error('未找到文章数据，响应数据:', response.data)
+      logger.error('未找到文章数据，响应数据:', response.data)
       article.value = null
     }
   } catch (error) {
-    console.error('获取文章详情失败，详细错误:', error)
-    console.error('错误类型:', typeof error)
-    console.error('错误状态:', error.response?.status)
-    console.error('错误状态文本:', error.response?.statusText)
-    console.error('请求URL:', error.config?.url)
-    console.error('请求方法:', error.config?.method)
+    logger.error('获取文章详情失败，详细错误:', error)
+    logger.error('错误类型:', typeof error)
+    logger.error('错误状态:', error.response?.status)
+    logger.error('错误状态文本:', error.response?.statusText)
+    logger.error('请求URL:', error.config?.url)
+    logger.error('请求方法:', error.config?.method)
 
     // 更详细的错误提示
     const errorMsg =
@@ -460,7 +461,7 @@ const loadComments = async () => {
     commentList.value = comments
     totalComments.value = comments.length
   } catch (error) {
-    console.error('获取评论列表失败:', error)
+    logger.error('获取评论列表失败:', error)
     commentList.value = []
     totalComments.value = 0
   }
@@ -486,7 +487,7 @@ const handleLike = async () => {
 
     ElMessage.success('点赞成功')
   } catch (error) {
-    console.error('点赞失败:', error)
+    logger.error('点赞失败:', error)
     ElMessage.error('操作失败')
   } finally {
     likeLoading.value = false
@@ -531,7 +532,7 @@ const handleBookmark = async () => {
       ElMessage.success(article.value.isBookmarked ? '收藏成功' : '取消收藏')
     }
   } catch (error) {
-    console.error('收藏失败:', error)
+    logger.error('收藏失败:', error)
     ElMessage.error('操作失败')
   }
 }
@@ -595,7 +596,7 @@ const submitComment = async () => {
     replyTarget.value = null
     await loadComments()
   } catch (error) {
-    console.error('提交评论失败:', error)
+    logger.error('提交评论失败:', error)
     if (error !== 'validation_failed') {
       ElMessage.error('评论发表失败')
     }
@@ -624,7 +625,7 @@ const loadBlogSettings = async () => {
     try {
       response = await getBlogSettings()
     } catch (error) {
-      console.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
+      logger.warn('标准博客设置接口访问失败，尝试匿名接口:', error)
       response = await getBlogSettingsAnonymous()
     }
 
@@ -638,7 +639,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('获取博客设置失败:', error)
+    logger.error('获取博客设置失败:', error)
     // 使用默认值
   }
 }

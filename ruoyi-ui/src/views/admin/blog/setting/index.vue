@@ -517,28 +517,7 @@
 import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle, type AppTheme } from '@/utils/theme'
-import {
-  ElMessage,
-  ElButton,
-  ElCard,
-  ElTabs,
-  ElTabPane,
-  ElForm,
-  ElFormItem,
-  ElInput,
-  ElInputNumber,
-  ElSwitch,
-  ElColorPicker,
-  ElRadioGroup,
-  ElRadio,
-  ElRadioButton,
-  ElDatePicker,
-  ElUpload,
-  ElRow,
-  ElCol,
-  ElAlert,
-  ElDivider
-} from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { Link as LinkIcon } from '@element-plus/icons-vue'
 import {
   listSetting,

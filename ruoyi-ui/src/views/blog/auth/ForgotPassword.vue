@@ -151,7 +151,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules } from 'element-plus'
 import { Lock, Key, Message } from '@element-plus/icons-vue'
 import { sendResetCode, resetPassword as resetPasswordApi } from '@/api/blog/auth'
 import BlogLayout from '@/components/BlogLayout.vue'

@@ -80,7 +80,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { getFilteredMenus } from '@/config/menu'
 import { useUserStore } from '@/stores/user'
 import { useDevice } from '@/composables/useDevice'

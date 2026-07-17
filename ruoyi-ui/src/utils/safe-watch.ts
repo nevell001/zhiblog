@@ -1,4 +1,5 @@
 import { watch as vueWatch, watchEffect as vueWatchEffect, WatchOptions, WatchSource } from 'vue'
+import { logger } from '@/utils/logger'
 
 /**
  * 安全的 watch 函数，用于包装 Vue 的 watch 函数，并在清理函数执行时添加错误处理
@@ -25,8 +26,8 @@ export function safeWatch<T>(
         try {
           cleanupFn()
         } catch (error) {
-          console.error('watch 清理函数执行出错:', error)
-          console.error('清理函数错误堆栈:', error.stack)
+          logger.error('watch 清理函数执行出错:', error)
+          logger.error('清理函数错误堆栈:', error instanceof Error ? error.stack : error)
           // 可以在这里添加更多的错误处理逻辑，比如发送错误报告等
         }
       }
@@ -62,8 +63,8 @@ export function safeWatchEffect(
         try {
           cleanupFn()
         } catch (error) {
-          console.error('watchEffect 清理函数执行出错:', error)
-          console.error('清理函数错误堆栈:', error.stack)
+          logger.error('watchEffect 清理函数执行出错:', error)
+          logger.error('清理函数错误堆栈:', error instanceof Error ? error.stack : error)
           // 可以在这里添加更多的错误处理逻辑，比如发送错误报告等
         }
       }

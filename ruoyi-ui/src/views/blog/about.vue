@@ -1,13 +1,17 @@
 <template>
   <BlogLayout>
-    <div class="about-page">
-      <!-- 个人简介 -->
-      <header class="about-intro">
-        <div class="about-intro-inner">
+    <div class="about-page mo-about-page">
+      <div class="about-shell">
+        <header class="about-panel about-hero">
           <div class="about-avatar-wrap">
-            <img :src="blogAvatarUrl" :alt="blogSettings.blog_author" @error="handleAvatarError" />
+            <img
+              :src="blogAvatarUrl"
+              :alt="blogSettings.blog_author || '博客作者'"
+              @error="handleAvatarError"
+            />
           </div>
-          <div class="about-intro-copy">
+
+          <div class="about-hero-copy">
             <span class="section-label">About</span>
             <h1 class="about-name">
               {{ blogSettings.blog_author || 'Nevell' }}
@@ -19,185 +23,71 @@
               {{ blogSettings.blog_desc || '热爱技术，热爱生活，专注于Web开发和用户体验设计。' }}
             </p>
           </div>
-        </div>
-      </header>
 
-      <!-- 统计数据 -->
-      <section class="stats-section">
-        <div class="stats-inner">
-          <div v-animate="'fade-in-up'" class="stat-item">
-            <div class="stat-num">
-              {{ stats.articleCount || 0 }}
+          <div class="about-stat-strip" aria-label="博客统计">
+            <div v-for="item in statItems" :key="item.label" class="stat-item">
+              <div class="stat-num">
+                {{ item.value }}
+              </div>
+              <div class="stat-label">
+                {{ item.label }}
+              </div>
             </div>
-            <div class="stat-label">篇文章</div>
           </div>
-          <div v-animate="'fade-in-up'" class="stat-item">
-            <div class="stat-num">
-              {{ stats.categoryCount || 0 }}
-            </div>
-            <div class="stat-label">个分类</div>
-          </div>
-          <div v-animate="'fade-in-up'" class="stat-item">
-            <div class="stat-num">
-              {{ stats.tagCount || 0 }}
-            </div>
-            <div class="stat-label">个标签</div>
-          </div>
-          <div v-animate="'fade-in-up'" class="stat-item">
-            <div class="stat-num">
-              {{ stats.commentCount || 0 }}
-            </div>
-            <div class="stat-label">条评论</div>
-          </div>
-          <div v-animate="'fade-in-up'" class="stat-item">
-            <div class="stat-num">
-              {{ formatNumber(stats.totalViews || 0) }}
-            </div>
-            <div class="stat-label">总访问</div>
-          </div>
-        </div>
-      </section>
+        </header>
 
-      <!-- 关于内容 -->
-      <section class="content-section">
-        <div class="content-inner">
-          <span class="section-label">关于我</span>
-          <div class="content-card">
-            <div class="about-content" v-html="blogSettings.about_content || '暂无关于内容'"></div>
+        <section class="about-panel about-content-panel">
+          <div class="section-head">
+            <span class="section-label">Profile</span>
+            <h2>关于我</h2>
           </div>
-        </div>
-      </section>
+          <div class="about-content" v-html="blogSettings.about_content || '暂无关于内容'"></div>
+        </section>
 
-      <!-- 联系方式 -->
-      <section class="contact-section">
-        <div class="contact-inner">
-          <span class="section-label">联系我</span>
-          <div class="contact-grid">
-            <div v-if="blogSettings.blog_email" class="contact-card">
-              <div class="contact-icon email-icon">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <rect x="2" y="4" width="20" height="16" rx="2" />
-                  <path d="M22 7l-10 7L2 7" />
-                </svg>
+        <section class="about-panel contact-section">
+          <div class="section-head">
+            <span class="section-label">Contact</span>
+            <h2>联系我</h2>
+          </div>
+
+          <div v-if="contactItems.length" class="contact-grid">
+            <div v-for="item in contactItems" :key="item.key" class="contact-card">
+              <div class="contact-icon" aria-hidden="true">
+                <el-icon><component :is="item.icon" /></el-icon>
               </div>
               <div class="contact-info">
-                <div class="contact-type">邮箱</div>
-                <a :href="`mailto:${blogSettings.blog_email}`" class="contact-value">
-                  {{ blogSettings.blog_email }}
-                </a>
-              </div>
-            </div>
-            <div v-if="blogSettings.author_location" class="contact-card">
-              <div class="contact-icon location-icon">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-              </div>
-              <div class="contact-info">
-                <div class="contact-type">位置</div>
-                <div class="contact-value">
-                  {{ blogSettings.author_location }}
+                <div class="contact-type">
+                  {{ item.label }}
                 </div>
-              </div>
-            </div>
-            <div v-if="blogSettings.github_url" class="contact-card">
-              <div class="contact-icon github-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.127 1.934 2.98 1.395 3.774 1.062.116-.758.441-1.395.799-1.726-2.843-.322-5.833-1.428-5.833-6.342 0-1.395.498-2.527 1.328-3.435-.132-.322-.568-1.625.132-3.387 0 0 1.076-.344 3.527 1.318 1.026-.222 2.092-.333 3.158-.333 1.066 0 2.132.111 3.158.333 2.451-1.662 3.527-1.318 3.527-1.318.7 1.763.264 3.065.132 3.387.83.908 1.328 2.04 1.328 3.435 0 4.922-3.004 6.015-5.843 6.332.46.418.908 1.24.908 2.478v3.677c0 .315.192.693.797.574C20.567 21.803 24 17.303 24 12c0-6.627-5.373-12-12-12z"
-                  />
-                </svg>
-              </div>
-              <div class="contact-info">
-                <div class="contact-type">GitHub</div>
                 <a
-                  :href="formatUrl(blogSettings.github_url)"
+                  v-if="item.href"
+                  :href="item.href"
                   target="_blank"
                   rel="noopener"
                   class="contact-value"
                 >
-                  {{ blogSettings.github_url }}
+                  {{ item.value }}
                 </a>
-              </div>
-            </div>
-            <div v-if="blogSettings.weibo_url" class="contact-card">
-              <div class="contact-icon weibo-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                  <path
-                    d="M10.098 20.323c-3.977.391-7.458-1.456-7.562-4.137-.104-2.68 3.194-5.196 7.17-5.588 3.977-.391 7.458 1.456 7.562 4.137.104 2.68-3.194 5.196-7.17 5.588zm7.627-11.364c-.337-.743-1.13-.99-1.773-.554-.644.437-.867 1.386-.529 2.13.337.744 1.13.99 1.773.554.644-.436.867-1.386.53-2.129zm1.162-3.905c-1.126-2.49-3.87-3.389-6.14-2.01-2.27 1.379-3.07 4.322-1.943 6.812 1.126 2.49 3.87 3.39 6.14 2.01 2.27-1.379 3.07-4.322 1.943-6.812z"
-                  />
-                </svg>
-              </div>
-              <div class="contact-info">
-                <div class="contact-type">微博</div>
-                <a
-                  :href="formatUrl(blogSettings.weibo_url)"
-                  target="_blank"
-                  rel="noopener"
-                  class="contact-value"
-                >
-                  {{ blogSettings.weibo_url }}
-                </a>
-              </div>
-            </div>
-            <div v-if="blogSettings.personal_website" class="contact-card">
-              <div class="contact-icon website-icon">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="2" y1="12" x2="22" y2="12" />
-                  <path
-                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
-                  />
-                </svg>
-              </div>
-              <div class="contact-info">
-                <div class="contact-type">个人网站</div>
-                <a
-                  :href="formatUrl(blogSettings.personal_website)"
-                  target="_blank"
-                  rel="noopener"
-                  class="contact-value"
-                >
-                  {{ blogSettings.personal_website }}
-                </a>
+                <div v-else class="contact-value">{{ item.value }}</div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+          <p v-else class="contact-empty">暂无公开联系方式</p>
+        </section>
+      </div>
     </div>
   </BlogLayout>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, type Component } from 'vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getStatisticsOverview } from '@/api/statistics'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
+import { logger } from '@/utils/logger'
+import { Link as LinkIcon, Location, Message, Platform, Promotion } from '@element-plus/icons-vue'
 
 const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
@@ -212,6 +102,14 @@ interface BlogStats {
 
 const stats = ref<BlogStats>({})
 
+interface ContactItem {
+  key: string
+  label: string
+  value: string
+  href?: string
+  icon: Component
+}
+
 const blogAvatarUrl = computed(() => {
   const avatar = blogSettings.value.blog_avatar
   if (!avatar || !avatar.trim()) return '/default-avatar.svg'
@@ -225,13 +123,76 @@ const handleAvatarError = (event: Event) => {
   img.src = '/default-avatar.svg'
 }
 
+const statItems = computed(() => [
+  { label: '篇文章', value: formatNumber(stats.value.articleCount || 0) },
+  { label: '个分类', value: formatNumber(stats.value.categoryCount || 0) },
+  { label: '个标签', value: formatNumber(stats.value.tagCount || 0) },
+  { label: '条评论', value: formatNumber(stats.value.commentCount || 0) },
+  { label: '总访问', value: formatNumber(stats.value.totalViews || 0) }
+])
+
+const contactItems = computed<ContactItem[]>(() => {
+  const items: ContactItem[] = []
+
+  if (blogSettings.value.blog_email) {
+    items.push({
+      key: 'email',
+      label: '邮箱',
+      value: blogSettings.value.blog_email,
+      href: `mailto:${blogSettings.value.blog_email}`,
+      icon: Message
+    })
+  }
+
+  if (blogSettings.value.author_location) {
+    items.push({
+      key: 'location',
+      label: '位置',
+      value: blogSettings.value.author_location,
+      icon: Location
+    })
+  }
+
+  if (blogSettings.value.github_url) {
+    items.push({
+      key: 'github',
+      label: 'GitHub',
+      value: blogSettings.value.github_url,
+      href: formatUrl(blogSettings.value.github_url),
+      icon: Platform
+    })
+  }
+
+  if (blogSettings.value.weibo_url) {
+    items.push({
+      key: 'weibo',
+      label: '微博',
+      value: blogSettings.value.weibo_url,
+      href: formatUrl(blogSettings.value.weibo_url),
+      icon: Promotion
+    })
+  }
+
+  if (blogSettings.value.personal_website) {
+    items.push({
+      key: 'website',
+      label: '个人网站',
+      value: blogSettings.value.personal_website,
+      href: formatUrl(blogSettings.value.personal_website),
+      icon: LinkIcon
+    })
+  }
+
+  return items
+})
+
 const loadBlogSettings = async () => {
   try {
     const response = await getBlogSettingsAnonymous()
     const settings = response?.data || {}
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('加载博客设置失败:', error)
+    logger.error('加载博客设置失败:', error)
   }
 }
 
@@ -247,7 +208,7 @@ const loadStats = async () => {
       totalViews: data.totalViews || 0
     }
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    logger.error('加载统计数据失败:', error)
     stats.value = { articleCount: 0, categoryCount: 0, tagCount: 0, commentCount: 0, totalViews: 0 }
   }
 }
@@ -272,427 +233,367 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.about-page {
-  font-family:
-    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei',
-    sans-serif;
-  color: #1c1917;
-  background: #fafaf9;
+.mo-about-page {
   min-height: 100vh;
-  padding-top: 0;
+  padding: 84px 24px 72px;
+  background: var(--mo-n50);
+  color: var(--mo-n800);
+  font-family: var(--mo-font-sans);
 }
 
-/* ===== 个人简介 ===== */
-.about-intro {
-  padding: 96px 24px 56px;
-  background: #fafaf9;
+.about-shell {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
 }
 
-.about-intro-inner {
+.about-panel {
+  border: 1px solid var(--mo-n200);
+  border-radius: var(--mo-r-lg);
+  background: #fff;
+  box-shadow: var(--mo-shadow-sm);
+}
+
+.about-hero {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  gap: 32px;
-  max-width: 900px;
-  margin: 0 auto;
+  gap: 28px;
   padding: 32px;
-  background: #fff;
-  border: 1px solid #e7e5e4;
-  border-radius: 8px;
-  box-shadow: 0 14px 40px rgba(28, 25, 23, 0.06);
+}
+
+.about-avatar-wrap {
+  width: 128px;
+  height: 128px;
 }
 
 .about-avatar-wrap img {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  border: 4px solid #eef2ff;
-  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.12);
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--mo-p200);
+  border-radius: var(--mo-r-full);
+  background: var(--mo-p50);
   object-fit: cover;
-  transition: transform 0.3s;
 }
 
-.about-avatar-wrap img:hover {
-  transform: scale(1.05);
-}
-
-.about-intro-copy {
+.about-hero-copy {
   min-width: 0;
 }
 
+.section-label {
+  display: inline-flex;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  border-radius: var(--mo-r-full);
+  background: var(--mo-p50);
+  color: var(--mo-p700);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
 .about-name {
-  font-size: 2.4rem;
-  font-weight: 800;
-  color: #1c1917;
-  margin-bottom: 8px;
+  margin: 0 0 8px;
+  color: var(--mo-n900);
+  font-family: var(--mo-font-serif);
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .about-role {
-  font-size: 1.1rem;
-  color: #4f46e5;
-  margin-bottom: 16px;
-  font-weight: 500;
+  margin: 0 0 14px;
+  color: var(--mo-p700);
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .about-desc {
-  font-size: 0.95rem;
-  color: #57534e;
-  line-height: 1.7;
-  max-width: 480px;
+  max-width: 560px;
   margin: 0;
+  color: var(--mo-n600);
+  font-size: 15px;
+  line-height: 1.8;
 }
 
-/* ===== 统计数据 ===== */
-.stats-section {
-  padding: 60px 0;
-  background: #fafaf9;
-}
-
-.stats-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  justify-content: center;
-  gap: 32px;
+.about-stat-strip {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--mo-n200);
+  border-radius: var(--mo-r-md);
+  background: var(--mo-n200);
 }
 
 .stat-item {
+  min-width: 0;
+  padding: 16px 12px;
+  background: var(--mo-n50);
   text-align: center;
-  padding: 24px 20px;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-  min-width: 120px;
-  flex: 1;
-  transition:
-    transform 0.3s,
-    box-shadow 0.3s;
-}
-
-.stat-item:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(79, 70, 229, 0.12);
 }
 
 .stat-num {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #4f46e5;
+  color: var(--mo-p700);
+  font-size: 22px;
+  font-weight: 700;
   line-height: 1;
-  margin-bottom: 8px;
 }
 
 .stat-label {
-  font-size: 0.85rem;
-  color: #78716c;
-  font-weight: 600;
-  letter-spacing: 1px;
-}
-
-/* ===== 公共样式 ===== */
-.section-label {
-  display: block;
+  margin-top: 7px;
+  color: var(--mo-n500);
   font-size: 12px;
+  font-weight: 600;
+}
+
+.about-content-panel,
+.contact-section {
+  padding: 28px 32px 32px;
+}
+
+.section-head {
+  margin-bottom: 20px;
+}
+
+.section-head h2 {
+  margin: 0;
+  color: var(--mo-n900);
+  font-family: var(--mo-font-serif);
+  font-size: 24px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: #a8a29e;
-  text-transform: uppercase;
-  margin-bottom: 24px;
-}
-
-/* ===== 关于内容 ===== */
-.content-section {
-  padding: 48px 0;
-  background: #fff;
-}
-
-.content-inner {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.content-card {
-  background: #fafaf9;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
 }
 
 .about-content {
-  padding: 40px;
-  line-height: 1.8;
-  color: #1c1917;
-  font-size: 0.95rem;
+  color: var(--mo-n700);
+  font-family: var(--mo-font-serif);
+  font-size: 16px;
+  line-height: 1.9;
 }
 
 .about-content :deep(h1),
 .about-content :deep(h2),
 .about-content :deep(h3) {
-  color: #1c1917;
-  margin-top: 24px;
-  margin-bottom: 16px;
+  margin: 28px 0 14px;
+  color: var(--mo-n900);
+  font-family: var(--mo-font-serif);
   font-weight: 700;
+  line-height: 1.35;
 }
 
 .about-content :deep(p) {
-  margin-bottom: 16px;
+  margin: 0 0 16px;
 }
 
 .about-content :deep(a) {
-  color: #4f46e5;
+  color: var(--mo-p700);
   text-decoration: none;
 }
 
 .about-content :deep(a:hover) {
+  color: var(--mo-p800);
   text-decoration: underline;
 }
 
-/* ===== 联系方式 ===== */
-.contact-section {
-  padding: 48px 0 80px;
-  background: #fafaf9;
-}
-
-.contact-inner {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 0 24px;
+.about-content :deep(ul),
+.about-content :deep(ol) {
+  padding-left: 22px;
 }
 
 .contact-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .contact-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px 24px;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  gap: 14px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--mo-n200);
+  border-radius: var(--mo-r-md);
+  background: var(--mo-n50);
   transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+    border-color 0.2s,
+    background 0.2s;
 }
 
 .contact-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(79, 70, 229, 0.1);
+  border-color: var(--mo-p200);
+  background: var(--mo-p50);
 }
 
 .contact-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  display: flex;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 auto;
+  border-radius: var(--mo-r-md);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #eef2ff;
-  color: #4f46e5;
-  flex-shrink: 0;
+  background: #fff;
+  color: var(--mo-p600);
+  box-shadow: var(--mo-shadow-sm);
 }
 
-.email-icon {
-  background: #eef2ff;
-}
-.location-icon {
-  background: #eef2ff;
-}
-.github-icon {
-  background: #eef2ff;
-}
-.weibo-icon {
-  background: #eef2ff;
-}
-.website-icon {
-  background: #eef2ff;
+.contact-icon .el-icon {
+  font-size: 18px;
 }
 
 .contact-info {
-  flex: 1;
   min-width: 0;
 }
 
 .contact-type {
-  font-size: 0.8rem;
-  color: #78716c;
+  margin-bottom: 3px;
+  color: var(--mo-n500);
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
 }
 
 .contact-value {
-  font-size: 0.95rem;
-  color: #1c1917;
+  display: block;
+  overflow: hidden;
+  color: var(--mo-n800);
+  font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  word-break: break-all;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 a.contact-value {
-  color: #4f46e5;
+  color: var(--mo-p700);
 }
 
 a.contact-value:hover {
-  opacity: 0.7;
+  color: var(--mo-p800);
 }
 
-/* ===== 响应式 ===== */
-@media (max-width: 900px) {
-  .about-name {
-    font-size: 2rem;
-  }
-  .stats-inner {
-    flex-wrap: wrap;
-  }
-  .stat-item {
-    min-width: calc(33% - 16px);
-  }
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
+.contact-empty {
+  margin: 0;
+  color: var(--mo-n500);
+  font-size: 14px;
 }
 
-@media (max-width: 640px) {
-  .about-intro {
-    padding: 80px 16px 40px;
+html.dark .mo-about-page {
+  background: var(--mo-n900);
+  color: var(--mo-n100);
+}
+
+html.dark .about-panel {
+  border-color: var(--mo-n700);
+  background: var(--mo-n800);
+}
+
+html.dark .about-avatar-wrap img {
+  border-color: var(--mo-p700);
+  background: var(--mo-n700);
+}
+
+html.dark .section-label {
+  background: rgba(99, 102, 241, 0.16);
+  color: var(--mo-p300);
+}
+
+html.dark .about-name,
+html.dark .section-head h2,
+html.dark .about-content :deep(h1),
+html.dark .about-content :deep(h2),
+html.dark .about-content :deep(h3) {
+  color: var(--mo-n50);
+}
+
+html.dark .about-role,
+html.dark .stat-num,
+html.dark a.contact-value {
+  color: var(--mo-p300);
+}
+
+html.dark .about-desc,
+html.dark .about-content {
+  color: var(--mo-n300);
+}
+
+html.dark .about-stat-strip {
+  border-color: var(--mo-n700);
+  background: var(--mo-n700);
+}
+
+html.dark .stat-item,
+html.dark .contact-card {
+  background: var(--mo-n900);
+}
+
+html.dark .stat-label,
+html.dark .contact-type,
+html.dark .contact-empty {
+  color: var(--mo-n400);
+}
+
+html.dark .contact-card {
+  border-color: var(--mo-n700);
+}
+
+html.dark .contact-card:hover {
+  border-color: var(--mo-p700);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+html.dark .contact-icon {
+  background: var(--mo-n800);
+  color: var(--mo-p300);
+}
+
+html.dark .contact-value {
+  color: var(--mo-n100);
+}
+
+@media (max-width: 760px) {
+  .mo-about-page {
+    padding: 72px 16px 48px;
   }
 
-  .about-intro-inner {
+  .about-hero {
     grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 24px 20px;
+    gap: 18px;
+    padding: 24px;
     text-align: center;
   }
 
-  .about-avatar-wrap img {
-    width: 110px;
-    height: 110px;
-  }
-
-  .about-name {
-    font-size: 1.6rem;
+  .about-avatar-wrap {
+    margin: 0 auto;
+    width: 104px;
+    height: 104px;
   }
 
   .about-desc {
     margin: 0 auto;
   }
 
-  .stats-inner {
-    gap: 16px;
+  .about-stat-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  .stat-item {
-    min-width: calc(50% - 8px);
-    padding: 16px 12px;
+
+  .stat-item:last-child {
+    grid-column: 1 / -1;
   }
-  .stat-num {
-    font-size: 1.5rem;
+
+  .about-content-panel,
+  .contact-section {
+    padding: 22px 20px 24px;
   }
-  .about-content {
-    padding: 24px 16px;
+
+  .about-name {
+    font-size: 26px;
   }
-  .contact-card {
-    padding: 16px;
+
+  .contact-grid {
+    grid-template-columns: 1fr;
   }
-}
-
-/* ===== 深色模式 ===== */
-html.dark .about-page {
-  background: #1c1917;
-  color: #e2e8f0;
-}
-
-html.dark .about-intro {
-  background: #1c1917;
-}
-
-html.dark .about-intro-inner {
-  background: #292524;
-  border-color: #44403c;
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .about-avatar-wrap img {
-  border-color: #3730a3;
-}
-
-html.dark .about-name {
-  color: #f5f5f4;
-}
-
-html.dark .about-role {
-  color: #a5b4fc;
-}
-
-html.dark .about-desc {
-  color: #d6d3d1;
-}
-
-html.dark .stats-section {
-  background: #1c1917;
-}
-
-html.dark .stat-item {
-  background: #292524;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .stat-num {
-  color: #a5b4fc;
-}
-
-html.dark .stat-label {
-  color: #94a3b8;
-}
-
-html.dark .content-section {
-  background: #292524;
-}
-
-html.dark .content-card {
-  background: #1c1917;
-}
-
-html.dark .about-content {
-  color: #e2e8f0;
-}
-
-html.dark .about-content :deep(h1),
-html.dark .about-content :deep(h2),
-html.dark .about-content :deep(h3) {
-  color: #e2e8f0;
-}
-
-html.dark .about-content :deep(a) {
-  color: #a5b4fc;
-}
-
-html.dark .contact-section {
-  background: #1c1917;
-}
-
-html.dark .contact-card {
-  background: #292524;
-}
-
-html.dark .contact-type {
-  color: #94a3b8;
-}
-
-html.dark .contact-value {
-  color: #e2e8f0;
-}
-
-html.dark a.contact-value {
-  color: #a5b4fc;
-}
-
-html.dark .section-label {
-  color: #78716c;
 }
 </style>

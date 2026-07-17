@@ -2,6 +2,7 @@
  * 图片处理工具类
  * 提供图片上传、压缩、格式转换等功能
  */
+import { logger } from '@/utils/logger'
 
 interface ImageInfo {
   width: number
@@ -374,7 +375,7 @@ export async function uploadImages(
       results.push(...batchResults)
     } catch (error) {
       // 如果批量上传失败，记录错误但继续处理其他批次
-      console.error('批量上传失败:', error)
+      logger.error('批量上传失败:', error)
       batch.forEach(() => {
         results.push({ success: false, error: (error as Error).message })
       })

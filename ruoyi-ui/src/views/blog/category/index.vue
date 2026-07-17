@@ -272,7 +272,7 @@ import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 
 import { useRoute } from 'vue-router'
 
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 
 import BlogLayout from '@/components/BlogLayout.vue'
 
@@ -285,6 +285,7 @@ import { getArticleList } from '@/api/blog/article'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 
@@ -340,7 +341,7 @@ const loadCategoryArticles = async (append = false) => {
     }
     total.value = response.total || 0
   } catch (error) {
-    console.error('❌ 获取分类文章失败:', error)
+    logger.error('获取分类文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
     loading.value = false
@@ -356,7 +357,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('加载博客设置失败:', error)
+    logger.error('加载博客设置失败:', error)
     // 使用默认值
   }
 }
@@ -371,7 +372,7 @@ const loadCategoryDetail = async () => {
     categoryDescription.value = category.description || ''
     lastUpdateTime.value = formatDate(new Date().toISOString())
   } catch (error) {
-    console.error('❌ 获取分类详情失败:', error)
+    logger.error('获取分类详情失败:', error)
     ElMessage.error('获取分类详情失败')
   }
 }
@@ -383,7 +384,7 @@ const loadRelatedCategories = async () => {
     const categories = response.data || response.rows || []
     relatedCategories.value = categories.filter(cat => cat.id !== currentCategoryId.value)
   } catch (error) {
-    console.error('获取相关分类失败:', error)
+    logger.error('获取相关分类失败:', error)
   }
 }
 
@@ -393,7 +394,7 @@ const loadPopularTags = async () => {
     const response = await getTagCloud()
     popularTags.value = response.data || []
   } catch (error) {
-    console.error('获取热门标签失败:', error)
+    logger.error('获取热门标签失败:', error)
   }
 }
 
@@ -403,7 +404,7 @@ const loadRecentArticles = async () => {
     const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
     recentArticles.value = response.rows || []
   } catch (error) {
-    console.error('获取最新文章失败:', error)
+    logger.error('获取最新文章失败:', error)
   }
 }
 
@@ -478,7 +479,7 @@ watch(
         loadRelatedCategories()
       } else {
         // 无效的分类ID，显示所有分类列表
-        console.warn('⚠️ 无效的分类ID:', newId)
+        logger.warn('无效的分类ID:', newId)
         currentCategoryId.value = null
         queryParams.categoryId = null
         queryParams.pageNum = 1

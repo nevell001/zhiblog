@@ -461,7 +461,7 @@ import { listTag } from '@/api/admin/blog/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
 import { parseTime } from '@/utils/ruoyi'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()

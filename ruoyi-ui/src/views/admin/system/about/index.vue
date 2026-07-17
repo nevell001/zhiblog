@@ -200,7 +200,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { listSetting, updateSetting, addSetting } from '@/api/blog/setting'
 
 const activeTab = ref('basic')

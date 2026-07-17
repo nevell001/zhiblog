@@ -2,6 +2,7 @@ import { getConfigKey } from '@/api/system/config'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
+import { logger } from '@/utils/logger'
 import type { Config } from '@/api/system/config'
 
 /**
@@ -118,6 +119,6 @@ export async function reloadBlogSettings(): Promise<void> {
     const { useDynamicTitle } = await import('./dynamicTitle')
     useDynamicTitle()
   } catch (error) {
-    console.error('刷新SEO设置失败:', error)
+    logger.error('刷新SEO设置失败:', error)
   }
 }

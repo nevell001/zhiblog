@@ -1,6 +1,7 @@
 import defaultSettings from '@/settings'
 import { useSettingsStore } from '@/stores/settings'
 import { getConfigKey } from '@/api/system/config'
+import { logger } from '@/utils/logger'
 import type { Config } from '@/api/system/config'
 
 /**
@@ -71,6 +72,6 @@ async function setSeoMetaTags(): Promise<void> {
       ;(metaKeywords as HTMLMetaElement).content = seoKeywords.configValue
     }
   } catch (error) {
-    console.error('设置SEO元标签失败:', error)
+    logger.error('设置SEO元标签失败:', error)
   }
 }

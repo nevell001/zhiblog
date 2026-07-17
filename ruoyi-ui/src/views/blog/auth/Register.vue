@@ -178,11 +178,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules } from 'element-plus'
 import { User, Lock, Key, Message } from '@element-plus/icons-vue'
 import { useBlogUserStore } from '@/stores/blogUser'
 import { getCodeImg } from '@/api/blog/auth'
 import BlogLayout from '@/components/BlogLayout.vue'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const blogUserStore = useBlogUserStore()
@@ -247,7 +249,7 @@ const refreshCaptcha = async () => {
     captchaUrl.value = 'data:image/gif;base64,' + res.img
     registerForm.uuid = res.uuid
   } catch (error) {
-    console.error('获取验证码失败:', error)
+    logger.error('获取验证码失败:', error)
     captchaEnabled.value = false
   }
 }

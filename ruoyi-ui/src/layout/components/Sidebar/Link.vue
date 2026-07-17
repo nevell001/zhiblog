@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { isExternal } from '@/utils/validate'
 
 const props = defineProps({

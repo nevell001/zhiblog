@@ -195,6 +195,7 @@
 import { ref, onMounted } from 'vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleArchive, getArticlesByArchive } from '@/api/blog/article'
+import { logger } from '@/utils/logger'
 import {
   Calendar,
   ArrowDown,
@@ -234,7 +235,7 @@ const loadArchiveData = async () => {
       await loadArticlesByArchive(archiveList.value[0].archive_date)
     }
   } catch (error) {
-    console.error('获取归档数据失败:', error)
+    logger.error('获取归档数据失败:', error)
   } finally {
     loading.value = false
   }
@@ -254,7 +255,7 @@ const loadArticlesByArchive = async (archiveDate: string) => {
       articlesByArchive.value[archiveDate] = response.rows || response.data || []
     }
   } catch (error) {
-    console.error('获取归档文章失败:', error)
+    logger.error('获取归档文章失败:', error)
     articlesByArchive.value[archiveDate] = []
   } finally {
     loadingArticles.value[archiveDate] = false
