@@ -59,7 +59,7 @@ export function delCategory(id: number): Promise<any> {
  */
 export function getCategoryList(query?: PageParams): Promise<QueryResult<Category>> {
   return request({
-    url: '/blog/category/list',
+    url: '/blog/api/category/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -71,7 +71,7 @@ export function getCategoryList(query?: PageParams): Promise<QueryResult<Categor
  */
 export function getCategoryDetail(id: number): Promise<Category & { data?: Category }> {
   return request({
-    url: '/blog/category/' + id,
+    url: '/blog/api/category/' + id,
     method: 'get',
     headers: { isToken: false }
   })

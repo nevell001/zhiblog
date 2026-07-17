@@ -83,13 +83,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
         '^/blog/api/': {
           target: baseUrl,
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog\/api/, '/common/blog')
-        },
-        // 代理所有博客 API 接口（文章、标签、分类、设置等）
-        '^/blog/(article|tag|category|setting|comment)/': {
-          target: baseUrl,
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog/, '/common/blog')
+          rewrite: path => path.replace(/^\/blog\/api/, '/blog')
         },
         // 代理系统管理接口
         '/system': {

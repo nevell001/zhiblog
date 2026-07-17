@@ -33,6 +33,13 @@ describe('blog design layout guards', () => {
     expect(homeView).toContain('margin: 24px auto 0;')
   })
 
+  it('首页分类导航和热门标签应能跳转到对应列表页', () => {
+    expect(homeView).toContain('class="cat-item active"')
+    expect(homeView).toContain('to="/blog"')
+    expect(homeView).toContain(':to="`/blog/category/${category.id}`"')
+    expect(homeView).toContain(':to="`/blog/tag/${tag.id}`"')
+  })
+
   it('文章详情页不应被旧卡片布局类压缩', () => {
     expect(articleDetailView).toContain('class="mo-article-page"')
     expect(articleDetailView).not.toContain('class="article-detail mo-article-page"')

@@ -94,28 +94,34 @@
           <div class="sidebar-widget">
             <div class="widget-title">分类导航</div>
             <div class="cat-list">
-              <div class="cat-item active">
+              <router-link to="/blog" class="cat-item active">
                 全部文章
                 <span class="count">{{ total }}</span>
-              </div>
-              <div v-for="category in categories" :key="category.id" class="cat-item">
+              </router-link>
+              <router-link
+                v-for="category in categories"
+                :key="category.id"
+                :to="`/blog/category/${category.id}`"
+                class="cat-item"
+              >
                 {{ category.name }}
                 <span class="count">{{ category.articleCount || category.count || 0 }}</span>
-              </div>
+              </router-link>
             </div>
           </div>
 
           <div class="sidebar-widget">
             <div class="widget-title">热门标签</div>
             <div class="tag-cloud">
-              <span
+              <router-link
                 v-for="(tag, index) in tags"
                 :key="tag.id || tag.name"
+                :to="`/blog/tag/${tag.id}`"
                 class="tc"
                 :class="{ lg: index % 5 === 0, md: index % 3 === 0 }"
               >
                 {{ tag.name }}
-              </span>
+              </router-link>
             </div>
           </div>
 
@@ -515,6 +521,7 @@ onMounted(async () => {
   color: var(--n600);
   font-size: 13px;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .mo-home-page .cat-item:hover,
@@ -544,6 +551,7 @@ onMounted(async () => {
   background: var(--n100);
   color: var(--n600);
   font-size: 12px;
+  text-decoration: none;
 }
 
 .mo-home-page .tc:hover,

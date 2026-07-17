@@ -17,4 +17,17 @@ describe('mo-blog theme stylesheet', () => {
     expect(stylesheet).toContain('--el-button-text-color: var(--mo-p700)')
     expect(stylesheet).toContain('--el-button-hover-bg-color: var(--mo-p600)')
   })
+
+  it('应该把管理后台框架和常用控件纳入当前主题', () => {
+    expect(stylesheet).toContain('.theme-mo-blog .app-wrapper')
+    expect(stylesheet).toContain('.theme-mo-blog .navbar')
+    expect(stylesheet).toContain('.theme-mo-blog .tags-view-container')
+    expect(stylesheet).toContain('.theme-mo-blog .sidebar-logo-container')
+    expect(stylesheet).toContain('.theme-mo-blog .sidebar-container .el-menu-item.is-active')
+    expect(stylesheet).toContain('.theme-mo-blog .app-container')
+    expect(stylesheet).toContain('.theme-mo-blog .el-table')
+    expect(stylesheet).toContain('.theme-mo-blog .el-form-item__label')
+    expect(stylesheet).toContain('.theme-mo-blog .el-tag')
+    expect(stylesheet).toContain('background: var(--mo-n50)')
+  })
 })

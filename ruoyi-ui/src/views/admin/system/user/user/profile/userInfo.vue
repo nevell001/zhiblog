@@ -59,8 +59,10 @@ function submit() {
     if (valid) {
       updateUserProfile({ ...props.user, ...form.value } as any).then(() => {
         ;(proxy as any).$modal.msgSuccess('修改成功')
+        props.user.nickName = form.value.nickName
         props.user.phonenumber = form.value.phonenumber
         props.user.email = form.value.email
+        props.user.sex = form.value.sex
       })
     }
   })

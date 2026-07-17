@@ -146,7 +146,7 @@ describe('Comment API 测试', () => {
       await getArticleComments(1)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/comment/article/1',
+        url: '/blog/api/comment/article/1',
         method: 'get'
       })
     })
@@ -170,7 +170,7 @@ describe('Comment API 测试', () => {
       await addBlogComment(comment)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/comment',
+        url: '/blog/api/comment',
         method: 'post',
         data: comment
       })

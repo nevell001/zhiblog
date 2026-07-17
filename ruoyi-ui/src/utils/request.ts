@@ -33,6 +33,10 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.url && config.url.startsWith('/blog/api/')) {
+      config.baseURL = ''
+    }
+
     // 如果是 FormData，删除 Content-Type 让浏览器自动设置为 multipart/form-data
     if (config.data instanceof FormData) {
       delete (config.headers as any)['Content-Type']

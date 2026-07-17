@@ -228,7 +228,8 @@
     <el-dialog
       v-model="open"
       :title="title"
-      width="min(1180px, 96vw)"
+      width="min(1320px, 96vw)"
+      top="4vh"
       class="mo-editor-dialog"
       append-to-body
       @close="cancel"
@@ -245,135 +246,197 @@
           <el-form-item prop="title" class="title-field">
             <el-input v-model="form.title" class="title-input" placeholder="请输入文章标题" />
           </el-form-item>
-          <span class="save-status">
+          <span class="save-status" :class="`is-${editorSaveState}`">
             <span class="dot"></span>
-            草稿已保存 · 刚刚
+            {{ editorSaveStatusText }}
           </span>
-          <el-button plain size="small">预览</el-button>
-          <el-button type="primary" size="small" @click="submitForm">发布</el-button>
+          <el-button plain size="small" @click="setEditorViewMode('preview')">预览</el-button>
+          <el-button type="primary" size="small" @click="submitForm(1)">发布</el-button>
         </div>
 
-        <div class="editor-toolbar">
-          <span class="tool"><b>B</b></span>
-          <span class="tool"><i>I</i></span>
-          <span class="tool"><s>S</s></span>
-          <span class="sep"></span>
-          <span class="tool">H1</span>
-          <span class="tool">H2</span>
-          <span class="tool">H3</span>
-          <span class="sep"></span>
-          <span class="tool">❝</span>
-          <span class="tool">&lt;/&gt;</span>
-          <span class="tool">{ }</span>
-          <span class="tool">🔗</span>
-          <span class="tool">🖼</span>
-          <span class="tool">▦</span>
-          <span class="sep"></span>
-          <span class="tool">1.</span>
-          <span class="tool">•</span>
-          <div class="view-modes">
-            <span class="tool active">分屏</span>
-            <span class="tool">仅编辑</span>
-            <span class="tool">仅预览</span>
-          </div>
-        </div>
-
-        <div class="editor-body">
-          <section class="editor-pane edit-pane">
-            <el-form-item prop="content" class="content-field">
-              <editor :key="editorKey" v-model="form.content" :min-height="360" />
-            </el-form-item>
-          </section>
-          <section class="editor-pane preview-pane">
-            <div v-if="form.content" class="editor-preview" v-html="form.content"></div>
-            <div v-else class="preview-empty">文章预览会显示在这里</div>
-          </section>
-        </div>
-
-        <div class="editor-sidebar">
-          <div class="field-group">
-            <label>分类</label>
-            <el-form-item prop="categoryId" class="compact-form-item">
-              <el-select v-model="form.categoryId" placeholder="请选择分类">
-                <el-option
-                  v-for="category in categoryOptions"
-                  :key="category.id"
-                  :label="category.name"
-                  :value="category.id"
-                />
-              </el-select>
-            </el-form-item>
-          </div>
-          <div class="field-group">
-            <label>标签</label>
-            <el-form-item prop="tagIds" class="compact-form-item">
-              <TagCategorySelector
-                v-model:selected-tags="form.tagIds"
-                v-model:selected-category="form.categoryId"
-                :show-category="false"
-                placeholder="选择或创建标签"
-              />
-            </el-form-item>
-          </div>
-          <div class="field-group">
-            <label>封面图片</label>
-            <el-form-item prop="coverUrl" class="compact-form-item">
-              <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
-              <div v-if="form.coverUrl" class="cover-preview">
-                <img :src="coverPreviewUrl" alt="封面预览" />
-                <el-button type="danger" size="small" plain @click="form.coverUrl = ''">
-                  删除封面
-                </el-button>
+        <div class="editor-workspace">
+          <div class="editor-main">
+            <div class="editor-toolbar">
+              <button type="button" class="tool" title="加粗" @click="runEditorCommand('bold')">
+                <b>B</b>
+              </button>
+              <button type="button" class="tool" title="斜体" @click="runEditorCommand('italic')">
+                <i>I</i>
+              </button>
+              <button type="button" class="tool" title="删除线" @click="runEditorCommand('strike')">
+                <s>S</s>
+              </button>
+              <span class="sep"></span>
+              <button type="button" class="tool" title="一级标题" @click="setEditorHeader(1)">H1</button>
+              <button type="button" class="tool" title="二级标题" @click="setEditorHeader(2)">H2</button>
+              <button type="button" class="tool" title="三级标题" @click="setEditorHeader(3)">H3</button>
+              <span class="sep"></span>
+              <button type="button" class="tool" title="引用" @click="runEditorCommand('blockquote')">
+                ❝
+              </button>
+              <button type="button" class="tool" title="代码块" @click="runEditorCommand('code-block')">
+                &lt;/&gt;
+              </button>
+              <button type="button" class="tool" title="行内代码" @click="runEditorCommand('code')">
+                { }
+              </button>
+              <button type="button" class="tool" title="链接" @click="insertEditorLink">🔗</button>
+              <button type="button" class="tool" title="图片" @click="insertEditorImage">🖼</button>
+              <button type="button" class="tool" title="表格" @click="insertEditorTable">▦</button>
+              <span class="sep"></span>
+              <button
+                type="button"
+                class="tool"
+                title="有序列表"
+                @click="runEditorCommand('list', 'ordered')"
+              >
+                1.
+              </button>
+              <button
+                type="button"
+                class="tool"
+                title="无序列表"
+                @click="runEditorCommand('list', 'bullet')"
+              >
+                •
+              </button>
+              <div class="view-modes">
+                <button
+                  type="button"
+                  class="tool"
+                  :class="{ active: editorViewMode === 'split' }"
+                  @click="setEditorViewMode('split')"
+                >
+                  分屏
+                </button>
+                <button
+                  type="button"
+                  class="tool"
+                  :class="{ active: editorViewMode === 'edit' }"
+                  @click="setEditorViewMode('edit')"
+                >
+                  仅编辑
+                </button>
+                <button
+                  type="button"
+                  class="tool"
+                  :class="{ active: editorViewMode === 'preview' }"
+                  @click="setEditorViewMode('preview')"
+                >
+                  仅预览
+                </button>
               </div>
-            </el-form-item>
-          </div>
-          <div class="field-group">
-            <label>摘要</label>
-            <el-form-item prop="summary" class="compact-form-item">
-              <el-input v-model="form.summary" type="textarea" :rows="3" placeholder="请输入摘要" />
-            </el-form-item>
-          </div>
-          <div class="field-group">
-            <label>可见性</label>
-            <el-form-item prop="status" class="compact-form-item">
-              <el-radio-group v-model="form.status">
-                <el-radio-button :label="1">公开</el-radio-button>
-                <el-radio-button :label="0">草稿</el-radio-button>
-              </el-radio-group>
-            </el-form-item>
-          </div>
-          <div class="field-group">
-            <label>推荐位</label>
-            <div class="switch-row">
-              <span>置顶</span>
-              <el-switch v-model="form.isTop" :active-value="1" :inactive-value="0" />
             </div>
-            <div class="switch-row">
-              <span>推荐</span>
-              <el-switch v-model="form.isRecommend" :active-value="1" :inactive-value="0" />
-            </div>
-          </div>
-          <div class="field-group">
-            <label>作者</label>
-            <el-form-item prop="authorName" class="compact-form-item">
-              <el-input
-                v-model="form.authorName"
-                :placeholder="form.id ? '请输入作者' : '自动填充为博客设置中的作者'"
-                readonly
-              />
-            </el-form-item>
-          </div>
-        </div>
 
-        <div class="editor-actions">
-          <span class="word-count">
-            字数：{{ articleWordCount }} · 预计阅读：{{ articleReadMinutes }} 分钟
-          </span>
-          <div class="action-buttons">
-            <el-button @click="cancel">取消</el-button>
-            <el-button @click="form.status = 0">存为草稿</el-button>
-            <el-button type="primary" @click="submitForm">发布文章</el-button>
+            <div class="editor-body" :class="`is-${editorViewMode}`">
+              <section v-if="editorViewMode !== 'preview'" class="editor-pane edit-pane">
+                <el-form-item prop="content" class="content-field">
+                  <editor
+                    :key="editorKey"
+                    ref="richEditorRef"
+                    v-model="form.content"
+                    :min-height="420"
+                  />
+                </el-form-item>
+              </section>
+              <section v-if="editorViewMode !== 'edit'" class="editor-pane preview-pane">
+                <div v-if="form.content" class="editor-preview" v-html="form.content"></div>
+                <div v-else class="preview-empty">文章预览会显示在这里</div>
+              </section>
+            </div>
           </div>
+
+          <aside class="editor-side-panel">
+            <section class="side-section">
+              <div class="side-title">发布状态</div>
+              <el-form-item prop="status" class="compact-form-item">
+                <el-radio-group v-model="form.status" class="status-radio">
+                  <el-radio-button :label="1">公开</el-radio-button>
+                  <el-radio-button :label="0">草稿</el-radio-button>
+                </el-radio-group>
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">分类</div>
+              <el-form-item prop="categoryId" class="compact-form-item">
+                <el-select v-model="form.categoryId" placeholder="请选择分类">
+                  <el-option
+                    v-for="category in categoryOptions"
+                    :key="category.id"
+                    :label="category.name"
+                    :value="category.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">标签</div>
+              <el-form-item prop="tagIds" class="compact-form-item">
+                <TagCategorySelector
+                  v-model:selected-tags="form.tagIds"
+                  v-model:selected-category="form.categoryId"
+                  :show-category="false"
+                  placeholder="选择或创建标签"
+                />
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">摘要</div>
+              <el-form-item prop="summary" class="compact-form-item">
+                <el-input v-model="form.summary" type="textarea" :rows="4" placeholder="请输入摘要" />
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">封面图片</div>
+              <el-form-item prop="coverUrl" class="compact-form-item">
+                <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
+                <div v-if="form.coverUrl" class="cover-preview">
+                  <img :src="coverPreviewUrl" alt="封面预览" />
+                  <el-button type="danger" size="small" plain @click="form.coverUrl = ''">
+                    删除封面
+                  </el-button>
+                </div>
+              </el-form-item>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">推荐位</div>
+              <div class="switch-row">
+                <span>置顶</span>
+                <el-switch v-model="form.isTop" :active-value="1" :inactive-value="0" />
+              </div>
+              <div class="switch-row">
+                <span>推荐</span>
+                <el-switch v-model="form.isRecommend" :active-value="1" :inactive-value="0" />
+              </div>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">作者</div>
+              <el-form-item prop="authorName" class="compact-form-item">
+                <el-input
+                  v-model="form.authorName"
+                  :placeholder="form.id ? '请输入作者' : '自动填充为博客设置中的作者'"
+                  readonly
+                />
+              </el-form-item>
+            </section>
+
+            <div class="side-actions">
+              <span class="word-count">
+                字数：{{ articleWordCount }} · 预计阅读：{{ articleReadMinutes }} 分钟
+              </span>
+              <div class="action-buttons">
+                <el-button @click="cancel">取消</el-button>
+                <el-button @click="submitForm(0)">存为草稿</el-button>
+                <el-button type="primary" @click="submitForm(1)">发布文章</el-button>
+              </div>
+            </div>
+          </aside>
         </div>
       </el-form>
     </el-dialog>
@@ -381,7 +444,7 @@
 </template>
 
 <script setup lang="ts" name="Article">
-import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick, computed } from 'vue'
+import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import {
@@ -417,6 +480,9 @@ const categoryOptions = ref([])
 const tagOptions = ref([])
 // 编辑器组件的渲染计数器，用于强制重新渲染
 const editorKey = ref(0)
+const richEditorRef = ref<any>()
+const editorViewMode = ref<'split' | 'edit' | 'preview'>('split')
+const editorSaveState = ref<'idle' | 'dirty' | 'saving' | 'saved' | 'error'>('idle')
 
 const data = reactive<Record<string, any>>({
   form: {} as Record<string, any>,
@@ -446,6 +512,67 @@ const articlePlainText = computed(() => (form.value.content || '').replace(/<[^>
 const articleWordCount = computed(() => articlePlainText.value.length)
 const articleReadMinutes = computed(() => Math.max(1, Math.ceil(articleWordCount.value / 500)))
 const coverPreviewUrl = computed(() => getCoverUrl(form.value.coverUrl))
+const editorSaveStatusText = computed(() => {
+  const statusMap = {
+    idle: '尚未保存',
+    dirty: '有未保存修改',
+    saving: '正在保存...',
+    saved: form.value.status === 1 ? '已发布' : '草稿已保存',
+    error: '保存失败'
+  }
+  return statusMap[editorSaveState.value]
+})
+
+watch(
+  () => [form.value.title, form.value.summary, form.value.content, form.value.categoryId],
+  () => {
+    if (open.value && editorSaveState.value !== 'saving') {
+      editorSaveState.value = 'dirty'
+    }
+  }
+)
+
+function setEditorViewMode(mode: 'split' | 'edit' | 'preview') {
+  editorViewMode.value = mode
+}
+
+function runEditorCommand(command: string, value: string | number | boolean = true) {
+  richEditorRef.value?.format?.(command, value)
+}
+
+function setEditorHeader(level: number) {
+  runEditorCommand('header', level)
+}
+
+async function insertEditorLink() {
+  try {
+    const hrefResult = await ElMessageBox.prompt('请输入链接地址', '插入链接', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /^https?:\/\/.+|^\/.+|^#.+/,
+      inputErrorMessage: '请输入 http(s)、站内路径或锚点链接'
+    })
+    const href = hrefResult.value?.trim()
+    if (!href) return
+
+    const textResult = await ElMessageBox.prompt('请输入链接文本', '插入链接', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputValue: href
+    })
+    richEditorRef.value?.insertLink?.(href, textResult.value?.trim() || href)
+  } catch {
+    // 用户取消输入时不做处理
+  }
+}
+
+function insertEditorImage() {
+  richEditorRef.value?.triggerUpload?.()
+}
+
+function insertEditorTable() {
+  richEditorRef.value?.insertTable?.()
+}
 
 /** 查询博客文章列表 */
 async function getList() {
@@ -504,6 +631,8 @@ function cancel() {
 function reset() {
   // 增加编辑器组件的渲染计数器，强制重新渲染
   editorKey.value++
+  editorSaveState.value = 'idle'
+  editorViewMode.value = 'split'
 
   form.value = {
     id: null,
@@ -577,6 +706,7 @@ function openDialog() {
   reset()
   // reset 函数已经增加了 editorKey，编辑器会重新渲染
   open.value = true
+  editorSaveState.value = 'idle'
   title.value = '添加博客文章'
 }
 
@@ -626,6 +756,8 @@ async function handleUpdate(row) {
     }
 
     open.value = true
+    editorSaveState.value = 'saved'
+    editorViewMode.value = 'split'
     title.value = '修改博客文章'
   } catch (error) {
     console.error('获取文章详情失败:', error)
@@ -687,15 +819,20 @@ function formatTagList(tags) {
 
 // 提交按钮
 const articleRef = ref<any>()
-const submitForm = async () => {
+const submitForm = async (targetStatus?: 0 | 1) => {
   if (!articleRef.value) return
 
   articleRef.value.validate(async valid => {
     if (valid) {
       loading.value = true
+      editorSaveState.value = 'saving'
       try {
         // 创建一个完整的数据对象，包含所有必需的字段
         const apiData = { ...form.value }
+        if (targetStatus !== undefined) {
+          apiData.status = targetStatus
+          form.value.status = targetStatus
+        }
 
         // 确保所有必需的字段都有值
         apiData.title = apiData.title?.trim() || ''
@@ -749,18 +886,20 @@ const submitForm = async () => {
         // 使用现有的API函数
         if (isNew) {
           await addArticle(apiData)
-          ElMessage.success('新增成功')
+          ElMessage.success(apiData.status === 1 ? '发布成功' : '草稿保存成功')
         } else {
           await updateArticle(apiData)
-          ElMessage.success('修改成功')
+          ElMessage.success(apiData.status === 1 ? '发布成功' : '草稿保存成功')
         }
 
+        editorSaveState.value = 'saved'
         // 重置表单，清空所有字段
         reset()
         open.value = false
         await getList()
       } catch (error) {
         console.error('操作失败:', error)
+        editorSaveState.value = 'error'
         // 显示友好的错误提示
         const errorMsg = error.response?.data?.msg || error.message || '操作失败，请重试'
         ElMessage.error(errorMsg)
@@ -1063,9 +1202,9 @@ onMounted(async () => {
   z-index: 5;
   display: flex;
   align-items: center;
-  gap: 14px;
-  height: 56px;
-  padding: 0 24px;
+  gap: 12px;
+  height: 52px;
+  padding: 0 20px;
   background: #fff;
   border-bottom: 1px solid #e7e5e4;
 }
@@ -1099,7 +1238,7 @@ onMounted(async () => {
 }
 
 .title-input :deep(.el-input__inner) {
-  height: 40px;
+  height: 38px;
   color: #1c1917;
   font-size: 18px;
   font-weight: 600;
@@ -1121,12 +1260,41 @@ onMounted(async () => {
   background: #16a34a;
 }
 
+.save-status.is-idle .dot {
+  background: #a8a29e;
+}
+
+.save-status.is-dirty .dot {
+  background: #f59e0b;
+}
+
+.save-status.is-saving .dot {
+  background: #4f46e5;
+}
+
+.save-status.is-error .dot {
+  background: #dc2626;
+}
+
+.editor-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  min-height: min(760px, calc(92vh - 92px));
+}
+
+.editor-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  background: #fff;
+}
+
 .editor-toolbar {
   display: flex;
   align-items: center;
   gap: 2px;
-  height: 44px;
-  padding: 0 24px;
+  min-height: 42px;
+  padding: 0 16px;
   overflow-x: auto;
   background: #fafaf9;
   border-bottom: 1px solid #e7e5e4;
@@ -1140,9 +1308,12 @@ onMounted(async () => {
   height: 32px;
   padding: 0 6px;
   color: #57534e;
+  font: inherit;
   font-size: 14px;
   white-space: nowrap;
-  cursor: default;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
   border-radius: 6px;
   transition: all 0.1s;
 }
@@ -1176,12 +1347,18 @@ onMounted(async () => {
 .editor-body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
-  min-height: 460px;
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-body.is-edit,
+.editor-body.is-preview {
+  grid-template-columns: 1fr;
 }
 
 .editor-pane {
   min-width: 0;
-  padding: 20px 24px;
+  padding: 16px 20px;
   overflow-y: auto;
 }
 
@@ -1250,23 +1427,35 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 360px;
+  min-height: 420px;
   color: #a8a29e;
   font-size: 14px;
 }
 
-.editor-sidebar {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-  padding: 20px 24px;
-  background: #fff;
-  border-top: 1px solid #e7e5e4;
+.editor-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+  max-height: min(760px, calc(92vh - 92px));
+  padding: 16px;
+  overflow-y: auto;
+  background: #fcfcfb;
+  border-left: 1px solid #e7e5e4;
 }
 
-.field-group label {
+.side-section {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.side-section:last-of-type {
+  border-bottom: 0;
+}
+
+.side-title {
   display: block;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   color: #57534e;
   font-size: 12px;
   font-weight: 600;
@@ -1282,6 +1471,18 @@ onMounted(async () => {
   width: 100%;
 }
 
+.status-radio {
+  width: 100%;
+}
+
+.status-radio :deep(.el-radio-button) {
+  flex: 1;
+}
+
+.status-radio :deep(.el-radio-button__inner) {
+  width: 100%;
+}
+
 .cover-preview {
   display: flex;
   align-items: center;
@@ -1290,8 +1491,8 @@ onMounted(async () => {
 }
 
 .cover-preview img {
-  width: 92px;
-  height: 56px;
+  width: 104px;
+  height: 64px;
   object-fit: cover;
   border: 1px solid #e7e5e4;
   border-radius: 8px;
@@ -1301,19 +1502,20 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 32px;
+  height: 30px;
   color: #57534e;
   font-size: 13px;
 }
 
-.editor-actions {
+.side-actions {
   position: sticky;
   bottom: 0;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 24px;
-  background: #fff;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 0 0;
+  margin-top: auto;
+  background: linear-gradient(180deg, rgb(252 252 251 / 70%), #fcfcfb 18%);
   border-top: 1px solid #e7e5e4;
 }
 
@@ -1324,7 +1526,12 @@ onMounted(async () => {
 
 .action-buttons {
   display: flex;
-  gap: 12px;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.side-actions .action-buttons :deep(.el-button) {
+  margin-left: 0;
 }
 
 /* 文章状态标签样式优化 */
@@ -1410,6 +1617,21 @@ onMounted(async () => {
 }
 
 @media (max-width: 992px) {
+  .editor-workspace {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .editor-side-panel {
+    max-height: none;
+    border-top: 1px solid #e7e5e4;
+    border-left: 0;
+  }
+
+  .side-actions {
+    position: static;
+  }
+
   .article-title-wrapper {
     flex-direction: column;
     align-items: flex-start;
@@ -1486,16 +1708,6 @@ onMounted(async () => {
   .edit-pane {
     border-right: 0;
     border-bottom: 1px solid #e7e5e4;
-  }
-
-  .editor-sidebar {
-    grid-template-columns: 1fr;
-  }
-
-  .editor-actions {
-    align-items: stretch;
-    flex-direction: column;
-    gap: 12px;
   }
 
   .action-buttons {
