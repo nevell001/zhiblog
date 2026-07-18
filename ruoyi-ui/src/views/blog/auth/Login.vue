@@ -114,7 +114,7 @@
 
             <div class="auth-divider">还没有账号？</div>
             <router-link to="/blog/auth/register" class="auth-secondary">
-              创建默 Blog 账号
+              创建 ZhiBlog 账号
             </router-link>
           </el-form>
         </section>
