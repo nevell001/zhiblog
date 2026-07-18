@@ -22,7 +22,7 @@ describe('Settings 组件测试', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
     expect(source).toContain("localStorage.removeItem('layout-setting')")
-    expect(source).toContain("localStorage.removeItem(APP_THEME_STORAGE_KEY)")
+    expect(source).toContain('localStorage.removeItem(APP_THEME_STORAGE_KEY)')
     expect(source).toContain("localStorage.removeItem('admin-theme')")
   })
 })

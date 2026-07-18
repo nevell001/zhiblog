@@ -87,7 +87,10 @@ export const useSettingsStore = defineStore('settings', {
       topNav: resolveStoredBoolean(storedLayout.topNav, defaultSettings.topNav),
       tagsIcon: resolveStoredBoolean(storedLayout.tagsIcon, defaultSettings.tagsIcon),
       dynamicTitle: resolveStoredBoolean(storedLayout.dynamicTitle, defaultSettings.dynamicTitle),
-      footerVisible: resolveStoredBoolean(storedLayout.footerVisible, defaultSettings.footerVisible),
+      footerVisible: resolveStoredBoolean(
+        storedLayout.footerVisible,
+        defaultSettings.footerVisible
+      ),
       footerContent: defaultSettings.footerContent,
       isDark
     }

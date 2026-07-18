@@ -81,7 +81,9 @@ describe('Blog Register 页面测试', () => {
   it('注册页应遵循后端验证码开关并使用 JPEG 验证码图片', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/blog/auth/Register.vue'), 'utf-8')
 
-    expect(source).toContain('captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled')
+    expect(source).toContain(
+      'captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled'
+    )
     expect(source).toContain("'data:image/jpeg;base64,'")
     expect(source).not.toContain("'data:image/gif;base64,'")
   })

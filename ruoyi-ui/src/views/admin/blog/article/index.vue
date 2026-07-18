@@ -267,14 +267,30 @@
                 <s>S</s>
               </button>
               <span class="sep"></span>
-              <button type="button" class="tool" title="一级标题" @click="setEditorHeader(1)">H1</button>
-              <button type="button" class="tool" title="二级标题" @click="setEditorHeader(2)">H2</button>
-              <button type="button" class="tool" title="三级标题" @click="setEditorHeader(3)">H3</button>
+              <button type="button" class="tool" title="一级标题" @click="setEditorHeader(1)">
+                H1
+              </button>
+              <button type="button" class="tool" title="二级标题" @click="setEditorHeader(2)">
+                H2
+              </button>
+              <button type="button" class="tool" title="三级标题" @click="setEditorHeader(3)">
+                H3
+              </button>
               <span class="sep"></span>
-              <button type="button" class="tool" title="引用" @click="runEditorCommand('blockquote')">
+              <button
+                type="button"
+                class="tool"
+                title="引用"
+                @click="runEditorCommand('blockquote')"
+              >
                 ❝
               </button>
-              <button type="button" class="tool" title="代码块" @click="runEditorCommand('code-block')">
+              <button
+                type="button"
+                class="tool"
+                title="代码块"
+                @click="runEditorCommand('code-block')"
+              >
                 &lt;/&gt;
               </button>
               <button type="button" class="tool" title="行内代码" @click="runEditorCommand('code')">
@@ -386,7 +402,12 @@
             <section class="side-section">
               <div class="side-title">摘要</div>
               <el-form-item prop="summary" class="compact-form-item">
-                <el-input v-model="form.summary" type="textarea" :rows="4" placeholder="请输入摘要" />
+                <el-input
+                  v-model="form.summary"
+                  type="textarea"
+                  :rows="4"
+                  placeholder="请输入摘要"
+                />
               </el-form-item>
             </section>
 
@@ -444,7 +465,16 @@
 </template>
 
 <script setup lang="ts" name="Article">
-import { ref, reactive, toRefs, getCurrentInstance, onMounted, nextTick, computed, watch } from 'vue'
+import {
+  ref,
+  reactive,
+  toRefs,
+  getCurrentInstance,
+  onMounted,
+  nextTick,
+  computed,
+  watch
+} from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import {

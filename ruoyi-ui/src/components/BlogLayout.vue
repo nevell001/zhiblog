@@ -15,7 +15,11 @@
           </router-link>
         </div>
         <div class="nav-right">
-          <el-dropdown v-if="userStore.token && userStore.name" trigger="click" @command="handleUserCommand">
+          <el-dropdown
+            v-if="userStore.token && userStore.name"
+            trigger="click"
+            @command="handleUserCommand"
+          >
             <div class="user-info">
               <el-avatar :size="30" :src="userStore.avatar">
                 <el-icon><UserFilled /></el-icon>

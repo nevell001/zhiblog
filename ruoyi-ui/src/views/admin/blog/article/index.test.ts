@@ -16,13 +16,13 @@ describe('ArticleManage 视图组件测试', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
     expect(source).toContain('ref="richEditorRef"')
-    expect(source).toContain("@click=\"runEditorCommand('bold')\"")
-    expect(source).toContain("@click=\"runEditorCommand('italic')\"")
-    expect(source).toContain("@click=\"runEditorCommand('strike')\"")
+    expect(source).toContain('@click="runEditorCommand(\'bold\')"')
+    expect(source).toContain('@click="runEditorCommand(\'italic\')"')
+    expect(source).toContain('@click="runEditorCommand(\'strike\')"')
     expect(source).toContain('@click="setEditorHeader(1)"')
-    expect(source).toContain("@click=\"runEditorCommand('blockquote')\"")
-    expect(source).toContain("@click=\"insertEditorLink\"")
-    expect(source).toContain("@click=\"insertEditorImage\"")
+    expect(source).toContain('@click="runEditorCommand(\'blockquote\')"')
+    expect(source).toContain('@click="insertEditorLink"')
+    expect(source).toContain('@click="insertEditorImage"')
   })
 
   it('文章编辑器草稿保存和视图切换不应该是静态文案', () => {

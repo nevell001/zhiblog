@@ -140,7 +140,11 @@
             <div v-else class="empty-panel">
               <div class="empty-title">{{ articlesLoadError || '还没有文章' }}</div>
               <div class="empty-desc">
-                {{ articlesLoadError ? '可以稍后重试，或直接进入文章管理页面。' : '可以从文章管理页面创建第一篇内容。' }}
+                {{
+                  articlesLoadError
+                    ? '可以稍后重试，或直接进入文章管理页面。'
+                    : '可以从文章管理页面创建第一篇内容。'
+                }}
               </div>
               <el-button type="primary" @click="goArticleManage('create')">去写文章</el-button>
             </div>

@@ -15,7 +15,9 @@ export function markAppLoaded(doc: Document = document): void {
 
 export function isIgnorableStartupError(error: unknown): boolean {
   const message =
-    error instanceof Error ? error.message : String((error as { message?: unknown })?.message || error || '')
+    error instanceof Error
+      ? error.message
+      : String((error as { message?: unknown })?.message || error || '')
 
   return (
     message.includes("Cannot read properties of undefined (reading 'on')") ||
@@ -48,7 +50,8 @@ export function renderStartupError(error: unknown, doc: Document = document): vo
 
   const description = doc.createElement('p')
   description.style.cssText = 'margin:0 0 12px;font-size:14px;line-height:1.7;color:#526173;'
-  description.textContent = '前端运行时遇到错误，页面没有正常挂载。请把下面的错误信息发给开发者定位。'
+  description.textContent =
+    '前端运行时遇到错误，页面没有正常挂载。请把下面的错误信息发给开发者定位。'
 
   const detail = doc.createElement('pre')
   detail.style.cssText =

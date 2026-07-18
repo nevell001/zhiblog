@@ -293,9 +293,7 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background:
-    radial-gradient(circle at top left, var(--mo-p50), transparent 32%),
-    var(--mo-n50);
+  background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
 }
 
 .auth-card {
@@ -485,8 +483,7 @@ onMounted(() => {
 
 html.dark .mo-auth-page {
   background:
-    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%),
-    var(--mo-bg);
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-bg);
 }
 
 html.dark .auth-card {

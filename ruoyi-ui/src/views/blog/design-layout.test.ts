@@ -193,7 +193,9 @@ describe('blog design layout guards', () => {
     expect(homeView).toContain('var(--mo-p600)')
     expect(homeView).toContain('var(--mo-n50)')
 
-    expect(blogLayout).not.toMatch(/#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i)
+    expect(blogLayout).not.toMatch(
+      /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
+    )
     expect(blogLayout).toContain('var(--mo-p600)')
     expect(blogLayout).toContain('var(--mo-n50)')
   })

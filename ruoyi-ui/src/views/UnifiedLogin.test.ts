@@ -13,7 +13,9 @@ describe('UnifiedLogin 组件测试', () => {
   it('应该遵循后端验证码开关并使用 JPEG 验证码图片', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
-    expect(source).toContain('captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled')
+    expect(source).toContain(
+      'captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled'
+    )
     expect(source).toContain("'data:image/jpeg;base64,'")
     expect(source).not.toContain("'data:image/gif;base64,'")
   })

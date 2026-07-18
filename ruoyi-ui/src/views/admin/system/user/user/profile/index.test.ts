@@ -34,7 +34,7 @@ describe('Profile 视图组件测试', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
     expect(source).toContain("openSettings('userinfo')")
-    expect(source).toContain("settingsTab.value = tab")
+    expect(source).toContain('settingsTab.value = tab')
   })
 
   it('个人中心应该使用 Mo Blog 工作台式主题布局', () => {
