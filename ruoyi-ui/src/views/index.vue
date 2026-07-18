@@ -116,12 +116,12 @@
             <p>
               <i class="el-icon-chat-dot-round"></i>
               微信：
-              <a href="javascript:;">/ *若依</a>
+              <a href="javascript:;">/ *ZhiBlog</a>
             </p>
             <p>
               <i class="el-icon-money"></i>
               支付宝：
-              <a href="javascript:;" class="支付宝信息">/ *若依</a>
+              <a href="javascript:;" class="支付宝信息">/ *ZhiBlog</a>
             </p>
           </div>
         </el-card>
@@ -1047,7 +1047,7 @@
             </el-collapse-item>
             <el-collapse-item title="v1.0.0 - 2019-10-08">
               <ol>
-                <li>若依前后端分离系统正式发布</li>
+                <li>ZhiBlog 博客管理系统发布</li>
               </ol>
             </el-collapse-item>
           </el-collapse>
@@ -1075,7 +1075,7 @@
 <script setup lang="ts" name="Index">
 import { ref } from 'vue'
 
-const version = ref('3.9.0')
+const version = ref('1.3.4')
 
 function goTarget(url) {
   window.open(url, '__blank')

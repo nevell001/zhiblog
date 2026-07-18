@@ -27,8 +27,8 @@ describe('DynamicTitle Utils 测试', () => {
   })
 
   it('应该支持默认标题', () => {
-    const defaultTitle = '若依管理系统'
-    expect(defaultTitle).toBe('若依管理系统')
+    const defaultTitle = 'ZhiBlog 管理系统'
+    expect(defaultTitle).toBe('ZhiBlog 管理系统')
   })
 
   it('应该更新页面标题', () => {

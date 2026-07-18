@@ -6,11 +6,11 @@
 
     <groupId>top.nevell</groupId>
     <artifactId>zhiblog</artifactId>
-    <version>1.3.3</version>
+    <version>1.3.4</version>
 
     <name>zhiblog</name>
     <url>http://www.gitee.com/nevell/zhiblog</url>
-    <description>博客管理系统</description>
+    <description>ZhiBlog 博客管理系统</description>
 
     <properties>
 
@@ -21,7 +21,7 @@
             <java.version>17</java.version>
 
             <!-- 应用版本号（统一管理） -->
-            <app.version>1.3.3</app.version>
+            <app.version>1.3.4</app.version>
 
             <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 
