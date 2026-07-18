@@ -156,7 +156,7 @@ public class BlogFrontSettingController extends BaseController {
                 settings.put(configKey, "我的博客");
                 break;
             case "blog_desc":
-                settings.put(configKey, "这是一个基于RuoYi-Vue的博客系统");
+                settings.put(configKey, "基于 Spring Boot 3.3.0 + Vue 3 + Element Plus 构建的现代化博客系统");
                 break;
             case "blog_author":
                 settings.put(configKey, "nevell");

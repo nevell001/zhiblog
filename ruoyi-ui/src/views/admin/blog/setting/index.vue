@@ -556,7 +556,7 @@ const appThemeOptions: { label: string; value: AppTheme; description: string }[]
   {
     label: '默认主题',
     value: 'default',
-    description: '保留 RuoYi 管理后台的默认布局和交互习惯'
+    description: '保留管理后台的默认布局和交互习惯'
   },
   {
     label: '默 Blog',

@@ -6,9 +6,10 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 
 This is a blog system built on RuoYi-Vue 3.9.1 platform - a full-stack application with Spring Boot 3.3.0 backend and Vue 3 + TypeScript frontend (100% migrated). The project uses Java 17, requires MySQL 8.4 and Redis 6.2+, and features a complete blog with article management, comments, tags, categories, friend links, and monitoring (Prometheus + Grafana).
 
-**Current Version**: v1.3.3 (as defined in pom.xml)
+**Current Version**: v1.3.4 (as defined in pom.xml)
 
 **Recent Changes**:
+- v1.3.4: Unified brand name display as "ZhiBlog - 知博", fixed version inconsistencies
 - v1.3.3: Unified Docker database naming, simplified Compose entrypoints, fixed flaky UUID test
 - v1.3.2: Fixed login state synchronization, optimized home page access, improved login UX
 - v1.3.1: Optimized blog homepage and about page, fixed article editor content cache
@@ -471,7 +472,7 @@ The project uses `unplugin-auto-import` for Vue composition APIs:
 11. **MyBatis SQL Logging**: Enabled in dev via `com.ruoyi.system.mapper: debug` in application.yml
 12. **Type Definition Files**: All API modules have corresponding types in `src/types/api.d.ts`
 13. **Docker Environment Detection**: Frontend automatically detects Docker via `DOCKER=true` env var for proxy configuration
-14. **Version Management**: Version defined in `pom.xml` (currently 1.3.3), sync with `application.yml` ruoyi.version for consistency. See `docs/VERSION_MANAGEMENT.md` for comprehensive version update instructions
+14. **Version Management**: Version defined in `pom.xml` (currently 1.3.4), sync with `application.yml` ruoyi.version for consistency. See `docs/VERSION_MANAGEMENT.md` for comprehensive version update instructions
 15. **Email Verification**: In development, verification codes are printed to console instead of sending emails (controlled by `EMAIL_DEV_PRINT_CODE`)
 16. **ARM64 Docker Support**: Dockerfile-admin uses standard eclipse-temurin images (not Alpine) for better ARM64 compatibility
 17. **Security Config Validation**: As of v1.2.8, production startup requires all security configs (R_TOKEN_SECRET, DRUID_PASSWORD, REDIS_PASSWORD, DB_PASSWORD) to be properly set. Missing or weak passwords will block production startup
