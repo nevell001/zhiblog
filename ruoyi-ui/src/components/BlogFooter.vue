@@ -61,7 +61,7 @@
           </p>
           <p class="tech-info">
             Powered by
-            <a href="#" target="_blank">ZhiBlog</a>
+            <a href="#" target="_blank">ZhiBlog - 知博</a>
             &
             <a href="#" target="_blank">Element Plus</a>
           </p>

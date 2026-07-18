@@ -144,7 +144,7 @@
           © {{ currentYear }}
           {{ blogSettings.blog_author || blogSettings.blog_name || '我的博客' }} · 保留所有权利
         </p>
-        <p class="tech-info">Powered by ZhiBlog & Element Plus</p>
+        <p class="tech-info">Powered by ZhiBlog - 知博 & Element Plus</p>
       </div>
     </footer>
   </div>

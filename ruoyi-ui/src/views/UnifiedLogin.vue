@@ -3,7 +3,7 @@
     <section class="auth-card">
       <router-link to="/blog" class="auth-brand">
         <span class="brand-mark">知</span>
-        <span>ZhiBlog</span>
+        <span>ZhiBlog - 知博</span>
       </router-link>
 
       <div class="auth-head">
