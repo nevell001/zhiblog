@@ -97,7 +97,7 @@ npm run format            # Format with Prettier
 npm run format:check      # Check Prettier formatting
 ```
 
-**Important Note**: HMR (Hot Module Replacement) is disabled. Code changes require manual browser refresh.
+**Important Note**: HMR (Hot Module Replacement) is enabled. If dependency pre-bundling gets stale, restart with `npm run dev -- --force`.
 
 ### Docker Deployment
 
@@ -364,15 +364,15 @@ See `docs/VERSION_MANAGEMENT.md` for the complete version management guide.
 
 ### Critical Frontend Configuration
 
-**HMR Disabled**: The project has HMR (Hot Module Replacement) disabled in `vite.config.ts`:
+**HMR Enabled**: The project has HMR (Hot Module Replacement) enabled in `vite.config.ts`:
 ```typescript
 server: {
-  hmr: false  // Disabled due to compatibility issues
+  hmr: true
 }
 ```
-- **Reason**: Vite HMR system causes runtime error: `Cannot read properties of undefined (reading 'on')`
-- **Impact**: Code changes require manual browser refresh (not automatic)
-- **Workaround**: This is a known limitation, not a bug to fix
+- **Reason**: The Vite dependency pre-bundling list is stabilized with `optimizeDeps`, avoiding repeated dev reloads.
+- **Impact**: Code changes can hot-reload in development.
+- **Workaround**: If stale pre-bundling causes odd behavior, restart with `npm run dev -- --force`.
 
 **Vite Plugins**: Located in `vite/plugins/*.js` (5 files):
 - These intentionally remain in JavaScript format
@@ -459,7 +459,7 @@ The project uses `unplugin-auto-import` for Vue composition APIs:
 ## Special Considerations
 
 1. **Frontend Language**: Project 100% migrated to TypeScript 5.9.3 - all new code MUST use TypeScript with proper types
-2. **HMR Disabled**: Hot Module Replacement is disabled - requires manual browser refresh after code changes
+2. **HMR Enabled**: Hot Module Replacement is enabled for local frontend development
 3. **Vite Plugins**: Keep `vite/plugins/*.js` files in JavaScript format - do not migrate to TypeScript
 4. **Environment Variables**: Always use optional chaining for Vite env vars: `import.meta.env?.VAR_NAME || 'default'`
 5. **Upload Directory**: `./uploadPath/` in project root (mount point for Docker)
@@ -601,9 +601,9 @@ Examples from recent commits:
 - See `docs/VERSION_MANAGEMENT.md` for detailed troubleshooting
 
 **HMR not working**:
-- HMR is intentionally disabled due to compatibility issues
-- Manually refresh browser after code changes
-- This is a known limitation, not a bug
+- Restart the frontend with `npm run dev -- --force` to rebuild Vite's dependency cache
+- Verify the browser can connect to the Vite websocket on the dev server port
+- Check console output for dependency optimization reload loops
 
 ### Docker Issues
 

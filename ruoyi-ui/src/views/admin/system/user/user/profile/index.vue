@@ -246,7 +246,7 @@ const profileStats = reactive({
   publishedTotal: 0,
   draftTotal: 0
 })
-const profileName = computed(() => state.user.nickName || state.user.userName || '墨 Blog 用户')
+const profileName = computed(() => state.user.nickName || state.user.userName || '默 Blog 用户')
 const profileBio = computed(() => {
   const dept = state.user.dept?.deptName
   const role = state.roleGroup

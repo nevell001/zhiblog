@@ -30,7 +30,7 @@ defineProps({
   }
 })
 
-const title = import.meta.env?.VITE_APP_TITLE || 'RuoYi-Vue'
+const title = import.meta.env?.VITE_APP_TITLE || 'ZhiBlog'
 const settingsStore = useSettingsStore()
 const sideTheme = computed(() => settingsStore.sideTheme)
 

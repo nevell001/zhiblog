@@ -15,7 +15,7 @@ RUN npm config set registry https://registry.npmmirror.com \
 COPY . .
 
 # 构建参数
-ARG VITE_APP_TITLE=博客管理系统
+ARG VITE_APP_TITLE=ZhiBlog
 ENV VITE_APP_TITLE=$VITE_APP_TITLE
 
 # 构建生产版本

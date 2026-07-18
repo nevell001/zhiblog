@@ -350,7 +350,7 @@ onMounted(() => {
 .archive-page {
   padding-top: 64px;
   min-height: 100vh;
-  background: #fafaf9;
+  background: var(--mo-n50);
   padding-bottom: 0;
 }
 
@@ -359,10 +359,10 @@ onMounted(() => {
   position: relative;
   padding: 100px 20px 80px;
   text-align: center;
-  color: #1c1917;
+  color: var(--mo-n900);
   overflow: hidden;
-  background: #fafaf9;
-  border-bottom: 1px solid #e7e5e4;
+  background: var(--mo-n50);
+  border-bottom: 1px solid var(--mo-n200);
 }
 
 /* 页面头部底部波浪过渡 */
@@ -373,7 +373,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   height: 40px;
-  background: #fafaf9;
+  background: var(--mo-n50);
   border-radius: 8px 8px 0 0;
 }
 
@@ -433,7 +433,7 @@ onMounted(() => {
 
 .page-description {
   font-size: 1.2rem;
-  color: #57534e;
+  color: var(--mo-n600);
   margin-bottom: 30px;
   font-weight: 300;
   animation: slideDown 0.8s ease 0.2s both;
@@ -442,7 +442,7 @@ onMounted(() => {
 .highlight-number {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #4f46e5;
+  color: var(--mo-p600);
   text-shadow: none;
 }
 
@@ -475,7 +475,7 @@ onMounted(() => {
 .no-data {
   text-align: center;
   padding: 80px 20px;
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 .empty-icon {
@@ -497,13 +497,13 @@ onMounted(() => {
 
 .no-data h3 {
   font-size: 1.5rem;
-  color: #78716c;
+  color: var(--mo-n500);
   margin-bottom: 10px;
 }
 
 .no-data p {
   font-size: 1rem;
-  color: #a8a29e;
+  color: var(--mo-n400);
   margin-bottom: 30px;
 }
 
@@ -523,7 +523,7 @@ onMounted(() => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
+  background: linear-gradient(180deg, var(--mo-p600) 0%, var(--mo-p800) 100%);
   border-radius: 2px;
 }
 
@@ -559,14 +559,14 @@ onMounted(() => {
   height: 16px;
   border-radius: 50%;
   background: white;
-  border: 4px solid #4f46e5;
+  border: 4px solid var(--mo-p600);
   box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
   z-index: 1;
   transition: all 0.3s ease;
 }
 
 .timeline-item:hover .timeline-dot {
-  background: #4f46e5;
+  background: var(--mo-p600);
   box-shadow: 0 0 0 8px rgba(79, 70, 229, 0.3);
   transform: scale(1.2);
 }
@@ -590,16 +590,16 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  background: #fafaf9;
+  background: var(--mo-n50);
   cursor: pointer;
   user-select: none;
   transition: all 0.3s ease;
-  border: 1px solid #e7e5e4;
+  border: 1px solid var(--mo-n200);
 }
 
 .archive-header:hover {
-  background: #f5f5f4;
-  border-color: #c7d2fe;
+  background: var(--mo-n100);
+  border-color: var(--mo-p200);
 }
 
 .archive-date-wrapper {
@@ -611,13 +611,13 @@ onMounted(() => {
 .archive-year {
   font-size: 2rem;
   font-weight: 800;
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 .archive-month {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #78716c;
+  color: var(--mo-n500);
 }
 
 .archive-meta {
@@ -635,13 +635,13 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #4f46e5;
+  color: var(--mo-p600);
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
 .toggle-icon {
   transition: transform 0.3s ease;
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 .toggle-icon.expanded {
@@ -651,7 +651,7 @@ onMounted(() => {
 /* 文章列表容器 */
 .archive-articles {
   overflow: hidden;
-  background: #fafaf9;
+  background: var(--mo-n50);
 }
 
 /* 加载状态 */
@@ -661,7 +661,7 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   padding: 50px;
-  color: #a8a29e;
+  color: var(--mo-n400);
   font-size: 1rem;
 }
 
@@ -701,7 +701,7 @@ onMounted(() => {
 .article-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 30px rgba(79, 70, 229, 0.15);
-  border-color: #4f46e5;
+  border-color: var(--mo-p600);
 }
 
 /* 文章封面 */
@@ -752,7 +752,7 @@ onMounted(() => {
 .article-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #292524;
+  color: var(--mo-n800);
   text-decoration: none;
   line-height: 1.4;
   display: -webkit-box;
@@ -765,12 +765,12 @@ onMounted(() => {
 }
 
 .article-title:hover {
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 .article-summary {
   font-size: 0.9rem;
-  color: #78716c;
+  color: var(--mo-n500);
   line-height: 1.6;
   margin: 0 0 14px 0;
   display: -webkit-box;
@@ -784,7 +784,7 @@ onMounted(() => {
   display: flex;
   gap: 18px;
   font-size: 0.85rem;
-  color: #a8a29e;
+  color: var(--mo-n400);
   flex-wrap: wrap;
 }
 
@@ -796,14 +796,14 @@ onMounted(() => {
 }
 
 .article-item:hover .meta-item {
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 /* 无文章状态 */
 .no-articles {
   text-align: center;
   padding: 40px;
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 .no-articles .el-icon {
@@ -959,25 +959,25 @@ onMounted(() => {
 
 /* 深色主题 */
 html.dark .archive-page {
-  background: #1c1917;
+  background: var(--mo-n900);
 }
 
 html.dark .page-header {
-  background: #1c1917;
-  border-bottom-color: #292524;
+  background: var(--mo-n900);
+  border-bottom-color: var(--mo-n800);
 }
 
 html.dark .page-header::after {
-  background: #1c1917;
+  background: var(--mo-n900);
 }
 
 html.dark .archive-content {
-  background: #292524;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .no-data {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 html.dark .empty-icon {
@@ -985,24 +985,24 @@ html.dark .empty-icon {
 }
 
 html.dark .no-data h3 {
-  color: #e7e5e4;
+  color: var(--mo-n200);
 }
 
 html.dark .timeline-line {
-  background: linear-gradient(180deg, #4f46e5 0%, #3730a3 100%);
+  background: linear-gradient(180deg, var(--mo-p600) 0%, var(--mo-p800) 100%);
 }
 
 html.dark .timeline-dot {
-  background: #1c1917;
-  border-color: #4f46e5;
+  background: var(--mo-n900);
+  border-color: var(--mo-p600);
 }
 
 html.dark .timeline-item:hover .timeline-dot {
-  background: #4f46e5;
+  background: var(--mo-p600);
 }
 
 html.dark .archive-card {
-  background: #292524;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -1011,59 +1011,59 @@ html.dark .archive-card:hover {
 }
 
 html.dark .archive-header {
-  background: #292524;
-  border-color: #44403c;
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
 }
 
 html.dark .archive-header:hover {
-  background: #1c1917;
-  border-color: #6366f1;
+  background: var(--mo-n900);
+  border-color: var(--mo-p500);
 }
 
 html.dark .archive-month {
-  color: #d6d3d1;
+  color: var(--mo-n300);
 }
 
 html.dark .archive-count {
-  background: #292524;
-  color: #4f46e5;
+  background: var(--mo-n800);
+  color: var(--mo-p600);
 }
 
 html.dark .archive-articles {
-  background: #1c1917;
+  background: var(--mo-n900);
 }
 
 html.dark .article-item {
-  background: #292524;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .article-item:hover {
-  border-color: #4f46e5;
+  border-color: var(--mo-p600);
 }
 
 html.dark .article-title {
-  color: #e7e5e4;
+  color: var(--mo-n200);
 }
 
 html.dark .article-title:hover {
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 html.dark .article-summary {
-  color: #d6d3d1;
+  color: var(--mo-n300);
 }
 
 html.dark .article-meta {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 html.dark .article-item:hover .meta-item {
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 
 html.dark .no-articles {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 html.dark .no-articles .el-icon {

@@ -5,6 +5,12 @@ import { resolve } from 'node:path'
 const stylesheet = readFileSync(resolve(__dirname, 'mo-blog.scss'), 'utf8')
 
 describe('mo-blog theme stylesheet', () => {
+  it('应该在 root 上提供博客设计 token，避免默认主题下页面变量失效', () => {
+    expect(stylesheet).toContain(':root {')
+    expect(stylesheet).toContain('--mo-p50: #eef2ff')
+    expect(stylesheet).toContain('--mo-n900: #1c1917')
+  })
+
   it('应该为博客首页和布局提供高优先级覆盖以压过 scoped 样式', () => {
     expect(stylesheet).toContain('.theme-mo-blog .blog-layout .blog-top-nav')
     expect(stylesheet).toContain('.theme-mo-blog .blog-home-v2 .hero-section')

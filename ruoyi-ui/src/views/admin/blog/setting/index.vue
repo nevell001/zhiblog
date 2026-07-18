@@ -559,7 +559,7 @@ const appThemeOptions: { label: string; value: AppTheme; description: string }[]
     description: '保留 RuoYi 管理后台的默认布局和交互习惯'
   },
   {
-    label: '墨 Blog',
+    label: '默 Blog',
     value: 'mo-blog',
     description: '与前台博客一致的低饱和靛蓝、石色背景风格'
   }

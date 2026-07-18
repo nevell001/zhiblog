@@ -299,7 +299,7 @@ const goToHome = () => {
 .mo-auth-page {
   min-height: 100vh;
   padding-top: 64px;
-  background: #fafaf9;
+  background: var(--mo-n50);
 }
 
 .forgot-password-wrapper {
@@ -315,7 +315,7 @@ const goToHome = () => {
   min-width: 0;
   padding: 40px;
   background: #fff;
-  border: 1px solid #e7e5e4;
+  border: 1px solid var(--mo-n200);
   border-radius: 8px;
   box-shadow:
     0 18px 45px rgba(28, 25, 23, 0.08),
@@ -342,12 +342,12 @@ const goToHome = () => {
 .forgot-password-header h1 {
   font-size: 28px;
   font-weight: 600;
-  color: #1c1917;
+  color: var(--mo-n900);
   margin: 0 0 8px 0;
 }
 
 .forgot-password-header p {
-  color: #78716c;
+  color: var(--mo-n500);
   font-size: 14px;
   margin: 0;
 }
@@ -401,67 +401,67 @@ const goToHome = () => {
 }
 
 .forgot-password-footer .link {
-  color: #4f46e5;
+  color: var(--mo-p600);
   text-decoration: none;
   transition: color 0.3s;
 }
 
 .forgot-password-footer .link:hover {
-  color: #4338ca;
+  color: var(--mo-p700);
 }
 
 :deep(.el-input__wrapper) {
   border-radius: 8px;
-  box-shadow: 0 0 0 1px #d6d3d1 inset;
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
 }
 
 :deep(.el-input__wrapper.is-focus) {
   box-shadow:
-    0 0 0 1px #818cf8 inset,
-    0 0 0 3px #eef2ff;
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
 }
 
 html.dark .mo-auth-page {
-  background: #1c1917;
+  background: var(--mo-n900);
 }
 
 html.dark .forgot-password-card {
-  background: #292524;
-  border-color: #44403c;
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.25),
     0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .forgot-password-header h1 {
-  color: #f5f5f4;
+  color: var(--mo-n100);
 }
 
 html.dark .forgot-password-header p,
 html.dark :deep(.el-step__title),
 html.dark :deep(.el-step__description) {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 html.dark .forgot-password-footer .link {
-  color: #a5b4fc;
+  color: var(--mo-p300);
 }
 
 html.dark .forgot-password-footer .link:hover {
-  color: #c7d2fe;
+  color: var(--mo-p200);
 }
 
 html.dark :deep(.el-input__wrapper) {
-  background: #1c1917;
-  box-shadow: 0 0 0 1px #57534e inset;
+  background: var(--mo-n900);
+  box-shadow: 0 0 0 1px var(--mo-n600) inset;
 }
 
 html.dark :deep(.el-input__inner) {
-  color: #f5f5f4;
+  color: var(--mo-n100);
 }
 
 html.dark :deep(.el-input__inner::placeholder) {
-  color: #78716c;
+  color: var(--mo-n500);
 }
 
 @media (max-width: 480px) {

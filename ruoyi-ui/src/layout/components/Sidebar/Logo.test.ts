@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { shallowMount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import Logo from './Logo.vue'
 
 // Mock vue-router
@@ -14,6 +16,7 @@ vi.mock('vue-router', () => ({
 describe('Logo 组件测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    setActivePinia(createPinia())
   })
 
   it('应该导出 Logo 组件', () => {
@@ -34,8 +37,20 @@ describe('Logo 组件测试', () => {
   })
 
   it('应该有标题文字', () => {
-    const title = 'ZhiBlog'
-    expect(title).toBe('ZhiBlog')
+    const wrapper = shallowMount(Logo, {
+      props: {
+        collapse: false
+      },
+      global: {
+        stubs: {
+          RouterLink: {
+            template: '<a><slot /></a>'
+          }
+        }
+      }
+    })
+
+    expect(wrapper.find('.sidebar-title').text()).toBe('ZhiBlog')
   })
 
   it('应该支持自定义Logo', () => {

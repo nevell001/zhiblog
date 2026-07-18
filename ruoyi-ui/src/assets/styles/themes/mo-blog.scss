@@ -1,3 +1,47 @@
+:root {
+  --mo-p50: #eef2ff;
+  --mo-p100: #e0e7ff;
+  --mo-p200: #c7d2fe;
+  --mo-p300: #a5b4fc;
+  --mo-p400: #818cf8;
+  --mo-p500: #6366f1;
+  --mo-p600: #4f46e5;
+  --mo-p700: #4338ca;
+  --mo-p800: #3730a3;
+  --mo-p900: #312e81;
+  --mo-n50: #fafaf9;
+  --mo-n100: #f5f5f4;
+  --mo-n200: #e7e5e4;
+  --mo-n300: #d6d3d1;
+  --mo-n400: #a8a29e;
+  --mo-n500: #78716c;
+  --mo-n600: #57534e;
+  --mo-n700: #44403c;
+  --mo-n800: #292524;
+  --mo-n900: #1c1917;
+  --mo-a50: #fdf2f8;
+  --mo-a100: #fce7f3;
+  --mo-a200: #fbcfe8;
+  --mo-a400: #f472b6;
+  --mo-a500: #ec4899;
+  --mo-a600: #db2777;
+  --mo-success: #10b981;
+  --mo-warning: #f59e0b;
+  --mo-danger: #ef4444;
+  --mo-info: #3b82f6;
+  --mo-font-sans: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mo-font-serif: 'Noto Serif SC', Georgia, 'Songti SC', serif;
+  --mo-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  --mo-r-sm: 6px;
+  --mo-r-md: 8px;
+  --mo-r-lg: 12px;
+  --mo-r-xl: 16px;
+  --mo-r-full: 9999px;
+  --mo-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --mo-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --mo-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+}
+
 .theme-mo-blog {
   --mo-p50: #eef2ff;
   --mo-p100: #e0e7ff;

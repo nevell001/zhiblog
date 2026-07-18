@@ -836,7 +836,7 @@ INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create
 ('sidebar_enabled', 'true', '是否显示侧边栏', NOW(), NOW()),
 
 -- 界面样式设置
-('theme_color', '#409EFF', '主题颜色', NOW(), NOW()),
+('theme_color', '#4f46e5', '主题颜色', NOW(), NOW()),
 ('header_background', '#ffffff', '头部背景色', NOW(), NOW()),
 ('sidebar_style', 'dark', '侧边栏样式', NOW(), NOW()),
 

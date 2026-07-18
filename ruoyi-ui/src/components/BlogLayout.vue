@@ -15,7 +15,7 @@
           </router-link>
         </div>
         <div class="nav-right">
-          <el-dropdown v-if="userStore.token" trigger="click" @command="handleUserCommand">
+          <el-dropdown v-if="userStore.token && userStore.name" trigger="click" @command="handleUserCommand">
             <div class="user-info">
               <el-avatar :size="30" :src="userStore.avatar">
                 <el-icon><UserFilled /></el-icon>
@@ -140,7 +140,7 @@
           © {{ currentYear }}
           {{ blogSettings.blog_author || blogSettings.blog_name || '我的博客' }} · 保留所有权利
         </p>
-        <p class="tech-info">Powered by RuoYi-Vue & Element Plus</p>
+        <p class="tech-info">Powered by ZhiBlog & Element Plus</p>
       </div>
     </footer>
   </div>
@@ -192,7 +192,7 @@ const toggleTheme = () => {
 }
 
 const goToAdmin = () => {
-  window.location.href = '/login?redirect=/admin'
+  router.push('/admin')
 }
 
 const handleUserCommand = async (command: string) => {
@@ -224,8 +224,8 @@ onMounted(() => {
 <style scoped>
 .blog-layout {
   min-height: 100vh;
-  background: #fafaf9;
-  color: #292524;
+  background: var(--mo-n50);
+  color: var(--mo-n800);
   font-family: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
 }
 
@@ -259,7 +259,7 @@ onMounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4f46e5, #3730a3);
+  background: linear-gradient(135deg, var(--mo-p600), var(--mo-p800));
   color: #fff;
   display: flex;
   align-items: center;
@@ -270,7 +270,7 @@ onMounted(() => {
 .brand-name {
   font-weight: 700;
   font-size: 18px;
-  color: #1c1917;
+  color: var(--mo-n900);
   letter-spacing: 0;
 }
 .nav-center {
@@ -282,14 +282,14 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 14px;
   font-weight: 500;
-  color: #57534e;
+  color: var(--mo-n600);
   text-decoration: none;
   transition: all 0.2s;
 }
 .nav-link:hover,
 .nav-link.router-link-active {
-  background: #eef2ff;
-  color: #4338ca;
+  background: var(--mo-p50);
+  color: var(--mo-p700);
 }
 .nav-right {
   display: flex;
@@ -306,7 +306,7 @@ onMounted(() => {
   transition: background 0.2s;
 }
 .user-info:hover {
-  background: #f5f5f4;
+  background: var(--mo-n100);
 }
 .username {
   font-size: 14px;
@@ -315,36 +315,36 @@ onMounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: #292524;
+  color: var(--mo-n800);
 }
 .dropdown-icon {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 .theme-btn {
   background: none;
   border: none;
   cursor: pointer;
-  color: #4f46e5;
+  color: var(--mo-p600);
   padding: 6px;
   border-radius: 8px;
   transition: background 0.2s;
 }
 .theme-btn:hover {
-  background: #eef2ff;
+  background: var(--mo-p50);
 }
 
 /* 底部 */
 .blog-site-footer {
   position: relative;
-  border-top: 1px solid #e7e5e4;
-  background: #f5f5f4;
-  color: #57534e;
+  border-top: 1px solid var(--mo-n200);
+  background: var(--mo-n100);
+  color: var(--mo-n600);
   padding: 0 24px 24px;
 }
 .footer-wave {
   position: relative;
   margin-bottom: -2px;
-  color: #fafaf9;
+  color: var(--mo-n50);
 }
 .footer-wave svg {
   width: 100%;
@@ -359,7 +359,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 40px;
   padding-bottom: 32px;
-  border-bottom: 1px solid #e7e5e4;
+  border-bottom: 1px solid var(--mo-n200);
 }
 .footer-brand {
   display: flex;
@@ -370,8 +370,8 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e0e7ff;
-  color: #4f46e5;
+  background: var(--mo-p100);
+  color: var(--mo-p600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -385,7 +385,7 @@ onMounted(() => {
 }
 .brand-desc {
   font-size: 13px;
-  color: #78716c;
+  color: var(--mo-n500);
   margin-top: 4px;
 }
 .footer-links {
@@ -395,20 +395,20 @@ onMounted(() => {
 .footer-col h4 {
   font-size: 13px;
   font-weight: 700;
-  color: #292524;
+  color: var(--mo-n800);
   letter-spacing: 0;
   margin-bottom: 16px;
 }
 .footer-col a {
   display: block;
   font-size: 14px;
-  color: #57534e;
+  color: var(--mo-n600);
   text-decoration: none;
   margin-bottom: 10px;
   transition: color 0.2s;
 }
 .footer-col a:hover {
-  color: #4f46e5;
+  color: var(--mo-p600);
 }
 .footer-bottom {
   max-width: 1200px;
@@ -416,7 +416,7 @@ onMounted(() => {
   padding-top: 24px;
   text-align: center;
   font-size: 13px;
-  color: #78716c;
+  color: var(--mo-n500);
 }
 .tech-info {
   margin-top: 6px;
@@ -425,8 +425,8 @@ onMounted(() => {
 
 /* 深色模式 */
 html.dark .blog-layout {
-  background: #1c1917;
-  color: #e7e5e4;
+  background: var(--mo-n900);
+  color: var(--mo-n200);
 }
 
 html.dark .blog-top-nav {
@@ -437,7 +437,7 @@ html.dark .blog-top-nav {
 html.dark .brand-name,
 html.dark .username,
 html.dark .footer-col h4 {
-  color: #f5f5f4;
+  color: var(--mo-n100);
 }
 
 html.dark .nav-link,
@@ -445,14 +445,14 @@ html.dark .footer-col a,
 html.dark .blog-site-footer,
 html.dark .brand-desc,
 html.dark .footer-bottom {
-  color: #d6d3d1;
+  color: var(--mo-n300);
 }
 
 html.dark .nav-link:hover,
 html.dark .nav-link.router-link-active,
 html.dark .theme-btn,
 html.dark .footer-col a:hover {
-  color: #a5b4fc;
+  color: var(--mo-p300);
 }
 
 html.dark .nav-link:hover,
@@ -463,25 +463,25 @@ html.dark .theme-btn:hover {
 }
 
 html.dark .blog-site-footer {
-  border-top-color: #44403c;
-  background: #292524;
+  border-top-color: var(--mo-n700);
+  background: var(--mo-n800);
 }
 
 html.dark .footer-wave {
-  color: #1c1917;
+  color: var(--mo-n900);
 }
 
 html.dark .footer-inner {
-  border-bottom-color: #44403c;
+  border-bottom-color: var(--mo-n700);
 }
 
 html.dark .footer-logo {
   background: rgba(79, 70, 229, 0.18);
-  color: #a5b4fc;
+  color: var(--mo-p300);
 }
 
 html.dark .dropdown-icon {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 /* 响应式 */

@@ -114,7 +114,7 @@
 
             <div class="auth-divider">还没有账号？</div>
             <router-link to="/blog/auth/register" class="auth-secondary">
-              创建墨 Blog 账号
+              创建默 Blog 账号
             </router-link>
           </el-form>
         </section>
@@ -216,7 +216,7 @@ onMounted(() => {
 .mo-auth-page {
   min-height: 100vh;
   padding-top: 64px;
-  background: #fafaf9;
+  background: var(--mo-n50);
 }
 
 .auth-wrapper {
@@ -240,7 +240,7 @@ onMounted(() => {
   padding: 56px 48px;
   overflow: hidden;
   color: #fff;
-  background: linear-gradient(135deg, #4f46e5, #3730a3);
+  background: linear-gradient(135deg, var(--mo-p600), var(--mo-p800));
 }
 
 .auth-visual::before,
@@ -274,7 +274,7 @@ onMounted(() => {
 }
 
 .brand-lg span {
-  color: #c7d2fe;
+  color: var(--mo-p200);
 }
 
 .tagline {
@@ -323,27 +323,27 @@ onMounted(() => {
 
 .auth-form h2 {
   margin: 0 0 6px;
-  color: #1c1917;
+  color: var(--mo-n900);
   font-size: 26px;
   font-weight: 700;
 }
 
 .sub {
   margin: 0 0 28px;
-  color: #78716c;
+  color: var(--mo-n500);
   font-size: 14px;
 }
 
 .auth-tabs {
   display: flex;
   margin-bottom: 28px;
-  border-bottom: 1px solid #e7e5e4;
+  border-bottom: 1px solid var(--mo-n200);
 }
 
 .tab {
   flex: 1;
   padding: 10px 0;
-  color: #78716c;
+  color: var(--mo-n500);
   font-size: 14px;
   font-weight: 500;
   text-align: center;
@@ -353,12 +353,12 @@ onMounted(() => {
 }
 
 .tab:hover {
-  color: #44403c;
+  color: var(--mo-n700);
 }
 
 .tab.active {
-  color: #4f46e5;
-  border-bottom-color: #4f46e5;
+  color: var(--mo-p600);
+  border-bottom-color: var(--mo-p600);
 }
 
 .login-form {
@@ -373,20 +373,20 @@ onMounted(() => {
 .form-group label {
   display: block;
   margin-bottom: 6px;
-  color: #44403c;
+  color: var(--mo-n700);
   font-size: 13px;
   font-weight: 500;
 }
 
 :deep(.el-input__wrapper) {
   border-radius: 8px;
-  box-shadow: 0 0 0 1px #d6d3d1 inset;
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
 }
 
 :deep(.el-input__wrapper.is-focus) {
   box-shadow:
-    0 0 0 1px #818cf8 inset,
-    0 0 0 3px #eef2ff;
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
 }
 
 .captcha-row {
@@ -398,13 +398,13 @@ onMounted(() => {
 .captcha-img {
   height: 40px;
   cursor: pointer;
-  border: 1px solid #d6d3d1;
+  border: 1px solid var(--mo-n300);
   border-radius: 8px;
   transition: all 0.3s;
 }
 
 .captcha-img:hover {
-  border-color: #818cf8;
+  border-color: var(--mo-p400);
 }
 
 .form-options {
@@ -419,17 +419,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #57534e;
+  color: var(--mo-n600);
 }
 
 .remember input {
   width: 16px;
   height: 16px;
-  accent-color: #4f46e5;
+  accent-color: var(--mo-p600);
 }
 
 .forgot {
-  color: #4f46e5;
+  color: var(--mo-p600);
   font-weight: 500;
   text-decoration: none;
 }
@@ -447,7 +447,7 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   margin: 24px 0 16px;
-  color: #a8a29e;
+  color: var(--mo-n400);
   font-size: 12px;
 }
 
@@ -456,7 +456,7 @@ onMounted(() => {
   content: '';
   flex: 1;
   height: 1px;
-  background: #e7e5e4;
+  background: var(--mo-n200);
 }
 
 .auth-secondary {
@@ -464,18 +464,18 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   height: 46px;
-  color: #4f46e5;
+  color: var(--mo-p600);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  border: 1px solid #d6d3d1;
+  border: 1px solid var(--mo-n300);
   border-radius: 8px;
   transition: all 0.2s;
 }
 
 .auth-secondary:hover {
-  border-color: #818cf8;
-  background: #eef2ff;
+  border-color: var(--mo-p400);
+  background: var(--mo-p50);
 }
 
 @media (max-width: 768px) {

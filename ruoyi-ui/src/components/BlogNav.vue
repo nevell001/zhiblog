@@ -144,7 +144,7 @@ const scrollToTop = () => {
 // 跳转到后台管理
 const goToAdmin = () => {
   closeMobileMenu()
-  window.location.href = '/login?redirect=/admin'
+  router.push('/admin')
 }
 
 // 跳转到统一登录页

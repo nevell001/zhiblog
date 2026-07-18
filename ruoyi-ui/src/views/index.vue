@@ -17,7 +17,7 @@
           <el-button
             type="primary"
             plain
-            @click="goTarget('https://gitee.com/y_project/RuoYi-Vue')"
+            @click="goTarget('https://gitee.com/nevell/zhiblog')"
           >
             <template #icon>
               <i class="el-icon-Cloudy"></i>

@@ -126,7 +126,7 @@ describe('blog design layout guards', () => {
     const archiveLegacyColors = /#f8f9ff|#f5f5ff|#e8e9ff|#e5e5ff|#2e2e45|#3a3a55/i
 
     expect(archiveView).not.toMatch(archiveLegacyColors)
-    expect(archiveView).toContain('background: #fafaf9;')
+    expect(archiveView).toContain('background: var(--mo-n50);')
     expect(archiveView).toContain('html.dark .archive-page')
   })
 
@@ -148,6 +148,13 @@ describe('blog design layout guards', () => {
     expect(blogNav).toContain('Legacy compatibility navigation')
   })
 
+  it('博客用户菜单进入管理后台应直接访问后台路由', () => {
+    expect(blogLayout).toContain("router.push('/admin')")
+    expect(blogLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
+    expect(blogNav).toContain("router.push('/admin')")
+    expect(blogNav).not.toContain("window.location.href = '/login?redirect=/admin'")
+  })
+
   it('列表型页面头部和封面标记应保持低饱和', () => {
     const heavyHeaderGradient = 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'
     const heavyBadgeGradient =
@@ -161,9 +168,9 @@ describe('blog design layout guards', () => {
     expect(categoryView).not.toContain(heavyBadgeGradient)
     expect(tagView).not.toContain(heavyBadgeGradient)
     expect(archiveView).not.toContain(heavyOverlayGradient)
-    expect(categoryView).toContain('background: #fafaf9;')
-    expect(tagView).toContain('background: #fafaf9;')
-    expect(archiveView).toContain('background: #fafaf9;')
+    expect(categoryView).toContain('background: var(--mo-n50);')
+    expect(tagView).toContain('background: var(--mo-n50);')
+    expect(archiveView).toContain('background: var(--mo-n50);')
   })
 
   it('公共博客页面应减少装饰性动效和过大圆角', () => {
@@ -173,5 +180,59 @@ describe('blog design layout guards', () => {
     expect(categoryView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(tagView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(blogFooter).toContain('minmax(min(100%, 300px), 1fr)')
+  })
+
+  it('博客布局不应在只有旧 token 且用户信息为空时渲染用户下拉菜单', () => {
+    expect(blogLayout).toContain('v-if="userStore.token && userStore.name"')
+  })
+
+  it('首页和公共布局应复用全局 mo 主题 token', () => {
+    expect(homeView).not.toMatch(/--[pn][0-9]+:/)
+    expect(homeView).not.toContain('var(--p')
+    expect(homeView).not.toContain('var(--n')
+    expect(homeView).toContain('var(--mo-p600)')
+    expect(homeView).toContain('var(--mo-n50)')
+
+    expect(blogLayout).not.toMatch(/#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i)
+    expect(blogLayout).toContain('var(--mo-p600)')
+    expect(blogLayout).toContain('var(--mo-n50)')
+  })
+
+  it('文章详情页应复用全局 mo 主题 token', () => {
+    expect(articleDetailView).not.toMatch(/--[pn][0-9]+:/)
+    expect(articleDetailView).not.toContain('var(--p')
+    expect(articleDetailView).not.toContain('var(--n')
+    expect(articleDetailView).toContain('var(--mo-p600)')
+    expect(articleDetailView).toContain('var(--mo-n50)')
+  })
+
+  it('分类和标签页应复用全局 mo 主题 token', () => {
+    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
+
+    expect(categoryView).not.toMatch(themeHardcodes)
+    expect(tagView).not.toMatch(themeHardcodes)
+    expect(categoryView).toContain('var(--mo-p600)')
+    expect(categoryView).toContain('var(--mo-n50)')
+    expect(tagView).toContain('var(--mo-p600)')
+    expect(tagView).toContain('var(--mo-n50)')
+  })
+
+  it('归档页应复用全局 mo 主题 token', () => {
+    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
+
+    expect(archiveView).not.toMatch(themeHardcodes)
+    expect(archiveView).toContain('var(--mo-p600)')
+    expect(archiveView).toContain('var(--mo-n50)')
+  })
+
+  it('博客认证页应复用全局 mo 主题 token', () => {
+    const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
+
+    expect(loginView).not.toMatch(themeHardcodes)
+    expect(registerView).not.toMatch(themeHardcodes)
+    expect(forgotPasswordView).not.toMatch(themeHardcodes)
+    expect(loginView).toContain('var(--mo-p600)')
+    expect(registerView).toContain('var(--mo-p600)')
+    expect(forgotPasswordView).toContain('var(--mo-p600)')
   })
 })

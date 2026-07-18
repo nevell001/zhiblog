@@ -78,7 +78,7 @@
           @change="appThemeChange"
         >
           <el-option label="默认主题" value="default" />
-          <el-option label="墨 Blog" value="mo-blog" />
+          <el-option label="默 Blog" value="mo-blog" />
         </el-select>
       </span>
     </div>
@@ -155,7 +155,7 @@ import { getCurrentInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
-import { handleThemeStyle, type AppTheme } from '@/utils/theme'
+import { APP_THEME_STORAGE_KEY, handleThemeStyle, type AppTheme } from '@/utils/theme'
 
 const { proxy } = getCurrentInstance()
 const appStore = useAppStore()
@@ -229,6 +229,8 @@ function saveSetting() {
 function resetSetting() {
   proxy.$modal.loading('正在清除设置缓存并刷新，请稍候...')
   localStorage.removeItem('layout-setting')
+  localStorage.removeItem(APP_THEME_STORAGE_KEY)
+  localStorage.removeItem('admin-theme')
   setTimeout(() => {
     window.location.reload()
   }, 1000)

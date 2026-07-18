@@ -28,4 +28,17 @@ describe('Vite dev proxy route boundaries', () => {
     expect(source).toContain("'element-icons': ['@element-plus/icons-vue']")
     expect(source).toContain("echarts: ['echarts']")
   })
+
+  it('should not hard-disable HMR in development', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).not.toContain('hmr: false')
+  })
+
+  it('should keep import.meta available for Vue HMR transforms', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).toContain("target: 'es2020'")
+    expect(source).not.toContain("target: 'es2015'")
+  })
 })

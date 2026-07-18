@@ -137,7 +137,5 @@ export default {
       const componentConfig = components[key as keyof typeof components]
       app.component(componentConfig.name, componentConfig)
     }
-    // eslint-disable-next-line vue/multi-word-component-names
-    app.component('question', QuestionFilled)
   }
 }

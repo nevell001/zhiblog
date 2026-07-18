@@ -4,7 +4,7 @@
       <div v-if="blogSettingsStore.isFeatureEnabled('footer_enabled')" class="footer-info">
         <div class="footer-section">
           <h4>关于博客</h4>
-          <p>{{ blogSettings.blog_desc || '一个基于RuoYi-Vue的博客系统' }}</p>
+          <p>{{ blogSettings.blog_desc || '一个基于 ZhiBlog 的博客系统' }}</p>
           <div class="footer-stats">
             <span>文章: {{ totalArticles }} 篇</span>
             <span>分类: {{ categoryCount }} 个</span>
@@ -61,7 +61,7 @@
           </p>
           <p class="tech-info">
             Powered by
-            <a href="#" target="_blank">RuoYi-Vue</a>
+            <a href="#" target="_blank">ZhiBlog</a>
             &
             <a href="#" target="_blank">Element Plus</a>
           </p>

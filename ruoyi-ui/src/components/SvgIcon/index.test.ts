@@ -1,4 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import SvgIcon from './index.vue'
 
 describe('SvgIcon 组件测试', () => {
@@ -57,5 +59,12 @@ describe('SvgIcon 组件测试', () => {
   it('应该有 aria-hidden 访问属性', () => {
     const ariaHidden = 'true'
     expect(typeof ariaHidden).toBe('string')
+  })
+
+  it('Element Plus 图标注册不应保留小写 question 组件别名', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/components/SvgIcon/svgicon.ts'), 'utf-8')
+
+    expect(source).toContain('QuestionFilled')
+    expect(source).not.toContain("app.component('question'")
   })
 })
