@@ -1,10 +1,10 @@
 # ZhiBlog - 知博
 
-基于 RuoYi-Vue 快速开发平台打造的现代化、前后端分离的企业级博客系统。采用 Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript 技术栈。
+现代化的前后端分离博客系统，采用 Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript 技术栈构建。
 
 ## 🚀 项目特色
 
-- 🏗️ **企业级架构**：基于成熟的 RuoYi-Vue 框架
+- 🏗️ **企业级架构**：基于成熟的技术框架构建
 - 📱 **前后端分离**：Vue 3 + Spring Boot，TypeScript 类型安全
 - 🎨 **美观界面**：Element Plus 组件库，蓝色主题设计
 - 🔒 **权限完善**：基于 Spring Security 的细粒度权限控制
@@ -14,11 +14,12 @@
 - 🔄 **版本管理**：统一的版本号管理机制，确保版本一致性
 - 🛡️ **增强安全性**：全局错误处理和保护机制，防止运行时错误
 
-## 📦 最新更新 (v1.3.3)
+## 📦 最新更新 (v1.3.4)
 
-- 统一 Docker 开发环境数据库配置，默认使用 `zhiblog`
-- 精简过期文档和默认 Compose 文件，保留 dev/prod 两套明确部署入口
-- 修复 UUID 性能类测试的偶发失败问题
+- 修复品牌和主题名称混淆（ZhiBlog 品牌定位，默 Blog 主题风格）
+- 优化代码质量和安全性（import.meta.env 可选链、日志级别优化）
+- 统一项目配置和文档
+- TypeScript 类型检查完善
 
 ## 🌐 访问方式
 
@@ -259,6 +260,12 @@ chore: 构建/工具
 
 ## 📦 版本历史
 
+### v1.3.4 (2026-07-18)
+- 修复品牌和主题名称混淆
+- 优化代码质量和安全性
+- 统一项目配置和文档
+- TypeScript 类型检查完善
+
 ### v1.3.3 (2026-01-27)
 - 统一 Docker 开发环境数据库配置，默认使用 `zhiblog`
 - 精简过期文档和默认 Compose 文件，保留 dev/prod 两套明确部署入口
@@ -312,7 +319,7 @@ chore: 构建/工具
 - [安全配置说明](docs/SECURITY_CONFIG.md)
 - [图片压缩功能使用指南](docs/图片压缩功能使用指南.md)
 - [GitHub 同步说明](SYNC_GITHUB.md)
-- [RuoYi官方文档](http://doc.ruoyi.vip/)
+- [底层框架参考](http://doc.ruoyi.vip/)
 - [Vue 3文档](https://cn.vuejs.org/)
 - [Element Plus文档](https://element-plus.org/)
 - [Spring Boot文档](https://spring.io/projects/spring-boot)
@@ -334,8 +341,8 @@ chore: 构建/工具
 ## 📊 项目信息
 
 - **项目名称**: ZhiBlog（知博）
-- **当前版本**: v1.3.3
+- **当前版本**: v1.3.4
 - **Maven GroupId**: top.nevell
 - **项目地址**: https://gitee.com/nevell/zhiblog
 - **维护者**: nevell
-- **最后更新**: 2026-07-06
+- **最后更新**: 2026-07-18
