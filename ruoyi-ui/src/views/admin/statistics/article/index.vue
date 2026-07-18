@@ -47,7 +47,8 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import { getArticleStatistics, getArticleCategoryDistribution, getHotTags } from '@/api/statistics'
-import * as echarts from 'echarts'
+import { loadEcharts } from '@/utils/echarts'
+import { logger } from '@/utils/logger'
 
 interface ArticleStats {
   publishedCount?: number
@@ -66,7 +67,7 @@ const loadData = async () => {
       await loadChartData()
     }
   } catch (error) {
-    console.error('获取文章统计失败:', error)
+    logger.error('获取文章统计失败:', error)
   }
 }
 
@@ -75,89 +76,95 @@ const loadChartData = async () => {
     // 加载文章分类分布
     const categoryRes = await getArticleCategoryDistribution()
     if (categoryRes.code === 200) {
-      renderCategoryChart(categoryRes.data)
+      await renderCategoryChart(categoryRes.data)
     }
 
     // 加载热门标签
     const tagsRes = await getHotTags()
     if (tagsRes.code === 200) {
-      renderTagsChart(tagsRes.data)
+      await renderTagsChart(tagsRes.data)
     }
   } catch (error) {
-    console.error('加载图表数据失败:', error)
+    logger.error('加载图表数据失败:', error)
   }
 }
 
-const renderCategoryChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('categoryChart'))
-    const option = {
-      tooltip: {
-        trigger: 'item'
-      },
-      legend: {
-        orient: 'vertical',
-        left: 'left'
-      },
-      series: [
-        {
-          name: '文章分类',
-          type: 'pie',
-          radius: '50%',
-          data: data.labels
-            ? data.labels.map((label, index) => ({
-                value: data.data[index],
-                name: label
-              }))
-            : [
-                { value: 25, name: '技术' },
-                { value: 18, name: '生活' },
-                { value: 12, name: '学习' },
-                { value: 8, name: '其他' }
-              ],
-          emphasis: {
-            itemStyle: {
-              shadowBlur: 10,
-              shadowOffsetX: 0,
-              shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
+const renderCategoryChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('categoryChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
+  const option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '文章分类',
+        type: 'pie',
+        radius: '50%',
+        data: data.labels
+          ? data.labels.map((label, index) => ({
+              value: data.data[index],
+              name: label
+            }))
+          : [
+              { value: 25, name: '技术' },
+              { value: 18, name: '生活' },
+              { value: 12, name: '学习' },
+              { value: 8, name: '其他' }
+            ],
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
         }
-      ]
-    }
-    chart.setOption(option)
-  })
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
-const renderTagsChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('tagChart'))
-    const option = {
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          type: 'shadow'
+const renderTagsChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('tagChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      }
+    },
+    xAxis: {
+      type: 'category',
+      data: data.labels || ['Java', 'Spring', 'Vue', 'React', '数据库', 'Linux']
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data.data || [15, 12, 8, 6, 9, 7],
+        type: 'bar',
+        itemStyle: {
+          color: '#67C23A'
         }
-      },
-      xAxis: {
-        type: 'category',
-        data: data.labels || ['Java', 'Spring', 'Vue', 'React', '数据库', 'Linux']
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          data: data.data || [15, 12, 8, 6, 9, 7],
-          type: 'bar',
-          itemStyle: {
-            color: '#67C23A'
-          }
-        }
-      ]
-    }
-    chart.setOption(option)
-  })
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
 onMounted(() => {

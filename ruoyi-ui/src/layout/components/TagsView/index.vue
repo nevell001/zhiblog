@@ -36,11 +36,11 @@
         关闭其他
       </li>
       <li v-if="!isFirstView()" @click="closeLeftTags">
-        <back style="width: 1em; height: 1em" />
+        <Back style="width: 1em; height: 1em" />
         关闭左侧
       </li>
       <li v-if="!isLastView()" @click="closeRightTags">
-        <right style="width: 1em; height: 1em" />
+        <Right style="width: 1em; height: 1em" />
         关闭右侧
       </li>
       <li @click="closeAllTags(selectedTag)">
@@ -59,6 +59,7 @@ import { getNormalPath } from '@/utils/ruoyi'
 import { useTagsViewStore } from '@/stores/tagsView'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
+import { Back, Right } from '@element-plus/icons-vue'
 import type { TagView } from '@/stores/tagsView'
 
 const visible = ref(false)

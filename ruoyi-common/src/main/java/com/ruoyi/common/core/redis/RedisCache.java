@@ -307,12 +307,15 @@ public class RedisCache
     {
         Set<String> keys = new LinkedHashSet<>();
         redisTemplate.execute((RedisConnection connection) -> {
-            try (Cursor<byte[]> cursor = connection.scan(
-                    ScanOptions.scanOptions().match(pattern).count(1000).build())) {
-                while (cursor.hasNext()) {
-                    keys.add(redisTemplate.getStringSerializer().deserialize(cursor.next()));
+                try (Cursor<byte[]> cursor = connection.scan(
+                        ScanOptions.scanOptions().match(pattern).count(1000).build())) {
+                    while (cursor.hasNext()) {
+                        Object key = redisTemplate.getStringSerializer().deserialize(cursor.next());
+                        if (key != null) {
+                            keys.add(key.toString());
+                        }
+                    }
                 }
-            }
             return null;
         });
         return keys;

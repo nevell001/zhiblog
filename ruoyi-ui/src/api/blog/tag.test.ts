@@ -25,7 +25,7 @@ describe('Tag API 测试', () => {
       await getTagList(query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/tag/list',
+        url: '/blog/api/tag/list',
         method: 'get',
         params: query,
         headers: { isToken: false }
@@ -38,7 +38,7 @@ describe('Tag API 测试', () => {
       await getTagList()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/tag/list',
+        url: '/blog/api/tag/list',
         method: 'get',
         params: undefined,
         headers: { isToken: false }
@@ -52,7 +52,7 @@ describe('Tag API 测试', () => {
       expect(typeof getTagDetail).toBe('function')
     })
 
-    it('应该调用 GET /blog/tag/:id', async () => {
+    it('应该调用 GET /blog/api/tag/:id 并设置 isToken: false', async () => {
       const tagData: Tag = {
         id: 1,
         tagName: 'JavaScript',
@@ -65,8 +65,9 @@ describe('Tag API 测试', () => {
       await getTagDetail(1)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/tag/1',
-        method: 'get'
+        url: '/blog/api/tag/1',
+        method: 'get',
+        headers: { isToken: false }
       })
     })
 
@@ -83,8 +84,9 @@ describe('Tag API 测试', () => {
       await getTagDetail(99)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/tag/99',
-        method: 'get'
+        url: '/blog/api/tag/99',
+        method: 'get',
+        headers: { isToken: false }
       })
     })
   })
@@ -105,7 +107,7 @@ describe('Tag API 测试', () => {
       const result = await getTagCloud()
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/tag/cloud',
+        url: '/blog/api/tag/cloud',
         method: 'get',
         headers: { isToken: false }
       })
@@ -119,14 +121,14 @@ describe('Tag API 测试', () => {
       expect(typeof getArticlesByTag).toBe('function')
     })
 
-    it('应该调用 GET /blog/article/tag/:tagId 并设置 isToken: false', async () => {
+    it('应该调用 GET /blog/api/article/tag/:tagId 并设置 isToken: false', async () => {
       mockRequest.mockResolvedValue({ rows: [], total: 0 })
 
       const query = { pageNum: 1, pageSize: 10 }
       await getArticlesByTag(1, query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/article/tag/1',
+        url: '/blog/api/article/tag/1',
         method: 'get',
         params: query,
         headers: { isToken: false }
@@ -140,7 +142,7 @@ describe('Tag API 测试', () => {
       await getArticlesByTag(99, query)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/article/tag/99',
+        url: '/blog/api/article/tag/99',
         method: 'get',
         params: query,
         headers: { isToken: false }
@@ -153,7 +155,7 @@ describe('Tag API 测试', () => {
       await getArticlesByTag(5)
 
       expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/article/tag/5',
+        url: '/blog/api/article/tag/5',
         method: 'get',
         params: undefined,
         headers: { isToken: false }

@@ -245,39 +245,39 @@ export const apiConfig: ApiConfig = {
   blog: {
     // 文章相关
     article: {
-      list: '/blog/article/list',
-      detail: '/blog/article/',
-      create: '/blog/article',
-      update: '/blog/article',
-      delete: '/blog/article/',
-      search: '/blog/article/search'
+      list: '/blog/api/article/list',
+      detail: '/blog/api/article/',
+      create: '/blog/api/article',
+      update: '/blog/api/article',
+      delete: '/blog/api/article/',
+      search: '/blog/api/article/search'
     },
 
     // 分类相关
     category: {
-      list: '/blog/category/list',
-      detail: '/blog/category/',
-      create: '/blog/category',
-      update: '/blog/category',
-      delete: '/blog/category/'
+      list: '/blog/api/category/list',
+      detail: '/blog/api/category/',
+      create: '/blog/api/category',
+      update: '/blog/api/category',
+      delete: '/blog/api/category/'
     },
 
     // 标签相关
     tag: {
-      list: '/blog/tag/list',
-      detail: '/blog/tag/',
-      create: '/blog/tag',
-      update: '/blog/tag',
-      delete: '/blog/tag/',
-      cloud: '/blog/tag/cloud'
+      list: '/blog/api/tag/list',
+      detail: '/blog/api/tag/',
+      create: '/blog/api/tag',
+      update: '/blog/api/tag',
+      delete: '/blog/api/tag/',
+      cloud: '/blog/api/tag/cloud'
     },
 
     // 评论相关
     comment: {
-      list: '/blog/comment/list',
-      create: '/blog/comment',
-      delete: '/blog/comment/',
-      reply: '/blog/comment/reply'
+      list: '/blog/api/comment/list',
+      create: '/blog/api/comment',
+      delete: '/blog/api/comment/',
+      reply: '/blog/api/comment/reply'
     },
 
     // 友链相关

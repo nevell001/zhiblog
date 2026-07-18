@@ -41,7 +41,7 @@ defineOptions({
 
 const { proxy } = getCurrentInstance()
 
-const quillEditorRef = ref()
+const quillEditorRef = ref<any>()
 // 添加安全检查，防止环境变量未定义
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const uploadUrl = ref(baseApi + '/common/upload/compressed') // 使用压缩上传接口，与头像上传一致的 Thumbnailator 方案
@@ -81,6 +81,10 @@ const props = defineProps({
   }
 })
 
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string): void
+}>()
+
 const options = ref({
   theme: 'snow',
   bounds: document.body,
@@ -106,16 +110,17 @@ const options = ref({
       handlers: {
         image: function () {
           // 图片上传处理
-          ;(proxy.$refs.uploadRef as any).click()
+          triggerUpload()
         },
         link: function (value) {
           // 增强链接功能
-          const quill = quillEditorRef.value.getQuill()
+          const quill = getQuill()
+          if (!quill) return
           if (value) {
             const href = prompt('请输入链接URL:')
             if (href) {
               // 检查是否选中了文本
-              const range = quill.getSelection()
+              const range = getSafeRange(quill)
               if (range && range.length > 0) {
                 // 如果选中了文本，则添加链接到选中文本
                 quill.format('link', href)
@@ -125,6 +130,7 @@ const options = ref({
                 if (text) {
                   quill.insertText(range.index, text, 'link', href)
                   quill.setSelection(range.index + text.length)
+                  emitContent()
                 }
               }
             }
@@ -134,8 +140,9 @@ const options = ref({
         },
         video: function () {
           // 增强视频功能
-          const quill = quillEditorRef.value.getQuill()
-          const range = quill.getSelection()
+          const quill = getQuill()
+          if (!quill) return
+          const range = getSafeRange(quill)
 
           // 提供选项：上传本地视频或插入在线视频
           const choice = prompt(
@@ -145,7 +152,7 @@ const options = ref({
 
           if (choice === '1') {
             // 上传本地视频
-            ;(proxy.$refs.uploadRef as any).click()
+            triggerUpload()
           } else if (choice === '2') {
             // 插入在线视频
             const url = prompt('请输入视频URL (支持YouTube、Bilibili等平台):')
@@ -170,13 +177,15 @@ const options = ref({
 
               quill.insertEmbed(range.index, 'video', embedUrl)
               quill.setSelection(range.index + 1)
+              emitContent()
             }
           }
         },
         file: function () {
           // 文件链接插入功能
-          const quill = quillEditorRef.value.getQuill()
-          const range = quill.getSelection()
+          const quill = getQuill()
+          if (!quill) return
+          const range = getSafeRange(quill)
 
           const choice = prompt(
             '请选择文件插入方式:\n1. 上传本地文件\n2. 插入文件链接\n请输入1或2:',
@@ -185,7 +194,7 @@ const options = ref({
 
           if (choice === '1') {
             // 上传本地文件
-            ;(proxy.$refs.uploadRef as any).click()
+            triggerUpload()
           } else if (choice === '2') {
             // 插入文件链接
             const url = prompt('请输入文件链接URL:')
@@ -195,6 +204,7 @@ const options = ref({
                 // 插入文件链接
                 quill.insertText(range.index, fileName, 'link', url)
                 quill.setSelection(range.index + fileName.length)
+                emitContent()
               }
             }
           }
@@ -224,6 +234,84 @@ const styles = computed(() => {
 })
 
 const content = ref('')
+
+function getQuill() {
+  return quillEditorRef.value?.getQuill?.()
+}
+
+function getSafeRange(quill: any) {
+  return (
+    quill.getSelection?.(true) ||
+    quill.selection?.savedRange || {
+      index: Math.max(0, (quill.getLength?.() || 1) - 1),
+      length: 0
+    }
+  )
+}
+
+function emitContent() {
+  const quill = getQuill()
+  if (quill) {
+    content.value = quill.root?.innerHTML || quill.getText?.() || content.value
+    emit('update:modelValue', content.value)
+  }
+}
+
+function triggerUpload() {
+  ;(proxy?.$refs.uploadRef as HTMLElement | undefined)?.click?.()
+}
+
+function focusEditor() {
+  getQuill()?.focus?.()
+}
+
+function format(formatName: string, value: string | number | boolean = true) {
+  const quill = getQuill()
+  if (!quill) return
+  quill.focus?.()
+  quill.format(formatName, value, 'user')
+  emitContent()
+}
+
+function insertLink(href: string, text?: string) {
+  const quill = getQuill()
+  if (!quill || !href) return
+  quill.focus?.()
+  const range = getSafeRange(quill)
+  if (range.length > 0) {
+    quill.format('link', href, 'user')
+  } else {
+    const label = text || href
+    quill.insertText(range.index, label, 'link', href)
+    quill.setSelection(range.index + label.length, 0)
+  }
+  emitContent()
+}
+
+function insertTable() {
+  const quill = getQuill()
+  if (!quill) return
+  quill.focus?.()
+  const table = quill.getModule?.('table')
+  if (table?.insertTable) {
+    table.insertTable(2, 2)
+  } else {
+    const range = getSafeRange(quill)
+    quill.clipboard?.dangerouslyPasteHTML?.(
+      range.index,
+      '<table><tbody><tr><td> </td><td> </td></tr><tr><td> </td><td> </td></tr></tbody></table>'
+    )
+  }
+  emitContent()
+}
+
+defineExpose({
+  format,
+  focus: focusEditor,
+  insertLink,
+  insertTable,
+  triggerUpload
+})
 
 // 设置 watch 监听器，Vue 3 会自动清理
 watch(
@@ -332,7 +420,7 @@ function handleUploadSuccess(res, file) {
     // 获取富文本实例
     const quill = toRaw(quillEditorRef.value).getQuill()
     // 获取光标位置
-    const length = quill.selection.savedRange.index
+    const length = getSafeRange(quill).index
 
     // 判断文件类型
     const fileType = file.type
@@ -346,6 +434,7 @@ function handleUploadSuccess(res, file) {
 
     // 调整光标到最后
     quill.setSelection(length + 1)
+    emitContent()
   } else {
     ;(proxy as any).$modal.msgError('文件插入失败')
   }

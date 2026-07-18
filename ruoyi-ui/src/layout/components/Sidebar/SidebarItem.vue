@@ -128,16 +128,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { ElNotification } from 'element-plus'
+import { ref, onMounted, type PropType } from 'vue'
+import { ElNotification } from '@/plugins/element-plus-service'
 import { getNormalPath } from '@/utils/ruoyi'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
+interface SidebarRouteItem {
+  path?: string
+  hidden?: boolean
+  meta?: Record<string, any>
+  children?: SidebarRouteItem[]
+  [key: string]: any
+}
+
 const props = defineProps({
   // route object
   item: {
-    type: Object,
+    type: Object as PropType<SidebarRouteItem>,
     required: true
   },
   isNest: {
@@ -150,8 +158,8 @@ const props = defineProps({
   }
 })
 
-const onlyOneChild = ref({})
-const subMenu = ref(null)
+const onlyOneChild = ref<SidebarRouteItem>({})
+const subMenu = ref<any>(null)
 const router = useRouter()
 
 // 🔥 关键改进2: 优化事件绑定处理
@@ -162,7 +170,7 @@ onMounted(() => {
 })
 
 // 🔥 关键改进4: 权限检查函数
-function hasMenuPermission(menuItem) {
+function hasMenuPermission(menuItem?: SidebarRouteItem) {
   if (!menuItem || !menuItem.meta) {
     return true
   }
@@ -179,7 +187,7 @@ function hasMenuPermission(menuItem) {
 
   // 检查角色权限
   if (menuItem.meta?.roles && menuItem.meta.roles.length > 0) {
-    const hasRole = menuItem.meta.roles.some(role => roles.includes(role))
+    const hasRole = menuItem.meta.roles.some((role: string) => roles.includes(role))
     if (!hasRole) {
       return false
     }
@@ -187,7 +195,7 @@ function hasMenuPermission(menuItem) {
 
   // 检查具体权限
   if (menuItem.meta?.permissions && menuItem.meta.permissions.length > 0) {
-    const hasPermission = menuItem.meta.permissions.some(permission =>
+    const hasPermission = menuItem.meta.permissions.some((permission: string) =>
       permissions.includes(permission)
     )
     if (!hasPermission) {
@@ -197,7 +205,7 @@ function hasMenuPermission(menuItem) {
   return true
 }
 
-function hasOneShowingChild(children = [], parent) {
+function hasOneShowingChild(children: SidebarRouteItem[] = [], parent: SidebarRouteItem) {
   // 如果没有子菜单或子菜单为空数组，则使用父菜单
   if (!children || !Array.isArray(children) || children.length === 0) {
     onlyOneChild.value = { ...parent }
@@ -225,7 +233,7 @@ function hasOneShowingChild(children = [], parent) {
 }
 
 // 修复路径解析 - 确保二级菜单路径正确
-function resolvePath(routePath) {
+function resolvePath(routePath?: string) {
   // 如果传入了路由路径
   if (routePath) {
     // 如果已经是完整路径，直接返回
@@ -245,7 +253,7 @@ function resolvePath(routePath) {
   return props.basePath || '/'
 }
 
-function hasTitle(title) {
+function hasTitle(title?: string) {
   if (!title) {
     return ''
   }
@@ -257,7 +265,7 @@ function hasTitle(title) {
 }
 
 // 菜单项点击处理 - 强制路由跳转
-function handleMenuItemClick(menuItem) {
+function handleMenuItemClick(menuItem: SidebarRouteItem) {
   const targetPath = resolvePath(menuItem.path)
 
   // 权限检查
@@ -285,7 +293,7 @@ function handleMenuItemClick(menuItem) {
 }
 
 // 简化的菜单点击处理 - Element Plus原生处理
-function handleMenuClick(menuItem, event) {
+function handleMenuClick(menuItem: SidebarRouteItem, event?: Event) {
   // 权限检查
   if (!hasMenuPermission(menuItem)) {
     event?.preventDefault()

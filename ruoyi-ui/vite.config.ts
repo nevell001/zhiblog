@@ -3,6 +3,7 @@ import path from 'path'
 import createVitePlugins from './vite/plugins'
 import type { UserConfig, ConfigEnv } from 'vite'
 import { visualizer } from 'rollup-plugin-visualizer'
+import { devOptimizeDeps } from './vite/optimizeDeps'
 
 // 判断是否在 Docker 容器内运行
 // 通过环境变量 DOCKER 来控制（docker-compose.dev.yml / docker-compose.prod.yml 中设置）
@@ -11,6 +12,17 @@ const inDocker = process.env.DOCKER === 'true'
 // 如果在容器内 → 用 ruoyi-admin 访问同网络下的后端服务
 // 如果在本机开发 → 用 localhost 访问后端
 const baseUrl = inDocker ? 'http://ruoyi-admin:8080' : 'http://localhost:8080'
+const analyzePlugins =
+  process.env.ANALYZE === 'true'
+    ? [
+        visualizer({
+          open: false,
+          filename: 'stats.html',
+          gzipSize: true,
+          brotliSize: true
+        })
+      ]
+    : []
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
@@ -22,7 +34,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
     base: VITE_APP_ENV === 'production' ? '/' : '/',
     plugins: createVitePlugins(env, command === 'build'),
     esbuild: {
-      target: 'es2015',
+      target: 'es2020',
       logLevel: 'error',
       legalComments: 'none'
     },
@@ -40,14 +52,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       assetsDir: 'assets',
       chunkSizeWarningLimit: 1200,
       rollupOptions: {
-        plugins: [
-          visualizer({
-            open: false,
-            filename: 'stats.html',
-            gzipSize: true,
-            brotliSize: true
-          })
-        ],
+        plugins: [...analyzePlugins],
         output: {
           chunkFileNames: 'static/js/[name]-[hash].js',
           entryFileNames: 'static/js/[name]-[hash].js',
@@ -56,8 +61,8 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
           manualChunks: {
             // 将大型第三方库拆分为独立 chunks
             'vue-vendor': ['vue', 'vue-router', 'pinia'],
-            'element-plus': ['element-plus', '@element-plus/icons-vue'],
-            quill: ['@vueup/vue-quill'],
+            'element-icons': ['@element-plus/icons-vue'],
+            echarts: ['echarts'],
             // 将通用工具库拆分为独立 chunk
             utils: ['axios', 'js-cookie', 'file-saver', 'fuse.js', '@vueuse/core']
           }
@@ -68,10 +73,8 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       host: '0.0.0.0', // 绑定到所有网络接口
       port: 3000,
       open: false, // 不自动打开浏览器，在容器中会导致错误
-      // 暂时禁用 HMR - Vite HMR 在 Docker 环境中存在兼容性问题
-      // 错误发生在 HMR 客户端代码中（App.vue:2），无法通过全局错误处理器完全解决
-      // 代码修改后需要手动刷新浏览器
-      hmr: false,
+      // 启用 HMR，配合稳定的 optimizeDeps 清单避免开发态反复 reload
+      hmr: true,
       proxy: {
         // 接口代理 - RuoYi 默认 API 前缀
         '/dev-api': {
@@ -83,13 +86,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
         '^/blog/api/': {
           target: baseUrl,
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog\/api/, '/common/blog')
-        },
-        // 代理所有博客 API 接口（文章、标签、分类、设置等）
-        '^/blog/(article|tag|category|setting|comment)/': {
-          target: baseUrl,
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog/, '/common/blog')
+          rewrite: path => path.replace(/^\/blog\/api/, '/blog')
         },
         // 代理系统管理接口
         '/system': {
@@ -115,6 +112,7 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
         // 在Vite中，默认支持SPA history模式，无需额外配置
       }
     },
+    optimizeDeps: devOptimizeDeps,
     // CSS 配置
     css: {
       preprocessorOptions: {

@@ -3,7 +3,7 @@
     <!-- 博客导航 -->
     <BlogLayout>
       <!-- 标签头部 -->
-      <div class="tag-header" :style="{ backgroundColor: tagColor }">
+      <div class="tag-header">
         <div class="header-content">
           <div class="tag-info">
             <div class="tag-icon-large">
@@ -124,12 +124,7 @@
                   {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
                 </p>
                 <div v-if="article.tags && article.tags.length" class="article-tags">
-                  <span
-                    v-for="tag in article.tags.slice(0, 3)"
-                    :key="tag.id"
-                    class="tag-badge"
-                    :style="{ backgroundColor: tag.color || '#4a7bff' }"
-                  >
+                  <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="tag-badge">
                     {{ tag.name }}
                   </span>
                 </div>
@@ -172,7 +167,7 @@
               关于这个标签
             </h3>
             <div class="tag-about">
-              <div class="tag-icon" :style="{ backgroundColor: tagColor }">
+              <div class="tag-icon">
                 <i class="el-icon-price-tag"></i>
               </div>
               <h4 class="tag-name">
@@ -209,7 +204,6 @@
                 :class="{ active: tag.id === currentTagId }"
                 :style="{
                   animationDelay: `${0.3 + index * 0.05}s`,
-                  backgroundColor: tag.color || '#4a7bff',
                   fontSize: getTagFontSize(tag.article_count) + 'px',
                   transform: `scale(${getTagScale(tag.article_count)})`
                 }"
@@ -234,11 +228,7 @@
                 :style="{ animationDelay: `${0.4 + index * 0.05}s` }"
               >
                 <div class="tag-rank">#{{ popularTags.indexOf(tag) + 1 }}</div>
-                <router-link
-                  :to="`/blog/tag/${tag.id}`"
-                  class="tag-link"
-                  :style="{ color: tag.color || '#4a7bff' }"
-                >
+                <router-link :to="`/blog/tag/${tag.id}`" class="tag-link">
                   {{ tag.name }}
                 </router-link>
                 <div class="tag-article-count">{{ tag.article_count }}篇</div>
@@ -281,7 +271,7 @@
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
 
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 
 import { useRoute } from 'vue-router'
 
@@ -296,6 +286,7 @@ import { getArticleList } from '@/api/blog/article'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 import { useBlogSettingsStore } from '@/stores/blogSettings'
+import { logger } from '@/utils/logger'
 
 const route = useRoute()
 
@@ -308,8 +299,6 @@ const articleList = ref([])
 const tagName = ref('')
 
 const tagDescription = ref('')
-
-const tagColor = ref('#4a7bff')
 
 const tagCreateTime = ref('')
 
@@ -369,7 +358,7 @@ const loadTagArticles = async (append = false) => {
       newArticles = response.data
       totalCount = response.total || response.data.length
     } else {
-      console.warn('⚠️ 未知的响应格式:', response)
+      logger.warn('未知的响应格式:', response)
       newArticles = []
       totalCount = 0
     }
@@ -385,7 +374,7 @@ const loadTagArticles = async (append = false) => {
       total.value = totalCount
     }
   } catch (error) {
-    console.error('❌ 获取标签文章失败:', error)
+    logger.error('获取标签文章失败:', error)
     ElMessage.error('获取文章列表失败')
   } finally {
     loading.value = false
@@ -402,7 +391,6 @@ const loadTagDetail = async () => {
 
     tagName.value = tag.name || ''
     tagDescription.value = tag.description || ''
-    tagColor.value = tag.color || '#4a7bff'
     tagCreateTime.value = tag.createTime || new Date().toISOString()
 
     // 更新页面显示的文章数量
@@ -410,7 +398,7 @@ const loadTagDetail = async () => {
       total.value = tag.articleCount
     }
   } catch (error) {
-    console.error('❌ 获取标签详情失败:', error)
+    logger.error('获取标签详情失败:', error)
     ElMessage.error('获取标签详情失败')
   }
 }
@@ -422,7 +410,7 @@ const loadRelatedTags = async () => {
     const tags = response.data || []
     relatedTags.value = tags.filter(tag => tag.id !== currentTagId.value).slice(0, 12)
   } catch (error) {
-    console.error('获取相关标签失败:', error)
+    logger.error('获取相关标签失败:', error)
   }
 }
 
@@ -432,7 +420,7 @@ const loadPopularTags = async () => {
     const response = await getTagCloud()
     popularTags.value = (response.data || []).slice(0, 10)
   } catch (error) {
-    console.error('获取热门标签失败:', error)
+    logger.error('获取热门标签失败:', error)
   }
 }
 
@@ -442,7 +430,7 @@ const loadRecentArticles = async () => {
     const response = await getArticleList({ pageNum: 1, pageSize: 8, status: 1 })
     recentArticles.value = response.rows || []
   } catch (error) {
-    console.error('获取最新文章失败:', error)
+    logger.error('获取最新文章失败:', error)
   }
 }
 
@@ -508,7 +496,7 @@ const loadBlogSettings = async () => {
     // 更新 blogSettingsStore
     blogSettingsStore.updateBlogSettings(settings)
   } catch (error) {
-    console.error('加载博客设置失败:', error)
+    logger.error('加载博客设置失败:', error)
     // 使用默认值
   }
 }
@@ -552,26 +540,21 @@ onMounted(() => {
 .tag-container {
   padding-top: 64px;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background: var(--mo-n50);
 }
 
 .tag-header {
-  color: white;
+  color: var(--mo-n900);
   padding: 60px 0;
   text-align: center;
   position: relative;
   overflow: hidden;
+  background: var(--mo-n50);
+  border-bottom: 1px solid var(--mo-n200);
 }
 
 .tag-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="30" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="70" r="1.5" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="80" r="1" fill="rgba(255,255,255,0.1)"/></svg>');
-  opacity: 0.6;
+  content: none;
 }
 
 .header-content {
@@ -601,16 +584,12 @@ onMounted(() => {
   font-size: 3rem;
   margin: 0 0 20px 0;
   font-weight: 700;
-  background: linear-gradient(45deg, #fff, #f0f8ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--mo-n900);
 }
 
 .tag-description {
   font-size: 1.3rem;
-  opacity: 0.95;
+  color: var(--mo-n600);
   margin: 0 0 20px 0;
   max-width: 600px;
   line-height: 1.6;
@@ -626,7 +605,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 1rem;
-  opacity: 0.9;
+  color: var(--mo-n500);
 }
 
 .stat-item i {
@@ -642,27 +621,28 @@ onMounted(() => {
 }
 
 .tag-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 20px;
-  display: flex;
   gap: 40px;
 }
 
 .main-content {
-  flex: 1;
+  min-width: 0;
 }
 
 .article-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
   gap: 30px;
   margin-bottom: 20px;
 }
 
 .article-item {
   background: white;
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -674,14 +654,14 @@ onMounted(() => {
 .article-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-  border-color: rgba(64, 158, 255, 0.1);
+  border-color: rgba(79, 70, 229, 0.1);
 }
 
 .article-cover {
   position: relative;
   height: 200px;
   overflow: hidden;
-  background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+  background: linear-gradient(45deg, var(--mo-n100), var(--mo-n200));
 }
 
 .article-cover img {
@@ -699,15 +679,15 @@ onMounted(() => {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: linear-gradient(135deg, rgba(64, 158, 255, 0.95), rgba(37, 117, 252, 0.95));
-  color: white;
+  background: rgba(238, 242, 255, 0.94);
+  color: var(--mo-p700);
   padding: 6px 10px;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--mo-p200);
+  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.08);
 }
 
 .article-content {
@@ -725,21 +705,21 @@ onMounted(() => {
 }
 
 .article-title a {
-  color: #1a1a1a;
+  color: var(--mo-n900);
   text-decoration: none;
   transition: all 0.3s ease;
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background: linear-gradient(135deg, #1a1a1a, #333);
+  background: linear-gradient(135deg, var(--mo-n900), var(--mo-n800));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .article-title a:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
   transform: translateX(4px);
 }
 
@@ -748,7 +728,7 @@ onMounted(() => {
   gap: 20px;
   margin-bottom: 15px;
   font-size: 0.9rem;
-  color: #666;
+  color: var(--mo-n500);
   flex-wrap: wrap;
 }
 
@@ -763,8 +743,8 @@ onMounted(() => {
 }
 
 .meta-item:hover {
-  background: rgba(64, 158, 255, 0.1);
-  color: #4a7bff;
+  background: rgba(79, 70, 229, 0.1);
+  color: var(--mo-p600);
 }
 
 .meta-item i {
@@ -773,7 +753,7 @@ onMounted(() => {
 }
 
 .article-summary {
-  color: #555;
+  color: var(--mo-n600);
   line-height: 1.7;
   margin-bottom: 18px;
   display: -webkit-box;
@@ -793,9 +773,10 @@ onMounted(() => {
 }
 
 .tag-badge {
-  color: white;
+  background: var(--mo-p50);
+  color: var(--mo-p700);
   padding: 4px 10px;
-  border-radius: 14px;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -833,7 +814,7 @@ onMounted(() => {
 }
 
 .read-more {
-  color: #4a7bff;
+  color: var(--mo-p600);
   text-decoration: none;
   font-weight: 600;
   font-size: 0.9rem;
@@ -851,12 +832,12 @@ onMounted(() => {
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, #4a7bff, #6b8cff);
+  background: linear-gradient(90deg, var(--mo-p600), var(--mo-p800));
   transition: width 0.3s ease;
 }
 
 .read-more:hover {
-  color: #6b8cff;
+  color: var(--mo-p800);
   transform: translateX(4px);
 }
 
@@ -886,12 +867,12 @@ onMounted(() => {
 }
 
 .sidebar {
-  width: 300px;
+  min-width: 0;
 }
 
 .sidebar-widget {
   background: white;
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 20px;
   margin-bottom: 20px;
@@ -901,8 +882,8 @@ onMounted(() => {
   font-size: 1.2rem;
   margin: 0 0 15px 0;
   padding-bottom: 10px;
-  border-bottom: 2px solid #4a7bff;
-  color: #333;
+  border-bottom: 2px solid var(--mo-p600);
+  color: var(--mo-n800);
 }
 
 .tag-about {
@@ -916,7 +897,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  background: var(--mo-p100);
+  color: var(--mo-p600);
   font-size: 1.5rem;
   margin-bottom: 15px;
   margin: 0 auto 15px;
@@ -926,11 +908,11 @@ onMounted(() => {
   font-size: 1.2rem;
   font-weight: 600;
   margin: 10px 0 8px 0;
-  color: #333;
+  color: var(--mo-n800);
 }
 
 .tag-about .tag-desc {
-  color: #666;
+  color: var(--mo-n500);
   font-size: 0.9rem;
   margin-bottom: 15px;
   line-height: 1.5;
@@ -948,7 +930,7 @@ onMounted(() => {
   justify-content: center;
   gap: 6px;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--mo-n500);
   background: rgba(102, 102, 102, 0.05);
   padding: 6px 12px;
   border-radius: 6px;
@@ -962,7 +944,9 @@ onMounted(() => {
 }
 
 .related-tag-item {
-  color: white;
+  border: 1px solid var(--mo-p100);
+  background: var(--mo-p50);
+  color: var(--mo-p700);
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 8px 12px;
@@ -1002,7 +986,7 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
   padding: 8px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--mo-n100);
 }
 
 .popular-tag-item:last-child {
@@ -1011,13 +995,14 @@ onMounted(() => {
 
 .tag-rank {
   font-weight: bold;
-  color: #4a7bff;
+  color: var(--mo-p600);
   min-width: 24px;
   text-align: center;
 }
 
 .tag-link {
   flex: 1;
+  color: var(--mo-p600);
   text-decoration: none;
   font-weight: 500;
   transition: opacity 0.3s ease;
@@ -1029,7 +1014,7 @@ onMounted(() => {
 
 .tag-article-count {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--mo-n400);
 }
 
 .recent-articles {
@@ -1041,7 +1026,7 @@ onMounted(() => {
 .recent-articles .article-item {
   margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--mo-n100);
 }
 
 .recent-articles .article-item:last-child {
@@ -1053,7 +1038,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #333;
+  color: var(--mo-n800);
   text-decoration: none;
   font-size: 0.9rem;
   line-height: 1.4;
@@ -1061,12 +1046,12 @@ onMounted(() => {
 }
 
 .article-link:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 .article-date {
   font-size: 0.8rem;
-  color: #999;
+  color: var(--mo-n400);
   min-width: 40px;
 }
 
@@ -1089,7 +1074,7 @@ onMounted(() => {
 
 .loading-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
   gap: 30px;
   width: 100%;
   max-width: 1200px;
@@ -1102,7 +1087,7 @@ onMounted(() => {
 .empty-state {
   text-align: center;
   padding: 80px 20px;
-  color: #666;
+  color: var(--mo-n500);
 }
 
 .empty-content {
@@ -1112,14 +1097,14 @@ onMounted(() => {
 
 .empty-icon {
   font-size: 4rem;
-  color: #c0c4cc;
+  color: var(--mo-n300);
   margin-bottom: 20px;
   display: block;
 }
 
 .empty-content h3 {
   margin: 0 0 10px 0;
-  color: #303133;
+  color: var(--mo-n800);
   font-size: 1.5rem;
 }
 
@@ -1137,7 +1122,7 @@ onMounted(() => {
   }
 
   .sidebar {
-    width: 260px;
+    width: auto;
   }
 }
 
@@ -1147,7 +1132,7 @@ onMounted(() => {
   }
 
   .sidebar {
-    width: 240px;
+    width: auto;
   }
 
   .article-cover {
@@ -1188,7 +1173,7 @@ onMounted(() => {
   }
 
   .tag-main {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     padding: 20px 15px;
     gap: 25px;
   }
@@ -1198,7 +1183,6 @@ onMounted(() => {
   }
 
   .sidebar {
-    width: 100%;
     order: 2;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1357,100 +1341,102 @@ onMounted(() => {
 
 /* 深色主题适配 */
 html.dark .tag-container {
-  background-color: #1a1a2e;
+  background-color: var(--mo-n900);
 }
 
 html.dark .tag-header {
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
+  background: var(--mo-n900);
+  border-bottom-color: var(--mo-n800);
 }
 
 html.dark .tag-title {
-  background: linear-gradient(45deg, #fff, #f0f8ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--mo-n100);
 }
 
 html.dark .tag-description {
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--mo-n300);
 }
 
 html.dark .stat-item {
+  color: var(--mo-n400);
+}
+
+html.dark .tag-icon-large {
   color: rgba(255, 255, 255, 0.9);
 }
 
 html.dark .article-item {
-  background: #2a2a3e;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  border-color: #333;
+  border-color: var(--mo-n800);
 }
 
 html.dark .article-item:hover {
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-  border-color: rgba(64, 158, 255, 0.2);
+  border-color: rgba(79, 70, 229, 0.2);
 }
 
 html.dark .article-title a {
-  background: linear-gradient(135deg, #e0e0e0, #b0b0b0);
+  background: linear-gradient(135deg, var(--mo-n200), var(--mo-n300));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 html.dark .article-title a:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .article-meta {
-  color: #999;
+  color: var(--mo-n400);
 }
 
 html.dark .meta-item {
   background: rgba(255, 255, 255, 0.05);
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .meta-item:hover {
-  background: rgba(74, 123, 255, 0.15);
-  color: #4a7bff;
+  background: rgba(79, 70, 229, 0.15);
+  color: var(--mo-p600);
 }
 
 html.dark .article-summary {
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .article-footer {
-  border-top-color: #333;
+  border-top-color: var(--mo-n800);
 }
 
 html.dark .read-more {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .read-more:hover {
-  color: #9f7aea;
+  color: var(--mo-p300);
 }
 
 html.dark .sidebar-widget {
-  background: #2a2a3e;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 html.dark .widget-title {
-  color: #e0e0e0;
-  border-bottom-color: #4a7bff;
+  color: var(--mo-n200);
+  border-bottom-color: var(--mo-p600);
 }
 
 html.dark .tag-about .tag-name {
-  color: #e0e0e0;
+  color: var(--mo-n200);
 }
 
 html.dark .tag-about .tag-desc {
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .tag-meta .meta-item {
-  color: #b0b0b0;
+  color: var(--mo-n300);
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -1464,39 +1450,39 @@ html.dark .related-tag-item.active {
 }
 
 html.dark .popular-tag-item {
-  border-bottom-color: #333;
+  border-bottom-color: var(--mo-n800);
 }
 
 html.dark .tag-rank {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .tag-link {
-  color: #e0e0e0;
+  color: var(--mo-n200);
 }
 
 html.dark .tag-article-count {
-  color: #666;
+  color: var(--mo-n500);
 }
 
 html.dark .recent-articles .article-item {
-  border-bottom-color: #333;
+  border-bottom-color: var(--mo-n800);
 }
 
 html.dark .article-link {
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .article-link:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .article-date {
-  color: #666;
+  color: var(--mo-n500);
 }
 
 html.dark .empty-state {
-  color: #666;
+  color: var(--mo-n500);
 }
 
 html.dark .empty-icon {
@@ -1504,7 +1490,7 @@ html.dark .empty-icon {
 }
 
 html.dark .empty-content h3 {
-  color: #e0e0e0;
+  color: var(--mo-n200);
 }
 
 /* 动画效果 */

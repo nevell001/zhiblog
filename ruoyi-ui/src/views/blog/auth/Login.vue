@@ -1,11 +1,40 @@
 <template>
-  <div class="blog-login-container">
+  <div class="blog-login-container mo-auth-page">
     <BlogLayout>
-      <div class="login-wrapper">
-        <div class="login-card">
-          <div class="login-header">
-            <h1>用户登录</h1>
-            <p>欢迎回来</p>
+      <div class="auth-wrapper">
+        <section class="auth-visual">
+          <div class="brand-lg">
+            墨
+            <span>Blog</span>
+          </div>
+          <div class="tagline">记录思考，分享洞见</div>
+          <div class="features">
+            <div class="feat">
+              <span class="check">✓</span>
+              沉浸式阅读体验，衬线排版
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              Markdown 写作，草稿自动保存
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              标签与分类，内容组织有序
+            </div>
+            <div class="feat">
+              <span class="check">✓</span>
+              评论互动，思想碰撞
+            </div>
+          </div>
+        </section>
+
+        <section class="auth-form">
+          <h2>欢迎回来</h2>
+          <p class="sub">登录你的账号，继续创作之旅</p>
+
+          <div class="auth-tabs">
+            <span class="tab active">登录</span>
+            <router-link to="/blog/auth/register" class="tab">注册</router-link>
           </div>
 
           <el-form
@@ -15,7 +44,8 @@
             class="login-form"
             @keyup.enter="handleLogin"
           >
-            <el-form-item prop="username">
+            <el-form-item prop="username" class="form-group">
+              <label>邮箱 / 用户名</label>
               <el-input
                 v-model="loginForm.username"
                 placeholder="用户名 / 邮箱"
@@ -28,7 +58,8 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item prop="password">
+            <el-form-item prop="password" class="form-group">
+              <label>密码</label>
               <el-input
                 v-model="loginForm.password"
                 type="password"
@@ -43,7 +74,8 @@
               </el-input>
             </el-form-item>
 
-            <el-form-item v-if="captchaEnabled" prop="code">
+            <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
+              <label>验证码</label>
               <div class="captcha-row">
                 <el-input
                   v-model="loginForm.code"
@@ -60,24 +92,32 @@
               </div>
             </el-form-item>
 
+            <div class="form-options">
+              <label class="remember">
+                <input type="checkbox" checked />
+                记住我
+              </label>
+              <router-link to="/blog/auth/forgot-password" class="forgot">忘记密码？</router-link>
+            </div>
+
             <el-form-item>
               <el-button
                 type="primary"
                 size="large"
                 :loading="loading"
-                class="login-button"
+                class="auth-submit"
                 @click="handleLogin"
               >
-                {{ loading ? '登录中...' : '登录' }}
+                {{ loading ? '登录中...' : '登 录' }}
               </el-button>
             </el-form-item>
 
-            <div class="login-footer">
-              <router-link to="/blog/auth/register" class="link">还没有账号？立即注册</router-link>
-              <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
-            </div>
+            <div class="auth-divider">还没有账号？</div>
+            <router-link to="/blog/auth/register" class="auth-secondary">
+              创建默 Blog 账号
+            </router-link>
           </el-form>
-        </div>
+        </section>
       </div>
     </BlogLayout>
   </div>
@@ -86,11 +126,13 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { useUserStore } from '@/stores/user'
 import { getCodeImg } from '@/api/login'
 import BlogLayout from '@/components/BlogLayout.vue'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -120,7 +162,7 @@ const refreshCaptcha = async () => {
     captchaUrl.value = 'data:image/gif;base64,' + res.img
     loginForm.uuid = res.uuid
   } catch (error) {
-    console.error('获取验证码失败:', error)
+    logger.error('获取验证码失败:', error)
     captchaEnabled.value = false
   }
 }
@@ -171,103 +213,283 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.blog-login-container {
-  padding-top: 64px;
+.mo-auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  position: relative;
+  padding-top: 64px;
+  background: var(--mo-n50);
 }
 
-.login-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.auth-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   min-height: calc(100vh - 60px);
-  padding: 20px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
-.login-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
+.auth-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 56px 48px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(135deg, var(--mo-p600), var(--mo-p800));
+}
+
+.auth-visual::before,
+.auth-visual::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.auth-visual::before {
+  top: -60px;
+  right: -60px;
+  width: 240px;
+  height: 240px;
+}
+
+.auth-visual::after {
+  bottom: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+}
+
+.brand-lg {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 8px;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+.brand-lg span {
+  color: var(--mo-p200);
+}
+
+.tagline {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 36px;
+  font-size: 16px;
+  opacity: 0.8;
+}
+
+.features {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   max-width: 420px;
-  animation: fadeInUp 0.5s ease-out;
+  margin: 0 auto;
+  padding: 56px 48px;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.auth-form h2 {
+  margin: 0 0 6px;
+  color: var(--mo-n900);
+  font-size: 26px;
+  font-weight: 700;
 }
 
-.login-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.login-header p {
-  color: #999;
+.sub {
+  margin: 0 0 28px;
+  color: var(--mo-n500);
   font-size: 14px;
-  margin: 0;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 28px;
+  border-bottom: 1px solid var(--mo-n200);
+}
+
+.tab {
+  flex: 1;
+  padding: 10px 0;
+  color: var(--mo-n500);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+
+.tab:hover {
+  color: var(--mo-n700);
+}
+
+.tab.active {
+  color: var(--mo-p600);
+  border-bottom-color: var(--mo-p600);
 }
 
 .login-form {
-  margin-top: 24px;
+  margin-top: 0;
+}
+
+.form-group {
+  display: block;
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--mo-n700);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
 }
 
 .captcha-row {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 12px;
 }
 
 .captcha-img {
   height: 40px;
   cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
+  border: 1px solid var(--mo-n300);
+  border-radius: 8px;
   transition: all 0.3s;
 }
 
 .captcha-img:hover {
-  border-color: #4a7bff;
+  border-color: var(--mo-p400);
 }
 
-.login-button {
-  width: 100%;
-  height: 44px;
-  font-size: 16px;
-  margin-top: 8px;
-}
-
-.login-footer {
+.form-options {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-top: 20px;
-  font-size: 14px;
+  margin-bottom: 22px;
+  font-size: 13px;
 }
 
-.login-footer .link {
-  color: #4a7bff;
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mo-n600);
+}
+
+.remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--mo-p600);
+}
+
+.forgot {
+  color: var(--mo-p600);
+  font-weight: 500;
   text-decoration: none;
-  transition: color 0.3s;
 }
 
-.login-footer .link:hover {
-  color: #6b8cff;
+.auth-submit {
+  width: 100%;
+  height: 46px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0 16px;
+  color: var(--mo-n400);
+  font-size: 12px;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--mo-n200);
+}
+
+.auth-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 46px;
+  color: var(--mo-p600);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid var(--mo-n300);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.auth-secondary:hover {
+  border-color: var(--mo-p400);
+  background: var(--mo-p50);
+}
+
+@media (max-width: 768px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+    box-shadow: none;
+  }
+
+  .auth-visual {
+    display: none;
+  }
+
+  .auth-form {
+    padding: 32px 24px;
+  }
 }
 </style>

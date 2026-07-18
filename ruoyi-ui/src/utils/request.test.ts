@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import axios from 'axios'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 // Mock dependencies
 vi.mock('axios', () => ({
@@ -72,7 +74,7 @@ vi.mock('@/stores/user', () => ({
     permissions: []
   }))
 }))
-vi.mock('element-plus', () => ({
+vi.mock('@/plugins/element-plus-service', () => ({
   ElNotification: {
     error: vi.fn()
   },
@@ -101,7 +103,7 @@ import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import { useUserStore } from '@/stores/user'
-import { ElNotification, ElMessage, ElLoading } from 'element-plus'
+import { ElNotification, ElMessage, ElLoading } from '@/plugins/element-plus-service'
 
 const mockTansParams = vi.mocked(tansParams)
 const mockBlobValidate = vi.mocked(blobValidate)
@@ -111,6 +113,7 @@ const mockUseUserStore = vi.mocked(useUserStore)
 const mockElNotification = vi.mocked(ElNotification)
 const mockElMessage = vi.mocked(ElMessage)
 const mockElLoading = vi.mocked(ElLoading)
+const requestSourcePath = resolve(process.cwd(), 'src/utils/request.ts')
 
 describe('Request 工具函数测试', () => {
   beforeEach(() => {
@@ -145,6 +148,13 @@ describe('Request 工具函数测试', () => {
   })
 
   describe('请求拦截器', () => {
+    it('应该让博客前台 API 绕开默认 baseURL 以命中独立代理', () => {
+      const source = readFileSync(requestSourcePath, 'utf-8')
+
+      expect(source).toContain("config.url.startsWith('/blog/api/')")
+      expect(source).toContain("config.baseURL = ''")
+    })
+
     it('应该在请求头中添加 Authorization token', async () => {
       mockGetToken.mockReturnValue('test-token')
       mockAxios.create.mockReturnValue({

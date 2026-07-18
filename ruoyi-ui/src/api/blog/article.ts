@@ -7,7 +7,7 @@ import type { ArticleParams, QueryResult } from '@/types/api'
  */
 export function getArticleListAnonymous(query?: ArticleParams): Promise<QueryResult<Article>> {
   return request({
-    url: '/blog/article/list',
+    url: '/blog/api/article/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -19,7 +19,7 @@ export function getArticleListAnonymous(query?: ArticleParams): Promise<QueryRes
  */
 export function getArticleList(query?: ArticleParams): Promise<QueryResult<Article>> {
   return request({
-    url: '/blog/article/list',
+    url: '/blog/api/article/list',
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -34,7 +34,7 @@ export function getArticlesByCategory(
   query?: ArticleParams
 ): Promise<QueryResult<Article>> {
   return request({
-    url: '/blog/article/category/' + categoryId,
+    url: '/blog/api/article/category/' + categoryId,
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -46,7 +46,7 @@ export function getArticlesByCategory(
  */
 export function getHotArticles(query?: ArticleParams): Promise<QueryResult<Article>> {
   return request({
-    url: '/blog/article/hot',
+    url: '/blog/api/article/hot',
     method: 'get',
     params: { ...query, pageSize: query?.pageSize || 5 },
     headers: { isToken: false }
@@ -82,7 +82,7 @@ export function getRecommendArticles(query?: ArticleParams): Promise<QueryResult
  */
 export function getArticleDetail(id: number): Promise<any> {
   return request({
-    url: '/blog/article/' + id,
+    url: '/blog/api/article/' + id,
     method: 'get',
     headers: { isToken: false }
   })
@@ -93,7 +93,7 @@ export function getArticleDetail(id: number): Promise<any> {
  */
 export function updateArticleViewCount(id: number): Promise<any> {
   return request({
-    url: '/blog/article/view/' + id,
+    url: '/blog/api/article/view/' + id,
     method: 'post',
     headers: { isToken: false }
   })
@@ -104,7 +104,7 @@ export function updateArticleViewCount(id: number): Promise<any> {
  */
 export function getArticleArchive(): Promise<any> {
   return request({
-    url: '/blog/article-archive',
+    url: '/blog/api/article-archive',
     method: 'get',
     headers: { isToken: false }
   })
@@ -119,7 +119,7 @@ export function getArticlesByArchive(
   query?: ArticleParams
 ): Promise<QueryResult<Article>> {
   return request({
-    url: `/blog/article/archive-month/${year}/${month}`,
+    url: `/blog/api/article/archive-month/${year}/${month}`,
     method: 'get',
     params: query,
     headers: { isToken: false }
@@ -134,7 +134,7 @@ export function searchArticles(
   query?: ArticleParams
 ): Promise<QueryResult<Article>> {
   return request({
-    url: '/blog/article/search',
+    url: '/blog/api/article/search',
     method: 'get',
     params: { ...query, keyword: keyword },
     headers: { isToken: false }
@@ -146,7 +146,7 @@ export function searchArticles(
  */
 export function getRelatedArticles(id: number): Promise<any> {
   return request({
-    url: '/blog/article/related/' + id,
+    url: '/blog/api/article/related/' + id,
     method: 'get',
     headers: { isToken: false }
   })
@@ -157,7 +157,7 @@ export function getRelatedArticles(id: number): Promise<any> {
  */
 export function submitComment(data: Record<string, any>): Promise<any> {
   return request({
-    url: '/blog/comment',
+    url: '/blog/api/comment',
     method: 'post',
     data: data
   })

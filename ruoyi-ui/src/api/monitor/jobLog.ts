@@ -28,7 +28,7 @@ export function listJobLog(query?: PageParams): Promise<QueryResult<JobLog>> {
 /**
  * 删除调度日志
  */
-export function delJobLog(jobLogId: number): Promise<any> {
+export function delJobLog(jobLogId: number | number[]): Promise<any> {
   return request({
     url: '/monitor/jobLog/' + jobLogId,
     method: 'delete'

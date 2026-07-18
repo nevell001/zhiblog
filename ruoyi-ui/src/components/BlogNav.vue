@@ -1,4 +1,5 @@
 <template>
+  <!-- Legacy compatibility navigation. Current public blog pages should use BlogLayout. -->
   <div class="blog-nav">
     <!-- 汉堡菜单按钮（仅移动端显示） -->
     <div v-if="isMobile" class="hamburger-menu" @click="toggleMobileMenu">
@@ -79,7 +80,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { getFilteredMenus } from '@/config/menu'
 import { useUserStore } from '@/stores/user'
 import { useDevice } from '@/composables/useDevice'
@@ -143,7 +144,7 @@ const scrollToTop = () => {
 // 跳转到后台管理
 const goToAdmin = () => {
   closeMobileMenu()
-  window.location.href = '/login?redirect=/admin'
+  router.push('/admin')
 }
 
 // 跳转到统一登录页

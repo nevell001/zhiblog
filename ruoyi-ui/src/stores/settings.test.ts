@@ -4,6 +4,9 @@ import { useSettingsStore } from './settings'
 
 describe('Settings Store 测试', () => {
   beforeEach(() => {
+    localStorage.clear()
+    document.documentElement.classList.remove('dark')
+    document.documentElement.classList.remove('theme-mo-blog')
     setActivePinia(createPinia())
   })
 
@@ -11,6 +14,8 @@ describe('Settings Store 测试', () => {
     it('应该初始化为默认值', () => {
       const store = useSettingsStore()
       expect(store.theme).toBeDefined()
+      expect(store.theme).toBe('#4f46e5')
+      expect(store.appTheme).toBe('default')
       expect(store.sideTheme).toBeDefined()
       expect(store.showSettings).toBeDefined()
       expect(store.topNav).toBeDefined()
@@ -38,6 +43,26 @@ describe('Settings Store 测试', () => {
         value: '#FF0000'
       })
       expect(store.theme).toBe('#FF0000')
+    })
+
+    it('应该初始化应用主题为持久化值', () => {
+      localStorage.setItem('app-theme', 'mo-blog')
+      const store = useSettingsStore()
+      expect(store.appTheme).toBe('mo-blog')
+    })
+
+    it('应该优先从布局设置中恢复应用主题', () => {
+      localStorage.setItem('layout-setting', JSON.stringify({ appTheme: 'mo-blog' }))
+      const store = useSettingsStore()
+      expect(store.appTheme).toBe('mo-blog')
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
+    })
+
+    it('应该设置应用主题并同步根节点 class', () => {
+      const store = useSettingsStore()
+      store.setAppTheme('mo-blog')
+      expect(store.appTheme).toBe('mo-blog')
+      expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
     })
 
     it('应该支持切换侧边栏主题', () => {
@@ -86,11 +111,19 @@ describe('Settings Store 测试', () => {
   })
 
   describe('toggleTheme', () => {
-    it('应该切换主题', () => {
+    it('应该切换暗色模式并同步根节点 class', () => {
       const store = useSettingsStore()
-      const initialTheme = store.sideTheme
       store.toggleTheme()
-      expect(store.sideTheme).not.toBe(initialTheme)
+      expect(store.isDark).toBe(true)
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
+      expect(localStorage.getItem('admin-theme')).toBe('dark')
+    })
+
+    it('应该从本地缓存恢复暗色模式', () => {
+      localStorage.setItem('admin-theme', 'dark')
+      const store = useSettingsStore()
+      expect(store.isDark).toBe(true)
+      expect(document.documentElement.classList.contains('dark')).toBe(true)
     })
   })
 

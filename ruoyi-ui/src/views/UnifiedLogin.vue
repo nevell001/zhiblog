@@ -1,93 +1,98 @@
 <template>
-  <div class="unified-login-container">
-    <div class="login-wrapper">
-      <div class="login-card">
-        <div class="login-header">
-          <h1>用户登录</h1>
-          <p>统一登录入口</p>
-        </div>
+  <div class="unified-login-container mo-auth-page">
+    <section class="auth-card">
+      <router-link to="/blog" class="auth-brand">
+        <span class="brand-mark">默</span>
+        <span>默 Blog</span>
+      </router-link>
 
-        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form">
-          <el-form-item prop="username">
-            <el-input
-              ref="usernameInputRef"
-              v-model="loginForm.username"
-              placeholder="用户名/邮箱"
-              size="large"
-              clearable
-              @keyup.enter="focusPassword"
-            >
-              <template #prefix>
-                <el-icon><User /></el-icon>
-              </template>
-            </el-input>
-          </el-form-item>
+      <div class="auth-head">
+        <h2>登录</h2>
+        <p class="sub">继续写作与管理内容</p>
+      </div>
 
-          <el-form-item prop="password">
+      <div class="auth-switch">
+        <span class="switch-item active">登录</span>
+        <router-link to="/blog/auth/register" class="switch-item">注册</router-link>
+      </div>
+
+      <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" class="login-form">
+        <el-form-item prop="username" class="form-group">
+          <label>邮箱 / 用户名</label>
+          <el-input
+            ref="usernameInputRef"
+            v-model="loginForm.username"
+            placeholder="用户名或邮箱"
+            clearable
+            @keyup.enter="focusPassword"
+          >
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item prop="password" class="form-group">
+          <label>密码</label>
+          <el-input
+            ref="passwordInputRef"
+            v-model="loginForm.password"
+            type="password"
+            placeholder="输入密码"
+            show-password
+            clearable
+            @keyup.enter="handleLogin"
+          >
+            <template #prefix>
+              <el-icon><Lock /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
+          <label>验证码</label>
+          <div class="captcha-row">
             <el-input
-              ref="passwordInputRef"
-              v-model="loginForm.password"
-              type="password"
-              placeholder="密码"
-              size="large"
-              show-password
+              ref="codeInputRef"
+              v-model="loginForm.code"
+              placeholder="计算结果"
               clearable
               @keyup.enter="handleLogin"
             >
               <template #prefix>
-                <el-icon><Lock /></el-icon>
+                <el-icon><Key /></el-icon>
               </template>
             </el-input>
-          </el-form-item>
-
-          <el-form-item v-if="captchaEnabled" prop="code">
-            <div class="captcha-row">
-              <el-input
-                ref="codeInputRef"
-                v-model="loginForm.code"
-                placeholder="验证码"
-                size="large"
-                clearable
-                style="flex: 1"
-                @keyup.enter="handleLogin"
-              >
-                <template #prefix>
-                  <el-icon><Key /></el-icon>
-                </template>
-              </el-input>
-              <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
-            </div>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button
-              type="primary"
-              size="large"
-              :loading="loading"
-              class="login-button"
-              @click="handleLogin"
-            >
-              {{ loading ? '登录中...' : '登录' }}
-            </el-button>
-          </el-form-item>
-        </el-form>
-
-        <div class="login-footer">
-          <div class="footer-links">
-            <router-link to="/blog/auth/register" class="link">用户注册</router-link>
-            <span class="divider">|</span>
-            <router-link to="/blog/auth/forgot-password" class="link">忘记密码？</router-link>
+            <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
           </div>
+        </el-form-item>
+
+        <div class="form-options">
+          <label class="remember">
+            <input type="checkbox" checked />
+            记住我
+          </label>
+          <router-link to="/blog/auth/forgot-password" class="forgot">忘记密码？</router-link>
         </div>
-      </div>
-    </div>
+
+        <el-button type="primary" :loading="loading" class="auth-submit" @click="handleLogin">
+          {{ loading ? '登录中...' : '登录' }}
+        </el-button>
+      </el-form>
+
+      <p class="auth-footer">
+        还没有账号？
+        <router-link to="/blog/auth/register">立即注册</router-link>
+      </p>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules, type InputInstance } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules, InputInstance } from 'element-plus'
 import { User, Lock, Key } from '@element-plus/icons-vue'
 import { getCodeImg } from '@/api/login'
 import { unifiedLogin } from '@/api/unifiedAuth'
@@ -130,8 +135,16 @@ const focusPassword = () => {
 const refreshCaptcha = async () => {
   try {
     const res = await getCodeImg()
-    captchaUrl.value = 'data:image/gif;base64,' + res.img
-    loginForm.uuid = res.uuid
+    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
+    if (captchaEnabled.value) {
+      captchaUrl.value = 'data:image/jpeg;base64,' + res.img
+      loginForm.uuid = res.uuid
+      loginForm.code = ''
+    } else {
+      captchaUrl.value = ''
+      loginForm.uuid = ''
+      loginForm.code = ''
+    }
   } catch (error) {
     console.error('获取验证码失败:', error)
     captchaEnabled.value = false
@@ -266,110 +279,215 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.unified-login-container {
+.mo-auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 24px;
+  background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
 }
 
-.login-wrapper {
-  width: 100%;
-  max-width: 420px;
+.auth-card {
+  width: min(100%, 380px);
+  max-width: 380px;
+  padding: 28px;
+  background: var(--mo-bg-card, #fff);
+  border: 1px solid var(--mo-n200);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
-.login-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  animation: fadeInUp 0.5s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.login-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.login-header p {
-  color: #999;
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-bottom: 22px;
+  color: var(--mo-n900);
   font-size: 14px;
-  margin: 0;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  background: var(--mo-p600);
+  border-radius: 8px;
+}
+
+.auth-head h2 {
+  margin: 0 0 6px;
+  color: var(--mo-n900);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sub {
+  margin: 0 0 18px;
+  color: var(--mo-n500);
+  font-size: 14px;
+}
+
+.auth-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 18px;
+  background: var(--mo-n100);
+  border-radius: 8px;
+}
+
+.switch-item {
+  flex: 1;
+  padding: 7px 10px;
+  color: var(--mo-n500);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.switch-item:hover {
+  color: var(--mo-n700);
+}
+
+.switch-item.active {
+  color: var(--mo-p600);
+  background: var(--mo-bg-card, #fff);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 .login-form {
-  margin-top: 24px;
+  margin-top: 0;
+}
+
+.form-group {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--mo-n700);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-group :deep(.el-form-item__content) {
+  display: block;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
 }
 
 .captcha-row {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 8px;
+}
+
+.captcha-row :deep(.el-input) {
+  flex: 1;
 }
 
 .captcha-img {
-  height: 40px;
+  width: 106px;
+  height: 32px;
+  object-fit: cover;
   cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  transition: all 0.3s;
+  border: 1px solid var(--mo-n300);
+  border-radius: 8px;
+  transition: border-color 0.2s;
 }
 
 .captcha-img:hover {
-  border-color: #4a7bff;
+  border-color: var(--mo-p400);
 }
 
-.login-button {
+.form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 2px 0 16px;
+  font-size: 13px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mo-n600);
+  font-size: 13px;
+}
+
+.remember input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--mo-p600);
+}
+
+.forgot {
+  color: var(--mo-p600);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.auth-submit {
   width: 100%;
-  height: 44px;
-  font-size: 16px;
-  margin-top: 8px;
+  height: 38px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.login-footer {
-  margin-top: 24px;
+.auth-footer {
+  margin: 18px 0 0;
+  color: var(--mo-n500);
+  font-size: 13px;
   text-align: center;
 }
 
-.footer-links {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  font-size: 14px;
-}
-
-.footer-links .link {
-  color: #4a7bff;
+.auth-footer a {
+  color: var(--mo-p600);
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.3s;
 }
 
-.footer-links .link:hover {
-  color: #6b8cff;
+html.dark .mo-auth-page {
+  background:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-bg);
 }
 
-.footer-links .divider {
-  color: #dcdfe6;
+html.dark .auth-card {
+  background: var(--mo-bg-card);
+  border-color: var(--mo-border);
+}
+
+@media (max-width: 768px) {
+  .mo-auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 22px;
+  }
 }
 </style>

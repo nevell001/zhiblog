@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, getCurrentInstance, onMounted, onUnmounted, nextTick } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { getToken } from '@/utils/auth'
 import { isExternal } from '@/utils/validate'
 import Sortable from 'sortablejs'

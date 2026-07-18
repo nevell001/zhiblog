@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onUnmounted } from 'vue'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { Camera, Warning } from '@element-plus/icons-vue'
 import { uploadAvatar, processAvatarUrl, checkAvatarExists } from '@/api/blog/avatar'
 import { formatFileSize } from '@/utils/imageUtils'

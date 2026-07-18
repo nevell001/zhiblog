@@ -63,20 +63,19 @@ router.beforeEach(
         // 如果访问博客页面，需要获取用户信息但不需要生成路由
         if (to.path.startsWith('/blog')) {
           const userStore = useUserStore()
+          next()
+
           // 如果用户信息为空，则获取用户信息
           if (!userStore.name || userStore.roles.length === 0) {
-            try {
-              await userStore.getInfo()
-            } catch (err) {
+            void userStore.getInfo().catch(err => {
               console.error('获取用户信息失败:', err)
               // 获取用户信息失败，清除 token 但继续访问博客页面（作为匿名用户）
               userStore.token = ''
               userStore.roles = []
               userStore.permissions = []
               removeToken()
-            }
+            })
           }
-          next()
         } else if (to.path === '/login') {
           // 如果有redirect参数，则重定向到指定路径
           const redirect = to.query.redirect as string
@@ -90,11 +89,16 @@ router.beforeEach(
         } else {
           const userStore = useUserStore()
           const permissionStore = usePermissionStore()
+          const hasUserInfo = userStore.roles.length > 0
+          const hasGeneratedRoutes =
+            permissionStore.sidebarRouters.length > 0 || permissionStore.addRoutes.length > 0
 
-          if (userStore.roles.length === 0) {
-            // 判断当前用户是否已拉取完user_info信息
+          if (!hasUserInfo || !hasGeneratedRoutes) {
+            // 判断当前用户信息和后台动态菜单是否已初始化
             try {
-              await userStore.getInfo()
+              if (!hasUserInfo) {
+                await userStore.getInfo()
+              }
               // 生成可访问的路由表
               const accessRoutes = await permissionStore.generateRoutes()
               // 根据roles权限生成可访问的路由表

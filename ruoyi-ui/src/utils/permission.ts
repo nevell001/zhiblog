@@ -1,4 +1,5 @@
 import { useUserStore } from '@/stores/user'
+import { logger } from '@/utils/logger'
 
 /**
  * 字符权限校验
@@ -20,7 +21,7 @@ export function checkPermi(value: string[]): boolean {
     }
     return true
   } else {
-    console.error("need roles! Like checkPermi=\"['system:user:add','system:user:edit']\"")
+    logger.error("need roles! Like checkPermi=\"['system:user:add','system:user:edit']\"")
     return false
   }
 }
@@ -45,7 +46,7 @@ export function checkRole(value: string[]): boolean {
     }
     return true
   } else {
-    console.error("need roles! Like checkRole=\"['admin','editor']\"")
+    logger.error("need roles! Like checkRole=\"['admin','editor']\"")
     return false
   }
 }

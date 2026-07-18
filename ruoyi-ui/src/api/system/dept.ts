@@ -1,10 +1,10 @@
 import request from '@/utils/request'
-import type { Dept, DeptParams } from '@/types'
+import type { DataResult, Dept, DeptParams } from '@/types'
 
 /**
  * 查询部门列表
  */
-export function listDept(query?: DeptParams): Promise<Dept[]> {
+export function listDept(query?: DeptParams): Promise<DataResult<Dept[]>> {
   return request({
     url: '/system/dept/list',
     method: 'get',
@@ -15,7 +15,7 @@ export function listDept(query?: DeptParams): Promise<Dept[]> {
 /**
  * 查询部门列表（排除节点）
  */
-export function listDeptExcludeChild(deptId: number): Promise<Dept[]> {
+export function listDeptExcludeChild(deptId: number): Promise<DataResult<Dept[]>> {
   return request({
     url: '/system/dept/list/exclude/' + deptId,
     method: 'get'
@@ -25,7 +25,7 @@ export function listDeptExcludeChild(deptId: number): Promise<Dept[]> {
 /**
  * 查询部门详细
  */
-export function getDept(deptId: number): Promise<Dept> {
+export function getDept(deptId: number): Promise<DataResult<Dept>> {
   return request({
     url: '/system/dept/' + deptId,
     method: 'get'
@@ -35,7 +35,7 @@ export function getDept(deptId: number): Promise<Dept> {
 /**
  * 新增部门
  */
-export function addDept(data: Dept): Promise<any> {
+export function addDept(data: Partial<Dept> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dept',
     method: 'post',
@@ -46,7 +46,7 @@ export function addDept(data: Dept): Promise<any> {
 /**
  * 修改部门
  */
-export function updateDept(data: Dept): Promise<any> {
+export function updateDept(data: Partial<Dept> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/dept',
     method: 'put',

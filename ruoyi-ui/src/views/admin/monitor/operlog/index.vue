@@ -287,8 +287,8 @@ const title = ref('')
 const dateRange = ref([])
 const defaultSort = ref({ prop: 'operTime', order: 'descending' })
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -345,7 +345,7 @@ function handleSortChange({ prop, order }) {
 }
 
 /** 详细按钮操作 */
-function handleView(row) {
+function handleView(row, index?: number) {
   open.value = true
   form.value = row
 }

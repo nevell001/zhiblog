@@ -67,6 +67,21 @@
         <el-color-picker v-model="theme" :predefine="predefineColors" @change="themeChange" />
       </span>
     </div>
+
+    <div class="drawer-item">
+      <span>界面主题</span>
+      <span class="comp-style theme-select">
+        <el-select
+          :model-value="settingsStore.appTheme"
+          size="small"
+          style="width: 112px"
+          @change="appThemeChange"
+        >
+          <el-option label="默认主题" value="default" />
+          <el-option label="默 Blog" value="mo-blog" />
+        </el-select>
+      </span>
+    </div>
     <el-divider />
 
     <h3 class="drawer-title">系统布局配置</h3>
@@ -140,7 +155,7 @@ import { getCurrentInstance } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useSettingsStore } from '@/stores/settings'
 import { usePermissionStore } from '@/stores/permission'
-import { handleThemeStyle } from '@/utils/theme'
+import { APP_THEME_STORAGE_KEY, handleThemeStyle, type AppTheme } from '@/utils/theme'
 
 const { proxy } = getCurrentInstance()
 const appStore = useAppStore()
@@ -170,7 +185,7 @@ function topNavChange(val) {
       // 保留 Layout 和有子菜单的路由
       return route.path === '/' || (route.children && route.children.length > 0)
     })
-    permissionStore.setSidebarRouters(filteredRoutes)
+    permissionStore.setSidebarRouters(filteredRoutes as any[])
   }
 }
 
@@ -182,6 +197,10 @@ function dynamicTitleChange() {
 function themeChange(val) {
   settingsStore.theme = val
   handleThemeStyle(val)
+}
+
+function appThemeChange(val: AppTheme) {
+  settingsStore.setAppTheme(val)
 }
 
 function handleTheme(val) {
@@ -200,7 +219,8 @@ function saveSetting() {
     dynamicTitle: storeSettings.value.dynamicTitle,
     footerVisible: storeSettings.value.footerVisible,
     sideTheme: storeSettings.value.sideTheme,
-    theme: storeSettings.value.theme
+    theme: storeSettings.value.theme,
+    appTheme: storeSettings.value.appTheme
   }
   localStorage.setItem('layout-setting', JSON.stringify(layoutSetting))
   setTimeout(proxy.$modal.closeLoading(), 1000)
@@ -209,6 +229,8 @@ function saveSetting() {
 function resetSetting() {
   proxy.$modal.loading('正在清除设置缓存并刷新，请稍候...')
   localStorage.removeItem('layout-setting')
+  localStorage.removeItem(APP_THEME_STORAGE_KEY)
+  localStorage.removeItem('admin-theme')
   setTimeout(() => {
     window.location.reload()
   }, 1000)

@@ -236,8 +236,8 @@ const total = ref(0)
 const dateRange = ref([])
 const route = useRoute()
 
-const data = reactive({
-  form: {},
+const data = reactive<Record<string, any>>({
+  form: {} as Record<string, any>,
   queryParams: {
     pageNum: 1,
     pageSize: 10,
@@ -330,9 +330,10 @@ function handleExport() {
 }
 
 ;(() => {
-  const jobId = route.params && route.params.jobId
-  if (jobId !== undefined && jobId !== 0) {
-    getJob(jobId).then(response => {
+  const jobIdParam = route.params && route.params.jobId
+  const jobId = Array.isArray(jobIdParam) ? jobIdParam[0] : jobIdParam
+  if (jobId !== undefined && Number(jobId) !== 0) {
+    getJob(Number(jobId)).then(response => {
       queryParams.value.jobName = response.data.jobName
       queryParams.value.jobGroup = response.data.jobGroup
       getList()

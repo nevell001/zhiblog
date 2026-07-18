@@ -149,21 +149,36 @@
 
 <script setup lang="ts" name="Cache">
 import { getCache } from '@/api/monitor/cache'
-import * as echarts from 'echarts'
+import { loadEcharts } from '@/utils/echarts'
+import { logger } from '@/utils/logger'
 
-const cache = ref([])
-const commandstats = ref(null)
-const usedmemory = ref(null)
-const { proxy } = getCurrentInstance()
+interface CacheMonitorData {
+  info: Record<string, string>
+  dbSize?: number
+  commandStats?: Array<Record<string, any>>
+}
 
-function getList() {
+const cache = ref<CacheMonitorData>({ info: {} })
+const commandstats = ref<HTMLElement | null>(null)
+const usedmemory = ref<HTMLElement | null>(null)
+const { proxy } = getCurrentInstance()!
+let resizeCharts: Array<{ resize: () => void }> = []
+
+const resizeCacheCharts = () => {
+  resizeCharts.forEach(chart => chart.resize())
+}
+
+async function getList() {
   proxy.$modal.loading('正在加载缓存监控数据，请稍候！')
-  getCache().then(response => {
-    proxy.$modal.closeLoading()
+  try {
+    const response = await getCache()
     cache.value = response.data
 
-    const commandstatsIntance = echarts.init(commandstats.value, 'macarons')
-    commandstatsIntance.setOption({
+    if (!commandstats.value || !usedmemory.value) return
+
+    const echarts = await loadEcharts()
+    const commandstatsInstance = echarts.init(commandstats.value, 'macarons')
+    commandstatsInstance.setOption({
       tooltip: {
         trigger: 'item',
         formatter: '{a} <br/>{b} : {c} ({d}%)'
@@ -175,7 +190,7 @@ function getList() {
           roseType: 'radius',
           radius: [15, 95],
           center: ['50%', '38%'],
-          data: response.data.commandStats,
+          data: response.data.commandStats || [],
           animationEasing: 'cubicInOut',
           animationDuration: 1000
         }
@@ -197,19 +212,26 @@ function getList() {
           },
           data: [
             {
-              value: parseFloat(cache.value.info.used_memory_human),
+              value: parseFloat(cache.value.info.used_memory_human || '0'),
               name: '内存消耗'
             }
           ]
         }
       ]
     })
-    window.addEventListener('resize', () => {
-      commandstatsIntance.resize()
-      usedmemoryInstance.resize()
-    })
-  })
+    resizeCharts = [commandstatsInstance, usedmemoryInstance]
+    window.removeEventListener('resize', resizeCacheCharts)
+    window.addEventListener('resize', resizeCacheCharts)
+  } catch (error) {
+    logger.error('获取缓存监控数据失败:', error)
+  } finally {
+    proxy.$modal.closeLoading()
+  }
 }
 
 getList()
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', resizeCacheCharts)
+})
 </script>

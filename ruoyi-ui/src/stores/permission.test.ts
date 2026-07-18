@@ -1,10 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePermissionStore } from './permission'
+import { getRouters } from '@/api/menu'
+
+vi.mock('@/api/menu', () => ({
+  getRouters: vi.fn()
+}))
+
+const mockGetRouters = vi.mocked(getRouters)
 
 describe('Permission Store 测试', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+    mockGetRouters.mockReset()
   })
 
   describe('初始状态', () => {
@@ -55,6 +63,39 @@ describe('Permission Store 测试', () => {
       const routes = [{ path: '/side1', name: 'Side1' }]
       store.setSidebarRouters(routes)
       expect(store.sidebarRouters).toEqual(routes)
+    })
+  })
+
+  describe('generateRoutes', () => {
+    it('应该把后端动态路由同时写入新增路由和侧边栏菜单', async () => {
+      mockGetRouters.mockResolvedValue({
+        data: [
+          {
+            path: '/admin/generated-menu',
+            name: 'BlogManage',
+            component: 'Layout',
+            meta: { title: '博客管理' },
+            children: [
+              {
+                path: 'article',
+                name: 'BlogArticle',
+                component: 'blog/article/index',
+                meta: { title: '文章管理' }
+              }
+            ]
+          }
+        ]
+      } as any)
+
+      const store = usePermissionStore()
+      const accessRoutes = await store.generateRoutes()
+
+      expect(accessRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
+      expect(store.addRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
+      expect(store.routes.some(route => route.path === '/admin/generated-menu')).toBe(true)
+      expect(store.sidebarRouters.some(route => route.path === '/admin/generated-menu')).toBe(true)
+      expect(store.defaultRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
+      expect(store.topbarRouters.some(route => route.path === '/:pathMatch(.*)*')).toBe(true)
     })
   })
 })

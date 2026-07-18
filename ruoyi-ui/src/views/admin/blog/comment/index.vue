@@ -187,7 +187,7 @@ const single = ref(true)
 const multiple = ref(true)
 const total = ref(0)
 
-const data = reactive({
+const data = reactive<Record<string, any>>({
   queryParams: {
     pageNum: 1,
     pageSize: 10,

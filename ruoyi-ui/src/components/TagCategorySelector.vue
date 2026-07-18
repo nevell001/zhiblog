@@ -107,7 +107,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { listCategory } from '@/api/admin/blog/category'
 import { listTag, addTag } from '@/api/admin/blog/tag'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 
 // Props
 const props = defineProps({

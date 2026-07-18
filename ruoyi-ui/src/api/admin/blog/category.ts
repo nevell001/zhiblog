@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { Category, PageParams, QueryResult } from '@/types'
+import type { Category, DataResult, PageParams, QueryResult } from '@/types'
 
 /**
  * 查询分类列表
@@ -15,7 +15,7 @@ export function listCategory(query?: PageParams): Promise<QueryResult<Category>>
 /**
  * 查询分类详细
  */
-export function getCategory(id: number): Promise<Category> {
+export function getCategory(id: number): Promise<DataResult<Category>> {
   return request({
     url: '/system/category/' + id,
     method: 'get'
@@ -25,7 +25,7 @@ export function getCategory(id: number): Promise<Category> {
 /**
  * 新增分类
  */
-export function addCategory(data: Category): Promise<any> {
+export function addCategory(data: Partial<Category> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/category',
     method: 'post',
@@ -36,7 +36,7 @@ export function addCategory(data: Category): Promise<any> {
 /**
  * 修改分类
  */
-export function updateCategory(data: Category): Promise<any> {
+export function updateCategory(data: Partial<Category> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/category',
     method: 'put',

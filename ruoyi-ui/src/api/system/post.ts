@@ -15,7 +15,7 @@ export function listPost(query?: PostParams): Promise<QueryResult<Post>> {
 /**
  * 查询岗位详细
  */
-export function getPost(postId: number): Promise<Post> {
+export function getPost(postId: number): Promise<any> {
   return request({
     url: '/system/post/' + postId,
     method: 'get'
@@ -25,7 +25,7 @@ export function getPost(postId: number): Promise<Post> {
 /**
  * 新增岗位
  */
-export function addPost(data: Post): Promise<any> {
+export function addPost(data: Partial<Post> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/post',
     method: 'post',
@@ -36,7 +36,7 @@ export function addPost(data: Post): Promise<any> {
 /**
  * 修改岗位
  */
-export function updatePost(data: Post): Promise<any> {
+export function updatePost(data: Partial<Post> | Record<string, any>): Promise<any> {
   return request({
     url: '/system/post',
     method: 'put',

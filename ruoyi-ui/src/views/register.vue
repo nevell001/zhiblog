@@ -86,7 +86,7 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessageBox } from 'element-plus'
+import { ElMessageBox } from '@/plugins/element-plus-service'
 import { getCodeImg, register } from '@/api/login'
 
 const title = import.meta.env?.VITE_APP_TITLE || '博客管理系统'

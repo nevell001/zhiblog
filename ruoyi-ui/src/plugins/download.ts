@@ -1,4 +1,4 @@
-import { ElLoading, ElMessage, type LoadingInstance } from 'element-plus'
+import { ElLoading, ElMessage, type LoadingInstance } from '@/plugins/element-plus-service'
 import axios from 'axios'
 import { saveAs } from 'file-saver'
 import { getToken } from '@/utils/auth'

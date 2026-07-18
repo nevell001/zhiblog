@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql;
 
 import java.util.List;
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -37,6 +38,22 @@ class BlogArticleMapperTest {
     private BlogArticleMapper blogArticleMapper;
 
     private BlogArticle testArticle;
+
+    @Test
+    void insertBlogArticleShouldLetDatabaseGenerateTimestamps() throws Exception {
+        String mapperXml = new String(
+                getClass().getResourceAsStream("/mapper/system/BlogArticleMapper.xml").readAllBytes(),
+                StandardCharsets.UTF_8);
+        int insertStart = mapperXml.indexOf("<insert id=\"insertBlogArticle\"");
+        int insertEnd = mapperXml.indexOf("</insert>", insertStart);
+
+        assertTrue(insertStart >= 0, "应存在 insertBlogArticle 映射");
+        String insertSql = mapperXml.substring(insertStart, insertEnd);
+
+        assertFalse(insertSql.contains("#{createTime}"), "新增文章不能信任外部 createTime 参数");
+        assertFalse(insertSql.contains("#{updateTime}"), "新增文章不能信任外部 updateTime 参数");
+        assertTrue(insertSql.contains("NOW()"), "新增文章时间应由数据库当前时间生成");
+    }
 
     @BeforeEach
     void setUp() {

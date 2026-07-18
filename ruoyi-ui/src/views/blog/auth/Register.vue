@@ -1,136 +1,137 @@
 <template>
-  <div class="blog-register-container">
-    <BlogLayout>
-      <div class="register-wrapper">
-        <div class="register-card">
-          <div class="register-header">
-            <h1>用户注册</h1>
-            <p>创建您的账号</p>
-          </div>
+  <div class="blog-register-container mo-auth-page">
+    <section class="auth-card">
+      <router-link to="/blog" class="auth-brand">
+        <span class="brand-mark">默</span>
+        <span>默 Blog</span>
+      </router-link>
 
-          <el-form
-            ref="registerFormRef"
-            :model="registerForm"
-            :rules="registerRules"
-            class="register-form"
-          >
-            <el-form-item prop="username">
-              <el-input v-model="registerForm.username" placeholder="用户名" size="large" clearable>
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="email">
-              <el-input v-model="registerForm.email" placeholder="邮箱地址" size="large" clearable>
-                <template #prefix>
-                  <el-icon><Message /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="emailCode">
-              <div class="email-code-row">
-                <el-input
-                  v-model="registerForm.emailCode"
-                  placeholder="邮箱验证码"
-                  size="large"
-                  clearable
-                  style="flex: 1"
-                >
-                  <template #prefix>
-                    <el-icon><Key /></el-icon>
-                  </template>
-                </el-input>
-                <el-button
-                  size="large"
-                  :disabled="codeCountdown > 0"
-                  :loading="codeSending"
-                  @click="sendEmailCode"
-                >
-                  {{ codeCountdown > 0 ? `${codeCountdown}秒后重试` : '发送验证码' }}
-                </el-button>
-              </div>
-            </el-form-item>
-
-            <el-form-item prop="password">
-              <el-input
-                v-model="registerForm.password"
-                type="password"
-                placeholder="密码"
-                size="large"
-                show-password
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item prop="confirmPassword">
-              <el-input
-                v-model="registerForm.confirmPassword"
-                type="password"
-                placeholder="确认密码"
-                size="large"
-                show-password
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><Lock /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-
-            <el-form-item v-if="captchaEnabled" prop="code">
-              <div class="captcha-row">
-                <el-input
-                  v-model="registerForm.code"
-                  placeholder="验证码"
-                  size="large"
-                  clearable
-                  style="flex: 1"
-                >
-                  <template #prefix>
-                    <el-icon><Key /></el-icon>
-                  </template>
-                </el-input>
-                <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
-              </div>
-            </el-form-item>
-
-            <el-form-item>
-              <el-button
-                type="primary"
-                size="large"
-                :loading="loading"
-                class="register-button"
-                @click="handleRegister"
-              >
-                {{ loading ? '注册中...' : '注册' }}
-              </el-button>
-            </el-form-item>
-
-            <div class="register-footer">
-              <router-link to="/login" class="link">已有账号？立即登录</router-link>
-            </div>
-          </el-form>
-        </div>
+      <div class="auth-head">
+        <h2>注册</h2>
+        <p class="sub">创建账号，开始发布与评论</p>
       </div>
-    </BlogLayout>
+
+      <div class="auth-switch">
+        <router-link to="/login" class="switch-item">登录</router-link>
+        <span class="switch-item active">注册</span>
+      </div>
+
+      <el-form
+        ref="registerFormRef"
+        :model="registerForm"
+        :rules="registerRules"
+        class="register-form"
+      >
+        <el-form-item prop="username" class="form-group">
+          <label>昵称</label>
+          <el-input v-model="registerForm.username" placeholder="你的昵称" clearable>
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item prop="email" class="form-group">
+          <label>邮箱</label>
+          <el-input v-model="registerForm.email" placeholder="name@example.com" clearable>
+            <template #prefix>
+              <el-icon><Message /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item prop="emailCode" class="form-group">
+          <label>邮箱验证码</label>
+          <div class="email-code-row">
+            <el-input v-model="registerForm.emailCode" placeholder="邮箱验证码" clearable>
+              <template #prefix>
+                <el-icon><Key /></el-icon>
+              </template>
+            </el-input>
+            <el-button
+              class="code-button"
+              :disabled="codeCountdown > 0"
+              :loading="codeSending"
+              @click="sendEmailCode"
+            >
+              {{ codeCountdown > 0 ? `${codeCountdown}秒` : '发送' }}
+            </el-button>
+          </div>
+        </el-form-item>
+
+        <div class="password-grid">
+          <el-form-item prop="password" class="form-group">
+            <label>密码</label>
+            <el-input
+              v-model="registerForm.password"
+              type="password"
+              placeholder="5-20 位"
+              show-password
+              clearable
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+
+          <el-form-item prop="confirmPassword" class="form-group">
+            <label>确认密码</label>
+            <el-input
+              v-model="registerForm.confirmPassword"
+              type="password"
+              placeholder="再次输入"
+              show-password
+              clearable
+            >
+              <template #prefix>
+                <el-icon><Lock /></el-icon>
+              </template>
+            </el-input>
+          </el-form-item>
+        </div>
+
+        <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
+          <label>验证码</label>
+          <div class="captcha-row">
+            <el-input v-model="registerForm.code" placeholder="计算结果" clearable>
+              <template #prefix>
+                <el-icon><Key /></el-icon>
+              </template>
+            </el-input>
+            <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+          </div>
+        </el-form-item>
+
+        <div class="form-options">
+          <label class="remember">
+            <input type="checkbox" checked />
+            同意用户协议和隐私政策
+          </label>
+        </div>
+
+        <el-button type="primary" :loading="loading" class="auth-submit" @click="handleRegister">
+          {{ loading ? '注册中...' : '注册' }}
+        </el-button>
+      </el-form>
+
+      <p class="auth-footer">
+        已有账号？
+        <router-link to="/login">返回登录</router-link>
+      </p>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
+import type { FormInstance, FormRules } from 'element-plus'
 import { User, Lock, Key, Message } from '@element-plus/icons-vue'
 import { useBlogUserStore } from '@/stores/blogUser'
 import { getCodeImg } from '@/api/blog/auth'
-import BlogLayout from '@/components/BlogLayout.vue'
+import { logger } from '@/utils/logger'
 
 const router = useRouter()
 const blogUserStore = useBlogUserStore()
@@ -192,10 +193,18 @@ const registerRules: FormRules = {
 const refreshCaptcha = async () => {
   try {
     const res = await getCodeImg()
-    captchaUrl.value = 'data:image/gif;base64,' + res.img
-    registerForm.uuid = res.uuid
+    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
+    if (captchaEnabled.value) {
+      captchaUrl.value = 'data:image/jpeg;base64,' + res.img
+      registerForm.uuid = res.uuid
+      registerForm.code = ''
+    } else {
+      captchaUrl.value = ''
+      registerForm.uuid = ''
+      registerForm.code = ''
+    }
   } catch (error) {
-    console.error('获取验证码失败:', error)
+    logger.error('获取验证码失败:', error)
     captchaEnabled.value = false
   }
 }
@@ -278,108 +287,222 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.blog-register-container {
-  padding-top: 64px;
+.mo-auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  position: relative;
-}
-
-.register-wrapper {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 60px);
-  padding: 20px;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
 }
 
-.register-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  width: 100%;
+.auth-card {
+  width: min(100%, 420px);
   max-width: 420px;
-  animation: fadeInUp 0.5s ease-out;
+  padding: 26px 28px;
+  background: var(--mo-bg-card, #fff);
+  border: 1px solid var(--mo-n200);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.register-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.register-header h1 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.register-header p {
-  color: #999;
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  margin-bottom: 18px;
+  color: var(--mo-n900);
   font-size: 14px;
-  margin: 0;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  background: var(--mo-p600);
+  border-radius: 8px;
+}
+
+.auth-head h2 {
+  margin: 0 0 6px;
+  color: var(--mo-n900);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.sub {
+  margin: 0 0 16px;
+  color: var(--mo-n500);
+  font-size: 14px;
+}
+
+.auth-switch {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  background: var(--mo-n100);
+  border-radius: 8px;
+}
+
+.switch-item {
+  flex: 1;
+  padding: 7px 10px;
+  color: var(--mo-n500);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.switch-item:hover {
+  color: var(--mo-n700);
+}
+
+.switch-item.active {
+  color: var(--mo-p600);
+  background: var(--mo-bg-card, #fff);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
 }
 
 .register-form {
-  margin-top: 24px;
+  margin-top: 0;
 }
 
-.email-code-row {
-  display: flex;
-  gap: 12px;
-  align-items: center;
+.form-group {
+  display: block;
+  margin-bottom: 12px;
 }
 
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--mo-n700);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-group :deep(.el-form-item__content) {
+  display: block;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+}
+
+:deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
+}
+
+.email-code-row,
 .captcha-row {
   display: flex;
-  gap: 12px;
   align-items: center;
+  gap: 8px;
+}
+
+.email-code-row :deep(.el-input),
+.captcha-row :deep(.el-input) {
+  flex: 1;
+}
+
+.code-button {
+  width: 82px;
+  border-radius: 8px;
 }
 
 .captcha-img {
-  height: 40px;
+  width: 106px;
+  height: 32px;
+  object-fit: cover;
   cursor: pointer;
-  border-radius: 4px;
-  border: 1px solid #dcdfe6;
-  transition: all 0.3s;
+  border: 1px solid var(--mo-n300);
+  border-radius: 8px;
+  transition: border-color 0.2s;
 }
 
 .captcha-img:hover {
-  border-color: #4a7bff;
+  border-color: var(--mo-p400);
 }
 
-.register-button {
+.form-options {
+  margin: 2px 0 16px;
+  font-size: 13px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--mo-n600);
+}
+
+.remember input {
+  width: 14px;
+  height: 14px;
+  accent-color: var(--mo-p600);
+}
+
+.auth-submit {
   width: 100%;
-  height: 44px;
-  font-size: 16px;
-  margin-top: 8px;
-}
-
-.register-footer {
-  text-align: center;
-  margin-top: 20px;
+  height: 38px;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
 }
 
-.register-footer .link {
-  color: #4a7bff;
+.auth-footer {
+  margin: 16px 0 0;
+  color: var(--mo-n500);
+  font-size: 13px;
+  text-align: center;
+}
+
+.auth-footer a {
+  color: var(--mo-p600);
+  font-weight: 600;
   text-decoration: none;
-  transition: color 0.3s;
 }
 
-.register-footer .link:hover {
-  color: #6b8cff;
+.password-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+}
+
+html.dark .mo-auth-page {
+  background:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-bg);
+}
+
+html.dark .auth-card {
+  background: var(--mo-bg-card);
+  border-color: var(--mo-border);
+}
+
+@media (max-width: 768px) {
+  .mo-auth-page {
+    padding: 16px;
+  }
+
+  .auth-card {
+    padding: 22px;
+  }
+
+  .password-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
 }
 </style>

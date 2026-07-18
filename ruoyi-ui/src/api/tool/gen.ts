@@ -39,7 +39,7 @@ export function listDbTable(query?: Record<string, any>): Promise<any> {
 /**
  * 查询表详细信息
  */
-export function getGenTable(tableId: number): Promise<GenTable> {
+export function getGenTable(tableId: number): Promise<any> {
   return request({
     url: '/tool/gen/' + tableId,
     method: 'get'
@@ -49,7 +49,7 @@ export function getGenTable(tableId: number): Promise<GenTable> {
 /**
  * 修改代码生成信息
  */
-export function updateGenTable(data: GenTable): Promise<any> {
+export function updateGenTable(data: Partial<GenTable> | Record<string, any>): Promise<any> {
   return request({
     url: '/tool/gen',
     method: 'put',

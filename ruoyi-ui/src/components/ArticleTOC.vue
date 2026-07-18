@@ -176,6 +176,11 @@ const checkFixedPosition = () => {
   }
 }
 
+const handleScroll = () => {
+  checkActiveHeading()
+  checkFixedPosition()
+}
+
 // 获取实际的标题元素
 const getHeadingElements = () => {
   const articleContent = document.querySelector('.content-body')
@@ -209,17 +214,12 @@ onMounted(() => {
     checkFixedPosition()
   })
 
-  // 添加滚动监听
-  window.addEventListener('scroll', () => {
-    checkActiveHeading()
-    checkFixedPosition()
-  })
+  window.addEventListener('scroll', handleScroll)
 })
 
 // 组件卸载
 onUnmounted(() => {
-  window.removeEventListener('scroll', checkActiveHeading)
-  window.removeEventListener('scroll', checkFixedPosition)
+  window.removeEventListener('scroll', handleScroll)
 })
 </script>
 
@@ -229,10 +229,10 @@ onUnmounted(() => {
   right: -180px;
   top: 20px;
   width: 160px;
-  background: white;
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e9ecef;
+  box-shadow: 0 4px 18px rgba(28, 25, 23, 0.08);
+  border: 1px solid #e7e5e4;
   z-index: 100;
   transition: all 0.3s ease;
 }
@@ -253,8 +253,8 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid #e9ecef;
-  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  border-bottom: 1px solid #e7e5e4;
+  background: #fafaf9;
   border-radius: 12px 12px 0 0;
 }
 
@@ -262,22 +262,22 @@ onUnmounted(() => {
   margin: 0;
   font-size: 0.95rem;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #1c1917;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .toc-toggle {
-  background: #f0f0f0;
+  background: #f5f5f4;
   border: none;
-  color: #666;
+  color: #57534e;
   transition: all 0.3s ease;
 }
 
 .toc-toggle:hover {
-  background: #4a7bff;
-  color: white;
+  background: #eef2ff;
+  color: #4f46e5;
   transform: scale(1.1);
 }
 
@@ -292,17 +292,17 @@ onUnmounted(() => {
 }
 
 .toc-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f5f5f4;
   border-radius: 2px;
 }
 
 .toc-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #d6d3d1;
   border-radius: 2px;
 }
 
 .toc-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #a8a29e;
 }
 
 .toc-list {
@@ -321,19 +321,19 @@ onUnmounted(() => {
   border-radius: 6px;
   transition: all 0.3s ease;
   font-size: 0.85rem;
-  color: #666;
+  color: #57534e;
   line-height: 1.4;
 }
 
 .toc-item:hover {
-  background: #f0f0f0;
-  color: #4a7bff;
+  background: #eef2ff;
+  color: #4f46e5;
   transform: translateX(-2px);
 }
 
 .toc-item.toc-item-active {
-  background: linear-gradient(135deg, #4a7bff, #6b8cff);
-  color: white;
+  background: #eef2ff;
+  color: #4338ca;
   font-weight: 600;
 }
 
@@ -341,14 +341,14 @@ onUnmounted(() => {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ccc;
+  background: #d6d3d1;
   flex-shrink: 0;
   transition: all 0.3s ease;
 }
 
 .toc-dot.dot-active {
-  background: white;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+  background: #4f46e5;
+  box-shadow: 0 0 0 3px #e0e7ff;
 }
 
 .toc-text {
@@ -389,7 +389,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 30px 20px;
-  color: #999;
+  color: #a8a29e;
   text-align: center;
 }
 
@@ -411,49 +411,52 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-/* 深色主题适配 */
-@media (prefers-color-scheme: dark) {
-  .article-toc {
-    background: #1a1a1a;
-    border-color: #333;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  }
+html.dark .article-toc {
+  background: #292524;
+  border-color: #44403c;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
 
-  .toc-header {
-    background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
-    border-bottom-color: #333;
-  }
+html.dark .toc-header {
+  background: #1c1917;
+  border-bottom-color: #44403c;
+}
 
-  .toc-title {
-    color: #e0e0e0;
-  }
+html.dark .toc-title {
+  color: #f5f5f4;
+}
 
-  .toc-toggle {
-    background: #333;
-    color: #999;
-  }
+html.dark .toc-toggle {
+  background: #44403c;
+  color: #d6d3d1;
+}
 
-  .toc-toggle:hover {
-    background: #4a7bff;
-    color: white;
-  }
+html.dark .toc-toggle:hover {
+  background: rgba(79, 70, 229, 0.18);
+  color: #a5b4fc;
+}
 
-  .toc-item {
-    color: #999;
-  }
+html.dark .toc-item {
+  color: #d6d3d1;
+}
 
-  .toc-item:hover {
-    background: #333;
-    color: #4a7bff;
-  }
+html.dark .toc-item:hover,
+html.dark .toc-item.toc-item-active {
+  background: rgba(79, 70, 229, 0.18);
+  color: #a5b4fc;
+}
 
-  .toc-dot {
-    background: #555;
-  }
+html.dark .toc-dot {
+  background: #78716c;
+}
 
-  .toc-empty {
-    color: #666;
-  }
+html.dark .toc-dot.dot-active {
+  background: #a5b4fc;
+  box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.18);
+}
+
+html.dark .toc-empty {
+  color: #a8a29e;
 }
 
 /* 响应式设计 */

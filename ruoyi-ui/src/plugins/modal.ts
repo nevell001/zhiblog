@@ -4,7 +4,7 @@ import {
   ElNotification,
   ElLoading,
   type LoadingInstance
-} from 'element-plus'
+} from '@/plugins/element-plus-service'
 
 let loadingInstance: LoadingInstance | null = null
 

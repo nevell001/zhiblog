@@ -82,17 +82,18 @@ function moveToTarget(currentTag) {
     let nextTag = null
     for (const k in tagListDom) {
       if (k !== 'length' && Object.hasOwnProperty.call(tagListDom, k)) {
+        const tagElement = tagListDom[k] as HTMLElement
         if (
           visitedViews.value[currentIndex - 1] &&
-          tagListDom[k].dataset.path === visitedViews.value[currentIndex - 1].path
+          tagElement.dataset.path === visitedViews.value[currentIndex - 1].path
         ) {
-          prevTag = tagListDom[k]
+          prevTag = tagElement
         }
         if (
           visitedViews.value[currentIndex + 1] &&
-          tagListDom[k].dataset.path === visitedViews.value[currentIndex + 1].path
+          tagElement.dataset.path === visitedViews.value[currentIndex + 1].path
         ) {
-          nextTag = tagListDom[k]
+          nextTag = tagElement
         }
       }
     }

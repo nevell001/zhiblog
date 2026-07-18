@@ -14,11 +14,7 @@
           <el-tag type="danger">&yen;免费开源</el-tag>
         </p>
         <p>
-          <el-button
-            type="primary"
-            plain
-            @click="goTarget('https://gitee.com/y_project/RuoYi-Vue')"
-          >
+          <el-button type="primary" plain @click="goTarget('https://gitee.com/nevell/zhiblog')">
             <template #icon>
               <i class="el-icon-Cloudy"></i>
             </template>

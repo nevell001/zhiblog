@@ -98,7 +98,7 @@
 </template>
 
 <script setup lang="ts" name="AuthUser">
-import selectUser from './selectUser'
+import selectUser from './selectUser.vue'
 import { allocatedUserList, authUserCancel, authUserCancelAll } from '@/api/system/role'
 
 const route = useRoute()
@@ -115,7 +115,7 @@ const userIds = ref([])
 const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
-  roleId: route.params.roleId,
+  roleId: Array.isArray(route.params.roleId) ? route.params.roleId[0] : route.params.roleId,
   userName: undefined,
   phonenumber: undefined
 })

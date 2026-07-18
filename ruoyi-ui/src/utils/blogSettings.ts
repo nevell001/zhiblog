@@ -2,6 +2,7 @@ import { getConfigKey } from '@/api/system/config'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
+import { logger } from '@/utils/logger'
 import type { Config } from '@/api/system/config'
 
 /**
@@ -17,16 +18,16 @@ export async function initBlogSettings(): Promise<void> {
 
     // 获取博客个性化设置
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
-      getConfigKey('blog.custom.themeColor').catch(
+      getConfigKey('theme_color').catch(
         (): Config => ({ configKey: '', configValue: '', configName: '' })
       ),
-      getConfigKey('blog.custom.logo').catch(
+      getConfigKey('blog_avatar').catch(
         (): Config => ({ configKey: '', configValue: '', configName: '' })
       ),
-      getConfigKey('blog.custom.sidebarStyle').catch(
+      getConfigKey('sidebar_style').catch(
         (): Config => ({ configKey: '', configValue: '', configName: '' })
       ),
-      getConfigKey('blog.custom.customCss').catch(
+      getConfigKey('custom_css').catch(
         (): Config => ({ configKey: '', configValue: '', configName: '' })
       )
     ])
@@ -118,6 +119,6 @@ export async function reloadBlogSettings(): Promise<void> {
     const { useDynamicTitle } = await import('./dynamicTitle')
     useDynamicTitle()
   } catch (error) {
-    console.error('刷新SEO设置失败:', error)
+    logger.error('刷新SEO设置失败:', error)
   }
 }

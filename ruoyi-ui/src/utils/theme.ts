@@ -1,3 +1,41 @@
+export type AppTheme = 'default' | 'mo-blog'
+
+export const APP_THEME_STORAGE_KEY = 'app-theme'
+
+const APP_THEMES: AppTheme[] = ['default', 'mo-blog']
+const MO_BLOG_CLASS = 'theme-mo-blog'
+
+export function normalizeAppTheme(value: unknown): AppTheme {
+  return APP_THEMES.includes(value as AppTheme) ? (value as AppTheme) : 'default'
+}
+
+export function getStoredAppTheme(storage: Storage | undefined = localStorage): AppTheme {
+  try {
+    return normalizeAppTheme(storage?.getItem(APP_THEME_STORAGE_KEY))
+  } catch {
+    return 'default'
+  }
+}
+
+export function applyAppTheme(
+  theme: AppTheme,
+  root: HTMLElement = document.documentElement,
+  storage: Storage | undefined = localStorage
+): void {
+  const nextTheme = normalizeAppTheme(theme)
+  root.classList.remove(MO_BLOG_CLASS)
+
+  if (nextTheme === 'mo-blog') {
+    root.classList.add(MO_BLOG_CLASS)
+  }
+
+  try {
+    storage?.setItem(APP_THEME_STORAGE_KEY, nextTheme)
+  } catch {
+    // Storage can be unavailable in private mode or tests; class application still matters.
+  }
+}
+
 // 处理主题样式
 export function handleThemeStyle(theme: string): void {
   // 添加主题参数有效性检查，避免undefined导致的错误

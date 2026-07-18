@@ -55,7 +55,8 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
 import { getUserStatistics, getUserRegisterTrend, getUserRoleDistribution } from '@/api/statistics'
-import * as echarts from 'echarts'
+import { loadEcharts } from '@/utils/echarts'
+import { logger } from '@/utils/logger'
 
 interface UserStats {
   totalCount?: number
@@ -75,7 +76,7 @@ const loadData = async () => {
       await loadChartData()
     }
   } catch (error) {
-    console.error('获取用户统计失败:', error)
+    logger.error('获取用户统计失败:', error)
   }
 }
 
@@ -84,105 +85,111 @@ const loadChartData = async () => {
     // 加载用户注册趋势
     const registerRes = await getUserRegisterTrend()
     if (registerRes.code === 200) {
-      renderRegisterChart(registerRes.data)
+      await renderRegisterChart(registerRes.data)
     } else {
-      console.error('用户注册趋势API返回错误:', registerRes)
+      logger.error('用户注册趋势API返回错误:', registerRes)
     }
 
     // 加载用户角色分布
     const roleRes = await getUserRoleDistribution()
     if (roleRes.code === 200) {
-      renderRoleChart(roleRes.data)
+      await renderRoleChart(roleRes.data)
     } else {
-      console.error('用户角色分布API返回错误:', roleRes)
+      logger.error('用户角色分布API返回错误:', roleRes)
     }
   } catch (error) {
-    console.error('加载图表数据失败:', error)
+    logger.error('加载图表数据失败:', error)
   }
 }
 
-const renderRegisterChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('registerChart'))
-    const option = {
-      tooltip: {
-        trigger: 'axis'
-      },
-      xAxis: {
-        type: 'category',
-        data: data && data.labels ? data.labels : []
-      },
-      yAxis: {
-        type: 'value'
-      },
-      series: [
-        {
-          data: data && data.data ? data.data : [],
-          type: 'line',
-          smooth: true,
-          itemStyle: {
-            color: '#E6A23C'
-          }
+const renderRegisterChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('registerChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
+  const option = {
+    tooltip: {
+      trigger: 'axis'
+    },
+    xAxis: {
+      type: 'category',
+      data: data && data.labels ? data.labels : []
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        data: data && data.data ? data.data : [],
+        type: 'line',
+        smooth: true,
+        itemStyle: {
+          color: '#E6A23C'
         }
-      ]
-    }
-    chart.setOption(option)
-  })
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
-const renderRoleChart = data => {
-  nextTick(() => {
-    const chart = echarts.init(document.getElementById('roleChart'))
+const renderRoleChart = async data => {
+  await nextTick()
+  const chartElement = document.getElementById('roleChart')
+  if (!chartElement) return
 
-    // 处理数据
-    let chartData = []
-    if (data && data.labels && data.data) {
-      chartData = data.labels.map((label, index) => ({
-        value: data.data[index],
-        name: label
-      }))
-    }
+  const echarts = await loadEcharts()
+  const chart = echarts.init(chartElement)
 
-    const option = {
-      tooltip: {
-        trigger: 'item'
-      },
-      legend: {
-        orient: 'vertical',
-        right: 10,
-        top: 'center'
-      },
-      series: [
-        {
-          name: '用户角色',
-          type: 'pie',
-          radius: ['40%', '70%'],
-          avoidLabelOverlap: false,
-          itemStyle: {
-            borderRadius: 10,
-            borderColor: '#fff',
-            borderWidth: 2
-          },
+  // 处理数据
+  let chartData = []
+  if (data && data.labels && data.data) {
+    chartData = data.labels.map((label, index) => ({
+      value: data.data[index],
+      name: label
+    }))
+  }
+
+  const option = {
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      right: 10,
+      top: 'center'
+    },
+    series: [
+      {
+        name: '用户角色',
+        type: 'pie',
+        radius: ['40%', '70%'],
+        avoidLabelOverlap: false,
+        itemStyle: {
+          borderRadius: 10,
+          borderColor: '#fff',
+          borderWidth: 2
+        },
+        label: {
+          show: false,
+          position: 'center'
+        },
+        emphasis: {
           label: {
-            show: false,
-            position: 'center'
-          },
-          emphasis: {
-            label: {
-              show: true,
-              fontSize: 18,
-              fontWeight: 'bold'
-            }
-          },
-          labelLine: {
-            show: false
-          },
-          data: chartData
-        }
-      ]
-    }
-    chart.setOption(option)
-  })
+            show: true,
+            fontSize: 18,
+            fontWeight: 'bold'
+          }
+        },
+        labelLine: {
+          show: false
+        },
+        data: chartData
+      }
+    ]
+  }
+  chart.setOption(option)
 }
 
 onMounted(() => {

@@ -29,7 +29,7 @@ mybatis:
 # 日志配置
 logging:
   level:
-    com.ruoyi.system.mapper: DEBUG
-    org.springframework.test: DEBUG
+    com.ruoyi.system.mapper: WARN
+    org.springframework.test: WARN
     org.testcontainers: INFO
-    org.apache.ibatis: DEBUG
+    org.apache.ibatis: WARN

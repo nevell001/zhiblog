@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import type { CSSProperties } from 'vue'
+import type { CSSProperties, PropType } from 'vue'
 
 interface ColumnItem {
   key?: string | number
@@ -83,7 +83,7 @@ const props = defineProps({
   },
   /* 显隐列信息（数组格式、对象格式） */
   columns: {
-    type: [Array, Object],
+    type: [Array, Object] as PropType<ColumnItem[] | Record<string, ColumnItem>>,
     default: () => ({})
   },
   /* 是否显示检索图标 */
@@ -104,6 +104,7 @@ const props = defineProps({
 })
 
 const emits = defineEmits(['update:showSearch', 'queryTable'])
+const columns = computed(() => props.columns as ColumnItem[] | Record<string, ColumnItem>)
 
 // 显隐数据
 const value = ref<number[]>([])
@@ -123,23 +124,22 @@ const style = computed(() => {
 // 是否全选/半选 状态
 const isChecked = computed({
   get: () =>
-    Array.isArray(props.columns)
-      ? props.columns.every(col => col.visible)
-      : Object.values(props.columns as Record<string, ColumnItem>).every(col => col.visible),
+    Array.isArray(columns.value)
+      ? columns.value.every(col => col.visible)
+      : Object.values(columns.value).every(col => col.visible),
   set: () => {}
 })
 const isIndeterminate = computed(() =>
-  Array.isArray(props.columns)
-    ? props.columns.some(col => col.visible) && !isChecked.value
-    : Object.values(props.columns as Record<string, ColumnItem>).some(col => col.visible) &&
-      !isChecked.value
+  Array.isArray(columns.value)
+    ? columns.value.some(col => col.visible) && !isChecked.value
+    : Object.values(columns.value).some(col => col.visible) && !isChecked.value
 )
 const transferData = computed(() =>
-  Array.isArray(props.columns)
-    ? props.columns.map((item, index) => ({ key: index, label: item.label }))
-    : Object.keys(props.columns as Record<string, ColumnItem>).map((key, index) => ({
+  Array.isArray(columns.value)
+    ? columns.value.map((item, index) => ({ key: index, label: item.label }))
+    : Object.keys(columns.value).map((key, index) => ({
         key: index,
-        label: (props.columns as Record<string, ColumnItem>)[key].label
+        label: (columns.value as Record<string, ColumnItem>)[key].label
       }))
 )
 
@@ -154,15 +154,15 @@ function refresh() {
 }
 
 // 右侧列表元素变化
-function dataChange(data) {
-  if (Array.isArray(props.columns)) {
-    for (const item in props.columns) {
-      const key = props.columns[item].key
-      props.columns[item].visible = !data.includes(key)
+function dataChange(data: Array<string | number>) {
+  if (Array.isArray(columns.value)) {
+    for (const item in columns.value) {
+      const key = columns.value[item].key
+      columns.value[item].visible = !data.includes(key || item)
     }
   } else {
-    Object.keys(props.columns as Record<string, ColumnItem>).forEach((key, index) => {
-      ;(props.columns as Record<string, ColumnItem>)[key].visible = !data.includes(index)
+    Object.keys(columns.value).forEach((key, index) => {
+      ;(columns.value as Record<string, ColumnItem>)[key].visible = !data.includes(index)
     })
   }
 }
@@ -174,15 +174,15 @@ function showColumn() {
 
 if (props.showColumnsType === 'transfer') {
   // transfer穿梭显隐列初始默认隐藏列
-  if (Array.isArray(props.columns)) {
-    for (const item in props.columns) {
-      if (props.columns[item].visible === false) {
+  if (Array.isArray(columns.value)) {
+    for (const item in columns.value) {
+      if (columns.value[item].visible === false) {
         value.value.push(parseInt(item))
       }
     }
   } else {
-    Object.keys(props.columns as Record<string, ColumnItem>).forEach((key, index) => {
-      if ((props.columns as Record<string, ColumnItem>)[key].visible === false) {
+    Object.keys(columns.value).forEach((key, index) => {
+      if ((columns.value as Record<string, ColumnItem>)[key].visible === false) {
         value.value.push(index)
       }
     })
@@ -190,23 +190,24 @@ if (props.showColumnsType === 'transfer') {
 }
 
 // 单勾选
-function checkboxChange(event, key) {
-  if (Array.isArray(props.columns)) {
-    props.columns.filter(item => item.key === key)[0].visible = event
+function checkboxChange(event: boolean, key: string | number) {
+  if (Array.isArray(columns.value)) {
+    const column = columns.value.find(item => item.key === key)
+    if (column) {
+      column.visible = event
+    }
   } else {
-    ;(props.columns as Record<string, ColumnItem>)[key].visible = event
+    ;(columns.value as Record<string, ColumnItem>)[key].visible = event
   }
 }
 
 // 切换全选/反选
 function toggleCheckAll() {
   const newValue = !isChecked.value
-  if (Array.isArray(props.columns)) {
-    props.columns.forEach(col => (col.visible = newValue))
+  if (Array.isArray(columns.value)) {
+    columns.value.forEach(col => (col.visible = newValue))
   } else {
-    Object.values(props.columns as Record<string, ColumnItem>).forEach(
-      col => (col.visible = newValue)
-    )
+    Object.values(columns.value).forEach(col => (col.visible = newValue))
   }
 }
 </script>

@@ -109,7 +109,7 @@ import { getCodeImg } from '@/api/login'
 import Cookies from 'js-cookie'
 import { encrypt, decrypt } from '@/utils/jsencrypt'
 import { useUserStore } from '@/stores/user'
-import { ElMessage } from 'element-plus'
+import { ElMessage } from '@/plugins/element-plus-service'
 
 const title = import.meta.env?.VITE_APP_TITLE || '博客管理系统'
 const userStore = useUserStore()

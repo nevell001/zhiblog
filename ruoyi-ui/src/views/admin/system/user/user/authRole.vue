@@ -114,10 +114,11 @@ function submitForm() {
 }
 
 ;(() => {
-  const userId = route.params && route.params.userId
+  const userIdParam = route.params && route.params.userId
+  const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam
   if (userId) {
     loading.value = true
-    getAuthRole(userId).then(response => {
+    getAuthRole(Number(userId)).then(response => {
       form.value = response.user
       roles.value = response.roles
       total.value = roles.value.length

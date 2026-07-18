@@ -1,9 +1,29 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { handleThemeStyle, hexToRgb, rgbToHex, getLightColor, getDarkColor } from './theme'
+import {
+  APP_THEME_STORAGE_KEY,
+  applyAppTheme,
+  getDarkColor,
+  getLightColor,
+  handleThemeStyle,
+  hexToRgb,
+  normalizeAppTheme,
+  rgbToHex
+} from './theme'
 
 // Mock document
 const mockStyle: any = {
   setProperty: vi.fn()
+}
+
+function createRootStub(): HTMLElement {
+  const classes = new Set<string>()
+  return {
+    classList: {
+      add: (className: string) => classes.add(className),
+      remove: (className: string) => classes.delete(className),
+      contains: (className: string) => classes.has(className)
+    }
+  } as HTMLElement
 }
 
 vi.stubGlobal('document', {
@@ -126,6 +146,37 @@ describe('theme 工具测试', () => {
           expect.any(String)
         )
       }
+    })
+  })
+
+  describe('app theme helpers', () => {
+    it('应该把未知主题归一化为 default', () => {
+      expect(normalizeAppTheme('mo-blog')).toBe('mo-blog')
+      expect(normalizeAppTheme('default')).toBe('default')
+      expect(normalizeAppTheme('unknown')).toBe('default')
+      expect(normalizeAppTheme(undefined)).toBe('default')
+    })
+
+    it('应该在根节点挂载 mo-blog class 并持久化', () => {
+      const root = createRootStub()
+      const storage = window.localStorage
+      storage.clear()
+
+      applyAppTheme('mo-blog', root, storage)
+
+      expect(root.classList.contains('theme-mo-blog')).toBe(true)
+      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('mo-blog')
+    })
+
+    it('应该切回 default 并移除 mo-blog class', () => {
+      const root = createRootStub()
+      root.classList.add('theme-mo-blog')
+      const storage = window.localStorage
+
+      applyAppTheme('default', root, storage)
+
+      expect(root.classList.contains('theme-mo-blog')).toBe(false)
+      expect(storage.getItem(APP_THEME_STORAGE_KEY)).toBe('default')
     })
   })
 })

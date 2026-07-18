@@ -200,7 +200,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { listSetting, updateSetting, addSetting } from '@/api/blog/setting'
 
 const activeTab = ref('basic')
@@ -209,8 +209,8 @@ const showImageUpload = ref(false)
 const showQRUpload = ref(false)
 const inputVisible = ref(false)
 const inputValue = ref('')
-const inputRef = ref(null)
-const formRef = ref(null)
+const inputRef = ref<any>(null)
+const formRef = ref<any>(null)
 
 const form = reactive({
   blog_author: '',

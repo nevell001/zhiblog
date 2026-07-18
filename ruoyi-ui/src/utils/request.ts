@@ -4,13 +4,14 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig
 } from 'axios'
-import { ElNotification, ElMessageBox, ElMessage, ElLoading } from 'element-plus'
+import { ElNotification, ElMessageBox, ElMessage, ElLoading } from '@/plugins/element-plus-service'
 import { getToken, getBlogToken, removeToken } from '@/utils/auth'
 import errorCode from '@/utils/errorCode'
 import { tansParams, blobValidate } from '@/utils/ruoyi'
 import cache from '@/plugins/cache'
 import { saveAs } from 'file-saver'
 import { useUserStore } from '@/stores/user'
+import { logger } from '@/utils/logger'
 
 interface DownloadConfig extends AxiosRequestConfig {
   [key: string]: any
@@ -33,6 +34,10 @@ const service: AxiosInstance = axios.create({
 // request拦截器
 service.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
+    if (config.url && config.url.startsWith('/blog/api/')) {
+      config.baseURL = ''
+    }
+
     // 如果是 FormData，删除 Content-Type 让浏览器自动设置为 multipart/form-data
     if (config.data instanceof FormData) {
       delete (config.headers as any)['Content-Type']
@@ -82,7 +87,7 @@ service.interceptors.request.use(
       const requestSize = JSON.stringify(requestObj).length // 请求数据大小
       const limitSize = 5 * 1024 * 1024 // 限制存放数据5M
       if (requestSize >= limitSize) {
-        console.warn(`[${config.url}]: ` + '请求数据大小超出允许的5M限制，无法进行防重复提交验证。')
+        logger.warn(`[${config.url}]: ` + '请求数据大小超出允许的5M限制，无法进行防重复提交验证。')
         return config
       }
 
@@ -100,7 +105,7 @@ service.interceptors.request.use(
           s_url === requestObj.url
         ) {
           const message = '数据正在处理，请勿重复提交'
-          console.warn(`[${s_url}]: ` + message)
+          logger.warn(`[${s_url}]: ` + message)
           return Promise.reject(new Error(message))
         } else {
           cache.session.setJSON('sessionObj', requestObj)
@@ -138,13 +143,13 @@ service.interceptors.response.use(
 
       // 如果是博客前台页面，不显示登录提示，直接返回数据或空结果
       if (isBlogPath) {
-        console.warn('匿名用户访问博客页面，返回空数据或默认数据')
+        logger.warn('匿名用户访问博客页面，返回空数据或默认数据')
         // 对于博客前台页面，返回空数据而不是强制登录
         return Promise.resolve({ code: 200, data: null, msg: '匿名访问' })
       }
 
       // 对于后台管理页面，清除用户状态并重定向到登录页
-      console.warn('登录状态已过期，清除用户状态并重定向到登录页')
+      logger.warn('登录状态已过期，清除用户状态并重定向到登录页')
       const userStore = useUserStore()
       userStore.token = ''
       userStore.roles = []
@@ -154,7 +159,7 @@ service.interceptors.response.use(
       window.location.replace('/login')
       return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
     } else if (code === 500) {
-      console.error('服务器错误:', {
+      logger.error('服务器错误:', {
         url: res.config.url,
         method: res.config.method,
         status: res.status,
@@ -226,7 +231,7 @@ export function download(
       downloadLoadingInstance.close()
     })
     .catch(r => {
-      console.error(r)
+      logger.error(r)
       ElMessage.error('下载文件出现错误，请联系管理员！')
       downloadLoadingInstance.close()
     })

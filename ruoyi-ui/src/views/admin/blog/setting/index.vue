@@ -121,6 +121,71 @@
           </el-form>
         </el-tab-pane>
 
+        <!-- 界面主题 -->
+        <el-tab-pane label="界面主题" name="theme">
+          <el-form ref="themeForm" :model="settingsMap" label-width="120px">
+            <el-alert
+              title="主题切换会立即应用到当前管理后台，主题色随保存写入博客设置"
+              type="info"
+              :closable="false"
+              style="margin-bottom: 20px"
+            />
+
+            <el-form-item label="应用主题">
+              <el-radio-group :model-value="settingsStore.appTheme" @change="handleAppThemeChange">
+                <el-radio-button
+                  v-for="option in appThemeOptions"
+                  :key="option.value"
+                  :label="option.value"
+                >
+                  {{ option.label }}
+                </el-radio-button>
+              </el-radio-group>
+              <span class="setting-tip">切换后自动记住当前浏览器的后台主题</span>
+            </el-form-item>
+
+            <el-form-item label="主题颜色" prop="theme_color">
+              <div class="theme-color-control">
+                <el-color-picker
+                  v-model="settingsMap.theme_color"
+                  :predefine="themeColorOptions"
+                  @change="handleThemeColorChange"
+                />
+                <el-input
+                  v-model="settingsMap.theme_color"
+                  class="theme-color-input"
+                  placeholder="#4f46e5"
+                  maxlength="20"
+                  @change="handleThemeColorChange"
+                />
+                <span class="setting-tip">影响按钮、链接、标签页和高亮状态</span>
+              </div>
+            </el-form-item>
+
+            <div class="theme-preview-grid">
+              <button
+                v-for="option in appThemeOptions"
+                :key="option.value"
+                type="button"
+                class="theme-preview-card"
+                :class="[{ active: settingsStore.appTheme === option.value }, option.value]"
+                @click="handleAppThemeChange(option.value)"
+              >
+                <span class="theme-preview-title">{{ option.label }}</span>
+                <span class="theme-preview-desc">{{ option.description }}</span>
+                <span class="theme-preview-surface">
+                  <span class="theme-preview-sidebar"></span>
+                  <span class="theme-preview-content">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </span>
+                </span>
+              </button>
+            </div>
+          </el-form>
+        </el-tab-pane>
+
         <!-- 功能设置 -->
         <el-tab-pane label="功能设置" name="features">
           <el-form ref="featuresForm" :model="settingsMap" label-width="120px">
@@ -451,27 +516,8 @@
 <script setup lang="ts" name="BlogSetting">
 import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
-import {
-  ElMessage,
-  ElButton,
-  ElCard,
-  ElTabs,
-  ElTabPane,
-  ElForm,
-  ElFormItem,
-  ElInput,
-  ElInputNumber,
-  ElSwitch,
-  ElColorPicker,
-  ElRadioGroup,
-  ElRadio,
-  ElDatePicker,
-  ElUpload,
-  ElRow,
-  ElCol,
-  ElAlert,
-  ElDivider
-} from 'element-plus'
+import { handleThemeStyle, type AppTheme } from '@/utils/theme'
+import { ElMessage } from '@/plugins/element-plus-service'
 import { Link as LinkIcon } from '@element-plus/icons-vue'
 import {
   listSetting,
@@ -503,13 +549,29 @@ const settingsStore = useSettingsStore()
 // 响应式数据
 const loading = ref(false)
 const activeTab = ref('basic')
-const settingsMap = ref({})
-const originalSettings = ref({})
+const settingsMap = ref<Record<string, any>>({})
+const originalSettings = ref<Record<string, any>>({})
+
+const appThemeOptions: { label: string; value: AppTheme; description: string }[] = [
+  {
+    label: '默认主题',
+    value: 'default',
+    description: '保留 RuoYi 管理后台的默认布局和交互习惯'
+  },
+  {
+    label: '默 Blog',
+    value: 'mo-blog',
+    description: '与前台博客一致的低饱和靛蓝、石色背景风格'
+  }
+]
+
+const themeColorOptions = ['#4f46e5', '#334155', '#0f766e', '#7c3aed', '#9a3412', '#409EFF']
 
 // 计算属性：根据当前标签页返回对应的标题
 const tabTitle = computed(() => {
   const titleMap = {
     basic: '站点信息',
+    theme: '界面主题',
     features: '功能设置',
     author: '个人信息',
     other: '关于页面'
@@ -535,6 +597,36 @@ const processedAvatarUrl = computed(() => {
 })
 
 // 微信二维码处理已移除
+
+function normalizeThemeColor(value: unknown): string {
+  if (typeof value === 'string' && value.trim()) {
+    return value.trim()
+  }
+  return settingsStore.appTheme === 'mo-blog' ? '#4f46e5' : '#409EFF'
+}
+
+function handleThemeColorChange(value: unknown) {
+  const nextColor = normalizeThemeColor(value)
+  settingsMap.value.theme_color = nextColor
+  settingsStore.changeSetting({ key: 'theme', value: nextColor })
+  handleThemeStyle(nextColor)
+}
+
+function handleAppThemeChange(value: unknown) {
+  const nextTheme: AppTheme = value === 'mo-blog' ? 'mo-blog' : 'default'
+  settingsStore.setAppTheme(nextTheme)
+
+  if (
+    nextTheme === 'mo-blog' &&
+    (!settingsMap.value.theme_color ||
+      settingsMap.value.theme_color === '#409EFF' ||
+      settingsMap.value.theme_color === '#409eff')
+  ) {
+    settingsMap.value.theme_color = '#4f46e5'
+  }
+
+  handleThemeColorChange(settingsMap.value.theme_color)
+}
 
 /**
  * 获取所有博客设置
@@ -802,7 +894,7 @@ async function getAllSettings() {
       seo_canonical_url: '',
       seo_robots: 'index,follow',
       seo_favicon: '',
-      theme_color: '#409EFF',
+      theme_color: '#4f46e5',
       header_background: '#304156',
       sidebar_style: 'dark',
       blog_copyright: '',
@@ -872,7 +964,7 @@ async function getAllSettings() {
     originalSettings.value = {}
     Object.keys(mergedSettings).forEach(key => {
       let value = mergedSettings[key]
-      let originalType = typeof value
+      let originalType: string = typeof value
       if (value instanceof Date) {
         // 将日期转换为YYYY-MM-DD格式
         value = value.toISOString().split('T')[0]
@@ -922,7 +1014,7 @@ async function getAllSettings() {
       seo_canonical_url: '',
       seo_robots: 'index,follow',
       seo_favicon: '',
-      theme_color: '#409EFF',
+      theme_color: '#4f46e5',
       header_background: '#304156',
       sidebar_style: 'dark',
       blog_copyright: '',
@@ -956,7 +1048,7 @@ async function getAllSettings() {
     originalSettings.value = {}
     Object.keys(defaultSettings).forEach(key => {
       let value = defaultSettings[key]
-      let originalType = typeof value
+      let originalType: string = typeof value
       if (value instanceof Date) {
         // 将日期转换为YYYY-MM-DD格式
         value = value.toISOString().split('T')[0]
@@ -1207,7 +1299,7 @@ async function saveAllSettings() {
     originalSettings.value = {}
     Object.keys(settingsMap.value).forEach(key => {
       let value = settingsMap.value[key]
-      let originalType = typeof value
+      let originalType: string = typeof value
       if (value instanceof Date) {
         // 将日期转换为YYYY-MM-DD格式
         value = value.toISOString().split('T')[0]
@@ -1525,7 +1617,7 @@ html.dark .blog-setting-card {
   color: var(--el-color-primary, #409eff);
   background-color: var(--el-bg-color-overlay, #ffffff);
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
 }
 
 :deep(.el-tabs__active-bar) {
@@ -1573,25 +1665,136 @@ html.dark .blog-setting-card {
   gap: 10px;
 }
 
+.theme-color-control {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.theme-color-input {
+  width: 140px;
+}
+
+.setting-tip {
+  color: var(--el-text-color-secondary, #909399);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.theme-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.theme-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  background: var(--el-bg-color-overlay, #ffffff);
+  border: 1px solid var(--el-border-color-light, #e5e7eb);
+  border-radius: 8px;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.theme-preview-card:hover,
+.theme-preview-card.active {
+  border-color: var(--el-color-primary, #409eff);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+  transform: translateY(-1px);
+}
+
+.theme-preview-title {
+  color: var(--el-text-color-primary, #303133);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.theme-preview-desc {
+  min-height: 36px;
+  color: var(--el-text-color-secondary, #606266);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.theme-preview-surface {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 10px;
+  height: 86px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.theme-preview-sidebar {
+  background: #1f2937;
+  border-radius: 6px;
+}
+
+.theme-preview-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-preview-content span {
+  display: block;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 4px;
+}
+
+.theme-preview-content span:first-child {
+  width: 64%;
+  background: var(--el-color-primary-light-7, #c7d2fe);
+}
+
+.theme-preview-card.mo-blog .theme-preview-surface {
+  background: #f8f7f4;
+  border-color: #dedbd2;
+}
+
+.theme-preview-card.mo-blog .theme-preview-sidebar {
+  background: #2f3a4a;
+}
+
+.theme-preview-card.mo-blog .theme-preview-content span:first-child {
+  background: #c7d2fe;
+}
+
 .example-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
+  background: linear-gradient(135deg, var(--el-color-primary-light-7, #c7d2fe), #eef2ff);
+  border: 1px solid var(--el-color-primary-light-5, #a5b4fc);
 }
 
 .example-thumbnail {
   width: 35px;
   height: 35px;
   border-radius: 4px;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  border: 1px solid #cbd5e1;
 }
 
 .example-smart {
   width: 35px;
   height: 35px;
   border-radius: 4px;
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: linear-gradient(135deg, #f5f5f4, #d6d3d1);
+  border: 1px solid #d6d3d1;
 }
 
 .feature-example span {

@@ -195,6 +195,7 @@
 import { ref, onMounted } from 'vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleArchive, getArticlesByArchive } from '@/api/blog/article'
+import { logger } from '@/utils/logger'
 import {
   Calendar,
   ArrowDown,
@@ -234,7 +235,7 @@ const loadArchiveData = async () => {
       await loadArticlesByArchive(archiveList.value[0].archive_date)
     }
   } catch (error) {
-    console.error('获取归档数据失败:', error)
+    logger.error('获取归档数据失败:', error)
   } finally {
     loading.value = false
   }
@@ -254,7 +255,7 @@ const loadArticlesByArchive = async (archiveDate: string) => {
       articlesByArchive.value[archiveDate] = response.rows || response.data || []
     }
   } catch (error) {
-    console.error('获取归档文章失败:', error)
+    logger.error('获取归档文章失败:', error)
     articlesByArchive.value[archiveDate] = []
   } finally {
     loadingArticles.value[archiveDate] = false
@@ -349,7 +350,7 @@ onMounted(() => {
 .archive-page {
   padding-top: 64px;
   min-height: 100vh;
-  background: #fafbfc;
+  background: var(--mo-n50);
   padding-bottom: 0;
 }
 
@@ -358,9 +359,10 @@ onMounted(() => {
   position: relative;
   padding: 100px 20px 80px;
   text-align: center;
-  color: white;
+  color: var(--mo-n900);
   overflow: hidden;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
+  background: var(--mo-n50);
+  border-bottom: 1px solid var(--mo-n200);
 }
 
 /* 页面头部底部波浪过渡 */
@@ -371,21 +373,12 @@ onMounted(() => {
   left: 0;
   right: 0;
   height: 40px;
-  background: #fafbfc;
-  border-radius: 40px 40px 0 0;
+  background: var(--mo-n50);
+  border-radius: 8px 8px 0 0;
 }
 
 .header-bg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 30%);
-  animation: float 20s ease-in-out infinite;
+  display: none;
 }
 
 @keyframes float {
@@ -407,7 +400,7 @@ onMounted(() => {
 
 .header-icon {
   margin-bottom: 20px;
-  animation: bounce 2s ease-in-out infinite;
+  transition: color 0.2s ease;
 }
 
 @keyframes bounce {
@@ -424,8 +417,6 @@ onMounted(() => {
   font-size: 3rem;
   margin-bottom: 16px;
   font-weight: 800;
-  letter-spacing: -1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   animation: slideDown 0.8s ease;
 }
 
@@ -442,7 +433,7 @@ onMounted(() => {
 
 .page-description {
   font-size: 1.2rem;
-  opacity: 0.95;
+  color: var(--mo-n600);
   margin-bottom: 30px;
   font-weight: 300;
   animation: slideDown 0.8s ease 0.2s both;
@@ -451,8 +442,8 @@ onMounted(() => {
 .highlight-number {
   font-size: 1.4rem;
   font-weight: 700;
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  color: var(--mo-p600);
+  text-shadow: none;
 }
 
 .back-button {
@@ -474,7 +465,7 @@ onMounted(() => {
 
 .archive-content {
   background: white;
-  border-radius: 20px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   min-height: 400px;
@@ -484,13 +475,12 @@ onMounted(() => {
 .no-data {
   text-align: center;
   padding: 80px 20px;
-  color: #999;
+  color: var(--mo-n400);
 }
 
 .empty-icon {
   margin-bottom: 20px;
   color: #ddd;
-  animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
@@ -507,13 +497,13 @@ onMounted(() => {
 
 .no-data h3 {
   font-size: 1.5rem;
-  color: #666;
+  color: var(--mo-n500);
   margin-bottom: 10px;
 }
 
 .no-data p {
   font-size: 1rem;
-  color: #999;
+  color: var(--mo-n400);
   margin-bottom: 30px;
 }
 
@@ -533,7 +523,7 @@ onMounted(() => {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(180deg, #4a7bff 0%, #6b8cff 100%);
+  background: linear-gradient(180deg, var(--mo-p600) 0%, var(--mo-p800) 100%);
   border-radius: 2px;
 }
 
@@ -569,29 +559,29 @@ onMounted(() => {
   height: 16px;
   border-radius: 50%;
   background: white;
-  border: 4px solid #4a7bff;
-  box-shadow: 0 0 0 4px rgba(74, 123, 255, 0.2);
+  border: 4px solid var(--mo-p600);
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
   z-index: 1;
   transition: all 0.3s ease;
 }
 
 .timeline-item:hover .timeline-dot {
-  background: #4a7bff;
-  box-shadow: 0 0 0 8px rgba(74, 123, 255, 0.3);
+  background: var(--mo-p600);
+  box-shadow: 0 0 0 8px rgba(79, 70, 229, 0.3);
   transform: scale(1.2);
 }
 
 /* 归档卡片 */
 .archive-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
 }
 
 .archive-card:hover {
-  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.2);
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.2);
 }
 
 /* 归档头部 */
@@ -600,16 +590,16 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 25px;
-  background: linear-gradient(135deg, #f8f9ff 0%, #f5f5ff 100%);
+  background: var(--mo-n50);
   cursor: pointer;
   user-select: none;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 1px solid var(--mo-n200);
 }
 
 .archive-header:hover {
-  background: linear-gradient(135deg, #e8e9ff 0%, #e5e5ff 100%);
-  border-color: #4a7bff;
+  background: var(--mo-n100);
+  border-color: var(--mo-p200);
 }
 
 .archive-date-wrapper {
@@ -621,16 +611,13 @@ onMounted(() => {
 .archive-year {
   font-size: 2rem;
   font-weight: 800;
-  background: linear-gradient(135deg, #4a7bff 0%, #6b8cff 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--mo-p600);
 }
 
 .archive-month {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #666;
+  color: var(--mo-n500);
 }
 
 .archive-meta {
@@ -645,16 +632,16 @@ onMounted(() => {
   gap: 6px;
   padding: 6px 16px;
   background: white;
-  border-radius: 20px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
-  color: #4a7bff;
-  box-shadow: 0 2px 8px rgba(74, 123, 255, 0.15);
+  color: var(--mo-p600);
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.15);
 }
 
 .toggle-icon {
   transition: transform 0.3s ease;
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 .toggle-icon.expanded {
@@ -664,7 +651,7 @@ onMounted(() => {
 /* 文章列表容器 */
 .archive-articles {
   overflow: hidden;
-  background: #fafafa;
+  background: var(--mo-n50);
 }
 
 /* 加载状态 */
@@ -674,7 +661,7 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   padding: 50px;
-  color: #999;
+  color: var(--mo-n400);
   font-size: 1rem;
 }
 
@@ -691,7 +678,7 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   background: white;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -713,8 +700,8 @@ onMounted(() => {
 
 .article-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.15);
-  border-color: #4a7bff;
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.15);
+  border-color: var(--mo-p600);
 }
 
 /* 文章封面 */
@@ -722,7 +709,7 @@ onMounted(() => {
   width: 200px;
   height: 130px;
   flex-shrink: 0;
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
   position: relative;
 }
@@ -744,7 +731,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, rgba(74, 123, 255, 0.3) 0%, rgba(107, 140, 255, 0.3) 100%);
+  background: rgba(28, 25, 23, 0.18);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -765,7 +752,7 @@ onMounted(() => {
 .article-title {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #333;
+  color: var(--mo-n800);
   text-decoration: none;
   line-height: 1.4;
   display: -webkit-box;
@@ -778,12 +765,12 @@ onMounted(() => {
 }
 
 .article-title:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 .article-summary {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--mo-n500);
   line-height: 1.6;
   margin: 0 0 14px 0;
   display: -webkit-box;
@@ -797,7 +784,7 @@ onMounted(() => {
   display: flex;
   gap: 18px;
   font-size: 0.85rem;
-  color: #999;
+  color: var(--mo-n400);
   flex-wrap: wrap;
 }
 
@@ -809,14 +796,14 @@ onMounted(() => {
 }
 
 .article-item:hover .meta-item {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 /* 无文章状态 */
 .no-articles {
   text-align: center;
   padding: 40px;
-  color: #999;
+  color: var(--mo-n400);
 }
 
 .no-articles .el-icon {
@@ -853,7 +840,7 @@ onMounted(() => {
   }
 
   .archive-content {
-    border-radius: 16px;
+    border-radius: 8px;
   }
 
   .timeline-container {
@@ -972,24 +959,25 @@ onMounted(() => {
 
 /* 深色主题 */
 html.dark .archive-page {
-  background: #1e1e2e;
+  background: var(--mo-n900);
 }
 
 html.dark .page-header {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  background: var(--mo-n900);
+  border-bottom-color: var(--mo-n800);
 }
 
 html.dark .page-header::after {
-  background: #1e1e2e;
+  background: var(--mo-n900);
 }
 
 html.dark .archive-content {
-  background: #252535;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .no-data {
-  color: #999;
+  color: var(--mo-n400);
 }
 
 html.dark .empty-icon {
@@ -997,84 +985,85 @@ html.dark .empty-icon {
 }
 
 html.dark .no-data h3 {
-  color: #e0e0e0;
+  color: var(--mo-n200);
 }
 
 html.dark .timeline-line {
-  background: linear-gradient(180deg, #4a7bff 0%, #6b8cff 100%);
+  background: linear-gradient(180deg, var(--mo-p600) 0%, var(--mo-p800) 100%);
 }
 
 html.dark .timeline-dot {
-  background: #1e1e2e;
-  border-color: #4a7bff;
+  background: var(--mo-n900);
+  border-color: var(--mo-p600);
 }
 
 html.dark .timeline-item:hover .timeline-dot {
-  background: #4a7bff;
+  background: var(--mo-p600);
 }
 
 html.dark .archive-card {
-  background: #252535;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .archive-card:hover {
-  box-shadow: 0 8px 30px rgba(74, 123, 255, 0.2);
+  box-shadow: 0 8px 30px rgba(79, 70, 229, 0.2);
 }
 
 html.dark .archive-header {
-  background: linear-gradient(135deg, #2a2a3e 0%, #2e2e45 100%);
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
 }
 
 html.dark .archive-header:hover {
-  background: linear-gradient(135deg, #35354a 0%, #3a3a55 100%);
-  border-color: #4a7bff;
+  background: var(--mo-n900);
+  border-color: var(--mo-p500);
 }
 
 html.dark .archive-month {
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .archive-count {
-  background: #2a2a3e;
-  color: #4a7bff;
+  background: var(--mo-n800);
+  color: var(--mo-p600);
 }
 
 html.dark .archive-articles {
-  background: #1a1a2e;
+  background: var(--mo-n900);
 }
 
 html.dark .article-item {
-  background: #252535;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 html.dark .article-item:hover {
-  border-color: #4a7bff;
+  border-color: var(--mo-p600);
 }
 
 html.dark .article-title {
-  color: #e0e0e0;
+  color: var(--mo-n200);
 }
 
 html.dark .article-title:hover {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .article-summary {
-  color: #b0b0b0;
+  color: var(--mo-n300);
 }
 
 html.dark .article-meta {
-  color: #999;
+  color: var(--mo-n400);
 }
 
 html.dark .article-item:hover .meta-item {
-  color: #4a7bff;
+  color: var(--mo-p600);
 }
 
 html.dark .no-articles {
-  color: #999;
+  color: var(--mo-n400);
 }
 
 html.dark .no-articles .el-icon {

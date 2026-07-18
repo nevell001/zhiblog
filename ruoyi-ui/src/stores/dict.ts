@@ -32,6 +32,10 @@ export const useDictStore = defineStore('dict', {
 
     clearDict(): void {
       this.dict = {}
+    },
+
+    cleanDict(): void {
+      this.clearDict()
     }
   }
 })

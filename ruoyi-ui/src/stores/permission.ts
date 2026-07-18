@@ -56,7 +56,7 @@ const usePermissionStore = defineStore('permission', {
             const sidebarRoutes = filterAsyncRouter(sdata)
             const rewriteRoutes = filterAsyncRouter(rdata, false, true)
             rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
-            this.setRoutes(constantRoutes)
+            this.setRoutes(rewriteRoutes)
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
             this.setTopbarRoutes(rewriteRoutes)
