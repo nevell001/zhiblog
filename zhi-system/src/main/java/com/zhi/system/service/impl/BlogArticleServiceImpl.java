@@ -157,6 +157,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         blogArticle.setTitle(title);
         blogArticle.setCreateTime(DateUtils.getNowDate());
         blogArticle.setAuthorId(com.zhi.common.utils.SecurityUtils.getLoginUser().getUser().getUserId());
+        blogArticle.setAuthorName(com.zhi.common.utils.SecurityUtils.getLoginUser().getUser().getNickName());
         setDefaultValues(blogArticle);
         
         try {
@@ -211,6 +212,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         }
         if (blogArticle.getCommentCount() == null) {
             blogArticle.setCommentCount(0L);
+        }
+        if (blogArticle.getStatus() == null) {
+            blogArticle.setStatus(0L);
         }
     }
 
@@ -356,6 +360,8 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         // 使用 Redis 缓冲，将浏览量增加操作放入 Redis
         String key = "blog:article:view:" + id;
         redisCache.incrementCacheObject(key, 1);
+        // 同步更新数据库，确保阅读数即时可见
+        blogArticleMapper.addViewCount(id);
     }
 
     @Override

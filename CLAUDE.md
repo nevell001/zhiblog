@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ZhiBlog (知博) is a full-stack blog system built on Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
 
-**Current Version**: v1.3.4 (defined in `pom.xml`)
+**Current Version**: v1.3.5 (defined in `pom.xml`)
 
 **Brand Identity**:
 - Brand name: "ZhiBlog - 知博"

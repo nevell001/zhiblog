@@ -136,6 +136,9 @@ public class TokenService
         {
             loginUser.setLoginTime(System.currentTimeMillis());
             loginUser.setExpireTime(loginUser.getLoginTime() + rememberMeExpireTime * MILLIS_MINUTE);
+            // 根据uuid将loginUser写入缓存（使用rememberMe的过期时间）
+            String userKey = getTokenKey(loginUser.getToken());
+            unifiedCacheManager.set(userKey, loginUser, rememberMeExpireTime, TimeUnit.MINUTES);
         }
         else
         {

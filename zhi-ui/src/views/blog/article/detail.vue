@@ -88,9 +88,7 @@
               >
                 👍 点赞 {{ article.likeCount || 0 }}
               </el-button>
-              <el-button v-if="isFeatureEnabled('share_enabled')" plain @click="handleShare">
-                分享
-              </el-button>
+              <ShareButton v-if="isFeatureEnabled('share_enabled')" :article="article" />
               <el-button
                 :type="article.isBookmarked ? 'warning' : 'default'"
                 plain
@@ -206,6 +204,7 @@
                   :rows="3"
                   maxlength="500"
                   show-word-limit
+                  @keydown="handleCommentKeydown"
                 />
               </el-form-item>
               <div class="actions">
@@ -263,6 +262,7 @@ import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { ElMessage } from '@/plugins/element-plus-service'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
+import ShareButton from '@/components/ShareButton.vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/blog/article'
 import { likeArticle } from '@/api/admin/blog/article'
 import { toggleBookmark } from '@/api/blog/bookmark'
@@ -494,29 +494,6 @@ const handleLike = async () => {
   }
 }
 
-// 分享文章
-const handleShare = () => {
-  const url = window.location.href
-  const title = article.value.title
-
-  if (navigator.share) {
-    navigator.share({
-      title: title,
-      url: url
-    })
-  } else {
-    // 复制链接到剪贴板
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        ElMessage.success('链接已复制到剪贴板')
-      })
-      .catch(() => {
-        ElMessage.warning('请手动复制链接：' + url)
-      })
-  }
-}
-
 // 收藏文章
 const handleBookmark = async () => {
   if (!isLoggedIn.value) {
@@ -563,6 +540,14 @@ const cancelReply = () => {
 const handleLikeComment = comment => {
   comment.likeCount = (comment.likeCount || 0) + 1
   ElMessage.success('点赞成功')
+}
+
+// 评论快捷键：Ctrl/⌘ + Enter 发送
+const handleCommentKeydown = (event: KeyboardEvent) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+    event.preventDefault()
+    submitComment()
+  }
 }
 
 // 提交评论

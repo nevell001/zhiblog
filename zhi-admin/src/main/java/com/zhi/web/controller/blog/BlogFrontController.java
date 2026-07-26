@@ -32,6 +32,9 @@ import com.zhi.system.service.ISysConfigService;
 import com.zhi.system.domain.SysConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.zhi.common.core.domain.model.LoginUser;
 
 /**
  * 上下篇文章信息DTO
@@ -565,6 +568,21 @@ public class BlogFrontController extends BaseController
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
+        // 自动填充登录用户信息（userId 和 nickname），确保推荐和通知功能正常
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof LoginUser loginUser) {
+                if (blogComment.getUserId() == null) {
+                    blogComment.setUserId(loginUser.getUserId());
+                }
+                if (blogComment.getNickname() == null || blogComment.getNickname().isEmpty()) {
+                    blogComment.setNickname(loginUser.getUser().getNickName());
+                }
+            }
+        } catch (Exception ignored) {
+            // 匿名用户，无需填充
+        }
+
         // 检查评论审核开关，根据博客设置决定是否需要审核
         String commentReviewSetting = blogSettingService.selectSettingValueByKey("comment_review");
 

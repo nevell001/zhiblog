@@ -217,13 +217,17 @@ function goToAdmin() {
     .avatar-container {
       margin-right: 0px;
       padding-right: 0px;
+      display: flex;
+      align-items: center;
+      height: 100%;
 
       .avatar-wrapper {
         display: flex;
         align-items: center;
-        margin-top: 10px;
-        right: 5px;
+        justify-content: center;
+        height: 100%;
         position: relative;
+        cursor: pointer;
 
         .user-avatar {
           cursor: pointer;

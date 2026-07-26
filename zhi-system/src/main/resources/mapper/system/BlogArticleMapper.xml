@@ -102,9 +102,9 @@
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, cover_url, category_id, author_id, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>
@@ -120,6 +120,7 @@
             <if test="coverUrl != null">cover_url = #{coverUrl},</if>
             <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="authorId != null">author_id = #{authorId},</if>
+            <if test="authorName != null">author_name = #{authorName},</if>
             <if test="isTop != null">is_top = #{isTop},</if>
             <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
             <if test="status != null">status = #{status},</if>

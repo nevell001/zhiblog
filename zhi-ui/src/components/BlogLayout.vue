@@ -15,15 +15,28 @@
           </router-link>
         </div>
         <div class="nav-right">
+          <div
+            v-if="userStore.token && userStore.name"
+            class="notification-bell"
+            title="站内信"
+            @click="goToNotifications"
+          >
+            <el-badge :value="unreadCount" :hidden="unreadCount === 0" :max="99">
+              <el-icon :size="20"><Bell /></el-icon>
+            </el-badge>
+          </div>
           <el-dropdown
             v-if="userStore.token && userStore.name"
             trigger="click"
             @command="handleUserCommand"
           >
             <div class="user-info">
-              <el-avatar :size="30" :src="userStore.avatar">
-                <el-icon><UserFilled /></el-icon>
-              </el-avatar>
+              <div class="user-avatar-wrapper">
+                <img v-if="userStore.avatar" :src="userStore.avatar" class="user-avatar" />
+                <div v-else class="avatar-placeholder">
+                  <el-icon :size="16"><UserFilled /></el-icon>
+                </div>
+              </div>
               <span class="username">{{ userStore.name }}</span>
               <el-icon class="dropdown-icon">
                 <ArrowDown />
@@ -151,12 +164,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { Setting, UserFilled, ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'
+import { Setting, UserFilled, ArrowDown, User, SwitchButton, Bell } from '@element-plus/icons-vue'
+import { getUnreadCount } from '@/api/blog/notification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -164,6 +178,8 @@ const blogSettingsStore = useBlogSettingsStore()
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const isDark = ref(false)
+const unreadCount = ref(0)
+let unreadTimer: ReturnType<typeof setInterval> | null = null
 
 const menus = [
   { name: '首页', path: '/blog' },
@@ -222,7 +238,38 @@ onMounted(() => {
   const saved = localStorage.getItem('blog-theme') || 'light'
   isDark.value = saved === 'dark'
   document.documentElement.classList.toggle('dark', isDark.value)
+
+  // 定时刷新未读通知数
+  if (userStore.token && userStore.name) {
+    fetchUnreadCount()
+    unreadTimer = setInterval(fetchUnreadCount, 30000)
+  }
 })
+
+onUnmounted(() => {
+  if (unreadTimer) {
+    clearInterval(unreadTimer)
+    unreadTimer = null
+  }
+})
+
+function fetchUnreadCount() {
+  getUnreadCount()
+    .then(response => {
+      unreadCount.value = Number(response.data) || 0
+    })
+    .catch(() => {
+      // silent fail
+    })
+}
+
+function goToNotifications() {
+  router.push('/admin/user/profile')
+  // 延迟执行，等 profile 组件挂载后再切换到通知tab
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('switchProfileTab', { detail: 'notifications' }))
+  }, 300)
+}
 </script>
 
 <style scoped>
@@ -300,6 +347,21 @@ onMounted(() => {
   align-items: center;
   gap: 10px;
 }
+.notification-bell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 8px;
+  color: var(--mo-n600);
+  transition: all 0.2s;
+}
+.notification-bell:hover {
+  background: var(--mo-p50);
+  color: var(--mo-p700);
+}
 .user-info {
   display: flex;
   align-items: center;
@@ -308,6 +370,29 @@ onMounted(() => {
   padding: 4px 12px;
   border-radius: 20px;
   transition: background 0.2s;
+}
+.user-avatar-wrapper {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  display: block;
+}
+.avatar-placeholder {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--mo-n200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mo-n500);
 }
 .user-info:hover {
   background: var(--mo-n100);
@@ -486,6 +571,11 @@ html.dark .footer-logo {
 
 html.dark .dropdown-icon {
   color: var(--mo-n400);
+}
+
+html.dark .avatar-placeholder {
+  background: rgba(79, 70, 229, 0.18);
+  color: var(--mo-p300);
 }
 
 /* 响应式 */

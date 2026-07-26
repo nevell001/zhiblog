@@ -94,7 +94,7 @@
 
             <div class="form-options">
               <label class="remember">
-                <input type="checkbox" v-model="rememberMe" />
+                <input v-model="rememberMe" type="checkbox" />
                 记住我
               </label>
               <router-link to="/blog/auth/forgot-password" class="forgot">忘记密码？</router-link>

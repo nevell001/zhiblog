@@ -151,11 +151,51 @@
           </section>
 
           <section v-else-if="selectedTab === 'notifications'" class="profile-content">
-            <div class="empty-panel">
-              <div class="empty-title">暂无评论通知</div>
-              <div class="empty-desc">后续接入通知接口后，这里会展示评论、点赞和关注提醒。</div>
-              <el-button plain @click="goArticleManage('list')">查看文章管理</el-button>
+            <div v-if="notificationsLoading" class="empty-panel">
+              <div class="empty-title">加载中...</div>
             </div>
+            <template v-else>
+              <div v-if="notifications.length > 0" class="notification-list">
+                <div class="notify-header">
+                  <span class="notify-title">站内信</span>
+                  <el-button link type="primary" size="small" @click="markAllNotificationsRead">
+                    全部已读
+                  </el-button>
+                </div>
+                <div
+                  v-for="item in notifications"
+                  :key="item.id"
+                  class="notify-item"
+                  :class="{ unread: item.isRead === 0 }"
+                >
+                  <div class="notify-content">
+                    <p class="notify-body">
+                      <strong>{{ item.senderName }}</strong>
+                      {{ item.type === 'reply' ? ' 回复了你的评论' : ' 评论了你的文章' }}
+                      <router-link class="notify-link" :to="`/blog/article/${item.articleId}`">
+                        《{{ item.articleTitle }}》
+                      </router-link>
+                    </p>
+                    <p v-if="item.content" class="notify-preview">{{ item.content }}</p>
+                    <span class="notify-time">{{ item.createTime }}</span>
+                  </div>
+                  <el-button
+                    v-if="item.isRead === 0"
+                    link
+                    type="primary"
+                    size="small"
+                    @click="markNotificationRead(item.id)"
+                  >
+                    标为已读
+                  </el-button>
+                </div>
+              </div>
+              <div v-else class="empty-panel">
+                <div class="empty-title">暂无评论通知</div>
+                <div class="empty-desc">当有人评论你的文章或回复你的评论时，通知会出现在这里。</div>
+                <el-button plain @click="goArticleManage('list')">查看文章管理</el-button>
+              </div>
+            </template>
           </section>
 
           <section v-else-if="selectedTab === 'messages'" class="profile-content">
@@ -232,6 +272,8 @@ import userInfo from './userInfo.vue'
 import resetPwd from './resetPwd.vue'
 import { getUserProfile } from '@/api/system/user'
 import { listArticle } from '@/api/admin/blog/article'
+import { getNotificationList, markAsRead, markAllAsRead } from '@/api/blog/notification'
+import type { BlogNotification } from '@/api/blog/notification'
 
 const route = useRoute()
 const router = useRouter()
@@ -257,12 +299,49 @@ const profileBio = computed(() => {
   return [dept, role, state.user.email].filter(Boolean).join(' · ') || '记录思考，分享洞见'
 })
 
+// 站内信通知
+const notifications = ref<BlogNotification[]>([])
+const notificationsLoading = ref(false)
+
+function getNotifications() {
+  notificationsLoading.value = true
+  getNotificationList({ pageNum: 1, pageSize: 50 })
+    .then(response => {
+      notifications.value = response.rows || []
+    })
+    .catch(error => {
+      console.error('加载通知失败:', error)
+      notifications.value = []
+    })
+    .finally(() => {
+      notificationsLoading.value = false
+    })
+}
+
+function markNotificationRead(id: number) {
+  markAsRead([id]).then(() => {
+    const item = notifications.value.find(n => n.id === id)
+    if (item) {
+      item.isRead = 1
+    }
+  })
+}
+
+function markAllNotificationsRead() {
+  markAllAsRead().then(() => {
+    notifications.value.forEach(n => {
+      n.isRead = 1
+    })
+  })
+}
+
 function getUser() {
   getUserProfile().then(response => {
     state.user = response.data
     state.roleGroup = response.roleGroup
     state.postGroup = response.postGroup
     getProfileArticles()
+    getNotifications()
   })
 }
 
@@ -322,7 +401,21 @@ onMounted(() => {
     selectedTab.value = 'settings'
   }
   getUser()
+
+  // 监听外部事件切换到通知tab
+  window.addEventListener('switchProfileTab', onSwitchProfileTab as EventListener)
 })
+
+onUnmounted(() => {
+  window.removeEventListener('switchProfileTab', onSwitchProfileTab as EventListener)
+})
+
+function onSwitchProfileTab(event: Event) {
+  const tab = (event as CustomEvent).detail
+  if (tab) {
+    selectedTab.value = tab
+  }
+}
 </script>
 
 <style scoped>
@@ -772,5 +865,97 @@ onMounted(() => {
   .hide-mobile {
     display: none;
   }
+}
+
+/* ===== 站内信通知 ===== */
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.notify-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 12px;
+  border-bottom: 1px solid var(--mo-n200, #e7e5e4);
+  margin-bottom: 4px;
+}
+
+.notify-title {
+  color: var(--mo-n900, #1c1917);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.notify-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 1px solid var(--mo-n100, #f5f5f4);
+  transition: background 0.15s;
+}
+
+.notify-item:last-child {
+  border-bottom: 0;
+}
+
+.notify-item:hover {
+  background: var(--mo-n50, #fafaf9);
+}
+
+.notify-item.unread {
+  background: var(--mo-p25, #f5f3ff);
+}
+
+.notify-item.unread::before {
+  content: '';
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
+  background: var(--mo-p600, #4f46e5);
+  border-radius: 50%;
+}
+
+.notify-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notify-body {
+  margin: 0;
+  color: var(--mo-n700, #44403c);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.notify-preview {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--mo-n400, #a8a29e);
+  font-size: 12px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notify-time {
+  display: block;
+  margin-top: 4px;
+  color: var(--mo-n400, #a8a29e);
+  font-size: 11px;
+}
+
+.notify-link {
+  color: var(--mo-p600, #4f46e5);
+  text-decoration: none;
+}
+
+.notify-link:hover {
+  text-decoration: underline;
 }
 </style>

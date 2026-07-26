@@ -100,7 +100,7 @@ const uploadList = ref([])
 const dialogImageUrl = ref('')
 const dialogVisible = ref(false)
 const fileTypes = computed<string[]>(() => props.fileType as string[])
-// 头像上传
+// 图片上传
 const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
 const baseUrl = baseApi
 const uploadImgUrl = ref(baseApi + props.action) // 上传的图片服务器地址
@@ -163,7 +163,7 @@ function handleBeforeUpload(file) {
   if (props.fileSize) {
     const isLt = file.size / 1024 / 1024 < props.fileSize
     if (!isLt) {
-      ;(proxy as any).$modal.msgError(`上传头像图片大小不能超过 ${props.fileSize} MB!`)
+      ;(proxy as any).$modal.msgError(`上传图片大小不能超过 ${props.fileSize} MB!`)
       return false
     }
   }

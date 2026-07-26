@@ -251,6 +251,7 @@
             {{ editorSaveStatusText }}
           </span>
           <el-button plain size="small" @click="setEditorViewMode('preview')">预览</el-button>
+          <el-button plain size="small" @click="submitForm(0)">存为草稿</el-button>
           <el-button type="primary" size="small" @click="submitForm(1)">发布</el-button>
         </div>
 
@@ -875,7 +876,6 @@ const submitForm = async (targetStatus?: 0 | 1) => {
         apiData.author = userStore.name || 'admin'
         apiData.isTop = apiData.isTop ? 1 : 0
         apiData.isRecommend = apiData.isRecommend ? 1 : 0
-        apiData.status = apiData.status ? 1 : 0
 
         // 确保所有数值字段都是Number类型
         apiData.authorId = Number(apiData.authorId)

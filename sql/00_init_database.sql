@@ -2237,6 +2237,27 @@ CREATE TABLE blog_bookmark (
     KEY idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章收藏表';
 
+-- ===============================================================
+-- 📌 站内信通知表 (v1.3.6 新增)
+-- ===============================================================
+DROP TABLE IF EXISTS blog_notification;
+CREATE TABLE blog_notification (
+    id            BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
+    recipient_id  BIGINT(20)      NOT NULL                    COMMENT '接收用户ID',
+    sender_name   VARCHAR(64)     NOT NULL                    COMMENT '发送者昵称',
+    type          VARCHAR(20)     NOT NULL                    COMMENT '通知类型: comment=评论, reply=回复',
+    title         VARCHAR(255)    DEFAULT ''                  COMMENT '通知标题',
+    content       VARCHAR(500)    DEFAULT ''                  COMMENT '通知内容(评论摘要)',
+    article_id    BIGINT(20)      NOT NULL                    COMMENT '关联文章ID',
+    article_title VARCHAR(255)    DEFAULT ''                  COMMENT '关联文章标题',
+    comment_id    BIGINT(20)      DEFAULT NULL                COMMENT '关联评论ID',
+    is_read       INT(1)          DEFAULT 0                   COMMENT '是否已读: 0=未读, 1=已读',
+    create_time   DATETIME        DEFAULT CURRENT_TIMESTAMP    COMMENT '创建时间',
+    PRIMARY KEY (id),
+    KEY idx_recipient_read (recipient_id, is_read),
+    KEY idx_create_time (create_time)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='站内信通知表';
+
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
 SELECT 'Gitee: https://gitee.com/nevell/zhiblog' AS gitee;

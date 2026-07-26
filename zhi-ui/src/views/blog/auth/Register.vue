@@ -105,7 +105,7 @@
 
         <div class="form-options">
           <label class="remember">
-            <input type="checkbox" v-model="agreeToTerms" />
+            <input v-model="agreeToTerms" type="checkbox" />
             同意用户协议和隐私政策
           </label>
         </div>

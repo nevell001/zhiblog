@@ -414,7 +414,11 @@ async function handleBeforeUpload(file) {
   // 前端预压缩：对 >2MB 的图片，先压缩再上传，减少上传带宽消耗
   if (isImage && file.size > 2 * 1024 * 1024) {
     try {
-      const compressedFile = await compressImage(file, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 })
+      const compressedFile = await compressImage(file, {
+        maxWidth: 1920,
+        maxHeight: 1920,
+        quality: 0.85
+      })
       return compressedFile
     } catch (e) {
       console.warn('图片预压缩失败，使用原始文件上传', e)
