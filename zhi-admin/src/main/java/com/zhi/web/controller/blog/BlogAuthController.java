@@ -1,6 +1,7 @@
 package com.zhi.web.controller.blog;
 
 import java.util.Map;
+import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.domain.entity.SysUser;
@@ -56,6 +57,7 @@ public class BlogAuthController extends BaseController
      * 博客用户登录
      * 支持用户名或邮箱登录，仅限博客用户（user_type='01'）
      */
+    @Anonymous
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
@@ -83,6 +85,7 @@ public class BlogAuthController extends BaseController
     /**
      * 博客用户注册
      */
+    @Anonymous
     @PostMapping("/register")
     public AjaxResult register(@RequestBody BlogRegisterBody registerBody, HttpServletRequest request)
     {
@@ -102,6 +105,7 @@ public class BlogAuthController extends BaseController
     /**
      * 发送注册验证码
      */
+    @Anonymous
     @PostMapping("/send-register-code")
     public AjaxResult sendRegisterCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
@@ -134,6 +138,7 @@ public class BlogAuthController extends BaseController
     /**
      * 发送密码重置验证码
      */
+    @Anonymous
     @PostMapping("/send-reset-code")
     public AjaxResult sendResetCode(@RequestBody Map<String, String> params, HttpServletRequest request)
     {
