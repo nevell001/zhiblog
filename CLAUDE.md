@@ -66,16 +66,27 @@ CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 mysql -u root -p zhiblog < sql/00_init_database.sql
 ```
 
+**SQL Migration Scripts** (run in order on existing databases):
+
+```bash
+mysql -u root -p zhiblog < sql/01_fix_fulltext_index.sql           # Adds FULLTEXT indexes
+mysql -u root -p zhiblog < sql/02_fix_notifications_and_search.sql # Creates blog_notification table + indexes
+```
+
+All migration scripts are idempotent (`IF NOT EXISTS` / checked before apply).
+
 ## Architecture
 
 ### Multi-Module Backend Structure
 
-- **zhi-admin**: Main entry point (`com.zhi.RuoYiApplication`), contains controllers for web/admin endpoints
+- **zhi-admin**: Main entry point, contains controllers for web/admin endpoints
 - **zhi-framework**: Core framework (Security config, JWT filter, MyBatis, Redis config, AOP aspects)
 - **zhi-system**: Business logic layer - includes both system admin and blog features
 - **zhi-common**: Shared utilities (file upload, image compression, XSS filter, cache, exceptions)
 - **zhi-quartz**: Scheduled task management
 - **zhi-generator**: Code generation for CRUD modules
+
+**Note**: Modules were renamed from `ruoyi-*` to `zhi-*` in v1.3.5, but the main class is still `com.zhi.RuoYiApplication` (legacy name kept for compatibility). The package structure is `com.zhi.*`.
 
 ### Frontend Structure
 
@@ -98,6 +109,32 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 **Blog Feature Toggles** (stored in `blog_setting` table):
 - `comment_review`, `view_count_enabled`, `like_enabled`, `share_enabled`
 - `search_enabled`, `sidebar_enabled`, `footer_enabled`, `copyright_enabled`
+
+**Public vs Admin API Pattern**:
+- `/blog/**` endpoints: Public-facing, use `@Anonymous` annotation for unauthenticated access
+- `/system/**` endpoints: Admin backend, require JWT + `@PreAuthorize("@ss.hasPermi(...)")`
+- Some entities have both: e.g., friend links use `/system/friendLink/*` (admin) and `/system/friendLink/front/list` (public)
+
+**Notification System** (`blog_notification` table):
+- Triggered by: comment submission, comment audit (approve/reject)
+- Recipient logic in `BlogCommentServiceImpl.sendCommentNotification()`:
+  - Reply (`parentId > 0`): notify parent comment's author
+  - Top-level: notify article's `authorId`
+  - Self-notifications skipped (commenter == recipient)
+- Audits use type=`audit` / `reject`, comments use type=`comment` / `reply`
+- Frontend bell in both `BlogLayout.vue` (blog) and `layout/components/Navbar.vue` (admin)
+
+**Article Search**:
+- Primary: FULLTEXT search using `MATCH(title, content) AGAINST(...)` requiring `ft_article_title_content` index
+- Fallback: `BlogArticleServiceImpl` catches `UncategorizedSQLException` and falls back to LIKE search, sets `fullTextDisabled` flag for the session
+- This means search works even if migrations aren't applied (with degraded performance)
+
+**Comment Status Values**:
+- `0` = 待审核 (pending review)
+- `1` = 已发布 (published, also used for approved)
+- `2` = 已删除 (deleted, also used for rejected)
+
+The `comment_review` blog setting controls whether new comments default to status `0` or `1`.
 
 ### Version Management
 
