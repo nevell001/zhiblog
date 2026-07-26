@@ -320,6 +320,18 @@
                 在底部显示版权信息
               </span>
             </el-form-item>
+            <el-form-item label="显示友情链接" prop="friend_link_enabled">
+              <el-switch v-model="settingsMap.friend_link_enabled" />
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
+                在页脚显示友情链接模块
+              </span>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
 
@@ -684,6 +696,7 @@ async function getAllSettings() {
       'sidebar_enabled',
       'footer_enabled',
       'copyright_enabled',
+      'friend_link_enabled',
       'page_size',
       'hot_article_count',
       'recent_comment_count',
@@ -907,6 +920,7 @@ async function getAllSettings() {
       sidebar_enabled: true,
       footer_enabled: true,
       copyright_enabled: true,
+      friend_link_enabled: true,
       page_size: 10, // 确保数值类型
       hot_article_count: 5, // 确保数值类型
       recent_comment_count: 5, // 确保数值类型
@@ -1027,6 +1041,7 @@ async function getAllSettings() {
       sidebar_enabled: true,
       footer_enabled: true,
       copyright_enabled: true,
+      friend_link_enabled: true,
       page_size: 10,
       hot_article_count: 5,
       recent_comment_count: 5,

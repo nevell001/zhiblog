@@ -140,7 +140,7 @@
             </a>
             <a :href="rssUrl" target="_blank">RSS订阅</a>
           </div>
-          <div v-if="friendLinks.length > 0" class="footer-col">
+          <div v-if="friendLinks.length > 0 && isFriendLinkEnabled" class="footer-col">
             <h4>友情链接</h4>
             <a
               v-for="link in friendLinks"
@@ -190,6 +190,12 @@ interface FriendLink {
   description?: string
 }
 const friendLinks = ref<FriendLink[]>([])
+
+// 友链全局开关（默认开启）
+const isFriendLinkEnabled = computed(() => {
+  const v = (blogSettings.value as any).friend_link_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
 
 const menus = [
   { name: '首页', path: '/blog' },
