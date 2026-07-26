@@ -11,7 +11,7 @@
 - **当前版本**：`1.3.4`
 
 **前端版本号**：
-- **配置文件**：`ruoyi-ui/package.json` 中的 `version` 字段
+- **配置文件**：`zhi-ui/package.json` 中的 `version` 字段
 - **当前版本**：`4.1.0`（前端框架版本，与后端版本独立）
 
 ### 版本号使用位置
@@ -29,20 +29,20 @@
    </properties>
    ```
 
-2. **应用配置** (`ruoyi-admin/src/main/resources/application.yml`)
+2. **应用配置** (`zhi-admin/src/main/resources/application.yml`)
    ```yaml
    ruoyi:
      version: @app.version@  # Maven 资源过滤会替换为实际版本号
    ```
 
-3. **生产环境配置** (`ruoyi-admin/src/main/resources/application-prod.yml`)
+3. **生产环境配置** (`zhi-admin/src/main/resources/application-prod.yml`)
    ```yaml
    ruoyi:
      version: @app.version@  # 必须使用 Maven 占位符，不能硬编码
    ```
    **重要说明**：生产环境配置文件必须使用 `@app.version@` 占位符，不能硬编码版本号，否则会在生产环境中显示错误的版本号。
 
-4. **配置类** (`ruoyi-common/src/main/java/com/ruoyi/common/config/RuoYiConfig.java`)
+4. **配置类** (`zhi-common/src/main/java/com/ruoyi/common/config/RuoYiConfig.java`)
    ```java
    @Value("${ruoyi.version:1.3.3}")
    private String version;
@@ -53,12 +53,12 @@
    - 返回数据：`{ "version": "1.3.3", "name": "ZhiBlog" }`
 
 6. **子模块 parent 版本**：
-   - `ruoyi-common/pom.xml`
-   - `ruoyi-system/pom.xml`
-   - `ruoyi-framework/pom.xml`
-   - `ruoyi-quartz/pom.xml`
-   - `ruoyi-generator/pom.xml`
-   - `ruoyi-admin/pom.xml`
+   - `zhi-common/pom.xml`
+   - `zhi-system/pom.xml`
+   - `zhi-framework/pom.xml`
+   - `zhi-quartz/pom.xml`
+   - `zhi-generator/pom.xml`
+   - `zhi-admin/pom.xml`
    ```xml
    <parent>
        <groupId>top.nevell</groupId>
@@ -69,7 +69,7 @@
 
 #### 前端
 
-1. **管理后台首页** (`ruoyi-ui/src/views/admin/dashboard/index.vue`)
+1. **管理后台首页** (`zhi-ui/src/views/admin/dashboard/index.vue`)
    ```typescript
    const version = ref('1.3.3')
    ```
@@ -87,12 +87,12 @@
    - 第 28 行：`<app.version>1.3.2</app.version>` → `<app.version>1.3.3</app.version>`
 
 2. **修改所有子模块的 parent 版本**：
-   - `ruoyi-common/pom.xml`
-   - `ruoyi-system/pom.xml`
-   - `ruoyi-framework/pom.xml`
-   - `ruoyi-quartz/pom.xml`
-   - `ruoyi-generator/pom.xml`
-   - `ruoyi-admin/pom.xml`
+   - `zhi-common/pom.xml`
+   - `zhi-system/pom.xml`
+   - `zhi-framework/pom.xml`
+   - `zhi-quartz/pom.xml`
+   - `zhi-generator/pom.xml`
+   - `zhi-admin/pom.xml`
    
    每个文件中的：
    ```xml
@@ -121,12 +121,12 @@ sed -i 's/<app.version>1.3.2<\/app.version>/<app.version>1.3.3<\/app.version>/g'
 
 # 2. 批量更新所有子模块的 parent 版本
 sed -i 's/<version>1.3.2<\/version>/<version>1.3.3<\/version>/g' \
-    ruoyi-common/pom.xml \
-    ruoyi-system/pom.xml \
-    ruoyi-framework/pom.xml \
-    ruoyi-quartz/pom.xml \
-    ruoyi-generator/pom.xml \
-    ruoyi-admin/pom.xml
+    zhi-common/pom.xml \
+    zhi-system/pom.xml \
+    zhi-framework/pom.xml \
+    zhi-quartz/pom.xml \
+    zhi-generator/pom.xml \
+    zhi-admin/pom.xml
 
 # 3. 重新编译
 mvn clean install -DskipTests
@@ -136,7 +136,7 @@ mvn clean install -DskipTests
 
 前端版本号独立管理，用于跟踪前端框架的更新：
 
-1. 打开 `ruoyi-ui/package.json`
+1. 打开 `zhi-ui/package.json`
 2. 修改 `version` 字段
 3. 保存文件
 
@@ -164,7 +164,7 @@ mvn clean install -DskipTests
 
 2. **查看子模块 parent 版本**：
    ```bash
-   for module in ruoyi-common ruoyi-system ruoyi-framework ruoyi-quartz ruoyi-generator ruoyi-admin; do
+   for module in zhi-common zhi-system zhi-framework zhi-quartz zhi-generator zhi-admin; do
        echo "=== $module ==="
        grep -A 5 "<parent>" $module/pom.xml | grep -E "(groupId|artifactId|version)"
    done
@@ -172,7 +172,7 @@ mvn clean install -DskipTests
 
 3. **查看编译后的配置**：
    ```bash
-   grep "version:" ruoyi-admin/target/classes/application.yml | head -1
+   grep "version:" zhi-admin/target/classes/application.yml | head -1
    ```
 
 4. **通过 API 检查**：
@@ -184,7 +184,7 @@ mvn clean install -DskipTests
 
 1. **查看 package.json**：
    ```bash
-   grep "version" ruoyi-ui/package.json
+   grep "version" zhi-ui/package.json
    ```
 
 2. **查看管理后台首页**：
@@ -200,7 +200,7 @@ mvn clean install -DskipTests
    - 不要直接修改代码中的版本号（应该从配置读取）
 
 2. **Maven 资源过滤**：
-   - `ruoyi-admin/pom.xml` 已配置资源过滤
+   - `zhi-admin/pom.xml` 已配置资源过滤
    - `application.yml` 中的 `@app.version@` 会在构建时自动替换
 
 3. **前端获取版本号**：

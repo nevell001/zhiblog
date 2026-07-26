@@ -1,0 +1,397 @@
+<template>
+  <footer v-if="shouldShowFooter" class="blog-footer">
+    <div class="footer-content">
+      <div v-if="blogSettingsStore.isFeatureEnabled('footer_enabled')" class="footer-info">
+        <div class="footer-section">
+          <h4>关于博客</h4>
+          <p>{{ blogSettings.blog_desc || '一个基于 ZhiBlog 的博客系统' }}</p>
+          <div class="footer-stats">
+            <span>文章: {{ totalArticles }} 篇</span>
+            <span>分类: {{ categoryCount }} 个</span>
+            <span>标签: {{ tagCount }} 个</span>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h4>快速链接</h4>
+          <ul class="footer-links">
+            <li>
+              <router-link to="/blog">首页</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/about">关于</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/category">分类</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/tag">标签</router-link>
+            </li>
+            <li>
+              <router-link to="/blog/archive">归档</router-link>
+            </li>
+            <li>
+              <a :href="rssUrl" target="_blank" title="RSS订阅">RSS订阅</a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4>联系方式</h4>
+          <div class="footer-contact">
+            <p v-if="blogSettings.blog_email">
+              <i class="el-icon-message"></i>
+              {{ blogSettings.blog_email }}
+            </p>
+            <p v-if="blogSettings.blog_beian">
+              <i class="el-icon-document"></i>
+              {{ blogSettings.blog_beian }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="shouldShowCopyright" class="footer-copyright">
+        <div class="copyright-content">
+          <p>
+            <span v-if="blogSettings.blog_copyright">{{ blogSettings.blog_copyright }}</span>
+            <span v-else>
+              © {{ currentYear }} {{ blogSettings.blog_author || '博客作者' }}. All rights reserved.
+            </span>
+          </p>
+          <p class="tech-info">
+            Powered by
+            <a href="#" target="_blank">ZhiBlog - 知博</a>
+            <span class="version-tag">{{ versionText }}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, onMounted } from 'vue'
+import { useBlogSettingsStore } from '@/stores/blogSettings'
+import request from '@/utils/request'
+
+// 定义props
+const props = defineProps({
+  blogSettings: {
+    type: Object,
+    default: () => ({})
+  },
+  totalArticles: {
+    type: Number,
+    default: 0
+  },
+  categoryCount: {
+    type: Number,
+    default: 0
+  },
+  tagCount: {
+    type: Number,
+    default: 0
+  }
+})
+
+const blogSettingsStore = useBlogSettingsStore()
+
+// 计算RSS URL
+const rssUrl = computed(() => {
+  // 根据当前环境构建RSS URL
+  // 在浏览器中，需要使用localhost而不是Docker内部地址
+  let baseUrl = 'http://localhost:8080'
+
+  // 如果当前在localhost:3000，使用localhost:8080
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    baseUrl = 'http://localhost:8080'
+  } else {
+    // 否则使用当前域名，但端口改为8080
+    baseUrl = `${window.location.protocol}//${window.location.hostname}:8080`
+  }
+
+  return `${baseUrl}/blog/rss`
+})
+
+// 计算当前年份
+const currentYear = computed(() => {
+  return new Date().getFullYear()
+})
+
+// 是否显示底部
+const shouldShowFooter = computed(() => {
+  return blogSettingsStore.isFeatureEnabled('footer_enabled')
+})
+
+// 是否显示版权
+const shouldShowCopyright = computed(() => {
+  return blogSettingsStore.isFeatureEnabled('copyright_enabled')
+})
+
+// 版本号
+const versionText = ref('')
+const fetchVersion = async () => {
+  try {
+    const response = (await request.get('/system/version')) as any
+    if (response.code === 200 && response.data) {
+      versionText.value = `v${response.data.version}`
+    }
+  } catch (error) {
+    // 获取版本失败时不显示
+  }
+}
+onMounted(() => {
+  fetchVersion()
+})
+</script>
+
+<style scoped>
+.blog-footer {
+  margin-top: 60px;
+  border-top: 1px solid #e7e5e4;
+  background: #f5f5f4;
+  color: #292524;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px 20px;
+}
+
+.footer-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: 40px;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #e7e5e4;
+}
+
+.footer-section h4 {
+  margin: 0 0 20px 0;
+  color: #292524;
+  font-size: 1.2rem;
+  font-weight: 600;
+  position: relative;
+  padding-bottom: 10px;
+}
+
+.footer-section h4::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background: #4f46e5;
+  border-radius: 2px;
+}
+
+.footer-section p {
+  margin: 0 0 15px 0;
+  line-height: 1.6;
+  color: #78716c;
+}
+
+.footer-stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.footer-stats span {
+  background: #eef2ff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #4f46e5;
+  border: 1px solid #e0e7ff;
+}
+
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-links li {
+  margin-bottom: 10px;
+}
+
+.footer-links a {
+  color: #57534e;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.footer-links a:hover {
+  color: #4f46e5;
+  transform: translateX(5px);
+  background: #eef2ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.footer-links a .el-icon {
+  margin-right: 4px;
+  font-size: 0.9em;
+  vertical-align: middle;
+}
+
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.footer-contact i {
+  color: #4f46e5;
+  font-size: 1.1rem;
+}
+
+.footer-copyright {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid #e7e5e4;
+  background: transparent;
+}
+
+.copyright-content p {
+  margin: 8px 0;
+  font-size: 0.9rem;
+  color: #78716c;
+  font-weight: 500;
+}
+
+.tech-info {
+  font-size: 0.85rem !important;
+}
+
+.tech-info a {
+  color: #4f46e5;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  background: #eef2ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.tech-info .version-tag {
+  margin-left: 6px;
+  font-size: 0.8rem;
+  color: #78716c;
+}
+
+.tech-info a:hover {
+  color: #4338ca;
+  background: #e0e7ff;
+  text-decoration: none;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .footer-content {
+    padding: 30px 15px 15px;
+  }
+
+  .footer-info {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+  }
+
+  .footer-section h4 {
+    font-size: 1.1rem;
+  }
+
+  .footer-stats {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .footer-stats span {
+    font-size: 0.8rem;
+    padding: 3px 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    padding: 20px 10px 10px;
+  }
+
+  .footer-info {
+    gap: 20px;
+  }
+
+  .footer-section {
+    text-align: center;
+  }
+
+  .footer-section h4::after {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .footer-stats {
+    justify-content: center;
+  }
+
+  .footer-contact p {
+    justify-content: center;
+  }
+
+  .copyright-content {
+    font-size: 0.85rem;
+  }
+}
+
+/* 深色主题适配 */
+html.dark .blog-footer {
+  border-top-color: #44403c;
+  background: #292524;
+  color: #e7e5e4;
+}
+
+html.dark .footer-info,
+html.dark .footer-copyright {
+  border-color: #44403c;
+}
+
+html.dark .footer-section h4 {
+  color: #f5f5f4;
+}
+
+html.dark .footer-section h4::after {
+  background: #a5b4fc;
+}
+
+html.dark .footer-section p,
+html.dark .footer-links a,
+html.dark .copyright-content p {
+  color: #d6d3d1;
+}
+
+html.dark .footer-stats span,
+html.dark .tech-info a {
+  border-color: rgba(165, 180, 252, 0.24);
+  background: rgba(79, 70, 229, 0.18);
+  color: #a5b4fc;
+}
+
+html.dark .footer-links a:hover,
+html.dark .footer-contact i,
+html.dark .tech-info a:hover {
+  color: #a5b4fc;
+  background: rgba(79, 70, 229, 0.18);
+}
+
+html.dark .tech-info .version-tag {
+  color: #d6d3d1;
+}
+</style>

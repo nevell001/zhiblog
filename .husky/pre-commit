@@ -4,13 +4,13 @@
 echo "🔍 运行代码规范检查..."
 
 # 检查是否有前端代码变更
-FRONTEND_CHANGED=$(git diff --cached --name-only | grep -E "^(ruoyi-ui/)" | wc -l)
+FRONTEND_CHANGED=$(git diff --cached --name-only | grep -E "^(zhi-ui/)" | wc -l)
 BACKEND_CHANGED=$(git diff --cached --name-only | grep -E "\.(java)$" | wc -l)
 
 # 如果有前端代码变更，运行前端检查
 if [ "$FRONTEND_CHANGED" -gt 0 ]; then
   echo "📦 检查前端代码..."
-  cd ruoyi-ui
+  cd zhi-ui
 
   # 运行 ESLint 检查（不自动修复）
   npm run lint:check
@@ -26,7 +26,7 @@ if [ "$FRONTEND_CHANGED" -gt 0 ]; then
     echo ""
     echo "❌ 前端代码检查失败！"
     echo "请运行以下命令修复："
-    echo "  cd ruoyi-ui && npm run lint && npm run format"
+    echo "  cd zhi-ui && npm run lint && npm run format"
     echo ""
     exit 1
   fi

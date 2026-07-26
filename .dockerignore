@@ -1,0 +1,55 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# Node
+node_modules/
+dist/
+.zhi-ui/
+
+# Docker
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Documentation & logs
+docs/
+*.md
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+src/test/
+*.iml
+
+# CI
+.github/
+.gitlab-ci.yml
+
+# Python
+__pycache__/
+*.pyc

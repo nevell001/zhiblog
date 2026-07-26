@@ -4,7 +4,7 @@
 
 **Goal:** Build a switchable `mo-blog` visual theme from `docs/design/` without removing the existing default theme.
 
-**Architecture:** Theme choice lives in the existing settings Pinia store and is applied to `document.documentElement` as `theme-mo-blog`. CSS tokens and component overrides are centralized under `ruoyi-ui/src/assets/styles/themes/`, while page-level rules remain scoped to `.theme-mo-blog` so the default theme is untouched.
+**Architecture:** Theme choice lives in the existing settings Pinia store and is applied to `document.documentElement` as `theme-mo-blog`. CSS tokens and component overrides are centralized under `zhi-ui/src/assets/styles/themes/`, while page-level rules remain scoped to `.theme-mo-blog` so the default theme is untouched.
 
 **Tech Stack:** Vue 3, TypeScript, Pinia, Element Plus, SCSS, Vitest, Vite.
 
@@ -24,22 +24,22 @@
 
 ## File Structure
 
-- Create `ruoyi-ui/src/assets/styles/themes/mo-blog.scss`: design tokens, Element Plus overrides, blog page mappings, admin page mappings, responsive rules.
-- Create `ruoyi-ui/src/assets/styles/themes/index.scss`: theme stylesheet aggregator.
-- Modify `ruoyi-ui/src/assets/styles/index.scss`: import the theme aggregator once.
-- Modify `ruoyi-ui/src/utils/theme.ts`: add `AppTheme`, `APP_THEME_STORAGE_KEY`, `normalizeAppTheme`, `applyAppTheme`, and `getStoredAppTheme`.
-- Modify `ruoyi-ui/src/utils/theme.test.ts`: test theme normalization, storage, and root class behavior.
-- Modify `ruoyi-ui/src/stores/settings.ts`: add `appTheme` state and `setAppTheme` action.
-- Modify `ruoyi-ui/src/stores/settings.test.ts`: test default app theme and persistence.
-- Modify `ruoyi-ui/src/layout/components/Settings/index.vue`: add a theme selector entry for `default` and `mo-blog`.
+- Create `zhi-ui/src/assets/styles/themes/mo-blog.scss`: design tokens, Element Plus overrides, blog page mappings, admin page mappings, responsive rules.
+- Create `zhi-ui/src/assets/styles/themes/index.scss`: theme stylesheet aggregator.
+- Modify `zhi-ui/src/assets/styles/index.scss`: import the theme aggregator once.
+- Modify `zhi-ui/src/utils/theme.ts`: add `AppTheme`, `APP_THEME_STORAGE_KEY`, `normalizeAppTheme`, `applyAppTheme`, and `getStoredAppTheme`.
+- Modify `zhi-ui/src/utils/theme.test.ts`: test theme normalization, storage, and root class behavior.
+- Modify `zhi-ui/src/stores/settings.ts`: add `appTheme` state and `setAppTheme` action.
+- Modify `zhi-ui/src/stores/settings.test.ts`: test default app theme and persistence.
+- Modify `zhi-ui/src/layout/components/Settings/index.vue`: add a theme selector entry for `default` and `mo-blog`.
 
 ## Task 1: Theme State And Root Class
 
 **Files:**
-- Modify: `ruoyi-ui/src/utils/theme.ts`
-- Modify: `ruoyi-ui/src/utils/theme.test.ts`
-- Modify: `ruoyi-ui/src/stores/settings.ts`
-- Modify: `ruoyi-ui/src/stores/settings.test.ts`
+- Modify: `zhi-ui/src/utils/theme.ts`
+- Modify: `zhi-ui/src/utils/theme.test.ts`
+- Modify: `zhi-ui/src/stores/settings.ts`
+- Modify: `zhi-ui/src/stores/settings.test.ts`
 
 **Interfaces:**
 - Produces: `type AppTheme = 'default' | 'mo-blog'`
@@ -52,7 +52,7 @@
 
 - [ ] **Step 1: Write failing theme utility tests**
 
-Add tests to `ruoyi-ui/src/utils/theme.test.ts`:
+Add tests to `zhi-ui/src/utils/theme.test.ts`:
 
 ```ts
 describe('app theme helpers', () => {
@@ -89,17 +89,17 @@ describe('app theme helpers', () => {
 
 - [ ] **Step 2: Verify the tests fail**
 
-Run: `cd ruoyi-ui && npm run test -- src/utils/theme.test.ts --run`
+Run: `cd zhi-ui && npm run test -- src/utils/theme.test.ts --run`
 
 Expected: FAIL because `normalizeAppTheme`, `applyAppTheme`, and `APP_THEME_STORAGE_KEY` are not exported yet.
 
 - [ ] **Step 3: Implement theme helpers**
 
-In `ruoyi-ui/src/utils/theme.ts`, export the interfaces listed above. `applyAppTheme` removes `theme-mo-blog` before applying the next theme, then writes the normalized value to storage.
+In `zhi-ui/src/utils/theme.ts`, export the interfaces listed above. `applyAppTheme` removes `theme-mo-blog` before applying the next theme, then writes the normalized value to storage.
 
 - [ ] **Step 4: Add store tests**
 
-Add tests to `ruoyi-ui/src/stores/settings.test.ts`:
+Add tests to `zhi-ui/src/stores/settings.test.ts`:
 
 ```ts
 it('应该初始化应用主题为持久化值', () => {
@@ -118,7 +118,7 @@ it('应该设置应用主题并同步根节点 class', () => {
 
 - [ ] **Step 5: Verify the store tests fail**
 
-Run: `cd ruoyi-ui && npm run test -- src/stores/settings.test.ts --run`
+Run: `cd zhi-ui && npm run test -- src/stores/settings.test.ts --run`
 
 Expected: FAIL because `appTheme` and `setAppTheme` are not implemented yet.
 
@@ -131,7 +131,7 @@ Add `appTheme` to the settings state, initialize it from `getStoredAppTheme()`, 
 Run:
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 npm run test -- src/utils/theme.test.ts src/stores/settings.test.ts --run
 ```
 
@@ -140,10 +140,10 @@ Expected: PASS.
 ## Task 2: Theme Styles And Selector
 
 **Files:**
-- Create: `ruoyi-ui/src/assets/styles/themes/mo-blog.scss`
-- Create: `ruoyi-ui/src/assets/styles/themes/index.scss`
-- Modify: `ruoyi-ui/src/assets/styles/index.scss`
-- Modify: `ruoyi-ui/src/layout/components/Settings/index.vue`
+- Create: `zhi-ui/src/assets/styles/themes/mo-blog.scss`
+- Create: `zhi-ui/src/assets/styles/themes/index.scss`
+- Modify: `zhi-ui/src/assets/styles/index.scss`
+- Modify: `zhi-ui/src/layout/components/Settings/index.vue`
 
 **Interfaces:**
 - Consumes: `settingsStore.appTheme`
@@ -171,7 +171,7 @@ In `Settings/index.vue`, add an `el-select` labeled `界面主题` with options 
 Run:
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 npx vue-tsc --noEmit --pretty false
 npx eslint src --quiet
 npm run format:check

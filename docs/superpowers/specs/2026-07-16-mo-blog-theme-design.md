@@ -61,8 +61,8 @@ type AppTheme = 'default' | 'mo-blog'
 
 主题状态放入现有设置 store：
 
-- `ruoyi-ui/src/stores/settings.ts`
-- `ruoyi-ui/src/store/modules/settings.ts` 如仍被旧模块引用，保持兼容
+- `zhi-ui/src/stores/settings.ts`
+- `zhi-ui/src/store/modules/settings.ts` 如仍被旧模块引用，保持兼容
 
 本地持久化 key 建议：
 
@@ -81,8 +81,8 @@ localStorage.setItem('app-theme', 'mo-blog')
 新增集中主题样式：
 
 ```text
-ruoyi-ui/src/assets/styles/themes/mo-blog.scss
-ruoyi-ui/src/assets/styles/themes/index.scss
+zhi-ui/src/assets/styles/themes/mo-blog.scss
+zhi-ui/src/assets/styles/themes/index.scss
 ```
 
 在全局样式入口引入：
@@ -216,7 +216,7 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- `ruoyi-ui/src/views/blog/index.vue`
+- `zhi-ui/src/views/blog/index.vue`
 - 可复用现有文章列表、热门文章、搜索逻辑
 
 关键视觉：
@@ -238,8 +238,8 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- `ruoyi-ui/src/views/blog/article/detail.vue`
-- `ruoyi-ui/src/components/ArticleTOC.vue`
+- `zhi-ui/src/views/blog/article/detail.vue`
+- `zhi-ui/src/components/ArticleTOC.vue`
 
 关键视觉：
 
@@ -260,10 +260,10 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- `ruoyi-ui/src/views/blog/auth/Login.vue`
-- `ruoyi-ui/src/views/blog/auth/Register.vue`
-- `ruoyi-ui/src/views/blog/auth/ForgotPassword.vue`
-- `ruoyi-ui/src/views/login.vue` 或 `UnifiedLogin.vue`
+- `zhi-ui/src/views/blog/auth/Login.vue`
+- `zhi-ui/src/views/blog/auth/Register.vue`
+- `zhi-ui/src/views/blog/auth/ForgotPassword.vue`
+- `zhi-ui/src/views/login.vue` 或 `UnifiedLogin.vue`
 
 关键视觉：
 
@@ -282,7 +282,7 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- 后台文章管理页 `ruoyi-ui/src/views/admin/blog/article/index.vue`
+- 后台文章管理页 `zhi-ui/src/views/admin/blog/article/index.vue`
 - 若项目已有独立编辑组件，则优先主题化现有编辑器和弹窗
 
 关键视觉：
@@ -303,7 +303,7 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- `ruoyi-ui/src/views/admin/system/user/user/profile/index.vue`
+- `zhi-ui/src/views/admin/system/user/user/profile/index.vue`
 - 如存在前台用户中心，优先覆盖前台用户中心；否则后台个人资料页按主题化处理
 
 关键视觉：
@@ -323,11 +323,11 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 
 映射到：
 
-- `ruoyi-ui/src/layout/index.vue`
-- `ruoyi-ui/src/layout/components/Sidebar/*`
-- `ruoyi-ui/src/layout/components/Navbar.vue`
-- `ruoyi-ui/src/assets/styles/sidebar.scss`
-- `ruoyi-ui/src/assets/styles/element-ui.scss`
+- `zhi-ui/src/layout/index.vue`
+- `zhi-ui/src/layout/components/Sidebar/*`
+- `zhi-ui/src/layout/components/Navbar.vue`
+- `zhi-ui/src/assets/styles/sidebar.scss`
+- `zhi-ui/src/assets/styles/element-ui.scss`
 
 关键视觉：
 
@@ -386,7 +386,7 @@ Token 来源于 `docs/design/prototypes/shared.css`。
 每个实现批次至少运行：
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 npx vue-tsc --noEmit --pretty false
 npx eslint src --quiet
 npm run format:check

@@ -82,7 +82,7 @@ export DB_PASSWORD=$(openssl rand -base64 32)
 
 ```yaml
 services:
-  ruoyi-admin:
+  zhi-admin:
     env_file:
       - .env
 ```
@@ -182,9 +182,9 @@ SECURITY_VALIDATION_ENABLED=false
 
 ## 相关文件
 
-- **配置验证器**：`ruoyi-framework/src/main/java/com/ruoyi/framework/config/SecurityConfigValidator.java`
-- **异常类**：`ruoyi-common/src/main/java/com/ruoyi/common/exception/SecurityConfigValidationException.java`
-- **配置文件**：`ruoyi-admin/src/main/resources/application.yml`
+- **配置验证器**：`zhi-framework/src/main/java/com/ruoyi/framework/config/SecurityConfigValidator.java`
+- **异常类**：`zhi-common/src/main/java/com/ruoyi/common/exception/SecurityConfigValidationException.java`
+- **配置文件**：`zhi-admin/src/main/resources/application.yml`
 - **环境变量模板**：`.env.example`
 
 ## 技术细节

@@ -5,12 +5,12 @@ WORKDIR /app
 
 # 复制 pom.xml 并下载依赖（利用 Docker 缓存）
 COPY pom.xml .
-COPY ruoyi-common/pom.xml ruoyi-common/
-COPY ruoyi-framework/pom.xml ruoyi-framework/
-COPY ruoyi-system/pom.xml ruoyi-system/
-COPY ruoyi-quartz/pom.xml ruoyi-quartz/
-COPY ruoyi-generator/pom.xml ruoyi-generator/
-COPY ruoyi-admin/pom.xml ruoyi-admin/
+COPY zhi-common/pom.xml zhi-common/
+COPY zhi-framework/pom.xml zhi-framework/
+COPY zhi-system/pom.xml zhi-system/
+COPY zhi-quartz/pom.xml zhi-quartz/
+COPY zhi-generator/pom.xml zhi-generator/
+COPY zhi-admin/pom.xml zhi-admin/
 
 # 下载依赖到本地仓库
 RUN mvn dependency:go-offline -B
@@ -35,11 +35,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl tzdata \
     && rm -rf /var/lib/apt/lists/*
 
 # 复制编译好的 JAR 包
-COPY --from=builder /app/ruoyi-admin/target/ruoyi-admin.jar /app/ruoyi-admin.jar
+COPY --from=builder /app/zhi-admin/target/zhi-admin.jar /app/zhi-admin.jar
 
 # 创建上传目录
 RUN mkdir -p /app/uploadPath \
     && chmod 755 /app/uploadPath
 
+# 创建非 root 用户运行应用（安全最佳实践）
+RUN groupadd -r appuser && useradd -r -g appuser -d /app appuser \
+    && chown -R appuser:appuser /app
+
+USER appuser
+
 # 启动命令
-CMD ["java", "-jar", "/app/ruoyi-admin.jar"]
+CMD ["java", "-jar", "/app/zhi-admin.jar"]

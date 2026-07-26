@@ -2,52 +2,25 @@
 -- 🌟 博客系统完整数据库初始化脚本
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
--- 🔧 最后更新：2026-01-13
+-- 🔧 最后更新：2026-07-26
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
--- 🚀 版本：v2.1.0 (完整版)
+-- 🚀 版本：v2.2.0 (合并版)
 --
 -- 📋 包含内容：
--- ✅ 若依系统基础表结构和数据 (21个表，包含sys_config、sys_user_role、sys_role_dept、sys_user_post、sys_dict_type、sys_dict_data、sys_notice、sys_logininfor、sys_oper_log)
--- ✅ Quartz定时任务表结构 (11个表)
--- ✅ 博客系统表结构和数据 (8个表：blog_article、blog_category、blog_tag、blog_article_tag、blog_comment、blog_friend_link、blog_setting、blog_email_code)
--- ✅ 博客用户认证系统（博客用户角色role_id=3、邮箱验证码表）
--- ✅ 代码生成器表结构 (2个表：gen_table、gen_table_column)
--- ✅ 性能优化索引 (20+个索引)
--- ✅ 数据完整性约束和触发器
--- ✅ 完整的示例数据 (文章6篇、分类14个、标签19个、友链10个)
--- ✅ 博客管理菜单和权限配置
--- ✅ 系统管理菜单和权限配置
--- ✅ 系统监控菜单和权限配置（包含Actuator、Prometheus、Grafana、登录日志、操作日志）
--- ✅ 数据统计菜单和权限配置
--- ✅ 系统工具菜单和权限配置
---
--- 🔧 技术栈：
--- - MySQL 8.0+
--- - Spring Boot 3.3.0
--- - Vue.js 3.x
--- - MyBatis
--- - Redis
---
--- 📊 数据库统计：
--- - 总表数：42个（包含完整的若依系统表、Quartz表、博客系统表、博客用户认证表和代码生成器表）
--- - 总设置项：38个
--- - 示例文章：6篇
--- - 示例分类：14个 (含层级结构)
--- - 示例标签：26个
--- - 友情链接：10个
--- - 用户角色：3个（超级管理员、普通角色、博客用户）
---
--- ⚠️ 重要提示：
--- 本脚本已整合所有必要的表结构和数据，完整的数据库初始化只需执行此脚本即可
--- 所有相关SQL文件已整合，包括系统管理、系统监控、数据统计、代码生成器等模块
---
--- ✅ 正确的初始化步骤：
--- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- 2. 导入本脚本：mysql -u root -p zhiblog < init_database.sql
--- 3. （可选）添加性能索引：mysql -u root -p zhiblog < performance_indexes.sql
+-- ✅ 若依系统基础表结构和数据
+-- ✅ Quartz定时任务表结构
+-- ✅ 博客系统表结构和数据
+-- ✅ 博客用户认证系统（博客用户角色、邮箱验证码表）
+-- ✅ 代码生成器表结构
+-- ✅ 性能优化索引（20+个，含全文索引和监控视图）
+-- ✅ 数据完整性约束和触发器（含零日期修复）
+-- ✅ 完整的示例数据
+-- ✅ 博客管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
 --
 -- 🎯 使用方法：
 -- 1. 创建数据库：CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 2. 导入本脚本：mysql -u root -p zhiblog < 00_init_database.sql
+-- 3. 完成！不再需要单独执行 index 或 fix 脚本
 -- 2. 选择数据库：USE zhiblog;
 -- 3. 执行脚本：source /path/to/init_database.sql;
 -- 4. 验证结果：查看最后的统计信息
@@ -64,6 +37,7 @@ CREATE DATABASE IF NOT EXISTS zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unic
 USE zhiblog;
 
 -- 创建专用应用账号，避免应用服务依赖root远程访问
+-- ⚠️ 安全警告：部署前必须修改此密码为强密码
 CREATE USER IF NOT EXISTS 'zhiblog_app'@'%' IDENTIFIED BY 'ZhiBlog_app_ChangeMe_2026!';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, TRIGGER
 ON zhiblog.* TO 'zhiblog_app'@'%';
@@ -92,16 +66,16 @@ CREATE TABLE sys_dept (
 ) ENGINE=INNODB AUTO_INCREMENT=200 COMMENT = '部门表';
 
 -- 初始化-部门表数据
-INSERT INTO sys_dept VALUES(100,  0,   '0',          '若依科技',   0, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(101,  100, '0,100',      '深圳总公司', 1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(102,  100, '0,100',      '长沙分公司', 2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '若依', '15888888888', 'ry@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(100,  0,   '0',          '知博技术',   0, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(101,  100, '0,100',      '西安总公司', 1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(102,  100, '0,100',      '上海分公司', 2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
 
 -- 2、用户信息表
 DROP TABLE IF EXISTS sys_user;
@@ -130,8 +104,8 @@ CREATE TABLE sys_user (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '用户信息表';
 
 -- 初始化-用户信息表数据
-INSERT INTO sys_user VALUES(1,  103, 'admin', '若依', '00', 'ry@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
-INSERT INTO sys_user VALUES(2,  105, 'ry',    '若依', '00', 'ry@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
+INSERT INTO sys_user VALUES(1,  103, 'admin', '知博', '00', 'zhiblog@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
+INSERT INTO sys_user VALUES(2,  105, 'zhiblog', '知博', '00', 'zhiblog@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
 
 -- 3、岗位信息表
 DROP TABLE IF EXISTS sys_post;
@@ -174,7 +148,7 @@ CREATE TABLE sys_config (
 
 -- 初始化-参数配置表数据
 INSERT INTO sys_config VALUES(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',               'skin-blue',     'Y', 'admin', NOW(), '', NULL, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
-INSERT INTO sys_config VALUES(2, '用户管理-账号初始密码',         'sys.user.initPassword',            '123456',        'Y', 'admin', NOW(), '', NULL, '初始化密码 123456' );
+INSERT INTO sys_config VALUES(2, '用户管理-账号初始密码',         'sys.user.initPassword',            'CHANGE_ME',     'Y', 'admin', NOW(), '', NULL, '⚠️ 初始化密码，部署后请立即修改为强密码' );
 INSERT INTO sys_config VALUES(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',              'theme-dark',    'Y', 'admin', NOW(), '', NULL, '深色主题theme-dark，浅色主题theme-light' );
 INSERT INTO sys_config VALUES(4, '账号自助-验证码开关',           'sys.account.captchaEnabled',       'true',          'Y', 'admin', NOW(), '', NULL, '是否开启验证码功能（true开启，false关闭）');
 INSERT INTO sys_config VALUES(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',         'false',         'Y', 'admin', NOW(), '', NULL, '是否开启注册用户功能（true开启，false关闭）');
@@ -1106,7 +1080,7 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: CHANGE_ME_ROOT_PASSWORD
       MYSQL_DATABASE: blog
     volumes:
       - mysql_data:/var/lib/mysql
@@ -1728,6 +1702,104 @@ ALTER TABLE `blog_setting` ADD INDEX `idx_config_key` (`config_key`);
 -- 文章标签关联表索引优化
 ALTER TABLE `blog_article_tag` ADD INDEX `idx_tag_id` (`tag_id`);
 
+-- =====================================================
+-- ========== 性能优化索引（幂等创建，可重复执行）==========
+-- =====================================================
+
+DROP PROCEDURE IF EXISTS sp_create_index_if_not_exists$$
+CREATE PROCEDURE sp_create_index_if_not_exists(
+    IN table_name_param VARCHAR(64),
+    IN index_name_param VARCHAR(64),
+    IN create_sql_param TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = table_name_param
+          AND INDEX_NAME = index_name_param
+    ) THEN
+        SET @create_index_sql = create_sql_param;
+        PREPARE create_index_stmt FROM @create_index_sql;
+        EXECUTE create_index_stmt;
+        DEALLOCATE PREPARE create_index_stmt;
+    END IF;
+END$$
+
+-- 文章状态和删除标志复合索引（用于列表查询）
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_status_del_flag', 'CREATE INDEX idx_article_status_del_flag ON blog_article(status, del_flag)');
+
+-- 文章创建时间索引（用于排序和归档）
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_create_time', 'CREATE INDEX idx_article_create_time ON blog_article(create_time)');
+
+-- 文章浏览量索引（用于热门文章排序）
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_view_count', 'CREATE INDEX idx_article_view_count ON blog_article(view_count DESC)');
+
+-- 文章置顶和推荐状态复合索引（用于首页展示）
+CALL sp_create_index_if_not_exists('blog_article', 'idx_article_is_top_recommend', 'CREATE INDEX idx_article_is_top_recommend ON blog_article(is_top DESC, is_recommend DESC, status DESC, del_flag)');
+
+-- 文章标题全文索引（用于搜索功能）
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title', 'CREATE FULLTEXT INDEX ft_article_title ON blog_article(title)');
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_content', 'CREATE FULLTEXT INDEX ft_article_content ON blog_article(content)');
+CALL sp_create_index_if_not_exists('blog_article', 'ft_article_title_content', 'CREATE FULLTEXT INDEX ft_article_title_content ON blog_article(title, content)');
+
+-- 评论复合索引（用于前台展示评论）
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_comment_article_status_time', 'CREATE INDEX idx_comment_article_status_time ON blog_comment(article_id, status, create_time DESC)');
+
+-- 分类排序索引
+CALL sp_create_index_if_not_exists('blog_category', 'idx_category_sort_order', 'CREATE INDEX idx_category_sort_order ON blog_category(sort_order)');
+
+-- 标签使用次数索引（用于热门标签）
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_tag_article_count', 'CREATE INDEX idx_tag_article_count ON blog_tag(article_count DESC)');
+
+-- 文章标签关联复合唯一索引（防止重复关联）
+CALL sp_create_index_if_not_exists('blog_article_tag', 'uk_article_tag_unique', 'CREATE UNIQUE INDEX uk_article_tag_unique ON blog_article_tag(article_id, tag_id)');
+
+-- 链接排序索引
+CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_sort', 'CREATE INDEX idx_friend_link_sort ON blog_friend_link(sort DESC)');
+
+-- 链接状态索引（用于查询有效链接）
+CALL sp_create_index_if_not_exists('blog_friend_link', 'idx_friend_link_status', 'CREATE INDEX idx_friend_link_status ON blog_friend_link(status)');
+
+-- 设置更新时间索引（用于缓存失效判断）
+CALL sp_create_index_if_not_exists('blog_setting', 'idx_setting_update_time', 'CREATE INDEX idx_setting_update_time ON blog_setting(update_time)');
+
+-- 性能监控视图
+CREATE OR REPLACE VIEW v_slow_queries AS
+SELECT
+    TABLE_NAME,
+    TABLE_ROWS,
+    DATA_LENGTH,
+    INDEX_LENGTH,
+    (DATA_LENGTH + INDEX_LENGTH) as TOTAL_SIZE
+FROM information_schema.TABLES
+WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME LIKE 'blog_%'
+ORDER BY (DATA_LENGTH + INDEX_LENGTH) DESC;
+
+CREATE OR REPLACE VIEW v_index_usage AS
+SELECT
+    TABLE_NAME,
+    INDEX_NAME,
+    CARDINALITY,
+    SUB_PART,
+    NULLABLE,
+    INDEX_TYPE
+FROM information_schema.STATISTICS
+WHERE TABLE_SCHEMA = DATABASE()
+    AND TABLE_NAME LIKE 'blog_%'
+ORDER BY TABLE_NAME, INDEX_NAME;
+
+-- 执行统计信息更新
+ANALYZE TABLE blog_article;
+ANALYZE TABLE blog_category;
+ANALYZE TABLE blog_tag;
+ANALYZE TABLE blog_article_tag;
+ANALYZE TABLE blog_comment;
+ANALYZE TABLE blog_setting;
+ANALYZE TABLE blog_friend_link;
+
 -- ========== 添加数据完整性约束 ==========
 
 -- 博客文章表约束检查和触发器
@@ -2113,7 +2185,7 @@ SELECT '🚀 博客系统已准备就绪，可以开始使用了！' AS final_me
 
 SELECT '📚 使用指南：' AS guide_title;
 SELECT '1. 启动后端服务：mvn spring-boot:run' AS step1;
-SELECT '2. 启动前端服务：cd ruoyi-ui && npm run dev' AS step2;
+SELECT '2. 启动前端服务：cd zhi-ui && npm run dev' AS step2;
 SELECT '3. 访问管理后台：http://localhost:8080' AS step3;
 SELECT '4. 默认账号：admin（首次登录请修改默认密码）' AS step4;
 SELECT '5. 访问前台首页：http://localhost:3000' AS step5;

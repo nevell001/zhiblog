@@ -11,7 +11,7 @@ ZhiBlog (知博) is a full-stack blog system built on Spring Boot 3.3.0 + Vue 3 
 **Brand Identity**:
 - Brand name: "ZhiBlog - 知博"
 - Theme name: "默 Blog" (mo-blog) - refers to the visual theme style only
-- Internal package structure uses `com.ruoyi.*` (framework naming convention)
+- Internal package structure uses `com.zhi.*` (framework naming convention)
 - Never display "若依" or "墨 Blog" (incorrect character) in user-facing code
 
 ## Common Commands
@@ -21,16 +21,16 @@ ZhiBlog (知博) is a full-stack blog system built on Spring Boot 3.3.0 + Vue 3 
 ```bash
 # From project root
 mvn clean install -DskipTests           # Build all modules
-cd ruoyi-admin && mvn spring-boot:run   # Run backend server (port 8080)
+cd zhi-admin && mvn spring-boot:run   # Run backend server (port 8080)
 
 # Testing
 mvn test -Dtest=TestClassName            # Run single test
-mvn test -pl ruoyi-system               # Test specific module
+mvn test -pl zhi-system               # Test specific module
 mvn test jacoco:report                   # Coverage report
 mvn checkstyle:check                    # Code style check
 
 # Check parent version consistency across modules
-for m in ruoyi-common ruoyi-system ruoyi-framework ruoyi-quartz ruoyi-generator ruoyi-admin; do
+for m in zhi-common zhi-system zhi-framework zhi-quartz zhi-generator zhi-admin; do
   grep -A 5 "<parent>" $m/pom.xml | grep -E "(groupId|artifactId|version)"
 done
 ```
@@ -38,7 +38,7 @@ done
 ### Frontend (Vue 3/Vite + TypeScript)
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 npm run dev              # Dev server (port 3000)
 npm run build:prod      # Production build
 npm run test             # Run Vitest tests
@@ -70,12 +70,12 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 ### Multi-Module Backend Structure
 
-- **ruoyi-admin**: Main entry point (`com.ruoyi.RuoYiApplication`), contains controllers for web/admin endpoints
-- **ruoyi-framework**: Core framework (Security config, JWT filter, MyBatis, Redis config, AOP aspects)
-- **ruoyi-system**: Business logic layer - includes both system admin and blog features
-- **ruoyi-common**: Shared utilities (file upload, image compression, XSS filter, cache, exceptions)
-- **ruoyi-quartz**: Scheduled task management
-- **ruoyi-generator**: Code generation for CRUD modules
+- **zhi-admin**: Main entry point (`com.zhi.RuoYiApplication`), contains controllers for web/admin endpoints
+- **zhi-framework**: Core framework (Security config, JWT filter, MyBatis, Redis config, AOP aspects)
+- **zhi-system**: Business logic layer - includes both system admin and blog features
+- **zhi-common**: Shared utilities (file upload, image compression, XSS filter, cache, exceptions)
+- **zhi-quartz**: Scheduled task management
+- **zhi-generator**: Code generation for CRUD modules
 
 ### Frontend Structure
 
@@ -89,7 +89,7 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 **Backend Request Flow**: Controller → Service → Mapper (MyBatis)
 
-**Blog Controllers** (in ruoyi-system):
+**Blog Controllers** (in zhi-system):
 - `BlogArticleController` - Article CRUD, search, status
 - `BlogCategoryController`, `BlogTagController`, `BlogCommentController`
 - `BlogFriendLinkController`, `BlogSettingController`
@@ -119,7 +119,7 @@ See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 
 ### Security Configuration
 
-Located in `ruoyi-framework/config/SecurityConfig.java`:
+Located in `zhi-framework/config/SecurityConfig.java`:
 - Blog frontend (`/blog/**`, `/common/blog/**`) allows anonymous access
 - Admin backend requires JWT authentication
 - Swagger, Druid, Actuator open in non-prod environments

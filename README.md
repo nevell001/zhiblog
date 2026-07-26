@@ -14,12 +14,12 @@
 - 🔄 **版本管理**：统一的版本号管理机制，确保版本一致性
 - 🛡️ **增强安全性**：全局错误处理和保护机制，防止运行时错误
 
-## 📦 最新更新 (v1.3.4)
+## 📦 最新更新 (v1.3.5)
 
-- 统一品牌名称显示为 "ZhiBlog - 知博"，默 Blog 作为主题名称
-- 优化代码质量和安全性（import.meta.env 可选链、日志级别优化）
-- 统一项目配置和文档
-- TypeScript 类型检查完善
+- 修复用户注册功能（注册开关绕过、角色静默缺失、用户协议复选框无绑定）
+- 合并 SQL 初始化脚本为单文件（`00_init_database.sql`，含性能索引和触发器）
+- 修复 `.husky` pre-commit hook 路径引用（`ruoyi-ui` → `zhi-ui`）
+- 修复测试文件 import 路径、生成器作者名、Docker 容器名等残余引用
 
 ## 🌐 访问方式
 
@@ -70,7 +70,7 @@ docker compose -f docker-compose.dev.yml up -d --build
 
 ```bash
 docker compose -f docker-compose.dev.yml ps
-docker compose -f docker-compose.dev.yml logs -f ruoyi-admin
+docker compose -f docker-compose.dev.yml logs -f zhi-admin
 ```
 
 生产或接近生产环境使用：
@@ -95,14 +95,14 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 ```bash
 mvn clean install -DskipTests
-cd ruoyi-admin
+cd zhi-admin
 mvn spring-boot:run
 ```
 
 前端启动：
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 npm install
 npm run dev
 ```
@@ -111,19 +111,18 @@ npm run dev
 
 ```
 ZhiBlog/
-├── ruoyi-admin/          # 后端主模块
-├── ruoyi-system/         # 系统模块（博客功能）
-├── ruoyi-framework/      # 框架核心
-├── ruoyi-common/         # 通用工具
-├── ruoyi-quartz/         # 定时任务
-├── ruoyi-generator/      # 代码生成
-├── ruoyi-ui/             # Vue3前端项目
+├── zhi-admin/          # 后端主模块
+├── zhi-system/         # 系统模块（博客功能）
+├── zhi-framework/      # 框架核心
+├── zhi-common/         # 通用工具
+├── zhi-quartz/         # 定时任务
+├── zhi-generator/      # 代码生成
+├── zhi-ui/             # Vue3前端项目
 │   ├── public/           # 静态资源
 │   ├── src/              # 源代码
 │   └── dist/             # 构建输出
 ├── sql/                  # 数据库脚本
 ├── prometheus/           # Prometheus配置
-├── grafana/              # Grafana配置
 ├── docs/                 # 项目文档
 ├── docker-compose.dev.yml  # Docker开发环境编排
 └── docker-compose.prod.yml # Docker生产环境编排
@@ -260,6 +259,12 @@ chore: 构建/工具
 
 ## 📦 版本历史
 
+### v1.3.5 (2026-07-26)
+- 修复三个用户注册功能缺陷（开关绕过、角色缺失静默失败、协议复选框装饰性）
+- 合并 3 个 SQL 初始化脚本为单文件 `00_init_database.sql`，初始化一步完成
+- 修复 `.husky/pre-commit` 中过时的 `ruoyi-ui` 路径引用
+- 全项目检查与清理：修复测试 import、Docker 容器名、代码生成器作者名等残余引用
+
 ### v1.3.4 (2026-07-18)
 - 统一品牌名称显示为 "ZhiBlog - 知博"，默 Blog 作为主题名称
 - 修复版本号不一致问题（1.3.3 → 1.3.4）
@@ -342,8 +347,8 @@ chore: 构建/工具
 ## 📊 项目信息
 
 - **项目名称**: ZhiBlog - 知博
-- **当前版本**: v1.3.4
+- **当前版本**: v1.3.5
 - **Maven GroupId**: top.nevell
 - **项目地址**: https://gitee.com/nevell/zhiblog
 - **维护者**: nevell
-- **最后更新**: 2026-07-18
+- **最后更新**: 2026-07-26

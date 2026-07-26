@@ -3,11 +3,11 @@
 # 特别注意修改所有默认密码
 
 services:
-  ruoyi-admin:
+  zhi-admin:
     build:
       context: .
       dockerfile: Dockerfile-admin
-    container_name: ruoyi-admin
+    container_name: zhi-admin
     working_dir: /app
     command:
       - sh
@@ -18,7 +18,7 @@ services:
         for i in {1..60}; do
           curl -f mysql:3306 2>/dev/null && echo 'MySQL is ready' && break || echo 'waiting mysql...' && sleep 2
         done
-        java -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/ruoyi-admin.jar \
+        java -Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar /app/zhi-admin.jar \
           --spring.datasource.druid.master.url=jdbc:mysql://mysql:3306/${DB_NAME:-zhiblog}?useSSL=false\&serverTimezone=Asia/Shanghai\&allowPublicKeyRetrieval=true\&characterEncoding=utf8\&useUnicode=true \
           --spring.datasource.druid.master.username=$DB_USERNAME \
           --spring.datasource.druid.master.password=$DB_PASSWORD \
@@ -54,12 +54,12 @@ services:
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       R_TOKEN_SECRET: ${R_TOKEN_SECRET}
-      DRUID_USERNAME: ${DRUID_USERNAME:-ruoyi}
+      DRUID_USERNAME: ${DRUID_USERNAME:-zhi}
       DRUID_PASSWORD: ${DRUID_PASSWORD}
       # 验证码开关 - 从 .env 文件读取
       CAPTCHA_ENABLED: ${CAPTCHA_ENABLED:-false}
     networks:
-      - ruoyi-network
+      - zhi-network
 
   mysql:
     image: mysql:8.4
@@ -85,7 +85,7 @@ services:
       interval: 10s
       start_period: 40s
     networks:
-      - ruoyi-network
+      - zhi-network
 
   redis:
     image: redis:6.2
@@ -104,7 +104,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - ruoyi-network
+      - zhi-network
 
   prometheus:
     image: prom/prometheus:latest
@@ -122,7 +122,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     networks:
-      - ruoyi-network
+      - zhi-network
 
   grafana:
     image: grafana/grafana:latest
@@ -143,17 +143,17 @@ services:
     depends_on:
       - prometheus
     networks:
-      - ruoyi-network
+      - zhi-network
 
-  ruoyi-ui:
+  zhi-ui:
     build:
-      context: ./ruoyi-ui
+      context: ./zhi-ui
       dockerfile: Dockerfile.dev
-    image: ruoyi-ui:dev
-    container_name: ruoyi-ui
+    image: zhi-ui:dev
+    container_name: zhi-ui
     working_dir: /app
     volumes:
-      - ./ruoyi-ui:/app:cached
+      - ./zhi-ui:/app:cached
       - /app/node_modules
     ports:
       - "3000:3000"
@@ -164,17 +164,17 @@ services:
         reservations:
           memory: 512M
     depends_on:
-      ruoyi-admin:
+      zhi-admin:
         condition: service_started
     environment:
       TZ: Asia/Shanghai
       LANG: C.UTF-8
       LC_ALL: C.UTF-8
       DOCKER: "true"
-      VITE_API_BASE_URL: http://ruoyi-admin:8080
+      VITE_API_BASE_URL: http://zhi-admin:8080
       VITE_GRAFANA_URL: http://localhost:3001
     networks:
-      - ruoyi-network
+      - zhi-network
 
 volumes:
   mysql_data:
@@ -183,5 +183,5 @@ volumes:
   grafana_data:
 
 networks:
-  ruoyi-network:
+  zhi-network:
     driver: bridge

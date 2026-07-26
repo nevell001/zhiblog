@@ -35,7 +35,7 @@ This is a blog system built on RuoYi-Vue 3.9.1 platform - a full-stack applicati
 mvn clean install -DskipTests
 
 # Run backend server
-cd ruoyi-admin
+cd zhi-admin
 mvn spring-boot:run
 
 # Run single test
@@ -45,7 +45,7 @@ mvn test -Dtest=TestClassName
 mvn test -Dtest=TestClassName#testMethodName
 
 # Run tests for specific module
-mvn test -pl ruoyi-system
+mvn test -pl zhi-system
 
 # Package without tests
 mvn clean package -DskipTests
@@ -57,7 +57,7 @@ mvn test jacoco:report
 mvn checkstyle:check
 
 # Check all child module parent versions (for version consistency)
-for module in ruoyi-common ruoyi-system ruoyi-framework ruoyi-quartz ruoyi-generator ruoyi-admin; do
+for module in zhi-common zhi-system zhi-framework zhi-quartz zhi-generator zhi-admin; do
     echo "=== $module ==="
     grep -A 5 "<parent>" $module/pom.xml | grep -E "(groupId|artifactId|version)"
 done
@@ -69,7 +69,7 @@ curl http://localhost:8080/system/version
 ### Frontend (Vue 3/Vite + TypeScript)
 
 ```bash
-cd ruoyi-ui
+cd zhi-ui
 
 # Install dependencies
 npm install
@@ -110,7 +110,7 @@ docker compose -f docker-compose.dev.yml up -d
 docker compose -f docker-compose.prod.yml up -d
 
 # View logs
-docker compose -f docker-compose.dev.yml logs -f ruoyi-admin
+docker compose -f docker-compose.dev.yml logs -f zhi-admin
 
 # Stop services
 docker compose -f docker-compose.dev.yml down
@@ -128,22 +128,19 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 # Optional: Execute permissions setup
 mysql -u root -p < sql/00_setup_permissions.sql
-
-# Optional: Add performance indexes
-mysql -u root -p zhiblog < sql/performance_indexes.sql
 ```
 
 ## Module Architecture
 
 This is a multi-module Maven project. Key modules:
 
-### ruoyi-admin
+### zhi-admin
 - **Purpose**: Main application entry point and startup module
-- **Entry Class**: `com.ruoyi.RuoYiApplication`
+- **Entry Class**: `com.zhi.RuoYiApplication`
 - **Port**: 8080 (configurable via `server.port`)
 - **Contains**: Controllers for web/admin endpoints, configuration classes
 
-### ruoyi-framework
+### zhi-framework
 - **Purpose**: Core framework components and configuration
 - **Key Packages**:
   - `config/` - Spring Security, resources, MyBatis, Redis, Druid configuration
@@ -152,7 +149,7 @@ This is a multi-module Maven project. Key modules:
   - `aspectj/` - AOP aspects for logging and permissions
   - `manager/` - Async task management
 
-### ruoyi-system
+### zhi-system
 - **Purpose**: Business logic layer (includes both system and blog features)
 - **Blog Controllers**: 8 controllers for blog functionality:
   - `BlogArticleController` - Article CRUD, search, status management
@@ -167,7 +164,7 @@ This is a multi-module Maven project. Key modules:
   - `UnifiedAuthController` - Unified login for both admin and blog users (supports JWT authentication)
 - **Standard Pattern**: Controller → Service → Mapper (MyBatis)
 
-### ruoyi-common
+### zhi-common
 - **Purpose**: Shared utilities and common functionality
 - **Key Areas**:
   - `utils/` - File upload, image compression, JSON, HTTP, security utilities
@@ -179,15 +176,15 @@ This is a multi-module Maven project. Key modules:
   - `exception/` - Global exception handling
   - `xss/` - XSS防护实现
 
-### ruoyi-quartz
+### zhi-quartz
 - **Purpose**: Scheduled task management using Quartz
 - **Contains**: Job scheduling, execution, logging
 
-### ruoyi-generator
+### zhi-generator
 - **Purpose**: Code generation for creating new CRUD modules
 - **Generates**: Domain, Mapper, Service, Controller, Vue pages
 
-### ruoyi-ui
+### zhi-ui
 - **Purpose**: Vue 3 + TypeScript frontend (100% TypeScript migration completed - 230 files)
 - **Key Directories**:
   - `views/blog/` - Public-facing blog pages (index, article detail, category, tag, archive, about)
@@ -216,7 +213,7 @@ This project has been upgraded from Spring Boot 2.x to 3.3.0. Key changes:
 
 ### Security Configuration
 
-Located in `ruoyi-framework/config/SecurityConfig.java`:
+Located in `zhi-framework/config/SecurityConfig.java`:
 
 - Blog frontend (`/blog/**`, `/common/blog/**`) allows anonymous access
 - Admin backend requires authentication (JWT token-based)
@@ -304,7 +301,7 @@ The system includes intelligent image compression via `ImageCompressConfig`:
 
 - **Blog tables** (prefix: `blog_`): article, category, tag, article_tag, comment, friend_link, setting
 - **System tables** (prefix: `sys_`): user, role, menu, dept, post, config, dict_*, job, oper_log, logininfor
-- MyBatis mappers in `ruoyi-system/src/main/resources/mapper/system/`
+- MyBatis mappers in `zhi-system/src/main/resources/mapper/system/`
 
 ### Actuator Monitoring Configuration
 
@@ -351,15 +348,15 @@ The Vite dev server proxies API calls to backend:
 
 **Files that MUST be updated when changing version**:
 - `pom.xml` (root) - lines 9 and 24
-- `ruoyi-common/pom.xml` - parent version
-- `ruoyi-system/pom.xml` - parent version
-- `ruoyi-framework/pom.xml` - parent version
-- `ruoyi-quartz/pom.xml` - parent version
-- `ruoyi-generator/pom.xml` - parent version
-- `ruoyi-admin/pom.xml` - parent version
+- `zhi-common/pom.xml` - parent version
+- `zhi-system/pom.xml` - parent version
+- `zhi-framework/pom.xml` - parent version
+- `zhi-quartz/pom.xml` - parent version
+- `zhi-generator/pom.xml` - parent version
+- `zhi-admin/pom.xml` - parent version
 
 **Files that are AUTOMATICALLY updated during build**:
-- `ruoyi-admin/target/classes/application.yml` (Maven resource filtering)
+- `zhi-admin/target/classes/application.yml` (Maven resource filtering)
 
 See `docs/VERSION_MANAGEMENT.md` for the complete version management guide.
 
@@ -406,7 +403,7 @@ Controllers follow RuoYi conventions:
 
 ### Frontend API Pattern
 
-API modules in `ruoyi-ui/src/api/`:
+API modules in `zhi-ui/src/api/`:
 - Use `request` utility (wraps axios with token and error handling)
 - Export functions that return promises
 - API base URL automatically handled by proxy
@@ -467,12 +464,12 @@ The project uses `unplugin-auto-import` for Vue composition APIs:
 6. **Database**: MySQL 8.4 required (not 5.x)
 7. **Captcha**: Disabled in development, controlled by `captchaEnabled` in application.yml
 8. **Profile-based configs**: Use `spring.profiles.active` (dev/prod) to switch environments
-9. **Component Scanning**: Main app scans `com.ruoyi` and `com.ruoyi.system.controller` packages
+9. **Component Scanning**: Main app scans `com.zhi` and `com.zhi.system.controller` packages
 10. **Excluded Auto-configurations**: DataSourceAutoConfiguration and RedisAutoConfiguration (manually configured)
-11. **MyBatis SQL Logging**: Enabled in dev via `com.ruoyi.system.mapper: debug` in application.yml
+11. **MyBatis SQL Logging**: Enabled in dev via `com.zhi.system.mapper: debug` in application.yml
 12. **Type Definition Files**: All API modules have corresponding types in `src/types/api.d.ts`
 13. **Docker Environment Detection**: Frontend automatically detects Docker via `DOCKER=true` env var for proxy configuration
-14. **Version Management**: Version defined in `pom.xml` (currently 1.3.4), sync with `application.yml` ruoyi.version for consistency. See `docs/VERSION_MANAGEMENT.md` for comprehensive version update instructions
+14. **Version Management**: Version defined in `pom.xml` (currently 1.3.4), sync with `application.yml` app.version for consistency. See `docs/VERSION_MANAGEMENT.md` for comprehensive version update instructions
 15. **Email Verification**: In development, verification codes are printed to console instead of sending emails (controlled by `EMAIL_DEV_PRINT_CODE`)
 16. **ARM64 Docker Support**: Dockerfile-admin uses standard eclipse-temurin images (not Alpine) for better ARM64 compatibility
 17. **Security Config Validation**: As of v1.2.8, production startup requires all security configs (R_TOKEN_SECRET, DRUID_PASSWORD, REDIS_PASSWORD, DB_PASSWORD) to be properly set. Missing or weak passwords will block production startup
@@ -549,7 +546,7 @@ Examples from recent commits:
 - Ensure all child module parent versions match the root POM version
 - After updating version, run `mvn clean install` to rebuild
 - See `docs/VERSION_MANAGEMENT.md` for detailed instructions
-- Sync with `ruoyi.version` in `application.yml` (uses `@app.version@` placeholder replaced by Maven)
+- Sync with `app.version` in `application.yml` (uses `@app.version@` placeholder replaced by Maven)
 
 **Database connection fails**:
 - Verify MySQL 8.4+ is running: `mysql --version`
@@ -598,7 +595,7 @@ Examples from recent commits:
 **Build fails with "Non-resolvable parent POM"**:
 - This indicates version mismatch between parent and child modules
 - Check that all child module parent `<version>` tags match root `pom.xml` `<version>`
-- Use: `grep -A 5 "<parent>" ruoyi-*/pom.xml | grep version` to check all versions
+- Use: `grep -A 5 "<parent>" zhi-*/pom.xml | grep version` to check all versions
 - See `docs/VERSION_MANAGEMENT.md` for detailed troubleshooting
 
 **HMR not working**:
@@ -609,7 +606,7 @@ Examples from recent commits:
 ### Docker Issues
 
 **Container exits immediately**:
-- Check logs: `docker compose -f docker-compose.dev.yml logs -f ruoyi-admin`
+- Check logs: `docker compose -f docker-compose.dev.yml logs -f zhi-admin`
 - Verify environment variables in docker-compose file
 - Ensure MySQL container is ready before backend starts
 

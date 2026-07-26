@@ -3,11 +3,11 @@
 # 所有敏感信息必须通过环境变量配置，不能使用默认值
 
 services:
-  ruoyi-admin:
+  zhi-admin:
     build:
       context: .
       dockerfile: Dockerfile-admin
-    container_name: ruoyi-admin
+    container_name: zhi-admin
     ports:
       - "8080:8080"
     volumes:
@@ -44,7 +44,7 @@ services:
       SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_USERNAME: ${DRUID_USERNAME:-nevell}
       SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_PASSWORD: ${DRUID_PASSWORD}
     networks:
-      - ruoyi-network
+      - zhi-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/manage/actuator/health"]
@@ -92,7 +92,7 @@ services:
       interval: 10s
       start_period: 40s
     networks:
-      - ruoyi-network
+      - zhi-network
 
   redis:
     image: redis:7.2-alpine
@@ -129,19 +129,19 @@ services:
       timeout: 3s
       retries: 3
     networks:
-      - ruoyi-network
+      - zhi-network
 
-  ruoyi-ui:
+  zhi-ui:
     build:
-      context: ./ruoyi-ui
+      context: ./zhi-ui
       dockerfile: Dockerfile.prod
-    image: ruoyi-ui:prod
-    container_name: ruoyi-ui
+    image: zhi-ui:prod
+    container_name: zhi-ui
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      ruoyi-admin:
+      zhi-admin:
         condition: service_healthy
     environment:
       TZ: Asia/Shanghai
@@ -153,8 +153,8 @@ services:
       NGINX_HOST: ${NGINX_HOST:-localhost}
       NGINX_PORT: 80
     volumes:
-      - ./ruoyi-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./ruoyi-ui/ssl:/etc/nginx/ssl:ro  # SSL证书目录
+      - ./zhi-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./zhi-ui/ssl:/etc/nginx/ssl:ro  # SSL证书目录
     deploy:
       resources:
         limits:
@@ -164,7 +164,7 @@ services:
           memory: 128M
           cpus: '0.25'
     networks:
-      - ruoyi-network
+      - zhi-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/health"]
@@ -189,7 +189,7 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--web.enable-lifecycle'
     networks:
-      - ruoyi-network
+      - zhi-network
     deploy:
       resources:
         limits:
@@ -217,7 +217,7 @@ services:
     depends_on:
       - prometheus
     networks:
-      - ruoyi-network
+      - zhi-network
     deploy:
       resources:
         limits:
@@ -240,5 +240,5 @@ volumes:
   grafana_data:
 
 networks:
-  ruoyi-network:
+  zhi-network:
     driver: bridge
