@@ -149,8 +149,8 @@
           <el-switch
             v-model="scope.row.status"
             v-hasPermi="['blog:friendLink:edit']"
-            :active-value="'1'"
-            :inactive-value="'0'"
+            :active-value="'0'"
+            :inactive-value="'1'"
             active-text="正常"
             inactive-text="停用"
             inline-prompt
@@ -254,8 +254,8 @@
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
-            <el-radio label="1">正常</el-radio>
-            <el-radio label="0">停用</el-radio>
+            <el-radio label="0">正常</el-radio>
+            <el-radio label="1">停用</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -359,7 +359,7 @@ function reset() {
     logo: undefined,
     description: undefined,
     sort: 0,
-    status: '1'
+    status: '0'
   }
   if (proxy && proxy.resetForm) {
     proxy.resetForm('friendLinkRef')
