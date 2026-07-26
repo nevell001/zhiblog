@@ -1,18 +1,18 @@
 -- ===============================================================
--- 🌟 博客系统完整数据库初始化脚本
+-- 🌟 博客系统完整数据库初始化脚本（幂等版）
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
 -- 🔧 最后更新：2026-07-26
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
--- 🚀 版本：v2.2.0 (合并版)
+-- 🚀 版本：v2.3.0 (幂等版 - 可重复执行)
 --
 -- 📋 包含内容：
 -- ✅ 若依系统基础表结构和数据
 -- ✅ Quartz定时任务表结构
--- ✅ 博客系统表结构和数据
+-- ✅ 博客系统表结构和数据（含 blog_notification 站内信通知表）
 -- ✅ 博客用户认证系统（博客用户角色、邮箱验证码表）
 -- ✅ 代码生成器表结构
--- ✅ 性能优化索引（20+个，含全文索引和监控视图）
+-- ✅ 性能优化索引（含全文索引 ft_article_title_content）
 -- ✅ 数据完整性约束和触发器（含零日期修复）
 -- ✅ 完整的示例数据
 -- ✅ 博客管理、系统管理、系统监控、数据统计、系统工具菜单和权限配置
@@ -27,9 +27,11 @@
 --
 -- ⚠️  注意事项：
 -- - 请确保MySQL版本 >= 8.0
--- - 执行前请备份现有数据
--- - 脚本使用了INSERT IGNORE，重复执行不会报错
--- - 包含触发器和索引，执行时间约2-3分钟
+-- - 执行前请备份现有数据（虽然脚本幂等，备份永远是好习惯）
+-- - ✅ 幂等设计：所有 CREATE TABLE 用 IF NOT EXISTS，INSERT 用 IGNORE，索引通过存储过程检查
+-- - ✅ 可重复执行：在已有数据的数据库上再次运行也不会破坏数据
+-- - ✅ 不再需要 01_fix_fulltext_index.sql 和 02_fix_notifications_and_search.sql（已合并）
+-- - 包含触发器和索引，首次执行时间约2-3分钟
 -- ===============================================================
 
 -- 1. 创建数据库和设置应用账号
@@ -43,11 +45,34 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CR
 ON zhiblog.* TO 'zhiblog_app'@'%';
 FLUSH PRIVILEGES;
 
+-- ========== 幂等索引创建辅助存储过程（早期定义，全文使用） ==========
+DELIMITER $$
+DROP PROCEDURE IF EXISTS sp_create_index_if_not_exists$$
+CREATE PROCEDURE sp_create_index_if_not_exists(
+    IN table_name_param VARCHAR(64),
+    IN index_name_param VARCHAR(64),
+    IN create_sql_param TEXT
+)
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM information_schema.STATISTICS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = table_name_param
+          AND INDEX_NAME = index_name_param
+    ) THEN
+        SET @create_index_sql = create_sql_param;
+        PREPARE create_index_stmt FROM @create_index_sql;
+        EXECUTE create_index_stmt;
+        DEALLOCATE PREPARE create_index_stmt;
+    END IF;
+END$$
+DELIMITER ;
+
 -- ========== 导入若依系统基础表结构 ==========
 
 -- 1、部门表
-DROP TABLE IF EXISTS sys_dept;
-CREATE TABLE sys_dept (
+CREATE TABLE IF NOT EXISTS sys_dept (
   dept_id           BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '部门id',
   parent_id         BIGINT(20)      DEFAULT 0                  COMMENT '父部门id',
   ancestors         VARCHAR(50)     DEFAULT ''                 COMMENT '祖级列表',
@@ -66,20 +91,19 @@ CREATE TABLE sys_dept (
 ) ENGINE=INNODB AUTO_INCREMENT=200 COMMENT = '部门表';
 
 -- 初始化-部门表数据
-INSERT INTO sys_dept VALUES(100,  0,   '0',          '知博技术',   0, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(101,  100, '0,100',      '西安总公司', 1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(102,  100, '0,100',      '上海分公司', 2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
-INSERT INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(100,  0,   '0',          '知博技术',   0, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(101,  100, '0,100',      '西安总公司', 1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(103,  101, '0,100,101',  '研发部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(102,  100, '0,100',      '上海分公司', 2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(104,  101, '0,100,101',  '市场部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(105,  101, '0,100,101',  '测试部门',   3, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(106,  101, '0,100,101',  '财务部门',   4, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(107,  101, '0,100,101',  '运维部门',   5, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(108,  102, '0,100,102',  '市场部门',   1, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
+INSERT IGNORE INTO sys_dept VALUES(109,  102, '0,100,102',  '财务部门',   2, '知博', '15888888888', 'zhiblog@qq.com', '0', '0', 'admin', NOW(), '', NULL);
 
 -- 2、用户信息表
-DROP TABLE IF EXISTS sys_user;
-CREATE TABLE sys_user (
+CREATE TABLE IF NOT EXISTS sys_user (
   user_id           BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '用户ID',
   dept_id           BIGINT(20)      DEFAULT NULL               COMMENT '部门ID',
   user_name         VARCHAR(30)     NOT NULL                   COMMENT '用户账号',
@@ -104,12 +128,11 @@ CREATE TABLE sys_user (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '用户信息表';
 
 -- 初始化-用户信息表数据
-INSERT INTO sys_user VALUES(1,  103, 'admin', '知博', '00', 'zhiblog@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
-INSERT INTO sys_user VALUES(2,  105, 'zhiblog', '知博', '00', 'zhiblog@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
+INSERT IGNORE INTO sys_user VALUES(1,  103, 'admin', '知博', '00', 'zhiblog@163.com', '15888888888', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '管理员');
+INSERT IGNORE INTO sys_user VALUES(2,  105, 'zhiblog', '知博', '00', 'zhiblog@qq.com',  '15666666666', '1', '', '$2a$10$7JB720yubVSZvUI0rEqK/.VqGOZTH.ulu33dHOiBE8ByOhJIrdAu2', '0', '0', '127.0.0.1', NOW(), NOW(), 'admin', NOW(), '', NULL, '测试员');
 
 -- 3、岗位信息表
-DROP TABLE IF EXISTS sys_post;
-CREATE TABLE sys_post (
+CREATE TABLE IF NOT EXISTS sys_post (
   post_id       BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '岗位ID',
   post_code     VARCHAR(64)     NOT NULL                   COMMENT '岗位编码',
   post_name     VARCHAR(50)     NOT NULL                   COMMENT '岗位名称',
@@ -124,14 +147,13 @@ CREATE TABLE sys_post (
 ) ENGINE=INNODB COMMENT = '岗位信息表';
 
 -- 初始化-岗位信息表数据
-INSERT INTO sys_post VALUES(1, 'ceo',  '董事长',    1, '0', 'admin', NOW(), '', NULL, '');
-INSERT INTO sys_post VALUES(2, 'se',   '项目经理',  2, '0', 'admin', NOW(), '', NULL, '');
-INSERT INTO sys_post VALUES(3, 'hr',   '人力资源',  3, '0', 'admin', NOW(), '', NULL, '');
-INSERT INTO sys_post VALUES(4, 'user', '普通员工',  4, '0', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_post VALUES(1, 'ceo',  '董事长',    1, '0', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_post VALUES(2, 'se',   '项目经理',  2, '0', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_post VALUES(3, 'hr',   '人力资源',  3, '0', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_post VALUES(4, 'user', '普通员工',  4, '0', 'admin', NOW(), '', NULL, '');
 
 -- 4、参数配置表（已修复config_value字段长度）
-DROP TABLE IF EXISTS sys_config;
-CREATE TABLE sys_config (
+CREATE TABLE IF NOT EXISTS sys_config (
   config_id         BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '参数主键',
   config_name       VARCHAR(100)    DEFAULT ''                 COMMENT '参数名称',
   config_key        VARCHAR(100)    DEFAULT ''                 COMMENT '参数键名',
@@ -147,19 +169,18 @@ CREATE TABLE sys_config (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '参数配置表';
 
 -- 初始化-参数配置表数据
-INSERT INTO sys_config VALUES(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',               'skin-blue',     'Y', 'admin', NOW(), '', NULL, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
-INSERT INTO sys_config VALUES(2, '用户管理-账号初始密码',         'sys.user.initPassword',            'CHANGE_ME',     'Y', 'admin', NOW(), '', NULL, '⚠️ 初始化密码，部署后请立即修改为强密码' );
-INSERT INTO sys_config VALUES(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',              'theme-dark',    'Y', 'admin', NOW(), '', NULL, '深色主题theme-dark，浅色主题theme-light' );
-INSERT INTO sys_config VALUES(4, '账号自助-验证码开关',           'sys.account.captchaEnabled',       'true',          'Y', 'admin', NOW(), '', NULL, '是否开启验证码功能（true开启，false关闭）');
-INSERT INTO sys_config VALUES(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',         'false',         'Y', 'admin', NOW(), '', NULL, '是否开启注册用户功能（true开启，false关闭）');
-INSERT INTO sys_config VALUES(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', NOW(), '', NULL, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');
-INSERT INTO sys_config VALUES(7, '用户管理-初始密码修改策略',     'sys.account.initPasswordModify',   '1',             'Y', 'admin', NOW(), '', NULL, '0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框');
-INSERT INTO sys_config VALUES(8, '用户管理-账号密码更新周期',     'sys.account.passwordValidateDays', '0',             'Y', 'admin', NOW(), '', NULL, '密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框');
-INSERT INTO sys_config VALUES(9, '博客头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '博主头像URL，用于前台博客页面显示。与blog_setting表中的blog_avatar保持同步');
+INSERT IGNORE INTO sys_config VALUES(1, '主框架页-默认皮肤样式名称',     'sys.index.skinName',               'skin-blue',     'Y', 'admin', NOW(), '', NULL, '蓝色 skin-blue、绿色 skin-green、紫色 skin-purple、红色 skin-red、黄色 skin-yellow' );
+INSERT IGNORE INTO sys_config VALUES(2, '用户管理-账号初始密码',         'sys.user.initPassword',            'CHANGE_ME',     'Y', 'admin', NOW(), '', NULL, '⚠️ 初始化密码，部署后请立即修改为强密码' );
+INSERT IGNORE INTO sys_config VALUES(3, '主框架页-侧边栏主题',           'sys.index.sideTheme',              'theme-dark',    'Y', 'admin', NOW(), '', NULL, '深色主题theme-dark，浅色主题theme-light' );
+INSERT IGNORE INTO sys_config VALUES(4, '账号自助-验证码开关',           'sys.account.captchaEnabled',       'true',          'Y', 'admin', NOW(), '', NULL, '是否开启验证码功能（true开启，false关闭）');
+INSERT IGNORE INTO sys_config VALUES(5, '账号自助-是否开启用户注册功能', 'sys.account.registerUser',         'false',         'Y', 'admin', NOW(), '', NULL, '是否开启注册用户功能（true开启，false关闭）');
+INSERT IGNORE INTO sys_config VALUES(6, '用户登录-黑名单列表',           'sys.login.blackIPList',            '',              'Y', 'admin', NOW(), '', NULL, '设置登录IP黑名单限制，多个匹配项以;分隔，支持匹配（*通配、网段）');
+INSERT IGNORE INTO sys_config VALUES(7, '用户管理-初始密码修改策略',     'sys.account.initPasswordModify',   '1',             'Y', 'admin', NOW(), '', NULL, '0：初始密码修改策略关闭，没有任何提示，1：提醒用户，如果未修改初始密码，则在登录时就会提醒修改密码对话框');
+INSERT IGNORE INTO sys_config VALUES(8, '用户管理-账号密码更新周期',     'sys.account.passwordValidateDays', '0',             'Y', 'admin', NOW(), '', NULL, '密码更新周期（填写数字，数据初始化值为0不限制，若修改必须为大于0小于365的正整数），如果超过这个周期登录系统时，则在登录时就会提醒修改密码对话框');
+INSERT IGNORE INTO sys_config VALUES(9, '博客头像',                       'blog_avatar',                       '',              'Y', 'admin', NOW(), '', NULL, '博主头像URL，用于前台博客页面显示。与blog_setting表中的blog_avatar保持同步');
 
 -- 5、角色信息表
-DROP TABLE IF EXISTS sys_role;
-CREATE TABLE sys_role (
+CREATE TABLE IF NOT EXISTS sys_role (
   role_id              BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '角色ID',
   role_name            VARCHAR(30)     NOT NULL                   COMMENT '角色名称',
   role_key             VARCHAR(100)    NOT NULL                   COMMENT '角色权限字符串',
@@ -178,13 +199,12 @@ CREATE TABLE sys_role (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '角色信息表';
 
 -- 初始化-角色信息表数据
-INSERT INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
-INSERT INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
-INSERT INTO sys_role VALUES('3', '博客用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '博客普通用户，用于前台注册登录');
+INSERT IGNORE INTO sys_role VALUES('1', '超级管理员',  'admin',  1, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '超级管理员');
+INSERT IGNORE INTO sys_role VALUES('2', '普通角色',    'common', 2, 2, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '普通角色');
+INSERT IGNORE INTO sys_role VALUES('3', '博客用户',    'blog_user', 3, 1, 1, 1, '0', '0', 'admin', NOW(), '', NULL, '博客普通用户，用于前台注册登录');
 
 -- 6、菜单权限表
-DROP TABLE IF EXISTS sys_menu;
-CREATE TABLE sys_menu (
+CREATE TABLE IF NOT EXISTS sys_menu (
   menu_id           BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '菜单ID',
   menu_name         VARCHAR(50)     NOT NULL                   COMMENT '菜单名称',
   parent_id         BIGINT(20)      DEFAULT 0                  COMMENT '父菜单ID',
@@ -209,50 +229,45 @@ CREATE TABLE sys_menu (
 ) ENGINE=INNODB AUTO_INCREMENT=2000 COMMENT = '菜单权限表';
 
 -- 初始化-菜单信息表数据
-INSERT INTO sys_menu VALUES('1', '系统管理', '0', '5', 'admin/system',    NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
-INSERT INTO sys_menu VALUES('2', '系统监控', '0', '3', 'admin/monitor',   NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
-INSERT INTO sys_menu VALUES('3', '系统工具', '0', '4', 'admin/tool',      NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
+INSERT IGNORE INTO sys_menu VALUES('1', '系统管理', '0', '5', 'admin/system',    NULL, '', '', 1, 0, 'M', '0', '0', '', 'system',   'admin', NOW(), '', NULL, '系统管理目录');
+INSERT IGNORE INTO sys_menu VALUES('2', '系统监控', '0', '3', 'admin/monitor',   NULL, '', '', 1, 0, 'M', '0', '0', '', 'monitor',  'admin', NOW(), '', NULL, '系统监控目录');
+INSERT IGNORE INTO sys_menu VALUES('3', '系统工具', '0', '4', 'admin/tool',      NULL, '', '', 1, 0, 'M', '0', '0', '', 'tool',     'admin', NOW(), '', NULL, '系统工具目录');
 
 -- 7、用户和角色关联表（用户N-1角色）
-DROP TABLE IF EXISTS sys_user_role;
-CREATE TABLE sys_user_role (
+CREATE TABLE IF NOT EXISTS sys_user_role (
   user_id   BIGINT(20) NOT NULL COMMENT '用户ID',
   role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
   PRIMARY KEY (user_id, role_id)
 ) ENGINE=INNODB COMMENT = '用户和角色关联表';
 
 -- 初始化-用户和角色关联表数据（admin用户分配超级管理员角色，普通用户分配普通角色）
-INSERT INTO sys_user_role (user_id, role_id) VALUES
+INSERT IGNORE INTO sys_user_role (user_id, role_id) VALUES
 (1, 1),
 (2, 2);
 
 -- 8、角色和菜单关联表（角色1-N菜单）
-DROP TABLE IF EXISTS sys_role_menu;
-CREATE TABLE sys_role_menu (
+CREATE TABLE IF NOT EXISTS sys_role_menu (
   role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
   menu_id   BIGINT(20) NOT NULL COMMENT '菜单ID',
   PRIMARY KEY (role_id, menu_id)
 ) ENGINE=INNODB COMMENT = '角色和菜单关联表';
 
 -- 9、角色和部门关联表（角色1-N部门）
-DROP TABLE IF EXISTS sys_role_dept;
-CREATE TABLE sys_role_dept (
+CREATE TABLE IF NOT EXISTS sys_role_dept (
   role_id   BIGINT(20) NOT NULL COMMENT '角色ID',
   dept_id   BIGINT(20) NOT NULL COMMENT '部门ID',
   PRIMARY KEY (role_id, dept_id)
 ) ENGINE=INNODB COMMENT = '角色和部门关联表';
 
 -- 10、用户与岗位关联表（用户1-N岗位）
-DROP TABLE IF EXISTS sys_user_post;
-CREATE TABLE sys_user_post (
+CREATE TABLE IF NOT EXISTS sys_user_post (
   user_id   BIGINT(20) NOT NULL COMMENT '用户ID',
   post_id   BIGINT(20) NOT NULL COMMENT '岗位ID',
   PRIMARY KEY (user_id, post_id)
 ) ENGINE=INNODB COMMENT = '用户与岗位关联表';
 
 -- 11、字典类型表
-DROP TABLE IF EXISTS sys_dict_type;
-CREATE TABLE sys_dict_type (
+CREATE TABLE IF NOT EXISTS sys_dict_type (
   dict_id          BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '字典主键',
   dict_name        VARCHAR(100)   DEFAULT ''                 COMMENT '字典名称',
   dict_type        VARCHAR(100)   DEFAULT ''                 COMMENT '字典类型',
@@ -267,8 +282,7 @@ CREATE TABLE sys_dict_type (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '字典类型表';
 
 -- 12、字典数据表
-DROP TABLE IF EXISTS sys_dict_data;
-CREATE TABLE sys_dict_data (
+CREATE TABLE IF NOT EXISTS sys_dict_data (
   dict_code        BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '字典编码',
   dict_sort        INT(4)         DEFAULT 0                  COMMENT '字典排序',
   dict_label       VARCHAR(100)   DEFAULT ''                 COMMENT '字典标签',
@@ -287,36 +301,35 @@ CREATE TABLE sys_dict_data (
 ) ENGINE=INNODB AUTO_INCREMENT=100 COMMENT = '字典数据表';
 
 -- 初始化字典数据
-INSERT INTO sys_dict_type VALUES(1,  '用户性别', 'sys_user_sex',        '0', 'admin', NOW(), '', NULL, '用户性别列表');
-INSERT INTO sys_dict_type VALUES(2,  '菜单状态', 'sys_show_hide',       '0', 'admin', NOW(), '', NULL, '菜单状态列表');
-INSERT INTO sys_dict_type VALUES(3,  '系统开关', 'sys_normal_disable',  '0', 'admin', NOW(), '', NULL, '系统开关列表');
-INSERT INTO sys_dict_type VALUES(4,  '评论状态', 'comment_status',     '0', 'admin', NOW(), '', NULL, '评论状态列表');
-INSERT INTO sys_dict_type VALUES(5,  '公告类型', 'sys_notice_type',    '0', 'admin', NOW(), '', NULL, '公告类型列表');
-INSERT INTO sys_dict_type VALUES(6,  '公告状态', 'sys_notice_status',  '0', 'admin', NOW(), '', NULL, '公告状态列表');
+INSERT IGNORE INTO sys_dict_type VALUES(1,  '用户性别', 'sys_user_sex',        '0', 'admin', NOW(), '', NULL, '用户性别列表');
+INSERT IGNORE INTO sys_dict_type VALUES(2,  '菜单状态', 'sys_show_hide',       '0', 'admin', NOW(), '', NULL, '菜单状态列表');
+INSERT IGNORE INTO sys_dict_type VALUES(3,  '系统开关', 'sys_normal_disable',  '0', 'admin', NOW(), '', NULL, '系统开关列表');
+INSERT IGNORE INTO sys_dict_type VALUES(4,  '评论状态', 'comment_status',     '0', 'admin', NOW(), '', NULL, '评论状态列表');
+INSERT IGNORE INTO sys_dict_type VALUES(5,  '公告类型', 'sys_notice_type',    '0', 'admin', NOW(), '', NULL, '公告类型列表');
+INSERT IGNORE INTO sys_dict_type VALUES(6,  '公告状态', 'sys_notice_status',  '0', 'admin', NOW(), '', NULL, '公告状态列表');
 
-INSERT INTO sys_dict_data VALUES(1,  1,  '男',       '0',       'sys_user_sex',        '',   '',        'Y', '0', 'admin', NOW(), '', NULL, '性别男');
-INSERT INTO sys_dict_data VALUES(2,  2,  '女',       '1',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别女');
-INSERT INTO sys_dict_data VALUES(3,  3,  '未知',     '2',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别未知');
+INSERT IGNORE INTO sys_dict_data VALUES(1,  1,  '男',       '0',       'sys_user_sex',        '',   '',        'Y', '0', 'admin', NOW(), '', NULL, '性别男');
+INSERT IGNORE INTO sys_dict_data VALUES(2,  2,  '女',       '1',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别女');
+INSERT IGNORE INTO sys_dict_data VALUES(3,  3,  '未知',     '2',       'sys_user_sex',        '',   '',        'N', '0', 'admin', NOW(), '', NULL, '性别未知');
 
-INSERT INTO sys_dict_data VALUES(4,  1,  '显示',     '0',       'sys_show_hide',       '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '显示菜单');
-INSERT INTO sys_dict_data VALUES(5,  2,  '隐藏',     '1',       'sys_show_hide',       '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '隐藏菜单');
+INSERT IGNORE INTO sys_dict_data VALUES(4,  1,  '显示',     '0',       'sys_show_hide',       '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '显示菜单');
+INSERT IGNORE INTO sys_dict_data VALUES(5,  2,  '隐藏',     '1',       'sys_show_hide',       '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '隐藏菜单');
 
-INSERT INTO sys_dict_data VALUES(6,  1,  '正常',     '0',       'sys_normal_disable',  '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
-INSERT INTO sys_dict_data VALUES(7,  2,  '停用',     '1',       'sys_normal_disable',  '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '停用状态');
+INSERT IGNORE INTO sys_dict_data VALUES(6,  1,  '正常',     '0',       'sys_normal_disable',  '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
+INSERT IGNORE INTO sys_dict_data VALUES(7,  2,  '停用',     '1',       'sys_normal_disable',  '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '停用状态');
 
-INSERT INTO sys_dict_data VALUES(8,  1,  '待审核',   '0',       'comment_status',      '',   'warning',  'N', '0', 'admin', NOW(), '', NULL, '待审核状态');
-INSERT INTO sys_dict_data VALUES(9,  2,  '已审核',   '1',       'comment_status',      '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '已审核状态');
-INSERT INTO sys_dict_data VALUES(10, 3,  '已删除',   '2',       'comment_status',      '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '已删除状态');
+INSERT IGNORE INTO sys_dict_data VALUES(8,  1,  '待审核',   '0',       'comment_status',      '',   'warning',  'N', '0', 'admin', NOW(), '', NULL, '待审核状态');
+INSERT IGNORE INTO sys_dict_data VALUES(9,  2,  '已审核',   '1',       'comment_status',      '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '已审核状态');
+INSERT IGNORE INTO sys_dict_data VALUES(10, 3,  '已删除',   '2',       'comment_status',      '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '已删除状态');
 
-INSERT INTO sys_dict_data VALUES(11, 1,  '通知',     '1',       'sys_notice_type',     '',   'primary', 'N', '0', 'admin', NOW(), '', NULL, '通知');
-INSERT INTO sys_dict_data VALUES(12, 2,  '公告',     '2',       'sys_notice_type',     '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '公告');
+INSERT IGNORE INTO sys_dict_data VALUES(11, 1,  '通知',     '1',       'sys_notice_type',     '',   'primary', 'N', '0', 'admin', NOW(), '', NULL, '通知');
+INSERT IGNORE INTO sys_dict_data VALUES(12, 2,  '公告',     '2',       'sys_notice_type',     '',   'success', 'N', '0', 'admin', NOW(), '', NULL, '公告');
 
-INSERT INTO sys_dict_data VALUES(13, 1,  '正常',     '0',       'sys_notice_status',   '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
-INSERT INTO sys_dict_data VALUES(14, 2,  '关闭',     '1',       'sys_notice_status',   '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '关闭状态');
+INSERT IGNORE INTO sys_dict_data VALUES(13, 1,  '正常',     '0',       'sys_notice_status',   '',   'primary', 'Y', '0', 'admin', NOW(), '', NULL, '正常状态');
+INSERT IGNORE INTO sys_dict_data VALUES(14, 2,  '关闭',     '1',       'sys_notice_status',   '',   'danger',  'N', '0', 'admin', NOW(), '', NULL, '关闭状态');
 
 -- 13、通知公告表
-DROP TABLE IF EXISTS sys_notice;
-CREATE TABLE sys_notice (
+CREATE TABLE IF NOT EXISTS sys_notice (
   notice_id         BIGINT(20)     NOT NULL AUTO_INCREMENT    COMMENT '公告ID',
   notice_title      VARCHAR(50)    NOT NULL                   COMMENT '公告标题',
   notice_type       CHAR(1)        DEFAULT ''                 COMMENT '公告类型（1通知 2公告）',
@@ -331,8 +344,7 @@ CREATE TABLE sys_notice (
 ) ENGINE=INNODB AUTO_INCREMENT=10 COMMENT = '通知公告表';
 
 -- 9、系统访问记录表
-DROP TABLE IF EXISTS `sys_logininfor`;
-CREATE TABLE `sys_logininfor` (
+CREATE TABLE IF NOT EXISTS `sys_logininfor` (
   `info_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '访问ID',
   `user_name` VARCHAR(50) DEFAULT '' COMMENT '用户账号',
   `ipaddr` VARCHAR(128) DEFAULT '' COMMENT '登录IP地址',
@@ -348,8 +360,7 @@ CREATE TABLE `sys_logininfor` (
 ) ENGINE=INNODB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='系统访问记录';
 
 -- 10、操作日志记录表
-DROP TABLE IF EXISTS `sys_oper_log`;
-CREATE TABLE `sys_oper_log` (
+CREATE TABLE IF NOT EXISTS `sys_oper_log` (
   `oper_id` BIGINT(20) NOT NULL AUTO_INCREMENT COMMENT '日志主键',
   `title` VARCHAR(50) DEFAULT '' COMMENT '模块标题',
   `business_type` INT(2) DEFAULT 0 COMMENT '业务类型（0其它 1新增 2修改 3删除）',
@@ -376,20 +387,9 @@ CREATE TABLE `sys_oper_log` (
 -- ========== 导入Quartz定时任务表结构 ==========
 
 -- 按照正确的顺序删除表（先删除有外键约束的表）
-DROP TABLE IF EXISTS QRTZ_SIMPROP_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_SIMPLE_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_CRON_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_BLOB_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_TRIGGERS;
-DROP TABLE IF EXISTS QRTZ_JOB_DETAILS;
-DROP TABLE IF EXISTS QRTZ_CALENDARS;
-DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;
-DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;
-DROP TABLE IF EXISTS QRTZ_LOCKS;
 
 -- 1、存储每一个已配置的 jobDetail 的详细信息
-CREATE TABLE QRTZ_JOB_DETAILS (
+CREATE TABLE IF NOT EXISTS QRTZ_JOB_DETAILS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     job_name             VARCHAR(200)    NOT NULL            COMMENT '任务名称',
     job_group            VARCHAR(200)    NOT NULL            COMMENT '任务组名',
@@ -404,8 +404,7 @@ CREATE TABLE QRTZ_JOB_DETAILS (
 ) ENGINE=INNODB COMMENT = '任务详细信息表';
 
 -- 2、存储已配置的 Trigger 的信息
-DROP TABLE IF EXISTS QRTZ_TRIGGERS;
-CREATE TABLE QRTZ_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT '触发器的名字',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT '触发器所属组的名字',
@@ -427,8 +426,7 @@ CREATE TABLE QRTZ_TRIGGERS (
 ) ENGINE=INNODB COMMENT = '触发器详细信息表';
 
 -- 3、 存储简单的 Trigger，包括重复次数，间隔，以及已触发的次数
-DROP TABLE IF EXISTS QRTZ_SIMPLE_TRIGGERS;
-CREATE TABLE QRTZ_SIMPLE_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_SIMPLE_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_name的外键',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_group的外键',
@@ -440,8 +438,7 @@ CREATE TABLE QRTZ_SIMPLE_TRIGGERS (
 ) ENGINE=INNODB COMMENT = '简单触发器的信息表';
 
 -- 4、 存储 Cron Trigger，包括 Cron 表达式和时区信息
-DROP TABLE IF EXISTS QRTZ_CRON_TRIGGERS;
-CREATE TABLE QRTZ_CRON_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_CRON_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_name的外键',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_group的外键',
@@ -452,8 +449,7 @@ CREATE TABLE QRTZ_CRON_TRIGGERS (
 ) ENGINE=INNODB COMMENT = 'Cron类型的触发器表';
 
 -- 5、 Trigger 作为 Blob 类型存储
-DROP TABLE IF EXISTS QRTZ_BLOB_TRIGGERS;
-CREATE TABLE QRTZ_BLOB_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_BLOB_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_name的外键',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_group的外键',
@@ -463,8 +459,7 @@ CREATE TABLE QRTZ_BLOB_TRIGGERS (
 ) ENGINE=INNODB COMMENT = 'Blob类型的触发器表';
 
 -- 6、 以 Blob 类型存储存放日历信息
-DROP TABLE IF EXISTS QRTZ_CALENDARS;
-CREATE TABLE QRTZ_CALENDARS (
+CREATE TABLE IF NOT EXISTS QRTZ_CALENDARS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     calendar_name        VARCHAR(200)    NOT NULL            COMMENT '日历名称',
     calendar             BLOB            NOT NULL            COMMENT '存放持久化calendar对象',
@@ -472,16 +467,14 @@ CREATE TABLE QRTZ_CALENDARS (
 ) ENGINE=INNODB COMMENT = '日历信息表';
 
 -- 7、 存储已暂停的 Trigger 组的信息
-DROP TABLE IF EXISTS QRTZ_PAUSED_TRIGGER_GRPS;
-CREATE TABLE QRTZ_PAUSED_TRIGGER_GRPS (
+CREATE TABLE IF NOT EXISTS QRTZ_PAUSED_TRIGGER_GRPS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_group的外键',
     PRIMARY KEY (sched_name, trigger_group)
 ) ENGINE=INNODB COMMENT = '暂停的触发器表';
 
 -- 8、 存储与已触发的 Trigger 相关的状态信息
-DROP TABLE IF EXISTS QRTZ_FIRED_TRIGGERS;
-CREATE TABLE QRTZ_FIRED_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_FIRED_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     entry_id             VARCHAR(95)     NOT NULL            COMMENT '调度器实例id',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_name的外键',
@@ -499,8 +492,7 @@ CREATE TABLE QRTZ_FIRED_TRIGGERS (
 ) ENGINE=INNODB COMMENT = '已触发的触发器表';
 
 -- 9、 存储调度器的状态信息
-DROP TABLE IF EXISTS QRTZ_SCHEDULER_STATE;
-CREATE TABLE QRTZ_SCHEDULER_STATE (
+CREATE TABLE IF NOT EXISTS QRTZ_SCHEDULER_STATE (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     instance_name        VARCHAR(200)    NOT NULL            COMMENT '实例名称',
     last_checkin_time    BIGINT(13)      NOT NULL            COMMENT '上次检查时间',
@@ -509,16 +501,14 @@ CREATE TABLE QRTZ_SCHEDULER_STATE (
 ) ENGINE=INNODB COMMENT = '调度器状态表';
 
 -- 10、 存储程序的悲观锁的信息
-DROP TABLE IF EXISTS QRTZ_LOCKS;
-CREATE TABLE QRTZ_LOCKS (
+CREATE TABLE IF NOT EXISTS QRTZ_LOCKS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     lock_name            VARCHAR(40)     NOT NULL            COMMENT '悲观锁名称',
     PRIMARY KEY (sched_name, lock_name)
 ) ENGINE=INNODB COMMENT = '存储的悲观锁信息表';
 
 -- 11、 Quartz集群实现同步机制的行锁表
-DROP TABLE IF EXISTS QRTZ_SIMPROP_TRIGGERS;
-CREATE TABLE QRTZ_SIMPROP_TRIGGERS (
+CREATE TABLE IF NOT EXISTS QRTZ_SIMPROP_TRIGGERS (
     sched_name           VARCHAR(120)    NOT NULL            COMMENT '调度名称',
     trigger_name         VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_name的外键',
     trigger_group        VARCHAR(200)    NOT NULL            COMMENT 'qrtz_triggers表trigger_group的外键',
@@ -540,8 +530,7 @@ CREATE TABLE QRTZ_SIMPROP_TRIGGERS (
 -- ========== 导入博客系统完整表结构和数据 ==========
 
 -- 定时任务调度表
-DROP TABLE IF EXISTS sys_job;
-CREATE TABLE sys_job (
+CREATE TABLE IF NOT EXISTS sys_job (
     job_id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务ID',
     job_name varchar(64) NOT NULL DEFAULT '' COMMENT '任务名称',
     job_group varchar(64) NOT NULL DEFAULT 'DEFAULT' COMMENT '任务组名',
@@ -559,8 +548,7 @@ CREATE TABLE sys_job (
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务调度表';
 
 -- 定时任务执行日志表
-DROP TABLE IF EXISTS sys_job_log;
-CREATE TABLE sys_job_log (
+CREATE TABLE IF NOT EXISTS sys_job_log (
     job_log_id bigint(20) NOT NULL AUTO_INCREMENT COMMENT '任务日志ID',
     job_name varchar(64) NOT NULL COMMENT '任务名称',
     job_group varchar(64) NOT NULL COMMENT '任务组名',
@@ -573,8 +561,7 @@ CREATE TABLE sys_job_log (
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务执行日志表';
 
 -- 博客文章表
-DROP TABLE IF EXISTS `blog_article`;
-CREATE TABLE `blog_article` (
+CREATE TABLE IF NOT EXISTS `blog_article` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文章ID',
   `title` varchar(200) NOT NULL COMMENT '文章标题',
   `summary` varchar(500) DEFAULT NULL COMMENT '文章摘要',
@@ -603,8 +590,7 @@ CREATE TABLE `blog_article` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客文章表';
 
 -- 博客分类表
-DROP TABLE IF EXISTS `blog_category`;
-CREATE TABLE `blog_category` (
+CREATE TABLE IF NOT EXISTS `blog_category` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '分类ID',
   `name` varchar(100) NOT NULL COMMENT '分类名称',
   `alias` varchar(100) DEFAULT NULL COMMENT '分类别名',
@@ -626,8 +612,7 @@ CREATE TABLE `blog_category` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客分类表';
 
 -- 博客标签表
-DROP TABLE IF EXISTS `blog_tag`;
-CREATE TABLE `blog_tag` (
+CREATE TABLE IF NOT EXISTS `blog_tag` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(64) NOT NULL COMMENT '标签名称',
   `description` varchar(255) DEFAULT NULL COMMENT '标签描述',
@@ -641,8 +626,7 @@ CREATE TABLE `blog_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客标签表';
 
 -- 文章标签关联表
-DROP TABLE IF EXISTS `blog_article_tag`;
-CREATE TABLE `blog_article_tag` (
+CREATE TABLE IF NOT EXISTS `blog_article_tag` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `article_id` bigint NOT NULL COMMENT '文章ID',
   `tag_id` bigint NOT NULL COMMENT '标签ID',
@@ -651,8 +635,7 @@ CREATE TABLE `blog_article_tag` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章标签关联表';
 
 -- 博客评论表
-DROP TABLE IF EXISTS `blog_comment`;
-CREATE TABLE `blog_comment` (
+CREATE TABLE IF NOT EXISTS `blog_comment` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `article_id` bigint NOT NULL COMMENT '文章ID',
   `user_id` bigint DEFAULT NULL COMMENT '用户ID（可为空，匿名评论）',
@@ -667,8 +650,7 @@ CREATE TABLE `blog_comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客评论表';
 
 -- 博客友情链接表
-DROP TABLE IF EXISTS `blog_friend_link`;
-CREATE TABLE `blog_friend_link` (
+CREATE TABLE IF NOT EXISTS `blog_friend_link` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `name` varchar(64) NOT NULL COMMENT '友链名称',
   `url` varchar(255) NOT NULL COMMENT '友链地址',
@@ -685,8 +667,7 @@ CREATE TABLE `blog_friend_link` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客友链表';
 
 -- 博客系统设置表
-DROP TABLE IF EXISTS `blog_setting`;
-CREATE TABLE `blog_setting` (
+CREATE TABLE IF NOT EXISTS `blog_setting` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `config_key` varchar(64) NOT NULL COMMENT '配置项Key',
   `config_value` longtext COMMENT '配置项Value',
@@ -698,8 +679,7 @@ CREATE TABLE `blog_setting` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客系统设置表';
 
 -- 博客邮箱验证码表
-DROP TABLE IF EXISTS `blog_email_code`;
-CREATE TABLE `blog_email_code` (
+CREATE TABLE IF NOT EXISTS `blog_email_code` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `email` varchar(50) NOT NULL COMMENT '邮箱地址',
   `code` varchar(6) NOT NULL COMMENT '验证码',
@@ -718,8 +698,7 @@ CREATE TABLE `blog_email_code` (
 -- ========== 代码生成器表 ==========
 
 -- 代码生成业务表
-DROP TABLE IF EXISTS gen_table;
-CREATE TABLE gen_table (
+CREATE TABLE IF NOT EXISTS gen_table (
   table_id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT 'id',
   table_name        VARCHAR(200)    DEFAULT ''                 COMMENT '表名称',
   table_comment     VARCHAR(500)    DEFAULT ''                 COMMENT '表描述',
@@ -745,8 +724,7 @@ CREATE TABLE gen_table (
 ) ENGINE=INNODB AUTO_INCREMENT=1 COMMENT = '代码生成业务表';
 
 -- 代码生成字段表
-DROP TABLE IF EXISTS gen_table_column;
-CREATE TABLE gen_table_column (
+CREATE TABLE IF NOT EXISTS gen_table_column (
   column_id         BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '列id',
   table_id          BIGINT(20)      DEFAULT NULL               COMMENT '归属表id',
   column_name       VARCHAR(200)    DEFAULT NULL               COMMENT '列名称',
@@ -775,7 +753,7 @@ CREATE TABLE gen_table_column (
 -- ========== 初始化博客系统数据 ==========
 
 -- 初始化完整的博客设置数据（38项配置）
-INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '我的博客', '博客名称', NOW(), NOW()),
 ('blog_desc', '这是一个基于RuoYi-Vue的博客系统', '博客描述', NOW(), NOW()),
@@ -831,7 +809,7 @@ INSERT INTO `blog_setting` (`config_key`, `config_value`, `description`, `create
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
 
 -- 插入完整的博客分类数据（包含层级结构）
-INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
+INSERT IGNORE INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
 -- 一级分类
 ('技术分享', 'tech', '技术相关文章和教程', 0, 1, 1, 1),
 ('生活随笔', 'life', '生活记录和感悟分享', 0, 2, 2, 1),
@@ -850,7 +828,7 @@ INSERT INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_
 ('旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
 
 -- 插入完整的博客标签数据（18个常用标签）
-INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
+INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
 -- 核心标签（确保与test_tags.sql一致）
 (1, 'Java', 'Java编程语言相关文章', '#f89820', 'el-icon-cpu', 0),
 (2, 'Vue.js', 'Vue.js前端框架相关文章', '#4fc08d', 'el-icon-monitor', 0),
@@ -882,7 +860,7 @@ INSERT INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_c
 (18, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0);
 
 -- 插入完整的博客文章示例数据
-INSERT INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
+INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
 -- 置顶推荐文章
 ('Spring Boot + Vue.js 全栈开发实战', '本文详细介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用，包含完整的项目搭建和部署流程。',
 '# Spring Boot + Vue.js 全栈开发实战
@@ -1223,7 +1201,7 @@ release/* (发布分支)
 '', 5, 1, 'admin', 0, 0, 1, 92, 16);
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
-INSERT INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
+INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
 -- 文章1：Spring Boot + Vue.js 全栈开发实战
 (1, 1), (1, 2), (1, 3),
 
@@ -1283,7 +1261,7 @@ GROUP BY c.id, c.name, c.status, c.del_flag, c.article_count
 ORDER BY c.sort_order ASC;
 
 -- 插入完整的友情链接数据
-INSERT INTO `blog_friend_link` (`name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
+INSERT IGNORE INTO `blog_friend_link` (`name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
 ('Spring官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', 'Spring框架官方网站，提供最新的Spring生态系统资讯和文档', 0, 1),
 ('Vue.js官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', 'Vue.js渐进式JavaScript框架官方网站', 1, 2),
 ('Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3桌面端组件库，提供丰富的UI组件', 1, 3),
@@ -1298,55 +1276,55 @@ INSERT INTO `blog_friend_link` (`name`, `url`, `logo`, `description`, `status`, 
 -- ========== 配置博客管理菜单 ==========
 
 -- 博客管理主菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2000, '博客管理', 0, 1, 'admin/blog', NULL, '', '', 1, 0, 'M', '0', '0', '', 'documentation', 'admin', NOW(), '', NULL, '博客管理目录');
 
 -- 文章管理
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2001, '文章管理', 2000, 1, 'article', 'blog/article/index', '', '', 1, 0, 'C', '0', '0', 'blog:article:list', 'edit', 'admin', NOW(), '', NULL, '文章管理菜单');
 
 -- 分类管理
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2002, '分类管理', 2000, 2, 'category', 'blog/category/index', '', '', 1, 0, 'C', '0', '0', 'blog:category:list', 'list', 'admin', NOW(), '', NULL, '分类管理菜单');
 
 -- 标签管理
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2003, '标签管理', 2000, 3, 'tag', 'blog/tag/index', '', '', 1, 0, 'C', '0', '0', 'blog:tag:list', 'tab', 'admin', NOW(), '', NULL, '标签管理菜单');
 
 -- 评论管理
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2004, '评论管理', 2000, 4, 'comment', 'blog/comment/index', '', '', 1, 0, 'C', '0', '0', 'blog:comment:list', 'message', 'admin', NOW(), '', NULL, '评论管理菜单');
 
 -- 友链管理
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2006, '友链管理', 2000, 5, 'friendLink', 'blog/friendLink/index', '', '', 1, 0, 'C', '0', '0', 'blog:friendLink:list', 'link', 'admin', NOW(), '', NULL, '友链管理菜单');
 
 -- 博客设置
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2005, '博客设置', 2000, 6, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '博客设置菜单');
 
 -- 为管理员角色分配博客管理菜单权限
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2000), (1, 2001), (1, 2002), (1, 2003), (1, 2004), (1, 2006), (1, 2005);
 
 -- ========== 配置博客管理按钮权限 ==========
 
 -- 文章管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20010, '文章查询', 2001, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:query', '#', 'admin', NOW(), '', NULL, ''),
 (20011, '文章新增', 2001, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:add', '#', 'admin', NOW(), '', NULL, ''),
 (20012, '文章修改', 2001, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:edit', '#', 'admin', NOW(), '', NULL, ''),
 (20013, '文章删除', 2001, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 分类管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20020, '分类查询', 2002, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:query', '#', 'admin', NOW(), '', NULL, ''),
 (20021, '分类新增', 2002, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:add', '#', 'admin', NOW(), '', NULL, ''),
 (20022, '分类修改', 2002, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:edit', '#', 'admin', NOW(), '', NULL, ''),
 (20023, '分类删除', 2002, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 标签管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20030, '标签查询', 2003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:query', '#', 'admin', NOW(), '', NULL, ''),
 (20031, '标签新增', 2003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:add', '#', 'admin', NOW(), '', NULL, ''),
 (20032, '标签修改', 2003, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1354,25 +1332,25 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (20034, '标签导出', 2003, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:tag:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 评论管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20040, '评论查询', 2004, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:query', '#', 'admin', NOW(), '', NULL, ''),
 (20041, '评论审核', 2004, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:approve', '#', 'admin', NOW(), '', NULL, ''),
 (20042, '评论删除', 2004, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 友链管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20060, '友链查询', 2006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:query', '#', 'admin', NOW(), '', NULL, ''),
 (20061, '友链新增', 2006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:add', '#', 'admin', NOW(), '', NULL, ''),
 (20062, '友链修改', 2006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:edit', '#', 'admin', NOW(), '', NULL, ''),
 (20063, '友链删除', 2006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 博客设置按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20050, '设置查询', 2005, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:query', '#', 'admin', NOW(), '', NULL, ''),
 (20051, '设置修改', 2005, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:edit', '#', 'admin', NOW(), '', NULL, '');
 
 -- 为管理员角色分配所有博客管理按钮权限
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 20010), (1, 20011), (1, 20012), (1, 20013),
 (1, 20020), (1, 20021), (1, 20022), (1, 20023),
 (1, 20030), (1, 20031), (1, 20032), (1, 20033), (1, 20034),
@@ -1383,11 +1361,11 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 -- ========== 配置系统管理菜单 ==========
 
 -- 1、用户管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (100, '用户管理', 1, 1, 'user', 'system/user/user/index', '', '', 1, 0, 'C', '0', '0', 'system:user:list', 'user', 'admin', NOW(), '', NULL, '用户管理菜单');
 
 -- 用户管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1001, '用户查询', 100, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:query', '#', 'admin', NOW(), '', NULL, ''),
 (1002, '用户新增', 100, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:add', '#', 'admin', NOW(), '', NULL, ''),
 (1003, '用户修改', 100, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1397,11 +1375,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1007, '重置密码', 100, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'system:user:resetPwd', '#', 'admin', NOW(), '', NULL, '');
 
 -- 2、角色管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (101, '角色管理', 1, 2, 'role', 'system/role/role/index', '', '', 1, 0, 'C', '0', '0', 'system:role:list', 'peoples', 'admin', NOW(), '', NULL, '角色管理菜单');
 
 -- 角色管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1011, '角色查询', 101, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:query', '#', 'admin', NOW(), '', NULL, ''),
 (1012, '角色新增', 101, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:add', '#', 'admin', NOW(), '', NULL, ''),
 (1013, '角色修改', 101, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1409,33 +1387,33 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1015, '角色导出', 101, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'system:role:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 3、菜单管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (102, '菜单管理', 1, 3, 'menu', 'system/menu/menu/index', '', '', 1, 0, 'C', '0', '0', 'system:menu:list', 'tree-table', 'admin', NOW(), '', NULL, '菜单管理菜单');
 
 -- 菜单管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1021, '菜单查询', 102, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:query', '#', 'admin', NOW(), '', NULL, ''),
 (1022, '菜单新增', 102, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:add', '#', 'admin', NOW(), '', NULL, ''),
 (1023, '菜单修改', 102, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:edit', '#', 'admin', NOW(), '', NULL, ''),
 (1024, '菜单删除', 102, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'system:menu:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 4、部门管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (103, '部门管理', 1, 4, 'dept', 'system/dept/dept/index', '', '', 1, 0, 'C', '0', '0', 'system:dept:list', 'tree', 'admin', NOW(), '', NULL, '部门管理菜单');
 
 -- 部门管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1031, '部门查询', 103, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dept:query', '#', 'admin', NOW(), '', NULL, ''),
 (1032, '部门新增', 103, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dept:add', '#', 'admin', NOW(), '', NULL, ''),
 (1033, '部门修改', 103, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dept:edit', '#', 'admin', NOW(), '', NULL, ''),
 (1034, '部门删除', 103, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dept:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 5、岗位管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (104, '岗位管理', 1, 5, 'post', 'system/post/post/index', '', '', 1, 0, 'C', '0', '0', 'system:post:list', 'post', 'admin', NOW(), '', NULL, '岗位管理菜单');
 
 -- 岗位管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1041, '岗位查询', 104, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:post:query', '#', 'admin', NOW(), '', NULL, ''),
 (1042, '岗位新增', 104, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:post:add', '#', 'admin', NOW(), '', NULL, ''),
 (1043, '岗位修改', 104, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:post:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1443,11 +1421,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1045, '岗位导出', 104, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'system:post:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 6、字典管理菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (105, '字典管理', 1, 6, 'dict', 'system/dict/dict/index', '', '', 1, 0, 'C', '0', '0', 'system:dict:list', 'dict', 'admin', NOW(), '', NULL, '字典管理菜单');
 
 -- 字典管理按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1051, '字典查询', 105, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dict:query', '#', 'admin', NOW(), '', NULL, ''),
 (1052, '字典新增', 105, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dict:add', '#', 'admin', NOW(), '', NULL, ''),
 (1053, '字典修改', 105, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dict:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1455,11 +1433,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1055, '字典导出', 105, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'system:dict:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 7、参数设置菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (106, '参数设置', 1, 7, 'config', 'system/config/config/index', '', '', 1, 0, 'C', '0', '0', 'system:config:list', 'edit', 'admin', NOW(), '', NULL, '参数设置菜单');
 
 -- 参数设置按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1061, '参数查询', 106, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:config:query', '#', 'admin', NOW(), '', NULL, ''),
 (1062, '参数新增', 106, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:config:add', '#', 'admin', NOW(), '', NULL, ''),
 (1063, '参数修改', 106, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:config:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1467,11 +1445,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1065, '参数导出', 106, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'system:config:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 8、通知公告菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (107, '通知公告', 1, 8, 'notice', 'system/notice/notice/index', '', '', 1, 0, 'C', '0', '0', 'system:notice:list', 'message', 'admin', NOW(), '', NULL, '通知公告菜单');
 
 -- 通知公告按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1071, '公告查询', 107, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'system:notice:query', '#', 'admin', NOW(), '', NULL, ''),
 (1072, '公告新增', 107, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'system:notice:add', '#', 'admin', NOW(), '', NULL, ''),
 (1073, '公告修改', 107, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'system:notice:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1480,21 +1458,21 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- ========== 配置系统监控菜单 ==========
 
 -- 1、在线用户菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (109, '在线用户', 2, 1, 'online', 'monitor/online/index', '', '', 1, 0, 'C', '0', '0', 'monitor:online:list', 'online', 'admin', NOW(), '', NULL, '在线用户菜单');
 
 -- 在线用户按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1091, '在线用户查询', 109, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:online:query', '#', 'admin', NOW(), '', NULL, ''),
 (1092, '批量强退', 109, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:online:batchLogout', '#', 'admin', NOW(), '', NULL, ''),
 (1093, '单条强退', 109, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:online:forceLogout', '#', 'admin', NOW(), '', NULL, '');
 
 -- 2、定时任务菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (110, '定时任务', 2, 2, 'job', 'monitor/job/index', '', '', 1, 0, 'C', '0', '0', 'monitor:job:list', 'job', 'admin', NOW(), '', NULL, '定时任务菜单');
 
 -- 定时任务按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1101, '任务查询', 110, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:query', '#', 'admin', NOW(), '', NULL, ''),
 (1102, '任务新增', 110, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:add', '#', 'admin', NOW(), '', NULL, ''),
 (1103, '任务修改', 110, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1509,19 +1487,19 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- VALUES (111, '数据监控', 2, 3, 'druid', 'monitor/druid/index', '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', NOW(), '', NULL, '数据监控菜单');
 
 -- 4、服务监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (112, '服务监控', 2, 4, 'server', 'monitor/server/index', '', '', 1, 0, 'C', '0', '0', 'monitor:server:list', 'server', 'admin', NOW(), '', NULL, '服务监控菜单');
 
 -- 5、缓存监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (113, '缓存监控', 2, 5, 'cache', 'monitor/cache/index', '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list', 'redis', 'admin', NOW(), '', NULL, '缓存监控菜单');
 
 -- 6、缓存列表菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (114, '缓存列表', 2, 6, 'cacheList', 'monitor/cache/list', '', '', 1, 0, 'C', '0', '0', 'monitor:cache:list', 'redis-list', 'admin', NOW(), '', NULL, '缓存列表菜单');
 
 -- 缓存列表按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1141, '缓存查询', 114, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:cache:query', '#', 'admin', NOW(), '', NULL, ''),
 (1142, '缓存新增', 114, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:cache:add', '#', 'admin', NOW(), '', NULL, ''),
 (1143, '缓存修改', 114, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:cache:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1535,11 +1513,11 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- VALUES (115, '表单构建', 3, 1, 'build', 'tool/build/index', '', '', 1, 0, 'C', '0', '0', 'tool:build:list', 'build', 'admin', NOW(), '', NULL, '表单构建菜单');
 
 -- 2、代码生成菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (116, '代码生成', 3, 2, 'gen', 'tool/gen/index', '', '', 1, 0, 'C', '0', '0', 'tool:gen:list', 'code', 'admin', NOW(), '', NULL, '代码生成菜单');
 
 -- 代码生成按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (1161, '生成查询', 116, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'tool:gen:query', '#', 'admin', NOW(), '', NULL, ''),
 (1162, '生成新增', 116, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'tool:gen:add', '#', 'admin', NOW(), '', NULL, ''),
 (1163, '生成编辑', 116, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'tool:gen:edit', '#', 'admin', NOW(), '', NULL, ''),
@@ -1549,51 +1527,51 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 (1167, '生成代码', 116, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'tool:gen:code', '#', 'admin', NOW(), '', NULL, '');
 
 -- 3、系统接口菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (117, '系统接口', 3, 3, 'swagger', 'tool/swagger/index', '', '', 1, 0, 'C', '0', '0', 'tool:swagger:list', 'swagger', 'admin', NOW(), '', NULL, '系统接口菜单');
 
 -- ========== 系统监控补充菜单 ==========
 
 -- 1、Actuator监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5000, 'Actuator监控', 2, 10, 'actuator', 'monitor/actuator/index', '', '', 1, 0, 'C', '0', '0', 'monitor:actuator:list', 'monitor', 'admin', NOW(), '', NULL, 'Actuator监控菜单');
 
 -- Actuator监控按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5001, 'Actuator查询', 5000, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:actuator:query', '#', 'admin', NOW(), '', NULL, '');
 
 -- 2、Prometheus监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5002, 'Prometheus监控', 2, 11, 'prometheus', 'monitor/prometheus/index', '', '', 1, 0, 'C', '0', '0', 'monitor:prometheus:list', 'chart', 'admin', NOW(), '', NULL, 'Prometheus监控菜单');
 
 -- Prometheus监控按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5003, 'Prometheus查询', 5002, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:prometheus:query', '#', 'admin', NOW(), '', NULL, '');
 
 -- 3、Grafana监控菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5004, 'Grafana监控', 2, 12, 'grafana', 'monitor/grafana/index', '', '', 1, 0, 'C', '0', '0', 'monitor:grafana:list', 'dashboard', 'admin', NOW(), '', NULL, 'Grafana监控菜单');
 
 -- Grafana监控按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5005, 'Grafana查询', 5004, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:grafana:query', '#', 'admin', NOW(), '', NULL, '');
 
 -- 4、登录日志菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5006, '登录日志', 2, 7, 'logininfor', 'monitor/logininfor/index', '', '', 1, 0, 'C', '0', '0', 'monitor:logininfor:list', 'logininfor', 'admin', NOW(), '', NULL, '登录日志菜单');
 
 -- 登录日志按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5007, '登录日志查询', 5006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:query', '#', 'admin', NOW(), '', NULL, ''),
 (5008, '登录日志删除', 5006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove', '#', 'admin', NOW(), '', NULL, ''),
 (5009, '登录日志导出', 5006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 5、操作日志菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5010, '操作日志', 2, 8, 'operlog', 'monitor/operlog/index', '', '', 1, 0, 'C', '0', '0', 'monitor:operlog:list', 'form', 'admin', NOW(), '', NULL, '操作日志菜单');
 
 -- 操作日志按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5011, '操作日志查询', 5010, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:query', '#', 'admin', NOW(), '', NULL, ''),
 (5012, '操作日志删除', 5010, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:remove', '#', 'admin', NOW(), '', NULL, ''),
 (5013, '操作日志导出', 5010, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:operlog:export', '#', 'admin', NOW(), '', NULL, '');
@@ -1601,39 +1579,39 @@ INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component,
 -- ========== 数据统计菜单配置 ==========
 
 -- 1、数据统计一级菜单（注意：visible='0' 表示显示，'1' 表示隐藏）
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (5, '数据统计', 0, 2, 'admin/statistics', NULL, '', '', 1, 0, 'M', '0', '0', '', 'nested', 'admin', NOW(), '', NULL, '数据统计目录');
 
 -- 2、数据概览菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (6001, '数据概览', 5, 1, 'overview', 'statistics/overview/index', '', '', 1, 0, 'C', '0', '0', 'statistics:overview:list', 'chart', 'admin', NOW(), '', NULL, '数据概览菜单');
 
 -- 数据概览按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (6002, '数据概览查询', 6001, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:overview:query', '#', 'admin', NOW(), '', NULL, '');
 
 -- 3、文章统计菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (6003, '文章统计', 5, 2, 'article', 'statistics/article/index', '', '', 1, 0, 'C', '0', '0', 'statistics:article:list', 'documentation', 'admin', NOW(), '', NULL, '文章统计菜单');
 
 -- 文章统计按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (6004, '文章统计查询', 6003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:query', '#', 'admin', NOW(), '', NULL, ''),
 (6005, '文章统计导出', 6003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 4、用户统计菜单
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (6006, '用户统计', 5, 3, 'user', 'statistics/user/index', '', '', 1, 0, 'C', '0', '0', 'statistics:user:list', 'user', 'admin', NOW(), '', NULL, '用户统计菜单');
 
 -- 用户统计按钮权限
-INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (6007, '用户统计查询', 6006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:query', '#', 'admin', NOW(), '', NULL, ''),
 (6008, '用户统计导出', 6006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- ========== 为管理员角色分配系统管理、监控和工具菜单权限 ==========
 
 -- 系统管理菜单权限（包括菜单和按钮权限）
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 -- 系统管理主菜单
 (1, 1),
 -- 用户管理
@@ -1654,7 +1632,7 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 107), (1, 1071), (1, 1072), (1, 1073), (1, 1074);
 
 -- 系统监控菜单权限
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 109), (1, 1091), (1, 1092), (1, 1093),
 (1, 110), (1, 1101), (1, 1102), (1, 1103), (1, 1104), (1, 1105), (1, 1106), (1, 1107), (1, 1108),
 (1, 111), (1, 112), (1, 113),
@@ -1666,66 +1644,46 @@ INSERT INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 5010), (1, 5011), (1, 5012), (1, 5013);
 
 -- 系统工具菜单权限
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 115), (1, 116), (1, 1161), (1, 1162), (1, 1163), (1, 1164), (1, 1165), (1, 1166), (1, 1167), (1, 117);
 
 -- 数据统计菜单权限
-INSERT INTO sys_role_menu (role_id, menu_id) VALUES
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 5),
 (1, 6001), (1, 6002),
 (1, 6003), (1, 6004), (1, 6005),
 (1, 6006), (1, 6007), (1, 6008);
 
--- ========== 创建性能优化索引 ==========
+-- ========== 创建性能优化索引（幂等，调用前面的存储过程） ==========
 
 -- 博客评论表索引优化
-ALTER TABLE `blog_comment` ADD INDEX `idx_article_id` (`article_id`);
-ALTER TABLE `blog_comment` ADD INDEX `idx_parent_id` (`parent_id`);
-ALTER TABLE `blog_comment` ADD INDEX `idx_status` (`status`);
-ALTER TABLE `blog_comment` ADD INDEX `idx_create_time` (`create_time`);
-ALTER TABLE `blog_comment` ADD INDEX `idx_article_status` (`article_id`, `status`);
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_article_id', 'CREATE INDEX idx_article_id ON blog_comment(article_id)');
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_parent_id', 'CREATE INDEX idx_parent_id ON blog_comment(parent_id)');
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_status', 'CREATE INDEX idx_status ON blog_comment(status)');
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_create_time', 'CREATE INDEX idx_create_time ON blog_comment(create_time)');
+CALL sp_create_index_if_not_exists('blog_comment', 'idx_article_status', 'CREATE INDEX idx_article_status ON blog_comment(article_id, status)');
 
 -- 博客标签表索引优化
-ALTER TABLE `blog_tag` ADD INDEX `idx_del_flag` (`del_flag`);
-ALTER TABLE `blog_tag` ADD INDEX `idx_name` (`name`);
-ALTER TABLE `blog_tag` ADD INDEX `idx_article_count` (`article_count`);
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_del_flag', 'CREATE INDEX idx_del_flag ON blog_tag(del_flag)');
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_name', 'CREATE INDEX idx_name ON blog_tag(name)');
+CALL sp_create_index_if_not_exists('blog_tag', 'idx_article_count', 'CREATE INDEX idx_article_count ON blog_tag(article_count)');
 
 -- 博客文章表复合索引优化
-ALTER TABLE `blog_article` ADD INDEX `idx_status_del_time` (`status`, `del_flag`, `create_time`);
-ALTER TABLE `blog_article` ADD INDEX `idx_category_status` (`category_id`, `status`);
-ALTER TABLE `blog_article` ADD INDEX `idx_author_status` (`author_id`, `status`);
-ALTER TABLE `blog_article` ADD INDEX `idx_top_status_time` (`is_top`, `status`, `create_time`);
+CALL sp_create_index_if_not_exists('blog_article', 'idx_status_del_time', 'CREATE INDEX idx_status_del_time ON blog_article(status, del_flag, create_time)');
+CALL sp_create_index_if_not_exists('blog_article', 'idx_category_status', 'CREATE INDEX idx_category_status ON blog_article(category_id, status)');
+CALL sp_create_index_if_not_exists('blog_article', 'idx_author_status', 'CREATE INDEX idx_author_status ON blog_article(author_id, status)');
+CALL sp_create_index_if_not_exists('blog_article', 'idx_top_status_time', 'CREATE INDEX idx_top_status_time ON blog_article(is_top, status, create_time)');
 
 -- 博客设置表索引优化
-ALTER TABLE `blog_setting` ADD INDEX `idx_config_key` (`config_key`);
+CALL sp_create_index_if_not_exists('blog_setting', 'idx_config_key', 'CREATE INDEX idx_config_key ON blog_setting(config_key)');
 
 -- 文章标签关联表索引优化
-ALTER TABLE `blog_article_tag` ADD INDEX `idx_tag_id` (`tag_id`);
+CALL sp_create_index_if_not_exists('blog_article_tag', 'idx_tag_id', 'CREATE INDEX idx_tag_id ON blog_article_tag(tag_id)');
 
 -- =====================================================
 -- ========== 性能优化索引（幂等创建，可重复执行）==========
+-- ========== 注：sp_create_index_if_not_exists 已在文件开头定义 ==========
 -- =====================================================
-
-DROP PROCEDURE IF EXISTS sp_create_index_if_not_exists$$
-CREATE PROCEDURE sp_create_index_if_not_exists(
-    IN table_name_param VARCHAR(64),
-    IN index_name_param VARCHAR(64),
-    IN create_sql_param TEXT
-)
-BEGIN
-    IF NOT EXISTS (
-        SELECT 1
-        FROM information_schema.STATISTICS
-        WHERE TABLE_SCHEMA = DATABASE()
-          AND TABLE_NAME = table_name_param
-          AND INDEX_NAME = index_name_param
-    ) THEN
-        SET @create_index_sql = create_sql_param;
-        PREPARE create_index_stmt FROM @create_index_sql;
-        EXECUTE create_index_stmt;
-        DEALLOCATE PREPARE create_index_stmt;
-    END IF;
-END$$
 
 -- 文章状态和删除标志复合索引（用于列表查询）
 CALL sp_create_index_if_not_exists('blog_article', 'idx_article_status_del_flag', 'CREATE INDEX idx_article_status_del_flag ON blog_article(status, del_flag)');
@@ -2223,8 +2181,7 @@ SELECT '4. 定期备份数据：mysqldump -u root -p zhiblog > backup.sql' AS ti
 -- ===============================================================
 -- 📌 文章收藏表 (v1.3.3 新增)
 -- ===============================================================
-DROP TABLE IF EXISTS blog_bookmark;
-CREATE TABLE blog_bookmark (
+CREATE TABLE IF NOT EXISTS blog_bookmark (
     id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
     article_id  BIGINT(20)      NOT NULL                    COMMENT '文章ID',
@@ -2240,8 +2197,7 @@ CREATE TABLE blog_bookmark (
 -- ===============================================================
 -- 📌 站内信通知表 (v1.3.6 新增)
 -- ===============================================================
-DROP TABLE IF EXISTS blog_notification;
-CREATE TABLE blog_notification (
+CREATE TABLE IF NOT EXISTS blog_notification (
     id            BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
     recipient_id  BIGINT(20)      NOT NULL                    COMMENT '接收用户ID',
     sender_name   VARCHAR(64)     NOT NULL                    COMMENT '发送者昵称',
