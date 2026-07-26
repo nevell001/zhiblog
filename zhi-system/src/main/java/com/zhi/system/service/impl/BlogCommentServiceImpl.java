@@ -190,20 +190,22 @@ public class BlogCommentServiceImpl implements IBlogCommentService
 
     /**
      * 审核通过博客评论
-     * 
+     *
      * @param ids 需要审核通过的博客评论主键集合
      * @return 结果
      */
     @Override
     public int auditBlogCommentByIds(Long[] ids)
     {
-        // 更新评论状态为已审核（通过）
         int count = 0;
         for (Long id : ids) {
             BlogComment blogComment = new BlogComment();
             blogComment.setId(id);
             blogComment.setStatus("1"); // 1表示已审核通过
             count += blogCommentMapper.updateBlogComment(blogComment);
+
+            // 发送审核通过通知给评论者
+            sendAuditResultNotification(id, true);
         }
         return count;
     }
@@ -217,15 +219,67 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     @Override
     public int rejectBlogCommentByIds(Long[] ids)
     {
-        // 更新评论状态为已删除（拒绝）
         int count = 0;
         for (Long id : ids) {
             BlogComment blogComment = new BlogComment();
             blogComment.setId(id);
             blogComment.setStatus("2"); // 2表示已删除（拒绝）
             count += blogCommentMapper.updateBlogComment(blogComment);
+
+            // 发送审核拒绝通知给评论者
+            sendAuditResultNotification(id, false);
         }
         return count;
+    }
+
+    /**
+     * 发送评论审核结果通知（站内信）
+     *
+     * @param commentId 评论ID
+     * @param approved  true=通过, false=拒绝
+     */
+    private void sendAuditResultNotification(Long commentId, boolean approved)
+    {
+        try
+        {
+            BlogComment blogComment = blogCommentMapper.selectBlogCommentById(commentId);
+            if (blogComment == null || blogComment.getUserId() == null)
+            {
+                logger.debug("审核结果通知跳过：评论不存在或匿名评论, commentId={}", commentId);
+                return;
+            }
+
+            BlogArticle article = blogArticleService.selectBlogArticleById(blogComment.getArticleId());
+            String articleTitle = article != null ? article.getTitle() : "已删除的文章";
+
+            String type = approved ? "audit" : "reject";
+            String title = approved ? "你的评论已通过审核" : "你的评论未通过审核";
+            String contentPreview = blogComment.getContent();
+            if (contentPreview != null && contentPreview.length() > 200)
+            {
+                contentPreview = contentPreview.substring(0, 200) + "...";
+            }
+            String suffix = approved ? "【审核通过】" : "【审核未通过】";
+
+            BlogNotification notification = new BlogNotification();
+            notification.setRecipientId(blogComment.getUserId());
+            notification.setSenderName("系统通知");
+            notification.setType(type);
+            notification.setTitle(title);
+            notification.setContent(suffix + contentPreview);
+            notification.setArticleId(blogComment.getArticleId());
+            notification.setArticleTitle(articleTitle);
+            notification.setCommentId(blogComment.getId());
+            notification.setIsRead(0);
+
+            blogNotificationService.createNotification(notification);
+            logger.info("审核结果通知已发送: recipientId={}, approved={}, commentId={}",
+                    blogComment.getUserId(), approved, commentId);
+        }
+        catch (Exception e)
+        {
+            logger.error("审核结果通知发送失败: commentId={}", commentId, e);
+        }
     }
 
     /**

@@ -150,6 +150,19 @@
             </a>
             <a :href="rssUrl" target="_blank">RSS订阅</a>
           </div>
+          <div v-if="friendLinks.length > 0" class="footer-col">
+            <h4>友情链接</h4>
+            <a
+              v-for="link in friendLinks"
+              :key="link.id"
+              :href="formatUrl(link.url)"
+              target="_blank"
+              rel="noopener noreferrer"
+              :title="link.description || link.name"
+            >
+              {{ link.name }}
+            </a>
+          </div>
         </div>
       </div>
       <div class="footer-bottom">
@@ -171,6 +184,7 @@ import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { Setting, UserFilled, ArrowDown, User, SwitchButton, Bell } from '@element-plus/icons-vue'
 import { getUnreadCount } from '@/api/blog/notification'
+import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -180,6 +194,15 @@ const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const isDark = ref(false)
 const unreadCount = ref(0)
 let unreadTimer: ReturnType<typeof setInterval> | null = null
+
+interface FriendLink {
+  id: number
+  name: string
+  url: string
+  logo?: string
+  description?: string
+}
+const friendLinks = ref<FriendLink[]>([])
 
 const menus = [
   { name: '首页', path: '/blog' },
@@ -239,6 +262,9 @@ onMounted(() => {
   isDark.value = saved === 'dark'
   document.documentElement.classList.toggle('dark', isDark.value)
 
+  // 加载友情链接
+  fetchFriendLinks()
+
   // 定时刷新未读通知数
   if (userStore.token && userStore.name) {
     fetchUnreadCount()
@@ -260,6 +286,17 @@ function fetchUnreadCount() {
     })
     .catch(() => {
       // silent fail
+    })
+}
+
+function fetchFriendLinks() {
+  getFrontFriendLinkList()
+    .then(response => {
+      const list = (response && (response.data || response)) as FriendLink[] | undefined
+      friendLinks.value = Array.isArray(list) ? list : []
+    })
+    .catch(() => {
+      friendLinks.value = []
     })
 }
 
