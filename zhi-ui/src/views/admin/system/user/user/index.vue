@@ -454,6 +454,7 @@
 import { nextTick } from 'vue'
 import { getToken } from '@/utils/auth'
 import { useAppStore } from '@/stores/app'
+import { ElMessageBox } from '@/plugins/element-plus-service'
 import {
   changeUserStatus,
   listUser,
@@ -671,19 +672,18 @@ function handleAuthRole(row) {
 
 /** 重置密码按钮操作 */
 function handleResetPwd(row) {
-  proxy
-    .$prompt('请输入"' + row.userName + '"的新密码', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      closeOnClickModal: false,
-      inputPattern: /^.{5,20}$/,
-      inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
-      inputValidator: value => {
-        if (/<|>|"|'|\||\\/.test(value)) {
-          return '不能包含非法字符：< > " \' \\ |'
-        }
+  ElMessageBox.prompt('请输入"' + row.userName + '"的新密码', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    closeOnClickModal: false,
+    inputPattern: /^.{5,20}$/,
+    inputErrorMessage: '用户密码长度必须介于 5 和 20 之间',
+    inputValidator: value => {
+      if (/<|>|"|'|\||\\/.test(value)) {
+        return '不能包含非法字符：< > " \' \\ |'
       }
-    })
+    }
+  })
     .then(({ value }) => {
       resetUserPwd(row.userId, value).then(response => {
         proxy.$modal.msgSuccess('修改成功，新密码是：' + value)
