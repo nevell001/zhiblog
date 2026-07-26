@@ -78,8 +78,14 @@ describe('User Store 测试', () => {
 
       await expect(userStore.login(userInfo)).resolves.toBeUndefined()
 
-      expect(mockLogin).toHaveBeenCalledWith('admin', 'test-password', '1234', 'uuid-123')
-      expect(mockSetToken).toHaveBeenCalledWith('new-token')
+      expect(mockLogin).toHaveBeenCalledWith(
+        'admin',
+        'test-password',
+        '1234',
+        'uuid-123',
+        undefined
+      )
+      expect(mockSetToken).toHaveBeenCalledWith('new-token', undefined)
       expect(userStore.token).toBe('new-token')
     })
 
@@ -94,7 +100,13 @@ describe('User Store 测试', () => {
       mockLogin.mockRejectedValue(error)
 
       await expect(userStore.login(userInfo)).rejects.toThrow('登录失败')
-      expect(mockLogin).toHaveBeenCalledWith('admin', 'wrong-password', '1234', 'uuid-123')
+      expect(mockLogin).toHaveBeenCalledWith(
+        'admin',
+        'wrong-password',
+        '1234',
+        'uuid-123',
+        undefined
+      )
       expect(mockSetToken).not.toHaveBeenCalled()
     })
 
@@ -109,7 +121,13 @@ describe('User Store 测试', () => {
 
       await userStore.login(userInfo)
 
-      expect(mockLogin).toHaveBeenCalledWith('admin', 'test-password', '1234', 'uuid-123')
+      expect(mockLogin).toHaveBeenCalledWith(
+        'admin',
+        'test-password',
+        '1234',
+        'uuid-123',
+        undefined
+      )
     })
   })
 

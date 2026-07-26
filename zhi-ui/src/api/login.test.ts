@@ -33,7 +33,8 @@ describe('login API', () => {
           username: 'testuser',
           password: 'password123',
           code: undefined,
-          uuid: undefined
+          uuid: undefined,
+          rememberMe: false
         }
       })
     })
@@ -54,7 +55,8 @@ describe('login API', () => {
           username: 'testuser',
           password: 'password123',
           code: '1234',
-          uuid: 'uuid-123'
+          uuid: 'uuid-123',
+          rememberMe: false
         }
       })
     })
