@@ -15,16 +15,6 @@
           </router-link>
         </div>
         <div class="nav-right">
-          <div
-            v-if="userStore.token && userStore.name"
-            class="notification-bell"
-            title="站内信"
-            @click="goToNotifications"
-          >
-            <el-badge :value="unreadCount" :hidden="unreadCount === 0" :max="99">
-              <el-icon :size="20"><Bell /></el-icon>
-            </el-badge>
-          </div>
           <el-dropdown
             v-if="userStore.token && userStore.name"
             trigger="click"
@@ -177,13 +167,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { Setting, UserFilled, ArrowDown, User, SwitchButton, Bell } from '@element-plus/icons-vue'
-import { getUnreadCount } from '@/api/blog/notification'
+import { Setting, UserFilled, ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 
 const router = useRouter()
@@ -192,8 +181,6 @@ const blogSettingsStore = useBlogSettingsStore()
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const isDark = ref(false)
-const unreadCount = ref(0)
-let unreadTimer: ReturnType<typeof setInterval> | null = null
 
 interface FriendLink {
   id: number
@@ -264,30 +251,7 @@ onMounted(() => {
 
   // 加载友情链接
   fetchFriendLinks()
-
-  // 定时刷新未读通知数
-  if (userStore.token && userStore.name) {
-    fetchUnreadCount()
-    unreadTimer = setInterval(fetchUnreadCount, 30000)
-  }
 })
-
-onUnmounted(() => {
-  if (unreadTimer) {
-    clearInterval(unreadTimer)
-    unreadTimer = null
-  }
-})
-
-function fetchUnreadCount() {
-  getUnreadCount()
-    .then(response => {
-      unreadCount.value = Number(response.data) || 0
-    })
-    .catch(() => {
-      // silent fail
-    })
-}
 
 function fetchFriendLinks() {
   getFrontFriendLinkList()
@@ -298,14 +262,6 @@ function fetchFriendLinks() {
     .catch(() => {
       friendLinks.value = []
     })
-}
-
-function goToNotifications() {
-  router.push('/admin/user/profile')
-  // 延迟执行，等 profile 组件挂载后再切换到通知tab
-  setTimeout(() => {
-    window.dispatchEvent(new CustomEvent('switchProfileTab', { detail: 'notifications' }))
-  }, 300)
 }
 </script>
 
@@ -383,21 +339,6 @@ function goToNotifications() {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-.notification-bell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  border-radius: 8px;
-  color: var(--mo-n600);
-  transition: all 0.2s;
-}
-.notification-bell:hover {
-  background: var(--mo-p50);
-  color: var(--mo-p700);
 }
 .user-info {
   display: flex;
