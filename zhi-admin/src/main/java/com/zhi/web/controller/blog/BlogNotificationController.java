@@ -58,8 +58,8 @@ public class BlogNotificationController extends BaseController
     public AjaxResult markAsRead(@PathVariable Long[] ids)
     {
         Long userId = SecurityUtils.getUserId();
-        int result = blogNotificationService.markAsRead(ids, userId);
-        return toAjax(result);
+        blogNotificationService.markAsRead(ids, userId);
+        return AjaxResult.success();
     }
 
     /**
@@ -69,7 +69,8 @@ public class BlogNotificationController extends BaseController
     public AjaxResult markAllAsRead()
     {
         Long userId = SecurityUtils.getUserId();
-        int result = blogNotificationService.markAllAsRead(userId);
-        return toAjax(result);
+        blogNotificationService.markAllAsRead(userId);
+        // 即使 0 行更新（无可读通知）也算成功
+        return AjaxResult.success();
     }
 }

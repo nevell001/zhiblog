@@ -1,6 +1,7 @@
 package com.zhi.system.mapper;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 import com.zhi.system.domain.BlogNotification;
 
 /**
@@ -34,7 +35,7 @@ public interface BlogNotificationMapper
      * @param recipientId 接收用户ID
      * @return 结果
      */
-    int markAsRead(Long[] ids, Long recipientId);
+    int markAsRead(@Param("ids") Long[] ids, @Param("recipientId") Long recipientId);
 
     /**
      * 标记所有为已读
@@ -42,7 +43,7 @@ public interface BlogNotificationMapper
      * @param recipientId 接收用户ID
      * @return 结果
      */
-    int markAllAsRead(Long recipientId);
+    int markAllAsRead(@Param("recipientId") Long recipientId);
 
     /**
      * 获取未读数量
@@ -50,5 +51,5 @@ public interface BlogNotificationMapper
      * @param recipientId 接收用户ID
      * @return 未读数量
      */
-    int selectUnreadCount(Long recipientId);
+    int selectUnreadCount(@Param("recipientId") Long recipientId);
 }
