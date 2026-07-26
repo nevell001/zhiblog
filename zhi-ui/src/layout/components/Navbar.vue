@@ -133,6 +133,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessageBox, ElMessage } from '@/plugins/element-plus-service'
 import { Bell } from '@element-plus/icons-vue'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
@@ -157,6 +158,7 @@ import {
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
+const router = useRouter()
 
 const unreadCount = ref(0)
 const notificationList = ref<BlogNotification[]>([])
@@ -248,8 +250,13 @@ function handleNotificationClick(item: BlogNotification) {
       })
       .catch(() => {})
   }
-  // 跳转到文章详情（如果有 articleId）
-  if (item.articleId) {
+
+  // 根据通知类型智能跳转
+  if (item.type === 'comment' || item.type === 'reply') {
+    // 新评论/回复 → 跳到评论管理页（管理员审核）
+    router.push('/admin/blog/comment')
+  } else if (item.articleId) {
+    // 审核结果通知 → 跳到文章详情（评论者查看自己的评论）
     window.open(`/blog/article/${item.articleId}`, '_blank')
   }
 }
