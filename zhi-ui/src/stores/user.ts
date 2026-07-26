@@ -52,7 +52,13 @@ export const useUserStore = defineStore('user', {
      */
     async getInfo(): Promise<any> {
       const res = await getUserInfo()
-      const data = res.data || res
+      const data = res?.data || res
+
+      // 匿名访问（401 拦截器返回的占位响应）：直接返回，不修改状态
+      if (!data || !data.user) {
+        return res
+      }
+
       const user = data.user
       const avatar =
         user.avatar == '' || user.avatar == null

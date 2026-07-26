@@ -69,8 +69,14 @@ public class UnifiedAuthController extends BaseController
     {
         try
         {
-            SysUser user = getLoginUser().getUser();
-            logger.info("📋 获取用户信息 - userId: {}, userName: {}, userType: {}", 
+            com.zhi.common.core.domain.model.LoginUser loginUser = getLoginUser();
+            if (loginUser == null || loginUser.getUser() == null)
+            {
+                // 返回 401 让前端以匿名身份访问博客前台
+                return AjaxResult.error(401, "未登录或会话已过期");
+            }
+            SysUser user = loginUser.getUser();
+            logger.info("📋 获取用户信息 - userId: {}, userName: {}, userType: {}",
                 user.getUserId(), user.getUserName(), user.getUserType());
 
             // 提取角色标识列表
@@ -86,7 +92,7 @@ public class UnifiedAuthController extends BaseController
             Map<String, Object> result = new HashMap<>();
             result.put("user", user);
             result.put("roles", roles);
-            result.put("permissions", getLoginUser().getPermissions());
+            result.put("permissions", loginUser.getPermissions());
             result.put("userId", user.getUserId());
             result.put("userName", user.getUserName());
             result.put("nickName", user.getNickName());
@@ -99,8 +105,9 @@ public class UnifiedAuthController extends BaseController
         }
         catch (Exception e)
         {
-            logger.error("获取用户信息失败：error={}", e.getMessage(), e);
-            return AjaxResult.error("获取用户信息失败");
+            logger.warn("获取用户信息失败（可能为匿名访问）：error={}", e.getMessage());
+            // 返回 401 而非 500，前端拦截器会对博客页面静默处理
+            return AjaxResult.error(401, "未登录或会话已过期");
         }
     }
 
