@@ -39,6 +39,62 @@
         </el-tooltip>
       </template>
 
+      <!-- 站内信通知 -->
+      <el-dropdown
+        v-if="userStore.token"
+        class="right-menu-item hover-effect notification-container"
+        trigger="click"
+        placement="bottom-end"
+        @visible-change="handleDropdownVisible"
+      >
+        <el-badge
+          :value="unreadCount"
+          :hidden="unreadCount === 0"
+          :max="99"
+          class="notification-badge"
+        >
+          <el-icon :size="20"><Bell /></el-icon>
+        </el-badge>
+        <template #dropdown>
+          <el-dropdown-menu class="notification-dropdown">
+            <div class="notification-header">
+              <span>站内信通知</span>
+              <el-button
+                v-if="unreadCount > 0"
+                type="primary"
+                link
+                size="small"
+                @click="handleMarkAllRead"
+              >
+                全部已读
+              </el-button>
+            </div>
+            <div v-loading="notificationLoading" class="notification-list">
+              <div v-if="notificationList.length === 0" class="empty-tip">暂无通知</div>
+              <div
+                v-for="item in notificationList"
+                :key="item.id"
+                class="notification-item"
+                :class="{ unread: item.isRead === 0 }"
+                @click="handleNotificationClick(item)"
+              >
+                <div class="notification-title">{{ item.title }}</div>
+                <div class="notification-content">{{ item.content }}</div>
+                <div class="notification-meta">
+                  <span class="notification-article">{{ item.articleTitle || '系统通知' }}</span>
+                  <span class="notification-time">{{ formatTime(item.createTime) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="notification-footer">
+              <el-button type="primary" link size="small" @click="goToProfileNotifications">
+                查看全部通知
+              </el-button>
+            </div>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
+
       <el-dropdown
         class="avatar-container right-menu-item hover-effect"
         trigger="hover"
@@ -76,7 +132,9 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessageBox } from '@/plugins/element-plus-service'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { ElMessageBox, ElMessage } from '@/plugins/element-plus-service'
+import { Bell } from '@element-plus/icons-vue'
 import Breadcrumb from '@/components/Breadcrumb/index.vue'
 import TopNav from '@/components/TopNav/index.vue'
 import Hamburger from '@/components/Hamburger/index.vue'
@@ -88,10 +146,22 @@ import RuoYiDoc from '@/components/RuoYi/Doc/index.vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
+import {
+  getUnreadCount,
+  getNotificationList,
+  markAsRead,
+  markAllAsRead,
+  type BlogNotification
+} from '@/api/blog/notification'
 
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
+
+const unreadCount = ref(0)
+const notificationList = ref<BlogNotification[]>([])
+const notificationLoading = ref(false)
+let unreadTimer: ReturnType<typeof setInterval> | null = null
 
 function toggleSideBar() {
   appStore.toggleSideBar()
@@ -136,6 +206,99 @@ function toggleTheme() {
 function goToAdmin() {
   window.location.href = '/admin'
 }
+
+// ============ 通知相关 ============
+function fetchUnreadCount() {
+  getUnreadCount()
+    .then(response => {
+      unreadCount.value = Number(response.data) || 0
+    })
+    .catch(() => {
+      // silent fail
+    })
+}
+
+function fetchNotificationList() {
+  notificationLoading.value = true
+  getNotificationList({ pageNum: 1, pageSize: 10 })
+    .then(response => {
+      const data = (response && (response.rows || response.data)) as BlogNotification[] | undefined
+      notificationList.value = Array.isArray(data) ? data : []
+    })
+    .catch(() => {
+      notificationList.value = []
+    })
+    .finally(() => {
+      notificationLoading.value = false
+    })
+}
+
+function handleDropdownVisible(visible: boolean) {
+  if (visible) {
+    fetchNotificationList()
+  }
+}
+
+function handleNotificationClick(item: BlogNotification) {
+  if (item.isRead === 0) {
+    markAsRead([item.id])
+      .then(() => {
+        item.isRead = 1
+        fetchUnreadCount()
+      })
+      .catch(() => {})
+  }
+  // 跳转到文章详情（如果有 articleId）
+  if (item.articleId) {
+    window.open(`/blog/article/${item.articleId}`, '_blank')
+  }
+}
+
+function handleMarkAllRead() {
+  markAllAsRead()
+    .then(() => {
+      ElMessage.success('已全部标记为已读')
+      notificationList.value.forEach(n => (n.isRead = 1))
+      fetchUnreadCount()
+    })
+    .catch(() => {})
+}
+
+function goToProfileNotifications() {
+  window.location.href = '/user/profile'
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('switchProfileTab', { detail: 'notifications' }))
+  }, 300)
+}
+
+function formatTime(time: string): string {
+  if (!time) return ''
+  const date = new Date(time)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const minutes = Math.floor(diff / 60000)
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes} 分钟前`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours} 小时前`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} 天前`
+  return time.substring(0, 10)
+}
+
+onMounted(() => {
+  if (userStore.token) {
+    fetchUnreadCount()
+    unreadTimer = setInterval(fetchUnreadCount, 30000)
+  }
+})
+
+onUnmounted(() => {
+  if (unreadTimer) {
+    clearInterval(unreadTimer)
+    unreadTimer = null
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -214,6 +377,17 @@ function goToAdmin() {
       }
     }
 
+    .notification-container {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      .notification-badge {
+        display: flex;
+        align-items: center;
+      }
+    }
+
     .avatar-container {
       margin-right: 0px;
       padding-right: 0px;
@@ -251,6 +425,87 @@ function goToAdmin() {
         }
       }
     }
+  }
+}
+</style>
+
+<style lang="scss">
+.notification-dropdown {
+  width: 360px;
+  padding: 0;
+  max-height: 500px;
+
+  .notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .notification-list {
+    max-height: 360px;
+    overflow-y: auto;
+  }
+
+  .empty-tip {
+    padding: 32px 16px;
+    text-align: center;
+    color: var(--el-text-color-secondary);
+    font-size: 13px;
+  }
+
+  .notification-item {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--el-border-color-lighter);
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: var(--el-fill-color-light);
+    }
+
+    &.unread {
+      background: var(--el-color-primary-light-9);
+
+      .notification-title {
+        font-weight: 600;
+      }
+    }
+
+    .notification-title {
+      font-size: 13px;
+      color: var(--el-text-color-primary);
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .notification-content {
+      font-size: 12px;
+      color: var(--el-text-color-secondary);
+      margin-bottom: 6px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .notification-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--el-text-color-placeholder);
+    }
+  }
+
+  .notification-footer {
+    padding: 8px 16px;
+    text-align: center;
+    border-top: 1px solid var(--el-border-color-lighter);
   }
 }
 </style>

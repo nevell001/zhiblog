@@ -5,7 +5,7 @@ export interface BlogNotification {
   id: number
   recipientId: number
   senderName: string
-  type: 'comment' | 'reply'
+  type: 'comment' | 'reply' | 'audit' | 'reject'
   title: string
   content: string
   articleId: number

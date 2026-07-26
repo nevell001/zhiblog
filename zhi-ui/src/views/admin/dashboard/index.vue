@@ -239,7 +239,7 @@ import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
 
-const version = ref('1.3.2')
+const version = ref('1.3.5')
 const currentDate = ref('')
 
 interface DashboardStats {

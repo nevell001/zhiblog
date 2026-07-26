@@ -73,7 +73,8 @@ public class StatisticsController {
         data.put("categoryCount", categoryCount);
         data.put("tagCount", tagCount);
         data.put("commentCount", commentCount);
-        data.put("totalViews", totalViews);
+        data.put("viewCount", totalViews);
+        data.put("totalViews", totalViews); // 兼容旧字段名
         data.put("userCount", userCount);
 
         return AjaxResult.success(data);
