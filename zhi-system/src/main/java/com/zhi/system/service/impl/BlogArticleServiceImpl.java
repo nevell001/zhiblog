@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import com.zhi.common.utils.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zhi.common.cache.annotation.BlogCacheable;
 import com.zhi.common.cache.annotation.BlogCacheEvict;
@@ -28,8 +30,10 @@ import com.zhi.common.exception.DuplicateArticleTitleException;
  * @date 2025-07-18
  */
 @Service
-public class BlogArticleServiceImpl implements IBlogArticleService 
+public class BlogArticleServiceImpl implements IBlogArticleService
 {
+    private static final Logger logger = LoggerFactory.getLogger(BlogArticleServiceImpl.class);
+
     @Autowired
     private BlogArticleMapper blogArticleMapper;
 
@@ -389,13 +393,29 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @Override
     @BlogCacheable(key = "blog:search:#keyword + '_' + (#blogArticle != null ? #blogArticle.hashCode() : 'null')", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
-        boolean useFullText = keyword != null && !keyword.trim().isEmpty() && isMysqlDatabase();
-        List<BlogArticle> articleList = useFullText
-                ? blogArticleMapper.searchArticlesFullText(keyword, blogArticle)
-                : blogArticleMapper.searchArticles(keyword, blogArticle);
+        List<BlogArticle> articleList;
+        boolean useFullText = keyword != null && !keyword.trim().isEmpty() && isMysqlDatabase() && !fullTextDisabled;
+        if (useFullText) {
+            try {
+                articleList = blogArticleMapper.searchArticlesFullText(keyword, blogArticle);
+            } catch (org.springframework.jdbc.UncategorizedSQLException ex) {
+                // FULLTEXT 索引缺失时降级到 LIKE 搜索（错误码 1191）
+                logger.warn("FULLTEXT 搜索失败，降级到 LIKE 搜索。请运行 sql/02_fix_notifications_and_search.sql 修复索引。原因: {}",
+                        ex.getMessage());
+                fullTextDisabled = true;
+                articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
+            }
+        } else {
+            articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
+        }
         loadTagsForArticles(articleList);
         return articleList;
     }
+
+    /**
+     * FULLTEXT 索引是否已禁用（运行时检测到索引缺失后自动降级）
+     */
+    private volatile boolean fullTextDisabled = false;
 
     private boolean isMysqlDatabase() {
         if (mysqlDatabase != null) {
