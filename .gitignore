@@ -92,7 +92,7 @@ coverage/
 
 # 项目文档
 IFLOW.md
-CLAUDE.md
+
 CODEBUDDY.md
 
 # SonarQube 配置（包含敏感信息）
