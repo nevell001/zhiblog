@@ -59,7 +59,7 @@ export function delComment(id: number): Promise<any> {
  */
 export function getArticleComments(articleId: number): Promise<any> {
   return request({
-    url: '/blog/api/comment/article/' + articleId,
+    url: '/blog/comment/article/' + articleId,
     method: 'get'
   })
 }
@@ -69,7 +69,7 @@ export function getArticleComments(articleId: number): Promise<any> {
  */
 export function addBlogComment(data: Comment): Promise<any> {
   return request({
-    url: '/blog/api/comment',
+    url: '/blog/comment',
     method: 'post',
     data: data
   })

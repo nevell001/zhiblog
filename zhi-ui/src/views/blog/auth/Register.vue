@@ -23,8 +23,17 @@
         class="register-form"
       >
         <el-form-item prop="username" class="form-group">
+          <label>用户名 <span class="required">*</span></label>
+          <el-input v-model="registerForm.username" placeholder="请输入用户名" clearable>
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+
+        <el-form-item prop="nickname" class="form-group">
           <label>昵称</label>
-          <el-input v-model="registerForm.username" placeholder="你的昵称" clearable>
+          <el-input v-model="registerForm.nickname" placeholder="选填，留空则使用用户名" clearable>
             <template #prefix>
               <el-icon><User /></el-icon>
             </template>
@@ -146,6 +155,7 @@ const agreeToTerms = ref(false)
 
 const registerForm = reactive({
   username: '',
+  nickname: '',
   email: '',
   emailCode: '',
   password: '',
@@ -260,6 +270,7 @@ const handleRegister = async () => {
 
     await blogUserStore.register({
       username: registerForm.username,
+      nickname: registerForm.nickname,
       email: registerForm.email,
       emailCode: registerForm.emailCode,
       password: registerForm.password,
@@ -394,6 +405,11 @@ onMounted(() => {
   color: var(--mo-n700);
   font-size: 13px;
   font-weight: 500;
+}
+
+.form-group label .required {
+  color: var(--mo-error, #f56c6c);
+  margin-left: 2px;
 }
 
 .form-group :deep(.el-form-item__content) {

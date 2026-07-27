@@ -142,11 +142,22 @@
               <div class="empty-desc">
                 {{
                   articlesLoadError
-                    ? '可以稍后重试，或直接进入文章管理页面。'
+                    ? articlesLoadError.includes('权限')
+                      ? '请使用管理后台的文章管理功能。'
+                      : '可以稍后重试，或直接进入文章管理页面。'
                     : '可以从文章管理页面创建第一篇内容。'
                 }}
               </div>
-              <el-button type="primary" @click="goArticleManage('create')">去写文章</el-button>
+              <el-button
+                v-if="!articlesLoadError || !articlesLoadError.includes('权限')"
+                type="primary"
+                @click="goArticleManage('create')"
+              >
+                去写文章
+              </el-button>
+              <el-button v-else type="primary" @click="goArticleManage('list')">
+                前往文章管理
+              </el-button>
             </div>
           </section>
 
@@ -271,7 +282,7 @@ import userAvatar from './userAvatar.vue'
 import userInfo from './userInfo.vue'
 import resetPwd from './resetPwd.vue'
 import { getUserProfile } from '@/api/system/user'
-import { listArticle } from '@/api/admin/blog/article'
+import { getMyArticles } from '@/api/admin/blog/article'
 import { getNotificationList, markAsRead, markAllAsRead } from '@/api/blog/notification'
 import type { BlogNotification } from '@/api/blog/notification'
 
@@ -346,13 +357,12 @@ function getUser() {
 }
 
 function getProfileArticles() {
-  const authorId = state.user.userId
   articlesLoading.value = true
   articlesLoadError.value = ''
   Promise.all([
-    listArticle({ pageNum: 1, pageSize: 5, authorId }),
-    listArticle({ pageNum: 1, pageSize: 1, authorId, status: 1 }),
-    listArticle({ pageNum: 1, pageSize: 1, authorId, status: 0 })
+    getMyArticles({ pageNum: 1, pageSize: 5 }),
+    getMyArticles({ pageNum: 1, pageSize: 1, status: 1 }),
+    getMyArticles({ pageNum: 1, pageSize: 1, status: 0 })
   ])
     .then(([recentResponse, publishedResponse, draftResponse]) => {
       profileArticles.value = recentResponse.rows || []
@@ -366,7 +376,12 @@ function getProfileArticles() {
       profileStats.articleTotal = 0
       profileStats.publishedTotal = 0
       profileStats.draftTotal = 0
-      articlesLoadError.value = '文章数据加载失败'
+      // 检查是否是权限错误
+      if (error?.response?.status === 403 || error?.message?.includes('权限')) {
+        articlesLoadError.value = '您没有管理文章的权限'
+      } else {
+        articlesLoadError.value = '文章数据加载失败'
+      }
     })
     .finally(() => {
       articlesLoading.value = false

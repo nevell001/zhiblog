@@ -55,7 +55,6 @@ const usePermissionStore = defineStore('permission', {
             const rdata = JSON.parse(JSON.stringify(res.data))
             const sidebarRoutes = filterAsyncRouter(sdata)
             const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            rewriteRoutes.push({ path: '/:pathMatch(.*)*', redirect: '/404', hidden: true })
             this.setRoutes(rewriteRoutes)
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
@@ -63,7 +62,6 @@ const usePermissionStore = defineStore('permission', {
             resolve(rewriteRoutes)
           })
           .catch(error => {
-            console.error('获取路由数据失败:', error)
             reject(error)
           })
       })
@@ -133,6 +131,7 @@ function filterChildren(childrenMap: any[], lastRouter = false): any[] {
   return children
 }
 
+// RuoYi-Vue3 兼容的 loadView 实现
 export const loadView = (view: string) => {
   let res: any
 
@@ -142,55 +141,23 @@ export const loadView = (view: string) => {
     return res
   }
 
-  // 构建所有可能的路径模式
-  const possiblePaths = new Set<string>()
-
-  // 1. 直接匹配
-  possiblePaths.add(view)
-
-  // 2. 添加 admin 前缀
-  possiblePaths.add(`admin/${view}`)
-
-  // 3. 添加 admin 前缀和 index 后缀
-  possiblePaths.add(`admin/${view}/index`)
-
-  // 4. 处理 system/user/user/index 这样的路径
-  const parts = view.split('/')
-  if (parts.length >= 3) {
-    const lastPart = parts[parts.length - 1]
-    const secondLastPart = parts[parts.length - 2]
-
-    // 如果倒数两部分相同，说明已经是正确的格式
-    if (secondLastPart === lastPart) {
-      possiblePaths.add(`admin/${view}`)
-      possiblePaths.add(`admin/${view}/index`)
-    } else if (lastPart === 'index') {
-      // 如果已经是 index，尝试去掉 index 后的路径
-      const basePath = view.substring(0, view.lastIndexOf('/'))
-      const lastDir = basePath.split('/').pop()
-      if (lastDir) {
-        possiblePaths.add(`admin/${basePath}/${lastDir}/index`)
-      }
-    } else {
-      // 如果最后不是 index，尝试添加 index
-      possiblePaths.add(`admin/${view}/index`)
-      // 尝试重复最后一部分
-      possiblePaths.add(`admin/${view}/${lastPart}/index`)
+  // 优先匹配 admin/ 前缀的路径（管理后台组件）
+  for (const path in modules) {
+    const dir = path.split('views/')[1]?.split('.vue')[0]
+    if (dir === `admin/${view}`) {
+      res = () => modules[path]()
+      break
     }
   }
 
-  // 转换为数组
-  const pathsArray = Array.from(possiblePaths)
-
-  // 在所有模块中查找匹配的路径
-  for (const path in modules) {
-    // 移除 ../views/ 前缀和 .vue 后缀，得到相对路径
-    const dir = path.replace(/^\.\.\/views\//, '').replace('.vue', '')
-
-    // 检查是否匹配任何可能的路径
-    if (pathsArray.includes(dir)) {
-      res = () => modules[path]()
-      break
+  // 如果没有找到 admin/ 前缀的组件，尝试直接匹配（博客前端组件）
+  if (!res) {
+    for (const path in modules) {
+      const dir = path.split('views/')[1]?.split('.vue')[0]
+      if (dir === view) {
+        res = () => modules[path]()
+        break
+      }
     }
   }
 

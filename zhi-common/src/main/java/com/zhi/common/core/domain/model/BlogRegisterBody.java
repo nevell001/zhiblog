@@ -17,6 +17,10 @@ public class BlogRegisterBody
     @Size(min = 2, max = 20, message = "用户名长度必须介于2和20之间")
     private String username;
 
+    /** 昵称（选填） */
+    @Size(max = 30, message = "昵称长度不能超过30个字符")
+    private String nickname;
+
     /** 用户密码 */
     @NotBlank(message = "用户密码不能为空")
     @Size(min = 5, max = 20, message = "用户密码长度必须介于5和20之间")
@@ -50,6 +54,16 @@ public class BlogRegisterBody
     public void setUsername(String username)
     {
         this.username = username;
+    }
+
+    public String getNickname()
+    {
+        return nickname;
+    }
+
+    public void setNickname(String nickname)
+    {
+        this.nickname = nickname;
     }
 
     public String getPassword()

@@ -13,6 +13,17 @@ export function listArticle(query?: ArticleParams): Promise<QueryResult<Article>
 }
 
 /**
+ * 获取当前用户的文章列表（用于个人中心）
+ */
+export function getMyArticles(query?: ArticleParams): Promise<QueryResult<Article>> {
+  return request({
+    url: '/system/article/my',
+    method: 'get',
+    params: query
+  })
+}
+
+/**
  * 查询文章详细
  */
 export function getArticle(id: number): Promise<DataResult<Article>> {

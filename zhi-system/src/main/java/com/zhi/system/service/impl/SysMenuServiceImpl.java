@@ -179,12 +179,11 @@ public class SysMenuServiceImpl implements ISysMenuService
             router.setHidden("1".equals(menu.getVisible()));
             router.setName(getRouteName(menu));
             router.setPath(getRouterPath(menu));
-            router.setComponent(getComponent(menu));
+            String component = getComponent(menu);
+            router.setComponent(component);
             router.setQuery(menu.getQuery());
             router.setMeta(new MetaVo(menu.getMenuName(), menu.getIcon(), StringUtils.equals("1", menu.getIsCache()), menu.getPath()));
             List<SysMenu> cMenus = menu.getChildren();
-            // 调试日志：输出菜单信息和子菜单数量
-            log.info("buildMenus - menuName={}, menuType={}, parentId={}, children={}", menu.getMenuName(), menu.getMenuType(), menu.getParentId(), cMenus != null ? cMenus.size() : "null");
             if (StringUtils.isNotEmpty(cMenus) && isMenuFrame(menu))
             {
                 router.setAlwaysShow(false);
@@ -429,6 +428,11 @@ public class SysMenuServiceImpl implements ISysMenuService
         // 非外链并且是一级目录（类型为目录）
         if (0 == menu.getParentId().intValue() && UserConstants.TYPE_DIR.equals(menu.getMenuType())
                 && UserConstants.NO_FRAME.equals(menu.getIsFrame()))
+        {
+            routerPath = "/" + menu.getPath();
+        }
+        // 一级目录（类型为目录），无论是否为外链，都添加 / 前缀
+        else if (0 == menu.getParentId().intValue() && UserConstants.TYPE_DIR.equals(menu.getMenuType()))
         {
             routerPath = "/" + menu.getPath();
         }

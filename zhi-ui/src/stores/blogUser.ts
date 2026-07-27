@@ -41,6 +41,7 @@ interface BlogUserInfo {
 
 interface BlogRegisterInfo {
   username: string
+  nickname?: string
   password: string
   confirmPassword: string
   email: string

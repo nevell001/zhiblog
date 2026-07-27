@@ -107,7 +107,10 @@ public class BlogUserService
         // 5. 创建博客用户
         SysUser blogUser = new SysUser();
         blogUser.setUserName(username);
-        blogUser.setNickName(username);
+        // 昵称优先使用用户输入的 nickname，如果没有则使用 username
+        blogUser.setNickName(StringUtils.isNotEmpty(registerBody.getNickname())
+            ? registerBody.getNickname()
+            : username);
         blogUser.setEmail(email);
         blogUser.setPassword(SecurityUtils.encryptPassword(password));
         blogUser.setStatus("0"); // 正常状态

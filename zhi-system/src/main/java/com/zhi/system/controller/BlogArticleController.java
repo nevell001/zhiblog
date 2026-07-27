@@ -84,6 +84,21 @@ public class BlogArticleController extends BaseController
     }
 
     /**
+     * 获取当前登录用户的文章列表（用于个人中心）
+     * 必须在 /{id} 端点之前定义，否则路径会被 /{id} 匹配
+     */
+    @GetMapping("/my")
+    public TableDataInfo getMyArticles(BlogArticle blogArticle)
+    {
+        startPage();
+        // 自动设置为当前登录用户的 ID
+        Long currentUserId = getUserId();
+        blogArticle.setAuthorId(currentUserId);
+        List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+        return getDataTable(list);
+    }
+
+    /**
      * 获取文章详细信息
      */
     @PreAuthorize("@ss.hasPermi('blog:article:query')")

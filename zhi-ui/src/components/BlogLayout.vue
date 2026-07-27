@@ -228,7 +228,7 @@ const toggleTheme = () => {
 }
 
 const goToAdmin = () => {
-  router.push('/admin')
+  router.push('/admin/blog/article')
 }
 
 const handleUserCommand = async (command: string) => {

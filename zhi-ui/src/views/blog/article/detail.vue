@@ -199,7 +199,7 @@
                   :placeholder="
                     replyTarget
                       ? `回复 ${replyTarget.nickname}...`
-                      : '写下你的想法... 支持 Markdown 语法'
+                      : '写下你的想法...'
                   "
                   :rows="3"
                   maxlength="500"
@@ -208,7 +208,7 @@
                 />
               </el-form-item>
               <div class="actions">
-                <span class="md-hint">支持 Markdown · Ctrl/⌘ + Enter 发送</span>
+                <span class="md-hint">Ctrl/⌘ + Enter 发送</span>
                 <el-button v-if="replyTarget" plain @click="cancelReply">取消回复</el-button>
                 <el-button type="primary" :loading="commentSubmitting" @click="submitComment">
                   发表评论
