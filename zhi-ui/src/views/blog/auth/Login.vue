@@ -495,4 +495,92 @@ onMounted(() => {
     padding: 32px 24px;
   }
 }
+
+/* 深色模式 */
+html.dark .mo-auth-page {
+  background: var(--mo-n900);
+}
+
+html.dark .auth-wrapper {
+  background: var(--mo-n800);
+}
+
+html.dark .auth-visual {
+  background: linear-gradient(135deg, var(--mo-p800), var(--mo-p900));
+}
+
+html.dark .auth-form h2 {
+  color: var(--mo-n100);
+}
+
+html.dark .sub {
+  color: var(--mo-n400);
+}
+
+html.dark .auth-tabs {
+  border-bottom-color: var(--mo-n700);
+}
+
+html.dark .tab {
+  color: var(--mo-n400);
+}
+
+html.dark .tab:hover {
+  color: var(--mo-n200);
+}
+
+html.dark .tab.active {
+  color: var(--mo-p300);
+  border-bottom-color: var(--mo-p300);
+}
+
+html.dark .form-group label {
+  color: var(--mo-n300);
+}
+
+html.dark :deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px var(--mo-n600) inset;
+  background: var(--mo-n900);
+}
+
+html.dark :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p500) inset,
+    0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+html.dark :deep(.el-input__inner) {
+  color: var(--mo-n200);
+}
+
+html.dark .captcha-img {
+  border-color: var(--mo-n600);
+}
+
+html.dark .captcha-img:hover {
+  border-color: var(--mo-p500);
+}
+
+html.dark .remember {
+  color: var(--mo-n400);
+}
+
+html.dark .auth-divider {
+  color: var(--mo-n500);
+}
+
+html.dark .auth-divider::before,
+html.dark .auth-divider::after {
+  background: var(--mo-n700);
+}
+
+html.dark .auth-secondary {
+  color: var(--mo-p300);
+  border-color: var(--mo-n600);
+}
+
+html.dark .auth-secondary:hover {
+  border-color: var(--mo-p500);
+  background: rgba(99, 102, 241, 0.15);
+}
 </style>

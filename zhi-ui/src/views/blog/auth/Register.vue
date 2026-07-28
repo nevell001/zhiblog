@@ -503,14 +503,81 @@ onMounted(() => {
   gap: 10px;
 }
 
+/* 深色模式 */
 html.dark .mo-auth-page {
   background:
-    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-bg);
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-n900);
 }
 
 html.dark .auth-card {
-  background: var(--mo-bg-card);
-  border-color: var(--mo-border);
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark .auth-card h2 {
+  color: var(--mo-n100);
+}
+
+html.dark .sub {
+  color: var(--mo-n400);
+}
+
+html.dark .auth-switch {
+  background: var(--mo-n700);
+}
+
+html.dark .switch-item {
+  color: var(--mo-n400);
+}
+
+html.dark .switch-item:hover {
+  color: var(--mo-n200);
+}
+
+html.dark .switch-item.active {
+  color: var(--mo-p300);
+  background: var(--mo-n800);
+}
+
+html.dark .form-group label {
+  color: var(--mo-n300);
+}
+
+html.dark :deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px var(--mo-n600) inset;
+  background: var(--mo-n900);
+}
+
+html.dark :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p500) inset,
+    0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+html.dark :deep(.el-input__inner) {
+  color: var(--mo-n200);
+}
+
+html.dark .captcha-img {
+  border-color: var(--mo-n600);
+}
+
+html.dark .agreement-label {
+  color: var(--mo-n300);
+}
+
+html.dark .agreement-label a {
+  color: var(--mo-p300);
+}
+
+html.dark .auth-submit {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+}
+
+html.dark .auth-submit:hover {
+  background: var(--mo-p700);
+  border-color: var(--mo-p700);
 }
 
 @media (max-width: 768px) {

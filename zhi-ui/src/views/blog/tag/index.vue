@@ -1486,7 +1486,7 @@ html.dark .empty-state {
 }
 
 html.dark .empty-icon {
-  color: #444;
+  color: var(--mo-n400);
 }
 
 html.dark .empty-content h3 {

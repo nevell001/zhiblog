@@ -710,4 +710,141 @@ onMounted(async () => {
 .contact-close:hover {
   color: var(--mo-p600);
 }
+
+/* 深色模式 */
+html.dark .mo-home-page {
+  background: var(--mo-n900);
+  color: var(--mo-n200);
+}
+
+html.dark .mo-home-page .home-hero {
+  background: linear-gradient(135deg, var(--mo-p800), var(--mo-p900));
+}
+
+html.dark .mo-home-page .home-hero .search-box {
+  background: var(--mo-n800);
+}
+
+html.dark .mo-home-page .article-card {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark .mo-home-page .article-card:hover {
+  border-color: var(--mo-p600);
+}
+
+html.dark .mo-home-page .article-card .title {
+  color: var(--mo-n100);
+}
+
+html.dark .mo-home-page .article-card .excerpt {
+  color: var(--mo-n400);
+}
+
+html.dark .mo-home-page .article-card .meta {
+  color: var(--mo-n500);
+}
+
+html.dark .mo-home-page .article-card .meta .author {
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .sidebar-widget {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark .mo-home-page .widget-title {
+  color: var(--mo-n100);
+}
+
+html.dark .mo-home-page .cat-item {
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .cat-item:hover,
+html.dark .mo-home-page .cat-item.active {
+  background: rgba(79, 70, 229, 0.18);
+  color: var(--mo-p300);
+}
+
+html.dark .mo-home-page .cat-item .count {
+  background: var(--mo-n700);
+  color: var(--mo-n400);
+}
+
+html.dark .mo-home-page .tc {
+  background: var(--mo-n700);
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .tc:hover,
+html.dark .mo-home-page .tc.lg {
+  background: rgba(79, 70, 229, 0.18);
+  color: var(--mo-p300);
+}
+
+html.dark .mo-home-page .htitle {
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .htitle:hover {
+  color: var(--mo-p300);
+}
+
+html.dark .mo-home-page .hmeta {
+  color: var(--mo-n500);
+}
+
+html.dark .mo-home-page .pg {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .pg.active {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+  color: #fff;
+}
+
+html.dark .mo-home-page .tag-blue {
+  background: rgba(79, 70, 229, 0.18);
+  color: var(--mo-p300);
+}
+
+html.dark .mo-home-page .tag-gray {
+  background: var(--mo-n700);
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .search-result-note {
+  color: var(--mo-n300);
+}
+
+html.dark .mo-home-page .search-result-note button {
+  color: var(--mo-p300);
+}
+
+html.dark .contact-card {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark .contact-card h3 {
+  color: var(--mo-n100);
+}
+
+html.dark .contact-card p {
+  color: var(--mo-n400);
+}
+
+html.dark .contact-close {
+  color: var(--mo-n400);
+}
+
+html.dark .contact-close:hover {
+  color: var(--mo-p300);
+}
 </style>

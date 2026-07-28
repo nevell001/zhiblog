@@ -981,7 +981,7 @@ html.dark .no-data {
 }
 
 html.dark .empty-icon {
-  color: #444;
+  color: var(--mo-n400);
 }
 
 html.dark .no-data h3 {
