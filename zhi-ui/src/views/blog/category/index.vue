@@ -1296,6 +1296,13 @@ html.dark .article-item:hover {
   border-color: rgba(79, 70, 229, 0.2);
 }
 
+html.dark .article-category-badge {
+  background: rgba(79, 70, 229, 0.2);
+  color: var(--mo-p300);
+  border-color: var(--mo-p600);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 html.dark .article-title a {
   background: linear-gradient(135deg, var(--mo-n200), var(--mo-n300));
   -webkit-background-clip: text;

@@ -178,7 +178,11 @@ const shareToQQ = () => {
 }
 
 .share-item:hover {
-  background: #f0f0f0;
+  background: var(--mo-n100);
+}
+
+html.dark .share-item:hover {
+  background: var(--mo-n700);
 }
 
 .share-icon {

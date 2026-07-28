@@ -860,6 +860,12 @@ INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `ar
 (18, 'Linux', 'Linux操作系统', '#FCC624', 'el-icon-monitor', 0);
 
 -- 插入完整的博客文章示例数据
+-- 幂等保护：仅在尚无示例文章时插入，避免重跑脚本导致重复
+DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
+DELIMITER $$
+CREATE PROCEDURE sp_insert_sample_articles()
+BEGIN
+  IF (SELECT COUNT(*) FROM `blog_article` WHERE `title` = 'Spring Boot + Vue.js 全栈开发实战') = 0 THEN
 INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
 -- 置顶推荐文章
 ('Spring Boot + Vue.js 全栈开发实战', '本文详细介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用，包含完整的项目搭建和部署流程。',
@@ -1199,6 +1205,11 @@ release/* (发布分支)
 
 良好的Git工作流程可以显著提升团队的协作效率和代码质量。',
 '', 5, 1, 'admin', 0, 0, 1, 92, 16);
+  END IF;
+END$$
+DELIMITER ;
+CALL sp_insert_sample_articles();
+DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
 INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
@@ -1357,6 +1368,39 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 20040), (1, 20041), (1, 20042),
 (1, 20060), (1, 20061), (1, 20062), (1, 20063),
 (1, 20050), (1, 20051);
+
+-- 为普通角色(role_id=2)和博客用户角色(role_id=3)分配博客管理菜单及按钮权限
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
+-- 博客管理主菜单和文章管理
+(2, 2000), (2, 2001),
+-- 文章管理按钮权限（查询、新增、修改、删除）
+(2, 20010), (2, 20011), (2, 20012), (2, 20013),
+-- 分类管理
+(2, 2002),
+-- 分类管理按钮权限
+(2, 20020), (2, 20021), (2, 20022), (2, 20023),
+-- 标签管理
+(2, 2003),
+-- 标签管理按钮权限
+(2, 20030), (2, 20031), (2, 20032), (2, 20033), (2, 20034),
+-- 评论管理
+(2, 2004),
+-- 评论管理按钮权限
+(2, 20040), (2, 20041), (2, 20042),
+-- 博客设置
+(2, 2005),
+-- 友链管理
+(2, 2006),
+
+-- 博客用户角色(role_id=3)的权限
+(3, 2000), (3, 2001),
+(3, 20010), (3, 20011), (3, 20012), (3, 20013),
+(3, 2002),
+(3, 20020), (3, 20021), (3, 20022), (3, 20023),
+(3, 2003),
+(3, 20030), (3, 20031), (3, 20032), (3, 20033), (3, 20034),
+(3, 2004),
+(3, 20040), (3, 20041), (3, 20042);
 
 -- ========== 配置系统管理菜单 ==========
 
@@ -1791,6 +1835,7 @@ BEGIN
 END$$
 
 -- 文章更新前触发器
+DROP TRIGGER IF EXISTS `tr_article_update_time`$$
 CREATE TRIGGER `tr_article_update_time`
 BEFORE UPDATE ON `blog_article`
 FOR EACH ROW
@@ -1837,6 +1882,7 @@ BEGIN
 END$$
 
 -- 文章插入前触发器
+DROP TRIGGER IF EXISTS `tr_article_insert`$$
 CREATE TRIGGER `tr_article_insert`
 BEFORE INSERT ON `blog_article`
 FOR EACH ROW
@@ -1859,6 +1905,7 @@ BEGIN
 END$$
 
 -- 文章删除后触发器（物理删除）
+DROP TRIGGER IF EXISTS `tr_article_delete_physical`$$
 CREATE TRIGGER `tr_article_delete_physical`
 AFTER DELETE ON `blog_article`
 FOR EACH ROW

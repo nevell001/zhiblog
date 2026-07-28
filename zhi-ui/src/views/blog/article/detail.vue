@@ -685,7 +685,9 @@ html.dark .mo-article-page .side-widget,
 html.dark .mo-article-page .nav-item,
 html.dark .mo-article-page .comment-section,
 html.dark .mo-article-page .comment-input,
-html.dark .mo-article-page .c-reply {
+html.dark .mo-article-page .c-reply,
+html.dark .mo-article-page .article-actions,
+html.dark .mo-article-page .article-navigation {
   border-color: var(--mo-n700);
   background: var(--mo-n800);
 }
@@ -710,6 +712,11 @@ html.dark .mo-article-page .related-mini {
   color: var(--mo-n300);
 }
 
+html.dark .mo-article-page .wt,
+html.dark .mo-article-page .a-stat .lbl {
+  color: var(--mo-n400);
+}
+
 html.dark .mo-article-page .content-body :deep(h2),
 html.dark .mo-article-page .toc :deep(.toc-header),
 html.dark .mo-article-page .article-cover,
@@ -727,6 +734,22 @@ html.dark .mo-article-page .content-body :deep(th) {
 
 html.dark .mo-article-page .content-body :deep(pre) {
   background: #09090b;
+}
+
+html.dark .mo-article-page .toc :deep(.article-toc) {
+  background: #292524;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .mo-article-page .article-actions :deep(.el-button.is-plain) {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+  color: var(--mo-n300);
+}
+
+html.dark .mo-article-page .article-actions :deep(.el-button.is-plain:hover) {
+  background: var(--mo-n700);
+  color: var(--mo-n50);
 }
 
 .mo-article-page .mo-article-header {
@@ -1382,7 +1405,7 @@ html.dark .article-detail-container {
   padding: 32px;
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
-  background: #fff;
+  background: var(--mo-n50);
 }
 
 .not-found-icon {

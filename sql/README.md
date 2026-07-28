@@ -60,5 +60,6 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 以下文件的功能已合并到 `00_init_database.sql`，**不再需要**：
 - ~~`01_fix_fulltext_index.sql`~~（已删除）
 - ~~`02_fix_notifications_and_search.sql`~~（已删除）
+- ~~`03_add_blog_user_menu_permissions.sql`~~（已删除，博客用户菜单权限已并入 00 脚本）
 
 如果你在 git 历史中看到这些文件，它们是被合并到主初始化脚本中的迁移文件。

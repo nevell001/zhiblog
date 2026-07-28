@@ -725,6 +725,10 @@ html.dark .mo-home-page .home-hero .search-box {
   background: var(--mo-n800);
 }
 
+html.dark .mo-home-page .home-hero .search-box input {
+  color: var(--mo-n100);
+}
+
 html.dark .mo-home-page .article-card {
   background: var(--mo-n800);
   border-color: var(--mo-n700);

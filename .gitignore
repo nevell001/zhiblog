@@ -21,6 +21,9 @@ zhi-admin/bin/
 # SonarLint 个人配置（不应提交）
 .sonarlint/
 
+# Playwright CLI 临时运行目录（不应提交）
+.playwright-cli/
+
 # 备份文件
 *.bak
 *.bak2

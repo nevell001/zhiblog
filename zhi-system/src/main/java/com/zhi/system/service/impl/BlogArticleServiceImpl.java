@@ -405,6 +405,11 @@ public class BlogArticleServiceImpl implements IBlogArticleService
                 fullTextDisabled = true;
                 articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
             }
+            // FULLTEXT 返回空结果时也降级到 LIKE（FULLTEXT 可能因停用词/min_token_size 漏掉结果）
+            if (articleList.isEmpty()) {
+                logger.info("FULLTEXT 搜索无结果，尝试 LIKE 降级搜索。关键词: {}", keyword);
+                articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
+            }
         } else {
             articleList = blogArticleMapper.searchArticles(keyword, blogArticle);
         }
