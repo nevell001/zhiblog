@@ -669,14 +669,66 @@ watch(
   font-family: var(--mo-font-sans);
 }
 
-html.dark .mo-article-page {
-  background: var(--mo-n900);
-  color: var(--mo-n200);
+/* ===== 深色模式：博文详情页 =====
+   默认主题深色映射到 --el-* 变量（Tech Blue 深蓝），Mo-Blog 深色恢复棕色色阶。
+   所有引用 --mo-n* 的亮色/深色覆盖规则自动适配。 */
+html.dark .article-detail-container {
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
 }
 
+html.dark .mo-article-page {
+  --mo-n900: var(--el-bg-color);
+  --mo-n800: var(--el-bg-color-overlay);
+  --mo-n700: var(--el-border-color);
+  --mo-n600: var(--el-text-color-primary);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n200: var(--el-text-color-primary);
+  --mo-n100: var(--el-text-color-primary);
+  --mo-p50: rgba(0, 212, 255, 0.12);
+  --mo-p100: rgba(0, 212, 255, 0.2);
+  --mo-p300: var(--el-color-primary);
+  --mo-p400: rgba(0, 212, 255, 0.5);
+  --mo-p500: var(--el-color-primary);
+  --mo-p600: var(--el-color-primary);
+  --mo-p700: var(--el-color-primary);
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+}
+
+/* Mo-Blog 主题深色：恢复棕色色阶 */
+html.dark.theme-mo-blog .article-detail-container {
+  background: #1c1917;
+  color: #d6d3d1;
+}
+
+html.dark.theme-mo-blog .mo-article-page {
+  --mo-n900: #1c1917;
+  --mo-n800: #292524;
+  --mo-n700: #44403c;
+  --mo-n600: #d6d3d1;
+  --mo-n500: #a8a29e;
+  --mo-n400: #78716c;
+  --mo-n300: #57534e;
+  --mo-n200: #d6d3d1;
+  --mo-n100: #f5f5f4;
+  --mo-p50: rgba(99, 102, 241, 0.12);
+  --mo-p100: rgba(99, 102, 241, 0.2);
+  --mo-p300: #a5b4fc;
+  --mo-p400: rgba(129, 140, 248, 0.5);
+  --mo-p500: #6366f1;
+  --mo-p600: #4f46e5;
+  --mo-p700: #4338ca;
+  background: #1c1917;
+  color: #d6d3d1;
+}
+
+/* 特殊覆盖 */
 html.dark .mo-article-page .cat-badge,
 html.dark .mo-article-page .content-body :deep(blockquote) {
-  background: rgba(79, 70, 229, 0.18);
+  background: var(--mo-p50);
   color: var(--mo-p300);
 }
 
@@ -692,52 +744,21 @@ html.dark .mo-article-page .article-navigation {
   background: var(--mo-n800);
 }
 
-html.dark .mo-article-page .mo-article-header h1,
-html.dark .mo-article-page .content-body :deep(h1),
-html.dark .mo-article-page .content-body :deep(h2),
-html.dark .mo-article-page .content-body :deep(h3),
-html.dark .mo-article-page .content-body :deep(h4),
-html.dark .mo-article-page .content-body :deep(h5),
-html.dark .mo-article-page .content-body :deep(h6),
-html.dark .mo-article-page .a-name {
-  color: var(--mo-n50);
+html.dark .mo-article-page .a-stats {
+  border-top-color: var(--mo-n700);
 }
 
-html.dark .mo-article-page .article-content,
-html.dark .mo-article-page .content-body,
-html.dark .mo-article-page .content-body :deep(li),
-html.dark .mo-article-page .toc :deep(.toc-title),
-html.dark .mo-article-page .a-meta .author,
-html.dark .mo-article-page .related-mini {
-  color: var(--mo-n300);
+html.dark .mo-article-page .comment-item {
+  border-bottom-color: var(--mo-n700);
 }
 
-html.dark .mo-article-page .wt,
-html.dark .mo-article-page .a-stat .lbl {
-  color: var(--mo-n400);
-}
-
-html.dark .mo-article-page .content-body :deep(h2),
-html.dark .mo-article-page .toc :deep(.toc-header),
-html.dark .mo-article-page .article-cover,
-html.dark .mo-article-page .article-navigation .nav-item,
-html.dark .mo-article-page .comment-section,
-html.dark .mo-article-page .comment-input {
-  border-color: var(--mo-n700);
-}
-
-html.dark .mo-article-page .content-body :deep(code),
-html.dark .mo-article-page .tc,
-html.dark .mo-article-page .content-body :deep(th) {
+html.dark .mo-article-page .tc {
   background: var(--mo-n700);
-}
-
-html.dark .mo-article-page .content-body :deep(pre) {
-  background: #09090b;
+  color: var(--mo-n200);
 }
 
 html.dark .mo-article-page .toc :deep(.article-toc) {
-  background: #292524;
+  background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
@@ -750,6 +771,11 @@ html.dark .mo-article-page .article-actions :deep(.el-button.is-plain) {
 html.dark .mo-article-page .article-actions :deep(.el-button.is-plain:hover) {
   background: var(--mo-n700);
   color: var(--mo-n50);
+}
+
+html.dark .mo-article-page .article-content,
+html.dark .mo-article-page .content-body {
+  color: var(--mo-n300);
 }
 
 .mo-article-page .mo-article-header {
@@ -1281,7 +1307,11 @@ html.dark .mo-article-page .article-actions :deep(.el-button.is-plain:hover) {
 }
 
 html.dark .article-detail-container {
-  background: var(--mo-n900);
+  background: var(--el-bg-color);
+}
+
+html.dark.theme-mo-blog .article-detail-container {
+  background: #1c1917;
 }
 
 .mo-article-page .article-cover img {

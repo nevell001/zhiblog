@@ -496,91 +496,71 @@ onMounted(() => {
   }
 }
 
-/* 深色模式 */
+/* ===== 深色模式：在 .mo-auth-page 作用域内映射 mo 色阶 =====
+   默认主题深色：映射到 --el-* 变量（Tech Blue 深蓝）
+   Mo-Blog 主题深色：用棕色色阶（特异性更高，覆盖默认） */
+
 html.dark .mo-auth-page {
-  background: var(--mo-n900);
+  --mo-n0: var(--el-bg-color-overlay);
+  --mo-n50: var(--el-bg-color);
+  --mo-n100: var(--el-bg-color-overlay);
+  --mo-n200: var(--el-border-color);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n600: var(--el-text-color-primary);
+  --mo-n700: var(--el-text-color-primary);
+  --mo-n800: var(--el-text-color-primary);
+  --mo-n900: var(--el-text-color-primary);
+  --mo-p500: var(--el-color-primary);
+  --mo-bg: var(--el-bg-color);
+  --mo-bg-card: var(--el-bg-color-overlay);
+  --mo-border: var(--el-border-color);
+  background: var(--el-bg-color);
 }
 
 html.dark .auth-wrapper {
-  background: var(--mo-n800);
+  background: var(--el-bg-color-overlay);
 }
 
-html.dark .auth-visual {
-  background: linear-gradient(135deg, var(--mo-p800), var(--mo-p900));
+html.dark.theme-mo-blog .mo-auth-page {
+  --mo-n0: #292524;
+  --mo-n50: #1c1917;
+  --mo-n100: #292524;
+  --mo-n200: #44403c;
+  --mo-n300: #57534e;
+  --mo-n400: #78716c;
+  --mo-n500: #a8a29e;
+  --mo-n600: #d6d3d1;
+  --mo-n700: #e7e5e4;
+  --mo-n800: #f5f5f4;
+  --mo-n900: #fafaf9;
+  --mo-p500: #6366f1;
+  --mo-bg: #1c1917;
+  --mo-bg-card: #292524;
+  --mo-border: #44403c;
+  background: #1c1917;
 }
 
-html.dark .auth-form h2 {
-  color: var(--mo-n100);
+html.dark.theme-mo-blog .auth-wrapper {
+  background: #292524;
 }
 
-html.dark .sub {
+/* 输入框深色覆盖（--mo-n* 已在上方 .mo-auth-page 作用域映射，两种主题自动适配） */
+html.dark .mo-auth-page :deep(.el-input__wrapper) {
+  background: var(--mo-n50);
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+}
+
+html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50);
+}
+
+html.dark .mo-auth-page :deep(.el-input__inner) {
+  color: var(--mo-n800);
+}
+
+html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
   color: var(--mo-n400);
-}
-
-html.dark .auth-tabs {
-  border-bottom-color: var(--mo-n700);
-}
-
-html.dark .tab {
-  color: var(--mo-n400);
-}
-
-html.dark .tab:hover {
-  color: var(--mo-n200);
-}
-
-html.dark .tab.active {
-  color: var(--mo-p300);
-  border-bottom-color: var(--mo-p300);
-}
-
-html.dark .form-group label {
-  color: var(--mo-n300);
-}
-
-html.dark :deep(.el-input__wrapper) {
-  box-shadow: 0 0 0 1px var(--mo-n600) inset;
-  background: var(--mo-n900);
-}
-
-html.dark :deep(.el-input__wrapper.is-focus) {
-  box-shadow:
-    0 0 0 1px var(--mo-p500) inset,
-    0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-
-html.dark :deep(.el-input__inner) {
-  color: var(--mo-n200);
-}
-
-html.dark .captcha-img {
-  border-color: var(--mo-n600);
-}
-
-html.dark .captcha-img:hover {
-  border-color: var(--mo-p500);
-}
-
-html.dark .remember {
-  color: var(--mo-n400);
-}
-
-html.dark .auth-divider {
-  color: var(--mo-n500);
-}
-
-html.dark .auth-divider::before,
-html.dark .auth-divider::after {
-  background: var(--mo-n700);
-}
-
-html.dark .auth-secondary {
-  color: var(--mo-p300);
-  border-color: var(--mo-n600);
-}
-
-html.dark .auth-secondary:hover {
-  border-color: var(--mo-p500);
-  background: rgba(99, 102, 241, 0.15);
 }
 </style>

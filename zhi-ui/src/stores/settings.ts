@@ -59,6 +59,18 @@ function applyAdminDarkMode(isDark: boolean): void {
   }
 }
 
+// 切换应用主题时同步更新 layout-setting 中的 appTheme 字段，
+// 避免刷新后因 layout-setting 旧值回退到之前的主题。
+function persistLayoutSettingAppTheme(theme: AppTheme): void {
+  try {
+    const stored = getStoredLayoutSetting()
+    const merged = { ...stored, appTheme: theme }
+    localStorage.setItem('layout-setting', JSON.stringify(merged))
+  } catch {
+    // Ignore storage failures; applyAppTheme already persisted the app-theme key.
+  }
+}
+
 export const useSettingsStore = defineStore('settings', {
   state: (): SettingsState => {
     const storedLayout = getStoredLayoutSetting()
@@ -122,6 +134,7 @@ export const useSettingsStore = defineStore('settings', {
       const nextTheme = normalizeAppTheme(theme)
       this.appTheme = nextTheme
       applyAppTheme(nextTheme)
+      persistLayoutSettingAppTheme(nextTheme)
     },
 
     setServerMessage(message: string): void {

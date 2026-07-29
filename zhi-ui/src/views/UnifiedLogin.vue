@@ -474,14 +474,82 @@ onMounted(() => {
   text-decoration: none;
 }
 
+/* ===== 深色模式：在 .mo-auth-page 作用域内映射 mo 色阶 =====
+   默认主题深色：映射到 --el-* 变量（Tech Blue 深蓝，与管理后台一致）
+   Mo-Blog 主题深色：用棕色色阶（特异性更高，覆盖默认） */
+
 html.dark .mo-auth-page {
+  --mo-n0: var(--el-bg-color-overlay);
+  --mo-n50: var(--el-bg-color);
+  --mo-n100: var(--el-bg-color-overlay);
+  --mo-n200: var(--el-border-color);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n600: var(--el-text-color-primary);
+  --mo-n700: var(--el-text-color-primary);
+  --mo-n800: var(--el-text-color-primary);
+  --mo-n900: var(--el-text-color-primary);
+  --mo-p50: rgba(0, 212, 255, 0.12);
+  --mo-p400: rgba(0, 212, 255, 0.5);
+  --mo-p600: var(--el-color-primary);
+  --mo-p700: var(--el-color-primary);
+  --mo-bg: var(--el-bg-color);
+  --mo-bg-card: var(--el-bg-color-overlay);
+  --mo-border: var(--el-border-color);
   background:
-    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-bg);
+    radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%), var(--el-bg-color);
 }
 
 html.dark .auth-card {
-  background: var(--mo-bg-card);
-  border-color: var(--mo-border);
+  background: var(--el-bg-color-overlay);
+  border-color: var(--el-border-color);
+}
+
+html.dark.theme-mo-blog .mo-auth-page {
+  --mo-n0: #292524;
+  --mo-n50: #1c1917;
+  --mo-n100: #292524;
+  --mo-n200: #44403c;
+  --mo-n300: #57534e;
+  --mo-n400: #78716c;
+  --mo-n500: #a8a29e;
+  --mo-n600: #d6d3d1;
+  --mo-n700: #e7e5e4;
+  --mo-n800: #f5f5f4;
+  --mo-n900: #fafaf9;
+  --mo-p50: rgba(99, 102, 241, 0.12);
+  --mo-p400: rgba(99, 102, 241, 0.5);
+  --mo-p600: #4f46e5;
+  --mo-p700: #4338ca;
+  --mo-bg: #1c1917;
+  --mo-bg-card: #292524;
+  --mo-border: #44403c;
+  background:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), #1c1917;
+}
+
+html.dark.theme-mo-blog .auth-card {
+  background: #292524;
+  border-color: #44403c;
+}
+
+/* 输入框深色覆盖（--mo-n* 已在上方 .mo-auth-page 作用域映射，两种主题自动适配） */
+html.dark .mo-auth-page :deep(.el-input__wrapper) {
+  background: var(--mo-n50);
+  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+}
+
+html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50);
+}
+
+html.dark .mo-auth-page :deep(.el-input__inner) {
+  color: var(--mo-n800);
+}
+
+html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
+  color: var(--mo-n400);
 }
 
 @media (max-width: 768px) {

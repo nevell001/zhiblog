@@ -497,14 +497,41 @@ function fetchFriendLinks() {
 }
 
 /* 深色模式 */
+/* 默认主题深色：映射 --mo-n* 到 --el-* 变量（Tech Blue 深蓝），与默认主题一致 */
 html.dark .blog-layout {
-  background: var(--mo-n900);
-  color: var(--mo-n200);
+  --mo-n900: var(--el-bg-color);
+  --mo-n800: var(--el-bg-color-overlay);
+  --mo-n700: var(--el-border-color);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n200: var(--el-text-color-primary);
+  --mo-n100: var(--el-text-color-primary);
+  --mo-p50: rgba(0, 212, 255, 0.12);
+  --mo-p300: var(--el-color-primary);
+  background: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+}
+
+/* Mo-Blog 主题深色：恢复棕色色阶 */
+html.dark.theme-mo-blog .blog-layout {
+  --mo-n900: #1c1917;
+  --mo-n800: #292524;
+  --mo-n700: #44403c;
+  --mo-n500: #a8a29e;
+  --mo-n400: #78716c;
+  --mo-n300: #57534e;
+  --mo-n200: #d6d3d1;
+  --mo-n100: #f5f5f4;
+  --mo-p50: rgba(99, 102, 241, 0.12);
+  --mo-p300: #a5b4fc;
+  background: #1c1917;
+  color: #d6d3d1;
 }
 
 html.dark .blog-top-nav {
-  border-bottom-color: rgba(68, 64, 60, 0.72);
-  background: rgba(28, 25, 23, 0.92);
+  border-bottom-color: var(--mo-n700);
+  background: color-mix(in srgb, var(--mo-n900) 92%, transparent);
 }
 
 html.dark .brand-name,
@@ -532,7 +559,7 @@ html.dark .nav-link:hover,
 html.dark .nav-link.router-link-active,
 html.dark .user-info:hover,
 html.dark .theme-btn:hover {
-  background: rgba(79, 70, 229, 0.18);
+  background: var(--mo-p50);
 }
 
 html.dark .blog-site-footer {

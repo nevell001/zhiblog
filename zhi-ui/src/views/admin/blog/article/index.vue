@@ -1864,4 +1864,156 @@ onMounted(async () => {
     margin-left: 1px;
   }
 }
+
+/* ===== 深色模式：编辑器作用域内映射 mo 中性色阶 =====
+   为与各主题深色配色一致：
+   - 默认主题（Tech Blue 深蓝）：将 --mo-n* 映射到 --el-* 变量
+   - Mo-Blog 主题（中性深棕）：用棕色色阶反转（特异性更高，覆盖默认） */
+
+html.dark .mo-editor-form {
+  --mo-n0: var(--el-bg-color-overlay);
+  --mo-n50: var(--el-bg-color);
+  --mo-n100: var(--el-bg-color-overlay);
+  --mo-n200: var(--el-border-color);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n600: var(--el-text-color-primary);
+  --mo-n700: var(--el-text-color-primary);
+  --mo-n800: var(--el-text-color-primary);
+  --mo-n900: var(--el-text-color-primary);
+  --mo-p50: rgba(0, 212, 255, 0.12);
+  --mo-p100: rgba(0, 212, 255, 0.2);
+  --mo-p200: rgba(0, 212, 255, 0.3);
+  color: var(--mo-n700);
+  background: var(--mo-n50);
+}
+
+html.dark.theme-mo-blog .mo-editor-form {
+  --mo-n0: #292524;
+  --mo-n50: #1c1917;
+  --mo-n100: #292524;
+  --mo-n200: #44403c;
+  --mo-n300: #57534e;
+  --mo-n400: #78716c;
+  --mo-n500: #a8a29e;
+  --mo-n600: #d6d3d1;
+  --mo-n700: #e7e5e4;
+  --mo-n800: #f5f5f4;
+  --mo-n900: #fafaf9;
+  --mo-p50: rgba(99, 102, 241, 0.12);
+  --mo-p100: rgba(99, 102, 241, 0.2);
+  --mo-p200: rgba(99, 102, 241, 0.3);
+}
+
+/* 顶栏 / 工具栏 / 编辑区 / 预览区 / 侧面板背景 */
+html.dark .mo-editor-form .editor-topbar,
+html.dark .mo-editor-form .editor-main,
+html.dark .mo-editor-form .edit-pane {
+  background: var(--mo-n0);
+  border-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .editor-topbar {
+  border-bottom-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .editor-toolbar {
+  background: var(--mo-n50);
+  border-bottom-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .edit-pane {
+  border-right-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .preview-pane {
+  background: var(--mo-n50);
+}
+
+html.dark .mo-editor-form .editor-side-panel {
+  background: var(--mo-n0);
+  border-left-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .side-section {
+  border-bottom-color: var(--mo-n200);
+}
+
+/* 工具栏按钮 */
+html.dark .mo-editor-form .tool {
+  color: var(--mo-n500);
+}
+
+html.dark .mo-editor-form .tool:hover,
+html.dark .mo-editor-form .tool.active {
+  color: #a5b4fc;
+  background: var(--mo-p50);
+}
+
+/* 分隔线 */
+html.dark .mo-editor-form .sep {
+  background: var(--mo-n200);
+}
+
+/* 标题输入 */
+html.dark .mo-editor-form .title-input :deep(.el-input__inner) {
+  color: var(--mo-n900);
+}
+
+/* 返回按钮 / 侧边标题 / 开关行 */
+html.dark .mo-editor-form .back-btn,
+html.dark .mo-editor-form .side-title,
+html.dark .mo-editor-form .switch-row {
+  color: var(--mo-n500);
+}
+
+/* 预览区文字与标题 */
+html.dark .mo-editor-form .editor-preview {
+  color: var(--mo-n500);
+}
+
+html.dark .mo-editor-form .editor-preview :deep(h2) {
+  color: var(--mo-n900);
+  border-bottom-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form .editor-preview :deep(h3) {
+  color: var(--mo-n800);
+}
+
+/* 行内代码 */
+html.dark .mo-editor-form .editor-preview :deep(code) {
+  color: #a5b4fc;
+  background: var(--mo-n100);
+}
+
+/* 引用块 */
+html.dark .mo-editor-form .editor-preview :deep(blockquote) {
+  color: var(--mo-n500);
+  background: var(--mo-p50);
+  border-left-color: #818cf8;
+}
+
+/* 空预览提示 */
+html.dark .mo-editor-form .preview-empty {
+  color: var(--mo-n400);
+}
+
+/* 封面预览边框 */
+html.dark .mo-editor-form .cover-preview img {
+  border-color: var(--mo-n200);
+}
+
+/* 底部操作栏渐变（用纯色替代浅色渐变） */
+html.dark .mo-editor-form .side-actions {
+  background: var(--mo-n0);
+  border-top-color: var(--mo-n200);
+}
+
+/* 字数统计 / 保存状态 */
+html.dark .mo-editor-form .word-count,
+html.dark .mo-editor-form .save-status {
+  color: var(--mo-n400);
+}
 </style>

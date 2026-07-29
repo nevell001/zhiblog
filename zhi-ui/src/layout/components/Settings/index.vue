@@ -78,7 +78,7 @@
           @change="appThemeChange"
         >
           <el-option label="默认主题" value="default" />
-          <el-option label="默 Blog" value="mo-blog" />
+          <el-option label="Mo-Blog" value="mo-blog" />
         </el-select>
       </span>
     </div>

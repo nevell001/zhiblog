@@ -103,6 +103,16 @@ h6 {
   }
 }
 
+/* 暗色模式：表格表头跟随主题暗色（默认 Tech Blue 主题）。
+   mo-blog 主题在 themes/mo-blog.scss 中已用 html.dark.theme-mo-blog
+   更高优先级选择器单独覆盖，此处不影响。 */
+html.dark .el-table .el-table__header-wrapper th,
+html.dark .el-table .el-table__fixed-header-wrapper th,
+html.dark .el-table th.el-table__cell {
+  background-color: var(--el-bg-color-overlay, #112240) !important;
+  color: var(--el-text-color-primary, #ccd6f6) !important;
+}
+
 /** 表单布局 **/
 .form-header {
   font-size: 15px;
@@ -300,4 +310,79 @@ h6 {
 /* 分割面板样式 */
 .splitpanes.default-theme .splitpanes__pane {
   background-color: var(--splitpanes-default-bg) !important;
+}
+
+/* ===== 默认主题深色模式通用暗色覆盖 =====
+   统一使用 Element Plus 的 --el-bg-color-overlay / --el-text-color-primary 等变量，
+   两种主题深色下均自动适配各自配色（默认=Tech Blue 深蓝，Mo-Blog=中性深棕）。
+   Mo-Blog 主题在 mo-blog.scss 中已有的 html.dark.theme-mo-blog 覆盖特异性更高，优先生效。
+   选择器均为 html.dark .xxx（特异性高于 scoped .xxx[data-v]），无需 !important 即可覆盖。 */
+
+/* body 兜底暗色背景（修复默认主题深色下博客前台 body 透明显白） */
+html.dark body {
+  background-color: var(--el-bg-color);
+  color: var(--el-text-color-primary);
+}
+
+/* 全局 aside 元素深色覆盖（index.scss 给 aside 设了浅灰背景 #eef1f6 和深色文字，
+   深色下需透明背景+浅色文字。Mo-Blog 主题在 mo-blog.scss 已有覆盖） */
+html.dark aside {
+  background: transparent;
+  color: var(--el-text-color-primary);
+}
+
+/* 仪表盘快捷操作/状态卡片 */
+html.dark .quick-action-item,
+html.dark .status-item {
+  background-color: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
+}
+
+/* 监控页 URL 与数据展示区 */
+html.dark .metric-url,
+html.dark .metrics-display,
+html.dark .endpoint-url,
+html.dark .json-display,
+html.dark .grafana-url {
+  background-color: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
+}
+
+/* 右侧设置面板 */
+html.dark .rightPanel {
+  background: var(--el-bg-color);
+}
+
+/* 标签选择器已选区 */
+html.dark .selected-tags {
+  background-color: var(--el-bg-color-overlay);
+}
+
+/* Cron 表达式结果标题 */
+html.dark .popup-result .title {
+  background: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
+}
+
+/* 顶部菜单 hover 背景（替代硬编码 #ffffff） */
+html.dark .topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):focus,
+html.dark .topmenu-container.el-menu--horizontal > .el-menu-item:not(.is-disabled):hover,
+html.dark .topmenu-container.el-menu--horizontal > .el-submenu .el-submenu__title:hover {
+  background-color: var(--el-fill-color-light, rgba(255, 255, 255, 0.08));
+}
+
+/* 文章编辑器（默认主题深色补齐；Mo-Blog 已有覆盖优先） */
+html.dark .mo-editor-form,
+html.dark .editor-topbar,
+html.dark .editor-main,
+html.dark .edit-pane {
+  background-color: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
+}
+
+/* 登录/注册表单（默认主题深色补齐；Mo-Blog 已有覆盖优先） */
+html.dark .login-form,
+html.dark .register-form {
+  background: var(--el-bg-color-overlay);
+  color: var(--el-text-color-primary);
 }

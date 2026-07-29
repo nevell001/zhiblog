@@ -570,7 +570,7 @@ const appThemeOptions: { label: string; value: AppTheme; description: string }[]
     description: '保留管理后台的默认布局和交互习惯'
   },
   {
-    label: '默 Blog',
+    label: 'Mo-Blog',
     value: 'mo-blog',
     description: '与前台博客一致的低饱和靛蓝、石色背景风格'
   }
@@ -1442,6 +1442,10 @@ onMounted(() => {
 
   getAllSettings().then(() => {
     // 头像已移除，不再需要刷新前台头像
+    // 应用加载的主题色到CSS变量
+    if (settingsMap.value.theme_color) {
+      handleThemeStyle(settingsMap.value.theme_color)
+    }
   })
 })
 

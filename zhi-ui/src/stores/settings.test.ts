@@ -65,6 +65,20 @@ describe('Settings Store 测试', () => {
       expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
     })
 
+    it('切换主题后应同步 layout-setting，刷新不再回退', () => {
+      // 模拟此前保存过 mo-blog
+      localStorage.setItem('layout-setting', JSON.stringify({ appTheme: 'mo-blog' }))
+      const store = useSettingsStore()
+      store.setAppTheme('default')
+      // 切换后 layout-setting 应同步更新
+      const stored = JSON.parse(localStorage.getItem('layout-setting') || '{}')
+      expect(stored.appTheme).toBe('default')
+      // 模拟刷新：用全新 pinia 实例重新初始化
+      setActivePinia(createPinia())
+      const refreshed = useSettingsStore()
+      expect(refreshed.appTheme).toBe('default')
+    })
+
     it('应该支持切换侧边栏主题', () => {
       const store = useSettingsStore()
       store.changeSetting({

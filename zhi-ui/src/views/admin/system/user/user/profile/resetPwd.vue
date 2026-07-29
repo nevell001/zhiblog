@@ -67,9 +67,13 @@ const rules = ref({
 function submit() {
   ;(proxy.$refs.pwdRef as any).validate((valid: boolean) => {
     if (valid) {
-      updateUserPwd(user.oldPassword, user.newPassword).then(() => {
-        ;(proxy as any).$modal.msgSuccess('修改成功')
-      })
+      updateUserPwd(user.oldPassword, user.newPassword)
+        .then(() => {
+          ;(proxy as any).$modal.msgSuccess('修改成功')
+        })
+        .catch(() => {
+          // 错误信息已在拦截器中处理并显示
+        })
     }
   })
 }

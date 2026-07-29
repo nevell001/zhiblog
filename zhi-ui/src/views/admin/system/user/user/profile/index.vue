@@ -973,4 +973,151 @@ function onSwitchProfileTab(event: Event) {
 .notify-link:hover {
   text-decoration: underline;
 }
+
+/* ===== 深色模式 =====
+   个人中心的亮色样式大量引用 --mo-n* 变量，深色下需反转色阶。
+   为与各主题深色配色一致：
+   - 默认主题（Tech Blue 深蓝）：将 --mo-n* 映射到 --el-* 变量（#0a192f/#112240 系）
+   - Mo-Blog 主题（中性深棕）：用 mo-blog 棕色色阶反转
+   两种映射都使背景变深、文字变浅，自动适配所有引用变量的子元素。 */
+
+/* 默认主题深色：映射到 Tech Blue 深蓝系（与其他管理页面一致） */
+html.dark .profile-page {
+  --mo-n0: var(--el-bg-color-overlay);
+  --mo-n50: var(--el-bg-color);
+  --mo-n100: var(--el-bg-color-overlay);
+  --mo-n200: var(--el-border-color);
+  --mo-n300: var(--el-text-color-regular);
+  --mo-n400: var(--el-text-color-regular);
+  --mo-n500: var(--el-text-color-regular);
+  --mo-n600: var(--el-text-color-primary);
+  --mo-n700: var(--el-text-color-primary);
+  --mo-n800: var(--el-text-color-primary);
+  --mo-n900: var(--el-text-color-primary);
+  --mo-p25: rgba(0, 212, 255, 0.08);
+  --mo-p50: rgba(0, 212, 255, 0.12);
+  --mo-p100: rgba(0, 212, 255, 0.2);
+  --mo-p200: rgba(0, 212, 255, 0.3);
+}
+
+/* Mo-Blog 主题深色：用棕色色阶反转（特异性更高，覆盖默认主题映射） */
+html.dark.theme-mo-blog .profile-page {
+  --mo-n0: #292524;
+  --mo-n50: #1c1917;
+  --mo-n100: #292524;
+  --mo-n200: #44403c;
+  --mo-n300: #57534e;
+  --mo-n400: #78716c;
+  --mo-n500: #a8a29e;
+  --mo-n600: #d6d3d1;
+  --mo-n700: #e7e5e4;
+  --mo-n800: #f5f5f4;
+  --mo-n900: #fafaf9;
+  --mo-p25: rgba(99, 102, 241, 0.08);
+  --mo-p50: rgba(99, 102, 241, 0.12);
+  --mo-p100: rgba(99, 102, 241, 0.2);
+  --mo-p200: rgba(99, 102, 241, 0.3);
+}
+
+/* 状态标签硬编码浅色 → 深色暗调 */
+html.dark .profile-page .tag-green {
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+}
+
+html.dark .profile-page .tag-pink {
+  color: #f472b6;
+  background: rgba(236, 72, 153, 0.15);
+}
+
+html.dark .profile-page .tag-amber {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+}
+
+/* 表格行深色高亮 */
+html.dark .profile-page .article-table tr:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+/* 以下元素在 .profile-page 色阶反转后，亮色样式引用的 --mo-n* 已自动适配深色
+   （背景 n0/n50/n100→深色，文字 n700/n800/n900→浅色，边框 n200→深色）。
+   仅保留不依赖反转变量的特殊处理：状态标签固定暗调、hover 用半透明高亮。 */
+html.dark .profile-page .tag-blue {
+  color: #a5b4fc;
+  background: rgba(79, 70, 229, 0.15);
+}
+
+html.dark .profile-page .notify-item.unread {
+  background: rgba(79, 70, 229, 0.1);
+}
+
+html.dark .profile-page .settings-item:hover,
+html.dark .profile-page .notify-item:hover,
+html.dark .profile-page .act:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+html.dark .profile-page .load-more:hover {
+  background: rgba(99, 102, 241, 0.12);
+}
+
+html.dark .act.primary:hover {
+  color: var(--mo-p300);
+  background: rgba(79, 70, 229, 0.15);
+}
+
+html.dark .filter-bar {
+  color: var(--mo-n300);
+}
+
+html.dark .notification-list {
+  background: var(--mo-n800);
+  border: 1px solid var(--mo-n700);
+  border-radius: var(--mo-r-md);
+}
+
+html.dark .notify-header {
+  color: var(--mo-n100);
+  border-bottom-color: var(--mo-n700);
+}
+
+html.dark .profile-details {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark .detail-row {
+  color: var(--mo-n400);
+  border-bottom-color: var(--mo-n700);
+}
+
+html.dark .detail-row span {
+  color: var(--mo-n200);
+}
+
+html.dark .settings-heading {
+  color: var(--mo-n100);
+}
+
+html.dark .profile-summary {
+  border-color: var(--mo-n700);
+}
+
+html.dark .profile-kicker {
+  color: var(--mo-p300);
+}
+
+html.dark .bio {
+  color: var(--mo-n500);
+}
+
+html.dark .stat-label {
+  color: var(--mo-n500);
+}
+
+html.dark .verify {
+  color: var(--mo-p300);
+  background: rgba(79, 70, 229, 0.15);
+}
 </style>

@@ -360,4 +360,24 @@ defineExpose({
     margin-bottom: 8px;
   }
 }
+
+/* 深色模式：标签选择器浅色背景/边框/文字适配 */
+html.dark .selected-tags {
+  background-color: var(--el-bg-color-overlay, #112240);
+  border-color: var(--el-border-color, #112240);
+}
+
+html.dark .selected-tags-label {
+  color: var(--el-text-color-regular, #ccd6f6);
+}
+
+html.dark .quick-add-tag {
+  background-color: var(--el-bg-color-overlay, #112240);
+  border-color: var(--el-border-color, #112240);
+}
+
+html.dark .quick-add-tag:hover {
+  border-color: var(--el-color-primary, #00d4ff);
+  background-color: var(--el-color-primary-light-9, rgba(0, 212, 255, 0.1));
+}
 </style>

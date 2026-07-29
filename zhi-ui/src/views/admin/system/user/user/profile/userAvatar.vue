@@ -203,4 +203,10 @@ function closeDialog() {
   line-height: 110px;
   border-radius: 50%;
 }
+
+/* 深色模式 */
+html.dark .user-info-head:hover:after {
+  color: var(--mo-n200);
+  background: rgba(0, 0, 0, 0.7);
+}
 </style>
