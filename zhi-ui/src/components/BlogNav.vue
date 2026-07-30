@@ -83,6 +83,7 @@ import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { getFilteredMenus } from '@/config/menu'
 import { useUserStore } from '@/stores/user'
+import { useSettingsStore } from '@/stores/settings'
 import { useDevice } from '@/composables/useDevice'
 import {
   Setting,
@@ -103,11 +104,12 @@ import {
 
 const router = useRouter()
 const userStore = useUserStore()
+const settingsStore = useSettingsStore()
 const { isMobile } = useDevice()
 const scrollTopBtn = ref<HTMLElement | null>(null)
 
-// 主题状态
-const isDarkTheme = ref(false)
+// 主题状态（使用 settingsStore 统一管理）
+const isDarkTheme = computed(() => settingsStore.isDark)
 
 // 移动端菜单状态
 const isMobileMenuOpen = ref(false)
@@ -129,11 +131,9 @@ const getMenuIcon = (icon: string) => {
   return iconMap[icon] || Document
 }
 
-// 切换主题
+// 切换主题（使用 settingsStore 统一管理）
 const toggleTheme = () => {
-  isDarkTheme.value = !isDarkTheme.value
-  document.documentElement.classList.toggle('dark', isDarkTheme.value)
-  localStorage.setItem('blog-theme', isDarkTheme.value ? 'dark' : 'light')
+  settingsStore.toggleTheme()
 }
 
 // 回到顶部
@@ -193,12 +193,8 @@ const handleScroll = () => {
   }
 }
 
-// 初始化主题
+// 初始化（主题由 settingsStore 统一管理）
 onMounted(() => {
-  const savedTheme = localStorage.getItem('blog-theme') || 'light'
-  isDarkTheme.value = savedTheme === 'dark'
-  document.documentElement.classList.toggle('dark', isDarkTheme.value)
-
   // 添加滚动监听
   window.addEventListener('scroll', handleScroll)
 })

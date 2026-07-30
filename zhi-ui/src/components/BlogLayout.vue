@@ -167,20 +167,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
+import { useSettingsStore } from '@/stores/settings'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { Setting, UserFilled, ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 
 const router = useRouter()
 const userStore = useUserStore()
+const settingsStore = useSettingsStore()
 const blogSettingsStore = useBlogSettingsStore()
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
-const isDark = ref(false)
+const isDark = computed(() => settingsStore.isDark)
 
 interface FriendLink {
   id: number
@@ -222,9 +224,7 @@ const formatUrl = (url: string) => {
 }
 
 const toggleTheme = () => {
-  isDark.value = !isDark.value
-  document.documentElement.classList.toggle('dark', isDark.value)
-  localStorage.setItem('blog-theme', isDark.value ? 'dark' : 'light')
+  settingsStore.toggleTheme()
 }
 
 const goToAdmin = () => {
@@ -251,10 +251,6 @@ const handleUserCommand = async (command: string) => {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('blog-theme') || 'light'
-  isDark.value = saved === 'dark'
-  document.documentElement.classList.toggle('dark', isDark.value)
-
   // 加载友情链接
   fetchFriendLinks()
 })
