@@ -1681,6 +1681,73 @@ html.dark.theme-mo-blog .el-radio__label {
   color: var(--mo-n300);
 }
 
+html.dark.theme-mo-blog .el-radio__input.is-checked .el-radio__inner {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .el-radio__inner {
+  background: var(--mo-n700);
+  border-color: var(--mo-n600);
+}
+
+html.dark.theme-mo-blog .el-radio__inner:hover {
+  border-color: var(--mo-n500);
+}
+
+/* ===== 个人中心表单控件深色样式增强 ===== */
+html.dark.theme-mo-blog .profile-page .el-input__wrapper {
+  background: var(--mo-n700) !important;
+  box-shadow: 0 0 0 1px var(--mo-n600) inset !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-input__inner,
+html.dark.theme-mo-blog .profile-page .el-textarea__inner {
+  color: var(--mo-n100) !important;
+  background: transparent !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-input__inner::placeholder,
+html.dark.theme-mo-blog .profile-page .el-textarea__inner::placeholder {
+  color: var(--mo-n400) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-form-item__label {
+  color: var(--mo-n300) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-radio__label {
+  color: var(--mo-n300) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-radio__inner {
+  background: var(--mo-n700) !important;
+  border-color: var(--mo-n600) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-radio__input.is-checked .el-radio__inner {
+  background: var(--mo-p600) !important;
+  border-color: var(--mo-p600) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-radio__inner:hover {
+  border-color: var(--mo-n500) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-textarea__inner {
+  background: var(--mo-n700) !important;
+  border-color: var(--mo-n600) !important;
+}
+
+html.dark.theme-mo-blog .profile-page .el-textarea__inner:focus {
+  border-color: var(--mo-p400) !important;
+}
+
+
 html.dark.theme-mo-blog .el-switch__label {
   color: var(--mo-n300);
 }
