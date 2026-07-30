@@ -2016,4 +2016,141 @@ html.dark .mo-editor-form .word-count,
 html.dark .mo-editor-form .save-status {
   color: var(--mo-n400);
 }
+
+/* ===== Element Plus 表单控件深色模式适配 ===== */
+
+/* 输入框、文本域、选择器 */
+html.dark .mo-editor-form :deep(.el-input__wrapper),
+html.dark .mo-editor-form :deep(.el-textarea__inner) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  box-shadow: 0 0 0 1px var(--mo-n200) inset;
+}
+
+html.dark .mo-editor-form :deep(.el-input__wrapper.is-focus),
+html.dark .mo-editor-form :deep(.el-textarea__inner:focus) {
+  border-color: var(--mo-p600);
+  box-shadow: 0 0 0 1px var(--mo-p600) inset;
+}
+
+html.dark .mo-editor-form :deep(.el-input__inner),
+html.dark .mo-editor-form :deep(.el-textarea__inner) {
+  color: var(--mo-n700);
+}
+
+html.dark .mo-editor-form :deep(.el-input__inner::placeholder),
+html.dark .mo-editor-form :deep(.el-textarea__inner::placeholder) {
+  color: var(--mo-n400);
+}
+
+/* 选择器下拉项 */
+html.dark .mo-editor-form :deep(.el-select-dropdown__item) {
+  color: var(--mo-n600);
+}
+
+html.dark .mo-editor-form :deep(.el-select-dropdown__item:hover) {
+  background: var(--mo-p50);
+}
+
+html.dark .mo-editor-form :deep(.el-select-dropdown__item.selected) {
+  color: var(--mo-p600);
+  background: var(--mo-p50);
+}
+
+/* 单选按钮组 */
+html.dark .mo-editor-form :deep(.el-radio-button__inner) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  color: var(--mo-n600);
+}
+
+html.dark .mo-editor-form :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+  color: #fff;
+}
+
+html.dark .mo-editor-form :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner:hover) {
+  background: var(--mo-p700);
+  border-color: var(--mo-p700);
+}
+
+html.dark .mo-editor-form :deep(.el-radio-button__inner:hover) {
+  color: var(--mo-p600);
+  border-color: var(--mo-n300);
+}
+
+/* 开关 */
+html.dark .mo-editor-form :deep(.el-switch__core) {
+  background: var(--mo-n400);
+  border-color: var(--mo-n400);
+}
+
+html.dark .mo-editor-form :deep(.el-switch.is-checked .el-switch__core) {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+}
+
+/* 按钮悬停 */
+html.dark .mo-editor-form :deep(.el-button:hover) {
+  border-color: var(--mo-p600);
+}
+
+html.dark .mo-editor-form :deep(.el-button--primary:hover) {
+  background: var(--mo-p700);
+  border-color: var(--mo-p700);
+}
+
+/* 对话框遮罩 */
+html.dark :deep(.el-overlay) {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* 富文本编辑器区域 */
+html.dark .mo-editor-form :deep(.editor) {
+  background: var(--mo-n50);
+}
+
+html.dark .mo-editor-form :deep(.ql-toolbar) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form :deep(.ql-container) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+}
+
+html.dark .mo-editor-form :deep(.ql-editor) {
+  color: var(--mo-n600);
+  background: var(--mo-n50);
+}
+
+html.dark .mo-editor-form :deep(.ql-editor.ql-blank::before) {
+  color: var(--mo-n400);
+}
+
+html.dark .mo-editor-form :deep(.ql-stroke) {
+  stroke: var(--mo-n500);
+}
+
+html.dark .mo-editor-form :deep(.ql-fill) {
+  fill: var(--mo-n500);
+}
+
+html.dark .mo-editor-form :deep(.ql-picker-item:hover) {
+  color: var(--mo-p600);
+}
+
+html.dark .mo-editor-form :deep(.ql-picker-label:hover) {
+  color: var(--mo-p600);
+}
+
+html.dark .mo-editor-form :deep(.ql-active) {
+  color: var(--mo-p600) !important;
+}
+
+html.dark .mo-editor-form :deep(.ql-selected) {
+  color: var(--mo-p600) !important;
+}
 </style>
