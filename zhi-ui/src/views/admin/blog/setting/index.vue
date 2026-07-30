@@ -1978,4 +1978,77 @@ html.dark .el-form {
     margin-bottom: 16px;
   }
 }
+
+/* 深色模式下主题预览卡片样式 */
+html.dark .theme-preview-card {
+  background: var(--el-bg-color-overlay, #1d1e1f);
+  border-color: var(--el-border-color-light, #3f3f46);
+}
+
+html.dark .theme-preview-card:hover,
+html.dark .theme-preview-card.active {
+  border-color: var(--el-color-primary, #4f46e5);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+html.dark .theme-preview-title {
+  color: var(--el-text-color-primary, #e5e8eb);
+}
+
+html.dark .theme-preview-desc {
+  color: var(--el-text-color-secondary, #a3a8ad);
+}
+
+html.dark .theme-preview-surface {
+  background: #27272a;
+  border-color: #3f3f46;
+}
+
+html.dark .theme-preview-sidebar {
+  background: #1f2937;
+}
+
+html.dark .theme-preview-content span {
+  background: #3f3f46;
+}
+
+html.dark .theme-preview-content span:first-child {
+  background: rgba(79, 70, 229, 0.3);
+}
+
+/* 深色模式下 mo-blog 主题预览卡片 */
+html.dark .theme-preview-card.mo-blog .theme-preview-surface {
+  background: #292524;
+  border-color: #44403c;
+}
+
+html.dark .theme-preview-card.mo-blog .theme-preview-sidebar {
+  background: #1c1917;
+}
+
+html.dark .theme-preview-card.mo-blog .theme-preview-content span {
+  background: #44403c;
+}
+
+html.dark .theme-preview-card.mo-blog .theme-preview-content span:first-child {
+  background: rgba(99, 102, 241, 0.3);
+}
+
+/* 深色模式下图片压缩功能卡片 */
+html.dark .compress-feature {
+  background: var(--el-fill-color-light, #27272a);
+  border-color: var(--el-border-color-light, #3f3f46);
+}
+
+html.dark .compress-feature h4 {
+  color: var(--el-text-color-primary, #e5e8eb);
+}
+
+html.dark .compress-feature p {
+  color: var(--el-text-color-secondary, #a3a8ad);
+}
+
+html.dark .feature-example span {
+  color: var(--el-text-color-placeholder, #8d949e);
+}
 </style>
