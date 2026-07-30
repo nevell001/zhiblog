@@ -1001,7 +1001,7 @@ html.dark .profile-page {
 }
 
 /* Mo-Blog 主题深色：用棕色色阶反转 + Element Plus 变量映射 */
-html.dark.theme-mo-blog .profile-page {
+html.dark.theme-mo-blog {
   /* 深色模式反转：浅色 n0-n300 变深色，深色 n700-n900 变浅色 */
   --mo-n0: #1c1917;   /* 最深色 - 页面背景 */
   --mo-n50: #292524;  /* 深色 - 卡片背景 */
