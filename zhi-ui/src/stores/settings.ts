@@ -3,6 +3,10 @@ import defaultSettings from '@/settings'
 import { applyAppTheme, getStoredAppTheme, normalizeAppTheme, type AppTheme } from '@/utils/theme'
 
 const ADMIN_THEME_STORAGE_KEY = 'admin-theme'
+const THEME_MODE_KEY = 'admin-theme-mode'
+
+// 主题模式类型
+export type ThemeMode = 'light' | 'dark' | 'system'
 
 interface SettingsState {
   title: string
@@ -24,6 +28,7 @@ interface SettingsState {
   footerVisible: boolean
   footerContent: string
   isDark: boolean
+  themeMode: ThemeMode
 }
 
 type StoredLayoutSetting = Partial<Omit<SettingsState, 'appTheme'>> & {
@@ -42,20 +47,45 @@ function resolveStoredBoolean(value: unknown, fallback: boolean): boolean {
   return typeof value === 'boolean' ? value : fallback
 }
 
-function getStoredAdminDarkMode(): boolean {
-  try {
-    return localStorage.getItem(ADMIN_THEME_STORAGE_KEY) === 'dark'
-  } catch {
-    return false
+// 检测系统主题偏好
+function getSystemThemePreference(): boolean {
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    return true
   }
+  return false
+}
+
+// 获取存储的主题模式
+function getStoredThemeMode(): ThemeMode {
+  try {
+    const stored = localStorage.getItem(THEME_MODE_KEY)
+    if (stored === 'light' || stored === 'dark' || stored === 'system') {
+      return stored as ThemeMode
+    }
+  } catch {
+    // Ignore
+  }
+  return 'system' // 默认跟随系统
+}
+
+// 获取实际的主题状态（考虑系统偏好）
+function getEffectiveDarkMode(mode: ThemeMode): boolean {
+  if (mode === 'system') {
+    return getSystemThemePreference()
+  }
+  return mode === 'dark'
 }
 
 function applyAdminDarkMode(isDark: boolean): void {
   document.documentElement.classList.toggle('dark', isDark)
+}
+
+// 持久化主题模式
+function persistThemeMode(mode: ThemeMode): void {
   try {
-    localStorage.setItem(ADMIN_THEME_STORAGE_KEY, isDark ? 'dark' : 'light')
+    localStorage.setItem(THEME_MODE_KEY, mode)
   } catch {
-    // Ignore storage failures; the DOM class is the visible source of truth.
+    // Ignore storage failures
   }
 }
 
@@ -71,13 +101,44 @@ function persistLayoutSettingAppTheme(theme: AppTheme): void {
   }
 }
 
+// 系统主题变化监听器
+let mediaQueryListener: ((this: MediaQueryList, ev: MediaQueryListEvent) => any) | null = null
+
+function setupSystemThemeListener(callback: (isDark: boolean) => void): void {
+  if (window.matchMedia) {
+    // 移除旧的监听器
+    if (mediaQueryListener) {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+      mediaQuery.removeEventListener('change', mediaQueryListener)
+    }
+
+    // 添加新的监听器
+    mediaQueryListener = function(this: MediaQueryList, ev: MediaQueryListEvent) {
+      callback(ev.matches)
+    }
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', mediaQueryListener)
+  }
+}
+
 export const useSettingsStore = defineStore('settings', {
   state: (): SettingsState => {
     const storedLayout = getStoredLayoutSetting()
     const appTheme = normalizeAppTheme(storedLayout.appTheme ?? getStoredAppTheme())
-    const isDark = getStoredAdminDarkMode()
+    const themeMode = getStoredThemeMode()
+    const isDark = getEffectiveDarkMode(themeMode)
+
     applyAppTheme(appTheme)
     applyAdminDarkMode(isDark)
+
+    // 如果是跟随系统模式，设置监听器
+    if (themeMode === 'system') {
+      setupSystemThemeListener((systemIsDark) => {
+        // 注意：这里不能直接更新 state，需要在 actions 中处理
+        // 监听器会在用户调用 setThemeMode('system') 时重新设置
+      })
+    }
 
     return {
       title: defaultSettings.title,
@@ -104,7 +165,8 @@ export const useSettingsStore = defineStore('settings', {
         defaultSettings.footerVisible
       ),
       footerContent: defaultSettings.footerContent,
-      isDark
+      isDark,
+      themeMode
     }
   },
 
@@ -125,9 +187,30 @@ export const useSettingsStore = defineStore('settings', {
       this.title = title
     },
 
+    // 循环切换主题模式: light -> dark -> system -> light
     toggleTheme(): void {
-      this.isDark = !this.isDark
-      applyAdminDarkMode(this.isDark)
+      const modeCycle: ThemeMode[] = ['light', 'dark', 'system']
+      const currentIndex = modeCycle.indexOf(this.themeMode)
+      const nextMode = modeCycle[(currentIndex + 1) % modeCycle.length]
+      this.setThemeMode(nextMode)
+    },
+
+    // 设置主题模式
+    setThemeMode(mode: ThemeMode): void {
+      this.themeMode = mode
+      persistThemeMode(mode)
+
+      const isDark = getEffectiveDarkMode(mode)
+      this.isDark = isDark
+      applyAdminDarkMode(isDark)
+
+      // 如果是跟随系统模式，设置监听器
+      if (mode === 'system') {
+        setupSystemThemeListener((systemIsDark) => {
+          this.isDark = systemIsDark
+          applyAdminDarkMode(systemIsDark)
+        })
+      }
     },
 
     setAppTheme(theme: unknown): void {

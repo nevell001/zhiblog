@@ -27,10 +27,11 @@
 
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
-        <el-tooltip content="主题模式" effect="dark" placement="bottom">
+        <el-tooltip :content="themeModeTooltip" effect="dark" placement="bottom">
           <div class="right-menu-item hover-effect theme-switch-wrapper" @click="toggleTheme">
-            <svg-icon v-if="settingsStore.isDark" icon-class="sunny" />
-            <svg-icon v-if="!settingsStore.isDark" icon-class="moon" />
+            <svg-icon v-if="settingsStore.themeMode === 'system'" icon-class="system" />
+            <svg-icon v-else-if="settingsStore.isDark" icon-class="sunny" />
+            <svg-icon v-else icon-class="moon" />
           </div>
         </el-tooltip>
 
@@ -204,6 +205,20 @@ function setLayout() {
 function toggleTheme() {
   settingsStore.toggleTheme()
 }
+
+// 主题模式提示文本
+const themeModeTooltip = computed(() => {
+  switch (settingsStore.themeMode) {
+    case 'system':
+      return '跟随系统 (点击切换)'
+    case 'dark':
+      return '深色模式 (点击切换)'
+    case 'light':
+      return '浅色模式 (点击切换)'
+    default:
+      return '主题模式'
+  }
+})
 
 function goToAdmin() {
   // 跳转到博客管理页面（正确的路由路径）

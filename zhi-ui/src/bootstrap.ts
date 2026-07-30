@@ -82,6 +82,11 @@ async function bootstrap(): Promise<void> {
     // 初始化设置store
     const _settingsStore = useSettingsStore()
 
+    // 初始化系统主题监听器（如果是跟随系统模式）
+    if (_settingsStore.themeMode === 'system') {
+      _settingsStore.setThemeMode('system')
+    }
+
     directive(app)
 
     // 使用按需注册的 Element Plus 组件，并设置全局大小与语言
