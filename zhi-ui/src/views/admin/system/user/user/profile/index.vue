@@ -1225,4 +1225,140 @@ html.dark .settings-tabs :deep(.el-radio__label) {
 html.dark .settings-tabs :deep(.el-radio) {
   color: #e4e4e7;
 }
+
+/* ===== Mo-Blog 主题深色模式表单控件适配 ===== */
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item) {
+  color: var(--mo-n400);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item.is-active) {
+  color: var(--mo-n100);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__active-bar) {
+  background: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-form-item__label) {
+  color: var(--mo-n300);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  box-shadow: 0 0 0 1px var(--mo-n200) inset;
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper.is-focus) {
+  border-color: var(--mo-p600);
+  box-shadow: 0 0 0 1px var(--mo-p600) inset;
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-input__inner) {
+  color: var(--mo-n700);
+  background: transparent;
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-input__inner::placeholder) {
+  color: var(--mo-n400);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  color: var(--mo-n700);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner:focus) {
+  border-color: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner::placeholder) {
+  color: var(--mo-n400);
+}
+
+/* 单选框深色样式 */
+html.dark.theme-mo-blog .settings-tabs :deep(.el-radio) {
+  color: var(--mo-n600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__input.is-checked .el-radio__inner) {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__inner) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__inner:hover) {
+  border-color: var(--mo-n300);
+}
+
+/* 按钮深色样式 */
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button--primary) {
+  background: var(--mo-p600);
+  border-color: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button--primary:hover) {
+  background: var(--mo-p700);
+  border-color: var(--mo-p700);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button--danger) {
+  background: var(--mo-danger, #ef4444);
+  border-color: var(--mo-danger, #ef4444);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button--danger:hover) {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button.is-plain) {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+  color: var(--mo-n600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-button.is-plain:hover) {
+  background: var(--mo-n100);
+  border-color: var(--mo-n300);
+  color: var(--mo-n700);
+}
+
+/* Tabs 内容区域深色背景 */
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__content) {
+  background: transparent;
+}
+
+html.dark.theme-mo-blog .settings-card {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
+
+html.dark.theme-mo-blog .settings-heading {
+  color: var(--mo-n100);
+}
+
+html.dark.theme-mo-blog .profile-details {
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
+}
+
+html.dark.theme-mo-blog .detail-row {
+  color: var(--mo-n400);
+  border-bottom-color: var(--mo-n200);
+}
+
+html.dark.theme-mo-blog .detail-row span {
+  color: var(--mo-n700);
+}
+
+html.dark.theme-mo-blog .profile-workspace {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
 </style>
