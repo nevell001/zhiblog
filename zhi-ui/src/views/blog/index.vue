@@ -158,8 +158,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { useDebounceFn } from '@vueuse/core'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleList, getBlogSettings, getHotArticles, searchArticles } from '@/api/blog'
 import { getCategoryList } from '@/api/blog/category'
@@ -237,6 +238,24 @@ const handleSearch = async () => {
     loading.value = false
   }
 }
+
+// 防抖搜索：延迟 500ms 执行，避免频繁请求
+const debouncedSearch = useDebounceFn(() => {
+  if (searchKeyword.value.trim()) {
+    handleSearch()
+  } else {
+    clearSearch()
+  }
+}, 500)
+
+// 监听搜索关键词变化，自动触发防抖搜索
+watch(searchKeyword, () => {
+  if (searchKeyword.value.trim()) {
+    debouncedSearch()
+  } else if (isSearching.value) {
+    clearSearch()
+  }
+})
 
 const clearSearch = async () => {
   searchKeyword.value = ''

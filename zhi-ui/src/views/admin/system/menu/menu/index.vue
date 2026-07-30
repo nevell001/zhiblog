@@ -512,7 +512,7 @@ function handleDelete(row) {
       // 提示用户刷新页面以查看最新菜单
       proxy.$modal.msgWarning('菜单已删除，请刷新页面以查看最新菜单')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 getList()

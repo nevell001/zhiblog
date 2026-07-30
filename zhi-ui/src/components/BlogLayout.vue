@@ -52,37 +52,12 @@
           <el-button v-else size="small" type="primary" @click="$router.push('/login')">
             登录
           </el-button>
-          <button class="theme-btn" :title="isDark ? '切换亮色' : '切换深色'" @click="toggleTheme">
-            <svg
-              v-if="isDark"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <circle cx="12" cy="12" r="5" />
-              <line x1="12" y1="1" x2="12" y2="3" />
-              <line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" />
-              <line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </svg>
-            <svg
-              v-else
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-            </svg>
+          <button class="theme-btn" :title="themeModeTooltip" @click="toggleTheme">
+            <el-icon :size="18">
+              <Monitor v-if="themeMode === 'system'" />
+              <Sunny v-else-if="isDark" />
+              <Moon v-else />
+            </el-icon>
           </button>
         </div>
       </div>
@@ -173,8 +148,9 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { Setting, UserFilled, ArrowDown, User, SwitchButton } from '@element-plus/icons-vue'
+import { Setting, UserFilled, ArrowDown, User, SwitchButton, Monitor, Sunny, Moon } from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
+import { getApiBaseUrl } from '@/utils/index'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -183,6 +159,21 @@ const blogSettingsStore = useBlogSettingsStore()
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const isDark = computed(() => settingsStore.isDark)
+const themeMode = computed(() => settingsStore.themeMode)
+
+// 主题模式提示文本
+const themeModeTooltip = computed(() => {
+  switch (settingsStore.themeMode) {
+    case 'system':
+      return '跟随系统 (点击切换)'
+    case 'dark':
+      return '深色模式 (点击切换)'
+    case 'light':
+      return '浅色模式 (点击切换)'
+    default:
+      return '主题模式'
+  }
+})
 
 interface FriendLink {
   id: number
@@ -210,10 +201,7 @@ const menus = [
 const currentYear = computed(() => new Date().getFullYear())
 
 const rssUrl = computed(() => {
-  const baseUrl =
-    window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:8080'
-      : `${window.location.protocol}//${window.location.hostname}:8080`
+  const baseUrl = getApiBaseUrl()
   return `${baseUrl}/blog/rss`
 })
 

@@ -7,6 +7,7 @@
             <img
               :src="blogAvatarUrl"
               :alt="blogSettings.blog_author || '博客作者'"
+              loading="lazy"
               @error="handleAvatarError"
             />
           </div>

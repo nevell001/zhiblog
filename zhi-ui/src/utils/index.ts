@@ -434,3 +434,41 @@ export function camelCase(str: string): string {
 export function isNumberStr(str: string): boolean {
   return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
 }
+
+/**
+ * 获取 API 基础 URL
+ * 根据当前环境动态返回正确的 API 地址
+ * @returns API 基础 URL
+ */
+export function getApiBaseUrl(): string {
+  const hostname = window.location.hostname
+  const protocol = window.location.protocol
+
+  // 本地开发环境
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    // 检查是否有环境变量配置
+    const envApiUrl = import.meta.env?.VITE_API_BASE_URL
+    if (envApiUrl) {
+      // 如果环境变量是 Docker 内部地址，返回 localhost
+      if (envApiUrl.includes('zhi-admin') || envApiUrl.includes('host.docker.internal')) {
+        return `${protocol}//localhost:8080`
+      }
+      return envApiUrl
+    }
+    return `${protocol}//localhost:8080`
+  }
+
+  // 生产环境使用当前域名，假设前后端同域名不同端口
+  // 如果前端是 80/443，后端通常是 8080
+  // 如果前端是其他端口，使用当前域名
+  const port = window.location.port === '3000' || window.location.port === '80'
+    ? '8080'
+    : window.location.port || '80'
+
+  // 如果是 HTTPS，默认端口 443
+  if (protocol === 'https:' && port === '80') {
+    return `${protocol}//${hostname}`
+  }
+
+  return `${protocol}//${hostname}:${port}`
+}

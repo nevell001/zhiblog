@@ -1082,42 +1082,147 @@ html.dark .notify-header {
   border-bottom-color: var(--mo-n700);
 }
 
-html.dark .profile-details {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
-}
-
-html.dark .detail-row {
-  color: var(--mo-n400);
-  border-bottom-color: var(--mo-n700);
-}
-
-html.dark .detail-row span {
-  color: var(--mo-n200);
-}
-
-html.dark .settings-heading {
-  color: var(--mo-n100);
+html.dark .profile-page {
+  background: #141414;
 }
 
 html.dark .profile-summary {
-  border-color: var(--mo-n700);
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .profile-avatar {
+  background: #27272a;
+  border-color: #3f3f46;
 }
 
 html.dark .profile-kicker {
-  color: var(--mo-p300);
+  color: #a1a1aa;
 }
 
 html.dark .bio {
-  color: var(--mo-n500);
+  color: #a1a1aa;
+}
+
+html.dark .stat-card {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .stat-card strong {
+  color: #f4f4f5;
 }
 
 html.dark .stat-label {
-  color: var(--mo-n500);
+  color: #a1a1aa;
 }
 
 html.dark .verify {
-  color: var(--mo-p300);
-  background: rgba(79, 70, 229, 0.15);
+  color: #a1a1aa;
+  background: #27272a;
+}
+
+html.dark .profile-workspace,
+html.dark .settings-card {
+  background: #1d1e1f;
+  border: 1px solid #3f3f46;
+  border-radius: var(--mo-r-md, 8px);
+}
+
+html.dark .profile-tabs {
+  border-color: #3f3f46;
+}
+
+html.dark .tab {
+  color: #a1a1aa;
+}
+
+html.dark .tab.active {
+  color: #f4f4f5;
+  background: #27272a;
+}
+
+html.dark .filter-bar {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .article-table {
+  background: #1d1e1f;
+}
+
+html.dark .article-table th {
+  background: #27272a;
+  color: #f4f4f5;
+  border-color: #3f3f46;
+}
+
+html.dark .article-table td {
+  border-color: #27272a;
+}
+
+html.dark .empty-panel {
+  background: #1d1e1f;
+}
+
+html.dark .profile-details {
+  background: #27272a;
+  border-color: #3f3f46;
+}
+
+html.dark .detail-row {
+  color: #a1a1aa;
+  border-bottom-color: #3f3f46;
+}
+
+html.dark .detail-row span {
+  color: #e4e4e7;
+}
+
+html.dark .settings-heading {
+  color: #f4f4f5;
+}
+
+html.dark .settings-tabs :deep(.el-tabs__header) {
+  background: transparent;
+  border-bottom-color: #3f3f46;
+}
+
+html.dark .settings-tabs :deep(.el-tabs__item) {
+  color: #a1a1aa;
+}
+
+html.dark .settings-tabs :deep(.el-tabs__item.is-active) {
+  color: #f4f4f5;
+}
+
+html.dark .settings-tabs :deep(.el-tabs__active-bar) {
+  background: #6366f1;
+}
+
+html.dark .settings-tabs :deep(.el-tabs__content) {
+  background: #1d1e1f;
+}
+
+html.dark .settings-tabs :deep(.el-form-item__label) {
+  color: #e4e4e7;
+}
+
+html.dark .settings-tabs :deep(.el-input__wrapper) {
+  background: #27272a;
+  border-color: #3f3f46;
+}
+
+html.dark .settings-tabs :deep(.el-input__inner) {
+  color: #e4e4e7;
+  background: transparent;
+}
+
+html.dark .settings-tabs :deep(.el-radio__label) {
+  color: #e4e4e7;
+}
+
+html.dark .settings-tabs :deep(.el-radio) {
+  color: #e4e4e7;
 }
 </style>

@@ -1,5 +1,5 @@
 import request from '@/utils/request'
-import type { BlogSetting, PageParams, QueryResult } from '@/types'
+import type { BlogSetting, PageParams, QueryResult, OperResult, DataResult } from '@/types'
 
 /**
  * 查询博客设置列表
@@ -35,7 +35,7 @@ export function getCurrentSetting(): Promise<BlogSetting[]> {
 /**
  * 新增博客设置
  */
-export function addSetting(data: BlogSetting): Promise<any> {
+export function addSetting(data: BlogSetting): Promise<OperResult> {
   return request({
     url: '/system/setting',
     method: 'post',
@@ -46,7 +46,7 @@ export function addSetting(data: BlogSetting): Promise<any> {
 /**
  * 修改博客设置
  */
-export function updateSetting(data: BlogSetting): Promise<any> {
+export function updateSetting(data: BlogSetting): Promise<OperResult> {
   return request({
     url: '/system/setting',
     method: 'put',
@@ -57,7 +57,7 @@ export function updateSetting(data: BlogSetting): Promise<any> {
 /**
  * 删除博客设置
  */
-export function delSetting(id: number | number[]): Promise<any> {
+export function delSetting(id: number | number[]): Promise<OperResult> {
   return request({
     url: '/system/setting/' + id,
     method: 'delete'
@@ -67,7 +67,7 @@ export function delSetting(id: number | number[]): Promise<any> {
 /**
  * 根据键获取设置值
  */
-export function getSettingValueByKey(key: string): Promise<any> {
+export function getSettingValueByKey(key: string): Promise<DataResult<string>> {
   return request({
     url: '/system/setting/value/' + key,
     method: 'get'
@@ -77,7 +77,7 @@ export function getSettingValueByKey(key: string): Promise<any> {
 /**
  * 根据键更新设置值
  */
-export function updateSettingValueByKey(key: string, value: string): Promise<any> {
+export function updateSettingValueByKey(key: string, value: string): Promise<OperResult> {
   return request({
     url: '/system/setting/updateByKey',
     method: 'post',
@@ -88,7 +88,7 @@ export function updateSettingValueByKey(key: string, value: string): Promise<any
 /**
  * 获取博客设置（前台用）
  */
-export function getBlogSettings(): Promise<any> {
+export function getBlogSettings(): Promise<DataResult<Record<string, unknown>>> {
   return request({
     url: '/common/blog/setting',
     method: 'get',
@@ -100,7 +100,7 @@ export function getBlogSettings(): Promise<any> {
 /**
  * 匿名访问博客设置
  */
-export function getBlogSettingsAnonymous(): Promise<any> {
+export function getBlogSettingsAnonymous(): Promise<DataResult<Record<string, unknown>>> {
   return request({
     url: '/common/blog/setting',
     method: 'get',
@@ -112,7 +112,7 @@ export function getBlogSettingsAnonymous(): Promise<any> {
 /**
  * 更新博客设置
  */
-export function updateBlogSettings(data: Record<string, any>): Promise<any> {
+export function updateBlogSettings(data: Record<string, unknown>): Promise<OperResult> {
   return request({
     url: '/common/blog/setting/update',
     method: 'post',

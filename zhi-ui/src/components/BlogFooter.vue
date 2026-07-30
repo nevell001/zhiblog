@@ -74,6 +74,7 @@
 import { computed, ref, onMounted } from 'vue'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import request from '@/utils/request'
+import { getApiBaseUrl } from '@/utils/index'
 
 // 定义props
 const props = defineProps({
@@ -99,18 +100,7 @@ const blogSettingsStore = useBlogSettingsStore()
 
 // 计算RSS URL
 const rssUrl = computed(() => {
-  // 根据当前环境构建RSS URL
-  // 在浏览器中，需要使用localhost而不是Docker内部地址
-  let baseUrl = 'http://localhost:8080'
-
-  // 如果当前在localhost:3000，使用localhost:8080
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    baseUrl = 'http://localhost:8080'
-  } else {
-    // 否则使用当前域名，但端口改为8080
-    baseUrl = `${window.location.protocol}//${window.location.hostname}:8080`
-  }
-
+  const baseUrl = getApiBaseUrl()
   return `${baseUrl}/blog/rss`
 })
 

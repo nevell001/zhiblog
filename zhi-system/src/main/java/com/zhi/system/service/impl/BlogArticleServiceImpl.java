@@ -400,7 +400,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
                 articleList = blogArticleMapper.searchArticlesFullText(keyword, blogArticle);
             } catch (org.springframework.jdbc.UncategorizedSQLException ex) {
                 // FULLTEXT 索引缺失时降级到 LIKE 搜索（错误码 1191）
-                logger.warn("FULLTEXT 搜索失败，降级到 LIKE 搜索。请运行 sql/02_fix_notifications_and_search.sql 修复索引。原因: {}",
+                logger.warn("FULLTEXT 搜索失败，降级到 LIKE 搜索。如需启用全文搜索，请运行 sql/00_init_database.sql 初始化索引。原因: {}",
                         ex.getMessage());
                 fullTextDisabled = true;
                 articleList = blogArticleMapper.searchArticles(keyword, blogArticle);

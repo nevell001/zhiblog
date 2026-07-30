@@ -620,7 +620,7 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 导出按钮操作 */
@@ -689,7 +689,7 @@ function handleResetPwd(row) {
         proxy.$modal.msgSuccess('修改成功，新密码是：' + value)
       })
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 选择条数  */

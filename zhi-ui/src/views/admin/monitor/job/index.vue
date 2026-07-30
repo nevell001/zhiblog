@@ -518,7 +518,11 @@ function handleRun(row) {
     .then(() => {
       proxy.$modal.msgSuccess('执行成功')
     })
-    .catch(() => {})
+    .catch((error) => {
+      if (error !== 'cancel') {
+        console.error('操作失败:', error)
+      }
+    })
 }
 
 /** 任务详细信息 */
@@ -597,7 +601,11 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch(() => {})
+    .catch((error) => {
+      if (error !== 'cancel') {
+        console.error('操作失败:', error)
+      }
+    })
 }
 
 /** 导出按钮操作 */

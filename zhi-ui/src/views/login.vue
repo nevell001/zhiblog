@@ -336,6 +336,14 @@ getCookie()
   img {
     cursor: pointer;
     vertical-align: middle;
+    border-radius: 4px;
+    border: 1px solid #dcdfe6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+  }
+  img:hover {
+    border-color: var(--el-color-primary);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 }
 .el-login-footer {
@@ -353,5 +361,29 @@ getCookie()
 .login-code-img {
   height: 40px;
   padding-left: 12px;
+}
+
+/* 深色模式验证码样式优化 */
+:global(html.dark) .login-code img {
+  border-color: var(--el-border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+:global(html.dark) .login-code img:hover {
+  border-color: var(--el-color-primary);
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.25);
+}
+</style>
+
+<!-- 深色模式验证码全局样式（非 scoped） -->
+<style lang="scss">
+html.dark .login .login-code img {
+  border-color: var(--el-border-color) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.dark .login .login-code img:hover {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 2px 8px rgba(0, 212, 255, 0.25) !important;
 }
 </style>

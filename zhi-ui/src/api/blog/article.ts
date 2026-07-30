@@ -1,6 +1,14 @@
 import request from '@/utils/request'
 import type { Article } from '@/types'
-import type { ArticleParams, QueryResult } from '@/types/api'
+import type {
+  ArticleParams,
+  QueryResult,
+  DataResult,
+  ArticleDetailResponse,
+  ArticleArchive,
+  ViewCountResponse,
+  CommentSubmitResponse
+} from '@/types/api'
 
 /**
  * 前台匿名访问文章列表
@@ -80,7 +88,7 @@ export function getRecommendArticles(query?: ArticleParams): Promise<QueryResult
 /**
  * 获取文章详情（前台用，包含完整内容和上下篇文章信息）
  */
-export function getArticleDetail(id: number): Promise<any> {
+export function getArticleDetail(id: number): Promise<DataResult<ArticleDetailResponse>> {
   return request({
     url: '/blog/api/article/' + id,
     method: 'get',
@@ -91,7 +99,7 @@ export function getArticleDetail(id: number): Promise<any> {
 /**
  * 更新文章浏览量
  */
-export function updateArticleViewCount(id: number): Promise<any> {
+export function updateArticleViewCount(id: number): Promise<ViewCountResponse> {
   return request({
     url: '/blog/api/article/view/' + id,
     method: 'post',
@@ -102,7 +110,7 @@ export function updateArticleViewCount(id: number): Promise<any> {
 /**
  * 获取文章归档
  */
-export function getArticleArchive(): Promise<any> {
+export function getArticleArchive(): Promise<DataResult<ArticleArchive[]>> {
   return request({
     url: '/blog/api/article-archive',
     method: 'get',
@@ -144,7 +152,7 @@ export function searchArticles(
 /**
  * 获取相关文章
  */
-export function getRelatedArticles(id: number): Promise<any> {
+export function getRelatedArticles(id: number): Promise<DataResult<Article[]>> {
   return request({
     url: '/blog/api/article/related/' + id,
     method: 'get',
@@ -155,7 +163,7 @@ export function getRelatedArticles(id: number): Promise<any> {
 /**
  * 提交评论
  */
-export function submitComment(data: Record<string, any>): Promise<any> {
+export function submitComment(data: Record<string, unknown>): Promise<CommentSubmitResponse> {
   return request({
     url: '/blog/api/comment',
     method: 'post',

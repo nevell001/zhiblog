@@ -301,7 +301,11 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch(() => {})
+    .catch((error) => {
+      if (error !== 'cancel') {
+        console.error('操作失败:', error)
+      }
+    })
 }
 
 /** 清空按钮操作 */
@@ -315,7 +319,11 @@ function handleClean() {
       getList()
       proxy.$modal.msgSuccess('清空成功')
     })
-    .catch(() => {})
+    .catch((error) => {
+      if (error !== 'cancel') {
+        console.error('操作失败:', error)
+      }
+    })
 }
 
 /** 导出按钮操作 */

@@ -59,9 +59,10 @@
       <!-- 登录按钮（未登录） -->
       <el-button v-else size="small" type="primary" @click="goToLogin">登录</el-button>
 
-      <el-button link class="theme-toggle" title="切换主题" @click="toggleTheme">
+      <el-button link class="theme-toggle" :title="themeModeTooltip" @click="toggleTheme">
         <el-icon :size="18">
-          <Sunny v-if="isDarkTheme" />
+          <Monitor v-if="themeMode === 'system'" />
+          <Sunny v-else-if="isDarkTheme" />
           <Moon v-else />
         </el-icon>
       </el-button>
@@ -99,7 +100,8 @@ import {
   UserFilled,
   ArrowDown,
   User,
-  SwitchButton
+  SwitchButton,
+  Monitor
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -110,6 +112,21 @@ const scrollTopBtn = ref<HTMLElement | null>(null)
 
 // 主题状态（使用 settingsStore 统一管理）
 const isDarkTheme = computed(() => settingsStore.isDark)
+const themeMode = computed(() => settingsStore.themeMode)
+
+// 主题模式提示文本
+const themeModeTooltip = computed(() => {
+  switch (settingsStore.themeMode) {
+    case 'system':
+      return '跟随系统 (点击切换)'
+    case 'dark':
+      return '深色模式 (点击切换)'
+    case 'light':
+      return '浅色模式 (点击切换)'
+    default:
+      return '主题模式'
+  }
+})
 
 // 移动端菜单状态
 const isMobileMenuOpen = ref(false)

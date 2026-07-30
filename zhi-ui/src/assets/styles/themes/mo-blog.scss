@@ -1,3 +1,25 @@
+/**
+ * ZhiBlog 主题系统 - Mo Blog 主题
+ *
+ * 变量命名规范：
+ * - --mo-p*: 主题色（Primary, Purple/Indigo 色系）
+ * - --mo-n*: 中性色（Neutral, 灰棕色系）
+ * - --mo-a*: 强调色（Accent, Pink 色系）
+ * - --mo-r*: 圆角（Radius）
+ * - --mo-shadow*: 阴影
+ * - --mo-font-*: 字体
+ *
+ * 深色模式映射策略：
+ * 1. 默认主题：映射 --el-* 变量到 Tech Blue 深蓝色系
+ * 2. Mo-Blog 主题：映射 --el-* 变量到棕色深色系
+ * 3. 组件级覆盖：仅在必要时使用（优先级更高）
+ *
+ * 主题切换流程：
+ * 1. appTheme 设置在 useSettingsStore 中
+ * 2. themeMode 控制 light/dark/system 模式
+ * 3. html.dark 和 .theme-mo-blog class 控制激活的主题
+ */
+
 :root {
   --mo-p50: #eef2ff;
   --mo-p100: #e0e7ff;
@@ -50,7 +72,7 @@
   --tags-close-hover: #b4bccc;
 }
 
-/* 深色模式全局变量 */
+/* ==================== 深色模式全局变量 ==================== */
 html.dark {
   /* TagsView 标签栏变量 - 深色模式 */
   --tags-bg: #1d1e1f;
@@ -197,6 +219,7 @@ html.dark .verify {
   background: #27272a;
 }
 
+/* ==================== Mo Blog 主题样式 ==================== */
 .theme-mo-blog {
   --mo-p50: #eef2ff;
   --mo-p100: #e0e7ff;
@@ -948,6 +971,7 @@ html.dark.theme-mo-blog .tags-view-container .contextmenu li:hover {
   box-shadow: var(--mo-shadow-lg);
 }
 
+/* ==================== Mo Blog 深色模式 ==================== */
 html.dark.theme-mo-blog {
   --mo-bg-card: var(--mo-n800);
   --mo-border: var(--mo-n700);

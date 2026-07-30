@@ -170,7 +170,7 @@ function cancelAuthUser(row) {
       getList()
       proxy.$modal.msgSuccess('取消授权成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 批量取消授权按钮操作 */
@@ -186,7 +186,7 @@ function cancelAuthUserAll(row) {
       getList()
       proxy.$modal.msgSuccess('取消授权成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 getList()

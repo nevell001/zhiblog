@@ -417,11 +417,13 @@ onMounted(() => {
   cursor: pointer;
   border: 1px solid var(--mo-n300);
   border-radius: 8px;
-  transition: border-color 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.2s;
 }
 
 .captcha-img:hover {
   border-color: var(--mo-p400);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .form-options {
@@ -552,6 +554,17 @@ html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
   color: var(--mo-n400);
 }
 
+/* 验证码深色模式增强 */
+:global(html.dark) .mo-auth-page .captcha-img {
+  border-color: var(--mo-n200);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+:global(html.dark) .mo-auth-page .captcha-img:hover {
+  border-color: var(--mo-p400);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
 @media (max-width: 768px) {
   .mo-auth-page {
     padding: 16px;
@@ -560,5 +573,18 @@ html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
   .auth-card {
     padding: 22px;
   }
+}
+</style>
+
+<!-- 深色模式验证码全局样式（非 scoped） -->
+<style lang="scss">
+html.dark .mo-auth-page .captcha-img {
+  border-color: var(--mo-n200) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark .mo-auth-page .captcha-img:hover {
+  border-color: var(--mo-p400) !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
 }
 </style>

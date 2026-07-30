@@ -194,7 +194,7 @@ function logout() {
         window.location.href = '/login'
       })
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 const emits = defineEmits(['setLayout'])
@@ -264,7 +264,7 @@ function handleNotificationClick(item: BlogNotification) {
         item.isRead = 1
         fetchUnreadCount()
       })
-      .catch(() => {})
+      .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
   }
 
   // 根据通知类型智能跳转
@@ -284,7 +284,7 @@ function handleMarkAllRead() {
       notificationList.value.forEach(n => (n.isRead = 1))
       fetchUnreadCount()
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 function goToProfileNotifications() {

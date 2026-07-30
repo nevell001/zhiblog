@@ -125,3 +125,49 @@ export interface OperResult {
   code: number
   msg: string
 }
+
+/**
+ * 文章详情响应（包含上下篇文章）
+ */
+export interface ArticleDetailResponse {
+  article: Article
+  prevArticle?: Article | null
+  nextArticle?: Article | null
+}
+
+/**
+ * 文章归档响应
+ */
+export interface ArticleArchive {
+  date: string // YYYY-MM 格式
+  count: number
+  articles?: Article[]
+}
+
+/**
+ * 浏览量更新响应
+ */
+export interface ViewCountResponse {
+  success: boolean
+  viewCount?: number
+}
+
+/**
+ * 评论提交响应
+ */
+export interface CommentSubmitResponse {
+  code: number
+  msg: string
+  data?: {
+    id?: number
+    status?: number
+  }
+}
+
+/**
+ * 导入 Article 类型避免重复
+ */
+import type { Article } from '../types'
+
+// 重新导出 Article 以便其他模块使用
+export type { Article } from '../types'

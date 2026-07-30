@@ -275,7 +275,7 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 function handleExport() {

@@ -74,7 +74,7 @@
 
           <article class="article-content">
             <div v-if="article.coverUrl" class="article-cover">
-              <img :src="article.coverUrl" :alt="article.title" />
+              <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
             </div>
             <div class="content-body" v-html="processedContent"></div>
 

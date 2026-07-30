@@ -346,7 +346,7 @@ const resetForm = () => {
       skillsList.value = []
       loadSettings()
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 // 预览效果

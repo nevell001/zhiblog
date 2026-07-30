@@ -240,7 +240,7 @@ function handleAudit(row) {
       getList()
       proxy.$modal.msgSuccess('审核通过成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 审核拒绝按钮操作 */
@@ -255,7 +255,7 @@ function handleReject(row) {
       getList()
       proxy.$modal.msgSuccess('审核拒绝成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 删除按钮操作 */
@@ -270,7 +270,7 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch(() => {})
+    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
 }
 
 /** 导出按钮操作 */
