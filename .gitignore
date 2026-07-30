@@ -33,6 +33,7 @@ zhi-admin/bin/
 cookies.txt
 test-*.html
 test-*.js
+*.yaml
 
 # 构建产物与依赖
 node_modules/
