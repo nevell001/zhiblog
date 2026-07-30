@@ -1276,8 +1276,8 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-form-item__label) {
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper) {
-  background: var(--mo-n100);
-  border-color: var(--mo-n200);
+  background: var(--mo-n100) !important;
+  border-color: var(--mo-n200) !important;
   box-shadow: 0 0 0 1px var(--mo-n200) inset;
 }
 
@@ -1320,8 +1320,8 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__input.is-checked .el-rad
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__inner) {
-  background: var(--mo-n100);
-  border-color: var(--mo-n200);
+  background: var(--mo-n100) !important;
+  border-color: var(--mo-n200) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__inner:hover) {
@@ -1367,8 +1367,8 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__content) {
 }
 
 html.dark.theme-mo-blog .settings-card {
-  background: var(--mo-n50);
-  border-color: var(--mo-n200);
+  background: var(--mo-n50) !important;
+  border-color: var(--mo-n200) !important;
 }
 
 html.dark.theme-mo-blog .settings-heading {
