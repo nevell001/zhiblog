@@ -1253,15 +1253,22 @@ html.dark .settings-tabs :deep(.el-radio) {
 
 /* ===== Mo-Blog 主题深色模式表单控件适配 ===== */
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item) {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
+  background: transparent;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item.is-active) {
-  color: var(--mo-n100);
+  color: var(--mo-n700);
+  background: transparent;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__active-bar) {
   background: var(--mo-p600);
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__header) {
+  background: transparent;
+  border-bottom-color: var(--mo-n200);
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-form-item__label) {
@@ -1360,12 +1367,12 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__content) {
 }
 
 html.dark.theme-mo-blog .settings-card {
-  background: var(--mo-n800);
-  border-color: var(--mo-n100);
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
 }
 
 html.dark.theme-mo-blog .settings-heading {
-  color: var(--mo-n100);
+  color: var(--mo-n700);
 }
 
 html.dark.theme-mo-blog .profile-details {
