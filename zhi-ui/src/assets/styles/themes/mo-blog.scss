@@ -9,6 +9,7 @@
   --mo-p700: #4338ca;
   --mo-p800: #3730a3;
   --mo-p900: #312e81;
+  --mo-n0: #ffffff;
   --mo-n50: #fafaf9;
   --mo-n100: #f5f5f4;
   --mo-n200: #e7e5e4;
@@ -58,6 +59,142 @@ html.dark {
   --tags-item-bg: #1d1e1f;
   --tags-item-hover: #2a2a2a;
   --tags-close-hover: #909399;
+
+  /* 默认主题深色模式 Element Plus 变量（Tech Blue 深蓝系） */
+  --el-bg-color: #141414;
+  --el-bg-color-page: #0a0a0a;
+  --el-bg-color-overlay: #1d1e1f;
+  --el-text-color-primary: #e5e8eb;
+  --el-text-color-regular: #cfd3dc;
+  --el-text-color-secondary: #a3a8ad;
+  --el-text-color-placeholder: #8d949e;
+  --el-border-color: #3f3f46;
+  --el-border-color-light: #3f3f46;
+  --el-border-color-lighter: #4b4b52;
+  --el-border-color-extra-light: #4b4b52;
+  --el-border-color-dark: #2a2a2a;
+  --el-border-color-darker: #1d1e1f;
+  --el-fill-color: #2a2a2a;
+  --el-fill-color-light: #27272a;
+  --el-fill-color-lighter: #2f2f33;
+  --el-fill-color-extra-light: #2f2f33;
+  --el-fill-color-dark: #1d1e1f;
+  --el-fill-color-darker: #141414;
+  --el-box-shadow: 0 12px 32px 4px rgba(0, 0, 0, 0.36);
+  --el-box-shadow-light: 0 12px 32px 4px rgba(0, 0, 0, 0.36);
+  --el-box-shadow-lighter: 0 12px 32px 4px rgba(0, 0, 0, 0.36);
+  --el-box-shadow-dark: 0 12px 32px 4px rgba(0, 0, 0, 0.36);
+
+  /* 修复深色模式下 common 元素的样式 */
+  aside {
+    background: transparent;
+  }
+
+  .sub-navbar.draft,
+  .sub-navbar.deleted {
+    background: #4a4a4a;
+  }
+}
+
+/* 默认主题深色模式下的个人中心样式 */
+html.dark .profile-page {
+  background: #141414;
+}
+
+html.dark .profile-summary {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .profile-avatar {
+  background: #27272a;
+  border-color: #3f3f46;
+}
+
+html.dark .stat-card {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .stat-card strong {
+  color: #f4f4f5;
+}
+
+html.dark .profile-workspace,
+html.dark .settings-card {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .profile-details {
+  background: #27272a;
+  border-color: #3f3f46;
+}
+
+html.dark .detail-row {
+  color: #a1a1aa;
+  border-bottom-color: #3f3f46;
+}
+
+html.dark .detail-row span {
+  color: #e4e4e7;
+}
+
+html.dark .settings-heading {
+  color: #f4f4f5;
+}
+
+html.dark .tab {
+  color: #a1a1aa;
+}
+
+html.dark .tab.active {
+  color: #f4f4f5;
+  background: #27272a;
+}
+
+html.dark .profile-tabs {
+  border-color: #3f3f46;
+}
+
+html.dark .article-table th {
+  background: #27272a;
+  color: #f4f4f5;
+  border-color: #3f3f46;
+}
+
+html.dark .article-table td {
+  border-color: #27272a;
+}
+
+html.dark .filter-bar {
+  background: #1d1e1f;
+  border-color: #3f3f46;
+}
+
+html.dark .empty-panel {
+  background: #1d1e1f;
+}
+
+html.dark .name {
+  color: #f4f4f5;
+}
+
+html.dark .profile-kicker {
+  color: #a1a1aa;
+}
+
+html.dark .bio {
+  color: #a1a1aa;
+}
+
+html.dark .stat-label {
+  color: #a1a1aa;
+}
+
+html.dark .verify {
+  color: #a1a1aa;
+  background: #27272a;
 }
 
 .theme-mo-blog {
@@ -71,6 +208,7 @@ html.dark {
   --mo-p700: #4338ca;
   --mo-p800: #3730a3;
   --mo-p900: #312e81;
+  --mo-n0: #ffffff;
   --mo-n50: #fafaf9;
   --mo-n100: #f5f5f4;
   --mo-n200: #e7e5e4;
