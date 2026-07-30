@@ -1002,17 +1002,18 @@ html.dark .profile-page {
 
 /* Mo-Blog 主题深色：用棕色色阶反转 + Element Plus 变量映射 */
 html.dark.theme-mo-blog .profile-page {
-  --mo-n0: #292524;
-  --mo-n50: #1c1917;
-  --mo-n100: #292524;
-  --mo-n200: #44403c;
-  --mo-n300: #57534e;
-  --mo-n400: #78716c;
-  --mo-n500: #a8a29e;
-  --mo-n600: #d6d3d1;
-  --mo-n700: #e7e5e4;
-  --mo-n800: #f5f5f4;
-  --mo-n900: #fafaf9;
+  /* 深色模式反转：浅色 n0-n300 变深色，深色 n700-n900 变浅色 */
+  --mo-n0: #1c1917;   /* 最深色 - 页面背景 */
+  --mo-n50: #292524;  /* 深色 - 卡片背景 */
+  --mo-n100: #44403c; /* 深色 - 输入框背景 */
+  --mo-n200: #57534e; /* 中深色 - 边框 */
+  --mo-n300: #78716c; /* 中色 - 次要文字 */
+  --mo-n400: #a8a29e; /* 中浅色 - 次要文字 */
+  --mo-n500: #d6d3d1; /* 浅色 - 常规文字 */
+  --mo-n600: #e7e5e4; /* 浅色 - 主要文字 */
+  --mo-n700: #f5f5f4; /* 很浅色 - 标题 */
+  --mo-n800: #fafaf9; /* 很浅色 - 高亮文字 */
+  --mo-n900: #ffffff; /* 最浅色 - 纯白文字 */
   --mo-p25: rgba(99, 102, 241, 0.08);
   --mo-p50: rgba(99, 102, 241, 0.12);
   --mo-p100: rgba(99, 102, 241, 0.2);
@@ -1033,11 +1034,11 @@ html.dark.theme-mo-blog .profile-page {
   --el-border-color-lighter: #57534e;
   --el-border-color-extra-light: #292524;
   --el-border-color-dark: #78716c;
-  --el-text-color-primary: #f5f5f4;
-  --el-text-color-regular: #d6d3d1;
-  --el-text-color-secondary: #a8a29e;
-  --el-text-color-placeholder: #78716c;
-  --el-text-color-disabled: #57534e;
+  --el-text-color-primary: #fafaf9;
+  --el-text-color-regular: #e7e5e4;
+  --el-text-color-secondary: #d6d3d1;
+  --el-text-color-placeholder: #a8a29e;
+  --el-text-color-disabled: #78716c;
   --el-box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
   --el-box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.3);
   --el-box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -1103,7 +1104,7 @@ html.dark .notification-list {
 
 html.dark .notify-header {
   color: var(--mo-n100);
-  border-bottom-color: var(--mo-n700);
+  border-bottom-color: var(--mo-n100);
 }
 
 html.dark .profile-page {
@@ -1264,11 +1265,11 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__active-bar) {
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-form-item__label) {
-  color: var(--mo-n300);
+  color: var(--mo-n600);
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper) {
-  background: var(--mo-n50);
+  background: var(--mo-n100);
   border-color: var(--mo-n200);
   box-shadow: 0 0 0 1px var(--mo-n200) inset;
 }
@@ -1288,7 +1289,7 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-input__inner::placeholder) {
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner) {
-  background: var(--mo-n50);
+  background: var(--mo-n100);
   border-color: var(--mo-n200);
   color: var(--mo-n700);
 }
@@ -1312,7 +1313,7 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__input.is-checked .el-rad
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-radio__inner) {
-  background: var(--mo-n50);
+  background: var(--mo-n100);
   border-color: var(--mo-n200);
 }
 
@@ -1342,13 +1343,13 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-button--danger:hover) {
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-button.is-plain) {
-  background: var(--mo-n50);
+  background: var(--mo-n100);
   border-color: var(--mo-n200);
   color: var(--mo-n600);
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-button.is-plain:hover) {
-  background: var(--mo-n100);
+  background: var(--mo-n50);
   border-color: var(--mo-n300);
   color: var(--mo-n700);
 }
@@ -1360,7 +1361,7 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__content) {
 
 html.dark.theme-mo-blog .settings-card {
   background: var(--mo-n800);
-  border-color: var(--mo-n700);
+  border-color: var(--mo-n100);
 }
 
 html.dark.theme-mo-blog .settings-heading {
@@ -1373,7 +1374,7 @@ html.dark.theme-mo-blog .profile-details {
 }
 
 html.dark.theme-mo-blog .detail-row {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   border-bottom-color: var(--mo-n200);
 }
 
@@ -1382,23 +1383,23 @@ html.dark.theme-mo-blog .detail-row span {
 }
 
 html.dark.theme-mo-blog .profile-workspace {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
+  background: var(--mo-n50);
+  border-color: var(--mo-n200);
 }
 
 	/* Profile 页面整体背景 */
 	html.dark.theme-mo-blog .profile-page {
-	  background: var(--mo-n50);
+	  background: var(--mo-n0);
 	}
 
 	html.dark.theme-mo-blog .profile-summary {
-	  background: var(--mo-n800);
-	  border-color: var(--mo-n700);
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .profile-avatar {
 	  background: var(--mo-n50);
-	  border-color: var(--mo-n700);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .profile-kicker,
@@ -1407,83 +1408,83 @@ html.dark.theme-mo-blog .profile-workspace {
 	}
 
 	html.dark.theme-mo-blog .stat-card {
-	  background: var(--mo-n800);
-	  border-color: var(--mo-n700);
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .stat-card strong {
-	  color: var(--mo-n100);
+	  color: var(--mo-n700);
 	}
 
 	html.dark.theme-mo-blog .stat-label {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .verify {
-	  color: var(--mo-n400);
-	  background: var(--mo-n50);
+	  color: var(--mo-n500);
+	  background: var(--mo-n100);
 	}
 
 	html.dark.theme-mo-blog .empty-panel {
-	  background: var(--mo-n800);
-	  border-color: var(--mo-n700);
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .empty-title {
-	  color: var(--mo-n100);
+	  color: var(--mo-n700);
 	}
 
 	html.dark.theme-mo-blog .empty-desc {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .profile-tabs {
-	  border-color: var(--mo-n700);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .tab {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .tab.active {
-	  color: var(--mo-n100);
+	  color: var(--mo-n700);
 	  background: var(--mo-n50);
 	}
 
 	html.dark.theme-mo-blog .filter-bar {
-	  background: var(--mo-n800);
-	  border-color: var(--mo-n700);
-	  color: var(--mo-n300);
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n200);
+	  color: var(--mo-n600);
 	}
 
 	html.dark.theme-mo-blog .article-table {
-	  background: var(--mo-n800);
+	  background: var(--mo-n50);
 	}
 
 	html.dark.theme-mo-blog .article-table th {
-	  background: var(--mo-n50);
-	  color: var(--mo-n200);
-	  border-color: var(--mo-n700);
+	  background: var(--mo-n100);
+	  color: var(--mo-n700);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .article-table td {
-	  border-color: var(--mo-n700);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .notification-list {
-	  background: var(--mo-n800);
-	  border-color: var(--mo-n700);
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .notify-header {
-	  color: var(--mo-n100);
-	  border-bottom-color: var(--mo-n700);
+	  color: var(--mo-n700);
+	  border-bottom-color: var(--mo-n200);
 	}
 
 	html.dark.theme-mo-blog .notify-body,
 	html.dark.theme-mo-blog .notify-time,
 	html.dark.theme-mo-blog .notify-preview {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .notify-link {
@@ -1491,16 +1492,16 @@ html.dark.theme-mo-blog .profile-workspace {
 	}
 
 	html.dark.theme-mo-blog .metric {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .act {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .act:hover {
 	  color: var(--mo-n600);
-	  background: var(--mo-n50);
+	  background: var(--mo-n100);
 	}
 
 	html.dark.theme-mo-blog .act.primary:hover {
@@ -1509,14 +1510,14 @@ html.dark.theme-mo-blog .profile-workspace {
 	}
 
 	html.dark.theme-mo-blog .tag {
-	  color: var(--mo-n300);
+	  color: var(--mo-n600);
 	}
 
 	html.dark.theme-mo-blog .load-more {
-	  color: var(--mo-n400);
+	  color: var(--mo-n500);
 	}
 
 	html.dark.theme-mo-blog .load-more:hover {
-	  background: var(--mo-n50);
+	  background: var(--mo-n100);
 	}
 </style>
