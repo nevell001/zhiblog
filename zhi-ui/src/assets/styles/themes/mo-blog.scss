@@ -972,29 +972,37 @@ html.dark.theme-mo-blog .tags-view-container .contextmenu li:hover {
 }
 
 /* ==================== Mo Blog 深色模式 ==================== */
-html.dark.theme-mo-blog {
-  /* 深色模式变量映射 - 反转浅色模式的色阶 */
-  --mo-n0: #292524;
-  --mo-n50: #1c1917;
-  --mo-n100: #292524;
-  --mo-n200: #44403c;
-  --mo-n300: #57534e;
-  --mo-n400: #78716c;
-  --mo-n500: #a8a29e;
-  --mo-n600: #d6d3d1;
-  --mo-n700: #e7e5e4;
-  --mo-n800: #f5f5f4;
-  --mo-n900: #fafaf9;
-  --mo-p50: rgba(99, 102, 241, 0.12);
-  --mo-p100: rgba(99, 102, 241, 0.2);
-  --mo-p200: rgba(99, 102, 241, 0.3);
-  --mo-p300: rgba(165, 180, 252, 0.5);
 
-  /* 其他变量 */
-  --mo-bg-card: var(--mo-n800);
-  --mo-border: var(--mo-n700);
+/* 登录/注册卡片深色模式 */
+html.dark.theme-mo-blog .login-form,
+html.dark.theme-mo-blog .register-form,
+html.dark.theme-mo-blog .auth-card {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+}
 
-  /* TagsView 标签栏变量 - 深色模式 */
+html.dark.theme-mo-blog .auth-switch {
+  background: var(--mo-n700);
+}
+
+html.dark.theme-mo-blog .switch-item.active {
+  background: var(--mo-n600);
+}
+
+html.dark.theme-mo-blog .auth-head h2,
+html.dark.theme-mo-blog .auth-brand,
+html.dark.theme-mo-blog .form-group label {
+  color: var(--mo-n100);
+}
+
+html.dark.theme-mo-blog .sub,
+html.dark.theme-mo-blog .remember,
+html.dark.theme-mo-blog .auth-footer {
+  color: var(--mo-n400);
+}
+
+/* TagsView 标签栏变量 - 深色模式 */
+html.dark.theme-mo-blog .tags-view-container {
   --tags-bg: var(--mo-n800);
   --tags-item-border: var(--mo-n700);
   --tags-item-text: var(--mo-n300);

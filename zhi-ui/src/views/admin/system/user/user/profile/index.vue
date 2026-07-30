@@ -1000,7 +1000,7 @@ html.dark .profile-page {
   --mo-p200: rgba(0, 212, 255, 0.3);
 }
 
-/* Mo-Blog 主题深色：用棕色色阶反转（特异性更高，覆盖默认主题映射） */
+/* Mo-Blog 主题深色：用棕色色阶反转 + Element Plus 变量映射 */
 html.dark.theme-mo-blog .profile-page {
   --mo-n0: #292524;
   --mo-n50: #1c1917;
@@ -1017,6 +1017,30 @@ html.dark.theme-mo-blog .profile-page {
   --mo-p50: rgba(99, 102, 241, 0.12);
   --mo-p100: rgba(99, 102, 241, 0.2);
   --mo-p200: rgba(99, 102, 241, 0.3);
+
+  /* Element Plus 变量映射 - 用于表单控件 */
+  --el-bg-color: #292524;
+  --el-bg-color-overlay: #1c1917;
+  --el-bg-color-page: #1c1917;
+  --el-fill-color-blank: #292524;
+  --el-fill-color-light: #44403c;
+  --el-fill-color-lighter: #292524;
+  --el-fill-color-extra-light: #1c1917;
+  --el-fill-color-dark: #44403c;
+  --el-fill-color-darker: #57534e;
+  --el-border-color: #44403c;
+  --el-border-color-light: #44403c;
+  --el-border-color-lighter: #57534e;
+  --el-border-color-extra-light: #292524;
+  --el-border-color-dark: #78716c;
+  --el-text-color-primary: #f5f5f4;
+  --el-text-color-regular: #d6d3d1;
+  --el-text-color-secondary: #a8a29e;
+  --el-text-color-placeholder: #78716c;
+  --el-text-color-disabled: #57534e;
+  --el-box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+  --el-box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --el-box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 /* 状态标签硬编码浅色 → 深色暗调 */
@@ -1361,4 +1385,138 @@ html.dark.theme-mo-blog .profile-workspace {
   background: var(--mo-n800);
   border-color: var(--mo-n700);
 }
+
+	/* Profile 页面整体背景 */
+	html.dark.theme-mo-blog .profile-page {
+	  background: var(--mo-n50);
+	}
+
+	html.dark.theme-mo-blog .profile-summary {
+	  background: var(--mo-n800);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .profile-avatar {
+	  background: var(--mo-n50);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .profile-kicker,
+	html.dark.theme-mo-blog .bio {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .stat-card {
+	  background: var(--mo-n800);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .stat-card strong {
+	  color: var(--mo-n100);
+	}
+
+	html.dark.theme-mo-blog .stat-label {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .verify {
+	  color: var(--mo-n400);
+	  background: var(--mo-n50);
+	}
+
+	html.dark.theme-mo-blog .empty-panel {
+	  background: var(--mo-n800);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .empty-title {
+	  color: var(--mo-n100);
+	}
+
+	html.dark.theme-mo-blog .empty-desc {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .profile-tabs {
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .tab {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .tab.active {
+	  color: var(--mo-n100);
+	  background: var(--mo-n50);
+	}
+
+	html.dark.theme-mo-blog .filter-bar {
+	  background: var(--mo-n800);
+	  border-color: var(--mo-n700);
+	  color: var(--mo-n300);
+	}
+
+	html.dark.theme-mo-blog .article-table {
+	  background: var(--mo-n800);
+	}
+
+	html.dark.theme-mo-blog .article-table th {
+	  background: var(--mo-n50);
+	  color: var(--mo-n200);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .article-table td {
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .notification-list {
+	  background: var(--mo-n800);
+	  border-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .notify-header {
+	  color: var(--mo-n100);
+	  border-bottom-color: var(--mo-n700);
+	}
+
+	html.dark.theme-mo-blog .notify-body,
+	html.dark.theme-mo-blog .notify-time,
+	html.dark.theme-mo-blog .notify-preview {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .notify-link {
+	  color: var(--mo-p400);
+	}
+
+	html.dark.theme-mo-blog .metric {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .act {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .act:hover {
+	  color: var(--mo-n600);
+	  background: var(--mo-n50);
+	}
+
+	html.dark.theme-mo-blog .act.primary:hover {
+	  color: var(--mo-p400);
+	  background: var(--mo-p25);
+	}
+
+	html.dark.theme-mo-blog .tag {
+	  color: var(--mo-n300);
+	}
+
+	html.dark.theme-mo-blog .load-more {
+	  color: var(--mo-n400);
+	}
+
+	html.dark.theme-mo-blog .load-more:hover {
+	  background: var(--mo-n50);
+	}
 </style>
