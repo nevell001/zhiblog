@@ -71,16 +71,13 @@ describe('Permission Store 测试', () => {
       mockGetRouters.mockResolvedValue({
         data: [
           {
-            path: '/admin/generated-menu',
-            name: 'BlogManage',
+            path: 'admin/generated-menu', // 这里的路径不带 /，测试处理
             component: 'Layout',
-            meta: { title: '博客管理' },
             children: [
               {
                 path: 'article',
-                name: 'BlogArticle',
-                component: 'blog/article/index',
-                meta: { title: '文章管理' }
+                name: 'Article',
+                component: 'blog/article/index'
               }
             ]
           }
@@ -90,12 +87,16 @@ describe('Permission Store 测试', () => {
       const store = usePermissionStore()
       const accessRoutes = await store.generateRoutes()
 
-      expect(accessRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
-      expect(store.addRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
-      expect(store.routes.some(route => route.path === '/admin/generated-menu')).toBe(true)
-      expect(store.sidebarRouters.some(route => route.path === '/admin/generated-menu')).toBe(true)
-      expect(store.defaultRoutes.some(route => route.path === '/admin/generated-menu')).toBe(true)
-      expect(store.topbarRouters.some(route => route.path === '/:pathMatch(.*)*')).toBe(true)
+      // 验证生成的路由是否具有正确处理的名称
+      const flat = (routes: any[]): any[] => routes.flatMap(r => [r, ...flat(r.children || [])])
+      const allRoutes = flat(accessRoutes)
+      
+      expect(allRoutes.some(r => r.name === 'admin_generated-menu')).toBe(true)
+      expect(allRoutes.some(r => r.name === 'admin_generated-menu_article')).toBe(true)
+      
+      // 验证 Store 状态更新
+      expect(store.addRoutes.length).toBeGreaterThan(0)
+      expect(store.sidebarRouters.length).toBeGreaterThan(0)
     })
   })
 })

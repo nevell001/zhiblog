@@ -135,9 +135,10 @@ export const useSettingsStore = defineStore('settings', {
     // 如果是跟随系统模式，设置监听器
     if (themeMode === 'system') {
       setupSystemThemeListener((systemIsDark) => {
-        // 注意：这里不能直接更新 state，需要在 actions 中处理
-        // 监听器会在用户调用 setThemeMode('system') 时重新设置
+        this.isDark = systemIsDark
+        applyAdminDarkMode(systemIsDark)
       })
+
     }
 
     return {

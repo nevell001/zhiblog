@@ -1253,52 +1253,52 @@ html.dark .settings-tabs :deep(.el-radio) {
 
 /* ===== Mo-Blog 主题深色模式表单控件适配 ===== */
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item) {
-  color: var(--mo-n500);
-  background: transparent;
+  color: var(--mo-n500) !important;
+  background: transparent !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__item.is-active) {
-  color: var(--mo-n700);
-  background: transparent;
+  color: var(--mo-n700) !important;
+  background: transparent !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__active-bar) {
-  background: var(--mo-p600);
+  background: var(--mo-p600) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__header) {
-  background: transparent;
-  border-bottom-color: var(--mo-n200);
+  background: transparent !important;
+  border-bottom-color: var(--mo-n200) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-form-item__label) {
-  color: var(--mo-n600);
+  color: var(--mo-n600) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper) {
   background: var(--mo-n100) !important;
   border-color: var(--mo-n200) !important;
-  box-shadow: 0 0 0 1px var(--mo-n200) inset;
+  box-shadow: 0 0 0 1px var(--mo-n200) inset !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--mo-p600);
-  box-shadow: 0 0 0 1px var(--mo-p600) inset;
+  border-color: var(--mo-p600) !important;
+  box-shadow: 0 0 0 1px var(--mo-p600) inset !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__inner) {
-  color: var(--mo-n700);
-  background: transparent;
+  color: var(--mo-n700) !important;
+  background: transparent !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-input__inner::placeholder) {
-  color: var(--mo-n400);
+  color: var(--mo-n400) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner) {
-  background: var(--mo-n100);
-  border-color: var(--mo-n200);
-  color: var(--mo-n700);
+  background: var(--mo-n100) !important;
+  border-color: var(--mo-n200) !important;
+  color: var(--mo-n700) !important;
 }
 
 html.dark.theme-mo-blog .settings-tabs :deep(.el-textarea__inner:focus) {

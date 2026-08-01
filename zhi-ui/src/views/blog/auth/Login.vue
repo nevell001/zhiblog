@@ -322,6 +322,7 @@ onMounted(() => {
   max-width: 420px;
   margin: 0 auto;
   padding: 56px 48px;
+  background: #fff;
 }
 
 .auth-form h2 {
@@ -496,71 +497,55 @@ onMounted(() => {
   }
 }
 
-/* ===== 深色模式：在 .mo-auth-page 作用域内映射 mo 色阶 =====
-   默认主题深色：映射到 --el-* 变量（Tech Blue 深蓝）
-   Mo-Blog 主题深色：用棕色色阶（特异性更高，覆盖默认） */
-
-html.dark .mo-auth-page {
-  --mo-n0: var(--el-bg-color-overlay);
-  --mo-n50: var(--el-bg-color);
-  --mo-n100: var(--el-bg-color-overlay);
-  --mo-n200: var(--el-border-color);
-  --mo-n300: var(--el-text-color-regular);
-  --mo-n400: var(--el-text-color-regular);
-  --mo-n500: var(--el-text-color-regular);
-  --mo-n600: var(--el-text-color-primary);
-  --mo-n700: var(--el-text-color-primary);
-  --mo-n800: var(--el-text-color-primary);
-  --mo-n900: var(--el-text-color-primary);
-  --mo-p500: var(--el-color-primary);
-  --mo-bg: var(--el-bg-color);
-  --mo-bg-card: var(--el-bg-color-overlay);
-  --mo-border: var(--el-border-color);
-  background: var(--el-bg-color);
+html.dark.theme-mo-blog .auth-visual,
+html.dark .auth-visual {
+  background: var(--mo-bg-card) !important;
 }
 
+html.dark.theme-mo-blog .auth-wrapper,
 html.dark .auth-wrapper {
-  background: var(--el-bg-color-overlay);
+  background: var(--mo-bg-card) !important;
+  box-shadow: none !important;
 }
 
-html.dark.theme-mo-blog .mo-auth-page {
-  --mo-n0: #292524;
-  --mo-n50: #1c1917;
-  --mo-n100: #292524;
-  --mo-n200: #44403c;
-  --mo-n300: #57534e;
-  --mo-n400: #78716c;
-  --mo-n500: #a8a29e;
-  --mo-n600: #d6d3d1;
-  --mo-n700: #e7e5e4;
-  --mo-n800: #f5f5f4;
-  --mo-n900: #fafaf9;
-  --mo-p500: #6366f1;
-  --mo-bg: #1c1917;
-  --mo-bg-card: #292524;
-  --mo-border: #44403c;
-  background: #1c1917;
+html.dark.theme-mo-blog .auth-form,
+html.dark .auth-form {
+  background-color: var(--mo-bg-card) !important;
 }
 
-html.dark.theme-mo-blog .auth-wrapper {
-  background: #292524;
+/* 更加激进的表单深色模式强制覆盖 */
+html.dark .login-form .el-form-item,
+html.dark .login-form .el-form-item__content {
+  background-color: var(--mo-bg-card) !important;
 }
 
-/* 输入框深色覆盖（--mo-n* 已在上方 .mo-auth-page 作用域映射，两种主题自动适配） */
-html.dark .mo-auth-page :deep(.el-input__wrapper) {
-  background: var(--mo-n50);
-  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+html.dark.theme-mo-blog .auth-form h2,
+html.dark .auth-form h2,
+html.dark.theme-mo-blog .auth-form .sub,
+html.dark .auth-form .sub {
+  color: var(--mo-n900) !important;
 }
 
-html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50);
+html.dark.theme-mo-blog .form-group label,
+html.dark .form-group label {
+  color: var(--mo-n700) !important;
 }
 
-html.dark .mo-auth-page :deep(.el-input__inner) {
-  color: var(--mo-n800);
+html.dark.theme-mo-blog :deep(.el-input__wrapper),
+html.dark :deep(.el-input__wrapper) {
+  background-color: var(--mo-n50) !important;
+  border: 1px solid var(--mo-n200) !important;
+  box-shadow: none !important;
 }
 
-html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
-  color: var(--mo-n400);
+html.dark.theme-mo-blog :deep(.el-input__inner),
+html.dark :deep(.el-input__inner) {
+  background-color: transparent !important;
+  color: var(--mo-n800) !important;
+}
+
+html.dark.theme-mo-blog .captcha-img,
+html.dark .captcha-img {
+  border-color: var(--mo-n300) !important;
 }
 </style>

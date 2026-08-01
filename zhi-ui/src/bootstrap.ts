@@ -11,6 +11,7 @@ import 'element-plus/es/components/notification/style/css'
 import locale from 'element-plus/es/locale/lang/zh-cn'
 
 import '@/assets/styles/index.scss' // global css
+import '@/assets/styles/theme-dark.css'
 
 import App from './App.vue'
 import { createPinia } from 'pinia'

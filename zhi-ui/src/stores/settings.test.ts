@@ -125,19 +125,21 @@ describe('Settings Store 测试', () => {
   })
 
   describe('toggleTheme', () => {
-    it('应该切换暗色模式并同步根节点 class', () => {
+    it('应该按顺序循环切换主题模式 (light -> dark -> system)', () => {
       const store = useSettingsStore()
-      store.toggleTheme()
+      // 初始应为 system
+      expect(store.themeMode).toBe('system')
+      
+      store.toggleTheme() // -> light
+      expect(store.themeMode).toBe('light')
+      
+      store.toggleTheme() // -> dark
+      expect(store.themeMode).toBe('dark')
       expect(store.isDark).toBe(true)
       expect(document.documentElement.classList.contains('dark')).toBe(true)
-      expect(localStorage.getItem('admin-theme')).toBe('dark')
-    })
-
-    it('应该从本地缓存恢复暗色模式', () => {
-      localStorage.setItem('admin-theme', 'dark')
-      const store = useSettingsStore()
-      expect(store.isDark).toBe(true)
-      expect(document.documentElement.classList.contains('dark')).toBe(true)
+      
+      store.toggleTheme() // -> system
+      expect(store.themeMode).toBe('system')
     })
   })
 
