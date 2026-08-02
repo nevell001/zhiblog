@@ -23,7 +23,10 @@
         class="register-form"
       >
         <el-form-item prop="username" class="form-group">
-          <label>用户名 <span class="required">*</span></label>
+          <label>
+            用户名
+            <span class="required">*</span>
+          </label>
           <el-input v-model="registerForm.username" placeholder="请输入用户名" clearable>
             <template #prefix>
               <el-icon><User /></el-icon>
@@ -516,5 +519,98 @@ onMounted(() => {
     grid-template-columns: 1fr;
     gap: 0;
   }
+}
+
+:global(html.dark.theme-mo-blog .auth-card),
+:global(html.dark .auth-card) {
+  background: var(--mo-bg-card, #292524) !important;
+  border-color: var(--mo-border, #44403c) !important;
+}
+
+:global(html.dark.theme-mo-blog .auth-switch),
+:global(html.dark .auth-switch) {
+  background: var(--mo-n700, #292524) !important;
+}
+
+:global(html.dark.theme-mo-blog .switch-item),
+:global(html.dark .switch-item) {
+  color: var(--mo-n300, #57534e) !important;
+}
+
+:global(html.dark.theme-mo-blog .switch-item:hover),
+:global(html.dark .switch-item:hover) {
+  color: var(--mo-n100, #f5f5f4) !important;
+}
+
+:global(html.dark.theme-mo-blog .switch-item.active),
+:global(html.dark .switch-item.active) {
+  background: var(--mo-n700, #292524) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+:global(html.dark.theme-mo-blog .auth-submit),
+:global(html.dark .auth-submit) {
+  background: var(--mo-p600, #4f46e5) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  border-color: transparent !important;
+}
+
+:global(html.dark.theme-mo-blog .auth-footer a),
+:global(html.dark .auth-footer a) {
+  color: var(--mo-p300, #a5b4fc) !important;
+}
+
+/* 默认深色模式使用直接颜色值 */
+:global(html.dark .form-group label) {
+  color: #78716c !important;
+}
+
+:global(html.dark :deep(.el-input__wrapper)) {
+  background: #292524 !important;
+  border: 1px solid #44403c !important;
+  box-shadow: 0 0 0 1px #44403c inset !important;
+}
+
+:global(html.dark :deep(.el-input__wrapper.is-focus)) {
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+  border-color: #818cf8 !important;
+}
+
+:global(html.dark :deep(.el-input__inner)) {
+  color: #f5f5f4 !important;
+}
+
+:global(html.dark :deep(.el-input__inner::placeholder)) {
+  color: #a8a29e !important;
+}
+
+/* Mo-Blog 主题深色模式使用 CSS 变量 */
+:global(html.dark.theme-mo-blog .form-group label) {
+  color: var(--mo-n300) !important;
+}
+
+:global(html.dark.theme-mo-blog :deep(.el-input__wrapper)) {
+  background: var(--mo-n100) !important;
+  border: 1px solid var(--mo-n200) !important;
+  box-shadow: 0 0 0 1px var(--mo-n200) inset !important;
+}
+
+:global(html.dark.theme-mo-blog :deep(.el-input__wrapper.is-focus)) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50) !important;
+  border-color: var(--mo-p400) !important;
+}
+
+:global(html.dark.theme-mo-blog :deep(.el-input__inner)) {
+  color: var(--mo-n600) !important;
+}
+
+:global(html.dark.theme-mo-blog :deep(.el-input__inner::placeholder)) {
+  color: var(--mo-n400) !important;
 }
 </style>

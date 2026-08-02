@@ -219,7 +219,7 @@ onMounted(() => {
 .mo-auth-page {
   min-height: 100vh;
   padding-top: 64px;
-  background: var(--mo-n50);
+  background: var(--mo-n50, #f8f7f3);
 }
 
 .auth-wrapper {
@@ -230,7 +230,7 @@ onMounted(() => {
   max-width: 1100px;
   margin: 0 auto;
   overflow: hidden;
-  background: #fff;
+  background: var(--mo-bg-card, #fff);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
 }
 
@@ -322,7 +322,7 @@ onMounted(() => {
   max-width: 420px;
   margin: 0 auto;
   padding: 56px 48px;
-  background: #fff;
+  background: var(--mo-bg-card, #fff);
 }
 
 .auth-form h2 {
@@ -499,18 +499,55 @@ onMounted(() => {
 
 html.dark.theme-mo-blog .auth-visual,
 html.dark .auth-visual {
-  background: var(--mo-bg-card) !important;
+  background: var(--mo-bg-card, #fff) !important;
 }
 
 html.dark.theme-mo-blog .auth-wrapper,
 html.dark .auth-wrapper {
-  background: var(--mo-bg-card) !important;
+  background: var(--mo-bg-card, #292524) !important;
   box-shadow: none !important;
 }
 
 html.dark.theme-mo-blog .auth-form,
 html.dark .auth-form {
-  background-color: var(--mo-bg-card) !important;
+  background-color: var(--mo-bg-card, #292524) !important;
+  color: var(--mo-n100, #f5f5f4);
+}
+
+html.dark.theme-mo-blog .auth-tabs,
+html.dark .auth-tabs {
+  background: var(--mo-n700, #292524) !important;
+}
+
+html.dark.theme-mo-blog .tab,
+html.dark .tab {
+  color: var(--mo-n400, #78716c) !important;
+}
+
+html.dark.theme-mo-blog .tab.active,
+html.dark .tab.active {
+  background: var(--mo-n700, #292524) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  box-shadow: none !important;
+}
+
+html.dark.theme-mo-blog .auth-submit,
+html.dark .auth-submit {
+  background: var(--mo-p600, #4f46e5) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  border-color: transparent !important;
+}
+
+html.dark .auth-secondary:hover {
+  border-color: var(--mo-p400);
+  background: var(--mo-p50);
+}
+
+html.dark.theme-mo-blog .auth-secondary,
+html.dark .auth-secondary {
+  background: var(--mo-n700, #292524) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  border-color: var(--mo-n700, #292524) !important;
 }
 
 /* 更加激进的表单深色模式强制覆盖 */
@@ -523,29 +560,69 @@ html.dark.theme-mo-blog .auth-form h2,
 html.dark .auth-form h2,
 html.dark.theme-mo-blog .auth-form .sub,
 html.dark .auth-form .sub {
-  color: var(--mo-n900) !important;
+  color: var(--mo-n100) !important;
 }
 
-html.dark.theme-mo-blog .form-group label,
+/* ======== 深色模式样式 ======== */
+/* 默认深色模式使用直接颜色值 */
 html.dark .form-group label {
-  color: var(--mo-n700) !important;
+  color: #78716c !important;
 }
 
-html.dark.theme-mo-blog :deep(.el-input__wrapper),
 html.dark :deep(.el-input__wrapper) {
-  background-color: var(--mo-n50) !important;
-  border: 1px solid var(--mo-n200) !important;
-  box-shadow: none !important;
+  background-color: #292524 !important;
+  border: 1px solid #44403c !important;
+  box-shadow: 0 0 0 1px #44403c inset !important;
 }
 
-html.dark.theme-mo-blog :deep(.el-input__inner),
+html.dark :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+  border-color: #818cf8 !important;
+}
+
 html.dark :deep(.el-input__inner) {
   background-color: transparent !important;
-  color: var(--mo-n800) !important;
+  color: #f5f5f4 !important;
 }
 
-html.dark.theme-mo-blog .captcha-img,
+html.dark :deep(.el-input__inner::placeholder) {
+  color: #a8a29e !important;
+}
+
 html.dark .captcha-img {
-  border-color: var(--mo-n300) !important;
+  border-color: #44403c !important;
+}
+
+/* Mo-Blog 主题深色模式使用 CSS 变量 */
+html.dark.theme-mo-blog .form-group label {
+  color: var(--mo-n300) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__wrapper) {
+  background-color: var(--mo-n100) !important;
+  border: 1px solid var(--mo-n200) !important;
+  box-shadow: 0 0 0 1px var(--mo-n200) inset !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50) !important;
+  border-color: var(--mo-p400) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__inner) {
+  background-color: transparent !important;
+  color: var(--mo-n600) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__inner::placeholder) {
+  color: var(--mo-n400) !important;
+}
+
+html.dark.theme-mo-blog .captcha-img {
+  border-color: var(--mo-n200) !important;
 }
 </style>

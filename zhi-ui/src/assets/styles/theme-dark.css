@@ -15,14 +15,14 @@ html.dark .mo-home-page {
   --mo-p50: rgba(0, 212, 255, 0.12);
   --mo-p300: var(--el-color-primary);
   --mo-p500: var(--el-color-primary);
-  
+
   --mo-n0: var(--el-bg-color-overlay);
   --mo-n50: var(--el-bg-color);
   --mo-n600: var(--el-text-color-primary);
   --mo-bg: var(--el-bg-color);
   --mo-bg-card: var(--el-bg-color-overlay);
   --mo-border: var(--el-border-color);
-  
+
   background: var(--el-bg-color);
   color: var(--el-text-color-primary);
 }
@@ -42,14 +42,14 @@ html.dark.theme-mo-blog .mo-home-page {
   --mo-p50: rgba(99, 102, 241, 0.12);
   --mo-p300: #a5b4fc;
   --mo-p500: #6366f1;
-  
+
   --mo-n0: #292524;
   --mo-n50: #1c1917;
   --mo-n600: #d6d3d1;
   --mo-bg: #1c1917;
   --mo-bg-card: #292524;
   --mo-border: #44403c;
-  
+
   background: #1c1917;
   color: #d6d3d1;
 }
@@ -59,9 +59,138 @@ html.dark.theme-mo-blog .mo-auth-page {
   background: var(--mo-bg) !important;
 }
 
-html.dark.theme-mo-blog .auth-wrapper {
-  background: var(--mo-bg-card) !important;
+html.dark.theme-mo-blog .auth-wrapper,
+html.dark.theme-mo-blog .auth-card,
+html.dark.theme-mo-blog .login-form,
+html.dark.theme-mo-blog .auth-switch {
+  background: var(--mo-bg-card, #292524) !important;
+}
+
+html.dark.theme-mo-blog .auth-card {
+  border-color: var(--mo-border, #44403c) !important;
   box-shadow: none !important;
+}
+
+html.dark.theme-mo-blog .auth-switch {
+  background: var(--mo-n700, #44403c) !important;
+}
+
+html.dark.theme-mo-blog .switch-item {
+  color: var(--mo-n400, #78716c) !important;
+}
+
+html.dark.theme-mo-blog .switch-item.active {
+  color: var(--mo-n100, #f5f5f4) !important;
+  background: var(--mo-n600, #44403c) !important;
+}
+
+html.dark.theme-mo-blog .auth-head h2,
+html.dark.theme-mo-blog .auth-brand,
+html.dark.theme-mo-blog .sub,
+html.dark.theme-mo-blog .remember,
+html.dark.theme-mo-blog .auth-footer {
+  color: var(--mo-n100, #f5f5f4) !important;
+}
+
+html.dark.theme-mo-blog .captcha-img {
+  border-color: var(--mo-n700, #44403c) !important;
+}
+
+/* Form labels and inputs in auth pages - more specific selectors */
+html.dark.theme-mo-blog .mo-auth-page .el-form-item.form-group label,
+html.dark.theme-mo-blog .mo-auth-page .form-group label,
+html.dark.theme-mo-blog .mo-auth-page .el-form-item__label,
+html.dark.theme-mo-blog .auth-form label,
+html.dark.theme-mo-blog .register-form label,
+html.dark.theme-mo-blog .login-form label {
+  color: var(--mo-n400, #78716c) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper,
+html.dark.theme-mo-blog .auth-form .el-input__wrapper,
+html.dark.theme-mo-blog .register-form .el-input__wrapper,
+html.dark.theme-mo-blog .login-form .el-input__wrapper {
+  background-color: var(--mo-n800, #292524) !important;
+  border: 1px solid var(--mo-n700, #44403c) !important;
+  box-shadow: 0 0 0 1px var(--mo-n700, #44403c) inset !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper.is-focus,
+html.dark.theme-mo-blog .auth-form .el-input__wrapper.is-focus,
+html.dark.theme-mo-blog .register-form .el-input__wrapper.is-focus,
+html.dark.theme-mo-blog .login-form .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
+  border-color: var(--mo-p400) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .el-input__inner,
+html.dark.theme-mo-blog .auth-form .el-input__inner,
+html.dark.theme-mo-blog .register-form .el-input__inner,
+html.dark.theme-mo-blog .login-form .el-input__inner {
+  color: var(--mo-n100, #f5f5f4) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .el-input__inner::placeholder,
+html.dark.theme-mo-blog .auth-form .el-input__inner::placeholder,
+html.dark.theme-mo-blog .register-form .el-input__inner::placeholder,
+html.dark.theme-mo-blog .login-form .el-input__inner::placeholder {
+  color: var(--mo-n500, #a8a29e) !important;
+}
+
+/* 强制覆盖 mo-auth-page 登录页深色模式 */
+html.dark.theme-mo-blog .mo-auth-page .auth-tabs,
+html.dark.theme-mo-blog .mo-auth-page .auth-switch,
+html.dark.theme-mo-blog .mo-auth-page .auth-card,
+html.dark.theme-mo-blog .mo-auth-page .login-form {
+  background: var(--mo-bg-card, #292524) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .auth-tabs,
+html.dark.theme-mo-blog .mo-auth-page .auth-switch {
+  border-color: var(--mo-border, #44403c) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .tab,
+html.dark.theme-mo-blog .mo-auth-page .switch-item,
+html.dark.theme-mo-blog .mo-auth-page a.tab,
+html.dark.theme-mo-blog .mo-auth-page a.switch-item {
+  color: var(--mo-n400, #78716c) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .tab.active,
+html.dark.theme-mo-blog .mo-auth-page .switch-item.active,
+html.dark.theme-mo-blog .mo-auth-page a.tab.active,
+html.dark.theme-mo-blog .mo-auth-page a.switch-item.active {
+  background: var(--mo-n700, #292524) !important;
+  background-image: none !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .blog-login-container.mo-auth-page .auth-tabs .tab.active,
+html.dark.theme-mo-blog .blog-login-container.mo-auth-page .auth-tabs a.tab.active,
+html.dark.theme-mo-blog .mo-auth-page .auth-switch .switch-item.active,
+html.dark.theme-mo-blog .mo-auth-page .auth-switch a.switch-item.active {
+  background: var(--mo-n700, #292524) !important;
+  background-image: none !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .auth-submit,
+html.dark.theme-mo-blog .mo-auth-page .el-button--primary.auth-submit {
+  background: var(--mo-p600, #4f46e5) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .auth-secondary,
+html.dark.theme-mo-blog .mo-auth-page .auth-secondary:hover {
+  background: var(--mo-n700, #292524) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  border-color: var(--mo-n700, #292524) !important;
 }
 
 /* BlogLayout Dark Mode Overrides */

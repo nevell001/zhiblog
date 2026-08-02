@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import Login from './Login.vue'
 
@@ -59,5 +61,12 @@ describe('Blog Login 页面测试', () => {
   it('应该有忘记密码链接', () => {
     const hasForgotPasswordLink = true
     expect(hasForgotPasswordLink).toBe(true)
+  })
+
+  it('登录页深色模式样式应使用主题变量而不是硬编码白色背景', () => {
+    const source = readFileSync(resolve(__dirname, 'Login.vue'), 'utf-8')
+
+    expect(source).toContain('background: var(--mo-bg-card, #fff);')
+    expect(source).not.toContain('background: #fff;')
   })
 })

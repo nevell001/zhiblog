@@ -288,7 +288,9 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
+  background:
+    radial-gradient(circle at top left, var(--mo-p50, rgba(99, 102, 241, 0.12)), transparent 32%),
+    var(--mo-n50, #f8f7f3);
 }
 
 .auth-card {
@@ -296,7 +298,7 @@ onMounted(() => {
   max-width: 380px;
   padding: 28px;
   background: var(--mo-bg-card, #fff);
-  border: 1px solid var(--mo-n200);
+  border: 1px solid var(--mo-n200, #e7e5e4);
   border-radius: 8px;
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
@@ -363,9 +365,24 @@ onMounted(() => {
 }
 
 .switch-item.active {
-  color: var(--mo-p600);
-  background: var(--mo-bg-card, #fff);
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+  color: var(--unified-switch-active-color, var(--mo-p600));
+  background: var(--unified-switch-active-bg, var(--mo-bg-card, #fff));
+  box-shadow: var(--unified-switch-active-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
+}
+
+html.dark .switch-item.active,
+html.dark.theme-mo-blog .switch-item.active {
+  --unified-switch-active-color: var(--mo-n100, #f5f5f4);
+  --unified-switch-active-bg: var(--mo-n700, #292524);
+  --unified-switch-active-shadow: none;
+  color: var(--mo-n100, #f5f5f4) !important;
+  background: var(--mo-n700, #292524) !important;
+  border-color: transparent !important;
+}
+
+html.dark .auth-switch,
+html.dark.theme-mo-blog .auth-switch {
+  background: var(--mo-n700, #292524) !important;
 }
 
 .login-form {
@@ -476,93 +493,186 @@ onMounted(() => {
   text-decoration: none;
 }
 
-/* ===== 深色模式：在 .mo-auth-page 作用域内映射 mo 色阶 =====
-   默认主题深色：映射到 --el-* 变量（Tech Blue 深蓝，与管理后台一致）
-   Mo-Blog 主题深色：用棕色色阶（特异性更高，覆盖默认） */
+/* ===== 深色模式：使用 mo-blog.scss 全局 CSS 变量 ===== */
 
 html.dark .mo-auth-page {
-  --mo-n0: var(--el-bg-color-overlay);
-  --mo-n50: var(--el-bg-color);
-  --mo-n100: var(--el-bg-color-overlay);
-  --mo-n200: var(--el-border-color);
-  --mo-n300: var(--el-text-color-regular);
-  --mo-n400: var(--el-text-color-regular);
-  --mo-n500: var(--el-text-color-regular);
-  --mo-n600: var(--el-text-color-primary);
-  --mo-n700: var(--el-text-color-primary);
-  --mo-n800: var(--el-text-color-primary);
-  --mo-n900: var(--el-text-color-primary);
-  --mo-p50: rgba(0, 212, 255, 0.12);
-  --mo-p400: rgba(0, 212, 255, 0.5);
-  --mo-p600: var(--el-color-primary);
-  --mo-p700: var(--el-color-primary);
-  --mo-bg: var(--el-bg-color);
-  --mo-bg-card: var(--el-bg-color-overlay);
-  --mo-border: var(--el-border-color);
-  background:
-    radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%), var(--el-bg-color);
-}
-
-html.dark .auth-card {
-  background: var(--el-bg-color-overlay);
-  border-color: var(--el-border-color);
+  background: radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%), var(--el-bg-color);
 }
 
 html.dark.theme-mo-blog .mo-auth-page {
-  --mo-n0: #292524;
-  --mo-n50: #1c1917;
-  --mo-n100: #292524;
-  --mo-n200: #44403c;
-  --mo-n300: #57534e;
-  --mo-n400: #78716c;
-  --mo-n500: #a8a29e;
-  --mo-n600: #d6d3d1;
-  --mo-n700: #e7e5e4;
-  --mo-n800: #f5f5f4;
-  --mo-n900: #fafaf9;
-  --mo-p50: rgba(99, 102, 241, 0.12);
-  --mo-p400: rgba(99, 102, 241, 0.5);
-  --mo-p600: #4f46e5;
-  --mo-p700: #4338ca;
-  --mo-bg: #1c1917;
-  --mo-bg-card: #292524;
-  --mo-border: #44403c;
-  background:
-    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), #1c1917;
+  background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-n900);
+}
+
+html.dark .auth-card {
+  background: #292524;
+  border-color: #1c1917;
 }
 
 html.dark.theme-mo-blog .auth-card {
-  background: #292524;
-  border-color: #44403c;
+  background: var(--mo-n800) !important;
+  border-color: var(--mo-n700) !important;
 }
 
-/* 输入框深色覆盖（--mo-n* 已在上方 .mo-auth-page 作用域映射，两种主题自动适配） */
+html.dark .auth-switch {
+  background: #292524 !important;
+}
+
+html.dark.theme-mo-blog .auth-switch {
+  background: var(--mo-n700) !important;
+}
+
+html.dark .switch-item {
+  color: #57534e !important;
+}
+
+html.dark.theme-mo-blog .switch-item {
+  color: var(--mo-n600, #57534e) !important;
+}
+
+html.dark .switch-item:hover {
+  color: #f5f5f4 !important;
+}
+
+html.dark.theme-mo-blog .switch-item:hover {
+  color: var(--mo-n100, #f5f5f4) !important;
+}
+
+html.dark .switch-item.active {
+  background: #292524 !important;
+  color: #f5f5f4 !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .switch-item.active,
+html.dark.theme-mo-blog .unified-login-container.mo-auth-page .auth-switch .switch-item.active,
+html.dark.theme-mo-blog .unified-login-container.mo-auth-page .auth-switch a.switch-item.active {
+  background: var(--mo-n700, #292524) !important;
+  color: var(--mo-n100, #f5f5f4) !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+html.dark .auth-submit {
+  background: #4f46e5 !important;
+  color: #f5f5f4 !important;
+  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .auth-submit {
+  background: var(--mo-p600) !important;
+  color: var(--mo-n100) !important;
+  border-color: transparent !important;
+}
+
+html.dark .tab {
+  color: #78716c !important;
+}
+
+html.dark.theme-mo-blog .tab {
+  color: var(--mo-n400) !important;
+}
+
+html.dark .tab.active {
+  background: #292524 !important;
+  color: #f5f5f4 !important;
+}
+
+html.dark.theme-mo-blog .tab.active {
+  background: var(--mo-n700) !important;
+  color: var(--mo-n100) !important;
+}
+
+/* 默认深色模式使用直接颜色值 */
 html.dark .mo-auth-page :deep(.el-input__wrapper) {
-  background: var(--mo-n50);
-  box-shadow: 0 0 0 1px var(--mo-n300) inset;
+  background: #292524;
+  box-shadow: 0 0 0 1px #44403c inset;
 }
 
 html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50);
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+/* Mo-Blog 主题深色模式使用 CSS 变量 */
+html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper) {
+  background: var(--mo-n800) !important;
+  border: 1px solid var(--mo-n700) !important;
+  box-shadow: none !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper.is-focus) {
+  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50) !important;
+  border-color: var(--mo-p400) !important;
 }
 
 html.dark .mo-auth-page :deep(.el-input__inner) {
-  color: var(--mo-n800);
+  color: #f5f5f4;
+}
+
+html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__inner) {
+  color: var(--mo-n100) !important;
 }
 
 html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
-  color: var(--mo-n400);
+  color: #a8a29e;
 }
 
-/* 验证码深色模式增强 */
-:global(html.dark) .mo-auth-page .captcha-img {
-  border-color: var(--mo-n200);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__inner::placeholder) {
+  color: var(--mo-n400) !important;
 }
 
-:global(html.dark) .mo-auth-page .captcha-img:hover {
-  border-color: var(--mo-p400);
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+html.dark .mo-auth-page .captcha-img {
+  border-color: #44403c !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .captcha-img {
+  border-color: var(--mo-n700) !important;
+}
+
+html.dark .mo-auth-page .captcha-img:hover {
+  border-color: #818cf8 !important;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
+}
+
+html.dark.theme-mo-blog .mo-auth-page .captcha-img:hover {
+  border-color: var(--mo-p400) !important;
+}
+
+html.dark .auth-head h2,
+html.dark .auth-brand,
+html.dark .sub,
+html.dark .remember,
+html.dark .auth-footer {
+  color: #f5f5f4 !important;
+}
+
+html.dark.theme-mo-blog .auth-head h2,
+html.dark.theme-mo-blog .auth-brand {
+  color: var(--mo-n100) !important;
+}
+
+html.dark.theme-mo-blog .sub,
+html.dark.theme-mo-blog .remember,
+html.dark.theme-mo-blog .auth-footer {
+  color: var(--mo-n400) !important;
+}
+
+/* 默认深色模式使用直接颜色值 */
+html.dark .form-group label {
+  color: #78716c !important;
+}
+
+/* Mo-Blog 主题深色模式使用 CSS 变量 */
+html.dark.theme-mo-blog .form-group label {
+  color: var(--mo-n400) !important;
+}
+
+html.dark .auth-footer a,
+html.dark.theme-mo-blog .auth-footer a {
+  color: var(--mo-p300, #a5b4fc) !important;
 }
 
 @media (max-width: 768px) {
@@ -573,18 +683,5 @@ html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
   .auth-card {
     padding: 22px;
   }
-}
-</style>
-
-<!-- 深色模式验证码全局样式（非 scoped） -->
-<style lang="scss">
-html.dark .mo-auth-page .captcha-img {
-  border-color: var(--mo-n200) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
-}
-
-html.dark .mo-auth-page .captcha-img:hover {
-  border-color: var(--mo-p400) !important;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
 }
 </style>

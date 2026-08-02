@@ -421,47 +421,96 @@ const goToHome = () => {
     0 0 0 3px var(--mo-p50);
 }
 
+/* ===== 深色模式 =====
+   默认深色模式：使用直接颜色值
+   Mo-Blog 主题深色模式：使用 CSS 变量 */
+
 html.dark .mo-auth-page {
-  background: var(--mo-n900);
+  background: #1c1917;
+}
+
+html.dark.theme-mo-blog .mo-auth-page {
+  background: var(--mo-bg, #1c1917);
 }
 
 html.dark .forgot-password-card {
-  background: var(--mo-n800);
-  border-color: var(--mo-n700);
+  background: #292524;
+  border-color: #44403c;
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.25),
     0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-html.dark .forgot-password-header h1 {
-  color: var(--mo-n100);
+html.dark.theme-mo-blog .forgot-password-card {
+  background: var(--mo-bg-card, #292524);
+  border-color: var(--mo-border, #44403c);
+}
+
+html.dark .forgot-password-header h1,
+html.dark.theme-mo-blog .forgot-password-header h1 {
+  color: var(--mo-n100, #f5f5f4);
 }
 
 html.dark .forgot-password-header p,
+html.dark.theme-mo-blog .forgot-password-header p,
 html.dark :deep(.el-step__title),
-html.dark :deep(.el-step__description) {
-  color: var(--mo-n400);
+html.dark.theme-mo-blog :deep(.el-step__title),
+html.dark :deep(.el-step__description),
+html.dark.theme-mo-blog :deep(.el-step__description) {
+  color: var(--mo-n400, #78716c);
 }
 
-html.dark .forgot-password-footer .link {
-  color: var(--mo-p300);
+html.dark .forgot-password-footer .link,
+html.dark.theme-mo-blog .forgot-password-footer .link {
+  color: var(--mo-p300, #a5b4fc);
 }
 
-html.dark .forgot-password-footer .link:hover {
-  color: var(--mo-p200);
+html.dark .forgot-password-footer .link:hover,
+html.dark.theme-mo-blog .forgot-password-footer .link:hover {
+  color: var(--mo-p200, #c7d2fe);
 }
 
+/* 默认深色模式：表单输入框 */
 html.dark :deep(.el-input__wrapper) {
-  background: var(--mo-n900);
-  box-shadow: 0 0 0 1px var(--mo-n600) inset;
+  background: #292524;
+  box-shadow: 0 0 0 1px #44403c inset;
+}
+
+html.dark :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18);
+  border-color: #818cf8;
 }
 
 html.dark :deep(.el-input__inner) {
-  color: var(--mo-n100);
+  color: #f5f5f4;
 }
 
 html.dark :deep(.el-input__inner::placeholder) {
-  color: var(--mo-n500);
+  color: #a8a29e;
+}
+
+/* Mo-Blog 主题深色模式：表单输入框使用 CSS 变量 */
+html.dark.theme-mo-blog :deep(.el-input__wrapper) {
+  background: var(--mo-n100) !important;
+  box-shadow: 0 0 0 1px var(--mo-n200) inset !important;
+  border-color: var(--mo-n200) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50) !important;
+  border-color: var(--mo-p400) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__inner) {
+  color: var(--mo-n600) !important;
+}
+
+html.dark.theme-mo-blog :deep(.el-input__inner::placeholder) {
+  color: var(--mo-n400) !important;
 }
 
 @media (max-width: 480px) {

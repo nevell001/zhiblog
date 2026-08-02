@@ -1363,12 +1363,20 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-button.is-plain:hover) {
 
 /* Tabs 内容区域深色背景 */
 html.dark.theme-mo-blog .settings-tabs :deep(.el-tabs__content) {
-  background: transparent;
+  background: transparent !important;
+}
+
+html.dark.theme-mo-blog .settings-tabs :deep(.el-tab-pane) {
+  background: transparent !important;
 }
 
 html.dark.theme-mo-blog .settings-card {
   background: var(--mo-n50) !important;
   border-color: var(--mo-n200) !important;
+}
+
+html.dark.theme-mo-blog .settings-card > * {
+  background-color: transparent !important;
 }
 
 html.dark.theme-mo-blog .settings-heading {

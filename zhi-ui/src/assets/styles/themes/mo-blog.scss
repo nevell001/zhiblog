@@ -990,9 +990,12 @@ html.dark.theme-mo-blog .switch-item.active {
 }
 
 html.dark.theme-mo-blog .auth-head h2,
-html.dark.theme-mo-blog .auth-brand,
-html.dark.theme-mo-blog .form-group label {
+html.dark.theme-mo-blog .auth-brand {
   color: var(--mo-n100);
+}
+
+html.dark.theme-mo-blog .form-group label {
+  color: var(--mo-n400);
 }
 
 html.dark.theme-mo-blog .sub,
@@ -1027,9 +1030,12 @@ html.dark.theme-mo-blog .switch-item.active {
 }
 
 html.dark.theme-mo-blog .auth-head h2,
-html.dark.theme-mo-blog .auth-brand,
-html.dark.theme-mo-blog .form-group label {
+html.dark.theme-mo-blog .auth-brand {
   color: var(--mo-n100);
+}
+
+html.dark.theme-mo-blog .form-group label {
+  color: var(--mo-n400);
 }
 
 html.dark.theme-mo-blog .sub,
@@ -1959,4 +1965,44 @@ html.dark.theme-mo-blog .el-switch__label {
 
 html.dark.theme-mo-blog .el-switch__label.is-active {
   color: var(--mo-p300) !important;
+}
+
+/* ========== Auth Page 深色模式表单修复 ========== */
+/* 强制覆盖所有表单标签为深色调 */
+html.dark.theme-mo-blog .form-group label,
+html.dark.theme-mo-blog .el-form-item.form-group label,
+html.dark.theme-mo-blog .mo-auth-page .form-group label,
+html.dark.theme-mo-blog .mo-auth-page label,
+html.dark.theme-mo-blog .auth-form label,
+html.dark.theme-mo-blog .register-form label,
+html.dark.theme-mo-blog .login-form label,
+html.dark.theme-mo-blog label[class*="label"] {
+  color: #78716c !important;
+}
+
+/* 输入框样式修复 */
+html.dark.theme-mo-blog .el-input__wrapper,
+html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper,
+html.dark.theme-mo-blog .auth-form .el-input__wrapper,
+html.dark.theme-mo-blog .register-form .el-input__wrapper,
+html.dark.theme-mo-blog .login-form .el-input__wrapper {
+  background-color: #292524 !important;
+  border: 1px solid #44403c !important;
+  box-shadow: 0 0 0 1px #44403c inset !important;
+}
+
+html.dark.theme-mo-blog .el-input__wrapper.is-focus,
+html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper.is-focus {
+  box-shadow: 0 0 0 1px #818cf8 inset, 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+  border-color: #818cf8 !important;
+}
+
+html.dark.theme-mo-blog .el-input__inner,
+html.dark.theme-mo-blog .mo-auth-page .el-input__inner {
+  color: #f5f5f4 !important;
+}
+
+html.dark.theme-mo-blog .el-input__inner::placeholder,
+html.dark.theme-mo-blog .mo-auth-page .el-input__inner::placeholder {
+  color: #a8a29e !important;
 }
