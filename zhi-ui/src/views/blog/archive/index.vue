@@ -967,6 +967,14 @@ html.dark .page-header {
   border-bottom-color: var(--mo-n800);
 }
 
+html.dark .archive-page .page-title {
+  color: var(--mo-n100);
+}
+
+html.dark .archive-page .page-description {
+  color: var(--mo-n400);
+}
+
 html.dark .page-header::after {
   background: var(--mo-n900);
 }
@@ -1021,7 +1029,7 @@ html.dark .archive-header:hover {
 }
 
 html.dark .archive-month {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .archive-count {
@@ -1051,7 +1059,7 @@ html.dark .article-title:hover {
 }
 
 html.dark .article-summary {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .article-meta {

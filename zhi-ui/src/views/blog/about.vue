@@ -517,7 +517,7 @@ html.dark a.contact-value {
 
 html.dark .about-desc,
 html.dark .about-content {
-  color: var(--mo-n300);
+  color: var(--mo-n500);
 }
 
 html.dark .about-stat-strip {

@@ -1354,7 +1354,7 @@ html.dark .tag-title {
 }
 
 html.dark .tag-description {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .stat-item {
@@ -1384,7 +1384,7 @@ html.dark .article-category-badge {
 }
 
 html.dark .article-title a {
-  background: linear-gradient(135deg, var(--mo-n200), var(--mo-n300));
+  background: linear-gradient(135deg, var(--mo-n100), var(--mo-n200));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -1400,7 +1400,7 @@ html.dark .article-meta {
 
 html.dark .meta-item {
   background: rgba(255, 255, 255, 0.05);
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .meta-item:hover {
@@ -1409,7 +1409,7 @@ html.dark .meta-item:hover {
 }
 
 html.dark .article-summary {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .article-footer {
@@ -1439,11 +1439,11 @@ html.dark .tag-about .tag-name {
 }
 
 html.dark .tag-about .tag-desc {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .tag-meta .meta-item {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
   background: rgba(255, 255, 255, 0.05);
 }
 
@@ -1477,7 +1477,7 @@ html.dark .recent-articles .article-item {
 }
 
 html.dark .article-link {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .article-link:hover {
