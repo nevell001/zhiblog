@@ -803,7 +803,7 @@ html.dark .mo-home-page .article-card .title {
 }
 
 html.dark .mo-home-page .article-card .excerpt {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .mo-home-page .article-card .meta {
@@ -811,7 +811,7 @@ html.dark .mo-home-page .article-card .meta {
 }
 
 html.dark .mo-home-page .article-card .meta .author {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .mo-home-page .sidebar-widget {
@@ -824,7 +824,7 @@ html.dark .mo-home-page .widget-title {
 }
 
 html.dark .mo-home-page .cat-item {
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .mo-home-page .cat-item:hover,
@@ -840,7 +840,7 @@ html.dark .mo-home-page .cat-item .count {
 
 html.dark .mo-home-page .tc {
   background: var(--mo-n700);
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .mo-home-page .tc:hover,
@@ -850,7 +850,7 @@ html.dark .mo-home-page .tc.lg {
 }
 
 html.dark .mo-home-page .htitle {
-  color: var(--mo-n300);
+  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .htitle:hover {
@@ -864,7 +864,7 @@ html.dark .mo-home-page .hmeta {
 html.dark .mo-home-page .pg {
   background: var(--mo-n800);
   border-color: var(--mo-n700);
-  color: var(--mo-n300);
+  color: var(--mo-n400);
 }
 
 html.dark .mo-home-page .pg.active {

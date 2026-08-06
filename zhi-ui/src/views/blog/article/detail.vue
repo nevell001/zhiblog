@@ -728,6 +728,33 @@ html.dark .mo-article-page .content-body :deep(blockquote) {
   color: var(--mo-p300);
 }
 
+/* 深色模式：标题/姓名/导航等文字改用浅色。
+   --mo-n900/--mo-n800 在深色下被映射为背景色，不能直接用于文字。 */
+html.dark .mo-article-page .mo-article-header h1,
+html.dark .mo-article-page .a-name,
+html.dark .mo-article-page .a-stat .num,
+html.dark .mo-article-page .wt,
+html.dark .mo-article-page .nav-title,
+html.dark .mo-article-page .c-name,
+html.dark .mo-article-page .a-meta .author,
+html.dark .mo-article-page .not-found-content h2,
+html.dark .mo-article-page .content-body :deep(h1),
+html.dark .mo-article-page .content-body :deep(h2),
+html.dark .mo-article-page .content-body :deep(h3),
+html.dark .mo-article-page .content-body :deep(h4),
+html.dark .mo-article-page .content-body :deep(h5),
+html.dark .mo-article-page .content-body :deep(h6) {
+  color: var(--mo-n100);
+}
+
+html.dark .mo-article-page .nav-title {
+  color: var(--mo-n200);
+}
+
+html.dark .mo-article-page .article-actions :deep(.el-button.is-plain) {
+  color: var(--mo-n200);
+}
+
 html.dark .mo-article-page .author-card,
 html.dark .mo-article-page .side-widget,
 html.dark .mo-article-page .nav-item,
