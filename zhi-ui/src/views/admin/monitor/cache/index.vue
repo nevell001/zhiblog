@@ -149,7 +149,8 @@
 
 <script setup lang="ts" name="Cache">
 import { getCache } from '@/api/monitor/cache'
-import { loadEcharts } from '@/utils/echarts'
+import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
+import { useSettingsStore } from '@/stores/settings'
 import { logger } from '@/utils/logger'
 
 interface CacheMonitorData {
@@ -162,6 +163,9 @@ const cache = ref<CacheMonitorData>({ info: {} })
 const commandstats = ref<HTMLElement | null>(null)
 const usedmemory = ref<HTMLElement | null>(null)
 const { proxy } = getCurrentInstance()!
+const settingsStore = useSettingsStore()
+const commandstatsChart = ref<any>(null)
+const usedmemoryChart = ref<any>(null)
 let resizeCharts: Array<{ resize: () => void }> = []
 
 const resizeCacheCharts = () => {
@@ -174,54 +178,7 @@ async function getList() {
     const response = await getCache()
     cache.value = response.data
 
-    if (!commandstats.value || !usedmemory.value) return
-
-    const echarts = await loadEcharts()
-    const commandstatsInstance = echarts.init(commandstats.value, 'macarons')
-    commandstatsInstance.setOption({
-      tooltip: {
-        trigger: 'item',
-        formatter: '{a} <br/>{b} : {c} ({d}%)'
-      },
-      series: [
-        {
-          name: '命令',
-          type: 'pie',
-          roseType: 'radius',
-          radius: [15, 95],
-          center: ['50%', '38%'],
-          data: response.data.commandStats || [],
-          animationEasing: 'cubicInOut',
-          animationDuration: 1000
-        }
-      ]
-    })
-    const usedmemoryInstance = echarts.init(usedmemory.value, 'macarons')
-    usedmemoryInstance.setOption({
-      tooltip: {
-        formatter: '{b} <br/>{a} : ' + cache.value.info.used_memory_human
-      },
-      series: [
-        {
-          name: '峰值',
-          type: 'gauge',
-          min: 0,
-          max: 1000,
-          detail: {
-            formatter: cache.value.info.used_memory_human
-          },
-          data: [
-            {
-              value: parseFloat(cache.value.info.used_memory_human || '0'),
-              name: '内存消耗'
-            }
-          ]
-        }
-      ]
-    })
-    resizeCharts = [commandstatsInstance, usedmemoryInstance]
-    window.removeEventListener('resize', resizeCacheCharts)
-    window.addEventListener('resize', resizeCacheCharts)
+    await renderCharts()
   } catch (error) {
     logger.error('获取缓存监控数据失败:', error)
   } finally {
@@ -229,7 +186,85 @@ async function getList() {
   }
 }
 
+function buildCommandStatsOption() {
+  const colors = getChartThemeColors()
+  return {
+    tooltip: {
+      trigger: 'item',
+      formatter: '{a} <br/>{b} : {c} ({d}%)',
+      textStyle: { color: colors.textColor }
+    },
+    series: [
+      {
+        name: '命令',
+        type: 'pie',
+        roseType: 'radius',
+        radius: [15, 95],
+        center: ['50%', '38%'],
+        data: cache.value.commandStats || [],
+        label: { color: colors.textColor },
+        animationEasing: 'cubicInOut',
+        animationDuration: 1000
+      }
+    ]
+  }
+}
+
+function buildUsedMemoryOption() {
+  const colors = getChartThemeColors()
+  return {
+    tooltip: {
+      formatter: '{b} <br/>{a} : ' + cache.value.info.used_memory_human,
+      textStyle: { color: colors.textColor }
+    },
+    series: [
+      {
+        name: '峰值',
+        type: 'gauge',
+        min: 0,
+        max: 1000,
+        title: { color: colors.secondaryColor },
+        detail: {
+          formatter: cache.value.info.used_memory_human,
+          color: colors.textColor
+        },
+        axisLabel: { color: colors.secondaryColor },
+        data: [
+          {
+            value: parseFloat(cache.value.info.used_memory_human || '0'),
+            name: '内存消耗'
+          }
+        ]
+      }
+    ]
+  }
+}
+
+async function renderCharts() {
+  if (!commandstats.value || !usedmemory.value) return
+  const echarts = await loadEcharts()
+  if (!commandstatsChart.value) {
+    commandstatsChart.value = echarts.init(commandstats.value, 'macarons')
+  }
+  commandstatsChart.value.setOption(buildCommandStatsOption())
+  if (!usedmemoryChart.value) {
+    usedmemoryChart.value = echarts.init(usedmemory.value, 'macarons')
+  }
+  usedmemoryChart.value.setOption(buildUsedMemoryOption())
+  resizeCharts = [commandstatsChart.value, usedmemoryChart.value]
+  window.removeEventListener('resize', resizeCacheCharts)
+  window.addEventListener('resize', resizeCacheCharts)
+}
+
 getList()
+
+// 深色模式切换时用最新主题色重绘图表
+watch(
+  () => settingsStore.isDark,
+  () => {
+    renderCharts()
+  }
+)
 
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeCacheCharts)
