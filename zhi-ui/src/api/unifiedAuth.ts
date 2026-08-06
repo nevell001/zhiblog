@@ -4,7 +4,7 @@ import request from '@/utils/request'
  * 统一登录接口
  * @param data 登录信息
  */
-export function unifiedLogin(data: any) {
+export function unifiedLogin(data: any): Promise<any> {
   return request({
     url: '/auth/login',
     headers: {
@@ -19,7 +19,7 @@ export function unifiedLogin(data: any) {
 /**
  * 获取当前登录用户信息
  */
-export function getUserInfo() {
+export function getUserInfo(): Promise<any> {
   return request({
     url: '/auth/user/info',
     method: 'get'
@@ -29,7 +29,7 @@ export function getUserInfo() {
 /**
  * 统一登出
  */
-export function logout() {
+export function logout(): Promise<any> {
   return request({
     url: '/auth/logout',
     method: 'post'

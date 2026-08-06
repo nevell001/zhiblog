@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
-import { login, logout } from '@/api/login'
-import { getUserInfo } from '@/api/unifiedAuth'
+import { unifiedLogin, getUserInfo } from '@/api/unifiedAuth'
+import { logout } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import defaultAvatar from '@/assets/images/profile.jpg'
 
@@ -42,9 +42,14 @@ export const useUserStore = defineStore('user', {
     async login(userInfo: UserInfo): Promise<void> {
       const username = userInfo.username.trim()
       const { password, code, uuid, rememberMe } = userInfo
-      const res = await login(username, password, code, uuid, rememberMe)
-      setToken(res.token, rememberMe)
-      this.token = res.token
+      const res = await unifiedLogin({ username, password, code, uuid, rememberMe })
+      // 统一登录接口将 token 放在 data 中（兼容平铺返回）
+      const token = res?.data?.token || res?.token
+      if (!token) {
+        throw new Error('登录失败：未获取到token')
+      }
+      setToken(token, rememberMe)
+      this.token = token
     },
 
     /**

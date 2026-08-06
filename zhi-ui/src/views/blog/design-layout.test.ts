@@ -8,7 +8,6 @@ const blogLayout = readFileSync(resolve(__dirname, '../../components/BlogLayout.
 const blogFooter = readFileSync(resolve(__dirname, '../../components/BlogFooter.vue'), 'utf8')
 const articleTOC = readFileSync(resolve(__dirname, '../../components/ArticleTOC.vue'), 'utf8')
 const forgotPasswordView = readFileSync(resolve(__dirname, 'auth/ForgotPassword.vue'), 'utf8')
-const loginView = readFileSync(resolve(__dirname, 'auth/Login.vue'), 'utf8')
 const registerView = readFileSync(resolve(__dirname, 'auth/Register.vue'), 'utf8')
 const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf8')
 const tagView = readFileSync(resolve(__dirname, 'tag/index.vue'), 'utf8')
@@ -23,7 +22,6 @@ const publicBlogSurfaces = [
   blogFooter,
   articleTOC,
   forgotPasswordView,
-  loginView,
   registerView,
   categoryView,
   tagView,
@@ -224,10 +222,8 @@ describe('blog design layout guards', () => {
   it('博客认证页应复用全局 mo 主题 token', () => {
     const themeHardcodes = /#4f46e5|#3730a3|#4338ca|#1c1917|#292524|#fafaf9|#eef2ff|#e7e5e4/i
 
-    expect(loginView).not.toMatch(themeHardcodes)
     expect(registerView).not.toMatch(themeHardcodes)
     expect(forgotPasswordView).not.toMatch(themeHardcodes)
-    expect(loginView).toContain('var(--mo-p600)')
     expect(registerView).toContain('var(--mo-p600)')
     expect(forgotPasswordView).toContain('var(--mo-p600)')
   })

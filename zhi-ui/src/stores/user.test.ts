@@ -8,15 +8,15 @@ vi.mock('@/utils/auth', () => ({
   removeToken: vi.fn()
 }))
 
-// Mock API - 使用 hoisted 确保在导入 store 之前执行
-vi.mock('@/api/login', () => ({
-  login: vi.fn(),
-  logout: vi.fn()
-}))
-
 // Mock unifiedAuth API - 使用 hoisted 确保在导入 store 之前执行
 vi.mock('@/api/unifiedAuth', () => ({
+  unifiedLogin: vi.fn(),
   getUserInfo: vi.fn()
+}))
+
+// Mock API - 使用 hoisted 确保在导入 store 之前执行
+vi.mock('@/api/login', () => ({
+  logout: vi.fn()
 }))
 
 // Import the store after mocking
@@ -28,8 +28,8 @@ import {
   setToken as mockSetToken,
   removeToken as mockRemoveToken
 } from '@/utils/auth'
-import { login as mockLogin, logout as mockLogout } from '@/api/login'
-import { getUserInfo as mockGetUserInfo } from '@/api/unifiedAuth'
+import { logout as mockLogout } from '@/api/login'
+import { getUserInfo as mockGetUserInfo, unifiedLogin as mockUnifiedLogin } from '@/api/unifiedAuth'
 
 describe('User Store 测试', () => {
   let userStore: any
@@ -73,18 +73,18 @@ describe('User Store 测试', () => {
         code: '1234',
         uuid: 'uuid-123'
       }
-      const mockResponse = { token: 'new-token' }
-      mockLogin.mockResolvedValue(mockResponse)
+      const mockResponse = { data: { token: 'new-token' } }
+      mockUnifiedLogin.mockResolvedValue(mockResponse)
 
       await expect(userStore.login(userInfo)).resolves.toBeUndefined()
 
-      expect(mockLogin).toHaveBeenCalledWith(
-        'admin',
-        'test-password',
-        '1234',
-        'uuid-123',
-        undefined
-      )
+      expect(mockUnifiedLogin).toHaveBeenCalledWith({
+        username: 'admin',
+        password: 'test-password',
+        code: '1234',
+        uuid: 'uuid-123',
+        rememberMe: undefined
+      })
       expect(mockSetToken).toHaveBeenCalledWith('new-token', undefined)
       expect(userStore.token).toBe('new-token')
     })
@@ -97,16 +97,16 @@ describe('User Store 测试', () => {
         uuid: 'uuid-123'
       }
       const error = new Error('登录失败')
-      mockLogin.mockRejectedValue(error)
+      mockUnifiedLogin.mockRejectedValue(error)
 
       await expect(userStore.login(userInfo)).rejects.toThrow('登录失败')
-      expect(mockLogin).toHaveBeenCalledWith(
-        'admin',
-        'wrong-password',
-        '1234',
-        'uuid-123',
-        undefined
-      )
+      expect(mockUnifiedLogin).toHaveBeenCalledWith({
+        username: 'admin',
+        password: 'wrong-password',
+        code: '1234',
+        uuid: 'uuid-123',
+        rememberMe: undefined
+      })
       expect(mockSetToken).not.toHaveBeenCalled()
     })
 
@@ -117,17 +117,17 @@ describe('User Store 测试', () => {
         code: '1234',
         uuid: 'uuid-123'
       }
-      mockLogin.mockResolvedValue({ token: 'token' })
+      mockUnifiedLogin.mockResolvedValue({ data: { token: 'token' } })
 
       await userStore.login(userInfo)
 
-      expect(mockLogin).toHaveBeenCalledWith(
-        'admin',
-        'test-password',
-        '1234',
-        'uuid-123',
-        undefined
-      )
+      expect(mockUnifiedLogin).toHaveBeenCalledWith({
+        username: 'admin',
+        password: 'test-password',
+        code: '1234',
+        uuid: 'uuid-123',
+        rememberMe: undefined
+      })
     })
   })
 
@@ -241,7 +241,7 @@ describe('User Store 测试', () => {
         code: '1234',
         uuid: 'uuid-123'
       }
-      mockLogin.mockResolvedValue({ token: 'login-token' })
+      mockUnifiedLogin.mockResolvedValue({ data: { token: 'login-token' } })
       await userStore.login(userInfo)
 
       expect(userStore.token).toBe('login-token')
