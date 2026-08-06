@@ -193,18 +193,17 @@ public class SysMenuServiceImpl implements ISysMenuService
             else if (menu.getParentId() == 0 && (isMenuFrame(menu) || UserConstants.TYPE_DIR.equals(menu.getMenuType())))
             {
                 // 为主要一级菜单设置正确的重定向
-                if ("系统管理".equals(menu.getMenuName())) {
+                // 按菜单路径判断，避免菜单改名后重定向静默失效
+                if ("admin/system".equals(menu.getPath())) {
                     router.setRedirect("/admin/system/user");
-                } else if ("系统监控".equals(menu.getMenuName())) {
+                } else if ("admin/monitor".equals(menu.getPath())) {
                     router.setRedirect("/admin/monitor/online");
-                } else if ("系统工具".equals(menu.getMenuName())) {
+                } else if ("admin/tool".equals(menu.getPath())) {
                     router.setRedirect("/admin/tool/gen");
-                } else if ("博客管理".equals(menu.getMenuName())) {
+                } else if ("admin/blog".equals(menu.getPath())) {
                     router.setRedirect("/admin/blog/article");
-                } else if ("数据统计".equals(menu.getMenuName())) {
+                } else if ("admin/statistics".equals(menu.getPath())) {
                     router.setRedirect("/admin/statistics/overview");
-                } else if ("分类管理".equals(menu.getMenuName())) {
-                    router.setRedirect("/admin/blog/category");
                 } else {
                     router.setMeta(null);
                     List<RouterVo> childrenList = new ArrayList<RouterVo>();

@@ -157,8 +157,10 @@ public class BlogArticleController extends BaseController
         // 更新文章
         int result = blogArticleService.updateBlogArticle(blogArticle);
         if (result > 0) {
-            // 更新标签关联
-            blogArticleService.updateArticleTagRelations(blogArticle.getId(), tagIds);
+            // 仅当显式传入 tagIds 时更新标签关联，避免漏传清空文章标签
+            if (tagIds != null) {
+                blogArticleService.updateArticleTagRelations(blogArticle.getId(), tagIds);
+            }
             return success("文章更新成功");
         } else {
             return error("文章更新失败");

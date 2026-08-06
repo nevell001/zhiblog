@@ -304,18 +304,8 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             blogArticle.setDelFlag(0L);
         }
         try {
-            blogArticleTagMapper.deleteByArticleId(blogArticle.getId());
-            
-            // 处理新的标签关联
-            if (blogArticle.getTagIds() != null && !blogArticle.getTagIds().isEmpty()) {
-                for (Long tagId : blogArticle.getTagIds()) {
-                    BlogArticleTag articleTag = new BlogArticleTag();
-                    articleTag.setArticleId(blogArticle.getId());
-                    articleTag.setTagId(tagId);
-                    blogArticleTagMapper.insertBlogArticleTag(articleTag);
-                }
-            }
-            
+            // 标签关联统一由 controller 层在显式传入 tagIds 时处理（updateArticleTagRelations），
+            // 此处不再无条件删除，避免 API 调用方漏传 tagIds 时清空文章标签
             return blogArticleMapper.updateBlogArticle(blogArticle);
         } catch (Exception e) {
             // 检查是否为数据库唯一索引冲突

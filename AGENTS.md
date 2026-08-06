@@ -492,7 +492,7 @@ View coverage report: `target/jacoco/index.html` (after running `mvn test jacoco
 The project uses Vitest with TypeScript and component testing support. Run:
 - `npm run test` - Basic test run (TypeScript files in `*.test.ts`)
 - `npm run test:ui` - Interactive test UI
-- `npm run test:coverage` - Coverage report (targets ≥70% coverage)
+- `npm run test:coverage` - Coverage report with enforced thresholds (currently scoped to `src/stores|utils|api|components` `.ts` logic files; thresholds are staged and should be raised progressively toward 70% as tests are added)
 - `npm run test -- --watch` - Watch mode for development
 - `npm run test -- <pattern>` - Run tests matching a pattern (e.g., `npm run test -- validate`)
 

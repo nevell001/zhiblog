@@ -1001,7 +1001,8 @@ class BlogArticleServiceImplTest {
         // 验证结果
         assertEquals(1, result);
         verify(blogArticleMapper).updateBlogArticle(any(BlogArticle.class));
-        verify(blogArticleTagMapper).deleteByArticleId(anyLong());
+        // 标签处理已移到 controller 层：tagIds 为 null 时不得删除原有关联
+        verify(blogArticleTagMapper, never()).deleteByArticleId(anyLong());
         verify(blogArticleTagMapper, never()).insertBlogArticleTag(any());
     }
 
@@ -1020,7 +1021,8 @@ class BlogArticleServiceImplTest {
         // 验证结果
         assertEquals(1, result);
         verify(blogArticleMapper).updateBlogArticle(any(BlogArticle.class));
-        verify(blogArticleTagMapper).deleteByArticleId(anyLong());
+        // 标签处理已移到 controller 层：tagIds 为空时不得删除原有关联
+        verify(blogArticleTagMapper, never()).deleteByArticleId(anyLong());
         verify(blogArticleTagMapper, never()).insertBlogArticleTag(any());
     }
 
