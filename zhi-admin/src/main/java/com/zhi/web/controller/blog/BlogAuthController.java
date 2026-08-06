@@ -61,6 +61,7 @@ public class BlogAuthController extends BaseController
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {
+        logger.warn("POST /blog/auth/login 已废弃，请使用统一认证接口 /auth/login");
         String username = loginBody.getUsername();
         String password = loginBody.getPassword();
 
@@ -220,6 +221,7 @@ public class BlogAuthController extends BaseController
     @GetMapping("/info")
     public AjaxResult getInfo()
     {
+        logger.warn("GET /blog/auth/info 已废弃，请使用统一认证接口 /auth/user/info");
         try
         {
             return AjaxResult.success(getLoginUser());
@@ -236,6 +238,7 @@ public class BlogAuthController extends BaseController
     @PostMapping("/logout")
     public AjaxResult logout()
     {
+        logger.warn("POST /blog/auth/logout 已废弃，请使用统一认证接口 /auth/logout");
         try
         {
             // 删除当前用户的token

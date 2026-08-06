@@ -25,6 +25,13 @@
             <optional>true</optional> <!-- 表示依赖不会传递 -->
         </dependency>
 
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- SpringDoc OpenAPI（替代 Springfox，支持 Spring Boot 3.x） -->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -143,6 +150,14 @@
                     <warName>${project.artifactId}</warName>
                 </configuration>
            </plugin>
+            <!-- admin 为薄 web 层（控制器装配），不参与 JaCoCo 覆盖率门槛（同 zhi-generator） -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
         <finalName>${project.artifactId}</finalName>
     </build>

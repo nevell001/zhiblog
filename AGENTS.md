@@ -482,6 +482,7 @@ The project uses `unplugin-auto-import` for Vue composition APIs:
 The project uses JaCoCo for test coverage with the following requirements:
 - **Minimum 60% line coverage** across all packages
 - **Minimum 60% branch coverage** across all packages
+- Coverage gate applies to business modules (`zhi-system`); thin bootstrap/web modules `zhi-admin` and `zhi-generator` declare `jacoco.skip=true` (they still run their tests)
 
 Run `mvn test` to verify coverage - the build will fail if thresholds are not met.
 
