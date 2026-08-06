@@ -560,6 +560,22 @@ watch(
   }
 )
 
+// 新增文章时，作者自动跟随当前登录用户（避免用户信息晚加载时留空）
+watch(
+  () => [userStore.nickName, userStore.name, userStore.userId] as const,
+  ([nickName, name, userId]) => {
+    if (!form.value.id) {
+      if (!form.value.authorName) {
+        form.value.authorName = nickName || name || ''
+      }
+      if (!form.value.authorId && userId) {
+        form.value.authorId = userId
+      }
+    }
+  },
+  { immediate: true }
+)
+
 function setEditorViewMode(mode: 'split' | 'edit' | 'preview') {
   editorViewMode.value = mode
 }
