@@ -79,9 +79,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { getStatisticsOverview, getArticleTrend, getUserActivity } from '@/api/statistics'
-import { loadEcharts } from '@/utils/echarts'
+import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
+import { useSettingsStore } from '@/stores/settings'
 import { logger } from '@/utils/logger'
 
 interface OverviewStats {
@@ -92,6 +93,11 @@ interface OverviewStats {
 }
 
 const stats = ref<OverviewStats>({})
+const settingsStore = useSettingsStore()
+const articleChart = ref<any>(null)
+const userChartRef = ref<any>(null)
+let articleTrendData: any = null
+let userActivityData: any = null
 
 const loadData = async () => {
   try {
@@ -224,12 +230,16 @@ const loadChartData = async () => {
 }
 
 const renderArticleChart = async data => {
+  articleTrendData = data
   await nextTick()
   const chartElement = document.getElementById('articleChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!articleChart.value) {
+    articleChart.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
   const option = {
     tooltip: {
       trigger: 'axis'
@@ -249,10 +259,14 @@ const renderArticleChart = async data => {
         '10月',
         '11月',
         '12月'
-      ]
+      ],
+      axisLabel: { color: colors.secondaryColor },
+      axisLine: { lineStyle: { color: colors.borderColor } }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: { color: colors.secondaryColor },
+      splitLine: { lineStyle: { color: colors.splitLineColor } }
     },
     series: [
       {
@@ -265,16 +279,20 @@ const renderArticleChart = async data => {
       }
     ]
   }
-  chart.setOption(option)
+  articleChart.value.setOption(option)
 }
 
 const renderUserChart = async data => {
+  userActivityData = data
   await nextTick()
   const chartElement = document.getElementById('userChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!userChartRef.value) {
+    userChartRef.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
   const option = {
     tooltip: {
       trigger: 'axis'
@@ -294,10 +312,14 @@ const renderUserChart = async data => {
         '10月',
         '11月',
         '12月'
-      ]
+      ],
+      axisLabel: { color: colors.secondaryColor },
+      axisLine: { lineStyle: { color: colors.borderColor } }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: { color: colors.secondaryColor },
+      splitLine: { lineStyle: { color: colors.splitLineColor } }
     },
     series: [
       {
@@ -309,8 +331,17 @@ const renderUserChart = async data => {
       }
     ]
   }
-  chart.setOption(option)
+  userChartRef.value.setOption(option)
 }
+
+// 深色模式切换时用最新主题色重绘图表
+watch(
+  () => settingsStore.isDark,
+  () => {
+    if (articleTrendData) renderArticleChart(articleTrendData)
+    if (userActivityData) renderUserChart(userActivityData)
+  }
+)
 
 onMounted(() => {
   loadData()
@@ -329,19 +360,19 @@ onMounted(() => {
 
 .stat-icon {
   font-size: 48px;
-  color: #409eff;
+  color: var(--el-color-primary);
   margin-right: 20px;
 }
 
 .stat-value {
   font-size: 28px;
   font-weight: bold;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .stat-label {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-top: 5px;
 }
 </style>

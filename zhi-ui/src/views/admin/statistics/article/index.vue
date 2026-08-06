@@ -45,9 +45,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { getArticleStatistics, getArticleCategoryDistribution, getHotTags } from '@/api/statistics'
-import { loadEcharts } from '@/utils/echarts'
+import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
+import { useSettingsStore } from '@/stores/settings'
 import { logger } from '@/utils/logger'
 
 interface ArticleStats {
@@ -57,6 +58,11 @@ interface ArticleStats {
 }
 
 const articleStats = ref<ArticleStats>({})
+const settingsStore = useSettingsStore()
+const categoryChart = ref<any>(null)
+const tagChartRef = ref<any>(null)
+let categoryData: any = null
+let tagData: any = null
 
 const loadData = async () => {
   try {
@@ -90,19 +96,25 @@ const loadChartData = async () => {
 }
 
 const renderCategoryChart = async data => {
+  categoryData = data
   await nextTick()
   const chartElement = document.getElementById('categoryChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!categoryChart.value) {
+    categoryChart.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
+      textStyle: { color: colors.textColor }
     },
     legend: {
       orient: 'vertical',
-      left: 'left'
+      left: 'left',
+      textStyle: { color: colors.secondaryColor }
     },
     series: [
       {
@@ -126,33 +138,43 @@ const renderCategoryChart = async data => {
             shadowOffsetX: 0,
             shadowColor: 'rgba(0, 0, 0, 0.5)'
           }
-        }
+        },
+        label: { color: colors.textColor }
       }
     ]
   }
-  chart.setOption(option)
+  categoryChart.value.setOption(option)
 }
 
 const renderTagsChart = async data => {
+  tagData = data
   await nextTick()
   const chartElement = document.getElementById('tagChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!tagChartRef.value) {
+    tagChartRef.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
   const option = {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'shadow'
-      }
+      },
+      textStyle: { color: colors.textColor }
     },
     xAxis: {
       type: 'category',
-      data: data.labels || ['Java', 'Spring', 'Vue', 'React', '数据库', 'Linux']
+      data: data.labels || ['Java', 'Spring', 'Vue', 'React', '数据库', 'Linux'],
+      axisLabel: { color: colors.secondaryColor },
+      axisLine: { lineStyle: { color: colors.borderColor } }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: { color: colors.secondaryColor },
+      splitLine: { lineStyle: { color: colors.splitLineColor } }
     },
     series: [
       {
@@ -164,8 +186,17 @@ const renderTagsChart = async data => {
       }
     ]
   }
-  chart.setOption(option)
+  tagChartRef.value.setOption(option)
 }
+
+// 深色模式切换时用最新主题色重绘图表
+watch(
+  () => settingsStore.isDark,
+  () => {
+    if (categoryData) renderCategoryChart(categoryData)
+    if (tagData) renderTagsChart(tagData)
+  }
+)
 
 onMounted(() => {
   loadData()
@@ -176,19 +207,19 @@ onMounted(() => {
 .stat-item {
   text-align: center;
   padding: 20px;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--el-border-color);
   border-radius: 4px;
 }
 
 .stat-title {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 10px;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 </style>

@@ -53,9 +53,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { getUserStatistics, getUserRegisterTrend, getUserRoleDistribution } from '@/api/statistics'
-import { loadEcharts } from '@/utils/echarts'
+import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
+import { useSettingsStore } from '@/stores/settings'
 import { logger } from '@/utils/logger'
 
 interface UserStats {
@@ -66,6 +67,11 @@ interface UserStats {
 }
 
 const userStats = ref<UserStats>({})
+const settingsStore = useSettingsStore()
+const registerChart = ref<any>(null)
+const roleChartRef = ref<any>(null)
+let registerData: any = null
+let roleData: any = null
 
 const loadData = async () => {
   try {
@@ -103,22 +109,31 @@ const loadChartData = async () => {
 }
 
 const renderRegisterChart = async data => {
+  registerData = data
   await nextTick()
   const chartElement = document.getElementById('registerChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!registerChart.value) {
+    registerChart.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
   const option = {
     tooltip: {
-      trigger: 'axis'
+      trigger: 'axis',
+      textStyle: { color: colors.textColor }
     },
     xAxis: {
       type: 'category',
-      data: data && data.labels ? data.labels : []
+      data: data && data.labels ? data.labels : [],
+      axisLabel: { color: colors.secondaryColor },
+      axisLine: { lineStyle: { color: colors.borderColor } }
     },
     yAxis: {
-      type: 'value'
+      type: 'value',
+      axisLabel: { color: colors.secondaryColor },
+      splitLine: { lineStyle: { color: colors.splitLineColor } }
     },
     series: [
       {
@@ -131,16 +146,20 @@ const renderRegisterChart = async data => {
       }
     ]
   }
-  chart.setOption(option)
+  registerChart.value.setOption(option)
 }
 
 const renderRoleChart = async data => {
+  roleData = data
   await nextTick()
   const chartElement = document.getElementById('roleChart')
   if (!chartElement) return
 
   const echarts = await loadEcharts()
-  const chart = echarts.init(chartElement)
+  if (!roleChartRef.value) {
+    roleChartRef.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
 
   // 处理数据
   let chartData = []
@@ -153,12 +172,14 @@ const renderRoleChart = async data => {
 
   const option = {
     tooltip: {
-      trigger: 'item'
+      trigger: 'item',
+      textStyle: { color: colors.textColor }
     },
     legend: {
       orient: 'vertical',
       right: 10,
-      top: 'center'
+      top: 'center',
+      textStyle: { color: colors.secondaryColor }
     },
     series: [
       {
@@ -189,8 +210,17 @@ const renderRoleChart = async data => {
       }
     ]
   }
-  chart.setOption(option)
+  roleChartRef.value.setOption(option)
 }
+
+// 深色模式切换时用最新主题色重绘图表
+watch(
+  () => settingsStore.isDark,
+  () => {
+    if (registerData) renderRegisterChart(registerData)
+    if (roleData) renderRoleChart(roleData)
+  }
+)
 
 onMounted(() => {
   loadData()
@@ -201,19 +231,19 @@ onMounted(() => {
 .stat-item {
   text-align: center;
   padding: 20px;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--el-border-color);
   border-radius: 4px;
 }
 
 .stat-title {
   font-size: 14px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   margin-bottom: 10px;
 }
 
 .stat-value {
   font-size: 24px;
   font-weight: bold;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 </style>
