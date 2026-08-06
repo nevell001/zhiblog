@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import {
   formatDate,
   formatTime,
@@ -21,7 +21,8 @@ import {
   makeMap,
   titleCase,
   camelCase,
-  isNumberStr
+  isNumberStr,
+  getApiBaseUrl
 } from './index'
 
 describe('Utils 工具函数测试', () => {
@@ -299,6 +300,106 @@ describe('Utils 工具函数测试', () => {
     it('应该识别数字字符串', () => {
       expect(isNumberStr('123')).toBe(true)
       expect(isNumberStr('abc')).toBe(false)
+    })
+  })
+
+  describe('getTime', () => {
+    it('start 应该返回 90 天前的时间戳', () => {
+      const result = getTime('start')
+      const expected = Date.now() - 3600 * 1000 * 24 * 90
+      expect(Math.abs((result as number) - expected)).toBeLessThan(5000)
+    })
+
+    it('end 应该返回今天的 0 点', () => {
+      const result = getTime('end') as Date
+      expect(result.getHours()).toBe(0)
+      expect(result.getMinutes()).toBe(0)
+    })
+  })
+
+  describe('debounce', () => {
+    it('非立即执行模式下应延迟调用', () => {
+      vi.useFakeTimers()
+      const fn = vi.fn()
+      const debounced = debounce(fn, 100)
+      debounced()
+      expect(fn).not.toHaveBeenCalled()
+      vi.advanceTimersByTime(120)
+      expect(fn).toHaveBeenCalledTimes(1)
+      vi.useRealTimers()
+    })
+
+    it('立即执行模式下应马上调用', () => {
+      const fn = vi.fn()
+      const debounced = debounce(fn, 100, true)
+      debounced()
+      expect(fn).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('deepClone', () => {
+    it('应深拷贝嵌套对象', () => {
+      const source = { a: 1, b: { c: 2, d: [1, 2] } }
+      const cloned = deepClone(source)
+      expect(cloned).toEqual(source)
+      expect(cloned).not.toBe(source)
+      expect(cloned.b).not.toBe(source.b)
+    })
+
+    it('非法参数应抛出异常', () => {
+      expect(() => deepClone(undefined)).toThrow('error arguments')
+    })
+  })
+
+  describe('uniqueArr', () => {
+    it('应去重数组', () => {
+      expect(uniqueArr([1, 2, 2, 3, 3, 3])).toEqual([1, 2, 3])
+    })
+  })
+
+  describe('createUniqueString', () => {
+    it('应生成非空唯一字符串', () => {
+      const s1 = createUniqueString()
+      const s2 = createUniqueString()
+      expect(s1).toBeTruthy()
+      expect(s1).not.toBe(s2)
+    })
+  })
+
+  describe('hasClass/addClass/removeClass', () => {
+    it('应添加、判断、移除 class', () => {
+      const el = document.createElement('div')
+      expect(hasClass(el, 'foo')).toBe(false)
+      addClass(el, 'foo')
+      expect(hasClass(el, 'foo')).toBe(true)
+      removeClass(el, 'foo')
+      expect(hasClass(el, 'foo')).toBe(false)
+    })
+  })
+
+  describe('makeMap', () => {
+    it('应生成映射判断函数', () => {
+      const isTag = makeMap('html,body,div')
+      expect(isTag('div')).toBe(true)
+      expect(isTag('span')).toBe(false)
+    })
+
+    it('支持忽略大小写', () => {
+      const isTag = makeMap('div', true)
+      expect(isTag('DIV')).toBe(true)
+    })
+  })
+
+  describe('titleCase', () => {
+    it('应将单词首字母大写', () => {
+      expect(titleCase('hello world')).toBe('Hello World')
+    })
+  })
+
+  describe('getApiBaseUrl', () => {
+    it('本地环境应返回 localhost:8080', () => {
+      const url = getApiBaseUrl()
+      expect(url).toContain('localhost:8080')
     })
   })
 })

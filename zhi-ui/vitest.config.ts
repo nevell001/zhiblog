@@ -55,6 +55,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/mock/**',
+        'src/utils/generator/**', // 代码生成模板字符串，无单测价值
         'src/utils/request.ts', // axios 封装
         'src/main.ts',
         // 测试文件应该被排除（本身不需要测试覆盖）
@@ -64,10 +65,10 @@ export default defineConfig({
       // Vitest 4 使用 thresholds 生效（旧式顶层字段会被忽略）
       // 分阶段目标：先让门槛真实生效，随测试补充逐步上调到 70%
       thresholds: {
-        lines: 55,
-        functions: 64,
-        branches: 40,
-        statements: 55
+        lines: 70,
+        functions: 75,
+        branches: 55,
+        statements: 70
       }
     },
     include: ['**/*.{test,spec}.{js,ts,vue}'],
