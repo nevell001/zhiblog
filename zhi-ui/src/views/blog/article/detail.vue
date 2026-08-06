@@ -196,11 +196,7 @@
                 <el-input
                   v-model="commentForm.content"
                   type="textarea"
-                  :placeholder="
-                    replyTarget
-                      ? `回复 ${replyTarget.nickname}...`
-                      : '写下你的想法...'
-                  "
+                  :placeholder="replyTarget ? `回复 ${replyTarget.nickname}...` : '写下你的想法...'"
                   :rows="3"
                   maxlength="500"
                   show-word-limit

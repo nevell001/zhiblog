@@ -148,7 +148,16 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import { useUserStore } from '@/stores/user'
 import { useSettingsStore } from '@/stores/settings'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { Setting, UserFilled, ArrowDown, User, SwitchButton, Monitor, Sunny, Moon } from '@element-plus/icons-vue'
+import {
+  Setting,
+  UserFilled,
+  ArrowDown,
+  User,
+  SwitchButton,
+  Monitor,
+  Sunny,
+  Moon
+} from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
 import { getApiBaseUrl } from '@/utils/index'
 

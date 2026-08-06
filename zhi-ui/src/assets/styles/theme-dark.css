@@ -119,7 +119,9 @@ html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper.is-focus,
 html.dark.theme-mo-blog .auth-form .el-input__wrapper.is-focus,
 html.dark.theme-mo-blog .register-form .el-input__wrapper.is-focus,
 html.dark.theme-mo-blog .login-form .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px rgba(79, 70, 229, 0.14) !important;
   border-color: var(--mo-p400) !important;
 }
 

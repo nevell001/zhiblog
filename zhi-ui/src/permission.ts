@@ -72,7 +72,8 @@ router.beforeEach(
           }
 
           // 如果后台路由还没生成，则预生成
-          const hasGeneratedRoutes = permissionStore.sidebarRouters.length > 0 || permissionStore.addRoutes.length > 0
+          const hasGeneratedRoutes =
+            permissionStore.sidebarRouters.length > 0 || permissionStore.addRoutes.length > 0
           if (!hasGeneratedRoutes && userStore.roles.length > 0) {
             try {
               const accessRoutes = await permissionStore.generateRoutes()

@@ -496,11 +496,14 @@ html.dark.theme-mo-blog .auth-switch {
 /* ===== 深色模式：使用 mo-blog.scss 全局 CSS 变量 ===== */
 
 html.dark .mo-auth-page {
-  background: radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%), var(--el-bg-color);
+  background:
+    radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%),
+    var(--el-bg-color);
 }
 
 html.dark.theme-mo-blog .mo-auth-page {
-  background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-n900);
+  background:
+    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-n900);
 }
 
 html.dark .auth-card {
@@ -603,7 +606,9 @@ html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper) {
 }
 
 html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper.is-focus) {
-  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px var(--mo-p50) !important;
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50) !important;
   border-color: var(--mo-p400) !important;
 }
 

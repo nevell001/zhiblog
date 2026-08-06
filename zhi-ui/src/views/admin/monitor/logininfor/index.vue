@@ -243,7 +243,7 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch((error) => {
+    .catch(error => {
       if (error !== 'cancel') {
         console.error('操作失败:', error)
       }
@@ -261,7 +261,7 @@ function handleClean() {
       getList()
       proxy.$modal.msgSuccess('清空成功')
     })
-    .catch((error) => {
+    .catch(error => {
       if (error !== 'cancel') {
         console.error('操作失败:', error)
       }
@@ -279,7 +279,7 @@ function handleUnlock() {
     .then(() => {
       proxy.$modal.msgSuccess('用户' + username + '解锁成功')
     })
-    .catch((error) => {
+    .catch(error => {
       if (error !== 'cancel') {
         console.error('操作失败:', error)
       }

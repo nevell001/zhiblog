@@ -148,7 +148,7 @@ function handleRegister() {
             .then(() => {
               router.push('/login')
             })
-            .catch((error) => {
+            .catch(error => {
               console.error('页面跳转失败:', error)
             })
         })

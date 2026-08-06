@@ -224,7 +224,9 @@ function closeLeftTags() {
 function closeOthersTags() {
   router
     .push({ path: selectedTag.value.path || '/', query: selectedTag.value.query })
-    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
+    .catch(error => {
+      if (error !== 'cancel') console.error('操作失败:', error)
+    })
   proxy.$tab.closeOtherPage(selectedTag.value).then(() => {
     moveToCurrentTag()
   })

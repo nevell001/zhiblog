@@ -129,15 +129,15 @@ describe('Settings Store 测试', () => {
       const store = useSettingsStore()
       // 初始应为 system
       expect(store.themeMode).toBe('system')
-      
+
       store.toggleTheme() // -> light
       expect(store.themeMode).toBe('light')
-      
+
       store.toggleTheme() // -> dark
       expect(store.themeMode).toBe('dark')
       expect(store.isDark).toBe(true)
       expect(document.documentElement.classList.contains('dark')).toBe(true)
-      
+
       store.toggleTheme() // -> system
       expect(store.themeMode).toBe('system')
     })

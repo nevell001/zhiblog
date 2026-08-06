@@ -1484,7 +1484,11 @@ html.dark.theme-mo-blog .sidebar-container .sidebar-logo {
 }
 
 html.dark.theme-mo-blog .sidebar-container .sidebar-logo-container .sidebar-logo-link,
-html.dark.theme-mo-blog .sidebar-container .sidebar-logo-container .sidebar-logo-link .sidebar-title {
+html.dark.theme-mo-blog
+  .sidebar-container
+  .sidebar-logo-container
+  .sidebar-logo-link
+  .sidebar-title {
   color: var(--mo-n100);
 }
 
@@ -1542,7 +1546,9 @@ html.dark.theme-mo-blog .el-input__wrapper {
 }
 
 html.dark.theme-mo-blog .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 1px var(--mo-p400) inset, 0 0 0 3px rgba(99, 102, 241, 0.18);
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18);
 }
 
 html.dark.theme-mo-blog .el-input__inner,
@@ -1976,7 +1982,7 @@ html.dark.theme-mo-blog .mo-auth-page label,
 html.dark.theme-mo-blog .auth-form label,
 html.dark.theme-mo-blog .register-form label,
 html.dark.theme-mo-blog .login-form label,
-html.dark.theme-mo-blog label[class*="label"] {
+html.dark.theme-mo-blog label[class*='label'] {
   color: #78716c !important;
 }
 
@@ -1993,7 +1999,9 @@ html.dark.theme-mo-blog .login-form .el-input__wrapper {
 
 html.dark.theme-mo-blog .el-input__wrapper.is-focus,
 html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper.is-focus {
-  box-shadow: 0 0 0 1px #818cf8 inset, 0 0 0 3px rgba(99, 102, 241, 0.18) !important;
+  box-shadow:
+    0 0 0 1px #818cf8 inset,
+    0 0 0 3px rgba(99, 102, 241, 0.18) !important;
   border-color: #818cf8 !important;
 }
 

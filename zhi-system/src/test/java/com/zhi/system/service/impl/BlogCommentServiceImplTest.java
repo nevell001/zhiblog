@@ -1,7 +1,11 @@
 package com.zhi.system.service.impl;
 
+import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogComment;
+import com.zhi.system.domain.BlogNotification;
 import com.zhi.system.mapper.BlogCommentMapper;
+import com.zhi.system.service.IBlogArticleService;
+import com.zhi.system.service.IBlogNotificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +32,12 @@ class BlogCommentServiceImplTest {
 
     @Mock
     private BlogCommentMapper blogCommentMapper;
+
+    @Mock
+    private IBlogArticleService blogArticleService;
+
+    @Mock
+    private IBlogNotificationService blogNotificationService;
 
     @InjectMocks
     private BlogCommentServiceImpl blogCommentService;
@@ -487,5 +497,101 @@ class BlogCommentServiceImplTest {
         // 验证结果 - 应该返回实际更新的数量
         assertEquals(1, result);
         verify(blogCommentMapper, times(3)).updateBlogComment(any(BlogComment.class));
+    }
+
+    /**
+     * 测试新增回复评论 - 生成回复通知
+     */
+    @Test
+    void testInsertBlogComment_ReplyNotification() {
+        // 准备数据
+        BlogArticle article = new BlogArticle();
+        article.setId(1L);
+        article.setTitle("测试文章");
+        article.setAuthorId(10L);
+
+        BlogComment parentComment = new BlogComment();
+        parentComment.setId(2L);
+        parentComment.setUserId(20L);
+
+        BlogComment reply = new BlogComment();
+        reply.setId(3L);
+        reply.setArticleId(1L);
+        reply.setParentId(2L);
+        reply.setUserId(1L);
+        reply.setContent("回复内容");
+        reply.setNickname("评论者");
+
+        when(blogCommentMapper.insertBlogComment(any(BlogComment.class))).thenReturn(1);
+        when(blogArticleService.selectBlogArticleById(1L)).thenReturn(article);
+        when(blogCommentMapper.selectBlogCommentById(2L)).thenReturn(parentComment);
+
+        // 执行测试
+        int result = blogCommentService.insertBlogComment(reply);
+
+        // 验证结果
+        assertEquals(1, result);
+        verify(blogNotificationService).createNotification(argThat(notification ->
+            "reply".equals(notification.getType()) && Long.valueOf(20L).equals(notification.getRecipientId())));
+    }
+
+    /**
+     * 测试给自己评论/回复 - 跳过通知
+     */
+    @Test
+    void testInsertBlogComment_SelfNotificationSkipped() {
+        // 准备数据：评论者与文章作者相同
+        BlogArticle article = new BlogArticle();
+        article.setId(1L);
+        article.setTitle("测试文章");
+        article.setAuthorId(1L);
+
+        when(blogCommentMapper.insertBlogComment(any(BlogComment.class))).thenReturn(1);
+        when(blogArticleService.selectBlogArticleById(1L)).thenReturn(article);
+
+        // 执行测试
+        int result = blogCommentService.insertBlogComment(testComment);
+
+        // 验证结果
+        assertEquals(1, result);
+        verify(blogNotificationService, never()).createNotification(any(BlogNotification.class));
+    }
+
+    /**
+     * 测试匿名用户发表超长评论 - 昵称兜底与内容截断
+     */
+    @Test
+    void testInsertBlogComment_AnonymousLongContent() {
+        // 准备数据
+        BlogArticle article = new BlogArticle();
+        article.setId(1L);
+        article.setTitle("测试文章");
+        article.setAuthorId(10L);
+
+        StringBuilder longContent = new StringBuilder();
+        for (int i = 0; i < 300; i++) {
+            longContent.append("很长很长的评论内容");
+        }
+
+        BlogComment comment = new BlogComment();
+        comment.setId(4L);
+        comment.setArticleId(1L);
+        comment.setUserId(1L);
+        comment.setContent(longContent.toString());
+        comment.setNickname(null);
+
+        when(blogCommentMapper.insertBlogComment(any(BlogComment.class))).thenReturn(1);
+        when(blogArticleService.selectBlogArticleById(1L)).thenReturn(article);
+
+        // 执行测试
+        int result = blogCommentService.insertBlogComment(comment);
+
+        // 验证结果
+        assertEquals(1, result);
+        verify(blogNotificationService).createNotification(argThat(notification ->
+            "匿名用户".equals(notification.getSenderName())
+                && notification.getContent() != null
+                && notification.getContent().length() <= 203
+                && notification.getContent().endsWith("...")));
     }
 }

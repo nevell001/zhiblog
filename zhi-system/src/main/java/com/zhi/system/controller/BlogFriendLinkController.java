@@ -40,7 +40,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 查询友情链接列表
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:list')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogFriendLink blogFriendLink)
     {
@@ -63,7 +63,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 导出友情链接列表
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:export')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:export')")
     @Log(title = "友情链接", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogFriendLink blogFriendLink)
@@ -76,7 +76,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 获取友情链接详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:query')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -86,7 +86,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 新增友情链接
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:add')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:add')")
     @Log(title = "友情链接", businessType = BusinessType.INSERT)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PostMapping
@@ -98,7 +98,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 修改友情链接
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:edit')")
     @Log(title = "友情链接", businessType = BusinessType.UPDATE)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @PutMapping
@@ -110,7 +110,7 @@ public class BlogFriendLinkController extends BaseController
     /**
      * 删除友情链接
      */
-    @PreAuthorize("@ss.hasPermi('system:friendLink:remove')")
+    @PreAuthorize("@ss.hasPermi('blog:friendLink:remove')")
     @Log(title = "友情链接", businessType = BusinessType.DELETE)
     @BlogCacheEvict(value = CacheConstants.BLOG_FRIEND_LINK_LIST)
     @DeleteMapping("/{ids}")

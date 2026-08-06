@@ -426,15 +426,15 @@ const goToHome = () => {
    Mo-Blog 主题深色模式：使用 CSS 变量 */
 
 html.dark .mo-auth-page {
-  background: #1c1917;
+  background: var(--mo-bg);
 }
 
 html.dark.theme-mo-blog .mo-auth-page {
-  background: var(--mo-bg, #1c1917);
+  background: var(--mo-bg);
 }
 
 html.dark .forgot-password-card {
-  background: #292524;
+  background: var(--mo-bg-card);
   border-color: #44403c;
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.25),
@@ -442,7 +442,7 @@ html.dark .forgot-password-card {
 }
 
 html.dark.theme-mo-blog .forgot-password-card {
-  background: var(--mo-bg-card, #292524);
+  background: var(--mo-bg-card);
   border-color: var(--mo-border, #44403c);
 }
 
@@ -472,7 +472,7 @@ html.dark.theme-mo-blog .forgot-password-footer .link:hover {
 
 /* 默认深色模式：表单输入框 */
 html.dark :deep(.el-input__wrapper) {
-  background: #292524;
+  background: var(--mo-bg-card);
   box-shadow: 0 0 0 1px #44403c inset;
 }
 

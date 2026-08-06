@@ -518,7 +518,7 @@ function handleRun(row) {
     .then(() => {
       proxy.$modal.msgSuccess('执行成功')
     })
-    .catch((error) => {
+    .catch(error => {
       if (error !== 'cancel') {
         console.error('操作失败:', error)
       }
@@ -601,7 +601,7 @@ function handleDelete(row) {
       getList()
       proxy.$modal.msgSuccess('删除成功')
     })
-    .catch((error) => {
+    .catch(error => {
       if (error !== 'cancel') {
         console.error('操作失败:', error)
       }

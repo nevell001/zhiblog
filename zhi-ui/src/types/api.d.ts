@@ -133,6 +133,14 @@ export interface ArticleDetailResponse {
   article: Article
   prevArticle?: Article | null
   nextArticle?: Article | null
+  extraInfo?: {
+    prevArticle?: Article | null
+    nextArticle?: Article | null
+    category?: {
+      id?: number
+      name?: string
+    } | null
+  } | null
 }
 
 /**

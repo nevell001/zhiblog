@@ -113,7 +113,7 @@ function setupSystemThemeListener(callback: (isDark: boolean) => void): void {
     }
 
     // 添加新的监听器
-    mediaQueryListener = function(this: MediaQueryList, ev: MediaQueryListEvent) {
+    mediaQueryListener = function (this: MediaQueryList, ev: MediaQueryListEvent) {
       callback(ev.matches)
     }
 
@@ -134,11 +134,11 @@ export const useSettingsStore = defineStore('settings', {
 
     // 如果是跟随系统模式，设置监听器
     if (themeMode === 'system') {
-      setupSystemThemeListener((systemIsDark) => {
-        this.isDark = systemIsDark
+      setupSystemThemeListener(systemIsDark => {
+        const settingsStore = useSettingsStore()
+        settingsStore.isDark = systemIsDark
         applyAdminDarkMode(systemIsDark)
       })
-
     }
 
     return {
@@ -207,7 +207,7 @@ export const useSettingsStore = defineStore('settings', {
 
       // 如果是跟随系统模式，设置监听器
       if (mode === 'system') {
-        setupSystemThemeListener((systemIsDark) => {
+        setupSystemThemeListener(systemIsDark => {
           this.isDark = systemIsDark
           applyAdminDarkMode(systemIsDark)
         })

@@ -44,7 +44,7 @@ public class BlogSettingController extends BaseController
     /**
      * 查询博客设置列表
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:list')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:list')")
     @GetMapping("/list")
     public TableDataInfo list(BlogSetting blogSetting)
     {
@@ -66,7 +66,7 @@ public class BlogSettingController extends BaseController
     /**
      * 获取博客设置详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:query')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -76,7 +76,7 @@ public class BlogSettingController extends BaseController
     /**
      * 新增博客设置
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:add')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:add')")
     @Log(title = "博客设置", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogSetting blogSetting)
@@ -87,7 +87,7 @@ public class BlogSettingController extends BaseController
     /**
      * 修改博客设置
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogSetting blogSetting)
@@ -98,7 +98,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键修改设置值
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PutMapping("/updateByKey")
     public AjaxResult updateByKey(@RequestBody BlogSetting blogSetting)
@@ -148,7 +148,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键修改设置值 (POST方法支持)
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PostMapping("/updateByKey")
     public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
@@ -198,7 +198,7 @@ public class BlogSettingController extends BaseController
     /**
      * 删除博客设置
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:remove')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:remove')")
     @Log(title = "博客设置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)

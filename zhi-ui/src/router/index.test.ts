@@ -28,7 +28,9 @@ describe('Router Index 测试', () => {
   })
 
   it('constantRoutes 应该包含前台博客路由', () => {
-    const blogRoutes = constantRoutes.filter(route => route.path.startsWith('/blog') || route.path === '/')
+    const blogRoutes = constantRoutes.filter(
+      route => route.path.startsWith('/blog') || route.path === '/'
+    )
     expect(blogRoutes.length).toBeGreaterThan(0)
   })
 

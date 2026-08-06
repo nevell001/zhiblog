@@ -63,7 +63,7 @@ export function login(
   code?: string,
   uuid?: string,
   rememberMe?: boolean
-): Promise<DataResult<LoginResponse>> {
+): Promise<LoginResponse> {
   const data: LoginData = {
     username,
     password,
@@ -119,7 +119,7 @@ export function logout(): Promise<OperResult> {
 /**
  * 获取验证码
  */
-export function getCodeImg(): Promise<DataResult<CaptchaResponse>> {
+export function getCodeImg(): Promise<CaptchaResponse> {
   return request({
     url: '/captchaImage',
     headers: {

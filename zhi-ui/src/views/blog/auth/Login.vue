@@ -504,19 +504,19 @@ html.dark .auth-visual {
 
 html.dark.theme-mo-blog .auth-wrapper,
 html.dark .auth-wrapper {
-  background: var(--mo-bg-card, #292524) !important;
+  background: var(--mo-bg-card) !important;
   box-shadow: none !important;
 }
 
 html.dark.theme-mo-blog .auth-form,
 html.dark .auth-form {
-  background-color: var(--mo-bg-card, #292524) !important;
+  background-color: var(--mo-bg-card) !important;
   color: var(--mo-n100, #f5f5f4);
 }
 
 html.dark.theme-mo-blog .auth-tabs,
 html.dark .auth-tabs {
-  background: var(--mo-n700, #292524) !important;
+  background: var(--mo-n700) !important;
 }
 
 html.dark.theme-mo-blog .tab,
@@ -526,14 +526,14 @@ html.dark .tab {
 
 html.dark.theme-mo-blog .tab.active,
 html.dark .tab.active {
-  background: var(--mo-n700, #292524) !important;
+  background: var(--mo-n700) !important;
   color: var(--mo-n100, #f5f5f4) !important;
   box-shadow: none !important;
 }
 
 html.dark.theme-mo-blog .auth-submit,
 html.dark .auth-submit {
-  background: var(--mo-p600, #4f46e5) !important;
+  background: var(--mo-p600) !important;
   color: var(--mo-n100, #f5f5f4) !important;
   border-color: transparent !important;
 }
@@ -545,9 +545,9 @@ html.dark .auth-secondary:hover {
 
 html.dark.theme-mo-blog .auth-secondary,
 html.dark .auth-secondary {
-  background: var(--mo-n700, #292524) !important;
+  background: var(--mo-n700) !important;
   color: var(--mo-n100, #f5f5f4) !important;
-  border-color: var(--mo-n700, #292524) !important;
+  border-color: var(--mo-n700) !important;
 }
 
 /* 更加激进的表单深色模式强制覆盖 */
@@ -570,7 +570,7 @@ html.dark .form-group label {
 }
 
 html.dark :deep(.el-input__wrapper) {
-  background-color: #292524 !important;
+  background-color: var(--mo-bg-card) !important;
   border: 1px solid #44403c !important;
   box-shadow: 0 0 0 1px #44403c inset !important;
 }

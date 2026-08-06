@@ -452,7 +452,8 @@ class BlogArticleServiceImplTest {
 
         // 验证结果
         verify(redisCache).incrementCacheObject("blog:article:view:1", 1);
-        verify(blogArticleMapper, never()).addViewCount(anyLong());
+        // 实现使用 Redis 缓冲并同步更新数据库，确保阅读数即时可见
+        verify(blogArticleMapper).addViewCount(1L);
     }
 
     /**
@@ -1159,5 +1160,171 @@ class BlogArticleServiceImplTest {
         assertEquals(1, result.size());
         assertNull(result.get(0));
         verify(blogArticleMapper).selectBlogArticleList(any(BlogArticle.class));
+    }
+
+    /**
+     * 测试批量更新置顶状态 - 成功
+     */
+    @Test
+    void testUpdateArticleTopStatus_Success() {
+        // 准备数据
+        when(blogArticleMapper.updateArticleTopStatus(anyList(), any())).thenReturn(2);
+
+        // 执行测试
+        int result = blogArticleService.updateArticleTopStatus(Arrays.asList(1L, 2L), 1);
+
+        // 验证结果
+        assertEquals(2, result);
+        verify(blogArticleMapper).updateArticleTopStatus(Arrays.asList(1L, 2L), 1);
+    }
+
+    /**
+     * 测试批量更新置顶状态 - 空列表
+     */
+    @Test
+    void testUpdateArticleTopStatus_Empty() {
+        // 执行测试
+        int result = blogArticleService.updateArticleTopStatus(Collections.emptyList(), 1);
+
+        // 验证结果
+        assertEquals(0, result);
+        verify(blogArticleMapper, never()).updateArticleTopStatus(anyList(), any());
+    }
+
+    /**
+     * 测试批量更新置顶状态 - null 列表
+     */
+    @Test
+    void testUpdateArticleTopStatus_Null() {
+        // 执行测试
+        int result = blogArticleService.updateArticleTopStatus(null, 1);
+
+        // 验证结果
+        assertEquals(0, result);
+        verify(blogArticleMapper, never()).updateArticleTopStatus(anyList(), any());
+    }
+
+    /**
+     * 测试批量更新推荐状态 - 成功
+     */
+    @Test
+    void testUpdateArticleRecommendStatus_Success() {
+        // 准备数据
+        when(blogArticleMapper.updateArticleRecommendStatus(anyList(), any())).thenReturn(2);
+
+        // 执行测试
+        int result = blogArticleService.updateArticleRecommendStatus(Arrays.asList(1L, 2L), 1);
+
+        // 验证结果
+        assertEquals(2, result);
+        verify(blogArticleMapper).updateArticleRecommendStatus(Arrays.asList(1L, 2L), 1);
+    }
+
+    /**
+     * 测试批量更新推荐状态 - 空列表
+     */
+    @Test
+    void testUpdateArticleRecommendStatus_Empty() {
+        // 执行测试
+        int result = blogArticleService.updateArticleRecommendStatus(Collections.emptyList(), 1);
+
+        // 验证结果
+        assertEquals(0, result);
+        verify(blogArticleMapper, never()).updateArticleRecommendStatus(anyList(), any());
+    }
+
+    /**
+     * 测试点赞文章 - 成功
+     */
+    @Test
+    void testLikeArticle_Success() {
+        // 准备数据
+        when(blogArticleMapper.likeArticle(1L)).thenReturn(1);
+
+        // 执行测试
+        int result = blogArticleService.likeArticle(1L);
+
+        // 验证结果
+        assertEquals(1, result);
+        verify(blogArticleMapper).likeArticle(1L);
+    }
+
+    /**
+     * 测试点赞文章 - null ID
+     */
+    @Test
+    void testLikeArticle_Null() {
+        // 执行测试
+        int result = blogArticleService.likeArticle(null);
+
+        // 验证结果
+        assertEquals(0, result);
+        verify(blogArticleMapper, never()).likeArticle(anyLong());
+    }
+
+    /**
+     * 测试查询相关文章 - 有同分类文章
+     */
+    @Test
+    void testSelectRelatedArticles_Success() {
+        // 准备数据
+        BlogArticle related = new BlogArticle();
+        related.setId(2L);
+        related.setTitle("相关文章");
+        when(blogArticleMapper.selectRelatedArticles(1L, 6)).thenReturn(Collections.singletonList(related));
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectRelatedArticles(1L);
+
+        // 验证结果
+        assertEquals(1, result.size());
+        verify(blogArticleMapper).selectRelatedArticles(1L, 6);
+        verify(blogArticleMapper, never()).selectHotArticles(any(BlogArticle.class));
+    }
+
+    /**
+     * 测试查询相关文章 - 无同分类文章时回退热门文章
+     */
+    @Test
+    void testSelectRelatedArticles_FallbackToHot() {
+        // 准备数据
+        when(blogArticleMapper.selectRelatedArticles(1L, 6)).thenReturn(Collections.emptyList());
+        List<BlogArticle> hot = new ArrayList<>();
+        for (long i = 0; i < 3; i++) {
+            BlogArticle article = new BlogArticle();
+            article.setId(i);
+            hot.add(article);
+        }
+        when(blogArticleMapper.selectHotArticles(any(BlogArticle.class))).thenReturn(hot);
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectRelatedArticles(1L);
+
+        // 验证结果
+        assertEquals(3, result.size());
+        verify(blogArticleMapper).selectHotArticles(any(BlogArticle.class));
+    }
+
+    /**
+     * 测试查询相关文章 - 热门文章超过6篇时截断
+     */
+    @Test
+    void testSelectRelatedArticles_FallbackToHot_Truncated() {
+        // 准备数据
+        when(blogArticleMapper.selectRelatedArticles(1L, 6)).thenReturn(null);
+        List<BlogArticle> hot = new ArrayList<>();
+        for (long i = 0; i < 8; i++) {
+            BlogArticle article = new BlogArticle();
+            article.setId(i);
+            hot.add(article);
+        }
+        when(blogArticleMapper.selectHotArticles(any(BlogArticle.class))).thenReturn(hot);
+
+        // 执行测试
+        List<BlogArticle> result = blogArticleService.selectRelatedArticles(1L);
+
+        // 验证结果
+        assertEquals(6, result.size());
+        verify(blogArticleMapper).selectHotArticles(any(BlogArticle.class));
     }
 }

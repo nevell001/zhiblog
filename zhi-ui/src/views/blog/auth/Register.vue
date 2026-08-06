@@ -523,13 +523,13 @@ onMounted(() => {
 
 :global(html.dark.theme-mo-blog .auth-card),
 :global(html.dark .auth-card) {
-  background: var(--mo-bg-card, #292524) !important;
+  background: var(--mo-bg-card) !important;
   border-color: var(--mo-border, #44403c) !important;
 }
 
 :global(html.dark.theme-mo-blog .auth-switch),
 :global(html.dark .auth-switch) {
-  background: var(--mo-n700, #292524) !important;
+  background: var(--mo-n700) !important;
 }
 
 :global(html.dark.theme-mo-blog .switch-item),
@@ -544,7 +544,7 @@ onMounted(() => {
 
 :global(html.dark.theme-mo-blog .switch-item.active),
 :global(html.dark .switch-item.active) {
-  background: var(--mo-n700, #292524) !important;
+  background: var(--mo-n700) !important;
   color: var(--mo-n100, #f5f5f4) !important;
   box-shadow: none !important;
   border-color: transparent !important;
@@ -552,7 +552,7 @@ onMounted(() => {
 
 :global(html.dark.theme-mo-blog .auth-submit),
 :global(html.dark .auth-submit) {
-  background: var(--mo-p600, #4f46e5) !important;
+  background: var(--mo-p600) !important;
   color: var(--mo-n100, #f5f5f4) !important;
   border-color: transparent !important;
 }
@@ -568,7 +568,7 @@ onMounted(() => {
 }
 
 :global(html.dark :deep(.el-input__wrapper)) {
-  background: #292524 !important;
+  background: var(--mo-bg-card) !important;
   border: 1px solid #44403c !important;
   box-shadow: 0 0 0 1px #44403c inset !important;
 }

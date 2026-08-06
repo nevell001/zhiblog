@@ -108,7 +108,10 @@
         <template #dropdown>
           <el-dropdown-menu>
             <!-- 管理员和博客用户显示管理后台入口 -->
-            <el-dropdown-item v-if="userStore.userType === '00' || userStore.userType === '01'" @click="goToAdmin">
+            <el-dropdown-item
+              v-if="userStore.userType === '00' || userStore.userType === '01'"
+              @click="goToAdmin"
+            >
               <span>管理后台</span>
             </el-dropdown-item>
             <!-- 个人中心 -->
@@ -194,7 +197,9 @@ function logout() {
         window.location.href = '/login'
       })
     })
-    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
+    .catch(error => {
+      if (error !== 'cancel') console.error('操作失败:', error)
+    })
 }
 
 const emits = defineEmits(['setLayout'])
@@ -264,7 +269,9 @@ function handleNotificationClick(item: BlogNotification) {
         item.isRead = 1
         fetchUnreadCount()
       })
-      .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
+      .catch(error => {
+        if (error !== 'cancel') console.error('操作失败:', error)
+      })
   }
 
   // 根据通知类型智能跳转
@@ -284,7 +291,9 @@ function handleMarkAllRead() {
       notificationList.value.forEach(n => (n.isRead = 1))
       fetchUnreadCount()
     })
-    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
+    .catch(error => {
+      if (error !== 'cancel') console.error('操作失败:', error)
+    })
 }
 
 function goToProfileNotifications() {

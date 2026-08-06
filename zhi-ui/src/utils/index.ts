@@ -461,9 +461,10 @@ export function getApiBaseUrl(): string {
   // 生产环境使用当前域名，假设前后端同域名不同端口
   // 如果前端是 80/443，后端通常是 8080
   // 如果前端是其他端口，使用当前域名
-  const port = window.location.port === '3000' || window.location.port === '80'
-    ? '8080'
-    : window.location.port || '80'
+  const port =
+    window.location.port === '3000' || window.location.port === '80'
+      ? '8080'
+      : window.location.port || '80'
 
   // 如果是 HTTPS，默认端口 443
   if (protocol === 'https:' && port === '80') {

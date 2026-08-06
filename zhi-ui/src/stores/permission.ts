@@ -55,6 +55,9 @@ const usePermissionStore = defineStore('permission', {
             const rdata = JSON.parse(JSON.stringify(res.data))
             const sidebarRoutes = filterAsyncRouter(sdata)
             const rewriteRoutes = filterAsyncRouter(rdata, false, true)
+            // 为所有路由生成唯一名称，使用父路由名称作为前缀避免冲突
+            generateRouteNames(sidebarRoutes)
+            generateRouteNames(rewriteRoutes)
             this.setRoutes(rewriteRoutes)
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
@@ -68,6 +71,23 @@ const usePermissionStore = defineStore('permission', {
     }
   }
 })
+
+// 根据路径生成稳定的路由名称（斜杠转下划线，子路由以父名称做前缀）
+function generateRouteNames(routes: any[], parentName = ''): void {
+  routes.forEach(route => {
+    if (route.path) {
+      const pathName = route.path.replace(/\//g, '_').replace(/^_+|_+$/g, '')
+      if (parentName) {
+        route.name = `${parentName}_${pathName}`
+      } else {
+        route.name = pathName || `route_${Date.now()}`
+      }
+    }
+    if (route.children && Array.isArray(route.children)) {
+      generateRouteNames(route.children, route.name)
+    }
+  })
+}
 
 // 遍历后台传来的路由字符串，转换为组件对象
 function filterAsyncRouter(asyncRouterMap: any[], _lastRouter = false, type = false): any[] {

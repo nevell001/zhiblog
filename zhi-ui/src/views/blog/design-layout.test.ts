@@ -149,9 +149,9 @@ describe('blog design layout guards', () => {
   })
 
   it('博客用户菜单进入管理后台应直接访问后台路由', () => {
-    expect(blogLayout).toContain("router.push('/admin')")
+    expect(blogLayout).toContain("router.push('/admin/blog/article')")
     expect(blogLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
-    expect(blogNav).toContain("router.push('/admin')")
+    expect(blogNav).toContain("router.push('/admin/blog/article')")
     expect(blogNav).not.toContain("window.location.href = '/login?redirect=/admin'")
   })
 

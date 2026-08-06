@@ -391,7 +391,9 @@ function handleDelete(row) {
       proxy.$modal.msgSuccess('删除成功')
       useDictStore().removeDict(queryParams.value.dictType)
     })
-    .catch((error) => { if (error !== 'cancel') console.error('操作失败:', error) })
+    .catch(error => {
+      if (error !== 'cancel') console.error('操作失败:', error)
+    })
 }
 
 /** 导出按钮操作 */

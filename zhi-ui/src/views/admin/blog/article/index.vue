@@ -442,7 +442,7 @@
               <el-form-item prop="authorName" class="compact-form-item">
                 <el-input
                   v-model="form.authorName"
-                  :placeholder="form.id ? '请输入作者' : '自动填充为博客设置中的作者'"
+                  :placeholder="form.id ? '文章原作者' : '自动填充为当前登录用户'"
                   readonly
                 />
               </el-form-item>
@@ -477,7 +477,6 @@ import {
   watch
 } from 'vue'
 import { useUserStore } from '@/stores/user'
-import { useBlogSettingsStore } from '@/stores/blogSettings'
 import {
   listArticle,
   getArticle,
@@ -496,8 +495,6 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
-const blogSettingsStore = useBlogSettingsStore()
-
 const articleList = ref([])
 const open = ref(false)
 const loading = ref(true)
@@ -673,7 +670,7 @@ function reset() {
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
-    authorName: blogSettingsStore.blogSettings.blog_author || userStore.name || 'admin',
+    authorName: userStore.nickName || userStore.name || '',
     status: 0, // 默认草稿状态
     isTop: 0,
     isRecommend: 0,
@@ -872,13 +869,10 @@ const submitForm = async (targetStatus?: 0 | 1) => {
         apiData.coverUrl = apiData.coverUrl || ''
 
         // 设置默认值，确保数据类型正确
-        apiData.authorId = userStore.userId || 1 // 使用当前用户ID
-        apiData.author = userStore.name || 'admin'
         apiData.isTop = apiData.isTop ? 1 : 0
         apiData.isRecommend = apiData.isRecommend ? 1 : 0
 
         // 确保所有数值字段都是Number类型
-        apiData.authorId = Number(apiData.authorId)
         apiData.isTop = Number(apiData.isTop)
         apiData.isRecommend = Number(apiData.isRecommend)
         apiData.status = Number(apiData.status)
@@ -2064,13 +2058,17 @@ html.dark .mo-editor-form :deep(.el-radio-button__inner) {
   color: var(--mo-n600);
 }
 
-html.dark .mo-editor-form :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
+html.dark
+  .mo-editor-form
+  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
   background: var(--mo-p600);
   border-color: var(--mo-p600);
   color: #fff;
 }
 
-html.dark .mo-editor-form :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner:hover) {
+html.dark
+  .mo-editor-form
+  :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner:hover) {
   background: var(--mo-p700);
   border-color: var(--mo-p700);
 }

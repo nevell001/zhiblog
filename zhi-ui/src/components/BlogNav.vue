@@ -161,7 +161,7 @@ const scrollToTop = () => {
 // 跳转到后台管理
 const goToAdmin = () => {
   closeMobileMenu()
-  router.push('/admin')
+  router.push('/admin/blog/article')
 }
 
 // 跳转到统一登录页

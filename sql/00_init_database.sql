@@ -1325,14 +1325,21 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (20010, '文章查询', 2001, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:query', '#', 'admin', NOW(), '', NULL, ''),
 (20011, '文章新增', 2001, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:add', '#', 'admin', NOW(), '', NULL, ''),
 (20012, '文章修改', 2001, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:edit', '#', 'admin', NOW(), '', NULL, ''),
-(20013, '文章删除', 2001, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:remove', '#', 'admin', NOW(), '', NULL, '');
+(20013, '文章删除', 2001, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20014, '文章导出', 2001, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:export', '#', 'admin', NOW(), '', NULL, ''),
+(20015, '文章标签查询', 2001, 6, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:list', '#', 'admin', NOW(), '', NULL, ''),
+(20016, '文章标签详情', 2001, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:query', '#', 'admin', NOW(), '', NULL, ''),
+(20017, '文章标签新增', 2001, 8, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:add', '#', 'admin', NOW(), '', NULL, ''),
+(20018, '文章标签修改', 2001, 9, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20019, '文章标签删除', 2001, 10, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 分类管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20020, '分类查询', 2002, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:query', '#', 'admin', NOW(), '', NULL, ''),
 (20021, '分类新增', 2002, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:add', '#', 'admin', NOW(), '', NULL, ''),
 (20022, '分类修改', 2002, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:edit', '#', 'admin', NOW(), '', NULL, ''),
-(20023, '分类删除', 2002, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:remove', '#', 'admin', NOW(), '', NULL, '');
+(20023, '分类删除', 2002, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20024, '分类导出', 2002, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:category:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 标签管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1345,62 +1352,77 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 -- 评论管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20040, '评论查询', 2004, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:query', '#', 'admin', NOW(), '', NULL, ''),
-(20041, '评论审核', 2004, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:approve', '#', 'admin', NOW(), '', NULL, ''),
-(20042, '评论删除', 2004, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:remove', '#', 'admin', NOW(), '', NULL, '');
+(20041, '评论审核', 2004, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:audit', '#', 'admin', NOW(), '', NULL, ''),
+(20042, '评论删除', 2004, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20043, '评论驳回', 2004, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:reject', '#', 'admin', NOW(), '', NULL, ''),
+(20044, '评论导出', 2004, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:export', '#', 'admin', NOW(), '', NULL, ''),
+(20045, '评论新增', 2004, 6, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:add', '#', 'admin', NOW(), '', NULL, ''),
+(20046, '评论修改', 2004, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:comment:edit', '#', 'admin', NOW(), '', NULL, '');
 
 -- 友链管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20060, '友链查询', 2006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:query', '#', 'admin', NOW(), '', NULL, ''),
 (20061, '友链新增', 2006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:add', '#', 'admin', NOW(), '', NULL, ''),
 (20062, '友链修改', 2006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:edit', '#', 'admin', NOW(), '', NULL, ''),
-(20063, '友链删除', 2006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:remove', '#', 'admin', NOW(), '', NULL, '');
+(20063, '友链删除', 2006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20064, '友链导出', 2006, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:friendLink:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 博客设置按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20050, '设置查询', 2005, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:query', '#', 'admin', NOW(), '', NULL, ''),
-(20051, '设置修改', 2005, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:edit', '#', 'admin', NOW(), '', NULL, '');
+(20051, '设置修改', 2005, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20052, '设置新增', 2005, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:add', '#', 'admin', NOW(), '', NULL, ''),
+(20053, '设置删除', 2005, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:setting:remove', '#', 'admin', NOW(), '', NULL, '');
 
 -- 为管理员角色分配所有博客管理按钮权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
-(1, 20010), (1, 20011), (1, 20012), (1, 20013),
+(1, 20010), (1, 20011), (1, 20012), (1, 20013), (1, 20014),
+(1, 20015), (1, 20016), (1, 20017), (1, 20018), (1, 20019),
 (1, 20020), (1, 20021), (1, 20022), (1, 20023),
+(1, 20024),
 (1, 20030), (1, 20031), (1, 20032), (1, 20033), (1, 20034),
-(1, 20040), (1, 20041), (1, 20042),
-(1, 20060), (1, 20061), (1, 20062), (1, 20063),
-(1, 20050), (1, 20051);
+(1, 20040), (1, 20041), (1, 20042), (1, 20043), (1, 20044), (1, 20045), (1, 20046),
+(1, 20060), (1, 20061), (1, 20062), (1, 20063), (1, 20064),
+(1, 20050), (1, 20051), (1, 20052), (1, 20053);
 
--- 为普通角色(role_id=2)和博客用户角色(role_id=3)分配博客管理菜单及按钮权限
+-- 为普通角色(role_id=2)分配博客管理菜单及按钮权限（内容管理员）
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 -- 博客管理主菜单和文章管理
 (2, 2000), (2, 2001),
--- 文章管理按钮权限（查询、新增、修改、删除）
-(2, 20010), (2, 20011), (2, 20012), (2, 20013),
+-- 文章管理按钮权限（查询、新增、修改、删除、导出）
+(2, 20010), (2, 20011), (2, 20012), (2, 20013), (2, 20014),
+-- 文章标签关联按钮权限
+(2, 20015), (2, 20016), (2, 20017), (2, 20018), (2, 20019),
 -- 分类管理
 (2, 2002),
--- 分类管理按钮权限
-(2, 20020), (2, 20021), (2, 20022), (2, 20023),
+-- 分类管理按钮权限（查询、新增、修改、删除、导出）
+(2, 20020), (2, 20021), (2, 20022), (2, 20023), (2, 20024),
 -- 标签管理
 (2, 2003),
 -- 标签管理按钮权限
 (2, 20030), (2, 20031), (2, 20032), (2, 20033), (2, 20034),
 -- 评论管理
 (2, 2004),
--- 评论管理按钮权限
-(2, 20040), (2, 20041), (2, 20042),
+-- 评论管理按钮权限（查询、审核、删除、驳回、导出）
+(2, 20040), (2, 20041), (2, 20042), (2, 20043), (2, 20044),
 -- 博客设置
 (2, 2005),
+-- 博客设置按钮权限（查询、修改）
+(2, 20050), (2, 20051),
 -- 友链管理
 (2, 2006),
+-- 友链管理按钮权限（查询、新增、修改、删除、导出）
+(2, 20060), (2, 20061), (2, 20062), (2, 20063), (2, 20064);
 
--- 博客用户角色(role_id=3)的权限
-(3, 2000), (3, 2001),
-(3, 20010), (3, 20011), (3, 20012), (3, 20013),
-(3, 2002),
-(3, 20020), (3, 20021), (3, 20022), (3, 20023),
-(3, 2003),
-(3, 20030), (3, 20031), (3, 20032), (3, 20033), (3, 20034),
-(3, 2004),
-(3, 20040), (3, 20041), (3, 20042);
+-- 博客用户角色(role_id=3)不分配任何后台菜单，仅通过个人中心（/user/profile）管理个人资料
+-- 历史库迁移（幂等）：清理 role_id=3 已分配的后台菜单权限
+DELETE FROM sys_role_menu WHERE role_id = 3 AND menu_id IN (2000, 2001, 2002, 2003, 2004, 2005, 2006,
+  20010, 20011, 20012, 20013, 20014, 20015, 20016, 20017, 20018, 20019,
+  20020, 20021, 20022, 20023, 20024, 20030, 20031, 20032, 20033, 20034,
+  20040, 20041, 20042, 20043, 20044, 20045, 20046);
+
+-- 历史库迁移（幂等）：评论审核权限串统一为 blog:comment:audit（旧值为 approve）
+UPDATE sys_menu SET perms = 'blog:comment:audit' WHERE menu_id = 20041 AND perms = 'blog:comment:approve';
 
 -- ========== 配置系统管理菜单 ==========
 
@@ -1641,7 +1663,10 @@ VALUES (6003, '文章统计', 5, 2, 'article', 'statistics/article/index', '', '
 -- 文章统计按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (6004, '文章统计查询', 6003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:query', '#', 'admin', NOW(), '', NULL, ''),
-(6005, '文章统计导出', 6003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:export', '#', 'admin', NOW(), '', NULL, '');
+(6005, '文章统计导出', 6003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:export', '#', 'admin', NOW(), '', NULL, ''),
+(6009, '文章趋势', 6003, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:trend', '#', 'admin', NOW(), '', NULL, ''),
+(6010, '分类分布', 6003, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:category-distribution', '#', 'admin', NOW(), '', NULL, ''),
+(6011, '热门标签', 6003, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:hot-tags', '#', 'admin', NOW(), '', NULL, '');
 
 -- 4、用户统计菜单
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1650,7 +1675,10 @@ VALUES (6006, '用户统计', 5, 3, 'user', 'statistics/user/index', '', '', 1, 
 -- 用户统计按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (6007, '用户统计查询', 6006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:query', '#', 'admin', NOW(), '', NULL, ''),
-(6008, '用户统计导出', 6006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:export', '#', 'admin', NOW(), '', NULL, '');
+(6008, '用户统计导出', 6006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:export', '#', 'admin', NOW(), '', NULL, ''),
+(6012, '用户活跃', 6006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:activity', '#', 'admin', NOW(), '', NULL, ''),
+(6013, '注册趋势', 6006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:register-trend', '#', 'admin', NOW(), '', NULL, ''),
+(6014, '角色分布', 6006, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:role-distribution', '#', 'admin', NOW(), '', NULL, '');
 
 -- ========== 为管理员角色分配系统管理、监控和工具菜单权限 ==========
 
@@ -1695,8 +1723,8 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 5),
 (1, 6001), (1, 6002),
-(1, 6003), (1, 6004), (1, 6005),
-(1, 6006), (1, 6007), (1, 6008);
+(1, 6003), (1, 6004), (1, 6005), (1, 6009), (1, 6010), (1, 6011),
+(1, 6006), (1, 6007), (1, 6008), (1, 6012), (1, 6013), (1, 6014);
 
 -- ========== 创建性能优化索引（幂等，调用前面的存储过程） ==========
 

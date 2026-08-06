@@ -25,7 +25,7 @@ describe('Permission 模块测试', () => {
 
     // 注意：实际实现目前使用了 await userStore.getInfo()，这里根据实际情况调整测试期望
     expect(blogGuardBranch).toContain('await userStore.getInfo()')
-    // expect(blogGuardBranch).not.toContain('void userStore.getInfo()') 
+    // expect(blogGuardBranch).not.toContain('void userStore.getInfo()')
     // expect(blogGuardBranch.indexOf('next()')).toBeLessThan(
     //   blogGuardBranch.indexOf('await userStore.getInfo()')
     // )
