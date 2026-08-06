@@ -6,12 +6,10 @@ import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.BlogRegisterBody;
-import com.zhi.common.core.domain.model.LoginBody;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.framework.web.service.BlogUserService;
-import com.zhi.framework.web.service.SysLoginService;
 import com.zhi.system.mapper.SysUserMapper;
 import com.zhi.system.service.IBlogEmailService;
 import com.zhi.system.service.ISysConfigService;
@@ -36,13 +34,7 @@ public class BlogAuthController extends BaseController
     private BlogUserService blogUserService;
 
     @Autowired
-    private SysLoginService loginService;
-
-    @Autowired
     private IBlogEmailService emailService;
-
-    @Autowired
-    private com.zhi.framework.web.service.TokenService tokenService;
 
     @Autowired
     private ISysUserService userService;
@@ -52,36 +44,6 @@ public class BlogAuthController extends BaseController
 
     @Autowired
     private ISysConfigService configService;
-
-    /**
-     * 博客用户登录
-     * 支持用户名或邮箱登录，仅限博客用户（user_type='01'）
-     */
-    @Anonymous
-    @PostMapping("/login")
-    public AjaxResult login(@RequestBody LoginBody loginBody)
-    {
-        logger.warn("POST /blog/auth/login 已废弃，请使用统一认证接口 /auth/login");
-        String username = loginBody.getUsername();
-        String password = loginBody.getPassword();
-
-        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password))
-        {
-            return AjaxResult.error("用户名和密码不能为空");
-        }
-
-        try
-        {
-            // 调用登录服务，返回token
-            String token = loginService.login(username, password, loginBody.getCode(), loginBody.getUuid(), loginBody.getRememberMe());
-            return AjaxResult.success("登录成功", token);
-        }
-        catch (Exception e)
-        {
-            logger.error("博客用户登录失败：username={}, error={}", username, e.getMessage());
-            return AjaxResult.error("登录失败：" + e.getMessage());
-        }
-    }
 
     /**
      * 博客用户注册
@@ -215,39 +177,4 @@ public class BlogAuthController extends BaseController
         }
     }
 
-    /**
-     * 获取当前登录用户信息
-     */
-    @GetMapping("/info")
-    public AjaxResult getInfo()
-    {
-        logger.warn("GET /blog/auth/info 已废弃，请使用统一认证接口 /auth/user/info");
-        try
-        {
-            return AjaxResult.success(getLoginUser());
-        }
-        catch (Exception e)
-        {
-            return AjaxResult.error("获取用户信息失败");
-        }
-    }
-
-    /**
-     * 用户登出
-     */
-    @PostMapping("/logout")
-    public AjaxResult logout()
-    {
-        logger.warn("POST /blog/auth/logout 已废弃，请使用统一认证接口 /auth/logout");
-        try
-        {
-            // 删除当前用户的token
-            tokenService.delLoginUser(getLoginUser().getToken());
-            return AjaxResult.success("登出成功");
-        }
-        catch (Exception e)
-        {
-            return AjaxResult.error("登出失败：" + e.getMessage());
-        }
-    }
 }

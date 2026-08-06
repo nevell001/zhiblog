@@ -424,7 +424,7 @@ Blog permissions follow `blog:entity:action` pattern:
 ### Authentication Pattern
 
 The system uses unified authentication via `UnifiedAuthController`:
-- **Single Login Endpoint**: `POST /auth/login` handles both admin and blog user authentication (legacy `POST /login` and `POST /blog/auth/login` are deprecated and pending removal)
+- **Single Login Endpoint**: `POST /auth/login` handles both admin and blog user authentication (legacy `POST /login` and `POST /blog/auth/login` were removed in v1.3.6; logout uses Spring Security's `POST /logout`)
 - **JWT Token-Based**: Returns JWT token stored in `Authorization` header
 - **User Info Endpoint**: `GET /auth/user/info` returns current user with roles
 - **Role-Based Access**: Frontend determines access level based on user roles

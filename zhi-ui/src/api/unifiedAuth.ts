@@ -25,13 +25,3 @@ export function getUserInfo(): Promise<any> {
     method: 'get'
   })
 }
-
-/**
- * 统一登出
- */
-export function logout(): Promise<any> {
-  return request({
-    url: '/auth/logout',
-    method: 'post'
-  })
-}

@@ -6,7 +6,6 @@ import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginBody;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.framework.web.service.SysLoginService;
-import com.zhi.framework.web.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +25,6 @@ public class UnifiedAuthController extends BaseController
 {
     @Autowired
     private SysLoginService loginService;
-
-    @Autowired
-    private TokenService tokenService;
 
     /**
      * 统一登录接口
@@ -115,24 +111,4 @@ public class UnifiedAuthController extends BaseController
         }
     }
 
-    /**
-     * 统一登出接口
-     */
-    @PostMapping("/logout")
-    public AjaxResult logout()
-    {
-        try
-        {
-            logger.warn("POST /auth/logout 已废弃，请使用 /logout");
-            logger.info("用户登出：username={}", getLoginUser().getUser().getUserName());
-            // 删除当前用户的token，避免登出后 token 仍可继续使用
-            tokenService.delLoginUser(getLoginUser().getToken());
-            return AjaxResult.success("登出成功");
-        }
-        catch (Exception e)
-        {
-            logger.error("登出失败：error={}", e.getMessage());
-            return AjaxResult.error("登出失败：" + e.getMessage());
-        }
-    }
 }

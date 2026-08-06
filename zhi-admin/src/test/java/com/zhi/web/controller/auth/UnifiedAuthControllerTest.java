@@ -3,7 +3,6 @@ package com.zhi.web.controller.auth;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.framework.web.service.SysLoginService;
-import com.zhi.framework.web.service.TokenService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,17 +33,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UnifiedAuthControllerTest {
 
     private SysLoginService loginService;
-    private TokenService tokenService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp() {
         loginService = mock(SysLoginService.class);
-        tokenService = mock(TokenService.class);
 
         UnifiedAuthController controller = new UnifiedAuthController();
         ReflectionTestUtils.setField(controller, "loginService", loginService);
-        ReflectionTestUtils.setField(controller, "tokenService", tokenService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -118,20 +114,4 @@ class UnifiedAuthControllerTest {
             .andExpect(jsonPath("$.code").value(401));
     }
 
-    @Test
-    void logoutShouldDeleteToken() throws Exception {
-        SysUser user = new SysUser();
-        user.setUserId(1L);
-        user.setUserName("admin");
-        LoginUser loginUser = new LoginUser(user, Collections.emptySet());
-        loginUser.setToken("token-123");
-        SecurityContextHolder.getContext().setAuthentication(
-            new UsernamePasswordAuthenticationToken(loginUser, null));
-
-        mockMvc.perform(post("/auth/logout"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.code").value(200));
-
-        verify(tokenService).delLoginUser("token-123");
-    }
 }

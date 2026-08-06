@@ -1,16 +1,6 @@
 import request from '@/utils/request'
 
 /**
- * 博客登录参数
- */
-export interface BlogLoginData {
-  username: string
-  password: string
-  code?: string
-  uuid?: string
-}
-
-/**
  * 博客注册参数
  */
 export interface BlogRegisterData {
@@ -21,21 +11,6 @@ export interface BlogRegisterData {
   emailCode: string
   code?: string
   uuid?: string
-}
-
-/**
- * 博客用户登录
- */
-export function blogLogin(data: BlogLoginData): Promise<any> {
-  return request({
-    url: '/blog/auth/login',
-    headers: {
-      isToken: false,
-      repeatSubmit: false
-    },
-    method: 'post',
-    data: data
-  })
 }
 
 /**
@@ -100,26 +75,6 @@ export function resetPassword(data: {
     },
     method: 'post',
     data: data
-  })
-}
-
-/**
- * 获取当前博客用户信息
- */
-export function getBlogUserInfo(): Promise<any> {
-  return request({
-    url: '/blog/auth/info',
-    method: 'get'
-  })
-}
-
-/**
- * 博客用户登出
- */
-export function blogLogout(): Promise<any> {
-  return request({
-    url: '/blog/auth/logout',
-    method: 'post'
   })
 }
 

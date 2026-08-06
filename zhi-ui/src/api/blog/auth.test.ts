@@ -12,27 +12,6 @@ describe('Blog Auth API 测试', () => {
     vi.clearAllMocks()
   })
 
-  describe('blogLogin', () => {
-    it('应该导出 blogLogin 函数', () => {
-      expect(authApi.blogLogin).toBeDefined()
-      expect(typeof authApi.blogLogin).toBe('function')
-    })
-
-    it('应该调用博客登录接口', () => {
-      const loginData = { username: 'test', password: 'password' }
-      authApi.blogLogin(loginData)
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/login',
-        headers: {
-          isToken: false,
-          repeatSubmit: false
-        },
-        method: 'post',
-        data: loginData
-      })
-    })
-  })
-
   describe('blogRegister', () => {
     it('应该导出 blogRegister 函数', () => {
       expect(authApi.blogRegister).toBeDefined()
@@ -122,36 +101,6 @@ describe('Blog Auth API 测试', () => {
         },
         method: 'post',
         data: resetData
-      })
-    })
-  })
-
-  describe('getBlogUserInfo', () => {
-    it('应该导出 getBlogUserInfo 函数', () => {
-      expect(authApi.getBlogUserInfo).toBeDefined()
-      expect(typeof authApi.getBlogUserInfo).toBe('function')
-    })
-
-    it('应该调用获取博客用户信息接口', () => {
-      authApi.getBlogUserInfo()
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/info',
-        method: 'get'
-      })
-    })
-  })
-
-  describe('blogLogout', () => {
-    it('应该导出 blogLogout 函数', () => {
-      expect(authApi.blogLogout).toBeDefined()
-      expect(typeof authApi.blogLogout).toBe('function')
-    })
-
-    it('应该调用博客登出接口', () => {
-      authApi.blogLogout()
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/auth/logout',
-        method: 'post'
       })
     })
   })

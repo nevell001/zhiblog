@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { unifiedLogin, getUserInfo, logout } from './unifiedAuth'
+import { unifiedLogin, getUserInfo } from './unifiedAuth'
 
 vi.mock('@/utils/request', () => ({
   request: vi.fn()
@@ -21,13 +21,6 @@ describe('UnifiedAuth API 测试', () => {
     it('应该导出 getUserInfo 函数', () => {
       expect(getUserInfo).toBeDefined()
       expect(typeof getUserInfo).toBe('function')
-    })
-  })
-
-  describe('logout', () => {
-    it('应该导出 logout 函数', () => {
-      expect(logout).toBeDefined()
-      expect(typeof logout).toBe('function')
     })
   })
 })
