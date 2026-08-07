@@ -204,6 +204,10 @@ email-code:
   ip-rate-limit: ${EMAIL_CODE_IP_RATE_LIMIT:10}
   # 开发环境是否在控制台打印验证码（不发送真实邮件）
   dev-print-code: ${EMAIL_DEV_PRINT_CODE:true}
+  # 验证码最大错误次数（达到后锁定，防止爆破）
+  max-verify-attempts: ${EMAIL_CODE_MAX_VERIFY_ATTEMPTS:5}
+  # 错误尝试锁定时间（分钟）
+  verify-lock-minutes: ${EMAIL_CODE_VERIFY_LOCK_MINUTES:5}
 
 # token配置
 token:

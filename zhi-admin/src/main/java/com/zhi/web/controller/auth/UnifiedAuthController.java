@@ -1,9 +1,11 @@
 package com.zhi.web.controller.auth;
 
+import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.core.domain.model.LoginBody;
+import com.zhi.common.enums.LimitType;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.framework.web.service.SysLoginService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ public class UnifiedAuthController extends BaseController
      * 统一登录接口
      * 支持管理员和博客用户登录
      */
+    @RateLimiter(key = "auth:login:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/login")
     public AjaxResult login(@RequestBody LoginBody loginBody)
     {

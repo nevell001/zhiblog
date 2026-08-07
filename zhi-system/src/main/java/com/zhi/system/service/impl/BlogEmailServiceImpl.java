@@ -36,6 +36,9 @@ public class BlogEmailServiceImpl implements IBlogEmailService
 
     private static final String RATE_LIMIT_IP_PREFIX = "ip:rate:limit:";
 
+    /** 验证码校验失败次数Redis键前缀 */
+    private static final String VERIFY_FAIL_PREFIX = "email:verify:fail:";
+
     @Autowired
     private BlogEmailCodeMapper emailCodeMapper;
 
@@ -191,12 +194,24 @@ public class BlogEmailServiceImpl implements IBlogEmailService
             return false;
         }
 
+        String failKey = VERIFY_FAIL_PREFIX + email + ":" + codeType;
+
+        // 已锁定，直接拒绝（防止爆破）
+        Object failCountObj = redisTemplate.opsForValue().get(failKey);
+        int failCount = failCountObj == null ? 0 : ((Number) failCountObj).intValue();
+        if (failCount >= emailCodeConfig.getMaxVerifyAttempts())
+        {
+            log.warn("验证码已锁定：email={}, type={}, failCount={}", email, codeType, failCount);
+            return false;
+        }
+
         // 查询最新的未使用验证码
         BlogEmailCode emailCode = emailCodeMapper.selectLatestUnusedCode(email, codeType);
 
         if (emailCode == null)
         {
             log.warn("验证码验证失败：未找到有效验证码 email={}, type={}", email, codeType);
+            recordVerifyFail(failKey);
             return false;
         }
 
@@ -211,14 +226,33 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         if (!code.equals(emailCode.getCode()))
         {
             log.warn("验证码验证失败：验证码错误 email={}, input={}, db={}", email, code, emailCode.getCode());
+            recordVerifyFail(failKey);
             return false;
         }
 
         // 标记为已使用
         emailCodeMapper.markCodeAsUsed(emailCode.getId(), new Date());
+        // 清除失败记录
+        redisTemplate.delete(failKey);
 
         log.info("验证码验证成功：email={}, type={}", email, codeType);
         return true;
+    }
+
+    /**
+     * 记录验证码校验失败次数，达到阈值后按锁定时长锁定
+     *
+     * @param failKey 失败计数键
+     */
+    private void recordVerifyFail(String failKey)
+    {
+        Long count = redisTemplate.opsForValue().increment(failKey);
+        boolean reached = count != null && count >= emailCodeConfig.getMaxVerifyAttempts();
+        redisTemplate.expire(failKey, reached ? emailCodeConfig.getVerifyLockMinutes() : emailCodeConfig.getExpireMinutes(), TimeUnit.MINUTES);
+        if (reached)
+        {
+            log.warn("验证码连续失败达到阈值，已锁定 {} 分钟：key={}", emailCodeConfig.getVerifyLockMinutes(), failKey);
+        }
     }
 
     /**

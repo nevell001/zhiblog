@@ -128,6 +128,7 @@ public class BlogAuthController extends BaseController
     /**
      * 重置密码
      */
+    @Anonymous
     @PostMapping("/reset-password")
     public AjaxResult resetPassword(@RequestBody Map<String, String> params)
     {

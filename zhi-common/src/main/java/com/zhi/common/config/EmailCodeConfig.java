@@ -28,6 +28,12 @@ public class EmailCodeConfig
     /** 开发环境是否在控制台打印验证码 */
     private boolean devPrintCode = true;
 
+    /** 验证码最大错误次数（达到后锁定，防止爆破） */
+    private int maxVerifyAttempts = 5;
+
+    /** 错误尝试锁定时间（分钟），默认与验证码有效期一致 */
+    private int verifyLockMinutes = 5;
+
     public int getExpireMinutes()
     {
         return expireMinutes;
@@ -76,5 +82,25 @@ public class EmailCodeConfig
     public void setDevPrintCode(boolean devPrintCode)
     {
         this.devPrintCode = devPrintCode;
+    }
+
+    public int getMaxVerifyAttempts()
+    {
+        return maxVerifyAttempts;
+    }
+
+    public void setMaxVerifyAttempts(int maxVerifyAttempts)
+    {
+        this.maxVerifyAttempts = maxVerifyAttempts;
+    }
+
+    public int getVerifyLockMinutes()
+    {
+        return verifyLockMinutes;
+    }
+
+    public void setVerifyLockMinutes(int verifyLockMinutes)
+    {
+        this.verifyLockMinutes = verifyLockMinutes;
     }
 }
