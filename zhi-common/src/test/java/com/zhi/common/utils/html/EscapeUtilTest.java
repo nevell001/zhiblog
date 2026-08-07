@@ -82,4 +82,16 @@ public class EscapeUtilTest {
         String result = EscapeUtil.clean("<p>Hello</p>");
         assertNotNull(result);
     }
+
+    @Test
+    public void testCleanDoesNotIntroduceBackslashesInAttributes() {
+        // 回归：HTMLFilter 重建属性时不得把 src="..." 输出成 src=\"..."（反斜杠引号）导致图片裂图
+        String input = "<a href=\"https://img.example.com/a.png\"><img src=\"https://img.example.com/b.png\"/></a>";
+        String cleaned = EscapeUtil.clean(input);
+        assertNotNull(cleaned);
+        // 反斜杠会打断超链接解析，必须没有反斜杠引号
+        assertFalse(cleaned.contains("\\\""));
+        assertTrue(cleaned.contains("src=\"https://img.example.com/b.png\""));
+        assertTrue(cleaned.contains("href=\"https://img.example.com/a.png\""));
+    }
 }

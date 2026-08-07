@@ -325,9 +325,40 @@ watch(
   { immediate: true }
 )
 
-// 图片粘贴处理函数
+// 上传文件到本站，返回完整访问 URL；失败返回 null
+async function uploadToBlog(file: File): Promise<string | null> {
+  const formData = new FormData()
+  formData.append('file', file)
+  try {
+    const res = await axios.post(uploadUrl.value, formData, {
+      headers: { 'Content-Type': 'multipart/form-data', Authorization: headers.value.Authorization }
+    })
+    const data = res.data
+    if (data && data.code === 200 && data.fileName) {
+      return baseApi + data.fileName
+    }
+  } catch (error) {
+    console.warn('图片上传失败:', error)
+  }
+  return null
+}
+
+// 向编辑器当前光标处插入图片/视频
+function insertEmbed(type: string, url: string) {
+  const quill = toRaw(quillEditorRef.value).getQuill()
+  if (!quill) return
+  const length = getSafeRange(quill).index
+  if (type.startsWith('image/')) {
+    quill.insertEmbed(length, 'image', url)
+  } else if (type.startsWith('video/')) {
+    quill.insertEmbed(length, 'video', url)
+  }
+  quill.setSelection(length + 1)
+  emitContent()
+}
+
+// 图片粘贴处理函数：同步返回原始 delta，不干预粘贴流程
 function handleImagePaste(_node: any, delta: any) {
-  // 处理粘贴的图片
   return delta
 }
 
@@ -433,23 +464,7 @@ function handleUploadSuccess(res, file) {
   // 如果上传成功
   if (res.code === 200) {
     // 获取富文本实例
-    const quill = toRaw(quillEditorRef.value).getQuill()
-    // 获取光标位置
-    const length = getSafeRange(quill).index
-
-    // 判断文件类型
-    const fileType = file.type
-    if (fileType.startsWith('image/')) {
-      // 插入图片
-      quill.insertEmbed(length, 'image', baseApi + res.fileName)
-    } else if (fileType.startsWith('video/')) {
-      // 插入视频
-      quill.insertEmbed(length, 'video', baseApi + res.fileName)
-    }
-
-    // 调整光标到最后
-    quill.setSelection(length + 1)
-    emitContent()
+    insertEmbed(file.type || 'image', baseApi + res.fileName)
   } else {
     ;(proxy as any).$modal.msgError('文件插入失败')
   }
@@ -470,6 +485,7 @@ function handlePasteCapture(e: any) {
         e.preventDefault()
         const file = item.getAsFile()
         insertImage(file)
+        break
       }
     }
   }
@@ -477,22 +493,20 @@ function handlePasteCapture(e: any) {
 
 async function insertImage(file: File) {
   // 前端预压缩大图片（>2MB），减少上传带宽消耗
+  let upload = file
   if (file.type.startsWith('image/') && file.size > 2 * 1024 * 1024) {
     try {
-      file = await compressImage(file, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 })
+      upload = await compressImage(file, { maxWidth: 1920, maxHeight: 1920, quality: 0.85 })
     } catch (e) {
       console.warn('图片预压缩失败，使用原始文件上传', e)
     }
   }
-  const formData = new FormData()
-  formData.append('file', file)
-  axios
-    .post(uploadUrl.value, formData, {
-      headers: { 'Content-Type': 'multipart/form-data', Authorization: headers.value.Authorization }
-    })
-    .then(res => {
-      handleUploadSuccess(res.data, file)
-    })
+  const url = await uploadToBlog(upload)
+  if (!url) {
+    ;(proxy as any).$modal.msgError('图片上传失败')
+    return
+  }
+  insertEmbed('image', url)
 }
 </script>
 

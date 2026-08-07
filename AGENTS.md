@@ -46,11 +46,11 @@ Multi-module Maven. Standard pattern: Controller → Service → Mapper (MyBatis
 - **zhi-quartz / zhi-generator** — scheduled jobs / CRUD codegen.
 - **zhi-ui** — Vue 3 + TS frontend. `views/blog/` (public), `views/admin/`, `api/blog/`, `api/system/`, `components/`, `router/`, `stores/`, `utils/`, `types/`.
 
-Front-end public blog endpoints (`BlogFrontController`, `BlogArticleController`, etc.) live in `zhi-admin/web/controller/blog/` — distinct from the admin `Blog*Controller` classes in zhi-system.
+Front-end public blog endpoints (`BlogFrontController`, `BlogArticleController`, etc.) live in `zhi-admin/src/main/java/com/zhi/web/controller/blog/` — distinct from the admin `Blog*Controller` classes in zhi-system.
 
 ## Auth
 
-Unified login via `UnifiedAuthController` (`zhi-admin/web/controller/auth/`):
+Unified login via `UnifiedAuthController` (`zhi-admin/src/main/java/com/zhi/web/controller/auth/`):
 - `POST /auth/login` — the only login endpoint for both admin and blog users (legacy `/login` and `/blog/auth/login` are gone). Logout is Spring Security's `POST /logout`.
 - `GET /auth/user/info` — current user with roles.
 - `BlogAuthController` (`/blog/auth/*`) — registration + email code + password reset only.
