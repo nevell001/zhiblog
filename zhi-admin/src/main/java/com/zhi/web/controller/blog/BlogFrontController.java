@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
+import com.zhi.common.annotation.RateLimiter;
+import com.zhi.common.enums.LimitType;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.page.TableDataInfo;
@@ -119,113 +124,83 @@ public class BlogFrontController extends BaseController
 
                 if (blogSettingList != null && !blogSettingList.isEmpty()) {
                     for (BlogSetting setting : blogSettingList) {
-                        if (setting.getSettingKey() != null) {
-                            String key = setting.getSettingKey();
-                            String value = setting.getSettingValue();
-
-                            // 处理特殊类型转换
-                            Object convertedValue = value;
-
-                            // 布尔值转换
-                            if ("true".equals(value)) {
-                                convertedValue = true;
-                            } else if ("false".equals(value)) {
-                                convertedValue = false;
-                            }
-
-                            // 头像URL特殊处理
-                            if ("blog_avatar".equals(key) && value != null && !value.isEmpty()) {
-                                // 如果是完整的HTTP URL，转换为相对路径
-                                if (value.startsWith("http")) {
-                                    try {
-                                        java.net.URL url = new java.net.URL(value);
-                                        String path = url.getPath();
-                                        if (path.startsWith("/profile/")) {
-                                            convertedValue = path; // 保留/profile/开头的相对路径
-                                        } else {
-                                            convertedValue = value; // 其他情况保持原样
-                                        }
-                                    } catch (Exception e) {
-                                        convertedValue = value; // 转换失败保持原样
-                                    }
-                                } else if (!value.startsWith("data:") && !value.startsWith("/")) {
-                                    convertedValue = "/" + value; // 添加前导斜杠
-                                }
-                            }
-
-                            settingsMap.put(key, convertedValue);
-                        }
+                        putConvertedSetting(settingsMap, setting.getSettingKey(), setting.getSettingValue());
                     }
                 }
             } else {
                 // 使用sys_config表的数据
                 for (SysConfig config : configList) {
-                    if (config.getConfigKey() != null) {
-                        String key = config.getConfigKey();
-                        String value = config.getConfigValue();
-
-                        // 处理特殊类型转换
-                        Object convertedValue = value;
-
-                        // 布尔值转换
-                        if ("true".equals(value)) {
-                            convertedValue = true;
-                        } else if ("false".equals(value)) {
-                            convertedValue = false;
-                        }
-
-                        // 头像URL特殊处理
-                        if ("blog_avatar".equals(key) && value != null && !value.isEmpty()) {
-                            // 如果是完整的HTTP URL，转换为相对路径
-                            if (value.startsWith("http")) {
-                                try {
-                                    java.net.URL url = new java.net.URL(value);
-                                    String path = url.getPath();
-                                    if (path.startsWith("/profile/")) {
-                                        convertedValue = path; // 保留/profile/开头的相对路径
-                                    } else {
-                                        convertedValue = value; // 其他情况保持原样
-                                    }
-                                } catch (Exception e) {
-                                    convertedValue = value; // 转换失败保持原样
-                                }
-                            } else if (!value.startsWith("data:") && !value.startsWith("/")) {
-                                convertedValue = "/" + value; // 添加前导斜杠
-                            }
-                        }
-
-                        settingsMap.put(key, convertedValue);
-                    }
+                    putConvertedSetting(settingsMap, config.getConfigKey(), config.getConfigValue());
                 }
             }
 
             // 确保必要的设置项都有默认值
-            setDefaultSetting(settingsMap, "blog_avatar", "");
-            setDefaultSetting(settingsMap, "github_url", "");
-            setDefaultSetting(settingsMap, "weibo_url", "");
-            setDefaultSetting(settingsMap, "wechat_qr", "");
-            setDefaultSetting(settingsMap, "blog_author", "nevell");
-            setDefaultSetting(settingsMap, "blog_name", "我的博客");
-            setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
-            setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
-            setDefaultSetting(settingsMap, "blog_email", "");
+            applyDefaultSettings(settingsMap);
 
         } catch (Exception e) {
             log.error("获取博客设置出错: {}", e.getMessage(), e);
 
             // 如果出错，返回默认设置
-            setDefaultSetting(settingsMap, "blog_avatar", "");
-            setDefaultSetting(settingsMap, "github_url", "");
-            setDefaultSetting(settingsMap, "weibo_url", "");
-            setDefaultSetting(settingsMap, "wechat_qr", "");
-            setDefaultSetting(settingsMap, "blog_author", "nevell");
-            setDefaultSetting(settingsMap, "blog_name", "我的博客");
-            setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
-            setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
-            setDefaultSetting(settingsMap, "blog_email", "");
+            applyDefaultSettings(settingsMap);
         }
 
         return success(settingsMap);
+    }
+
+    /**
+     * 将设置项做类型转换后放入Map（布尔值、头像URL特殊处理）
+     */
+    private void putConvertedSetting(Map<String, Object> settingsMap, String key, String value) {
+        if (key == null) {
+            return;
+        }
+
+        // 处理特殊类型转换
+        Object convertedValue = value;
+
+        // 布尔值转换
+        if ("true".equals(value)) {
+            convertedValue = true;
+        } else if ("false".equals(value)) {
+            convertedValue = false;
+        }
+
+        // 头像URL特殊处理
+        if ("blog_avatar".equals(key) && value != null && !value.isEmpty()) {
+            // 如果是完整的HTTP URL，转换为相对路径
+            if (value.startsWith("http")) {
+                try {
+                    java.net.URL url = new java.net.URL(value);
+                    String path = url.getPath();
+                    if (path.startsWith("/profile/")) {
+                        convertedValue = path; // 保留/profile/开头的相对路径
+                    } else {
+                        convertedValue = value; // 其他情况保持原样
+                    }
+                } catch (Exception e) {
+                    convertedValue = value; // 转换失败保持原样
+                }
+            } else if (!value.startsWith("data:") && !value.startsWith("/")) {
+                convertedValue = "/" + value; // 添加前导斜杠
+            }
+        }
+
+        settingsMap.put(key, convertedValue);
+    }
+
+    /**
+     * 确保必要的设置项都有默认值
+     */
+    private void applyDefaultSettings(Map<String, Object> settingsMap) {
+        setDefaultSetting(settingsMap, "blog_avatar", "");
+        setDefaultSetting(settingsMap, "github_url", "");
+        setDefaultSetting(settingsMap, "weibo_url", "");
+        setDefaultSetting(settingsMap, "wechat_qr", "");
+        setDefaultSetting(settingsMap, "blog_author", "nevell");
+        setDefaultSetting(settingsMap, "blog_name", "我的博客");
+        setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
+        setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
+        setDefaultSetting(settingsMap, "blog_email", "");
     }
 
     /**
@@ -235,26 +210,6 @@ public class BlogFrontController extends BaseController
         if (!settingsMap.containsKey(key) || settingsMap.get(key) == null || "".equals(settingsMap.get(key))) {
             settingsMap.put(key, defaultValue);
         }
-    }
-
-    /**
-     * 简单测试方法
-     */
-    @Anonymous
-    @GetMapping("/front-test")
-    public AjaxResult frontTest()
-    {
-        return success("BlogFrontController is working!");
-    }
-
-    /**
-     * 测试方法
-     */
-    @GetMapping("/test")
-    public AjaxResult test()
-    {
-        log.debug("test method called");
-        return success("test success");
     }
 
     /**
@@ -515,6 +470,7 @@ public class BlogFrontController extends BaseController
      * 更新文章浏览量（前台用）
      */
     @Anonymous
+    @RateLimiter(key = "blog:view:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/article/view/{id}")
     public AjaxResult addArticleView(@PathVariable("id") Long id)
     {
@@ -565,6 +521,7 @@ public class BlogFrontController extends BaseController
      * 添加评论（前台用）
      */
     @Anonymous
+    @RateLimiter(key = "blog:comment:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
@@ -669,7 +626,18 @@ public class BlogFrontController extends BaseController
     @GetMapping("/tag/{id}")
     public AjaxResult getTag(@PathVariable("id") Long id)
     {
-        return success(blogTagService.selectBlogTagById(id));
+        BlogTag tag = blogTagService.selectBlogTagById(id);
+        if (tag == null)
+        {
+            return error("标签不存在");
+        }
+        // 检查删除标记，避免泄露已删除的标签
+        Integer delFlag = tag.getDelFlag();
+        if (delFlag != null && !Integer.valueOf(0).equals(delFlag))
+        {
+            return error("标签不存在");
+        }
+        return success(tag);
     }
 
     /**
@@ -700,12 +668,24 @@ public class BlogFrontController extends BaseController
             blogUrl = "http://localhost:3000";
         }
 
+        // 从配置中读取博客标题与描述，避免硬编码
+        String blogName = blogSettingService.selectSettingValueByKey("blog_name");
+        if (blogName == null || blogName.trim().isEmpty()) {
+            blogName = "我的博客";
+        }
+        String blogDesc = blogSettingService.selectSettingValueByKey("blog_desc");
+        if (blogDesc == null || blogDesc.trim().isEmpty()) {
+            blogDesc = "这是一个基于RuoYi-Vue的博客系统";
+        }
+
+        DateTimeFormatter rfc1123 = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH);
+
         out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         out.println("<rss version=\"2.0\">");
         out.println("<channel>");
-        out.println("<title>我的博客</title>");
+        out.println("<title><![CDATA[" + blogName + "]]></title>");
         out.println("<link>" + blogUrl + "</link>");
-        out.println("<description>这是一个基于RuoYi-Vue的博客系统</description>");
+        out.println("<description><![CDATA[" + blogDesc + "]]></description>");
         out.println("<language>zh-CN</language>");
 
         // 获取最新的10篇文章
@@ -719,11 +699,17 @@ public class BlogFrontController extends BaseController
         for (BlogArticle article : articles) {
             if (count >= 10) break;
 
+            String pubDate = "";
+            if (article.getCreateTime() != null) {
+                pubDate = article.getCreateTime().toInstant().atZone(ZoneId.systemDefault())
+                    .format(rfc1123);
+            }
+
             out.println("<item>");
             out.println("<title><![CDATA[" + (article.getTitle() != null ? article.getTitle() : "") + "]]></title>");
             out.println("<link>" + blogUrl + "/blog/article/" + article.getId() + "</link>");
             out.println("<description><![CDATA[" + (article.getSummary() != null ? article.getSummary() : "") + "]]></description>");
-            out.println("<pubDate>" + (article.getCreateTime() != null ? article.getCreateTime().toString() : "") + "</pubDate>");
+            out.println("<pubDate>" + pubDate + "</pubDate>");
             out.println("<guid>" + blogUrl + "/blog/article/" + article.getId() + "</guid>");
             out.println("</item>");
 
