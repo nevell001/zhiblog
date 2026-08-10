@@ -232,6 +232,9 @@ public class BlogFrontSettingController extends BaseController {
     @Operation(summary = "根据键获取设置值")
     @GetMapping("/value/{configKey}")
     public AjaxResult getSettingValueByKey(@PathVariable("configKey") String configKey) {
+        if (!containsKey(BLOG_CONFIG_KEYS, configKey)) {
+            return AjaxResult.error("不支持的配置键");
+        }
         try {
             String configValue = configService.selectConfigByKey(configKey);
             if (StringUtils.isNotEmpty(configValue)) {
@@ -395,5 +398,12 @@ public class BlogFrontSettingController extends BaseController {
             logger.error("清除所有博客缓存失败", e);
             return AjaxResult.error("清除所有博客缓存失败: " + e.getMessage());
         }
+    }
+
+    private boolean containsKey(String[] keys, String key) {
+        if (key == null) {
+            return false;
+        }
+        return java.util.Arrays.asList(keys).contains(key);
     }
 }

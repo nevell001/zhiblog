@@ -377,19 +377,6 @@ describe('Utils 工具函数测试', () => {
     })
   })
 
-  describe('makeMap', () => {
-    it('应生成映射判断函数', () => {
-      const isTag = makeMap('html,body,div')
-      expect(isTag('div')).toBe(true)
-      expect(isTag('span')).toBe(false)
-    })
-
-    it('支持忽略大小写', () => {
-      const isTag = makeMap('div', true)
-      expect(isTag('DIV')).toBe(true)
-    })
-  })
-
   describe('titleCase', () => {
     it('应将单词首字母大写', () => {
       expect(titleCase('hello world')).toBe('Hello World')

@@ -74,6 +74,19 @@ public class BlogFrontController extends BaseController
 {
     private static final Logger log = LoggerFactory.getLogger(BlogFrontController.class);
 
+    /**
+     * 前台可匿名访问的博客配置键白名单
+     */
+    private static final String[] BLOG_CONFIG_KEYS = {
+        "blog_name", "blog_desc", "blog_author", "blog_email",
+        "blog_avatar", "blog_copyright", "blog_beian",
+        "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
+        "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
+        "friend_link_enabled",
+        "about_content",
+        "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website"
+    };
+
     public BlogFrontController() {
         log.debug("BlogFrontController initialized");
     }
@@ -124,13 +137,17 @@ public class BlogFrontController extends BaseController
 
                 if (blogSettingList != null && !blogSettingList.isEmpty()) {
                     for (BlogSetting setting : blogSettingList) {
-                        putConvertedSetting(settingsMap, setting.getSettingKey(), setting.getSettingValue());
+                        if (isBlogConfigKey(setting.getSettingKey())) {
+                            putConvertedSetting(settingsMap, setting.getSettingKey(), setting.getSettingValue());
+                        }
                     }
                 }
             } else {
-                // 使用sys_config表的数据
+                // 使用sys_config表的数据（仅白名单内的键）
                 for (SysConfig config : configList) {
-                    putConvertedSetting(settingsMap, config.getConfigKey(), config.getConfigValue());
+                    if (isBlogConfigKey(config.getConfigKey())) {
+                        putConvertedSetting(settingsMap, config.getConfigKey(), config.getConfigValue());
+                    }
                 }
             }
 
@@ -201,6 +218,21 @@ public class BlogFrontController extends BaseController
         setDefaultSetting(settingsMap, "blog_desc", "这是一个基于RuoYi-Vue的博客系统");
         setDefaultSetting(settingsMap, "author_title", "全栈开发工程师");
         setDefaultSetting(settingsMap, "blog_email", "");
+    }
+
+    /**
+     * 判断键是否在白名单内
+     */
+    private boolean isBlogConfigKey(String key) {
+        if (key == null) {
+            return false;
+        }
+        for (String configKey : BLOG_CONFIG_KEYS) {
+            if (configKey.equals(key)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

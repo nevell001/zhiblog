@@ -15,6 +15,7 @@ const mockRequest = vi.mocked(request)
 describe('Blog Setting API 测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    mockRequest.mockResolvedValue({ code: 200 })
   })
 
   it('listSetting 应调用 GET /system/setting/list', () => {
@@ -31,8 +32,8 @@ describe('Blog Setting API 测试', () => {
     )
   })
 
-  it('updateSettingValueByKey 应调用 PUT /system/setting/updateByKey', () => {
-    updateSettingValueByKey('blog_name', '知博')
+  it('updateSettingValueByKey 应调用 PUT /system/setting/updateByKey', async () => {
+    await updateSettingValueByKey('blog_name', '知博')
     expect(mockRequest).toHaveBeenCalledWith(
       expect.objectContaining({ url: '/system/setting/updateByKey', method: 'put' })
     )

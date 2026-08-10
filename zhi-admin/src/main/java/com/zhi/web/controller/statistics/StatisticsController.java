@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.core.domain.AjaxResult;
-import com.zhi.common.annotation.Anonymous;
 import com.zhi.system.service.IBlogArticleService;
 import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
@@ -45,7 +44,6 @@ public class StatisticsController {
      * 获取系统概览统计信息
      */
     @GetMapping("/overview")
-    @Anonymous
     public AjaxResult getOverview() {
         Map<String, Object> data = new HashMap<>();
 

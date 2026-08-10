@@ -14,7 +14,7 @@ const isAttr = makeMap(
     'preload,radiogroup,readonly,rel,required,reversed,rows,rowspan,sandbox,' +
     'scope,scoped,seamless,selected,shape,size,type,text,password,sizes,span,' +
     'spellcheck,src,srcdoc,srclang,srcset,start,step,style,summary,tabindex,' +
-    'target,title,type,usemap,value,width,wrap' +
+    'target,title,type,usemap,value,width,wrap,' +
     'prefix-icon'
 )
 const isNotProps = makeMap('layout,prepend,regList,tag,document,changeTag,defaultValue')

@@ -345,12 +345,12 @@ async function uploadToBlog(file: File): Promise<string | null> {
 
 // 向编辑器当前光标处插入图片/视频
 function insertEmbed(type: string, url: string) {
-  const quill = toRaw(quillEditorRef.value).getQuill()
+  const quill = getQuill()
   if (!quill) return
   const length = getSafeRange(quill).index
-  if (type.startsWith('image/')) {
+  if (type === 'image' || type.startsWith('image/')) {
     quill.insertEmbed(length, 'image', url)
-  } else if (type.startsWith('video/')) {
+  } else if (type === 'video' || type.startsWith('video/')) {
     quill.insertEmbed(length, 'video', url)
   }
   quill.setSelection(length + 1)

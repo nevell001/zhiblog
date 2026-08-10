@@ -452,8 +452,8 @@ class BlogArticleServiceImplTest {
 
         // 验证结果
         verify(redisCache).incrementCacheObject("blog:article:view:1", 1);
-        // 实现使用 Redis 缓冲并同步更新数据库，确保阅读数即时可见
-        verify(blogArticleMapper).addViewCount(1L);
+        // 浏览量仅缓冲在 Redis，由 ArticleViewSyncTask 定时批量同步数据库，避免双重计数
+        verify(blogArticleMapper, never()).addViewCount(1L);
     }
 
     /**

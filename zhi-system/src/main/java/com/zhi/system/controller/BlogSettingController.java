@@ -56,6 +56,7 @@ public class BlogSettingController extends BaseController
     /**
      * 通过设置键查询设置值
      */
+    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
     @GetMapping("/value/{settingKey}")
     public AjaxResult getSettingValueByKey(@PathVariable("settingKey") String settingKey)
     {

@@ -351,11 +351,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     @Override
     public void addViewCount(Long id) {
-        // 使用 Redis 缓冲，将浏览量增加操作放入 Redis
+        // 使用 Redis 缓冲浏览量增量，由 ArticleViewSyncTask 定时批量同步到数据库
         String key = "blog:article:view:" + id;
         redisCache.incrementCacheObject(key, 1);
-        // 同步更新数据库，确保阅读数即时可见
-        blogArticleMapper.addViewCount(id);
     }
 
     @Override
