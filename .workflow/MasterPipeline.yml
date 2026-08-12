@@ -1,0 +1,44 @@
+# ZhiBlog 主分支流水线：push 到 master 时触发，执行后端与前端全量测试构建
+version: '1.0'
+name: master-pipeline
+displayName: Master 分支测试与构建
+triggers:
+  trigger: auto
+  push:
+    branches:
+      include:
+        - master
+stages:
+  - name: backend
+    displayName: 后端编译与测试
+    strategy: naturally
+    trigger: auto
+    steps:
+      # mvn verify = 编译 + 单测 + checkstyle + JaCoCo 覆盖率门槛
+      - step: build@maven
+        name: backend_maven
+        displayName: Maven 编译与测试
+        jdkVersion: 17
+        mavenVersion: 3.9.11
+        commands:
+          - mvn -B clean verify
+        artifacts:
+          - name: BACKEND_JAR
+            path:
+              - zhi-admin/target/zhi-admin.jar
+  - name: frontend
+    displayName: 前端检查与构建
+    strategy: naturally
+    trigger: auto
+    steps:
+      # Vite 7 需要 Node >= 20.19，若平台不支持 nodeVersion 22，请在可视化编辑中选择可用版本
+      - step: build@nodejs
+        name: frontend_node
+        displayName: Node 检查与构建
+        nodeVersion: 22
+        commands:
+          - cd zhi-ui && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
+        artifacts:
+          - name: FRONTEND_DIST
+            path:
+              - zhi-ui/dist

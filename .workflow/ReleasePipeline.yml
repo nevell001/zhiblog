@@ -1,0 +1,81 @@
+# ZhiBlog 发布流水线：打 v* 开头的 tag 时触发（如 v1.3.7）
+# 当前包含构建阶段；部署阶段为骨架，配置好主机组后取消注释即可
+version: '1.0'
+name: release-pipeline
+displayName: 版本发布（tag 触发）
+triggers:
+  trigger: auto
+  push:
+    tags:
+      include:
+        - v*
+stages:
+  - name: backend
+    displayName: 后端编译与测试
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@maven
+        name: backend_maven
+        displayName: Maven 编译与测试
+        jdkVersion: 17
+        mavenVersion: 3.9.11
+        commands:
+          - mvn -B clean verify
+        artifacts:
+          - name: BACKEND_JAR
+            path:
+              - zhi-admin/target/zhi-admin.jar
+  - name: frontend
+    displayName: 前端检查与构建
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@nodejs
+        name: frontend_node
+        displayName: Node 检查与构建
+        nodeVersion: 22
+        commands:
+          - cd zhi-ui && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
+        artifacts:
+          - name: FRONTEND_DIST
+            path:
+              - zhi-ui/dist
+  # ------------------------------------------------------------------
+  # 部署骨架：开通后请在 Gitee Go 控制台创建主机组并安装 Agent，
+  # 将下方 hostGroupID 替换为真实值，并取消整段注释。
+  # 服务器密钥、R_TOKEN_SECRET、DB_PASSWORD、REDIS_PASSWORD、DRUID_PASSWORD
+  # 等敏感信息请配置在流水线参数/凭据中，不要提交到仓库。
+  # ------------------------------------------------------------------
+  # - name: deploy
+  #   displayName: 发布部署
+  #   strategy: naturally
+  #   trigger: auto
+  #   steps:
+  #     - step: publish@general_artifacts
+  #       name: publish_backend
+  #       displayName: 上传后端制品
+  #       dependArtifact: BACKEND_JAR
+  #       artifactName: zhiblog-backend
+  #       dependsOn: backend_maven
+  #     - step: publish@general_artifacts
+  #       name: publish_frontend
+  #       displayName: 上传前端制品
+  #       dependArtifact: FRONTEND_DIST
+  #       artifactName: zhiblog-frontend
+  #       dependsOn: frontend_node
+  #     - step: deploy@agent
+  #       name: deploy_agent
+  #       displayName: 主机部署
+  #       hostGroupID: your-host-group-id
+  #       deployArtifact:
+  #         - source: build
+  #           name: backend
+  #           target: ~/gitee_go/deploy/backend
+  #           dependArtifact: BACKEND_JAR
+  #         - source: build
+  #           name: frontend
+  #           target: ~/gitee_go/deploy/frontend
+  #           dependArtifact: FRONTEND_DIST
+  #       script:
+  #         - cd ~/gitee_go/deploy && docker compose -f docker-compose.prod.yml pull && docker compose -f docker-compose.prod.yml up -d

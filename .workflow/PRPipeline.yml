@@ -1,0 +1,34 @@
+# ZhiBlog Pull Request 流水线：向 master 发起 PR 时触发，执行全量测试构建
+version: '1.0'
+name: pr-pipeline
+displayName: Pull Request 测试
+triggers:
+  trigger: auto
+  pr:
+    branches:
+      include:
+        - master
+stages:
+  - name: backend
+    displayName: 后端编译与测试
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@maven
+        name: backend_maven
+        displayName: Maven 编译与测试
+        jdkVersion: 17
+        mavenVersion: 3.9.11
+        commands:
+          - mvn -B clean verify
+  - name: frontend
+    displayName: 前端检查与构建
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: build@nodejs
+        name: frontend_node
+        displayName: Node 检查与构建
+        nodeVersion: 22
+        commands:
+          - cd zhi-ui && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
