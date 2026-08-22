@@ -28,6 +28,7 @@ jobs:
         with:
           name: backend-jar
           path: zhi-admin/target/zhi-admin.jar
+          retention-days: 7
           if-no-files-found: error
 
   frontend:
@@ -46,11 +47,13 @@ jobs:
       - run: npm ci
       - run: npm run lint:check
       - run: npm run format:check
-      - run: npm run test
+      - run: npm run typecheck
+      - run: npm run test:coverage
       - run: npm run build:prod
       - name: 上传前端产物
         uses: actions/upload-artifact@v4
         with:
           name: frontend-dist
           path: zhi-ui/dist
+          retention-days: 7
           if-no-files-found: error

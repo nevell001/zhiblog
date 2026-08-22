@@ -39,4 +39,4 @@ stages:
           - wget -qO- https://cdn.npmmirror.com/binaries/node/v22.14.0/node-v22.14.0-linux-x64.tar.gz | tar -xz -C /opt || true
           - export PATH=/opt/node-v22.14.0-linux-x64/bin:$PATH
           - node -v && npm -v
-          - cd zhi-ui && npm config set registry https://registry.npmmirror.com && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
+          - cd zhi-ui && npm config set registry https://registry.npmmirror.com && npm ci && npm run lint:check && npm run format:check && npm run typecheck && npm run test:coverage && npm run build:prod

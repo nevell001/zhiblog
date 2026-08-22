@@ -14,6 +14,7 @@
     "lint:check": "eslint src",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "typecheck": "vue-tsc --noEmit",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
