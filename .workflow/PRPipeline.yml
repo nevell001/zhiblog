@@ -31,6 +31,10 @@ stages:
       - step: build@nodejs
         name: frontend_node
         displayName: Node 检查与构建
-        nodeVersion: 22
+        nodeVersion: '22'
         commands:
-          - cd zhi-ui && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
+          # Gitee Go Node 插件可能不提供 npm（nodeVersion 不受支持时），自带 Node 22.14.0 兜底
+          - wget -qO- https://cdn.npmmirror.com/binaries/node/v22.14.0/node-v22.14.0-linux-x64.tar.gz | tar -xz -C /opt || true
+          - export PATH=/opt/node-v22.14.0-linux-x64/bin:$PATH
+          - node -v && npm -v
+          - cd zhi-ui && npm config set registry https://registry.npmmirror.com && npm ci && npm run lint:check && npm run format:check && npm run test && npm run build:prod
