@@ -31,6 +31,12 @@ stages:
           - name: BACKEND_JAR
             path:
               - zhi-admin/target/zhi-admin.jar
+      - step: publish@general_artifacts
+        name: publish_backend
+        displayName: 上传后端制品
+        dependArtifact: BACKEND_JAR
+        artifactName: zhiblog-backend
+        dependsOn: backend_maven
   - name: frontend
     displayName: 前端检查与构建
     strategy: naturally
@@ -50,23 +56,17 @@ stages:
           - name: FRONTEND_DIST
             path:
               - zhi-ui/dist
-  - name: publish
-    displayName: 发布制品
-    strategy: naturally
-    trigger: auto
-    steps:
-      - step: publish@general_artifacts
-        name: publish_backend
-        displayName: 上传后端制品
-        dependArtifact: BACKEND_JAR
-        artifactName: zhiblog-backend
-        dependsOn: backend_maven
       - step: publish@general_artifacts
         name: publish_frontend
         displayName: 上传前端制品
         dependArtifact: FRONTEND_DIST
         artifactName: zhiblog-frontend
         dependsOn: frontend_node
+  - name: publish
+    displayName: 发布制品
+    strategy: naturally
+    trigger: auto
+    steps:
       - step: publish@release_artifacts
         name: publish_release
         displayName: 发布 Gitee 发行版
