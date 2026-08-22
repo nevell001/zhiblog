@@ -34,7 +34,7 @@
 
 发行版 tag：`release@gitee` 的 `tagName` 当前为 `v1.3.6`（复用触发流水线的 tag）。**每次发新版本（如 v1.3.7）时，把 `tagName`、`releaseName`、`description` 里的版本号改成对应版本**。`allowUpdate: true` 允许同 tag 重复发布时覆盖。
 
-后端构建前会校验触发 tag 与根 `pom.xml` 版本一致（`git describe --tags --exact-match HEAD` 与 `<version>` 比对），不一致直接失败。
+后端构建前会校验触发 tag 与根 `pom.xml` 版本一致（`git tag --points-at HEAD` 与 `<version>` 比对）；Gitee Go 构建容器检不出 tag 时（如手动运行）仅打印告警不阻断，GitHub 侧为严格校验。
 
 基于 release 产物的部署方式见 [docs/DEPLOYMENT_RELEASE.md](../docs/DEPLOYMENT_RELEASE.md) 和根目录 `docker-compose.release.yml`。
 
