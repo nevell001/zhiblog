@@ -1,4 +1,4 @@
-# ZhiBlog 分支流水线：push 到非 master 分支时触发，执行全量测试构建
+# ZhiBlog 分支流水线：push 到非 main 分支时触发，执行全量测试构建
 version: '1.0'
 name: branch-pipeline
 displayName: 分支测试与构建
@@ -9,7 +9,7 @@ triggers:
       include:
         - .*
       exclude:
-        - master
+        - main
 stages:
   - name: backend
     displayName: 后端编译与测试

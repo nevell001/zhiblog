@@ -1,13 +1,13 @@
-# ZhiBlog 主分支流水线：push 到 master 时触发，执行后端与前端全量测试构建
+# ZhiBlog 主分支流水线：push 到 main 时触发，执行后端与前端全量测试构建
 version: '1.0'
 name: master-pipeline
-displayName: Master 分支测试与构建
+displayName: Main 分支测试与构建
 triggers:
   trigger: auto
   push:
     branches:
       include:
-        - master
+        - main
 stages:
   - name: backend
     displayName: 后端编译与测试

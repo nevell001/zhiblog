@@ -4,9 +4,9 @@
 
 | 文件 | 触发时机 | 作用 |
 | --- | --- | --- |
-| `MasterPipeline.yml` | push 到 `master` | 后端 + 前端全量测试构建 |
-| `BranchPipeline.yml` | push 到非 `master` 分支 | 后端 + 前端全量测试构建 |
-| `PRPipeline.yml` | 向 `master` 发起 Pull Request | 后端 + 前端全量测试构建 |
+| `MasterPipeline.yml` | push 到 `main` | 后端 + 前端全量测试构建 |
+| `BranchPipeline.yml` | push 到非 `main` 分支 | 后端 + 前端全量测试构建 |
+| `PRPipeline.yml` | 向 `main` 发起 Pull Request | 后端 + 前端全量测试构建 |
 | `ReleasePipeline.yml` | 打 `v*` 开头的 tag（如 `v1.3.7`） | 全量测试构建 + 发布部署骨架 |
 
 ## 启用步骤
