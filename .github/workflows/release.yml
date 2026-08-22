@@ -1,4 +1,4 @@
-# ZhiBlog 发布流水线：打 v* 开头的 tag 时触发（如 v1.3.7），构建测试 + 部署骨架
+# ZhiBlog 发布流水线：打 v* 开头的 tag 时触发（如 v1.3.7），构建测试 + 自动创建 GitHub Release + 部署骨架
 name: Release
 
 on:
@@ -42,6 +42,33 @@ jobs:
           name: frontend-dist
           path: zhi-ui/dist
           if-no-files-found: error
+
+  publish:
+    name: 发布 GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: release/backend
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: release/frontend
+      - name: 打包前端产物
+        run: cd release/frontend && zip -qr ../frontend-dist.zip .
+      - name: 创建 GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            release/backend/zhi-admin.jar \
+            release/frontend-dist.zip \
+            --title "ZhiBlog ${GITHUB_REF_NAME}" \
+            --notes "ZhiBlog ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。"
 
   # ------------------------------------------------------------------
   # 部署骨架：在 GitHub 仓库 Settings -> Secrets and variables 配置

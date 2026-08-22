@@ -7,7 +7,7 @@
 | `MasterPipeline.yml` | push 到 `main` | 后端 + 前端全量测试构建 |
 | `BranchPipeline.yml` | push 到非 `main` 分支 | 后端 + 前端全量测试构建 |
 | `PRPipeline.yml` | 向 `main` 发起 Pull Request | 后端 + 前端全量测试构建 |
-| `ReleasePipeline.yml` | 打 `v*` 开头的 tag（如 `v1.3.7`） | 全量测试构建 + 发布部署骨架 |
+| `ReleasePipeline.yml` | 打 `v*` 开头的 tag（如 `v1.3.7`） | 全量测试构建 + 上传制品 + 发布 Gitee 发行版（部署骨架） |
 
 ## 启用步骤
 
@@ -26,7 +26,15 @@
 
 ## 发布部署（ReleasePipeline）
 
-当前 `ReleasePipeline.yml` 的部署阶段是注释掉的骨架，配置方式：
+`ReleasePipeline.yml` 包含构建、发布、部署（骨架）三个阶段：
+
+- 构建：后端 `mvn verify` + 前端 lint/format/test/build，与 CI 一致。
+- 发布：`publish@general_artifacts` 把后端 jar 和前端 dist 上传到制品库，`publish@release_artifacts` 发布 Gitee 发行版（当前挂载后端 `zhi-admin.jar`）。
+- 部署：注释掉的骨架，配置方式见下。
+
+发行版版本号：`publish@release_artifacts` 的 `version` 字段当前为 `1.3.6.0`，发布时会自动打 `v1.3.6.x` 格式的 tag 并自增第四位。**每次发新版本（如 v1.3.7）时，把 `version` 改成 `1.3.7.0`**，并同步检查触发器的 `exclude: v1.3.6.*` 是否需要更新（该排除规则用于避免发行版插件自动打的 tag 重新触发流水线造成死循环）。
+
+部署阶段（骨架）配置方式：
 
 1. 在 Gitee Go 控制台创建「主机组」并在目标服务器安装 Agent，拿到 `hostGroupID`。
 2. 取消 `ReleasePipeline.yml` 中 deploy 阶段的注释，把 `hostGroupID` 换成真实值。

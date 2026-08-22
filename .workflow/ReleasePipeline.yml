@@ -1,5 +1,5 @@
 # ZhiBlog 发布流水线：打 v* 开头的 tag 时触发（如 v1.3.7）
-# 当前包含构建阶段；部署阶段为骨架，配置好主机组后取消注释即可
+# 构建测试 + 上传制品 + 发布 Gitee 发行版；部署阶段为骨架，配置好主机组后取消注释即可
 version: '1.0'
 name: release-pipeline
 displayName: 版本发布（tag 触发）
@@ -9,6 +9,9 @@ triggers:
     tags:
       include:
         - v*
+      # 排除发行版插件自动打的 v{version} tag（如 v1.3.6.0），避免流水线被自身触发死循环
+      exclude:
+        - v1.3.6.*
 stages:
   - name: backend
     displayName: 后端编译与测试
@@ -47,6 +50,30 @@ stages:
           - name: FRONTEND_DIST
             path:
               - zhi-ui/dist
+  - name: publish
+    displayName: 发布制品
+    strategy: naturally
+    trigger: auto
+    steps:
+      - step: publish@general_artifacts
+        name: publish_backend
+        displayName: 上传后端制品
+        dependArtifact: BACKEND_JAR
+        artifactName: zhiblog-backend
+        dependsOn: backend_maven
+      - step: publish@general_artifacts
+        name: publish_frontend
+        displayName: 上传前端制品
+        dependArtifact: FRONTEND_DIST
+        artifactName: zhiblog-frontend
+        dependsOn: frontend_node
+      - step: publish@release_artifacts
+        name: publish_release
+        displayName: 发布 Gitee 发行版
+        # 发行版目前挂载后端 jar（zhi-admin.jar），前端 dist 保留在制品库
+        dependArtifact: zhiblog-backend
+        version: '1.3.6.0'
+        autoIncrement: true
   # ------------------------------------------------------------------
   # 部署骨架：开通后请在 Gitee Go 控制台创建主机组并安装 Agent，
   # 将下方 hostGroupID 替换为真实值，并取消整段注释。

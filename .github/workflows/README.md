@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | Gitee Go | `.workflow/*.yml` | Gitee 侧流水线，由 Gitee Go 执行 |
 | GitHub Actions | `.github/workflows/ci.yml` | push / PR 触发，后端 `mvn verify` + 前端 lint/format/test/build |
-| GitHub Actions | `.github/workflows/release.yml` | 打 `v*` tag 触发，测试构建 + 部署骨架 |
+| GitHub Actions | `.github/workflows/release.yml` | 打 `v*` tag 触发，测试构建 + 自动创建 GitHub Release（附构建产物）+ 部署骨架 |
 
 ## 与 Gitee Go 的差异
 
@@ -16,6 +16,8 @@
 - GitHub Actions 免费额度：公开仓库不限时长，私有仓库每月 2000 分钟。
 
 ## 发布部署
+
+打 `v*` tag 时，`release.yml` 除了构建测试，还会用 `gh release create` 自动创建 GitHub Release，并附上 `zhi-admin.jar` 与打包好的 `frontend-dist.zip`（`publish` job，需要 `contents: write` 权限，使用内置 `GITHUB_TOKEN`）。该自动发布只对后续新打的 tag 生效。
 
 `release.yml` 里的 `deploy` job 是注释掉的骨架。启用步骤：
 
