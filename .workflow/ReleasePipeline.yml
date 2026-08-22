@@ -33,7 +33,7 @@ stages:
           - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar
           # 与 GitHub 保持一致：部署配套打包为 zip（sql / nginx / .env 示例 / 部署指南）
           - (command -v zip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq zip; }) || true
-          - mkdir -p deploy-assets && cp sql/00_init_database.sql zhi-ui/nginx.conf .env.example docs/DEPLOYMENT_RELEASE.md deploy-assets/ && cd deploy-assets && zip -qr ../deploy-assets.zip . && cd ..
+          - mkdir -p deploy-assets && cp sql/00_init_database.sql zhi-ui/nginx.conf zhi-ui/nginx-https.conf .env.example docs/DEPLOYMENT_RELEASE.md deploy-assets/ && cp -r prometheus grafana deploy-assets/ && cd deploy-assets && zip -qr ../deploy-assets.zip . && cd ..
         artifacts:
           - name: BACKEND_JAR
             path:

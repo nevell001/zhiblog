@@ -29,7 +29,7 @@
 `ReleasePipeline.yml` 包含构建、发布、部署（骨架）三个阶段：
 
 - 构建：后端 `mvn verify` + 前端 lint/format/test/build，与 CI 一致。
-- 发布：`publish@general_artifacts` 把后端 jar 和前端 dist 上传到制品库；`release@gitee` 插件自动创建仓库「发行版」（复用 `tagName` 指定的 tag，附件为后端 jar + `frontend-dist.zip` + `deploy-assets.zip`（内含 sql / nginx / .env 示例 / 部署指南），与 GitHub Release 保持一致）。
+- 发布：`publish@general_artifacts` 把后端 jar 和前端 dist 上传到制品库；`release@gitee` 插件自动创建仓库「发行版」（复用 `tagName` 指定的 tag，附件为后端 jar + `frontend-dist.zip` + `deploy-assets.zip`（内含 sql / nginx HTTP+HTTPS 配置 / .env 示例 / 部署指南 / prometheus / grafana 配置），与 GitHub Release 保持一致）。
 - 部署：注释掉的骨架，配置方式见下。
 
 发行版 tag：`release@gitee` 的 `tagName` 当前为 `v1.3.6`（复用触发流水线的 tag）。**每次发新版本（如 v1.3.7）时，把 `tagName`、`releaseName`、`description` 里的版本号改成对应版本**。`allowUpdate: true` 允许同 tag 重复发布时覆盖。

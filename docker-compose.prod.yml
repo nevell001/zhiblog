@@ -155,6 +155,8 @@ services:
     volumes:
       - ./zhi-ui/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ./zhi-ui/ssl:/etc/nginx/ssl:ro  # SSL证书目录
+      # 启用 HTTPS：把上面 default.conf 的挂载换成 ./zhi-ui/nginx-https.conf，
+      # 并在 zhi-ui/ssl/ 放置 fullchain.pem 与 privkey.pem（见 zhi-ui/nginx-https.conf 注释）
     deploy:
       resources:
         limits:

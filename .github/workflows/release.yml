@@ -53,8 +53,11 @@ jobs:
           mkdir -p deploy-assets
           cp sql/00_init_database.sql deploy-assets/
           cp zhi-ui/nginx.conf deploy-assets/
+          cp zhi-ui/nginx-https.conf deploy-assets/
           cp .env.example deploy-assets/
           cp docs/DEPLOYMENT_RELEASE.md deploy-assets/
+          cp -r prometheus deploy-assets/
+          cp -r grafana deploy-assets/
           cd deploy-assets && zip -qr ../deploy-assets.zip .
       - name: 上传部署配套
         uses: actions/upload-artifact@v4

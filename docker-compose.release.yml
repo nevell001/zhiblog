@@ -114,6 +114,7 @@ services:
     container_name: zhi-ui
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       zhi-admin:
         condition: service_healthy
@@ -122,6 +123,7 @@ services:
     volumes:
       - ./deploy/frontend-dist:/usr/share/nginx/html:ro
       - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/ssl:/etc/nginx/ssl:ro  # HTTPS 证书目录（启用 HTTPS 时放入 fullchain.pem/privkey.pem 并把挂载换成 nginx-https.conf）
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
       interval: 30s
@@ -132,9 +134,71 @@ services:
       - zhi-network
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    container_name: prometheus
+    restart: always
+    ports:
+      - "127.0.0.1:9090:9090"  # 仅本地访问，安全考虑
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - zhi-network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+
+  grafana:
+    image: grafana/grafana:11.3.1
+    container_name: grafana
+    restart: always
+    ports:
+      - "127.0.0.1:3001:3000"  # 仅本地访问，安全考虑
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GF_SECURITY_ADMIN_USER:-admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GF_SECURITY_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_PROVISIONING_ENABLED: "true"
+      GF_INSTALL_PLUGINS: ""
+    depends_on:
+      - prometheus
+    networks:
+      - zhi-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
 volumes:
   mysql_data:
   redis_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   zhi-network:
