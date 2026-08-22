@@ -29,10 +29,12 @@ stages:
           # 校验 tag 与 pom 版本一致；Gitee Go 构建容器可能检不出 tag（如手动运行），此时仅告警不阻断
           - TAG_VERSION=$(git tag --points-at HEAD 2>/dev/null | head -1 | sed 's/^v//'); if [ -n "$TAG_VERSION" ]; then POM_VERSION=$(grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/'); echo "tag=$TAG_VERSION pom=$POM_VERSION"; [ "$TAG_VERSION" = "$POM_VERSION" ] || { echo "tag 与 pom 版本不一致"; exit 1; }; else echo "未检出 tag，跳过版本校验"; fi
           - mvn -B clean verify
+          # 复制 jar 到仓库根目录，release@gitee 插件按该相对路径下载/挂载附件
+          - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar
         artifacts:
           - name: BACKEND_JAR
             path:
-              - zhi-admin/target/zhi-admin.jar
+              - zhi-admin.jar
       - step: publish@general_artifacts
         name: publish_backend
         displayName: 上传后端制品
@@ -79,7 +81,7 @@ stages:
         upstreamArtifact:
           - BACKEND_JAR
         assertFiles:
-          - zhi-admin/target/zhi-admin.jar
+          - zhi-admin.jar
           - sql/00_init_database.sql
           - zhi-ui/nginx.conf
           - .env.example
