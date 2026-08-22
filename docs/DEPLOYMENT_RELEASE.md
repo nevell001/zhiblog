@@ -80,3 +80,4 @@ MySQL/Redis 数据卷和 `uploadPath/` 会保留。
 - MySQL 初始化脚本只在数据卷首次创建时执行，已有数据卷不会重复建库；如需重置请先备份并删除 `mysql_data` 卷。
 - 编排只开放 HTTP 80；需要 HTTPS 时自行扩展 nginx 配置并挂载证书。
 - 监控（Prometheus/Grafana）未包含在 release 编排中，需要时参考 `docker-compose.prod.yml` 追加。
+- Gitee 发行版同 tag 重跑会更新/追加附件但不会删除旧附件；变更附件清单后需在发行版编辑页手动清理，或删除该发行版（保留 tag）后重跑重建。
