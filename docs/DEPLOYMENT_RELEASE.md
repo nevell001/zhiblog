@@ -10,7 +10,7 @@
 | 附件 | 说明 |
 | --- | --- |
 | `zhi-admin.jar` | 后端可执行包（含 common/framework/system/quartz/generator 全部模块） |
-| `frontend-dist.zip` | 前端构建产物（解压后 `index.html` 在根目录） |
+| `frontend-dist.zip`（GitHub）/ `frontend-dist.tar.gz`（Gitee） | 前端构建产物（解压后 `index.html` 在根目录） |
 | `deploy-assets.zip` | 部署配套：数据库脚本、nginx 配置、`.env` 示例、本指南 |
 
 ## 2. 整理目录
@@ -19,6 +19,7 @@
 mkdir -p deploy/sql uploadPath
 mv zhi-admin.jar deploy/
 unzip frontend-dist.zip -d deploy/frontend-dist
+# Gitee 发行版为 frontend-dist.tar.gz 时用：mkdir -p deploy/frontend-dist && tar -xzf frontend-dist.tar.gz -C deploy/frontend-dist
 unzip deploy-assets.zip -d deploy/tmp
 mv deploy/tmp/00_init_database.sql deploy/sql/
 mv deploy/tmp/nginx.conf deploy/

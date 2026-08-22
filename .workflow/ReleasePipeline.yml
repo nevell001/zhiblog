@@ -56,10 +56,15 @@ stages:
           - export PATH=/opt/node-v22.14.0-linux-x64/bin:$PATH
           - node -v && npm -v
           - cd zhi-ui && npm config set registry https://registry.npmmirror.com && npm ci && npm run lint:check && npm run format:check && npm run typecheck && npm run test:coverage && npm run build:prod
+          # 打包前端产物，release@gitee 按相对路径下载/挂载附件
+          - cd zhi-ui && tar -czf ../frontend-dist.tar.gz dist
         artifacts:
           - name: FRONTEND_DIST
             path:
               - zhi-ui/dist
+          - name: FRONTEND_DIST_PACKAGE
+            path:
+              - frontend-dist.tar.gz
       - step: publish@general_artifacts
         name: publish_frontend
         displayName: 上传前端制品
@@ -80,8 +85,10 @@ stages:
         tagName: v1.3.6
         upstreamArtifact:
           - BACKEND_JAR
+          - FRONTEND_DIST_PACKAGE
         assertFiles:
           - zhi-admin.jar
+          - frontend-dist.tar.gz
           - sql/00_init_database.sql
           - zhi-ui/nginx.conf
           - .env.example
