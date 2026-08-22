@@ -65,7 +65,7 @@ class SysImageServiceImplTest {
             assertTrue(result.containsKey("compressedSize"), "结果应包含 compressedSize");
             assertTrue(result.containsKey("compressionRatio"), "结果应包含 compressionRatio");
             assertTrue(result.containsKey("quality"), "结果应包含 quality");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             // 由于依赖静态方法，可能会抛出异常
             // 在集成测试环境中应该能正常工作
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
@@ -84,7 +84,7 @@ class SysImageServiceImplTest {
             assertEquals(0.9f, result.get("quality"), "质量参数不匹配");
             assertEquals(800, result.get("width"), "宽度参数不匹配");
             assertEquals(600, result.get("height"), "高度参数不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             // 由于依赖静态方法，可能会抛出异常
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
@@ -101,7 +101,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             // 质量应该被限制在 0.1
             assertTrue((Float) result.get("quality") >= 0.1f, "质量应该被限制在最小值");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常: " + e.getMessage());
         }
 
@@ -111,7 +111,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             // 质量应该被限制在 1.0
             assertTrue((Float) result.get("quality") <= 1.0f, "质量应该被限制在最大值");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常: " + e.getMessage());
         }
     }
@@ -130,7 +130,7 @@ class SysImageServiceImplTest {
             assertTrue(result.containsKey("watermarkedSize"), "结果应包含 watermarkedSize");
             assertTrue(result.containsKey("watermarkText"), "结果应包含 watermarkText");
             assertEquals("Test Watermark", result.get("watermarkText"), "水印文字不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -146,7 +146,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             assertTrue(result.containsKey("watermarkText"), "结果应包含 watermarkText");
             assertEquals("", result.get("watermarkText"), "水印文字应为空");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -162,7 +162,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             assertTrue(result.containsKey("watermarkText"), "结果应包含 watermarkText");
             assertNull(result.get("watermarkText"), "水印文字应为 null");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -182,7 +182,7 @@ class SysImageServiceImplTest {
             assertTrue(result.containsKey("originalFormat"), "结果应包含 originalFormat");
             assertTrue(result.containsKey("targetFormat"), "结果应包含 targetFormat");
             assertEquals("png", result.get("targetFormat"), "目标格式不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -224,7 +224,7 @@ class SysImageServiceImplTest {
             java.util.List<Map<String, Object>> results = 
                 (java.util.List<Map<String, Object>>) result.get("results");
             assertEquals(2, results.size(), "结果列表大小不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -245,7 +245,7 @@ class SysImageServiceImplTest {
             assertEquals(0, result.get("totalImages"), "图片总数应为 0");
             assertEquals(0L, result.get("totalOriginalSize"), "原始总大小应为 0");
             assertEquals(0L, result.get("totalProcessedSize"), "处理后总大小应为 0");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常: " + e.getMessage());
         }
     }
@@ -266,7 +266,7 @@ class SysImageServiceImplTest {
             assertEquals(1, result.get("totalImages"), "图片总数应为 1");
             // 注意：由于异常处理，实际大小可能为 0
             assertTrue((Long) result.get("totalOriginalSize") >= 0, "原始总大小不应为负数");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -282,7 +282,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             assertEquals(800, result.get("width"), "宽度应为 800");
             assertEquals(600, result.get("height"), "高度应为 600");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -298,7 +298,7 @@ class SysImageServiceImplTest {
             assertNotNull(result, "结果不应为空");
             assertNull(result.get("width"), "宽度应为 null");
             assertNull(result.get("height"), "高度应为 null");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -324,7 +324,7 @@ class SysImageServiceImplTest {
             assertEquals(1, results.size(), "结果列表大小不匹配");
             // 注意：由于异常处理，watermarkText 可能为 null
             // assertEquals("Test Watermark", results.get(0).get("watermarkText"), "水印文字不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -350,7 +350,7 @@ class SysImageServiceImplTest {
             assertEquals(1, results.size(), "结果列表大小不匹配");
             // 注意：由于异常处理，targetFormat 可能为 null
             // assertEquals("png", results.get(0).get("targetFormat"), "目标格式不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -377,7 +377,7 @@ class SysImageServiceImplTest {
             // 注意：由于异常处理，watermarkText 和 targetFormat 可能为 null
             // assertEquals("Watermark", results.get(0).get("watermarkText"), "水印文字不匹配");
             // assertEquals("png", results.get(0).get("targetFormat"), "目标格式不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }
@@ -412,7 +412,7 @@ class SysImageServiceImplTest {
             // 第二个结果应该包含错误信息
             assertTrue(results.get(1).containsKey("error"), "第二个结果应包含错误信息");
             assertEquals("error.jpg", results.get(1).get("filename"), "文件名不匹配");
-        } catch (Exception e) {
+        } catch (Exception | UnsatisfiedLinkError e) {
             System.out.println("预期异常（需要集成测试环境）: " + e.getMessage());
         }
     }

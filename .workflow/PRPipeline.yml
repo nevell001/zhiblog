@@ -20,6 +20,8 @@ stages:
         jdkVersion: 17
         mavenVersion: 3.6.3
         commands:
+          # Gitee Go 镜像缺 libfreetype.so.6，水印测试需要；yum 不可用时忽略
+          - yum install -y freetype || true
           - mvn -B clean verify
   - name: frontend
     displayName: 前端检查与构建

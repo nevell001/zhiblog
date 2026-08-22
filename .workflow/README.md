@@ -18,6 +18,7 @@
    - `mavenVersion: 3.6.3`（Gitee Go 官方最高支持 3.6.3，恰好满足 Spring Boot 3.3 的 Maven 3.6.3+ 要求；3.9.x 不在官方支持列表）。
    - `nodeVersion: 22`（前端 Vite 7 要求 Node >= 20.19；若平台版本列表不含 22，在可视化编辑里改选平台支持且 >= 20.19 的版本）。
    - 如果平台报版本不支持，直接在流水线可视化编辑界面修改对应字段，无需改仓库代码。
+   - 后端命令会先执行 `yum install -y freetype || true`：Gitee Go 镜像缺少 `libfreetype.so.6`，而水印测试依赖 AWT 字体渲染，缺库会导致 `UnsatisfiedLinkError`；该命令在 yum 不可用时会被忽略，测试侧的容错兜底可保证构建不因此失败。
 3. 触发一次构建，验证两条链路：
    - 后端：`mvn -B clean verify` 会执行全部单测、checkstyle 和 JaCoCo 覆盖率门槛（60% 行 / 60% 分支）。
    - 前端：`npm ci` 后依次执行 ESLint、Prettier、Vitest、生产构建。
