@@ -78,6 +78,10 @@ stages:
           - BACKEND_JAR
         assertFiles:
           - zhi-admin/target/zhi-admin.jar
+          - sql/00_init_database.sql
+          - zhi-ui/nginx.conf
+          - .env.example
+          - docs/DEPLOYMENT_RELEASE.md
         prerelease: false
         allowUpdate: true
   # ------------------------------------------------------------------

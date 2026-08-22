@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | Gitee Go | `.workflow/*.yml` | Gitee 侧流水线，由 Gitee Go 执行 |
 | GitHub Actions | `.github/workflows/ci.yml` | push / PR 触发，后端 `mvn verify` + 前端 lint/format/test/build |
-| GitHub Actions | `.github/workflows/release.yml` | 打 `v*` tag 触发，测试构建 + 自动创建 GitHub Release（附构建产物）+ 部署骨架 |
+| GitHub Actions | `.github/workflows/release.yml` | 打 `v*` tag 触发，测试构建 + 自动创建 GitHub Release（后端 jar + 前端 dist + 部署配套 zip）+ 部署骨架 |
 
 ## 与 Gitee Go 的差异
 
@@ -17,7 +17,9 @@
 
 ## 发布部署
 
-打 `v*` tag 时，`release.yml` 除了构建测试，还会用 `gh release create` 自动创建 GitHub Release，并附上 `zhi-admin.jar` 与打包好的 `frontend-dist.zip`（`publish` job，需要 `contents: write` 权限，使用内置 `GITHUB_TOKEN`）。该自动发布只对后续新打的 tag 生效。
+打 `v*` tag 时，`release.yml` 除了构建测试，还会用 `gh release create` 自动创建 GitHub Release，附件包括 `zhi-admin.jar`、`frontend-dist.zip` 和 `deploy-assets.zip`（含 sql 初始化脚本、nginx.conf、.env.example、部署指南）。`publish` job 会先删除同 tag 的旧 Release 再创建，支持重复发布覆盖。使用内置 `GITHUB_TOKEN`（`contents: write`）。该自动发布只对后续新打的 tag 生效。
+
+基于 release 产物的部署方式见 [docs/DEPLOYMENT_RELEASE.md](../docs/DEPLOYMENT_RELEASE.md) 和 `docker-compose.release.yml`。
 
 `release.yml` 里的 `deploy` job 是注释掉的骨架。启用步骤：
 

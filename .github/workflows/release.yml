@@ -42,6 +42,20 @@ jobs:
           name: frontend-dist
           path: zhi-ui/dist
           if-no-files-found: error
+      - name: 准备部署配套
+        run: |
+          mkdir -p deploy-assets
+          cp sql/00_init_database.sql deploy-assets/
+          cp zhi-ui/nginx.conf deploy-assets/
+          cp .env.example deploy-assets/
+          cp docs/DEPLOYMENT_RELEASE.md deploy-assets/
+          cd deploy-assets && zip -qr ../deploy-assets.zip .
+      - name: 上传部署配套
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-assets
+          path: deploy-assets.zip
+          if-no-files-found: error
 
   publish:
     name: 发布 GitHub Release
@@ -59,18 +73,25 @@ jobs:
         with:
           name: frontend-dist
           path: release/frontend
+      - uses: actions/download-artifact@v4
+        with:
+          name: deploy-assets
+          path: release/deploy-assets
       - name: 打包前端产物
         run: cd release/frontend && zip -qr ../frontend-dist.zip .
       - name: 创建 GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # 同 tag 已存在 Release 时先删除，保证重复发布可覆盖
+          gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1 && gh release delete "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --yes || true
           gh release create "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
             release/backend/zhi-admin.jar \
             release/frontend-dist.zip \
+            release/deploy-assets/deploy-assets.zip \
             --title "ZhiBlog ${GITHUB_REF_NAME}" \
-            --notes "ZhiBlog ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。"
+            --notes "ZhiBlog ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。包含：后端 jar、前端 dist、部署配套（sql / nginx / .env 示例），部署步骤见 docs/DEPLOYMENT_RELEASE.md。"
 
   # ------------------------------------------------------------------
   # 部署骨架：在 GitHub 仓库 Settings -> Secrets and variables 配置
