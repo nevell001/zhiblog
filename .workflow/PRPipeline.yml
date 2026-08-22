@@ -18,7 +18,7 @@ stages:
         name: backend_maven
         displayName: Maven 编译与测试
         jdkVersion: 17
-        mavenVersion: 3.9.11
+        mavenVersion: 3.6.3
         commands:
           - mvn -B clean verify
   - name: frontend
