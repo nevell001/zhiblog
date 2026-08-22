@@ -26,6 +26,9 @@ stages:
         commands:
           # Gitee Go 镜像缺 libfreetype.so.6，水印测试需要；yum 不可用时忽略
           - yum install -y freetype || true
+          # 校验 tag 与 pom 版本一致，防止发布版本号错位
+          - test -n "$(git describe --tags --exact-match HEAD 2>/dev/null)" || { echo "当前提交无精确匹配 tag，拒绝发布"; exit 1; }
+          - TAG_VERSION=$(git describe --tags --exact-match HEAD | sed 's/^v//') && POM_VERSION=$(grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]+)<\/version>.*/\1/') && echo "tag=$TAG_VERSION pom=$POM_VERSION" && [ "$TAG_VERSION" = "$POM_VERSION" ] || { echo "tag 与 pom 版本不一致"; exit 1; }
           - mvn -B clean verify
         artifacts:
           - name: BACKEND_JAR

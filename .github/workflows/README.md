@@ -19,6 +19,8 @@
 
 打 `v*` tag 时，`release.yml` 除了构建测试，还会用 `gh release create` 自动创建 GitHub Release，附件包括 `zhi-admin.jar`、`frontend-dist.zip` 和 `deploy-assets.zip`（含 sql 初始化脚本、nginx.conf、.env.example、部署指南）。`publish` job 会先删除同 tag 的旧 Release 再创建，支持重复发布覆盖。使用内置 `GITHUB_TOKEN`（`contents: write`）。该自动发布只对后续新打的 tag 生效。
 
+构建前会校验 tag 版本与根 `pom.xml` 版本一致（如 `v1.3.7` 必须对应 `<version>1.3.7</version>`），不一致直接失败。
+
 基于 release 产物的部署方式见 [docs/DEPLOYMENT_RELEASE.md](../docs/DEPLOYMENT_RELEASE.md) 和 `docker-compose.release.yml`。
 
 `release.yml` 里的 `deploy` job 是注释掉的骨架。启用步骤：
