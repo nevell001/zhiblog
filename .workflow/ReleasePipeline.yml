@@ -31,10 +31,15 @@ stages:
           - mvn -B clean verify
           # 复制 jar 到仓库根目录，release@gitee 插件按该相对路径下载/挂载附件
           - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar
+          # 部署配套打包为一个文件（sql / nginx / .env 示例 / 部署指南）
+          - tar -czf deploy-assets.tar.gz sql/00_init_database.sql zhi-ui/nginx.conf .env.example docs/DEPLOYMENT_RELEASE.md
         artifacts:
           - name: BACKEND_JAR
             path:
               - zhi-admin.jar
+          - name: DEPLOY_ASSETS
+            path:
+              - deploy-assets.tar.gz
       - step: publish@general_artifacts
         name: publish_backend
         displayName: 上传后端制品
@@ -86,13 +91,11 @@ stages:
         upstreamArtifact:
           - BACKEND_JAR
           - FRONTEND_DIST_PACKAGE
+          - DEPLOY_ASSETS
         assertFiles:
           - zhi-admin.jar
           - frontend-dist.tar.gz
-          - sql/00_init_database.sql
-          - zhi-ui/nginx.conf
-          - .env.example
-          - docs/DEPLOYMENT_RELEASE.md
+          - deploy-assets.tar.gz
         prerelease: false
         allowUpdate: true
   # ------------------------------------------------------------------
