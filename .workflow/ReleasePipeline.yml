@@ -31,15 +31,16 @@ stages:
           - mvn -B clean verify
           # 复制 jar 到仓库根目录，release@gitee 插件按该相对路径下载/挂载附件
           - cp zhi-admin/target/zhi-admin.jar zhi-admin.jar
-          # 部署配套打包为一个文件（sql / nginx / .env 示例 / 部署指南）
-          - tar -czf deploy-assets.tar.gz sql/00_init_database.sql zhi-ui/nginx.conf .env.example docs/DEPLOYMENT_RELEASE.md
+          # 与 GitHub 保持一致：部署配套打包为 zip（sql / nginx / .env 示例 / 部署指南）
+          - (command -v zip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq zip; }) || true
+          - mkdir -p deploy-assets && cp sql/00_init_database.sql zhi-ui/nginx.conf .env.example docs/DEPLOYMENT_RELEASE.md deploy-assets/ && cd deploy-assets && zip -qr ../deploy-assets.zip . && cd ..
         artifacts:
           - name: BACKEND_JAR
             path:
               - zhi-admin.jar
           - name: DEPLOY_ASSETS
             path:
-              - deploy-assets.tar.gz
+              - deploy-assets.zip
       - step: publish@general_artifacts
         name: publish_backend
         displayName: 上传后端制品
@@ -62,14 +63,16 @@ stages:
           - node -v && npm -v
           - cd zhi-ui && npm config set registry https://registry.npmmirror.com && npm ci && npm run lint:check && npm run format:check && npm run typecheck && npm run test:coverage && npm run build:prod && cd ..
           # 打包前端产物，release@gitee 按相对路径下载/挂载附件
-          - cd zhi-ui && tar -czf ../frontend-dist.tar.gz dist
+          - (command -v zip >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq zip; }) || true
+          # 从 dist 内部打包，保证 index.html 在压缩包根目录（与 GitHub 一致）
+          - cd zhi-ui/dist && zip -qr ../../frontend-dist.zip . && cd ../..
         artifacts:
           - name: FRONTEND_DIST
             path:
               - zhi-ui/dist
           - name: FRONTEND_DIST_PACKAGE
             path:
-              - frontend-dist.tar.gz
+              - frontend-dist.zip
       - step: publish@general_artifacts
         name: publish_frontend
         displayName: 上传前端制品
@@ -94,8 +97,8 @@ stages:
           - DEPLOY_ASSETS
         assertFiles:
           - zhi-admin.jar
-          - frontend-dist.tar.gz
-          - deploy-assets.tar.gz
+          - frontend-dist.zip
+          - deploy-assets.zip
         prerelease: false
         allowUpdate: true
   # ------------------------------------------------------------------
