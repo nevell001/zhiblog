@@ -66,6 +66,8 @@ cypress/downloads/
 .idea/
 # .vscode/ 需要提交（包含项目配置）
 !.vscode/
+# 本地调试配置不入库
+.vscode/launch.json
 .claude/
 .trae/
 *.swp
