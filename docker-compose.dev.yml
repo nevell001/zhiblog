@@ -73,6 +73,8 @@ services:
       LC_ALL: C.UTF-8
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME:-zhiblog}
+      MYSQL_USER: ${DB_USERNAME:-zhiblog_app}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:

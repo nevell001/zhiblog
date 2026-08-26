@@ -21,7 +21,9 @@ RUN npm config set registry https://registry.npmmirror.com \
 COPY . .
 RUN chown -R appuser:appuser /app
 
-USER appuser
+# 开发容器：宿主源码以 bind mount 挂载，UID 与宿主机不一致，
+# 非 root 用户无法写回宿主机文件（如 unplugin-auto-import 生成的 dts），故以 root 运行
+USER root
 
 EXPOSE 3000
 

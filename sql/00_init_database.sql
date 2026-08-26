@@ -2,7 +2,7 @@
 -- 🌟 博客系统完整数据库初始化脚本（幂等版）
 -- ===============================================================
 -- 📅 创建时间：2025-11-07
--- 🔧 最后更新：2026-07-26
+-- 🔧 最后更新：2026-08-26
 -- 📝 描述：整合所有SQL文件，创建完整的博客系统数据库
 -- 🚀 版本：v2.3.0 (幂等版 - 可重复执行)
 --
@@ -40,7 +40,13 @@ USE zhiblog;
 
 -- 创建专用应用账号，避免应用服务依赖root远程访问
 -- ⚠️ 安全警告：部署前必须修改此密码为强密码
-CREATE USER IF NOT EXISTS 'zhiblog_app'@'%' IDENTIFIED BY 'ZhiBlog_app_ChangeMe_2026!';
+-- ⚠️ Docker Compose 环境无需修改这里：mysql 容器启动时会根据 .env 中的
+--    MYSQL_USER / MYSQL_PASSWORD（即 DB_USERNAME / DB_PASSWORD）自动创建同名用户，
+--    本语句因 IF NOT EXISTS 会被跳过，不会覆盖 .env 配置的密码。
+--    仅当不使用 Docker、手动执行本脚本初始化数据库时，才需要把下面的
+--    'CHANGE_ME_STRONG_PASSWORD_32_CHARS' 改成与 .env 的 DB_PASSWORD 一致；
+--    若库中已存在 zhiblog_app（旧密码），还需 ALTER USER 同步密码。
+CREATE USER IF NOT EXISTS 'zhiblog_app'@'%' IDENTIFIED BY 'CHANGE_ME_STRONG_PASSWORD_32_CHARS';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, DROP, REFERENCES, CREATE ROUTINE, ALTER ROUTINE, EXECUTE, TRIGGER
 ON zhiblog.* TO 'zhiblog_app'@'%';
 FLUSH PRIVILEGES;
