@@ -557,6 +557,34 @@ public class BlogFrontController extends BaseController
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
+        // 服务端校验，防止绕过前端限制
+        String nickname = blogComment.getNickname();
+        String content = blogComment.getContent();
+        if (blogComment.getArticleId() == null)
+        {
+            return error("文章ID不能为空");
+        }
+        if (nickname == null || nickname.trim().isEmpty())
+        {
+            return error("昵称不能为空");
+        }
+        if (nickname.trim().length() > 50)
+        {
+            return error("昵称长度不能超过50个字符");
+        }
+        if (content == null || content.trim().isEmpty())
+        {
+            return error("评论内容不能为空");
+        }
+        if (content.length() > 500)
+        {
+            return error("评论内容长度不能超过500个字符");
+        }
+        if (blogComment.getEmail() != null && blogComment.getEmail().length() > 100)
+        {
+            return error("邮箱长度不能超过100个字符");
+        }
+
         // 自动填充登录用户信息（userId 和 nickname），确保推荐和通知功能正常
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

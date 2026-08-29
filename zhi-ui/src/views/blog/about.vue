@@ -42,7 +42,7 @@
             <span class="section-label">Profile</span>
             <h2>关于我</h2>
           </div>
-          <div class="about-content" v-html="blogSettings.about_content || '暂无关于内容'"></div>
+          <div class="about-content" v-html="aboutContentHtml"></div>
         </section>
 
         <section class="about-panel contact-section">
@@ -87,11 +87,18 @@ import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getStatisticsOverview } from '@/api/statistics'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
+import { sanitizeArticleContent } from '@/utils/sanitize'
 import { logger } from '@/utils/logger'
 import { Link as LinkIcon, Location, Message, Platform, Promotion } from '@element-plus/icons-vue'
 
 const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
+
+const aboutContentHtml = computed(() => {
+  const raw = blogSettings.value.about_content
+  if (!raw || typeof raw !== 'string' || !raw.trim()) return '暂无关于内容'
+  return sanitizeArticleContent(raw)
+})
 
 interface BlogStats {
   articleCount?: number
