@@ -20,10 +20,23 @@ vi.mock('@/api/blog/tag', () => ({
   getTagCloud: vi.fn().mockResolvedValue({ data: [] })
 }))
 
+vi.mock('@/api/blog/friendLink', () => ({
+  getFrontFriendLinkList: vi.fn().mockResolvedValue({ rows: [] })
+}))
+
 const router = createRouter({
   history: createMemoryHistory(),
   routes: [{ path: '/blog', component: BlogHome }]
 })
+
+const stubs = {
+  'el-avatar': { template: '<span><slot /></span>' },
+  'el-button': { template: '<button><slot /></button>' },
+  'el-dropdown': { template: '<div><slot /><slot name="dropdown" /></div>' },
+  'el-dropdown-item': { template: '<div><slot /></div>' },
+  'el-dropdown-menu': { template: '<div><slot /></div>' },
+  'el-icon': { template: '<span><slot /></span>' }
+}
 
 describe('博客首页运行时渲染', () => {
   it('没有后端数据时也应该渲染首屏结构', async () => {
@@ -33,14 +46,7 @@ describe('博客首页运行时渲染', () => {
     const wrapper = mount(BlogHome, {
       global: {
         plugins: [createPinia(), router],
-        stubs: {
-          'el-avatar': { template: '<span><slot /></span>' },
-          'el-button': { template: '<button><slot /></button>' },
-          'el-dropdown': { template: '<div><slot /><slot name="dropdown" /></div>' },
-          'el-dropdown-item': { template: '<div><slot /></div>' },
-          'el-dropdown-menu': { template: '<div><slot /></div>' },
-          'el-icon': { template: '<span><slot /></span>' }
-        }
+        stubs
       }
     })
 
@@ -63,7 +69,8 @@ describe('博客首页运行时渲染', () => {
 
     const wrapper = mount(BlogHome, {
       global: {
-        plugins: [pinia, router]
+        plugins: [pinia, router],
+        stubs
       }
     })
 

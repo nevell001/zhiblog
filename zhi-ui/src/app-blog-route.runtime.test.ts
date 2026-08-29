@@ -19,6 +19,10 @@ vi.mock('@/api/blog/tag', () => ({
   getTagCloud: vi.fn().mockResolvedValue({ data: [] })
 }))
 
+vi.mock('@/api/blog/friendLink', () => ({
+  getFrontFriendLinkList: vi.fn().mockResolvedValue({ rows: [] })
+}))
+
 describe('App 博客路由运行时渲染', () => {
   it('真实路由进入 /blog 时应该渲染博客首页', async () => {
     window.scrollTo = vi.fn()
