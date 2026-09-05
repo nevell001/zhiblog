@@ -223,7 +223,9 @@
                 </div>
                 <div class="c-text">{{ comment.content }}</div>
                 <div class="c-actions">
-                  <span @click="handleLikeComment(comment)">👍 {{ comment.likeCount || 0 }}</span>
+                  <span @click="handleLikeComment(comment)">
+                    {{ comment.liked ? '❤️' : '👍' }} {{ comment.likeCount || 0 }}
+                  </span>
                   <span @click="handleReply(comment)">💬 回复</span>
                 </div>
 
@@ -260,7 +262,12 @@ import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import ShareButton from '@/components/ShareButton.vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/blog/article'
-import { likeArticle } from '@/api/admin/blog/article'
+import {
+  getArticleLikeStatus,
+  toggleArticleLike,
+  toggleCommentLike,
+  getCommentLikedStatuses
+} from '@/api/blog/like'
 import { toggleBookmark } from '@/api/blog/bookmark'
 
 import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
@@ -416,6 +423,9 @@ const loadArticleDetail = async () => {
 
       // 获取评论列表
       await loadComments()
+
+      // 登录用户：回显文章点赞状态
+      fetchArticleLikeStatus()
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
       article.value = null
@@ -456,10 +466,41 @@ const loadComments = async () => {
 
     commentList.value = comments
     totalComments.value = comments.length
+
+    // 登录用户：回显评论点赞态
+    if (isLoggedIn.value && Array.isArray(comments) && comments.length > 0) {
+      try {
+        const ids = comments.map(c => Number(c.id)).filter(id => Number.isFinite(id) && id > 0)
+        const likeResponse = await getCommentLikedStatuses(ids)
+        const likedIds = Array.isArray(likeResponse?.data) ? likeResponse.data.map(Number) : []
+        comments.forEach((c: any) => {
+          c.liked = likedIds.includes(Number(c.id))
+        })
+      } catch {
+        // 点赞态回显失败不影响评论展示
+      }
+    }
   } catch (error: any) {
     logger.error('获取评论列表失败:', error)
     commentList.value = []
     totalComments.value = 0
+  }
+}
+
+// 查询文章点赞状态（登录后回显）
+const fetchArticleLikeStatus = async () => {
+  if (!isLoggedIn.value || !article.value) return
+  try {
+    const response = await getArticleLikeStatus(article.value.id)
+    const data = response?.data
+    if (data) {
+      article.value.isLiked = !!data.liked
+      if (typeof data.likeCount === 'number') {
+        article.value.likeCount = data.likeCount
+      }
+    }
+  } catch {
+    // 点赞态回显失败不影响文章展示
   }
 }
 
@@ -475,13 +516,16 @@ const handleLike = async () => {
     }
     likeLoading.value = true
 
-    // 调用点赞API
-    await likeArticle(article.value.id)
+    // 调用点赞API（支持取消，返回最新状态）
+    const response = await toggleArticleLike(article.value.id)
+    const data = response?.data || {}
+    const liked = !!data.liked
+    article.value.isLiked = liked
+    if (typeof data.likeCount === 'number') {
+      article.value.likeCount = data.likeCount
+    }
 
-    article.value.isLiked = true
-    article.value.likeCount = (article.value.likeCount || 0) + 1
-
-    ElMessage.success('点赞成功')
+    ElMessage.success(liked ? '点赞成功' : '已取消点赞')
   } catch (error: any) {
     logger.error('点赞失败:', error)
     ElMessage.error('操作失败')
@@ -533,9 +577,24 @@ const cancelReply = () => {
 }
 
 // 点赞评论
-const handleLikeComment = comment => {
-  comment.likeCount = (comment.likeCount || 0) + 1
-  ElMessage.success('点赞成功')
+const handleLikeComment = async (comment: any) => {
+  if (!isLoggedIn.value) {
+    ElMessage.info('请先登录后再给评论点赞')
+    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
+    return
+  }
+  try {
+    const response = await toggleCommentLike(comment.id)
+    const data = response?.data || {}
+    const liked = !!data.liked
+    comment.liked = liked
+    if (typeof data.likeCount === 'number') {
+      comment.likeCount = data.likeCount
+    }
+  } catch (error: any) {
+    logger.error('评论点赞失败:', error)
+    ElMessage.error('操作失败')
+  }
 }
 
 // 评论快捷键：Ctrl/⌘ + Enter 发送

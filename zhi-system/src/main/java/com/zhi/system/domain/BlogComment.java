@@ -52,6 +52,10 @@ public class BlogComment extends BaseEntity
     @Excel(name = "状态")
     private String status;
 
+    /** 点赞数 */
+    @Excel(name = "点赞数")
+    private Long likeCount;
+
     public Long getId() {
         return id;
     }
@@ -132,6 +136,14 @@ public class BlogComment extends BaseEntity
         this.status = status;
     }
 
+    public Long getLikeCount() {
+        return likeCount;
+    }
+
+    public void setLikeCount(Long likeCount) {
+        this.likeCount = likeCount;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
@@ -142,6 +154,7 @@ public class BlogComment extends BaseEntity
             .append("parentId", getParentId())
             .append("replyUserId", getReplyUserId())
             .append("status", getStatus())
+            .append("likeCount", getLikeCount())
             .append("createTime", getCreateTime())
             .append("updateTime", getUpdateTime())
             .toString();

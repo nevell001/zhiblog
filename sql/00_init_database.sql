@@ -650,6 +650,7 @@ CREATE TABLE IF NOT EXISTS `blog_comment` (
   `content` text NOT NULL COMMENT '评论内容',
   `parent_id` bigint DEFAULT '0' COMMENT '父评论ID',
   `status` tinyint DEFAULT '1' COMMENT '状态 0待审核 1正常 2已删除',
+  `like_count` int NOT NULL DEFAULT 0 COMMENT '点赞数',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `ip` varchar(64) DEFAULT NULL COMMENT '评论IP',
   PRIMARY KEY (`id`)
@@ -2279,6 +2280,39 @@ CREATE TABLE IF NOT EXISTS blog_bookmark (
     KEY idx_article_id (article_id),
     KEY idx_create_time (create_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章收藏表';
+
+-- ===============================================================
+-- 📌 文章点赞记录表 / 评论点赞记录表（点赞体系）
+-- ===============================================================
+CREATE TABLE IF NOT EXISTS blog_article_like (
+    id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
+    article_id  BIGINT(20)      NOT NULL                    COMMENT '文章ID',
+    user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
+    create_time DATETIME        DEFAULT CURRENT_TIMESTAMP    COMMENT '点赞时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_article_user (article_id, user_id),
+    KEY idx_article_like_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='文章点赞记录表';
+
+CREATE TABLE IF NOT EXISTS blog_comment_like (
+    id          BIGINT(20)      NOT NULL AUTO_INCREMENT    COMMENT '主键ID',
+    comment_id  BIGINT(20)      NOT NULL                    COMMENT '评论ID',
+    user_id     BIGINT(20)      NOT NULL                    COMMENT '用户ID',
+    create_time DATETIME        DEFAULT CURRENT_TIMESTAMP    COMMENT '点赞时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_comment_user (comment_id, user_id),
+    KEY idx_comment_like_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='评论点赞记录表';
+
+-- 老库升级：补齐 blog_comment.like_count 列（幂等）
+SET @has_comment_like_count := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_comment' AND COLUMN_NAME = 'like_count');
+SET @add_comment_like_count := IF(@has_comment_like_count = 0,
+    'ALTER TABLE `blog_comment` ADD COLUMN `like_count` int NOT NULL DEFAULT 0 COMMENT ''点赞数''',
+    'SELECT 1');
+PREPARE add_comment_like_count_stmt FROM @add_comment_like_count;
+EXECUTE add_comment_like_count_stmt;
+DEALLOCATE PREPARE add_comment_like_count_stmt;
 
 -- ===============================================================
 -- 📌 站内信通知表 (v1.3.6 新增)
