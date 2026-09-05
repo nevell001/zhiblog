@@ -1,5 +1,13 @@
 <template>
   <div class="app-container">
+    <el-alert
+      v-if="loadError"
+      title="统计数据暂时无法获取，请稍后重试或检查服务状态"
+      type="error"
+      :closable="false"
+      show-icon
+      style="margin-bottom: 16px"
+    />
     <el-row :gutter="20">
       <el-col :span="6">
         <el-card class="stat-card">
@@ -66,12 +74,14 @@
     <el-row :gutter="20" style="margin-top: 20px">
       <el-col :span="12">
         <el-card header="文章发布趋势">
-          <div id="articleChart" style="height: 300px"></div>
+          <div v-if="articleReady" id="articleChart" style="height: 300px"></div>
+          <el-empty v-else-if="!loading" description="暂无趋势数据" :image-size="70" />
         </el-card>
       </el-col>
       <el-col :span="12">
         <el-card header="用户活跃度">
-          <div id="userChart" style="height: 300px"></div>
+          <div v-if="userReady" id="userChart" style="height: 300px"></div>
+          <el-empty v-else-if="!loading" description="暂无活跃数据" :image-size="70" />
         </el-card>
       </el-col>
     </el-row>
@@ -99,133 +109,60 @@ const userChartRef = ref<any>(null)
 let articleTrendData: any = null
 let userActivityData: any = null
 
+const loading = ref(true)
+const loadError = ref(false)
+const articleReady = ref(false)
+const userReady = ref(false)
+
 const loadData = async () => {
+  loading.value = true
+  loadError.value = false
   try {
     const res = await getStatisticsOverview()
-    if (res.code === 200) {
+    if (res.code === 200 && res.data) {
       stats.value = res.data
-      // 加载图表数据
       await loadChartData()
     } else {
-      // 使用模拟数据
-      stats.value = {
-        articleCount: 128,
-        userCount: 256,
-        commentCount: 512,
-        viewCount: 1024
-      }
-      await loadChartData()
+      // 非 200 响应：不展示模拟数据
+      stats.value = {}
+      loadError.value = true
     }
   } catch (error) {
     logger.error('获取统计数据失败:', error)
-    // 使用模拟数据
-    stats.value = {
-      articleCount: 128,
-      userCount: 256,
-      commentCount: 512,
-      viewCount: 1024
-    }
-    await loadChartData()
+    stats.value = {}
+    loadError.value = true
+  } finally {
+    loading.value = false
   }
 }
 
 const loadChartData = async () => {
+  // 加载文章发布趋势
   try {
-    // 加载文章发布趋势
-    try {
-      const articleTrendRes = await getArticleTrend()
-      if (articleTrendRes.code === 200) {
-        await renderArticleChart(articleTrendRes.data)
-      } else {
-        // 使用模拟数据
-        await renderArticleChart({
-          labels: [
-            '1月',
-            '2月',
-            '3月',
-            '4月',
-            '5月',
-            '6月',
-            '7月',
-            '8月',
-            '9月',
-            '10月',
-            '11月',
-            '12月'
-          ],
-          data: [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11]
-        })
-      }
-    } catch (error) {
-      logger.warn('文章趋势数据加载失败，使用模拟数据:', error)
-      // 使用模拟数据
-      await renderArticleChart({
-        labels: [
-          '1月',
-          '2月',
-          '3月',
-          '4月',
-          '5月',
-          '6月',
-          '7月',
-          '8月',
-          '9月',
-          '10月',
-          '11月',
-          '12月'
-        ],
-        data: [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11]
-      })
-    }
-
-    // 加载用户活跃度
-    try {
-      const userActivityRes = await getUserActivity()
-      if (userActivityRes.code === 200) {
-        await renderUserChart(userActivityRes.data)
-      } else {
-        // 使用模拟数据
-        await renderUserChart({
-          labels: [
-            '1月',
-            '2月',
-            '3月',
-            '4月',
-            '5月',
-            '6月',
-            '7月',
-            '8月',
-            '9月',
-            '10月',
-            '11月',
-            '12月'
-          ],
-          data: [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48]
-        })
-      }
-    } catch (error) {
-      logger.warn('用户活跃度数据加载失败，使用模拟数据:', error)
-      // 使用模拟数据
-      await renderUserChart({
-        labels: [
-          '1月',
-          '2月',
-          '3月',
-          '4月',
-          '5月',
-          '6月',
-          '7月',
-          '8月',
-          '9月',
-          '10月',
-          '11月',
-          '12月'
-        ],
-        data: [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48]
-      })
+    const articleTrendRes = await getArticleTrend()
+    if (articleTrendRes.code === 200) {
+      articleReady.value = true
+      await renderArticleChart(articleTrendRes.data || { labels: [], data: [] })
+    } else {
+      articleReady.value = false
     }
   } catch (error) {
-    logger.error('加载图表数据失败:', error)
+    logger.warn('文章趋势数据加载失败:', error)
+    articleReady.value = false
+  }
+
+  // 加载用户活跃度
+  try {
+    const userActivityRes = await getUserActivity()
+    if (userActivityRes.code === 200) {
+      userReady.value = true
+      await renderUserChart(userActivityRes.data || { labels: [], data: [] })
+    } else {
+      userReady.value = false
+    }
+  } catch (error) {
+    logger.warn('用户活跃度数据加载失败:', error)
+    userReady.value = false
   }
 }
 
@@ -246,20 +183,7 @@ const renderArticleChart = async data => {
     },
     xAxis: {
       type: 'category',
-      data: data.labels || [
-        '1月',
-        '2月',
-        '3月',
-        '4月',
-        '5月',
-        '6月',
-        '7月',
-        '8月',
-        '9月',
-        '10月',
-        '11月',
-        '12月'
-      ],
+      data: data.labels || [],
       axisLabel: { color: colors.secondaryColor },
       axisLine: { lineStyle: { color: colors.borderColor } }
     },
@@ -270,7 +194,7 @@ const renderArticleChart = async data => {
     },
     series: [
       {
-        data: data.data || [12, 19, 3, 5, 2, 3, 15, 8, 12, 6, 9, 11],
+        data: data.data || [],
         type: 'line',
         smooth: true,
         itemStyle: {
@@ -299,20 +223,7 @@ const renderUserChart = async data => {
     },
     xAxis: {
       type: 'category',
-      data: data.labels || [
-        '1月',
-        '2月',
-        '3月',
-        '4月',
-        '5月',
-        '6月',
-        '7月',
-        '8月',
-        '9月',
-        '10月',
-        '11月',
-        '12月'
-      ],
+      data: data.labels || [],
       axisLabel: { color: colors.secondaryColor },
       axisLine: { lineStyle: { color: colors.borderColor } }
     },
@@ -323,7 +234,7 @@ const renderUserChart = async data => {
     },
     series: [
       {
-        data: data.data || [45, 52, 38, 24, 33, 52, 35, 48, 42, 55, 60, 48],
+        data: data.data || [],
         type: 'bar',
         itemStyle: {
           color: '#67C23A'
