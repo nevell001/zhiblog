@@ -1,6 +1,7 @@
 package com.zhi.system.mapper;
 
 import java.util.List;
+import java.util.Map;
 import com.zhi.system.domain.BlogBookmark;
 import org.apache.ibatis.annotations.Param;
 
@@ -69,4 +70,12 @@ public interface BlogBookmarkMapper {
      * @return 收藏列表
      */
     public List<BlogBookmark> selectBookmarksByUserId(Long userId);
+
+    /**
+     * 查询用户收藏的文章列表（联查已发布文章信息）
+     *
+     * @param userId 用户ID
+     * @return 收藏文章集合（Map：bookmarkId/articleId/title/summary/coverUrl/authorName/viewCount/likeCount/commentCount/bookmarkTime）
+     */
+    public List<Map<String, Object>> selectBookmarkArticlesByUserId(Long userId);
 }

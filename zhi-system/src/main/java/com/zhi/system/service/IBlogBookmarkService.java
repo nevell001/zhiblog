@@ -1,6 +1,7 @@
 package com.zhi.system.service;
 
 import java.util.List;
+import java.util.Map;
 import com.zhi.system.domain.BlogBookmark;
 
 /**
@@ -77,4 +78,12 @@ public interface IBlogBookmarkService {
      * @return 收藏列表
      */
     public List<BlogBookmark> selectBookmarksByUserId(Long userId);
+
+    /**
+     * 查询用户收藏的文章列表（联查已发布文章信息）
+     *
+     * @param userId 用户ID
+     * @return 收藏文章集合
+     */
+    public List<Map<String, Object>> selectBookmarkArticlesByUserId(Long userId);
 }

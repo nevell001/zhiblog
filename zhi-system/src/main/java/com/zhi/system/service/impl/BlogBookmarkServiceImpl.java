@@ -1,6 +1,7 @@
 package com.zhi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import com.zhi.system.domain.BlogBookmark;
 import com.zhi.system.mapper.BlogBookmarkMapper;
 import com.zhi.system.service.IBlogBookmarkService;
@@ -121,5 +122,16 @@ public class BlogBookmarkServiceImpl implements IBlogBookmarkService {
     @Override
     public List<BlogBookmark> selectBookmarksByUserId(Long userId) {
         return blogBookmarkMapper.selectBookmarksByUserId(userId);
+    }
+
+    /**
+     * 查询用户收藏的文章列表（联查已发布文章信息）
+     *
+     * @param userId 用户ID
+     * @return 收藏文章集合
+     */
+    @Override
+    public List<Map<String, Object>> selectBookmarkArticlesByUserId(Long userId) {
+        return blogBookmarkMapper.selectBookmarkArticlesByUserId(userId);
     }
 }

@@ -67,4 +67,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         ORDER BY create_time DESC
     </select>
 
+    <select id="selectBookmarkArticlesByUserId" parameterType="Long" resultType="java.util.Map">
+        SELECT b.id AS bookmarkId,
+               b.create_time AS bookmarkTime,
+               a.id AS articleId,
+               a.title AS title,
+               a.summary AS summary,
+               a.cover_url AS coverUrl,
+               a.author_name AS authorName,
+               a.view_count AS viewCount,
+               a.like_count AS likeCount,
+               a.comment_count AS commentCount
+        FROM blog_bookmark b
+        INNER JOIN blog_article a ON a.id = b.article_id
+        WHERE b.user_id = #{userId}
+          AND a.status = 1
+          AND a.del_flag = '0'
+        ORDER BY b.create_time DESC
+    </select>
+
 </mapper>

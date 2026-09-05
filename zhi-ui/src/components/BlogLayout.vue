@@ -42,6 +42,10 @@
                   <el-icon><User /></el-icon>
                   个人中心
                 </el-dropdown-item>
+                <el-dropdown-item command="bookmark">
+                  <el-icon><CollectionTag /></el-icon>
+                  我的收藏
+                </el-dropdown-item>
                 <el-dropdown-item divided command="logout">
                   <el-icon><SwitchButton /></el-icon>
                   退出登录
@@ -153,6 +157,7 @@ import {
   UserFilled,
   ArrowDown,
   User,
+  CollectionTag,
   SwitchButton,
   Monitor,
   Sunny,
@@ -231,6 +236,8 @@ const goToAdmin = () => {
 const handleUserCommand = async (command: string) => {
   if (command === 'profile') {
     window.location.href = '/user/profile'
+  } else if (command === 'bookmark') {
+    router.push('/blog/bookmarks')
   } else if (command === 'logout') {
     try {
       await ElMessageBox.confirm('确定要退出登录吗？', '提示', {

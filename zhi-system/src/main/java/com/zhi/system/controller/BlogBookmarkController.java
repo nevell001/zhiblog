@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.utils.SecurityUtils;
-import com.zhi.system.domain.BlogBookmark;
 import com.zhi.system.service.IBlogBookmarkService;
 
 /**
@@ -57,7 +56,7 @@ public class BlogBookmarkController extends BaseController {
     }
 
     /**
-     * 获取用户收藏列表
+     * 获取用户收藏列表（联查文章信息）
      */
     @GetMapping("/list")
     public AjaxResult listBookmarks() {
@@ -66,7 +65,7 @@ public class BlogBookmarkController extends BaseController {
             return error("请先登录");
         }
 
-        List<BlogBookmark> list = blogBookmarkService.selectBookmarksByUserId(userId);
+        List<Map<String, Object>> list = blogBookmarkService.selectBookmarkArticlesByUserId(userId);
         return success(list);
     }
 }
