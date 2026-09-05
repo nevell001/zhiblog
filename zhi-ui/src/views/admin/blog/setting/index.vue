@@ -423,6 +423,18 @@
                 在页脚显示友情链接模块
               </span>
             </el-form-item>
+            <el-form-item label="邮件通知" prop="email_notify_enabled">
+              <el-switch v-model="settingsMap.email_notify_enabled" />
+              <span
+                style="
+                  margin-left: 10px;
+                  color: var(--el-text-color-secondary, #909399);
+                  font-size: 12px;
+                "
+              >
+                评论/回复/审核结果通过邮件通知（需已配置邮件服务）
+              </span>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
 
@@ -949,6 +961,7 @@ async function getAllSettings() {
       footer_enabled: true,
       copyright_enabled: true,
       friend_link_enabled: true,
+      email_notify_enabled: true,
       page_size: 10, // 确保数值类型
       hot_article_count: 5, // 确保数值类型
       recent_comment_count: 5, // 确保数值类型
@@ -1072,6 +1085,7 @@ async function getAllSettings() {
       footer_enabled: true,
       copyright_enabled: true,
       friend_link_enabled: true,
+      email_notify_enabled: true,
       page_size: 10,
       hot_article_count: 5,
       recent_comment_count: 5,

@@ -63,6 +63,16 @@ public interface IBlogEmailService
     int cleanExpiredCodes();
 
     /**
+     * 发送站内通知邮件（评论/回复/审核结果等）
+     *
+     * @param email 收件邮箱
+     * @param subject 邮件主题
+     * @param content 邮件正文（纯文本）
+     * @return true=发送成功
+     */
+    boolean sendNotificationMail(String email, String subject, String content);
+
+    /**
      * 检查邮箱频率限制
      *
      * @param email 邮箱地址

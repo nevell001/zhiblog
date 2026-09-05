@@ -5,13 +5,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.zhi.common.utils.StringUtils;
+import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.system.mapper.BlogCommentMapper;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogComment;
 import com.zhi.system.domain.BlogNotification;
 import com.zhi.system.service.IBlogArticleService;
 import com.zhi.system.service.IBlogCommentService;
+import com.zhi.system.service.IBlogEmailService;
 import com.zhi.system.service.IBlogNotificationService;
+import com.zhi.system.service.IBlogSettingService;
+import com.zhi.system.service.ISysUserService;
 
 /**
  * 博客评论Service业务层处理
@@ -31,6 +36,18 @@ public class BlogCommentServiceImpl implements IBlogCommentService
 
     @Autowired
     private IBlogNotificationService blogNotificationService;
+
+    @Autowired
+    private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private IBlogEmailService blogEmailService;
+
+    @Autowired
+    private ISysUserService sysUserService;
+
+    /** 邮件通知开关配置键 */
+    private static final String KEY_EMAIL_NOTIFY_ENABLED = "email_notify_enabled";
 
     /**
      * 查询博客评论
@@ -145,6 +162,12 @@ public class BlogCommentServiceImpl implements IBlogCommentService
 
             blogNotificationService.createNotification(notification);
             logger.info("评论通知已发送: recipientId={}, type={}, articleId={}", recipientId, type, blogComment.getArticleId());
+
+            // 邮件通知（受 email_notify_enabled 开关控制）
+            String mailBody = type.equals("reply")
+                    ? senderName + " 回复了你的评论：\n" + contentPreview
+                    : senderName + " 评论了你的文章《" + article.getTitle() + "》：\n" + contentPreview;
+            sendNotificationEmail(recipientId, title, mailBody);
         }
         catch (Exception e)
         {
@@ -275,10 +298,48 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             blogNotificationService.createNotification(notification);
             logger.info("审核结果通知已发送: recipientId={}, approved={}, commentId={}",
                     blogComment.getUserId(), approved, commentId);
+
+            // 邮件通知审核结果（受 email_notify_enabled 开关控制）
+            sendNotificationEmail(blogComment.getUserId(), title,
+                    "你在《" + articleTitle + "》下的评论" + contentPreview);
         }
         catch (Exception e)
         {
             logger.error("审核结果通知发送失败: commentId={}", commentId, e);
+        }
+    }
+
+    /**
+     * 发送站内通知邮件给注册用户（受 email_notify_enabled 开关控制，默认开启）
+     *
+     * @param recipientId 接收用户ID
+     * @param subject 邮件主题
+     * @param body 邮件正文
+     */
+    private void sendNotificationEmail(Long recipientId, String subject, String body)
+    {
+        try
+        {
+            String enabled = blogSettingService == null ? null
+                    : blogSettingService.selectSettingValueByKey(KEY_EMAIL_NOTIFY_ENABLED);
+            // 未配置时视为开启；显式 false 关闭
+            if (enabled != null && "false".equalsIgnoreCase(enabled.trim()))
+            {
+                return;
+            }
+            SysUser user = sysUserService == null ? null : sysUserService.selectUserById(recipientId);
+            if (user == null || StringUtils.isEmpty(user.getEmail()))
+            {
+                return;
+            }
+            if (blogEmailService != null)
+            {
+                blogEmailService.sendNotificationMail(user.getEmail(), subject, body);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.warn("邮件通知发送失败: recipientId={}, error={}", recipientId, e.getMessage());
         }
     }
 

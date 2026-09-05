@@ -83,6 +83,44 @@ public class BlogEmailServiceImpl implements IBlogEmailService
     }
 
     /**
+     * 发送站内通知邮件（评论/回复/审核结果等）
+     *
+     * @param email 收件邮箱
+     * @param subject 邮件主题
+     * @param content 邮件正文（纯文本）
+     * @return true=发送成功
+     */
+    @Override
+    public boolean sendNotificationMail(String email, String subject, String content)
+    {
+        if (StringUtils.isEmpty(email))
+        {
+            return false;
+        }
+        if (mailSender == null || StringUtils.isEmpty(mailFrom))
+        {
+            log.debug("通知邮件未发送：未配置邮件服务 email={}, subject={}", email, subject);
+            return false;
+        }
+        try
+        {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom(mailFrom);
+            message.setTo(email);
+            message.setSubject(subject);
+            message.setText(content);
+            mailSender.send(message);
+            log.info("通知邮件发送成功：email={}, subject={}", email, subject);
+            return true;
+        }
+        catch (Exception e)
+        {
+            log.error("通知邮件发送失败：email={}, subject={}, error={}", email, subject, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * 发送验证码通用方法
      *
      * @param email 邮箱地址

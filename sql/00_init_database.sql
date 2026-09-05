@@ -821,6 +821,10 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('referer_enabled', 'false', '防盗链开关（true/false）', NOW(), NOW()),
 ('referer_allowed_domains', 'localhost,127.0.0.1', '防盗链允许域名（逗号、分号或换行分隔）', NOW(), NOW());
 
+-- 邮件通知开关（评论/回复/审核结果，需已配置邮件服务）
+INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+('email_notify_enabled', 'true', '邮件通知开关（评论/回复/审核结果）', NOW(), NOW());
+
 -- 插入完整的博客分类数据（包含层级结构）
 INSERT IGNORE INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
 -- 一级分类
