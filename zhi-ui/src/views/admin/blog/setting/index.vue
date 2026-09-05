@@ -69,6 +69,45 @@
                 show-word-limit
               />
             </el-form-item>
+
+            <!-- 域名管理：站点访问地址 -->
+            <el-form-item label="站点访问地址" prop="blog_url">
+              <el-input
+                v-model="settingsMap.blog_url"
+                placeholder="https://example.com"
+                maxlength="200"
+                clearable
+              />
+              <div class="setting-tip">
+                用于 RSS 订阅等生成文章绝对链接；留空时使用配置文件默认值
+              </div>
+            </el-form-item>
+
+            <el-divider content-position="left">防盗链（域名白名单）</el-divider>
+            <el-form-item label="防盗链" prop="referer_enabled">
+              <el-switch
+                v-model="settingsMap.referer_enabled"
+                active-text="启用"
+                inactive-text="关闭"
+              />
+              <div class="setting-tip">
+                开启后仅允许白名单域名引用 /profile 下的上传资源（图片等），防止被其他网站盗链
+              </div>
+            </el-form-item>
+            <el-form-item label="允许域名" prop="referer_allowed_domains">
+              <el-input
+                v-model="settingsMap.referer_allowed_domains"
+                type="textarea"
+                :rows="4"
+                placeholder="每行一个域名，例如：example.com&#10;blog.example.com&#10;localhost"
+                maxlength="1000"
+                show-word-limit
+              />
+              <div class="setting-tip">
+                支持逗号、分号或换行分隔；留空回退到默认值 localhost,127.0.0.1；域名无需带
+                http(s)://
+              </div>
+            </el-form-item>
             <!-- 博客头像设置已移除，直接使用账号头像 -->
             <!--
             <el-form-item
@@ -452,74 +491,6 @@
           </el-form>
         </el-tab-pane>
       </el-tabs>
-
-      <!-- 图片压缩功能介绍 -->
-      <el-card
-        shadow="never"
-        style="margin-top: 20px; background: var(--el-bg-color-overlay, #ffffff)"
-      >
-        <template #header>
-          <div style="display: flex; align-items: center">
-            <span style="color: var(--el-color-primary, #409eff); font-weight: bold">
-              🎨 图片压缩功能
-            </span>
-            <el-tag type="success" size="small" style="margin-left: 10px">已启用</el-tag>
-          </div>
-        </template>
-        <el-row :gutter="20">
-          <el-col :span="8">
-            <div class="compress-feature">
-              <h4>👤 头像压缩</h4>
-              <p>
-                <strong>200×200正方形</strong>
-                | 质量90% | 自动居中裁剪
-              </p>
-              <div class="feature-example">
-                <div class="example-avatar"></div>
-                <span>博主头像、用户头像</span>
-              </div>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div class="compress-feature">
-              <h4>🖼️ 缩略图压缩</h4>
-              <p>
-                <strong>400×400最大尺寸</strong>
-                | 质量80% | 保持宽高比
-              </p>
-              <div class="feature-example">
-                <div class="example-thumbnail"></div>
-                <span>二维码、图片预览</span>
-              </div>
-            </div>
-          </el-col>
-          <el-col :span="8">
-            <div class="compress-feature">
-              <h4>📦 智能压缩</h4>
-              <p>
-                <strong>自适应压缩策略</strong>
-                | 根据文件大小 | 高质量压缩
-              </p>
-              <div class="feature-example">
-                <div class="example-smart"></div>
-                <span>文章配图、通用图片</span>
-              </div>
-            </div>
-          </el-col>
-        </el-row>
-        <div
-          style="
-            margin-top: 15px;
-            text-align: center;
-            font-size: 12px;
-            color: var(--el-text-color-regular, #666);
-          "
-        >
-          基于
-          <strong>Thumbnailator</strong>
-          专业图片处理库 | 压缩率可达60-80% | 支持JPG/PNG/GIF
-        </div>
-      </el-card>
     </el-card>
   </div>
 </template>
@@ -897,6 +868,8 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
+      referer_enabled: false,
+      referer_allowed_domains: 'localhost,127.0.0.1',
       blog_start_time: null, // 不设置默认值，让用户自行选择
       blog_avatar: '',
       blog_signature: '',
@@ -1018,6 +991,8 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
+      referer_enabled: false,
+      referer_allowed_domains: 'localhost,127.0.0.1',
       blog_start_time: null, // 不设置默认值，让用户自行选择
       blog_avatar: '',
       blog_signature: '',
@@ -1638,40 +1613,6 @@ html.dark .blog-setting-card {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* 图片压缩功能样式 */
-.compress-feature {
-  text-align: center;
-  padding: 15px;
-  border-radius: 8px;
-  background: var(--el-bg-color-overlay, white);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-
-.compress-feature:hover {
-  transform: translateY(-2px);
-}
-
-.compress-feature h4 {
-  margin: 0 0 10px 0;
-  color: var(--el-color-primary, #409eff);
-  font-size: 16px;
-}
-
-.compress-feature p {
-  margin: 0 0 15px 0;
-  font-size: 12px;
-  color: var(--el-text-color-regular, #666);
-  line-height: 1.4;
-}
-
-.feature-example {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
 .theme-color-control {
   display: flex;
   flex-wrap: wrap;
@@ -1778,35 +1719,6 @@ html.dark .blog-setting-card {
 
 .theme-preview-card.mo-blog .theme-preview-content span:first-child {
   background: #c7d2fe;
-}
-
-.example-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--el-color-primary-light-7, #c7d2fe), #eef2ff);
-  border: 1px solid var(--el-color-primary-light-5, #a5b4fc);
-}
-
-.example-thumbnail {
-  width: 35px;
-  height: 35px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-  border: 1px solid #cbd5e1;
-}
-
-.example-smart {
-  width: 35px;
-  height: 35px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #f5f5f4, #d6d3d1);
-  border: 1px solid #d6d3d1;
-}
-
-.feature-example span {
-  font-size: 11px;
-  color: var(--el-text-color-placeholder, #888);
 }
 
 .card-header {
@@ -2032,23 +1944,5 @@ html.dark .theme-preview-card.mo-blog .theme-preview-content span {
 
 html.dark .theme-preview-card.mo-blog .theme-preview-content span:first-child {
   background: rgba(99, 102, 241, 0.3);
-}
-
-/* 深色模式下图片压缩功能卡片 */
-html.dark .compress-feature {
-  background: var(--el-fill-color-light, #27272a);
-  border-color: var(--el-border-color-light, #3f3f46);
-}
-
-html.dark .compress-feature h4 {
-  color: var(--el-text-color-primary, #e5e8eb);
-}
-
-html.dark .compress-feature p {
-  color: var(--el-text-color-secondary, #a3a8ad);
-}
-
-html.dark .feature-example span {
-  color: var(--el-text-color-placeholder, #8d949e);
 }
 </style>

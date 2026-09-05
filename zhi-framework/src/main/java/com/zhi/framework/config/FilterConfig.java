@@ -29,9 +29,6 @@ public class FilterConfig
     @Value("${xss.urlPatterns}")
     private String urlPatterns;
 
-    @Value("${referer.allowed-domains}")
-    private String allowedDomains;
-
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Bean
     @ConditionalOnProperty(value = "xss.enabled", havingValue = "true")
@@ -67,18 +64,16 @@ public class FilterConfig
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Bean
-    @ConditionalOnProperty(value = "referer.enabled", havingValue = "true")
-    public FilterRegistrationBean refererFilterRegistration()
+    public FilterRegistrationBean refererFilterRegistration(RefererPolicy refererPolicy)
     {
+        // 防盗链开关与允许域名由 RefererPolicy 在运行时提供（后台可管理），
+        // 因此过滤器始终注册，是否生效由 referer_enabled 博客设置决定
         FilterRegistrationBean registration = new FilterRegistrationBean();
         registration.setDispatcherTypes(EnumSet.of(DispatcherType.REQUEST));
-        registration.setFilter(new RefererFilter());
+        registration.setFilter(new RefererFilter(refererPolicy::isEnabled, refererPolicy::getAllowedDomains));
         registration.addUrlPatterns(Constants.RESOURCE_PREFIX + "/*");
         registration.setName("refererFilter");
         registration.setOrder(FilterRegistrationBean.HIGHEST_PRECEDENCE);
-        Map<String, String> initParameters = new HashMap<String, String>();
-        initParameters.put("allowedDomains", allowedDomains);
-        registration.setInitParameters(initParameters);
         return registration;
     }
 

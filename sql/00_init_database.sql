@@ -770,7 +770,7 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 
 -- 联系方式设置
 ('blog_email', 'admin@example.com', '博客联系邮箱', NOW(), NOW()),
-('blog_url', 'http://localhost:8080', '博客访问地址', NOW(), NOW()),
+('blog_url', 'http://localhost:3000', '博客访问地址', NOW(), NOW()),
 ('blog_avatar', '', '博主头像', NOW(), NOW()),
 ('blog_signature', 'Stay hungry, Stay foolish', '博主签名', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '博客创建时间', NOW(), NOW()),
@@ -813,6 +813,11 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('seo_canonical_url', 'http://localhost:8080', '规范URL', NOW(), NOW()),
 ('seo_robots', 'index,follow', 'Robots规则', NOW(), NOW()),
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
+
+-- 防盗链/域名管理设置（默认关闭，开关与白名单可在后台“博客设置-站点信息”管理）
+INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
+('referer_enabled', 'false', '防盗链开关（true/false）', NOW(), NOW()),
+('referer_allowed_domains', 'localhost,127.0.0.1', '防盗链允许域名（逗号、分号或换行分隔）', NOW(), NOW());
 
 -- 插入完整的博客分类数据（包含层级结构）
 INSERT IGNORE INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES

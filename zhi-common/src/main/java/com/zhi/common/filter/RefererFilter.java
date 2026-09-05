@@ -1,8 +1,9 @@
 package com.zhi.common.filter;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -15,20 +16,33 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * 防盗链过滤器
  *
- * @author ruoyi
+ * <p>开关与允许域名由调用方（{@code RefererPolicy}）在运行时提供，
+ * 以便后台可动态管理域名白名单，无需重启应用。</p>
+ *
+ * @author nevell
  */
 public class RefererFilter implements Filter
 {
     /**
-     * 允许的域名列表
+     * 防盗链是否启用（运行时读取）
      */
-    public List<String> allowedDomains;
+    private final BooleanSupplier enabledSupplier;
+
+    /**
+     * 允许的域名列表（运行时读取）
+     */
+    private final Supplier<List<String>> allowedDomainsSupplier;
+
+    public RefererFilter(BooleanSupplier enabledSupplier, Supplier<List<String>> allowedDomainsSupplier)
+    {
+        this.enabledSupplier = enabledSupplier;
+        this.allowedDomainsSupplier = allowedDomainsSupplier;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException
     {
-        String domains = filterConfig.getInitParameter("allowedDomains");
-        this.allowedDomains = Arrays.asList(domains.split(","));
+        // 域名白名单改由 RefererPolicy 运行时提供
     }
 
     @Override
@@ -37,6 +51,13 @@ public class RefererFilter implements Filter
     {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
+
+        // 防盗链未启用时直接放行
+        if (!enabledSupplier.getAsBoolean())
+        {
+            chain.doFilter(request, response);
+            return;
+        }
 
         String referer = req.getHeader("Referer");
 
@@ -48,13 +69,17 @@ public class RefererFilter implements Filter
         }
 
         // 检查Referer是否在允许的域名列表中
+        List<String> allowedDomains = allowedDomainsSupplier.get();
         boolean allowed = false;
-        for (String domain : allowedDomains)
+        if (allowedDomains != null)
         {
-            if (referer.contains(domain))
+            for (String domain : allowedDomains)
             {
-                allowed = true;
-                break;
+                if (referer.contains(domain))
+                {
+                    allowed = true;
+                    break;
+                }
             }
         }
 
@@ -72,6 +97,6 @@ public class RefererFilter implements Filter
     @Override
     public void destroy()
     {
-
+        // 无需清理资源
     }
 }
