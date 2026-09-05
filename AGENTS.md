@@ -1,6 +1,6 @@
 # AGENTS.md
 
-ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.3.6.
+ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.4.0.
 
 ## Commands
 
