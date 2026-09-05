@@ -255,6 +255,7 @@ import {
   type BlogNotification
 } from '@/api/blog/notification'
 import { getApiBaseUrl } from '@/utils/index'
+import { applySeo, canonicalUrl } from '@/utils/seo'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -434,8 +435,26 @@ watch(
   () => router.currentRoute.value.path,
   () => {
     mobileMenuOpen.value = false
+    applyDefaultSeo()
   }
 )
+
+// 博客设置加载后应用默认 SEO
+watch(blogSettings, () => {
+  applyDefaultSeo()
+})
+
+const applyDefaultSeo = () => {
+  const s = (blogSettings.value as any) || {}
+  const siteName = s.blog_name || '我的博客'
+  const siteDesc = s.blog_desc || ''
+  applySeo({
+    title: s.seo_title || (siteDesc ? `${siteName} - ${siteDesc}` : siteName),
+    description: s.seo_description || siteDesc,
+    keywords: s.blog_keywords || '',
+    canonical: canonicalUrl()
+  })
+}
 
 const goToAdmin = () => {
   router.push('/admin/blog/article')

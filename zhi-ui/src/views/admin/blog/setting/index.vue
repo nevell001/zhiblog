@@ -159,6 +159,58 @@
           </el-form>
         </el-tab-pane>
 
+        <!-- SEO 优化 -->
+        <el-tab-pane label="SEO优化" name="seo">
+          <el-form :model="settingsMap" label-width="120px">
+            <el-alert
+              title="用于博客前台页面 title/description/keywords 与搜索引擎收录"
+              type="info"
+              :closable="false"
+              style="margin-bottom: 20px"
+            />
+            <el-form-item label="站点标题" prop="seo_title">
+              <el-input
+                v-model="settingsMap.seo_title"
+                placeholder="如：ZhiBlog - 知博"
+                maxlength="100"
+                show-word-limit
+              />
+              <div class="setting-tip">留空时前台默认使用“博客名称”作为页面标题</div>
+            </el-form-item>
+            <el-form-item label="站点描述" prop="seo_description">
+              <el-input
+                v-model="settingsMap.seo_description"
+                type="textarea"
+                :rows="3"
+                placeholder="站点描述（meta description）"
+                maxlength="300"
+                show-word-limit
+              />
+            </el-form-item>
+            <el-form-item label="关键词" prop="blog_keywords">
+              <el-input
+                v-model="settingsMap.blog_keywords"
+                placeholder="多个关键词用英文逗号分隔"
+                maxlength="500"
+                show-word-limit
+              />
+            </el-form-item>
+            <el-form-item label="规范链接" prop="seo_canonical_url">
+              <el-input
+                v-model="settingsMap.seo_canonical_url"
+                placeholder="https://example.com"
+                maxlength="200"
+              />
+              <div class="setting-tip">规范 URL（可选），文章页 canonical 会自动生成</div>
+            </el-form-item>
+            <el-form-item label="Robots规则" prop="seo_robots">
+              <el-select v-model="settingsMap.seo_robots" style="width: 220px">
+                <el-option v-for="r in robotsOptions" :key="r" :label="r" :value="r" />
+              </el-select>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
         <!-- 界面主题 -->
         <el-tab-pane label="界面主题" name="theme">
           <el-form ref="themeForm" :model="settingsMap" label-width="120px">
@@ -549,6 +601,8 @@ const appThemeOptions: { label: string; value: AppTheme; description: string }[]
 
 const themeColorOptions = ['#4f46e5', '#334155', '#0f766e', '#7c3aed', '#9a3412', '#409EFF']
 
+const robotsOptions = ['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow']
+
 // 计算属性：根据当前标签页返回对应的标题
 const tabTitle = computed(() => {
   const titleMap = {
@@ -556,7 +610,8 @@ const tabTitle = computed(() => {
     theme: '界面主题',
     features: '功能设置',
     author: '个人信息',
-    other: '关于页面'
+    other: '关于页面',
+    seo: 'SEO优化'
   }
   const title = titleMap[activeTab.value] || '博客设置管理'
   return title

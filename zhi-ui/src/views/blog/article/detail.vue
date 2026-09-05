@@ -273,6 +273,7 @@ import { toggleBookmark } from '@/api/blog/bookmark'
 import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
+import { applySeo, canonicalUrl } from '@/utils/seo'
 import { logger } from '@/utils/logger'
 
 const route = useRoute()
@@ -426,6 +427,14 @@ const loadArticleDetail = async () => {
 
       // 登录用户：回显文章点赞状态
       fetchArticleLikeStatus()
+
+      // 应用文章级 SEO（标题/描述/canonical）
+      const siteName = (blogSettings.value as any)?.blog_name || '我的博客'
+      applySeo({
+        title: `${article.value.title} - ${siteName}`,
+        description: article.value.summary || '',
+        canonical: canonicalUrl()
+      })
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
       article.value = null
