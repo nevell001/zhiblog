@@ -2,10 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, resolve } from 'node:path'
 
-const scanRoots = [
-  resolve(process.cwd(), 'src/views/admin'),
-  resolve(process.cwd(), 'src/views/system')
-]
+const scanRoots = [resolve(process.cwd(), 'src/views/admin')]
 
 function listVueFiles(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap(entry => {

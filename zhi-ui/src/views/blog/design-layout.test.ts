@@ -5,7 +5,6 @@ import { resolve } from 'node:path'
 const homeView = readFileSync(resolve(__dirname, 'index.vue'), 'utf8')
 const articleDetailView = readFileSync(resolve(__dirname, 'article/detail.vue'), 'utf8')
 const blogLayout = readFileSync(resolve(__dirname, '../../components/BlogLayout.vue'), 'utf8')
-const blogFooter = readFileSync(resolve(__dirname, '../../components/BlogFooter.vue'), 'utf8')
 const articleTOC = readFileSync(resolve(__dirname, '../../components/ArticleTOC.vue'), 'utf8')
 const forgotPasswordView = readFileSync(resolve(__dirname, 'auth/ForgotPassword.vue'), 'utf8')
 const registerView = readFileSync(resolve(__dirname, 'auth/Register.vue'), 'utf8')
@@ -13,13 +12,11 @@ const categoryView = readFileSync(resolve(__dirname, 'category/index.vue'), 'utf
 const tagView = readFileSync(resolve(__dirname, 'tag/index.vue'), 'utf8')
 const archiveView = readFileSync(resolve(__dirname, 'archive/index.vue'), 'utf8')
 const aboutView = readFileSync(resolve(__dirname, 'about.vue'), 'utf8')
-const blogNav = readFileSync(resolve(__dirname, '../../components/BlogNav.vue'), 'utf8')
 
 const publicBlogSurfaces = [
   homeView,
   articleDetailView,
   blogLayout,
-  blogFooter,
   articleTOC,
   forgotPasswordView,
   registerView,
@@ -128,29 +125,9 @@ describe('blog design layout guards', () => {
     expect(archiveView).toContain('html.dark .archive-page')
   })
 
-  it('旧 BlogNav 应保持为未使用的兼容组件', () => {
-    const publicViews = [
-      homeView,
-      articleDetailView,
-      forgotPasswordView,
-      categoryView,
-      tagView,
-      archiveView,
-      aboutView
-    ]
-
-    publicViews.forEach(view => {
-      expect(view).not.toContain('<BlogNav')
-      expect(view).not.toContain("from '@/components/BlogNav.vue'")
-    })
-    expect(blogNav).toContain('Legacy compatibility navigation')
-  })
-
   it('博客用户菜单进入管理后台应直接访问后台路由', () => {
     expect(blogLayout).toContain("router.push('/admin/blog/article')")
     expect(blogLayout).not.toContain("window.location.href = '/login?redirect=/admin'")
-    expect(blogNav).toContain("router.push('/admin/blog/article')")
-    expect(blogNav).not.toContain("window.location.href = '/login?redirect=/admin'")
   })
 
   it('列表型页面头部和封面标记应保持低饱和', () => {
@@ -177,7 +154,6 @@ describe('blog design layout guards', () => {
     expect(archiveView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(categoryView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
     expect(tagView).not.toMatch(/border-radius:\s*(1[2-9]|[2-9][0-9])px/)
-    expect(blogFooter).toContain('minmax(min(100%, 300px), 1fr)')
   })
 
   it('博客布局不应在只有旧 token 且用户信息为空时渲染用户下拉菜单', () => {

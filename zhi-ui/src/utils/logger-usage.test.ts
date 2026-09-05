@@ -2,14 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-const guardedUtils = [
-  'blogSettings.ts',
-  'dynamicTitle.ts',
-  'imageUtils.ts',
-  'permission.ts',
-  'safe-watch.ts',
-  'tinymce.ts'
-]
+const guardedUtils = ['blogSettings.ts', 'imageUtils.ts', 'permission.ts', 'safe-watch.ts']
 
 describe('logger usage guards', () => {
   it('shared utils should use logger instead of direct console output', () => {

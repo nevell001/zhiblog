@@ -1501,44 +1501,6 @@ function handleAvatarBeforeUpload(file) {
   return true
 }
 
-// 添加一个测试函数用于验证数据库连接
-async function testDatabaseConnection() {
-  try {
-    // 1. 测试获取所有设置
-    const allSettingsResponse = await listSetting({})
-
-    // 2. 测试获取特定设置（如果存在）
-    const testKey = 'blog_name' // 尝试获取一个可能存在的设置
-    const specificResponse = await listSetting({ configKey: testKey })
-
-    // 3. 测试添加一个测试设置
-    const testConfig = {
-      configKey: 'test_setting_' + Date.now(),
-      configValue: 'test_value_' + Date.now(),
-      configName: '测试设置',
-      configType: 'N'
-    }
-
-    try {
-      const addResponse = await addSetting(testConfig)
-
-      // 4. 测试更新刚添加的设置
-      const updateData = {
-        ...testConfig,
-        configValue: 'updated_value_' + Date.now()
-      }
-      const updateResponse = await updateSetting(updateData)
-    } catch (testErr) {
-      console.error('测试设置操作失败:', testErr)
-    }
-  } catch (error: any) {
-    console.error('数据库连接测试失败:', error)
-  }
-}
-
-// 将测试函数暴露到全局，方便在控制台调用
-window.testDatabaseConnection = testDatabaseConnection
-
 /**
  * 重置设置
  */

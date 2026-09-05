@@ -2,7 +2,6 @@ import { getConfigKey } from '@/api/system/config'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle } from '@/utils/theme'
 import { getToken } from '@/utils/auth'
-import { logger } from '@/utils/logger'
 import type { Config } from '@/api/system/config'
 
 /**
@@ -105,20 +104,4 @@ function applyCustomCss(css: string): void {
     document.head.appendChild(styleElement)
   }
   styleElement.textContent = css
-}
-
-/**
- * 重新加载博客设置
- * 用于设置页面保存后刷新设置
- */
-export async function reloadBlogSettings(): Promise<void> {
-  await initBlogSettings()
-
-  try {
-    // 刷新SEO设置
-    const { useDynamicTitle } = await import('./dynamicTitle')
-    useDynamicTitle()
-  } catch (error) {
-    logger.error('刷新SEO设置失败:', error)
-  }
 }
