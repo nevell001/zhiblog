@@ -141,7 +141,7 @@ The `comment_review` blog setting controls whether new comments default to statu
 Version defined in `pom.xml` (`<version>` and `<app.version>`). When updating:
 1. Update root `pom.xml` `<version>` and `<app.version>`
 2. Update all 6 sub-module parent `<version>` references
-3. Frontend version in `package.json` is independent (currently 4.1.0)
+3. Frontend version in `package.json` is aligned with the backend (currently 1.4.0)
 
 See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 

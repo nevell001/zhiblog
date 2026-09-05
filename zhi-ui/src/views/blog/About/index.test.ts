@@ -24,11 +24,11 @@ describe('About 页面测试', () => {
   it('应该有项目信息', () => {
     const projectInfo = {
       name: 'ZhiBlog',
-      version: '1.3.2',
+      version: '1.4.0',
       author: 'Nevell'
     }
     expect(projectInfo.name).toBe('ZhiBlog')
-    expect(projectInfo.version).toBe('1.3.2')
+    expect(projectInfo.version).toBe('1.4.0')
   })
 
   it('应该有技术栈信息', () => {
