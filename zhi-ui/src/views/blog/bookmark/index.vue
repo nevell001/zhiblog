@@ -87,7 +87,7 @@ const loadBookmarks = async () => {
     const list = (response && response.data) || []
     bookmarks.value = Array.isArray(list) ? list : []
   } catch (error) {
-    console.error('获取收藏列表失败:', error)
+    // 静默失败，展示空态
     ElMessage.error('获取收藏列表失败，请稍后重试')
   } finally {
     loading.value = false
@@ -107,7 +107,7 @@ const removeBookmark = async (item: BookmarkArticle) => {
       ElMessage.success('已取消收藏')
     }
   } catch (error) {
-    console.error('取消收藏失败:', error)
+    // 静默失败
     ElMessage.error('操作失败，请稍后重试')
   }
 }
