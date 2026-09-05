@@ -802,11 +802,11 @@ CREATE TABLE IF NOT EXISTS gen_table_column (
 INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, `create_time`, `update_time`) VALUES
 -- 基础信息设置
 ('blog_name', '我的博客', '博客名称', NOW(), NOW()),
-('blog_desc', '这是一个基于RuoYi-Vue的博客系统', '博客描述', NOW(), NOW()),
+('blog_desc', '这是记录生活、技术和爱好的博客系统', '博客描述', NOW(), NOW()),
 ('blog_author', 'admin', '博客作者', NOW(), NOW()),
 ('blog_keywords', '博客,RuoYi,Vue,Spring Boot,MySQL,前端开发,后端开发', '博客关键词', NOW(), NOW()),
 ('blog_copyright', 'Copyright © 2025-2026 我的博客. All rights reserved.', '版权信息', NOW(), NOW()),
-('blog_beian', 'ICP备12345678号', '备案信息', NOW(), NOW()),
+('blog_beian', '陕ICP备12345678号', '备案信息', NOW(), NOW()),
 
 -- 联系方式设置
 ('blog_email', 'admin@example.com', '博客联系邮箱', NOW(), NOW()),
@@ -1365,20 +1365,21 @@ VALUES (2004, '评论管理', 2000, 4, 'comment', 'blog/comment/index', '', '', 
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 VALUES (2006, '友链管理', 2000, 5, 'friendLink', 'blog/friendLink/index', '', '', 1, 0, 'C', '0', '0', 'blog:friendLink:list', 'link', 'admin', NOW(), '', NULL, '友链管理菜单');
 
+-- 媒体管理（上传记录）
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2007, '媒体管理', 2000, 6, 'media', 'blog/media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'component', 'admin', NOW(), '', NULL, '媒体管理菜单');
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(20080, '媒体删除', 2007, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:media:remove', '#', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080);
+
 -- 博客设置
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2005, '博客设置', 2000, 6, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '博客设置菜单');
+VALUES (2005, '博客设置', 2000, 7, 'setting', 'blog/setting/index', '', '', 1, 0, 'C', '0', '0', 'blog:setting:list', 'swagger', 'admin', NOW(), '', NULL, '博客设置菜单');
 
 -- 为管理员角色分配博客管理菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2000), (1, 2001), (1, 2002), (1, 2003), (1, 2004), (1, 2006), (1, 2005);
 
--- 媒体管理（上传记录）
-INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
-VALUES (2007, '媒体管理', 2000, 7, 'media', 'blog/media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'picture', 'admin', NOW(), '', NULL, '媒体管理菜单');
-INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(20080, '媒体删除', 2007, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:media:remove', '#', 'admin', NOW(), '', NULL, '');
-INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080);
 
 -- ========== 配置博客管理按钮权限 ==========
 
