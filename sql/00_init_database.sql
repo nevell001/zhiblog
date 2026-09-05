@@ -675,6 +675,22 @@ CREATE TABLE IF NOT EXISTS `blog_friend_link` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客友链表';
 
+-- 博客上传记录表（附件/媒体库）
+CREATE TABLE IF NOT EXISTS `blog_upload` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `file_name` varchar(255) NOT NULL COMMENT '存储文件名',
+  `original_name` varchar(255) DEFAULT NULL COMMENT '原始文件名',
+  `url` varchar(500) DEFAULT NULL COMMENT '访问路径',
+  `mime_type` varchar(100) DEFAULT NULL COMMENT 'MIME类型',
+  `file_size` bigint DEFAULT '0' COMMENT '文件大小（字节）',
+  `upload_type` varchar(40) DEFAULT 'upload' COMMENT '上传类型：upload/compressed/avatar/thumbnail/article-cover/mobile/watermark',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_upload_type` (`upload_type`),
+  KEY `idx_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客上传记录表';
+
 -- 博客系统设置表
 CREATE TABLE IF NOT EXISTS `blog_setting` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
@@ -1335,6 +1351,13 @@ VALUES (2005, '博客设置', 2000, 6, 'setting', 'blog/setting/index', '', '', 
 -- 为管理员角色分配博客管理菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 2000), (1, 2001), (1, 2002), (1, 2003), (1, 2004), (1, 2006), (1, 2005);
+
+-- 媒体管理（上传记录）
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (2007, '媒体管理', 2000, 7, 'media', 'blog/media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'picture', 'admin', NOW(), '', NULL, '媒体管理菜单');
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(20080, '媒体删除', 2007, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:media:remove', '#', 'admin', NOW(), '', NULL, '');
+INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080);
 
 -- ========== 配置博客管理按钮权限 ==========
 

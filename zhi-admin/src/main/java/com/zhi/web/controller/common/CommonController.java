@@ -22,6 +22,8 @@ import com.zhi.common.utils.file.FileUploadUtils;
 import com.zhi.common.utils.file.FileUtils;
 import com.zhi.common.utils.file.MimeTypeUtils;
 import com.zhi.framework.config.ServerConfig;
+import com.zhi.system.domain.BlogUpload;
+import com.zhi.system.service.IBlogUploadService;
 
 /**
  * 通用请求处理
@@ -36,6 +38,9 @@ public class CommonController
 
     @Autowired
     private ServerConfig serverConfig;
+
+    @Autowired
+    private IBlogUploadService blogUploadService;
 
     private static final String FILE_DELIMETER = ",";
 
@@ -83,6 +88,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称
             String fileName = FileUploadUtils.upload(filePath, file);
+            recordUpload(file, fileName, "upload");
             String url = serverConfig.getUrl() + fileName;
             AjaxResult ajax = AjaxResult.success();
             ajax.put("url", url);
@@ -109,6 +115,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（带图片压缩）
             String fileName = FileUploadUtils.uploadWithCompression(filePath, file, MimeTypeUtils.DEFAULT_ALLOWED_EXTENSION);
+            recordUpload(file, fileName, "compressed");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径，前端会自动拼接域名
@@ -139,6 +146,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（头像压缩）
             String fileName = FileUploadUtils.uploadAvatar(filePath, file, true);
+            recordUpload(file, fileName, "avatar");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径
@@ -169,6 +177,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（缩略图压缩）
             String fileName = FileUploadUtils.uploadThumbnail(filePath, file, true);
+            recordUpload(file, fileName, "thumbnail");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径
@@ -199,6 +208,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（文章封面压缩）
             String fileName = FileUploadUtils.uploadArticleCover(filePath, file, true);
+            recordUpload(file, fileName, "article-cover");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径
@@ -229,6 +239,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（移动端适配压缩）
             String fileName = FileUploadUtils.uploadMobileImage(filePath, file, true);
+            recordUpload(file, fileName, "mobile");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径
@@ -263,6 +274,7 @@ public class CommonController
             String filePath = RuoYiConfig.getUploadPath();
             // 上传并返回新文件名称（添加水印）
             String fileName = FileUploadUtils.uploadWatermarkImage(filePath, file, watermarkText, true);
+            recordUpload(file, fileName, "watermark");
 
             // 生成可访问的URL，使用相对路径避免域名问题
             String url = fileName; // 直接返回文件路径
@@ -300,6 +312,7 @@ public class CommonController
             {
                 // 上传并返回新文件名称
                 String fileName = FileUploadUtils.upload(filePath, file);
+                recordUpload(file, fileName, "uploads");
                 String url = serverConfig.getUrl() + fileName;
                 urls.add(url);
                 fileNames.add(fileName);
@@ -345,6 +358,28 @@ public class CommonController
         catch (Exception e)
         {
             log.error("下载文件失败", e);
+        }
+    }
+
+    /**
+     * 记录上传到媒体库（上传成功后才调用）
+     */
+    private void recordUpload(MultipartFile file, String fileName, String uploadType)
+    {
+        try
+        {
+            BlogUpload record = new BlogUpload();
+            record.setFileName(FileUtils.getName(fileName));
+            record.setOriginalName(file.getOriginalFilename());
+            record.setUrl(fileName);
+            record.setMimeType(file.getContentType());
+            record.setFileSize(file.getSize());
+            record.setUploadType(uploadType);
+            blogUploadService.recordUpload(record);
+        }
+        catch (Exception e)
+        {
+            log.error("记录上传信息失败", e);
         }
     }
 
