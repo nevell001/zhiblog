@@ -89,8 +89,8 @@ describe('Blog Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('关于')
   })
 
-  it('路由总数应该为 16 个', () => {
-    expect(blogRoutes.length).toBe(16)
+  it('路由总数应该为 17 个', () => {
+    expect(blogRoutes.length).toBe(17)
   })
 
   it('博客路由应该包含前台路由', () => {

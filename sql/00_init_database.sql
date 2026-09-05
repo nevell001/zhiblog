@@ -664,7 +664,8 @@ CREATE TABLE IF NOT EXISTS `blog_friend_link` (
   `url` varchar(255) NOT NULL COMMENT '友链地址',
   `logo` varchar(255) DEFAULT NULL COMMENT '友链Logo',
   `description` varchar(255) DEFAULT NULL COMMENT '描述',
-  `status` tinyint DEFAULT '1' COMMENT '状态 0禁用 1启用',
+  `email` varchar(100) DEFAULT NULL COMMENT '申请人邮箱（友链申请）',
+  `status` tinyint DEFAULT '1' COMMENT '状态 0正常 1停用 2待审核',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `del_flag` tinyint DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -2328,6 +2329,16 @@ SET @add_article_publish_time := IF(@has_article_publish_time = 0,
 PREPARE add_article_publish_time_stmt FROM @add_article_publish_time;
 EXECUTE add_article_publish_time_stmt;
 DEALLOCATE PREPARE add_article_publish_time_stmt;
+
+-- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
+SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_friend_link' AND COLUMN_NAME = 'email');
+SET @add_friend_link_email := IF(@has_friend_link_email = 0,
+    'ALTER TABLE `blog_friend_link` ADD COLUMN `email` varchar(100) DEFAULT NULL COMMENT ''申请人邮箱（友链申请）''',
+    'SELECT 1');
+PREPARE add_friend_link_email_stmt FROM @add_friend_link_email;
+EXECUTE add_friend_link_email_stmt;
+DEALLOCATE PREPARE add_friend_link_email_stmt;
 
 -- ===============================================================
 -- 📌 站内信通知表 (v1.3.6 新增)

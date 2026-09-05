@@ -138,15 +138,48 @@
         class="hidden-md-and-down"
       />
       <el-table-column
+        label="申请人邮箱"
+        align="center"
+        prop="email"
+        width="150"
+        class="hidden-md-and-down"
+      >
+        <template #default="scope">
+          <span>{{ scope.row.email || '-' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="排序"
         align="center"
         prop="sort"
         width="70"
         class="hidden-sm-and-down"
       />
-      <el-table-column label="状态" align="center" prop="status" width="100">
+      <el-table-column label="状态" align="center" prop="status" width="180">
         <template #default="scope">
+          <template v-if="String(scope.row.status) === '2'">
+            <el-tag type="warning" size="small" style="margin-right: 4px">待审核</el-tag>
+            <el-button
+              v-hasPermi="['blog:friendLink:edit']"
+              link
+              type="success"
+              size="small"
+              @click="auditLink(scope.row, 1)"
+            >
+              通过
+            </el-button>
+            <el-button
+              v-hasPermi="['blog:friendLink:edit']"
+              link
+              type="danger"
+              size="small"
+              @click="auditLink(scope.row, 0)"
+            >
+              拒绝
+            </el-button>
+          </template>
           <el-switch
+            v-else
             v-model="scope.row.status"
             v-hasPermi="['blog:friendLink:edit']"
             :active-value="'0'"
@@ -276,7 +309,8 @@ import {
   getFriendLink,
   delFriendLink,
   addFriendLink,
-  updateFriendLink
+  updateFriendLink,
+  auditFriendLink
 } from '@/api/admin/blog/friendLink'
 import { parseTime } from '@/utils/zhi' // 导入时间解析工具
 
@@ -483,6 +517,17 @@ function handleStatusChange(row) {
       row.status = row.status === '0' ? '1' : '0'
       proxy.$modal.msgError('状态更新失败')
     })
+}
+
+/** 审核友链申请 */
+async function auditLink(row, status) {
+  try {
+    await auditFriendLink(row.id, status)
+    proxy.$modal.msgSuccess(status === 1 ? '已通过该申请' : '已拒绝该申请')
+    getList()
+  } catch (error: any) {
+    proxy.$modal.msgError('审核失败：' + (error.message || '未知错误'))
+  }
 }
 
 // 监听窗口大小变化

@@ -276,4 +276,90 @@ class BlogFriendLinkControllerTest {
 
         verify(blogFriendLinkService).deleteBlogFriendLinkByIds(any(Long[].class));
     }
+
+    /**
+     * 测试前台申请友情链接
+     */
+    @Test
+    void testApplyFriendLink() throws Exception {
+        when(blogFriendLinkService.insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class)))
+            .thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "申请站点");
+        params.put("url", "https://blog.example.com");
+        params.put("description", "一个示例站点");
+        params.put("email", "owner@example.com");
+
+        mockMvc.perform(post("/system/friendLink/apply")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogFriendLinkService).insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试前台申请友情链接 - 缺少名称与地址
+     */
+    @Test
+    void testApplyFriendLink_InvalidParams() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "");
+        params.put("url", "");
+
+        mockMvc.perform(post("/system/friendLink/apply")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogFriendLinkService, never()).insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试审核通过友情链接
+     */
+    @Test
+    void testAuditFriendLink_Pass() throws Exception {
+        when(blogFriendLinkService.updateBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class)))
+            .thenReturn(1);
+
+        mockMvc.perform(put("/system/friendLink/audit/1/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogFriendLinkService).updateBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试审核驳回友情链接
+     */
+    @Test
+    void testAuditFriendLink_Reject() throws Exception {
+        when(blogFriendLinkService.updateBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class)))
+            .thenReturn(1);
+
+        mockMvc.perform(put("/system/friendLink/audit/1/0")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogFriendLinkService).updateBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试审核参数不合法
+     */
+    @Test
+    void testAuditFriendLink_InvalidStatus() throws Exception {
+        mockMvc.perform(put("/system/friendLink/audit/1/3")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogFriendLinkService, never()).updateBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
 }

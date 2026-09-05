@@ -34,12 +34,16 @@ public class BlogFriendLink extends BaseEntity
     @Excel(name = "网站描述")
     private String description;
 
+    /** 申请人邮箱（友链申请） */
+    @Excel(name = "申请人邮箱")
+    private String email;
+
     /** 排序 */
     @Excel(name = "排序")
     private Integer sort;
 
-    /** 状态（0正常 1停用） */
-    @Excel(name = "状态", readConverterExp = "0=正常,1=停用")
+    /** 状态（0正常 1停用 2待审核） */
+    @Excel(name = "状态", readConverterExp = "0=正常,1=停用,2=待审核")
     private String status;
 
     /** 删除标志（0代表存在 1代表删除） */
@@ -103,6 +107,16 @@ public class BlogFriendLink extends BaseEntity
     public Integer getSort() 
     {
         return sort;
+    }
+
+    public void setEmail(String email) 
+    {
+        this.email = email;
+    }
+
+    public String getEmail() 
+    {
+        return email;
     }
 
     public void setStatus(String status) 

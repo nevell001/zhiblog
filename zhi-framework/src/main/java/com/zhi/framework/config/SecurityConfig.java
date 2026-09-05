@@ -164,7 +164,8 @@ public class SecurityConfig
                 requests.requestMatchers(
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/index"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/about"),
-                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/system/friendLink/front/**")
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/system/friendLink/front/**"),
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/system/friendLink/apply")
                 ).permitAll()
                     // 除上面外的所有请求全部需要鉴权认证
                     .anyRequest().authenticated();

@@ -64,3 +64,15 @@ export function getFrontFriendLinkList(): Promise<FriendLink[] & { data?: Friend
     headers: { isToken: false }
   })
 }
+
+/**
+ * 前台申请友链（提交后进入后台待审核）
+ */
+export function applyFriendLink(data: Partial<FriendLink>): Promise<any> {
+  return request({
+    url: '/system/friendLink/apply',
+    method: 'post',
+    data: data,
+    headers: { isToken: false }
+  })
+}

@@ -46,6 +46,12 @@ export const blogRoutes: RouteRecordRaw[] = [
     meta: { title: '作者文章' }
   },
   {
+    path: '/blog/friend-links/apply',
+    component: () => import('@/views/blog/friendLink/apply.vue'),
+    name: 'PublicBlogFriendLinkApply',
+    meta: { title: '友链申请' }
+  },
+  {
     path: '/blog/archive',
     component: () => import('@/views/blog/archive/index.vue'),
     name: 'PublicBlogArchive',

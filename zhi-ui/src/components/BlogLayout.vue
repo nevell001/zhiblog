@@ -181,6 +181,7 @@
             <router-link to="/blog/tag">标签</router-link>
             <router-link to="/blog/archive">归档</router-link>
             <router-link to="/blog/about">关于</router-link>
+            <router-link to="/blog/friend-links/apply">友链申请</router-link>
           </div>
           <div class="footer-col">
             <h4>社交平台</h4>
