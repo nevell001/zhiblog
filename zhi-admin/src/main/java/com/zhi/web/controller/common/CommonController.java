@@ -15,24 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.config.RuoYiConfig;
-import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.file.FileUploadUtils;
 import com.zhi.common.utils.file.FileUtils;
 import com.zhi.common.utils.file.MimeTypeUtils;
 import com.zhi.framework.config.ServerConfig;
-import com.zhi.system.domain.BlogArticle;
-import com.zhi.system.domain.BlogCategory;
-import com.zhi.system.domain.BlogTag;
-import com.zhi.system.domain.BlogSetting;
-import com.zhi.system.service.IBlogArticleService;
-import com.zhi.system.service.IBlogCategoryService;
-import com.zhi.system.service.IBlogTagService;
-import com.zhi.system.service.IBlogSettingService;
-import com.zhi.common.core.page.TableDataInfo;
 
 /**
  * 通用请求处理
@@ -41,24 +30,12 @@ import com.zhi.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/common")
-public class CommonController extends BaseController
+public class CommonController
 {
     private static final Logger log = LoggerFactory.getLogger(CommonController.class);
 
     @Autowired
     private ServerConfig serverConfig;
-
-    @Autowired
-    private IBlogArticleService blogArticleService;
-
-    @Autowired
-    private IBlogCategoryService blogCategoryService;
-
-    @Autowired
-    private IBlogTagService blogTagService;
-
-    @Autowired
-    private IBlogSettingService blogSettingService;
 
     private static final String FILE_DELIMETER = ",";
 
@@ -371,111 +348,4 @@ public class CommonController extends BaseController
         }
     }
 
-    // ==================== 博客前台接口转发 ====================
-
-    /**
-     * 获取博客设置（前台用）- 转发接口
-     */
-    @Anonymous
-    @GetMapping("/blog/settings")
-    public AjaxResult getBlogSettings()
-    {
-        try {
-            BlogSetting blogSetting = new BlogSetting();
-            blogSetting.setDelFlag("0");
-            List<BlogSetting> blogSettingList = blogSettingService.selectBlogSettingList(blogSetting);
-            return AjaxResult.success(blogSettingList);
-        } catch (Exception e) {
-            log.error("获取博客设置失败", e);
-            return AjaxResult.error("获取博客设置失败");
-        }
-    }
-
-    /**
-     * 获取文章列表（前台用，支持分页）- 转发接口
-     */
-    @Anonymous
-    @GetMapping("/blog/articles/list")
-    public TableDataInfo articleList(BlogArticle blogArticle)
-    {
-        try {
-            // 设置查询条件
-            blogArticle.setStatus(1L); // 只查询已发布的文章
-            blogArticle.setDelFlag(0L); // 只查询未删除的文章
-
-            startPage(); // 启用分页
-            List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
-            return getDataTable(list);
-        } catch (Exception e) {
-            log.error("获取文章列表失败", e);
-            return getDataTable(null);
-        }
-    }
-
-    /**
-     * 获取文章详情（前台用）- 转发接口
-     */
-    @Anonymous
-    @GetMapping("/blog/articles/{id}")
-    public AjaxResult getArticleDetail(@PathVariable("id") Long id)
-    {
-        try {
-            BlogArticle blogArticle = blogArticleService.selectBlogArticleById(id);
-            if (blogArticle == null) {
-                return AjaxResult.error("文章不存在");
-            }
-            
-            // 检查文章状态
-            if (blogArticle.getStatus() == null || !blogArticle.getStatus().equals(1L)) {
-                return AjaxResult.error("文章未发布");
-            }
-            
-            if (blogArticle.getDelFlag() == null || !blogArticle.getDelFlag().equals(0L)) {
-                return AjaxResult.error("文章已删除");
-            }
-            
-            return AjaxResult.success(blogArticle);
-        } catch (Exception e) {
-            log.error("获取文章详情失败", e);
-            return AjaxResult.error("获取文章详情失败");
-        }
-    }
-
-    /**
-     * 获取分类列表（前台用）- 转发接口
-     */
-    @Anonymous
-    @GetMapping("/blog/categories/list")
-    public AjaxResult categoryList()
-    {
-        try {
-            BlogCategory blogCategory = new BlogCategory();
-            blogCategory.setDelFlag("0");
-            blogCategory.setStatus(1);
-            // 使用实时统计的方法，确保文章数量准确
-            List<BlogCategory> list = blogCategoryService.selectCategoryListForFront(blogCategory);
-            return AjaxResult.success(list);
-        } catch (Exception e) {
-            log.error("获取分类列表失败", e);
-            return AjaxResult.error("获取分类列表失败");
-        }
-    }
-
-    /**
-     * 获取标签云（前台用）- 转发接口
-     */
-    @Anonymous
-    @GetMapping("/blog/tags/cloud")
-    public AjaxResult getTagCloud()
-    {
-        try {
-            BlogTag blogTag = new BlogTag();
-            blogTag.setDelFlag(0);
-            List<BlogTag> list = blogTagService.selectBlogTagList(blogTag);
-            return AjaxResult.success(list);
-        } catch (Exception e) {
-            log.error("获取标签云失败", e);
-            return AjaxResult.error("获取标签云失败");
-        }
-    }
 }
