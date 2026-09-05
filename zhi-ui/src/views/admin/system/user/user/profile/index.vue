@@ -63,14 +63,6 @@
             >
               评论通知
             </button>
-            <button
-              type="button"
-              class="tab"
-              :class="{ active: selectedTab === 'messages' }"
-              @click="selectedTab = 'messages'"
-            >
-              互动消息
-            </button>
           </div>
 
           <section v-if="selectedTab === 'articles'" class="profile-content">
@@ -207,14 +199,6 @@
                 <el-button plain @click="goArticleManage('list')">查看文章管理</el-button>
               </div>
             </template>
-          </section>
-
-          <section v-else-if="selectedTab === 'messages'" class="profile-content">
-            <div class="empty-panel">
-              <div class="empty-title">暂无互动消息</div>
-              <div class="empty-desc">当前系统还没有独立的站内互动消息接口。</div>
-              <el-button plain @click="openSettings('userinfo')">完善个人资料</el-button>
-            </div>
           </section>
 
           <section v-else class="profile-content">

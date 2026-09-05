@@ -35,6 +35,25 @@
                 </el-input>
               </el-form-item>
 
+              <el-form-item v-if="captchaEnabled" prop="code">
+                <div class="captcha-row">
+                  <el-input
+                    v-model="emailForm.code"
+                    placeholder="图形验证码"
+                    size="large"
+                    clearable
+                    style="flex: 1"
+                  />
+                  <img
+                    :src="captchaUrl"
+                    class="captcha-img"
+                    alt="验证码"
+                    title="点击刷新验证码"
+                    @click="refreshCaptcha"
+                  />
+                </div>
+              </el-form-item>
+
               <el-form-item prop="emailCode">
                 <div class="email-code-row">
                   <el-input
@@ -149,12 +168,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from '@/plugins/element-plus-service'
 import type { FormInstance, FormRules } from 'element-plus'
 import { Lock, Key, Message } from '@element-plus/icons-vue'
-import { sendResetCode, resetPassword as resetPasswordApi } from '@/api/blog/auth'
+import { sendResetCode, getCodeImg, resetPassword as resetPasswordApi } from '@/api/blog/auth'
 import BlogLayout from '@/components/BlogLayout.vue'
 
 const router = useRouter()
@@ -165,10 +184,13 @@ const loading = ref(false)
 const codeSending = ref(false)
 const codeCountdown = ref(0)
 const currentStep = ref(0)
+const captchaEnabled = ref(true)
+const captchaUrl = ref('')
 
 const emailForm = reactive({
   email: '',
-  emailCode: ''
+  emailCode: '',
+  code: ''
 })
 
 const passwordForm = reactive({
@@ -199,8 +221,25 @@ const validateConfirmPassword = (rule: any, value: any, callback: any) => {
 
 const emailRules: FormRules = {
   email: [{ required: true, validator: validateEmail, trigger: 'blur' }],
-  emailCode: [{ required: true, message: '请输入邮箱验证码', trigger: 'blur' }]
+  emailCode: [{ required: true, message: '请输入邮箱验证码', trigger: 'blur' }],
+  code: [{ required: true, message: '请输入图形验证码', trigger: 'blur' }]
 }
+
+// 获取并刷新图形验证码
+const refreshCaptcha = async () => {
+  try {
+    const res = await getCodeImg()
+    captchaEnabled.value = res.captchaEnabled === undefined ? true : res.captchaEnabled
+    if (captchaEnabled.value) {
+      captchaUrl.value = 'data:image/jpeg;base64,' + res.img
+    }
+  } catch {
+    captchaEnabled.value = false
+    captchaUrl.value = ''
+  }
+}
+
+onMounted(refreshCaptcha)
 
 const passwordRules: FormRules = {
   newPassword: [
@@ -223,10 +262,22 @@ const sendEmailCode = async () => {
     return
   }
 
+  // 图形验证码（启用时必填）
+  if (captchaEnabled.value && !emailForm.code) {
+    ElMessage.warning('请输入图形验证码')
+    refreshCaptcha()
+    return
+  }
+
   try {
     codeSending.value = true
     await sendResetCode(emailForm.email)
     ElMessage.success('验证码已发送，请查收邮箱')
+    // 发送成功后刷新图形验证码，防止复用
+    if (captchaEnabled.value) {
+      emailForm.code = ''
+      refreshCaptcha()
+    }
 
     // 开始倒计时
     codeCountdown.value = 60
@@ -531,5 +582,20 @@ html.dark.theme-mo-blog :deep(.el-input__inner::placeholder) {
   .email-code-row :deep(.el-button) {
     width: 100%;
   }
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.captcha-img {
+  width: 112px;
+  height: 40px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--el-border-color, #dcdfe6);
+  object-fit: cover;
 }
 </style>

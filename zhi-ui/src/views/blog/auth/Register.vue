@@ -1,137 +1,143 @@
 <template>
   <div class="blog-register-container mo-auth-page">
-    <section class="auth-card">
-      <router-link to="/blog" class="auth-brand">
-        <span class="brand-mark">知</span>
-        <span>ZhiBlog - 知博</span>
-      </router-link>
+    <BlogLayout>
+      <section class="auth-card">
+        <router-link to="/blog" class="auth-brand">
+          <span class="brand-mark">知</span>
+          <span>ZhiBlog - 知博</span>
+        </router-link>
 
-      <div class="auth-head">
-        <h2>注册</h2>
-        <p class="sub">创建账号，开始发布与评论</p>
-      </div>
+        <div class="auth-head">
+          <h2>注册</h2>
+          <p class="sub">创建账号，开始发布与评论</p>
+        </div>
 
-      <div class="auth-switch">
-        <router-link to="/login" class="switch-item">登录</router-link>
-        <span class="switch-item active">注册</span>
-      </div>
+        <div class="auth-switch">
+          <router-link to="/login" class="switch-item">登录</router-link>
+          <span class="switch-item active">注册</span>
+        </div>
 
-      <el-form
-        ref="registerFormRef"
-        :model="registerForm"
-        :rules="registerRules"
-        class="register-form"
-      >
-        <el-form-item prop="username" class="form-group">
-          <label>
-            用户名
-            <span class="required">*</span>
-          </label>
-          <el-input v-model="registerForm.username" placeholder="请输入用户名" clearable>
-            <template #prefix>
-              <el-icon><User /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item prop="nickname" class="form-group">
-          <label>昵称</label>
-          <el-input v-model="registerForm.nickname" placeholder="选填，留空则使用用户名" clearable>
-            <template #prefix>
-              <el-icon><User /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item prop="email" class="form-group">
-          <label>邮箱</label>
-          <el-input v-model="registerForm.email" placeholder="name@example.com" clearable>
-            <template #prefix>
-              <el-icon><Message /></el-icon>
-            </template>
-          </el-input>
-        </el-form-item>
-
-        <el-form-item prop="emailCode" class="form-group">
-          <label>邮箱验证码</label>
-          <div class="email-code-row">
-            <el-input v-model="registerForm.emailCode" placeholder="邮箱验证码" clearable>
+        <el-form
+          ref="registerFormRef"
+          :model="registerForm"
+          :rules="registerRules"
+          class="register-form"
+        >
+          <el-form-item prop="username" class="form-group">
+            <label>
+              用户名
+              <span class="required">*</span>
+            </label>
+            <el-input v-model="registerForm.username" placeholder="请输入用户名" clearable>
               <template #prefix>
-                <el-icon><Key /></el-icon>
-              </template>
-            </el-input>
-            <el-button
-              class="code-button"
-              :disabled="codeCountdown > 0"
-              :loading="codeSending"
-              @click="sendEmailCode"
-            >
-              {{ codeCountdown > 0 ? `${codeCountdown}秒` : '发送' }}
-            </el-button>
-          </div>
-        </el-form-item>
-
-        <div class="password-grid">
-          <el-form-item prop="password" class="form-group">
-            <label>密码</label>
-            <el-input
-              v-model="registerForm.password"
-              type="password"
-              placeholder="5-20 位"
-              show-password
-              clearable
-            >
-              <template #prefix>
-                <el-icon><Lock /></el-icon>
+                <el-icon><User /></el-icon>
               </template>
             </el-input>
           </el-form-item>
 
-          <el-form-item prop="confirmPassword" class="form-group">
-            <label>确认密码</label>
+          <el-form-item prop="nickname" class="form-group">
+            <label>昵称</label>
             <el-input
-              v-model="registerForm.confirmPassword"
-              type="password"
-              placeholder="再次输入"
-              show-password
+              v-model="registerForm.nickname"
+              placeholder="选填，留空则使用用户名"
               clearable
             >
               <template #prefix>
-                <el-icon><Lock /></el-icon>
+                <el-icon><User /></el-icon>
               </template>
             </el-input>
           </el-form-item>
-        </div>
 
-        <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
-          <label>验证码</label>
-          <div class="captcha-row">
-            <el-input v-model="registerForm.code" placeholder="计算结果" clearable>
+          <el-form-item prop="email" class="form-group">
+            <label>邮箱</label>
+            <el-input v-model="registerForm.email" placeholder="name@example.com" clearable>
               <template #prefix>
-                <el-icon><Key /></el-icon>
+                <el-icon><Message /></el-icon>
               </template>
             </el-input>
-            <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+          </el-form-item>
+
+          <el-form-item prop="emailCode" class="form-group">
+            <label>邮箱验证码</label>
+            <div class="email-code-row">
+              <el-input v-model="registerForm.emailCode" placeholder="邮箱验证码" clearable>
+                <template #prefix>
+                  <el-icon><Key /></el-icon>
+                </template>
+              </el-input>
+              <el-button
+                class="code-button"
+                :disabled="codeCountdown > 0"
+                :loading="codeSending"
+                @click="sendEmailCode"
+              >
+                {{ codeCountdown > 0 ? `${codeCountdown}秒` : '发送' }}
+              </el-button>
+            </div>
+          </el-form-item>
+
+          <div class="password-grid">
+            <el-form-item prop="password" class="form-group">
+              <label>密码</label>
+              <el-input
+                v-model="registerForm.password"
+                type="password"
+                placeholder="5-20 位"
+                show-password
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
+
+            <el-form-item prop="confirmPassword" class="form-group">
+              <label>确认密码</label>
+              <el-input
+                v-model="registerForm.confirmPassword"
+                type="password"
+                placeholder="再次输入"
+                show-password
+                clearable
+              >
+                <template #prefix>
+                  <el-icon><Lock /></el-icon>
+                </template>
+              </el-input>
+            </el-form-item>
           </div>
-        </el-form-item>
 
-        <div class="form-options">
-          <label class="remember">
-            <input v-model="agreeToTerms" type="checkbox" />
-            同意用户协议和隐私政策
-          </label>
-        </div>
+          <el-form-item v-if="captchaEnabled" prop="code" class="form-group">
+            <label>验证码</label>
+            <div class="captcha-row">
+              <el-input v-model="registerForm.code" placeholder="计算结果" clearable>
+                <template #prefix>
+                  <el-icon><Key /></el-icon>
+                </template>
+              </el-input>
+              <img :src="captchaUrl" class="captcha-img" alt="验证码" @click="refreshCaptcha" />
+            </div>
+          </el-form-item>
 
-        <el-button type="primary" :loading="loading" class="auth-submit" @click="handleRegister">
-          {{ loading ? '注册中...' : '注册' }}
-        </el-button>
-      </el-form>
+          <div class="form-options">
+            <label class="remember">
+              <input v-model="agreeToTerms" type="checkbox" />
+              同意用户协议和隐私政策
+            </label>
+          </div>
 
-      <p class="auth-footer">
-        已有账号？
-        <router-link to="/login">返回登录</router-link>
-      </p>
-    </section>
+          <el-button type="primary" :loading="loading" class="auth-submit" @click="handleRegister">
+            {{ loading ? '注册中...' : '注册' }}
+          </el-button>
+        </el-form>
+
+        <p class="auth-footer">
+          已有账号？
+          <router-link to="/login">返回登录</router-link>
+        </p>
+      </section>
+    </BlogLayout>
   </div>
 </template>
 
@@ -142,6 +148,7 @@ import { ElMessage } from '@/plugins/element-plus-service'
 import type { FormInstance, FormRules } from 'element-plus'
 import { User, Lock, Key, Message } from '@element-plus/icons-vue'
 import { useBlogUserStore } from '@/stores/blogUser'
+import BlogLayout from '@/components/BlogLayout.vue'
 import { getCodeImg } from '@/api/blog/auth'
 import { logger } from '@/utils/logger'
 
