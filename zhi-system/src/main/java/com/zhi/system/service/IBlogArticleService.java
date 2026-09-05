@@ -69,11 +69,20 @@ public interface IBlogArticleService
     public int deleteBlogArticleById(Long id);
 
     /**
-     * 增加文章浏览量
+     * 增加文章浏览量（无去重，兼容旧调用）
      * 
      * @param id 文章ID
      */
     public void addViewCount(Long id);
+
+    /**
+     * 增加文章浏览量（按访问者去重）
+     *
+     * @param id 文章ID
+     * @param viewerKey 访问者标识（用户ID 或 IP），同一访问者 24 小时内只计一次；
+     *                  传 null 时不进行去重
+     */
+    public void addViewCount(Long id, String viewerKey);
 
     /**
      * 根据标签ID查询文章列表

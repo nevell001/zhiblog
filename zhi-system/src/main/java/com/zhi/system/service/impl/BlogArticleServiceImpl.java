@@ -351,8 +351,23 @@ public class BlogArticleServiceImpl implements IBlogArticleService
 
     @Override
     public void addViewCount(Long id) {
+        addViewCount(id, null);
+    }
+
+    @Override
+    public void addViewCount(Long id, String viewerKey) {
         // 使用 Redis 缓冲浏览量增量，由 ArticleViewSyncTask 定时批量同步到数据库
         String key = "blog:article:view:" + id;
+
+        // 按访问者去重：同一访问者 24 小时内对同一文章只计一次
+        if (viewerKey != null && !viewerKey.isEmpty()) {
+            String dedupeKey = "blog:article:viewed:" + id + ":" + viewerKey;
+            if (Boolean.FALSE.equals(redisCache.hasKey(dedupeKey))) {
+                redisCache.incrementCacheObject(key, 1);
+                redisCache.setCacheObject(dedupeKey, "1", 24, TimeUnit.HOURS);
+            }
+            return;
+        }
         redisCache.incrementCacheObject(key, 1);
     }
 

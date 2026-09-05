@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
+import com.zhi.common.utils.SecurityUtils;
+import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.enums.LimitType;
 import com.zhi.common.core.controller.BaseController;
@@ -252,7 +255,7 @@ public class BlogFrontController extends BaseController
      */
     @Anonymous
     @GetMapping("/article/{id:\\d+}")
-    public AjaxResult getArticleDetail(@PathVariable("id") Long id)
+    public AjaxResult getArticleDetail(@PathVariable("id") Long id, HttpServletRequest request)
     {
         logger.info("请求文章详情，ID: {}", id);
 
@@ -266,7 +269,7 @@ public class BlogFrontController extends BaseController
                                   "1".equals(viewCountEnabled);
 
             if (shouldCount) {
-                blogArticleService.addViewCount(id);
+                blogArticleService.addViewCount(id, buildViewerKey(request));
                 logger.info("文章浏览量已增加，ID: {}", id);
             } else {
                 logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -507,7 +510,7 @@ public class BlogFrontController extends BaseController
     @Anonymous
     @RateLimiter(key = "blog:view:", time = 60, count = 10, limitType = LimitType.IP)
     @PostMapping("/article/view/{id}")
-    public AjaxResult addArticleView(@PathVariable("id") Long id)
+    public AjaxResult addArticleView(@PathVariable("id") Long id, HttpServletRequest request)
     {
         // 检查浏览统计开关
         String viewCountEnabled = blogSettingService.selectSettingValueByKey("view_count_enabled");
@@ -518,7 +521,7 @@ public class BlogFrontController extends BaseController
                               "1".equals(viewCountEnabled);
 
         if (shouldCount) {
-            blogArticleService.addViewCount(id);
+            blogArticleService.addViewCount(id, buildViewerKey(request));
             logger.info("文章浏览量已增加（API调用），ID: {}", id);
         } else {
             logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -782,5 +785,40 @@ public class BlogFrontController extends BaseController
         out.println("</channel>");
         out.println("</rss>");
         out.flush();
+    }
+
+    /**
+     * 生成访问者去重标识：优先登录用户ID，否则取客户端IP
+     *
+     * @param request 当前请求
+     * @return 去重标识；获取失败返回 null（此时不去重）
+     */
+    private String buildViewerKey(HttpServletRequest request)
+    {
+        try
+        {
+            Long userId = SecurityUtils.getUserId();
+            if (userId != null)
+            {
+                return "u" + userId;
+            }
+        }
+        catch (Exception ignored)
+        {
+            // 未登录，回退到 IP
+        }
+        try
+        {
+            String ip = IpUtils.getIpAddr(request);
+            if (ip == null || ip.isEmpty())
+            {
+                return null;
+            }
+            return "ip:" + ip;
+        }
+        catch (Exception ignored)
+        {
+            return null;
+        }
     }
 }
