@@ -156,7 +156,7 @@
         </div>
 
         <!-- 侧边栏 -->
-        <div class="sidebar">
+        <div v-if="isSidebarEnabled" class="sidebar">
           <!-- 关于这个分类 -->
           <div class="sidebar-widget" :style="{ animationDelay: '0.1s' }">
             <h3 class="widget-title">
@@ -316,6 +316,12 @@ const popularTags = ref([])
 const recentArticles = ref([])
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
+
+// 前台功能开关（sidebar_enabled 默认开启）
+const isSidebarEnabled = computed(() => {
+  const v = (blogSettings.value as any).sidebar_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
 
 // 查询参数
 const queryParams = reactive({

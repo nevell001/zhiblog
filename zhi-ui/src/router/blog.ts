@@ -70,6 +70,12 @@ export const blogRoutes: RouteRecordRaw[] = [
     meta: { title: '找回密码' }
   },
   {
+    path: '/blog/search',
+    component: () => import('@/views/blog/search/index.vue'),
+    name: 'PublicBlogSearch',
+    meta: { title: '搜索文章' }
+  },
+  {
     path: '/blog/bookmarks',
     component: () => import('@/views/blog/bookmark/index.vue'),
     name: 'PublicBlogBookmarks',

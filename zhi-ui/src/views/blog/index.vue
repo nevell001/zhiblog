@@ -9,7 +9,7 @@
             '在这里，每一篇文章都是一次思考的沉淀。无论技术随笔、生活感悟还是行业观察，都值得被认真对待。'
           }}
         </p>
-        <div class="search-box">
+        <div v-if="isSearchEnabled" class="search-box">
           <input
             v-model="searchKeyword"
             type="text"
@@ -22,11 +22,6 @@
 
       <main class="home-layout">
         <section>
-          <div v-if="isSearching" class="search-result-note">
-            搜索结果：{{ searchKeyword }}（共 {{ total }} 篇）
-            <button type="button" @click="clearSearch">返回全部文章</button>
-          </div>
-
           <article
             v-for="article in articles"
             :key="article.id"
@@ -90,7 +85,7 @@
           </div>
         </section>
 
-        <aside>
+        <aside v-if="isSidebarEnabled">
           <div class="sidebar-widget">
             <div class="widget-title">分类导航</div>
             <div class="cat-list">
@@ -158,11 +153,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDebounceFn } from '@vueuse/core'
 import BlogLayout from '@/components/BlogLayout.vue'
-import { getArticleList, getBlogSettings, getHotArticles, searchArticles } from '@/api/blog'
+import { getArticleList, getBlogSettings, getHotArticles } from '@/api/blog'
 import { getCategoryList } from '@/api/blog/category'
 import { getTagCloud } from '@/api/blog/tag'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
@@ -182,9 +176,18 @@ const currentPage = ref(1)
 const pageSize = ref(5)
 const total = ref(0)
 const searchKeyword = ref('')
-const isSearching = ref(false)
 const showContact = ref(false)
 const blogLayoutRef = ref<any>(null)
+
+// 前台功能开关（search_enabled / sidebar_enabled 默认开启）
+const isSearchEnabled = computed(() => {
+  const v = (blogSettings.value as any).search_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
+const isSidebarEnabled = computed(() => {
+  const v = (blogSettings.value as any).sidebar_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
 
 const formatDate = (date: string) => {
   return parseTime(date, '{y}-{m}-{d}')
@@ -210,58 +213,13 @@ const scrollToAllArticles = () => {
 
 const handleCurrentChange = (page: number) => {
   currentPage.value = page
-  if (isSearching.value) {
-    handleSearch()
-  } else {
-    loadArticles()
-  }
+  loadArticles()
 }
 
-const handleSearch = async () => {
-  if (!searchKeyword.value.trim()) {
-    clearSearch()
-    return
-  }
-  try {
-    loading.value = true
-    isSearching.value = true
-    const params = {
-      pageNum: currentPage.value,
-      pageSize: pageSize.value
-    }
-    const response = await searchArticles(searchKeyword.value.trim(), params)
-    articles.value = response.rows || []
-    total.value = response.total || 0
-  } catch (error) {
-    logger.error('搜索失败:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-// 防抖搜索：延迟 500ms 执行，避免频繁请求
-const debouncedSearch = useDebounceFn(() => {
-  if (searchKeyword.value.trim()) {
-    handleSearch()
-  } else {
-    clearSearch()
-  }
-}, 500)
-
-// 监听搜索关键词变化，自动触发防抖搜索
-watch(searchKeyword, () => {
-  if (searchKeyword.value.trim()) {
-    debouncedSearch()
-  } else if (isSearching.value) {
-    clearSearch()
-  }
-})
-
-const clearSearch = async () => {
-  searchKeyword.value = ''
-  isSearching.value = false
-  currentPage.value = 1
-  await loadArticles()
+// 前往独立搜索页
+const handleSearch = () => {
+  const keyword = searchKeyword.value.trim()
+  router.push({ path: '/blog/search', query: keyword ? { q: keyword } : {} })
 }
 
 const loadArticles = async () => {

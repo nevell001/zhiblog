@@ -152,7 +152,7 @@
     <slot></slot>
 
     <!-- 统一底部 -->
-    <footer class="blog-site-footer">
+    <footer v-if="isFooterEnabled" class="blog-site-footer">
       <div class="footer-wave">
         <svg viewBox="0 0 1440 60" preserveAspectRatio="none">
           <path
@@ -216,7 +216,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>
+        <p v-if="isCopyrightEnabled">
           © {{ currentYear }}
           {{ blogSettings.blog_author || blogSettings.blog_name || '我的博客' }} · 保留所有权利
         </p>
@@ -391,6 +391,16 @@ const markAllNotifications = async () => {
 // 友链全局开关（默认开启）
 const isFriendLinkEnabled = computed(() => {
   const v = (blogSettings.value as any).friend_link_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
+
+// 页脚与版权开关（默认开启）
+const isFooterEnabled = computed(() => {
+  const v = (blogSettings.value as any).footer_enabled
+  return v === undefined || v === null || v === 'true' || v === true
+})
+const isCopyrightEnabled = computed(() => {
+  const v = (blogSettings.value as any).copyright_enabled
   return v === undefined || v === null || v === 'true' || v === true
 })
 
