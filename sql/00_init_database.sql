@@ -659,6 +659,12 @@ CREATE TABLE IF NOT EXISTS `blog_comment` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客评论表';
 
+-- 一次性校正历史评论数（按已发布评论重算 blog_article.comment_count，幂等可重复执行）
+UPDATE blog_article ba
+SET ba.comment_count = (SELECT COUNT(*) FROM blog_comment c
+                        WHERE c.article_id = ba.id AND c.status = '1')
+WHERE ba.del_flag = '0';
+
 -- 博客友情链接表
 CREATE TABLE IF NOT EXISTS `blog_friend_link` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',

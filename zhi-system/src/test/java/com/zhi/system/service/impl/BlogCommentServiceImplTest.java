@@ -3,6 +3,7 @@ package com.zhi.system.service.impl;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogComment;
 import com.zhi.system.domain.BlogNotification;
+import com.zhi.system.mapper.BlogArticleMapper;
 import com.zhi.system.mapper.BlogCommentMapper;
 import com.zhi.system.service.IBlogArticleService;
 import com.zhi.system.service.IBlogNotificationService;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 /**
@@ -32,6 +34,9 @@ class BlogCommentServiceImplTest {
 
     @Mock
     private BlogCommentMapper blogCommentMapper;
+
+    @Mock
+    private BlogArticleMapper blogArticleMapper;
 
     @Mock
     private IBlogArticleService blogArticleService;
@@ -593,5 +598,73 @@ class BlogCommentServiceImplTest {
                 && notification.getContent() != null
                 && notification.getContent().length() <= 203
                 && notification.getContent().endsWith("...")));
+    }
+
+    /**
+     * 测试编辑评论状态：待审核 → 已发布 时同步文章评论数
+     */
+    @Test
+    void testUpdateCommentStatusToPublishedAdjustsCount() {
+        BlogComment existing = new BlogComment();
+        existing.setId(1L);
+        existing.setArticleId(10L);
+        existing.setStatus("0");
+
+        BlogComment update = new BlogComment();
+        update.setId(1L);
+        update.setStatus("1");
+
+        when(blogCommentMapper.selectBlogCommentById(1L)).thenReturn(existing);
+        when(blogCommentMapper.updateBlogComment(update)).thenReturn(1);
+        when(blogArticleMapper.changeCommentCount(10L, 1)).thenReturn(1);
+
+        blogCommentService.updateBlogComment(update);
+
+        verify(blogArticleMapper).changeCommentCount(10L, 1);
+    }
+
+    /**
+     * 测试编辑评论状态：已发布 → 待审核 时减少文章评论数
+     */
+    @Test
+    void testUpdateCommentStatusAwayFromPublishedAdjustsCount() {
+        BlogComment existing = new BlogComment();
+        existing.setId(1L);
+        existing.setArticleId(10L);
+        existing.setStatus("1");
+
+        BlogComment update = new BlogComment();
+        update.setId(1L);
+        update.setStatus("0");
+
+        when(blogCommentMapper.selectBlogCommentById(1L)).thenReturn(existing);
+        when(blogCommentMapper.updateBlogComment(update)).thenReturn(1);
+        when(blogArticleMapper.changeCommentCount(10L, -1)).thenReturn(1);
+
+        blogCommentService.updateBlogComment(update);
+
+        verify(blogArticleMapper).changeCommentCount(10L, -1);
+    }
+
+    /**
+     * 测试编辑评论但状态未变化时不同步文章评论数
+     */
+    @Test
+    void testUpdateCommentWithoutStatusChangeKeepsCount() {
+        BlogComment existing = new BlogComment();
+        existing.setId(1L);
+        existing.setArticleId(10L);
+        existing.setStatus("0");
+
+        BlogComment update = new BlogComment();
+        update.setId(1L);
+        update.setStatus("0");
+
+        when(blogCommentMapper.selectBlogCommentById(1L)).thenReturn(existing);
+        when(blogCommentMapper.updateBlogComment(update)).thenReturn(1);
+
+        blogCommentService.updateBlogComment(update);
+
+        verify(blogArticleMapper, never()).changeCommentCount(any(), anyInt());
     }
 }

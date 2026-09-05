@@ -185,7 +185,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     }
 
     /**
-     * 修改博客评论
+     * 修改博客评论（状态变化时同步文章评论数）
      * 
      * @param blogComment 博客评论
      * @return 结果
@@ -193,7 +193,28 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     @Override
     public int updateBlogComment(BlogComment blogComment)
     {
-        return blogCommentMapper.updateBlogComment(blogComment);
+        BlogComment existing = blogComment.getId() == null ? null
+                : blogCommentMapper.selectBlogCommentById(blogComment.getId());
+        int result = blogCommentMapper.updateBlogComment(blogComment);
+        if (result > 0 && existing != null)
+        {
+            String oldStatus = existing.getStatus();
+            String newStatus = blogComment.getStatus();
+            if (newStatus != null && !newStatus.equals(oldStatus))
+            {
+                if ("1".equals(newStatus) && !"1".equals(oldStatus))
+                {
+                    // 待审核/删除 → 已发布
+                    adjustArticleCommentCount(existing.getArticleId(), 1);
+                }
+                else if ("1".equals(oldStatus) && !"1".equals(newStatus))
+                {
+                    // 已发布 → 待审核/删除
+                    adjustArticleCommentCount(existing.getArticleId(), -1);
+                }
+            }
+        }
+        return result;
     }
 
     /**
