@@ -255,7 +255,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download(
-    'blog/category/export',
+    'system/category/export',
     {
       ...queryParams.value
     },

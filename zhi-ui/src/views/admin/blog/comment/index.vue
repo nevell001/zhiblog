@@ -282,7 +282,7 @@ function handleDelete(row) {
 /** 导出按钮操作 */
 function handleExport() {
   proxy.download(
-    'blog/comment/export',
+    'system/comment/export',
     {
       ...queryParams.value
     },
