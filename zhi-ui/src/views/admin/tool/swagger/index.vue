@@ -18,15 +18,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import iFrame from '@/components/iFrame/index.vue'
+import { getApiBaseUrl } from '@/utils/index'
 
 // 检测是否为生产环境
 const isProduction = computed(() => {
   return import.meta.env?.VUE_APP_ENV === 'production' || import.meta.env?.MODE === 'production'
 })
 
-// 使用后端直接访问地址，避免通过代理导致的循环加载
-const baseUrl = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8080'
-const url = ref(`${baseUrl}/swagger-ui/index.html`)
+// 使用统一的 API 基址（会把 Docker 容器名 zhi-admin 映射为宿主机可访问的 localhost）
+const url = ref(`${getApiBaseUrl()}/swagger-ui/index.html`)
 
 // 前往开发环境
 const goToDevEnvironment = () => {
