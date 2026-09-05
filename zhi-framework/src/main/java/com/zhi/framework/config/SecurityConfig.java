@@ -124,12 +124,14 @@ public class SecurityConfig
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/register"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/captchaImage"),
                         org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/auth/**")).permitAll()
-                    // 静态资源，可匿名访问
+                    // 静态资源与 SEO 文件，可匿名访问
                     .requestMatchers(org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/*.html"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.html"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.css"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/**/*.js"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/sitemap.xml"),
+                            org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/robots.txt"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
                 
                 // Actuator 安全监控端点（所有环境允许访问，不含敏感信息）
