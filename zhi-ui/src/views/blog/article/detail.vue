@@ -563,16 +563,11 @@ const handleBookmark = async () => {
   }
 }
 
-// 回复评论
+// 回复评论（游客与登录用户均可回复；游客使用昵称/邮箱字段）
 const handleReply = comment => {
-  if (!isLoggedIn.value) {
-    ElMessage.info('请先登录后再进行回复')
-    router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
-    return
-  }
   replyTarget.value = { id: comment.id, nickname: comment.nickname || '匿名' }
   // 滚动到评论表单
-  const formElement = document.querySelector('.comment-form')
+  const formElement = document.querySelector('.comment-input')
   if (formElement) {
     formElement.scrollIntoView({ behavior: 'smooth' })
   }
@@ -614,14 +609,9 @@ const handleCommentKeydown = (event: KeyboardEvent) => {
   }
 }
 
-// 提交评论
+// 提交评论/回复（游客填写昵称/邮箱，登录用户自动使用账号信息）
 const submitComment = async () => {
   try {
-    if (!isLoggedIn.value) {
-      ElMessage.info('请先登录后再发表评论')
-      router.push(`/login?redirect=${encodeURIComponent(route.fullPath)}`)
-      return
-    }
     await commentFormRef.value.validate()
 
     commentSubmitting.value = true
@@ -629,6 +619,14 @@ const submitComment = async () => {
     const commentData: any = {
       articleId: article.value.id,
       content: commentForm.content
+    }
+
+    // 游客评论：附带昵称与可选邮箱
+    if (!isLoggedIn.value) {
+      commentData.nickname = commentForm.nickname.trim()
+      if (commentForm.email.trim()) {
+        commentData.email = commentForm.email.trim()
+      }
     }
 
     // 如果是回复评论，添加 parentId
