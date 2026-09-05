@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.core.domain.entity.SysUser;
+import com.zhi.system.mapper.BlogArticleMapper;
 import com.zhi.system.mapper.BlogCommentMapper;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogComment;
@@ -30,6 +31,9 @@ public class BlogCommentServiceImpl implements IBlogCommentService
 
     @Autowired
     private BlogCommentMapper blogCommentMapper;
+
+    @Autowired
+    private BlogArticleMapper blogArticleMapper;
 
     @Autowired
     private IBlogArticleService blogArticleService;
@@ -85,6 +89,11 @@ public class BlogCommentServiceImpl implements IBlogCommentService
         int result = blogCommentMapper.insertBlogComment(blogComment);
         if (result > 0)
         {
+            // 已发布（无需审核）的评论同步文章评论数
+            if ("1".equals(blogComment.getStatus()))
+            {
+                adjustArticleCommentCount(blogComment.getArticleId(), 1);
+            }
             sendCommentNotification(blogComment);
         }
         return result;
@@ -188,7 +197,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     }
 
     /**
-     * 批量删除博客评论
+     * 批量删除博客评论（物理删除，发布中的评论同步文章评论数）
      * 
      * @param ids 需要删除的博客评论主键集合
      * @return 结果
@@ -196,6 +205,14 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     @Override
     public int deleteBlogCommentByIds(Long[] ids)
     {
+        if (ids == null)
+        {
+            return 0;
+        }
+        for (Long id : ids)
+        {
+            decreaseIfPublished(id);
+        }
         return blogCommentMapper.deleteBlogCommentByIds(ids);
     }
 
@@ -208,6 +225,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     @Override
     public int deleteBlogCommentById(Long id)
     {
+        decreaseIfPublished(id);
         return blogCommentMapper.deleteBlogCommentById(id);
     }
 
@@ -222,6 +240,13 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     {
         int count = 0;
         for (Long id : ids) {
+            // 仅当此前不是已发布状态时，通过后增加文章评论数（避免重复计数）
+            BlogComment existing = blogCommentMapper.selectBlogCommentById(id);
+            if (existing != null && !"1".equals(existing.getStatus()))
+            {
+                adjustArticleCommentCount(existing.getArticleId(), 1);
+            }
+
             BlogComment blogComment = new BlogComment();
             blogComment.setId(id);
             blogComment.setStatus("1"); // 1表示已审核通过
@@ -244,6 +269,13 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     {
         int count = 0;
         for (Long id : ids) {
+            // 拒绝（置 2）：此前处于发布状态的评论从文章评论数中扣除
+            BlogComment existing = blogCommentMapper.selectBlogCommentById(id);
+            if (existing != null && "1".equals(existing.getStatus()))
+            {
+                adjustArticleCommentCount(existing.getArticleId(), -1);
+            }
+
             BlogComment blogComment = new BlogComment();
             blogComment.setId(id);
             blogComment.setStatus("2"); // 2表示已删除（拒绝）
@@ -306,6 +338,48 @@ public class BlogCommentServiceImpl implements IBlogCommentService
         catch (Exception e)
         {
             logger.error("审核结果通知发送失败: commentId={}", commentId, e);
+        }
+    }
+
+    /**
+     * 删除前同步：若该评论当前处于发布状态，则减少文章评论数
+     */
+    private void decreaseIfPublished(Long commentId)
+    {
+        if (commentId == null)
+        {
+            return;
+        }
+        try
+        {
+            BlogComment existing = blogCommentMapper.selectBlogCommentById(commentId);
+            if (existing != null && "1".equals(existing.getStatus()))
+            {
+                adjustArticleCommentCount(existing.getArticleId(), -1);
+            }
+        }
+        catch (Exception e)
+        {
+            logger.warn("删除评论前查询失败: commentId={}, error={}", commentId, e.getMessage());
+        }
+    }
+
+    /**
+     * 增减文章评论数（blog_article.comment_count）
+     */
+    private void adjustArticleCommentCount(Long articleId, int delta)
+    {
+        if (articleId == null)
+        {
+            return;
+        }
+        try
+        {
+            blogArticleMapper.changeCommentCount(articleId, delta);
+        }
+        catch (Exception e)
+        {
+            logger.warn("同步文章评论数失败: articleId={}, delta={}, error={}", articleId, delta, e.getMessage());
         }
     }
 

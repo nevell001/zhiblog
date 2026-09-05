@@ -212,4 +212,13 @@ public interface BlogArticleMapper
      * @return 发布的文章数量
      */
     int publishScheduledArticles();
+
+    /**
+     * 增减文章评论数字段（不进入负数）
+     *
+     * @param articleId 文章ID
+     * @param delta 增量（+1/-1）
+     * @return 结果
+     */
+    int changeCommentCount(@Param("articleId") Long articleId, @Param("delta") int delta);
 }
