@@ -571,7 +571,9 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '文章ID',
   `title` varchar(200) NOT NULL COMMENT '文章标题',
   `summary` varchar(500) DEFAULT NULL COMMENT '文章摘要',
-  `content` longtext NOT NULL COMMENT '文章内容',
+  `content` longtext NOT NULL COMMENT '文章内容（HTML，展示用）',
+  `content_md` longtext COMMENT 'Markdown 源码（format=markdown 时保存）',
+  `format` varchar(10) NOT NULL DEFAULT 'html' COMMENT '内容格式 html|markdown',
   `cover_url` varchar(255) DEFAULT NULL COMMENT '封面图片URL',
   `category_id` bigint DEFAULT NULL COMMENT '分类ID',
   `author_id` bigint DEFAULT NULL COMMENT '作者ID',
@@ -2352,6 +2354,25 @@ SET @add_article_publish_time := IF(@has_article_publish_time = 0,
 PREPARE add_article_publish_time_stmt FROM @add_article_publish_time;
 EXECUTE add_article_publish_time_stmt;
 DEALLOCATE PREPARE add_article_publish_time_stmt;
+
+-- 老库升级：补齐 blog_article.format / content_md 列（幂等，Markdown 文章）
+SET @has_article_format := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'format');
+SET @add_article_format := IF(@has_article_format = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `format` varchar(10) NOT NULL DEFAULT ''html'' COMMENT ''内容格式 html|markdown''',
+    'SELECT 1');
+PREPARE add_article_format_stmt FROM @add_article_format;
+EXECUTE add_article_format_stmt;
+DEALLOCATE PREPARE add_article_format_stmt;
+
+SET @has_article_content_md := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'content_md');
+SET @add_article_content_md := IF(@has_article_content_md = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `content_md` longtext COMMENT ''Markdown 源码（format=markdown 时保存）''',
+    'SELECT 1');
+PREPARE add_article_content_md_stmt FROM @add_article_content_md;
+EXECUTE add_article_content_md_stmt;
+DEALLOCATE PREPARE add_article_content_md_stmt;
 
 -- 老库升级：补齐 blog_friend_link.email 列（幂等，友链申请功能）
 SET @has_friend_link_email := (SELECT COUNT(*) FROM information_schema.COLUMNS

@@ -4,6 +4,8 @@ CREATE TABLE IF NOT EXISTS blog_article (
     title VARCHAR(200) NOT NULL,
     summary VARCHAR(500),
     content LONGTEXT,
+    content_md LONGTEXT,
+    format VARCHAR(10) DEFAULT 'html',
     cover_url VARCHAR(500),
     category_id BIGINT,
     author_id BIGINT,

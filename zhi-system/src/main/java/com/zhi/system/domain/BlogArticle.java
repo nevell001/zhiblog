@@ -29,9 +29,15 @@ public class BlogArticle extends BaseEntity
     @Excel(name = "摘要")
     private String summary;
 
-    /** 文章内容 */
+    /** 文章内容（HTML，展示用） */
     @Excel(name = "文章内容")
     private String content;
+
+    /** Markdown 源码（format=markdown 时保存） */
+    private String contentMd;
+
+    /** 内容格式 html|markdown */
+    private String format;
 
     /** 封面图片 */
     @Excel(name = "封面图片")
@@ -132,6 +138,26 @@ public class BlogArticle extends BaseEntity
     public String getContent() 
     {
         return content;
+    }
+
+    public String getContentMd() 
+    {
+        return contentMd;
+    }
+
+    public void setContentMd(String contentMd) 
+    {
+        this.contentMd = contentMd;
+    }
+
+    public String getFormat() 
+    {
+        return format;
+    }
+
+    public void setFormat(String format) 
+    {
+        this.format = format;
     }
 
     public void setCoverUrl(String coverUrl) 

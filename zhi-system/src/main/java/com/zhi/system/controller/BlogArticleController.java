@@ -19,10 +19,12 @@ import com.zhi.common.annotation.Log;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
+import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogTag;
 import com.zhi.system.service.IBlogArticleService;
+import com.zhi.common.utils.html.MarkdownUtil;
 import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
 import com.zhi.common.utils.poi.ExcelUtil;
@@ -373,6 +375,17 @@ public class BlogArticleController extends BaseController
         }
         if (params.get("authorName") != null) {
             article.setAuthorName(params.get("authorName").toString());
+        }
+
+        // Markdown 文章：保存源码并由服务端渲染 HTML 双写
+        String formatValue = params.get("format") == null ? null : params.get("format").toString();
+        boolean markdown = "markdown".equalsIgnoreCase(formatValue);
+        article.setFormat(markdown ? "markdown" : "html");
+        if (params.get("contentMd") != null) {
+            article.setContentMd(params.get("contentMd").toString());
+        }
+        if (markdown && StringUtils.isNotEmpty(article.getContentMd())) {
+            article.setContent(MarkdownUtil.toHtml(article.getContentMd()));
         }
 
         return article;

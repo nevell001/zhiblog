@@ -360,7 +360,16 @@
 
             <div class="editor-body" :class="`is-${editorViewMode}`">
               <section v-if="editorViewMode !== 'preview'" class="editor-pane edit-pane">
-                <el-form-item prop="content" class="content-field">
+                <el-form-item v-if="isMarkdownMode" prop="contentMd" class="content-field">
+                  <el-input
+                    v-model="form.contentMd"
+                    type="textarea"
+                    :rows="20"
+                    placeholder="在此编写 Markdown 内容…"
+                    class="markdown-editor"
+                  />
+                </el-form-item>
+                <el-form-item v-else prop="content" class="content-field">
                   <editor
                     :key="editorKey"
                     ref="richEditorRef"
@@ -370,7 +379,7 @@
                 </el-form-item>
               </section>
               <section v-if="editorViewMode !== 'edit'" class="editor-pane preview-pane">
-                <div v-if="form.content" class="editor-preview" v-html="form.content"></div>
+                <div v-if="previewHtml" class="editor-preview" v-html="previewHtml"></div>
                 <div v-else class="preview-empty">文章预览会显示在这里</div>
               </section>
             </div>
@@ -396,6 +405,23 @@
                   style="width: 100%"
                 />
                 <div class="schedule-tip">到达设定时间后将自动发布为公开文章</div>
+              </div>
+            </section>
+
+            <section class="side-section">
+              <div class="side-title">内容格式</div>
+              <el-form-item prop="format" class="compact-form-item">
+                <el-radio-group
+                  v-model="form.format"
+                  class="status-radio"
+                  @change="handleFormatChange"
+                >
+                  <el-radio-button label="html">富文本</el-radio-button>
+                  <el-radio-button label="markdown">Markdown</el-radio-button>
+                </el-radio-group>
+              </el-form-item>
+              <div v-if="isMarkdownMode" class="schedule-tip">
+                Markdown 源码将同时保存，发布时自动渲染为 HTML
               </div>
             </section>
 
@@ -516,6 +542,7 @@ import { listTag } from '@/api/admin/blog/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
 import { parseTime } from '@/utils/zhi'
+import { renderMarkdown } from '@/utils/markdown'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 
 const { proxy } = getCurrentInstance()
@@ -708,6 +735,8 @@ function reset() {
     title: '',
     summary: '',
     content: '', // 直接使用空字符串
+    contentMd: '', // Markdown 源码（format=markdown 时）
+    format: 'html', // 内容格式 html|markdown
     coverUrl: '',
     categoryId: null,
     authorId: userStore.userId || null,
@@ -817,6 +846,8 @@ async function handleUpdate(row) {
       articleData.title = articleData.title || ''
       articleData.summary = articleData.summary || ''
       articleData.content = articleData.content || ''
+      articleData.contentMd = articleData.contentMd || ''
+      articleData.format = articleData.format === 'markdown' ? 'markdown' : 'html'
       articleData.coverUrl = articleData.coverUrl || ''
       articleData.authorName = articleData.authorName || ''
       articleData.publishTime = articleData.publishTime
@@ -892,6 +923,26 @@ function formatTagList(tags) {
 
 // 提交按钮
 const articleRef = ref<any>()
+
+// Markdown/富文本相关
+const isMarkdownMode = computed(() => form.value.format === 'markdown')
+const previewHtml = computed(() => {
+  if (isMarkdownMode.value) {
+    return renderMarkdown(form.value.contentMd)
+  }
+  return form.value.content || ''
+})
+
+const handleFormatChange = (value: string) => {
+  if (value === 'markdown' && !form.value.contentMd && form.value.content) {
+    // 富文本已有内容时作为 Markdown 初始源码（可再编辑）
+    form.value.contentMd = form.value.content
+  }
+  if (value === 'html' && !form.value.content && form.value.contentMd) {
+    // 切回富文本时用当前 Markdown 生成 HTML
+    form.value.content = renderMarkdown(form.value.contentMd)
+  }
+}
 const submitForm = async (targetStatus?: 0 | 1 | 2) => {
   if (!articleRef.value) return
 
@@ -928,6 +979,19 @@ const submitForm = async (targetStatus?: 0 | 1 | 2) => {
         apiData.title = apiData.title?.trim() || ''
         apiData.summary = apiData.summary?.trim() || ''
         apiData.content = apiData.content || ''
+
+        // Markdown：同时提交源码并由前端/服务端渲染 HTML 双写
+        const submitFormat = apiData.format === 'markdown' ? 'markdown' : 'html'
+        if (submitFormat === 'markdown') {
+          apiData.contentMd = apiData.contentMd || ''
+          if (!apiData.contentMd.trim()) {
+            throw new Error('请填写 Markdown 内容')
+          }
+          apiData.content = renderMarkdown(apiData.contentMd)
+        } else {
+          apiData.contentMd = ''
+        }
+        apiData.format = submitFormat
         apiData.coverUrl = apiData.coverUrl || ''
 
         // 设置默认值，确保数据类型正确
