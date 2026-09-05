@@ -351,6 +351,17 @@ public class BlogArticleController extends BaseController
         if (params.get("status") != null) {
             article.setStatus(Long.valueOf(params.get("status").toString()));
         }
+        if (params.get("publishTime") != null) {
+            String publishTimeStr = params.get("publishTime").toString().trim();
+            if (!publishTimeStr.isEmpty()) {
+                try {
+                    article.setPublishTime(
+                        new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(publishTimeStr));
+                } catch (java.text.ParseException e) {
+                    log.warn("无效的发布时间参数: {}", publishTimeStr);
+                }
+            }
+        }
         if (params.get(PARAM_IS_TOP) != null) {
             article.setIsTop(Long.valueOf(params.get(PARAM_IS_TOP).toString()));
         }

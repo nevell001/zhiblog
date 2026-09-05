@@ -15,6 +15,7 @@
         <result property="isTop"    column="is_top"    />
         <result property="isRecommend"    column="is_recommend"    />
         <result property="status"    column="status"    />
+        <result property="publishTime"    column="publish_time"    />
         <result property="viewCount"    column="view_count"    />
         <result property="likeCount"    column="like_count"    />
         <result property="commentCount"    column="comment_count"    />
@@ -72,7 +73,7 @@
     
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
         from blog_article ba
@@ -81,7 +82,7 @@
         left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         where ba.id = #{id}
         group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
                  ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                  bc.name
     </select>
@@ -96,9 +97,9 @@
 
     <insert id="insertBlogArticle" parameterType="BlogArticle" useGeneratedKeys="true" keyProperty="id">
         insert into blog_article
-        (title, summary, content, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, view_count, like_count, comment_count, create_time, update_time, del_flag)
+        (title, summary, content, cover_url, category_id, author_id, author_name, is_top, is_recommend, status, publish_time, view_count, like_count, comment_count, create_time, update_time, del_flag)
         values
-        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
+        (#{title}, #{summary}, #{content}, #{coverUrl}, #{categoryId}, #{authorId}, #{authorName}, #{isTop}, #{isRecommend}, #{status}, #{publishTime}, #{viewCount}, #{likeCount}, #{commentCount}, NOW(), NOW(),
         <choose>
             <when test="delFlag != null">#{delFlag}</when>
             <otherwise>0</otherwise>
@@ -118,6 +119,7 @@
             <if test="isTop != null">is_top = #{isTop},</if>
             <if test="isRecommend != null">is_recommend = #{isRecommend},</if>
             <if test="status != null">status = #{status},</if>
+            publish_time = #{publishTime},
             <if test="viewCount != null">view_count = #{viewCount},</if>
             <if test="likeCount != null">like_count = #{likeCount},</if>
             <if test="commentCount != null">comment_count = #{commentCount},</if>
@@ -376,4 +378,13 @@
         ORDER BY ba.view_count DESC, ba.create_time DESC
         LIMIT #{limit}
     </select>
+    <!-- 定时发布：到期将 status=2 的文章置为已发布 -->
+    <update id="publishScheduledArticles">
+        UPDATE blog_article
+        SET status = 1, update_time = NOW()
+        WHERE status = 2
+          AND publish_time IS NOT NULL
+          AND publish_time &lt;= NOW()
+          AND del_flag = 0
+    </update>
 </mapper>

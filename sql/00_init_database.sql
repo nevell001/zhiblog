@@ -578,7 +578,8 @@ CREATE TABLE IF NOT EXISTS `blog_article` (
   `author_name` varchar(50) DEFAULT NULL COMMENT '作者名称',
   `is_top` tinyint DEFAULT '0' COMMENT '是否置顶：0否 1是',
   `is_recommend` tinyint DEFAULT '0' COMMENT '是否推荐：0否 1是',
-  `status` tinyint DEFAULT '0' COMMENT '文章状态：0草稿 1已发布',
+  `status` tinyint DEFAULT '0' COMMENT '文章状态：0草稿 1已发布 2定时发布(待发布)',
+  `publish_time` datetime DEFAULT NULL COMMENT '定时发布时间（status=2 时生效）',
   `view_count` int DEFAULT '0' COMMENT '浏览量（已使用IFNULL处理NULL值，默认从0开始计数）',
   `like_count` int DEFAULT '0' COMMENT '点赞数',
   `comment_count` int DEFAULT '0' COMMENT '评论数',
@@ -2313,6 +2314,16 @@ SET @add_comment_like_count := IF(@has_comment_like_count = 0,
 PREPARE add_comment_like_count_stmt FROM @add_comment_like_count;
 EXECUTE add_comment_like_count_stmt;
 DEALLOCATE PREPARE add_comment_like_count_stmt;
+
+-- 老库升级：补齐 blog_article.publish_time 列（幂等，定时发布功能）
+SET @has_article_publish_time := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_article' AND COLUMN_NAME = 'publish_time');
+SET @add_article_publish_time := IF(@has_article_publish_time = 0,
+    'ALTER TABLE `blog_article` ADD COLUMN `publish_time` datetime DEFAULT NULL COMMENT ''定时发布时间''',
+    'SELECT 1');
+PREPARE add_article_publish_time_stmt FROM @add_article_publish_time;
+EXECUTE add_article_publish_time_stmt;
+DEALLOCATE PREPARE add_article_publish_time_stmt;
 
 -- ===============================================================
 -- 📌 站内信通知表 (v1.3.6 新增)

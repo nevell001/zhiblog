@@ -63,9 +63,12 @@ public class BlogArticle extends BaseEntity
     @Excel(name = "是否推荐 0否 1是")
     private Long isRecommend;
 
-    /** 状态 0草稿 1发布 */
-    @Excel(name = "状态 0草稿 1发布")
+    /** 状态 0草稿 1发布 2定时发布 */
+    @Excel(name = "状态 0草稿 1发布 2定时发布")
     private Long status;
+
+    /** 定时发布时间（status=2 时生效） */
+    private java.util.Date publishTime;
 
     /** 浏览量 */
     @Excel(name = "浏览量")
@@ -230,6 +233,16 @@ public class BlogArticle extends BaseEntity
     public Long getStatus() 
     {
         return status;
+    }
+
+    public java.util.Date getPublishTime() 
+    {
+        return publishTime;
+    }
+
+    public void setPublishTime(java.util.Date publishTime) 
+    {
+        this.publishTime = publishTime;
     }
 
     public void setViewCount(Long viewCount) 

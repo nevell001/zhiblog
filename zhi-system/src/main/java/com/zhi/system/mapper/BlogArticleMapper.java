@@ -205,4 +205,11 @@ public interface BlogArticleMapper
      * @return 相关文章列表
      */
     List<BlogArticle> selectRelatedArticles(@Param("id") Long id, @Param("limit") int limit);
+
+    /**
+     * 定时发布：将已到发布时间的定时文章（status=2）置为已发布
+     *
+     * @return 发布的文章数量
+     */
+    int publishScheduledArticles();
 }

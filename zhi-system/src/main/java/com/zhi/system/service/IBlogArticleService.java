@@ -228,4 +228,11 @@ public interface IBlogArticleService
      * @return 相关文章列表
      */
     public List<BlogArticle> selectRelatedArticles(Long id);
+
+    /**
+     * 定时发布：将已到发布时间的定时文章（status=2）置为已发布
+     *
+     * @return 发布的文章数量
+     */
+    public int publishScheduledArticles();
 }

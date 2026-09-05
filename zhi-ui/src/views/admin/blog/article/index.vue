@@ -39,6 +39,7 @@
         >
           <el-option label="草稿" value="0" />
           <el-option label="发布" value="1" />
+          <el-option label="定时发布" value="2" />
         </el-select>
       </el-form-item>
       <el-form-item label="">
@@ -143,14 +144,26 @@
         </template>
       </el-table-column>
 
-      <el-table-column label="状态" align="center" prop="status" width="80">
+      <el-table-column label="状态" align="center" prop="status" width="90">
         <template #default="scope">
           <el-tag
-            :type="scope.row.status === '1' || scope.row.status === 1 ? 'success' : 'warning'"
+            :type="
+              scope.row.status === '1' || scope.row.status === 1
+                ? 'success'
+                : scope.row.status === '2' || scope.row.status === 2
+                  ? 'info'
+                  : 'warning'
+            "
             effect="dark"
             class="article-status-tag"
           >
-            {{ scope.row.status === '1' || scope.row.status === 1 ? '已发布' : '草稿' }}
+            {{
+              scope.row.status === '1' || scope.row.status === 1
+                ? '已发布'
+                : scope.row.status === '2' || scope.row.status === 2
+                  ? '定时发布'
+                  : '草稿'
+            }}
           </el-tag>
         </template>
       </el-table-column>
@@ -370,8 +383,20 @@
                 <el-radio-group v-model="form.status" class="status-radio">
                   <el-radio-button :label="1">公开</el-radio-button>
                   <el-radio-button :label="0">草稿</el-radio-button>
+                  <el-radio-button :label="2">定时发布</el-radio-button>
                 </el-radio-group>
               </el-form-item>
+              <div v-if="Number(form.status) === 2" class="publish-time-picker">
+                <el-date-picker
+                  v-model="form.publishTime"
+                  type="datetime"
+                  placeholder="选择自动发布时间"
+                  format="YYYY-MM-DD HH:mm:ss"
+                  value-format="YYYY-MM-DD HH:mm:ss"
+                  style="width: 100%"
+                />
+                <div class="schedule-tip">到达设定时间后将自动发布为公开文章</div>
+              </div>
             </section>
 
             <section class="side-section">
@@ -688,6 +713,7 @@ function reset() {
     authorId: userStore.userId || null,
     authorName: userStore.nickName || userStore.name || '',
     status: 0, // 默认草稿状态
+    publishTime: '', // 定时发布时间
     isTop: 0,
     isRecommend: 0,
     tagIds: [],
@@ -793,6 +819,9 @@ async function handleUpdate(row) {
       articleData.content = articleData.content || ''
       articleData.coverUrl = articleData.coverUrl || ''
       articleData.authorName = articleData.authorName || ''
+      articleData.publishTime = articleData.publishTime
+        ? String(articleData.publishTime).replace('T', ' ').slice(0, 19)
+        : ''
 
       form.value = articleData
     } else {
@@ -863,11 +892,28 @@ function formatTagList(tags) {
 
 // 提交按钮
 const articleRef = ref<any>()
-const submitForm = async (targetStatus?: 0 | 1) => {
+const submitForm = async (targetStatus?: 0 | 1 | 2) => {
   if (!articleRef.value) return
 
   articleRef.value.validate(async valid => {
     if (valid) {
+      // 定时发布前置校验
+      const desiredStatus = targetStatus !== undefined ? targetStatus : Number(form.value.status)
+      const scheduleTime = form.value.publishTime ? String(form.value.publishTime) : ''
+      if (desiredStatus === 2) {
+        if (!scheduleTime) {
+          ElMessage.error('请选择定时发布时间')
+          return
+        }
+        const pickTime = new Date(scheduleTime.replace(/-/g, '/')).getTime()
+        if (!Number.isFinite(pickTime) || pickTime <= Date.now()) {
+          ElMessage.error('定时发布时间必须晚于当前时间')
+          return
+        }
+      } else {
+        // 非定时发布时清除历史定时时间
+        form.value.publishTime = ''
+      }
       loading.value = true
       editorSaveState.value = 'saving'
       try {
@@ -926,10 +972,22 @@ const submitForm = async (targetStatus?: 0 | 1) => {
         // 使用现有的API函数
         if (isNew) {
           await addArticle(apiData)
-          ElMessage.success(apiData.status === 1 ? '发布成功' : '草稿保存成功')
+          ElMessage.success(
+            apiData.status === 2
+              ? '定时发布已保存'
+              : apiData.status === 1
+                ? '发布成功'
+                : '草稿保存成功'
+          )
         } else {
           await updateArticle(apiData)
-          ElMessage.success(apiData.status === 1 ? '发布成功' : '草稿保存成功')
+          ElMessage.success(
+            apiData.status === 2
+              ? '定时发布已保存'
+              : apiData.status === 1
+                ? '发布成功'
+                : '草稿保存成功'
+          )
         }
 
         editorSaveState.value = 'saved'
@@ -2166,5 +2224,15 @@ html.dark .mo-editor-form :deep(.ql-active) {
 
 html.dark .mo-editor-form :deep(.ql-selected) {
   color: var(--mo-p600) !important;
+}
+/* 定时发布时间选择 */
+.publish-time-picker {
+  margin-top: 8px;
+}
+.schedule-tip {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--mo-n500);
 }
 </style>

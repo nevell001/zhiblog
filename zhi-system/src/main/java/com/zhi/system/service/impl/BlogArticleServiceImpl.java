@@ -516,6 +516,16 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
+     * 定时发布：将已到发布时间的定时文章（status=2）置为已发布
+     *
+     * @return 发布的文章数量
+     */
+    @Override
+    public int publishScheduledArticles() {
+        return blogArticleMapper.publishScheduledArticles();
+    }
+
+    /**
      * 查询博客文章数量
      * 
      * @param blogArticle 查询条件

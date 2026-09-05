@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS blog_article (
     like_count BIGINT DEFAULT 0,
     comment_count BIGINT DEFAULT 0,
     status BIGINT DEFAULT 0,
+    publish_time TIMESTAMP NULL,
     is_top BIGINT DEFAULT 0,
     is_recommend BIGINT DEFAULT 0,
     is_hot BIGINT DEFAULT 0,
