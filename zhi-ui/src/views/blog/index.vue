@@ -38,21 +38,27 @@
             ></div>
             <div class="body">
               <div v-if="article.tags?.length" class="tags">
-                <span
+                <router-link
                   v-for="(tag, index) in article.tags.slice(0, 2)"
                   :key="tag.id"
+                  :to="`/blog/tag/${tag.id}`"
                   class="tag"
                   :class="tagClass(Number(index))"
+                  @click.stop
                 >
                   {{ tag.name }}
-                </span>
+                </router-link>
               </div>
               <h2 class="title">{{ article.title }}</h2>
               <p class="excerpt">
                 {{ article.summary || '这篇文章暂时没有摘要，点击进入阅读全文。' }}
               </p>
               <div class="meta">
-                <span class="author">
+                <span
+                  class="author"
+                  :class="{ clickable: article.authorId }"
+                  @click.stop="goAuthor(article.authorId)"
+                >
                   <span class="avatar-sm">{{ (article.authorName || '作').charAt(0) }}</span>
                   {{ article.authorName || '作者' }}
                 </span>
@@ -205,6 +211,11 @@ const fallbackGradient = (id: number) => {
 
 const goToArticle = (id: number) => {
   if (id) router.push(`/blog/article/${id}`)
+}
+
+// 跳转到作者主页
+const goAuthor = (authorId?: number) => {
+  if (authorId) router.push(`/blog/author/${authorId}`)
 }
 
 const scrollToAllArticles = () => {
@@ -419,6 +430,12 @@ onMounted(async () => {
   gap: 6px;
   color: var(--mo-n600);
   font-weight: 500;
+}
+.mo-home-page .article-card .meta .author.clickable {
+  cursor: pointer;
+}
+.mo-home-page .article-card .meta .author.clickable:hover {
+  color: var(--mo-p600);
 }
 
 .mo-home-page .avatar-sm {

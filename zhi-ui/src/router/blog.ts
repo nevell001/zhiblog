@@ -17,7 +17,7 @@ export const blogRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/blog/category',
-    component: () => import('@/views/blog/category/index.vue'),
+    component: () => import('@/views/blog/category/list.vue'),
     name: 'PublicBlogCategoryList',
     meta: { title: '分类列表' }
   },
@@ -29,7 +29,7 @@ export const blogRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/blog/tag',
-    component: () => import('@/views/blog/tag/index.vue'),
+    component: () => import('@/views/blog/tag/list.vue'),
     name: 'PublicBlogTagList',
     meta: { title: '标签列表' }
   },
@@ -38,6 +38,12 @@ export const blogRoutes: RouteRecordRaw[] = [
     component: () => import('@/views/blog/tag/index.vue'),
     name: 'PublicBlogTag',
     meta: { title: '标签文章' }
+  },
+  {
+    path: '/blog/author/:id',
+    component: () => import('@/views/blog/author/index.vue'),
+    name: 'PublicBlogAuthor',
+    meta: { title: '作者文章' }
   },
   {
     path: '/blog/archive',

@@ -151,7 +151,14 @@
             <div v-if="article.tags && article.tags.length" class="side-widget">
               <div class="wt">文章标签</div>
               <div class="tag-cloud">
-                <span v-for="tag in article.tags" :key="tag.id" class="tc">{{ tag.name }}</span>
+                <router-link
+                  v-for="tag in article.tags"
+                  :key="tag.id"
+                  :to="`/blog/tag/${tag.id}`"
+                  class="tc"
+                >
+                  {{ tag.name }}
+                </router-link>
               </div>
             </div>
 
@@ -1149,6 +1156,10 @@ html.dark .mo-article-page .content-body {
   background: var(--mo-n100);
   color: var(--mo-n600);
   font-size: 12px;
+  text-decoration: none;
+}
+.mo-article-page .tc:hover {
+  color: var(--mo-p600);
 }
 
 .mo-article-page .related-mini-list {
