@@ -4,7 +4,13 @@ import com.zhi.common.config.RuoYiConfig;
 import com.zhi.common.utils.file.FileUploadUtils;
 import com.zhi.common.utils.image.ImageCompressUtils;
 import com.zhi.common.utils.StringUtils;
+import com.zhi.common.utils.file.FileUtils;
+import com.zhi.system.domain.BlogUpload;
+import com.zhi.system.service.IBlogUploadService;
 import com.zhi.system.service.ISysImageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +27,11 @@ import java.util.*;
  */
 @Service
 public class SysImageServiceImpl implements ISysImageService {
+    private static final Logger log = LoggerFactory.getLogger(SysImageServiceImpl.class);
+
+    @Autowired
+    private IBlogUploadService blogUploadService;
+
     /**
      * 图片存储路径前缀
      */
@@ -228,8 +239,33 @@ public class SysImageServiceImpl implements ISysImageService {
         
         // 写入文件
         java.nio.file.Files.write(desc.toPath(), imageData);
-        
+
+        // 记录到媒体库
+        String pathFileName = FileUploadUtils.getPathFileName(uploadDir, fileName);
+        recordProcessedImage(originalFile, fileName, pathFileName, desc);
+
         // 返回相对路径
-        return FileUploadUtils.getPathFileName(uploadDir, fileName);
+        return pathFileName;
+    }
+
+    /**
+     * 将图片处理结果记录到媒体库
+     */
+    private void recordProcessedImage(MultipartFile originalFile, String fileName, String pathFileName, File desc) {
+        try
+        {
+            BlogUpload record = new BlogUpload();
+            record.setFileName(fileName);
+            record.setOriginalName(originalFile.getOriginalFilename());
+            record.setUrl(pathFileName);
+            record.setMimeType(originalFile.getContentType());
+            record.setFileSize(desc.length());
+            record.setUploadType("image-tool");
+            blogUploadService.recordUpload(record);
+        }
+        catch (Exception e)
+        {
+            log.warn("记录图片处理结果失败: fileName={}, error={}", fileName, e.getMessage());
+        }
     }
 }

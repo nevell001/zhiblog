@@ -28,6 +28,8 @@ import com.zhi.framework.web.service.TokenService;
 import com.zhi.system.service.ISysUserService;
 import com.zhi.system.service.ISysConfigService;
 import com.zhi.system.service.IBlogSettingService;
+import com.zhi.system.domain.BlogUpload;
+import com.zhi.system.service.IBlogUploadService;
 import com.zhi.common.cache.UnifiedCacheManager;
 import com.zhi.common.constant.CacheConstants;
 
@@ -48,6 +50,9 @@ public class SysProfileController extends BaseController
 
     @Autowired
     private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private IBlogUploadService blogUploadService;
 
     @Autowired
     private UnifiedCacheManager unifiedCacheManager;
@@ -142,6 +147,7 @@ public class SysProfileController extends BaseController
         {
             LoginUser loginUser = getLoginUser();
             String avatar = FileUploadUtils.uploadAvatar(RuoYiConfig.getAvatarPath(), file, true);
+            recordBlogUpload(file, avatar);
             if (userService.updateUserAvatar(loginUser.getUserId(), avatar))
             {
                 // 同时更新博客设置中的头像，确保前台首页显示最新头像
@@ -196,5 +202,27 @@ public class SysProfileController extends BaseController
             }
         }
         return error("上传图片异常，请联系管理员");
+    }
+
+    /**
+     * 记录用户头像上传到媒体库
+     */
+    private void recordBlogUpload(MultipartFile file, String avatarPath)
+    {
+        try
+        {
+            BlogUpload record = new BlogUpload();
+            record.setFileName(FileUtils.getName(avatarPath));
+            record.setOriginalName(file.getOriginalFilename());
+            record.setUrl(avatarPath);
+            record.setMimeType(file.getContentType());
+            record.setFileSize(file.getSize());
+            record.setUploadType("avatar");
+            blogUploadService.recordUpload(record);
+        }
+        catch (Exception e)
+        {
+            logger.error("记录头像上传信息失败", e);
+        }
     }
 }

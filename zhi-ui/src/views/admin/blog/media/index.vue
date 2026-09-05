@@ -116,7 +116,8 @@ const uploadTypes = [
   { label: '缩略图', value: 'thumbnail' },
   { label: '文章封面', value: 'article-cover' },
   { label: '移动端', value: 'mobile' },
-  { label: '水印', value: 'watermark' }
+  { label: '水印', value: 'watermark' },
+  { label: '图片处理', value: 'image-tool' }
 ]
 
 const typeText = (type?: string) => {
