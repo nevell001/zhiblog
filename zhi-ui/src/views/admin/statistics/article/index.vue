@@ -31,12 +31,14 @@
       <el-row :gutter="20" style="margin-top: 30px">
         <el-col :span="12">
           <el-card header="文章分类分布">
-            <div id="categoryChart" style="height: 300px"></div>
+            <div v-if="categoryReady" id="categoryChart" style="height: 300px"></div>
+            <el-empty v-else description="暂无分类数据" :image-size="70" />
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card header="热门标签">
-            <div id="tagChart" style="height: 300px"></div>
+            <div v-if="tagReady" id="tagChart" style="height: 300px"></div>
+            <el-empty v-else description="暂无标签数据" :image-size="70" />
           </el-card>
         </el-col>
       </el-row>
@@ -74,6 +76,8 @@ const articleStats = ref<ArticleStats>({})
 const settingsStore = useSettingsStore()
 const categoryChart = ref<any>(null)
 const tagChartRef = ref<any>(null)
+const categoryReady = ref(false)
+const tagReady = ref(false)
 let categoryData: any = null
 let tagData: any = null
 
@@ -95,13 +99,19 @@ const loadChartData = async () => {
     // 加载文章分类分布
     const categoryRes = await getArticleCategoryDistribution()
     if (categoryRes.code === 200) {
-      await renderCategoryChart(categoryRes.data)
+      await renderCategoryChart(categoryRes.data || { labels: [], data: [] })
+      categoryReady.value = true
+    } else {
+      categoryReady.value = false
     }
 
     // 加载热门标签
     const tagsRes = await getHotTags()
     if (tagsRes.code === 200) {
-      await renderTagsChart(tagsRes.data)
+      await renderTagsChart(tagsRes.data || { labels: [], data: [] })
+      tagReady.value = true
+    } else {
+      tagReady.value = false
     }
 
     // 加载每日 PV/UV
@@ -214,12 +224,7 @@ const renderCategoryChart = async data => {
               value: data.data[index],
               name: label
             }))
-          : [
-              { value: 25, name: '技术' },
-              { value: 18, name: '生活' },
-              { value: 12, name: '学习' },
-              { value: 8, name: '其他' }
-            ],
+          : [],
         emphasis: {
           itemStyle: {
             shadowBlur: 10,
@@ -255,7 +260,7 @@ const renderTagsChart = async data => {
     },
     xAxis: {
       type: 'category',
-      data: data.labels || ['Java', 'Spring', 'Vue', 'React', '数据库', 'Linux'],
+      data: data.labels || [],
       axisLabel: { color: colors.secondaryColor },
       axisLine: { lineStyle: { color: colors.borderColor } }
     },
@@ -266,7 +271,7 @@ const renderTagsChart = async data => {
     },
     series: [
       {
-        data: data.data || [15, 12, 8, 6, 9, 7],
+        data: data.data || [],
         type: 'bar',
         itemStyle: {
           color: '#67C23A'
