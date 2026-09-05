@@ -40,13 +40,26 @@
           </el-card>
         </el-col>
       </el-row>
+
+      <el-row :gutter="20" style="margin-top: 30px">
+        <el-col :span="24">
+          <el-card header="每日阅读 PV/UV（近 30 天）">
+            <div id="dailyPvUvChart" style="height: 300px"></div>
+          </el-card>
+        </el-col>
+      </el-row>
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue'
-import { getArticleStatistics, getArticleCategoryDistribution, getHotTags } from '@/api/statistics'
+import {
+  getArticleStatistics,
+  getArticleCategoryDistribution,
+  getHotTags,
+  getDailyPvUv
+} from '@/api/statistics'
 import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
 import { useSettingsStore } from '@/stores/settings'
 import { logger } from '@/utils/logger'
@@ -90,9 +103,84 @@ const loadChartData = async () => {
     if (tagsRes.code === 200) {
       await renderTagsChart(tagsRes.data)
     }
+
+    // 加载每日 PV/UV
+    try {
+      const dailyRes = await getDailyPvUv(30)
+      if (dailyRes.code === 200) {
+        await renderDailyChart(dailyRes.data || [])
+      }
+    } catch (error) {
+      logger.warn('每日 PV/UV 加载失败:', error)
+    }
   } catch (error) {
     logger.error('加载图表数据失败:', error)
   }
+}
+
+const dailyChartRef = ref<any>(null)
+let dailyData: any = null
+
+const renderDailyChart = async rows => {
+  dailyData = rows
+  await nextTick()
+  const chartElement = document.getElementById('dailyPvUvChart')
+  if (!chartElement) return
+
+  const echarts = await loadEcharts()
+  if (!dailyChartRef.value) {
+    dailyChartRef.value = echarts.init(chartElement)
+  }
+  const colors = getChartThemeColors()
+  const list = Array.isArray(rows) ? rows : []
+  const labels = list.map(row => row.statDate)
+  const pvData = list.map(row => Number(row.pv) || 0)
+  const uvData = list.map(row => Number(row.uv) || 0)
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      textStyle: { color: colors.textColor }
+    },
+    legend: {
+      data: ['PV', 'UV'],
+      textStyle: { color: colors.secondaryColor }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: labels,
+      axisLabel: { color: colors.secondaryColor },
+      axisLine: { lineStyle: { color: colors.borderColor } }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: colors.secondaryColor },
+      splitLine: { lineStyle: { color: colors.splitLineColor } }
+    },
+    series: [
+      {
+        name: 'PV',
+        type: 'line',
+        smooth: true,
+        data: pvData,
+        itemStyle: { color: '#409EFF' }
+      },
+      {
+        name: 'UV',
+        type: 'line',
+        smooth: true,
+        data: uvData,
+        itemStyle: { color: '#67C23A' }
+      }
+    ]
+  }
+  dailyChartRef.value.setOption(option)
 }
 
 const renderCategoryChart = async data => {
@@ -195,6 +283,7 @@ watch(
   () => {
     if (categoryData) renderCategoryChart(categoryData)
     if (tagData) renderTagsChart(tagData)
+    if (dailyData) renderDailyChart(dailyData)
   }
 )
 

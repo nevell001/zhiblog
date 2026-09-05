@@ -8,6 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
@@ -18,6 +19,7 @@ import com.zhi.system.service.IBlogArticleService;
 import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
 import com.zhi.system.service.IBlogCommentService;
+import com.zhi.system.service.IBlogDailyStatsService;
 import com.zhi.system.service.ISysUserService;
 import com.zhi.system.service.ISysLogininforService;
 
@@ -48,6 +50,19 @@ public class BlogStatisticsController extends BaseController
 
     @Autowired
     private ISysLogininforService logininforService;
+
+    @Autowired
+    private IBlogDailyStatsService blogDailyStatsService;
+
+    /**
+     * 获取近 N 日全站 PV/UV
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:overview:list')")
+    @GetMapping("/daily/pvuv")
+    public AjaxResult getDailyPvUv(@RequestParam(value = "days", defaultValue = "30") Integer days)
+    {
+        return success(blogDailyStatsService.queryDailyAggregate(days));
+    }
 
     /**
      * 获取数据概览统计

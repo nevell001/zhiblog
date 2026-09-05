@@ -693,6 +693,19 @@ CREATE TABLE IF NOT EXISTS `blog_upload` (
   KEY `idx_create_time` (`create_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客上传记录表';
 
+-- 文章按日 PV/UV 统计表
+CREATE TABLE IF NOT EXISTS `blog_article_daily_stats` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `article_id` bigint NOT NULL COMMENT '文章ID',
+  `stat_date` date NOT NULL COMMENT '统计日期',
+  `pv` bigint NOT NULL DEFAULT '0' COMMENT '当日浏览量（去重计数）',
+  `uv` bigint NOT NULL DEFAULT '0' COMMENT '当日独立访客数',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_article_date` (`article_id`, `stat_date`),
+  KEY `idx_stat_date` (`stat_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章按日PV/UV统计表';
+
 -- 博客系统设置表
 CREATE TABLE IF NOT EXISTS `blog_setting` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',

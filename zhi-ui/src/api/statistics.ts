@@ -41,6 +41,17 @@ export function getArticleTrend(): Promise<any> {
 }
 
 /**
+ * 获取近 N 日全站 PV/UV
+ */
+export function getDailyPvUv(days = 30): Promise<any> {
+  return request({
+    url: '/statistics/daily/pvuv',
+    method: 'get',
+    params: { days }
+  })
+}
+
+/**
  * 获取用户活跃度数据
  */
 export function getUserActivity(): Promise<any> {

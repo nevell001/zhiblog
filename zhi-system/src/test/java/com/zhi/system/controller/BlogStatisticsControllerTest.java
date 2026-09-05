@@ -50,6 +50,9 @@ class BlogStatisticsControllerTest {
     @MockBean
     private com.zhi.system.service.ISysLogininforService logininforService;
 
+    @MockBean
+    private com.zhi.system.service.IBlogDailyStatsService blogDailyStatsService;
+
     /**
      * 测试获取数据概览统计接口
      */

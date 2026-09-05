@@ -365,10 +365,32 @@ public class BlogArticleServiceImpl implements IBlogArticleService
             if (Boolean.FALSE.equals(redisCache.hasKey(dedupeKey))) {
                 redisCache.incrementCacheObject(key, 1);
                 redisCache.setCacheObject(dedupeKey, "1", 24, TimeUnit.HOURS);
+                recordDailyPvUv(id, viewerKey);
             }
             return;
         }
         redisCache.incrementCacheObject(key, 1);
+    }
+
+    /**
+     * 维护当日 PV/UV 的 Redis 计数（由定时任务按日汇总入 blog_article_daily_stats）
+     */
+    private void recordDailyPvUv(Long articleId, String viewerKey) {
+        try {
+            String date = DateUtils.parseDateToStr("yyyyMMdd", DateUtils.getNowDate());
+            String pvKey = "blog:article:pv:" + date + ":" + articleId;
+            redisCache.incrementCacheObject(pvKey, 1);
+
+            // UV：以“日+文章+访客”去重键判断是否新的独立访客
+            String uvDedupeKey = "blog:article:uview:" + date + ":" + articleId + ":" + viewerKey;
+            if (Boolean.FALSE.equals(redisCache.hasKey(uvDedupeKey))) {
+                redisCache.incrementCacheObject("blog:article:uv:" + date + ":" + articleId, 1);
+                // 覆盖跨日边界，避免深夜访问被连续两天重复计数
+                redisCache.setCacheObject(uvDedupeKey, "1", 48, TimeUnit.HOURS);
+            }
+        } catch (Exception e) {
+            logger.warn("记录当日 PV/UV 失败: articleId={}, error={}", articleId, e.getMessage());
+        }
     }
 
     @Override
