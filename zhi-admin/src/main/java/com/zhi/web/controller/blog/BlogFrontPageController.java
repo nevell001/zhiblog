@@ -6,11 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletRequest;
 import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.system.domain.BlogPage;
 import com.zhi.system.service.IBlogPageService;
+import com.zhi.system.service.IBlogVisitLogService;
 
 /**
  * 自定义页面前台接口
@@ -24,6 +26,9 @@ public class BlogFrontPageController extends BaseController
 {
     @Autowired
     private IBlogPageService blogPageService;
+
+    @Autowired
+    private IBlogVisitLogService blogVisitLogService;
 
     /**
      * 查询已发布页面列表（前台导航/页面索引使用）
@@ -41,7 +46,7 @@ public class BlogFrontPageController extends BaseController
      */
     @Anonymous
     @GetMapping("/{slug}")
-    public AjaxResult getBySlug(@PathVariable("slug") String slug)
+    public AjaxResult getBySlug(@PathVariable("slug") String slug, HttpServletRequest request)
     {
         BlogPage page = blogPageService.selectBlogPageBySlug(slug);
         if (page == null)
@@ -50,6 +55,7 @@ public class BlogFrontPageController extends BaseController
         }
         blogPageService.increaseViewCount(page.getId());
         page.setViewCount(page.getViewCount() == null ? 1L : page.getViewCount() + 1);
+        blogVisitLogService.recordVisit("page", page.getId(), "/blog/page/" + page.getSlug(), null, request);
         return success(page);
     }
 }

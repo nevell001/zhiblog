@@ -2,6 +2,7 @@ package com.zhi.web.controller.blog;
 
 import com.zhi.system.domain.BlogPage;
 import com.zhi.system.service.IBlogPageService;
+import com.zhi.system.service.IBlogVisitLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -24,15 +25,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class BlogFrontPageControllerTest
 {
     private IBlogPageService blogPageService;
+    private IBlogVisitLogService blogVisitLogService;
     private MockMvc mockMvc;
 
     @BeforeEach
     void setUp()
     {
         blogPageService = mock(IBlogPageService.class);
+        blogVisitLogService = mock(IBlogVisitLogService.class);
 
         BlogFrontPageController controller = new BlogFrontPageController();
         ReflectionTestUtils.setField(controller, "blogPageService", blogPageService);
+        ReflectionTestUtils.setField(controller, "blogVisitLogService", blogVisitLogService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }

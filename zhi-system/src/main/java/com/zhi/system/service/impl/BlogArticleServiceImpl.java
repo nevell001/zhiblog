@@ -359,14 +359,16 @@ public class BlogArticleServiceImpl implements IBlogArticleService
         // 使用 Redis 缓冲浏览量增量，由 ArticleViewSyncTask 定时批量同步到数据库
         String key = "blog:article:view:" + id;
 
-        // 按访问者去重：同一访问者 24 小时内对同一文章只计一次
+        // 按访问者去重：同一访问者 24 小时内对同一文章只计一次文章总浏览量
         if (viewerKey != null && !viewerKey.isEmpty()) {
             String dedupeKey = "blog:article:viewed:" + id + ":" + viewerKey;
             if (Boolean.FALSE.equals(redisCache.hasKey(dedupeKey))) {
                 redisCache.incrementCacheObject(key, 1);
                 redisCache.setCacheObject(dedupeKey, "1", 24, TimeUnit.HOURS);
-                recordDailyPvUv(id, viewerKey);
             }
+            // 每日 PV/UV 与访问明细按“每次访问”统计（PV=访问次数，UV=当日去重访客），
+            // 不受上面 24 小时文章浏览量去重影响，避免跨日访问漏计 UV
+            recordDailyPvUv(id, viewerKey);
             return;
         }
         redisCache.incrementCacheObject(key, 1);

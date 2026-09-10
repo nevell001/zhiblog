@@ -36,6 +36,7 @@ import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogCommentService;
 import com.zhi.system.service.IBlogSettingService;
 import com.zhi.system.service.IBlogTagService;
+import com.zhi.system.service.IBlogVisitLogService;
 import com.zhi.system.service.ISysConfigService;
 import com.zhi.system.domain.SysConfig;
 import org.slf4j.Logger;
@@ -108,6 +109,9 @@ public class BlogFrontController extends BaseController
 
     @Autowired
     private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private IBlogVisitLogService blogVisitLogService;
 
     @Autowired
     private IBlogTagService blogTagService;
@@ -557,7 +561,9 @@ public class BlogFrontController extends BaseController
                               "1".equals(viewCountEnabled);
 
         if (shouldCount) {
-            blogArticleService.addViewCount(id, buildViewerKey(request));
+            String viewerKey = buildViewerKey(request);
+            blogArticleService.addViewCount(id, viewerKey);
+            blogVisitLogService.recordVisit("article", id, "/blog/article/" + id, viewerKey, request);
             logger.info("文章浏览量已增加（API调用），ID: {}", id);
         } else {
             logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);

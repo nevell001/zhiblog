@@ -10,6 +10,7 @@ import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogCommentService;
 import com.zhi.system.service.IBlogSettingService;
 import com.zhi.system.service.IBlogTagService;
+import com.zhi.system.service.IBlogVisitLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
@@ -41,6 +42,7 @@ class BlogFrontControllerTest
     private IBlogCommentService blogCommentService;
     private IBlogSettingService blogSettingService;
     private IBlogTagService blogTagService;
+    private IBlogVisitLogService blogVisitLogService;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
@@ -52,6 +54,7 @@ class BlogFrontControllerTest
         blogCommentService = mock(IBlogCommentService.class);
         blogSettingService = mock(IBlogSettingService.class);
         blogTagService = mock(IBlogTagService.class);
+        blogVisitLogService = mock(IBlogVisitLogService.class);
 
         BlogFrontController controller = new BlogFrontController();
         ReflectionTestUtils.setField(controller, "blogArticleService", blogArticleService);
@@ -59,6 +62,7 @@ class BlogFrontControllerTest
         ReflectionTestUtils.setField(controller, "blogCommentService", blogCommentService);
         ReflectionTestUtils.setField(controller, "blogSettingService", blogSettingService);
         ReflectionTestUtils.setField(controller, "blogTagService", blogTagService);
+        ReflectionTestUtils.setField(controller, "blogVisitLogService", blogVisitLogService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
         objectMapper = new ObjectMapper();

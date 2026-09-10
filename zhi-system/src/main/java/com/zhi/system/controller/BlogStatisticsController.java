@@ -6,13 +6,22 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletResponse;
+import com.zhi.common.annotation.Log;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
+import com.zhi.common.core.page.TableDataInfo;
+import com.zhi.common.enums.BusinessType;
+import com.zhi.common.utils.poi.ExcelUtil;
 import com.zhi.system.domain.BlogArticle;
+import com.zhi.system.domain.BlogVisitLog;
 import com.zhi.system.domain.BlogComment;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.system.service.IBlogArticleService;
@@ -20,6 +29,7 @@ import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
 import com.zhi.system.service.IBlogCommentService;
 import com.zhi.system.service.IBlogDailyStatsService;
+import com.zhi.system.service.IBlogVisitLogService;
 import com.zhi.system.service.ISysUserService;
 import com.zhi.system.service.ISysLogininforService;
 
@@ -53,6 +63,9 @@ public class BlogStatisticsController extends BaseController
 
     @Autowired
     private IBlogDailyStatsService blogDailyStatsService;
+
+    @Autowired
+    private IBlogVisitLogService blogVisitLogService;
 
     /**
      * 获取近 N 日全站 PV/UV
@@ -532,5 +545,63 @@ public class BlogStatisticsController extends BaseController
             defaultResult.put("data", new ArrayList<>());
             return AjaxResult.success(defaultResult);
         }
+    }
+
+    /**
+     * 访问明细列表（PV/UV 明细，支持按目标/日期/IP/独立访客筛选）
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:visit:list')")
+    @GetMapping("/visit/list")
+    public TableDataInfo visitList(BlogVisitLog blogVisitLog)
+    {
+        startPage();
+        List<BlogVisitLog> list = blogVisitLogService.selectBlogVisitLogList(blogVisitLog);
+        return getDataTable(list);
+    }
+
+    /**
+     * 访问明细区间汇总（PV/UV/今日/排行）
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:visit:list')")
+    @GetMapping("/visit/summary")
+    public AjaxResult visitSummary(@RequestParam(value = "days", defaultValue = "30") Integer days)
+    {
+        return AjaxResult.success(blogVisitLogService.selectVisitSummary(days));
+    }
+
+    /**
+     * 导出访问明细
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:visit:export')")
+    @Log(title = "访问明细", businessType = BusinessType.EXPORT)
+    @PostMapping("/visit/export")
+    public void exportVisitLog(HttpServletResponse response, BlogVisitLog blogVisitLog)
+    {
+        List<BlogVisitLog> list = blogVisitLogService.selectBlogVisitLogList(blogVisitLog);
+        ExcelUtil<BlogVisitLog> util = new ExcelUtil<BlogVisitLog>(BlogVisitLog.class);
+        util.exportExcel(response, list, "访问明细数据");
+    }
+
+    /**
+     * 清理指定天数之前的访问明细（默认保留 90 天）
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:visit:remove')")
+    @Log(title = "访问明细", businessType = BusinessType.DELETE)
+    @DeleteMapping("/visit/clean")
+    public AjaxResult cleanVisitLog(@RequestParam(value = "days", defaultValue = "90") Integer days)
+    {
+        int cleaned = blogVisitLogService.cleanVisitLogs(days);
+        return AjaxResult.success("已清理 " + cleaned + " 条访问明细");
+    }
+
+    /**
+     * 批量删除访问明细
+     */
+    @PreAuthorize("@ss.hasPermi('statistics:visit:remove')")
+    @Log(title = "访问明细", businessType = BusinessType.DELETE)
+    @DeleteMapping("/visit/{ids}")
+    public AjaxResult removeVisitLog(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(blogVisitLogService.deleteBlogVisitLogByIds(ids));
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import com.zhi.common.utils.DateUtils;
 import com.zhi.system.service.IBlogDailyStatsService;
+import com.zhi.system.service.IBlogVisitLogService;
 
 /**
  * 每日 PV/UV 统计任务
@@ -23,6 +24,9 @@ public class DailyStatsSyncTask
 
     @Autowired
     private IBlogDailyStatsService blogDailyStatsService;
+
+    @Autowired
+    private IBlogVisitLogService blogVisitLogService;
 
     /**
      * 每小时整点后 20 分：汇总当日
@@ -66,6 +70,26 @@ public class DailyStatsSyncTask
         catch (Exception e)
         {
             log.error("定稿前一日 PV/UV 失败: date={}", yesterday, e);
+        }
+    }
+
+    /**
+     * 每天 01:10：清理保留期之外的访问明细（默认保留 90 天）
+     */
+    @Scheduled(cron = "0 10 1 * * ?")
+    public void cleanVisitLogs()
+    {
+        try
+        {
+            int cleaned = blogVisitLogService.cleanVisitLogs(null);
+            if (cleaned > 0)
+            {
+                log.info("访问明细清理完成：cleaned={}", cleaned);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("清理访问明细失败", e);
         }
     }
 }

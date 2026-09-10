@@ -53,6 +53,9 @@ class BlogStatisticsControllerTest {
     @MockBean
     private com.zhi.system.service.IBlogDailyStatsService blogDailyStatsService;
 
+    @MockBean
+    private com.zhi.system.service.IBlogVisitLogService blogVisitLogService;
+
     /**
      * 测试获取数据概览统计接口
      */
@@ -361,5 +364,73 @@ class BlogStatisticsControllerTest {
                 .andExpect(jsonPath("$.data.activeCount").value(0))
                 .andExpect(jsonPath("$.data.newCount").value(0))
                 .andExpect(jsonPath("$.data.adminCount").value(0));
+    }
+
+    /**
+     * 测试访问明细列表
+     */
+    @Test
+    void testVisitList() throws Exception {
+        java.util.List<com.zhi.system.domain.BlogVisitLog> list = new java.util.ArrayList<>();
+        com.zhi.system.domain.BlogVisitLog visitLog = new com.zhi.system.domain.BlogVisitLog();
+        visitLog.setId(1L);
+        visitLog.setTargetType("article");
+        visitLog.setTargetId(9L);
+        visitLog.setIsUnique("1");
+        list.add(visitLog);
+
+        when(blogVisitLogService.selectBlogVisitLogList(any(com.zhi.system.domain.BlogVisitLog.class)))
+            .thenReturn(list);
+
+        mockMvc.perform(get("/statistics/visit/list").param("targetType", "article"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.rows[0].isUnique").value("1"));
+    }
+
+    /**
+     * 测试访问明细汇总
+     */
+    @Test
+    void testVisitSummary() throws Exception {
+        java.util.Map<String, Object> summary = new java.util.HashMap<>();
+        summary.put("pv", 100L);
+        summary.put("uv", 40L);
+        summary.put("todayPv", 5L);
+        summary.put("todayUv", 3L);
+        summary.put("topTargets", new java.util.ArrayList<>());
+        when(blogVisitLogService.selectVisitSummary(30)).thenReturn(summary);
+
+        mockMvc.perform(get("/statistics/visit/summary").param("days", "30"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data.pv").value(100))
+            .andExpect(jsonPath("$.data.uv").value(40));
+    }
+
+    /**
+     * 测试清理访问明细
+     */
+    @Test
+    void testCleanVisitLog() throws Exception {
+        when(blogVisitLogService.cleanVisitLogs(90)).thenReturn(12);
+
+        mockMvc.perform(delete("/statistics/visit/clean").param("days", "90"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.msg").value("已清理 12 条访问明细"));
+    }
+
+    /**
+     * 测试批量删除访问明细
+     */
+    @Test
+    void testRemoveVisitLog() throws Exception {
+        when(blogVisitLogService.deleteBlogVisitLogByIds(any(Long[].class))).thenReturn(2);
+
+        mockMvc.perform(delete("/statistics/visit/1,2"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogVisitLogService).deleteBlogVisitLogByIds(any(Long[].class));
     }
 }
