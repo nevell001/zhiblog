@@ -69,6 +69,31 @@ class BlogFrontControllerTest
     }
 
     @Test
+    void addCommentShouldBeRejectedWhenCommentDisabled() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("comment_enabled")).thenReturn("false");
+
+        perform(validComment())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("评论功能已关闭"));
+
+        verify(blogCommentService, never()).insertBlogComment(any(BlogComment.class));
+    }
+
+    @Test
+    void searchShouldBeRejectedWhenSearchDisabled() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("search_enabled")).thenReturn("0");
+
+        mockMvc.perform(get("/blog/article/search").param("keyword", "test"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("搜索功能已关闭"))
+            .andExpect(jsonPath("$.total").value(0));
+    }
+
+    @Test
     void statsOverviewShouldExposePublicCountersOnly() throws Exception
     {
         when(blogArticleService.selectBlogArticleCount(any(BlogArticle.class))).thenReturn(12L);

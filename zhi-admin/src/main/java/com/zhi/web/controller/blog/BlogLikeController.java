@@ -12,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.system.service.IBlogLikeService;
+import com.zhi.system.service.IBlogSettingService;
 
 /**
  * 博客前台点赞控制器（文章 + 评论，需登录）
@@ -28,12 +30,19 @@ public class BlogLikeController extends BaseController
     @Autowired
     private IBlogLikeService blogLikeService;
 
+    @Autowired
+    private IBlogSettingService blogSettingService;
+
     /**
      * 切换文章点赞
      */
     @PostMapping("/article/{articleId}")
     public AjaxResult toggleArticleLike(@PathVariable("articleId") Long articleId)
     {
+        if (BlogSwitchUtils.isOff(blogSettingService.selectSettingValueByKey("like_enabled")))
+        {
+            return error("点赞功能已关闭");
+        }
         Long userId = SecurityUtils.getUserId();
         if (userId == null)
         {
@@ -58,6 +67,10 @@ public class BlogLikeController extends BaseController
     @PostMapping("/comment/{commentId}")
     public AjaxResult toggleCommentLike(@PathVariable("commentId") Long commentId)
     {
+        if (BlogSwitchUtils.isOff(blogSettingService.selectSettingValueByKey("like_enabled")))
+        {
+            return error("点赞功能已关闭");
+        }
         Long userId = SecurityUtils.getUserId();
         if (userId == null)
         {

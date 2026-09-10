@@ -25,6 +25,7 @@ import com.zhi.system.domain.BlogFriendLink;
 import com.zhi.system.service.IBlogFriendLinkService;
 import com.zhi.system.service.IBlogSettingService;
 import com.zhi.system.service.ICaptchaService;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.poi.ExcelUtil;
 import com.zhi.common.core.page.TableDataInfo;
 
@@ -114,7 +115,7 @@ public class BlogFriendLinkController extends BaseController
         }
         // 前台是否开放友链申请（后台开关，默认开放）
         String applyEnabled = blogSettingService.selectSettingValueByKey("friend_link_apply_enabled");
-        if ("false".equalsIgnoreCase(applyEnabled) || "0".equals(applyEnabled))
+        if (BlogSwitchUtils.isOff(applyEnabled))
         {
             return error("本站暂未开放友链申请");
         }

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.common.annotation.RateLimiter;
@@ -460,6 +461,18 @@ public class BlogFrontController extends BaseController
     @GetMapping("/article/search")
     public TableDataInfo searchArticles(BlogArticle blogArticle, @RequestParam(value = "keyword", required = false) String keyword)
     {
+        // 搜索功能开关：关闭后返回明确提示，避免只隐藏前端入口
+        String searchEnabled = blogSettingService.selectSettingValueByKey("search_enabled");
+        if (BlogSwitchUtils.isOff(searchEnabled))
+        {
+            TableDataInfo disabled = new TableDataInfo();
+            disabled.setCode(500);
+            disabled.setMsg("搜索功能已关闭");
+            disabled.setRows(new java.util.ArrayList<>());
+            disabled.setTotal(0);
+            return disabled;
+        }
+
         // 设置查询条件
         blogArticle.setStatus(1L); // 只查询已发布的文章
         blogArticle.setDelFlag(0L); // 只查询未删除的文章
@@ -605,6 +618,13 @@ public class BlogFrontController extends BaseController
     @PostMapping("/comment")
     public AjaxResult addComment(@RequestBody BlogComment blogComment)
     {
+        // 评论功能开关：关闭后直接拒绝，避免只隐藏前端入口仍可被脚本提交
+        String commentEnabled = blogSettingService.selectSettingValueByKey("comment_enabled");
+        if (BlogSwitchUtils.isOff(commentEnabled))
+        {
+            return error("评论功能已关闭");
+        }
+
         // 服务端校验，防止绕过前端限制
         String nickname = blogComment.getNickname();
         String content = blogComment.getContent();
