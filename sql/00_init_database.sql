@@ -759,6 +759,27 @@ CREATE TABLE IF NOT EXISTS `blog_article_daily_stats` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='文章按日PV/UV统计表';
 
 -- 博客系统设置表
+-- 访问明细表（PV/UV 明细：每次内容访问一行，is_unique 表示当日该访客首次）
+CREATE TABLE IF NOT EXISTS `blog_visit_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `target_type` varchar(20) NOT NULL DEFAULT 'article' COMMENT '目标类型（article文章 page自定义页面）',
+  `target_id` bigint DEFAULT NULL COMMENT '目标ID（文章为文章ID，页面为页面ID）',
+  `path` varchar(255) DEFAULT NULL COMMENT '访问路径',
+  `user_id` bigint DEFAULT NULL COMMENT '登录用户ID（匿名为空）',
+  `visitor_key` varchar(80) DEFAULT NULL COMMENT '访客标识（u<id> 或 ip:<ip>）',
+  `ip` varchar(64) DEFAULT NULL COMMENT '访客IP',
+  `user_agent` varchar(255) DEFAULT NULL COMMENT '浏览器UA',
+  `referer` varchar(500) DEFAULT NULL COMMENT '来源页',
+  `is_unique` tinyint DEFAULT '0' COMMENT '是否当日该访客首次访问（1是 0否）',
+  `visit_date` date DEFAULT NULL COMMENT '访问日期',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '访问时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_visit_date` (`visit_date`),
+  KEY `idx_visit_target` (`target_type`, `target_id`),
+  KEY `idx_visit_visitor` (`visitor_key`, `visit_date`),
+  KEY `idx_visit_ip` (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='访问明细表（PV/UV 明细）';
+
 CREATE TABLE IF NOT EXISTS `blog_setting` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `config_key` varchar(64) NOT NULL COMMENT '配置项Key',
@@ -873,6 +894,8 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('copyright_enabled', 'true', '是否显示版权信息', NOW(), NOW()),
 ('comment_enabled', 'true', '是否开启评论功能', NOW(), NOW()),
 ('comment_review', 'true', '评论是否需要审核', NOW(), NOW()),
+('friend_link_enabled', 'true', '前台是否展示友情链接', NOW(), NOW()),
+('friend_link_apply_enabled', 'true', '前台是否展示友链申请入口（关闭后申请页提示关闭且接口拒绝提交）', NOW(), NOW()),
 ('like_enabled', 'true', '是否开启点赞功能', NOW(), NOW()),
 ('view_count_enabled', 'true', '是否开启浏览统计', NOW(), NOW()),
 ('share_enabled', 'true', '是否开启分享功能', NOW(), NOW()),
@@ -1839,6 +1862,16 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (6013, '注册趋势', 6006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:register-trend', '#', 'admin', NOW(), '', NULL, ''),
 (6014, '角色分布', 6006, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:role-distribution', '#', 'admin', NOW(), '', NULL, '');
 
+-- 访问明细菜单
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+VALUES (6015, '访问明细', 5, 4, 'visit', 'statistics/visit/index', '', '', 1, 0, 'C', '0', '0', 'statistics:visit:list', 'eye', 'admin', NOW(), '', NULL, '访问明细（PV/UV 明细）菜单');
+
+-- 访问明细按钮权限
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(6016, '访问明细查询', 6015, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:visit:query', '#', 'admin', NOW(), '', NULL, ''),
+(6017, '访问明细导出', 6015, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:visit:export', '#', 'admin', NOW(), '', NULL, ''),
+(6018, '访问明细清理', 6015, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:visit:remove', '#', 'admin', NOW(), '', NULL, '');
+
 -- ========== 为管理员角色分配系统管理、监控和工具菜单权限 ==========
 
 -- 系统管理菜单权限（包括菜单和按钮权限）
@@ -1883,7 +1916,8 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 5),
 (1, 6001), (1, 6002),
 (1, 6003), (1, 6004), (1, 6005), (1, 6009), (1, 6010), (1, 6011),
-(1, 6006), (1, 6007), (1, 6008), (1, 6012), (1, 6013), (1, 6014);
+(1, 6006), (1, 6007), (1, 6008), (1, 6012), (1, 6013), (1, 6014),
+(1, 6015), (1, 6016), (1, 6017), (1, 6018);
 
 -- ========== 创建性能优化索引（幂等，调用前面的存储过程） ==========
 
@@ -2338,6 +2372,8 @@ UNION ALL
 SELECT CONCAT('📮 留言数量: ', COUNT(*)) AS info FROM blog_message WHERE del_flag = '0'
 UNION ALL
 SELECT CONCAT('📄 自定义页面数量: ', COUNT(*)) AS info FROM blog_page WHERE del_flag = '0'
+UNION ALL
+SELECT CONCAT('👣 访问明细数量: ', COUNT(*)) AS info FROM blog_visit_log
 UNION ALL
 SELECT CONCAT('⚙️  设置数量: ', COUNT(*)) AS info FROM blog_setting;
 
