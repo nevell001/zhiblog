@@ -1,7 +1,9 @@
 package com.zhi.common.utils.html;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
+import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
+import com.vladsch.flexmark.ext.gfm.tasklist.TaskListExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
@@ -10,7 +12,7 @@ import com.vladsch.flexmark.util.builder.Extension;
 /**
  * Markdown 渲染工具（flexmark）
  *
- * <p>启用 GFM 表格扩展（与前端 marked 预览保持一致），
+ * <p>启用 GFM 表格、删除线与任务列表扩展（与前端 marked 预览保持一致），
  * 用于博客 Markdown 文章的“源码入库 + 服务端渲染 HTML 双写”。</p>
  *
  * @author nevell
@@ -18,8 +20,10 @@ import com.vladsch.flexmark.util.builder.Extension;
  */
 public class MarkdownUtil
 {
-    private static final List<Extension> EXTENSIONS =
-            Collections.singletonList(TablesExtension.create());
+    private static final List<Extension> EXTENSIONS = Arrays.asList(
+            TablesExtension.create(),
+            StrikethroughExtension.create(),
+            TaskListExtension.create());
 
     private static final Parser PARSER = Parser.builder().extensions(EXTENSIONS).build();
 
