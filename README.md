@@ -136,10 +136,23 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 后端启动：
 
 ```bash
+# 1) 从根目录安装各模块（zhi-system 等以 jar 形式被 zhi-admin 依赖，
+#    改了 zhi-system 后必须重新 install，否则 zhi-admin 用的是 ~/.m2 里的旧包）
 mvn clean install -DskipTests
-cd zhi-admin
-mvn spring-boot:run
+
+# 2) Spring Boot 不会读取 .env（.env 只被 docker compose 使用），
+#    在宿主机跑必须先把变量导入当前 shell：
+set -a; source .env; set +a
+
+# 3) 启动（DB_HOST/DB_PORT/DB_USERNAME/DB_PASSWORD 均来自上面的环境变量）
+mvn -pl zhi-admin spring-boot:run
 ```
+
+> 常见坑：直接 `mvn spring-boot:run` 而不导入 `.env` 时，`DB_USERNAME` 会回落到
+> `application.yml` 的默认值 `root`、密码为空，于是连到宿主机 `3306` 上的任意 MySQL
+> 都会报 `Access denied for user 'root'@...`。若本机 3306 已被其它服务占用，
+> 请把 `docker-compose.dev.yml` 中 mysql 的端口映射改为 `3307:3306`，
+> 并设置 `DB_PORT=3307`（JDBC URL 已支持 `DB_PORT`）。
 
 前端启动：
 
@@ -164,6 +177,9 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 - 新菜单与按钮权限（媒体管理、留言管理、页面管理等，含角色 1/2 分配）、`email_notify_enabled` 等设置种子
 - **评论数一次性重算**（按已发布评论重写 `comment_count`）
 
+> 若数据库跑在 Docker 里且数据卷已存在，`docker-entrypoint-initdb.d` **不会**再自动执行脚本，
+> 必须按上面的命令手动重跑一次 `sql/00_init_database.sql`。
+>
 > 部署提示：`/sitemap.xml`、`/robots.txt` 位于后端根路径，若使用 Nginx 等对前端做同源反代，请将这两个路径转发到后端；PV/UV 曲线依赖定时任务每小时汇总（当天数据约 1 小时延迟）。
 
 ## 📁 项目结构
