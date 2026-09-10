@@ -92,10 +92,7 @@ const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 
 // 友链申请开关（默认开启；'false' / '0' / false 视为关闭）
-const applyEnabled = computed(() => {
-  const value = (blogSettings.value as Record<string, unknown>).friend_link_apply_enabled
-  return value !== 'false' && value !== '0' && value !== false
-})
+const applyEnabled = computed(() => blogSettingsStore.isFeatureEnabled('friend_link_apply_enabled'))
 
 const formRef = ref<FormInstance>()
 const submitting = ref(false)

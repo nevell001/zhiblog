@@ -305,9 +305,7 @@ public class BlogFrontController extends BaseController
             String viewCountEnabled = blogSettingService.selectSettingValueByKey("view_count_enabled");
 
             // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
-            boolean shouldCount = viewCountEnabled == null ||
-                                  "true".equalsIgnoreCase(viewCountEnabled) ||
-                                  "1".equals(viewCountEnabled);
+            boolean shouldCount = BlogSwitchUtils.isOn(viewCountEnabled);
 
             if (shouldCount) {
                 blogArticleService.addViewCount(id, buildViewerKey(request));
@@ -568,10 +566,8 @@ public class BlogFrontController extends BaseController
         // 检查浏览统计开关
         String viewCountEnabled = blogSettingService.selectSettingValueByKey("view_count_enabled");
 
-        // 如果浏览统计开关为 true 或 "true"，或者未设置（默认启用），则增加浏览量
-        boolean shouldCount = viewCountEnabled == null ||
-                              "true".equalsIgnoreCase(viewCountEnabled) ||
-                              "1".equals(viewCountEnabled);
+        // 浏览统计开关：未配置或开启都算启用（与全站开关判定同口径）
+        boolean shouldCount = BlogSwitchUtils.isOn(viewCountEnabled);
 
         if (shouldCount) {
             String viewerKey = buildViewerKey(request);
@@ -673,9 +669,7 @@ public class BlogFrontController extends BaseController
 
         // 如果评论审核开关为 true 或 "true"，则设置为待审核（0）；否则直接发布（1）
         // 默认需要审核（安全考虑）
-        boolean needsReview = commentReviewSetting == null ||
-                              "true".equalsIgnoreCase(commentReviewSetting) ||
-                              "1".equals(commentReviewSetting);
+        boolean needsReview = BlogSwitchUtils.isOn(commentReviewSetting);
 
         blogComment.setStatus(needsReview ? "0" : "1");
 

@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.system.mapper.BlogArticleMapper;
@@ -417,8 +418,8 @@ public class BlogCommentServiceImpl implements IBlogCommentService
         {
             String enabled = blogSettingService == null ? null
                     : blogSettingService.selectSettingValueByKey(KEY_EMAIL_NOTIFY_ENABLED);
-            // 未配置时视为开启；显式 false 关闭
-            if (enabled != null && "false".equalsIgnoreCase(enabled.trim()))
+            // 未配置视为开启，显式关闭（false/'false'/'0'）则跳过（与全站开关判定同口径）
+            if (BlogSwitchUtils.isOff(enabled))
             {
                 return;
             }

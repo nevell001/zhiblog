@@ -74,7 +74,7 @@ describe('留言板页面测试', () => {
   })
 
   it('提交成功后应该按 comment_review 开关区分提示并刷新列表', () => {
-    expect(source).toContain('comment_review')
+    expect(source).toContain("isFeatureEnabled('comment_review')")
     expect(source).toContain('留言已提交，审核通过后展示')
     expect(source).toContain('留言成功')
     expect(source).toContain('await Promise.all([loadMessages(), loadMessageCount()])')

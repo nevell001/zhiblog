@@ -17,8 +17,8 @@ describe('友链申请页测试', () => {
 
   it('应该读取 friend_link_apply_enabled 设置开关', () => {
     expect(source).toContain('friend_link_apply_enabled')
-    expect(source).toContain("value !== 'false'")
-    expect(source).toContain("value !== '0'")
+    // 判定统一走 store.isFeatureEnabled（全站唯一口径），不再手写比较
+    expect(source).toContain("isFeatureEnabled('friend_link_apply_enabled')")
     expect(source).toContain('getBlogSettingsAnonymous')
   })
 

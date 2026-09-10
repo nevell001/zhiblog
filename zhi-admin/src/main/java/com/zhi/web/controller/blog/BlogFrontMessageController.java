@@ -17,6 +17,7 @@ import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.common.core.page.TableDataInfo;
 import com.zhi.common.enums.LimitType;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
 import com.zhi.system.domain.BlogMessage;
@@ -132,11 +133,9 @@ public class BlogFrontMessageController extends BaseController
             // 匿名用户，无需填充
         }
 
-        // 复用评论审核开关：为 true/1/未配置时进入待审核
+        // 复用评论审核开关：未配置或开启时进入待审核（与全站开关判定同口径）
         String reviewSetting = blogSettingService.selectSettingValueByKey("comment_review");
-        boolean needsReview = reviewSetting == null
-                || "true".equalsIgnoreCase(reviewSetting)
-                || "1".equals(reviewSetting);
+        boolean needsReview = BlogSwitchUtils.isOn(reviewSetting);
         blogMessage.setStatus(needsReview ? "0" : "1");
 
         blogMessage.setId(null);

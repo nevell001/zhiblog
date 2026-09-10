@@ -154,11 +154,8 @@ const rules: FormRules = {
   ]
 }
 
-// comment_review 为 true / 1 时需要审核
-const needsReview = computed(() => {
-  const value = blogSettings.value.comment_review as unknown
-  return value === true || value === 1 || value === 'true' || value === '1'
-})
+// comment_review 走 store 统一判定：未配置时按后端语义视为“需要审核”
+const needsReview = computed(() => blogSettingsStore.isFeatureEnabled('comment_review'))
 
 const formatUrl = (url?: string | null) => {
   if (!url || typeof url !== 'string') return ''

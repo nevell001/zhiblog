@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.service.IBlogSettingService;
 
@@ -88,8 +89,9 @@ public class RefererPolicy
     private synchronized void refresh()
     {
         String enabledSetting = readSetting(KEY_ENABLED);
+        // 未配置时回退 yml 默认值；已配置时统一按全站开关口径判定（'1' 也视为开启）
         boolean enabled = StringUtils.isNotEmpty(enabledSetting)
-                ? Boolean.parseBoolean(enabledSetting.trim())
+                ? BlogSwitchUtils.isOn(enabledSetting)
                 : defaultEnabled;
 
         String domainsSetting = readSetting(KEY_ALLOWED_DOMAINS);
