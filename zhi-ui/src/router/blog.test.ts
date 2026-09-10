@@ -89,8 +89,22 @@ describe('Blog Routes 详细测试', () => {
     expect(route?.meta?.title).toBe('关于')
   })
 
-  it('路由总数应该为 17 个', () => {
-    expect(blogRoutes.length).toBe(17)
+  it('路由总数应该为 19 个', () => {
+    expect(blogRoutes.length).toBe(19)
+  })
+
+  it('留言板路由应该有正确的路径、组件与标题', () => {
+    const route = blogRoutes.find(r => r.path === '/blog/guestbook')
+    expect(route?.path).toBe('/blog/guestbook')
+    expect(route?.name).toBe('PublicBlogGuestbook')
+    expect(route?.meta?.title).toBe('留言板')
+  })
+
+  it('自定义页面路由应该有正确的路径、组件与标题', () => {
+    const route = blogRoutes.find(r => r.path === '/blog/page/:slug')
+    expect(route?.path).toBe('/blog/page/:slug')
+    expect(route?.name).toBe('PublicBlogPage')
+    expect(route?.meta?.title).toBe('页面')
   })
 
   it('博客路由应该包含前台路由', () => {

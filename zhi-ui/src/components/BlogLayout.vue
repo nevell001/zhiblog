@@ -248,6 +248,7 @@ import {
   Menu
 } from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
+import { getPublishedPages, type BlogPage } from '@/api/blog/page'
 import {
   getNotificationList,
   getUnreadCount,
@@ -406,13 +407,32 @@ const isCopyrightEnabled = computed(() => {
   return v === undefined || v === null || v === 'true' || v === true
 })
 
-const menus = [
-  { name: '首页', path: '/blog' },
-  { name: '分类', path: '/blog/category' },
-  { name: '标签', path: '/blog/tag' },
-  { name: '归档', path: '/blog/archive' },
-  { name: '关于', path: '/blog/about' }
-]
+// 导航菜单：固定入口 + showInNav === '1' 的自定义页面
+interface NavMenuItem {
+  name: string
+  path: string
+}
+
+const customPages = ref<BlogPage[]>([])
+
+const menus = computed<NavMenuItem[]>(() => {
+  const items: NavMenuItem[] = [
+    { name: '首页', path: '/blog' },
+    { name: '分类', path: '/blog/category' },
+    { name: '标签', path: '/blog/tag' },
+    { name: '归档', path: '/blog/archive' },
+    { name: '关于', path: '/blog/about' },
+    { name: '留言板', path: '/blog/guestbook' }
+  ]
+
+  customPages.value.forEach(page => {
+    if (page?.showInNav === '1' && page.slug) {
+      items.push({ name: page.title, path: `/blog/page/${page.slug}` })
+    }
+  })
+
+  return items
+})
 
 const currentYear = computed(() => new Date().getFullYear())
 
@@ -487,6 +507,9 @@ onMounted(() => {
   // 加载友情链接
   fetchFriendLinks()
 
+  // 加载自定义页面导航入口
+  fetchPublishedPages()
+
   // 登录用户：拉取未读通知并定时刷新
   if (userStore.token) {
     fetchUnreadCount()
@@ -509,6 +532,17 @@ function fetchFriendLinks() {
     })
     .catch(() => {
       friendLinks.value = []
+    })
+}
+
+function fetchPublishedPages() {
+  getPublishedPages()
+    .then(response => {
+      const list = response?.data
+      customPages.value = Array.isArray(list) ? list : []
+    })
+    .catch(() => {
+      customPages.value = []
     })
 }
 </script>
