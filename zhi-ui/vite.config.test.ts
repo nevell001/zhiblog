@@ -41,4 +41,12 @@ describe('Vite dev proxy route boundaries', () => {
     expect(source).toContain("target: 'es2020'")
     expect(source).not.toContain("target: 'es2015'")
   })
+
+  it('should poll for file changes inside Docker bind mounts', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    // 容器内 bind mount 收不到 inotify 事件时，dev server 会一直返回旧模块
+    expect(source).toContain('usePolling: true')
+    expect(source).toContain('inDocker ? { watch: { usePolling: true')
+  })
 })

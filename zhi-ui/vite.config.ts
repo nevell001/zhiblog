@@ -75,6 +75,9 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
       open: false, // 不自动打开浏览器，在容器中会导致错误
       // 启用 HMR，配合稳定的 optimizeDeps 清单避免开发态反复 reload
       hmr: true,
+      // Docker bind mount（macOS/Windows）下宿主机改动往往收不到 inotify 事件，dev server 会
+      // 持续返回旧的模块转换结果（表现为“改了代码页面没变化”），因此容器内改用轮询监听。
+      ...(inDocker ? { watch: { usePolling: true, interval: 300 } } : {}),
       proxy: {
         // 接口代理 - 后端 API 前缀
         '/dev-api': {
