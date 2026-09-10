@@ -684,6 +684,52 @@ CREATE TABLE IF NOT EXISTS `blog_friend_link` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客友链表';
 
 -- 博客上传记录表（附件/媒体库）
+-- 博客留言板表（独立于文章的留言，支持匿名提交与后台审核/回复）
+CREATE TABLE IF NOT EXISTS `blog_message` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id` bigint DEFAULT NULL COMMENT '用户ID（匿名为空）',
+  `nickname` varchar(64) NOT NULL COMMENT '昵称',
+  `email` varchar(128) DEFAULT NULL COMMENT '邮箱（不公开）',
+  `website` varchar(255) DEFAULT NULL COMMENT '个人网站',
+  `content` varchar(500) NOT NULL COMMENT '留言内容',
+  `reply_content` varchar(500) DEFAULT NULL COMMENT '管理员回复内容',
+  `reply_time` datetime DEFAULT NULL COMMENT '回复时间',
+  `reply_by` varchar(64) DEFAULT NULL COMMENT '回复人',
+  `status` tinyint DEFAULT '0' COMMENT '状态 0待审核 1已发布 2已拒绝',
+  `ip` varchar(64) DEFAULT NULL COMMENT '留言IP',
+  `user_agent` varchar(255) DEFAULT NULL COMMENT '浏览器UA',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` tinyint DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  PRIMARY KEY (`id`),
+  KEY `idx_message_status` (`status`),
+  KEY `idx_message_create_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客留言板表';
+
+-- 博客自定义页面表（单页文档，支持 Markdown 内容与 SEO）
+CREATE TABLE IF NOT EXISTS `blog_page` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `title` varchar(100) NOT NULL COMMENT '页面标题',
+  `slug` varchar(100) NOT NULL COMMENT '页面别名（用于前台 URL）',
+  `summary` varchar(255) DEFAULT NULL COMMENT '页面摘要',
+  `content` longtext COMMENT '页面内容（Markdown）',
+  `status` tinyint DEFAULT '0' COMMENT '状态 0草稿 1已发布',
+  `show_in_nav` tinyint DEFAULT '1' COMMENT '是否在导航显示 0否 1是',
+  `sort` int DEFAULT '0' COMMENT '排序',
+  `view_count` bigint DEFAULT '0' COMMENT '浏览次数',
+  `seo_title` varchar(255) DEFAULT NULL COMMENT 'SEO标题',
+  `seo_keywords` varchar(255) DEFAULT NULL COMMENT 'SEO关键词',
+  `seo_description` varchar(500) DEFAULT NULL COMMENT 'SEO描述',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  `del_flag` tinyint DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_page_slug` (`slug`),
+  KEY `idx_page_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='博客自定义页面表';
+
 CREATE TABLE IF NOT EXISTS `blog_upload` (
   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
   `file_name` varchar(255) NOT NULL COMMENT '存储文件名',
@@ -1383,6 +1429,30 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 VALUES (2007, '媒体管理', 2000, 6, 'media', 'blog/media/index', '', '', 1, 0, 'C', '0', '0', 'blog:media:list', 'component', 'admin', NOW(), '', NULL, '媒体管理菜单');
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (20080, '媒体删除', 2007, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:media:remove', '#', 'admin', NOW(), '', NULL, '');
+-- 留言管理
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(2008, '留言管理', 2000, 7, 'message', 'blog/message/index', '', '', 1, 0, 'C', '0', '0', 'blog:message:list', 'message', 'admin', NOW(), '', NULL, '留言管理菜单');
+
+-- 留言管理按钮权限
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(20090, '留言查询', 2008, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:message:query', '#', 'admin', NOW(), '', NULL, ''),
+(20091, '留言审核', 2008, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:message:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20092, '留言回复', 2008, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:message:reply', '#', 'admin', NOW(), '', NULL, ''),
+(20093, '留言删除', 2008, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:message:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20094, '留言导出', 2008, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:message:export', '#', 'admin', NOW(), '', NULL, '');
+
+-- 自定义页面管理
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(2009, '页面管理', 2000, 8, 'page', 'blog/page/index', '', '', 1, 0, 'C', '0', '0', 'blog:page:list', 'documentation', 'admin', NOW(), '', NULL, '自定义页面管理菜单');
+
+-- 自定义页面按钮权限
+INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
+(20100, '页面查询', 2009, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:page:query', '#', 'admin', NOW(), '', NULL, ''),
+(20101, '页面新增', 2009, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:page:add', '#', 'admin', NOW(), '', NULL, ''),
+(20102, '页面修改', 2009, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:page:edit', '#', 'admin', NOW(), '', NULL, ''),
+(20103, '页面删除', 2009, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:page:remove', '#', 'admin', NOW(), '', NULL, ''),
+(20104, '页面导出', 2009, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:page:export', '#', 'admin', NOW(), '', NULL, '');
+
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES (1, 2007), (1, 20080);
 
 -- 博客设置
@@ -1459,7 +1529,9 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 20030), (1, 20031), (1, 20032), (1, 20033), (1, 20034),
 (1, 20040), (1, 20041), (1, 20042), (1, 20043), (1, 20044), (1, 20045), (1, 20046),
 (1, 20060), (1, 20061), (1, 20062), (1, 20063), (1, 20064),
-(1, 20050), (1, 20051), (1, 20052), (1, 20053);
+(1, 20050), (1, 20051), (1, 20052), (1, 20053),
+(1, 2008), (1, 20090), (1, 20091), (1, 20092), (1, 20093), (1, 20094),
+(1, 2009), (1, 20100), (1, 20101), (1, 20102), (1, 20103), (1, 20104);
 
 -- 为普通角色(role_id=2)分配博客管理菜单及按钮权限（内容管理员）
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
@@ -1492,7 +1564,11 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 -- 媒体管理
  (2, 2007),
 -- 媒体管理按钮权限（删除）
- (2, 20080);
+ (2, 20080),
+-- 留言管理（审核/回复/删除）
+ (2, 2008), (2, 20090), (2, 20091), (2, 20092), (2, 20093),
+-- 自定义页面（查询/新增/修改/删除）
+ (2, 2009), (2, 20100), (2, 20101), (2, 20102), (2, 20103);
 
 -- 博客用户角色(role_id=3)不分配任何后台菜单，仅通过个人中心（/user/profile）管理个人资料
 -- 历史库迁移（幂等）：清理 role_id=3 已分配的后台菜单权限
@@ -2258,6 +2334,10 @@ UNION ALL
 SELECT CONCAT('💬 评论数量: ', COUNT(*)) AS info FROM blog_comment
 UNION ALL
 SELECT CONCAT('🔗 友链数量: ', COUNT(*)) AS info FROM blog_friend_link WHERE del_flag = '0'
+UNION ALL
+SELECT CONCAT('📮 留言数量: ', COUNT(*)) AS info FROM blog_message WHERE del_flag = '0'
+UNION ALL
+SELECT CONCAT('📄 自定义页面数量: ', COUNT(*)) AS info FROM blog_page WHERE del_flag = '0'
 UNION ALL
 SELECT CONCAT('⚙️  设置数量: ', COUNT(*)) AS info FROM blog_setting;
 
