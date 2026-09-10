@@ -34,18 +34,17 @@ public class SecurityConfigValidator
     /**
      * Druid监控用户名
      *
-     * <p>取值顺序：Druid 官方属性路径 → 本仓库 application.yml 实际使用的
-     * {@code spring.datasource.druid.master.statViewServlet.*} → 环境变量 DRUID_USERNAME。
-     * 之前只读第一个路径，而配置写在了 master 层级下，导致开发环境误报“未设置”、
-     * 生产环境（未额外设置 SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_* 时）直接阻断启动。</p>
+     * <p>取值顺序：Druid 官方属性路径（prod compose 通过
+     * SPRING_DATASOURCE_DRUID_STATVIEWSERVLET_LOGIN_USERNAME 注入）→ 环境变量 DRUID_USERNAME。
+     * 只读属性、不看环境变量时，手工部署（仅导出 .env）会在生产环境被误判为未配置而阻断启动。</p>
      */
-    @Value("${spring.datasource.druid.stat-view-servlet.login-username:${spring.datasource.druid.master.statViewServlet.login-username:${DRUID_USERNAME:}}}")
+    @Value("${spring.datasource.druid.stat-view-servlet.login-username:${DRUID_USERNAME:}}")
     private String druidUsername;
 
     /**
      * Druid监控密码
      */
-    @Value("${spring.datasource.druid.stat-view-servlet.login-password:${spring.datasource.druid.master.statViewServlet.login-password:${DRUID_PASSWORD:}}}")
+    @Value("${spring.datasource.druid.stat-view-servlet.login-password:${DRUID_PASSWORD:}}")
     private String druidPassword;
 
     /**
