@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zhi.common.cache.UnifiedCacheManager;
 import com.zhi.common.constant.CacheConstants;
+import com.zhi.common.constant.Constants;
 import com.zhi.common.exception.user.CaptchaException;
 import com.zhi.common.exception.user.CaptchaExpireException;
 import com.zhi.common.utils.StringUtils;
@@ -45,13 +46,23 @@ public class CaptchaServiceImpl implements ICaptchaService
     @Override
     public void validate(String code, String uuid)
     {
+        validateAndGetAgeSeconds(code, uuid);
+    }
+
+    /**
+     * 校验图形验证码并返回已存在秒数（未启用返回 -1）
+     */
+    @Override
+    public long validateAndGetAgeSeconds(String code, String uuid)
+    {
         if (!isCaptchaEnabled())
         {
-            return;
+            return -1L;
         }
         String verifyKey = CacheConstants.CAPTCHA_CODE_KEY + StringUtils.nvl(uuid, "");
         String captcha = unifiedCacheManager.get(verifyKey, String.class);
-        // 一次性使用：无论成功与否都删除，避免被暴力尝试
+        // 先取剩余有效期，再删除（一次性使用，避免被暴力尝试）
+        long remainSeconds = unifiedCacheManager.getExpire(verifyKey);
         unifiedCacheManager.delete(verifyKey);
         if (captcha == null)
         {
@@ -61,5 +72,12 @@ public class CaptchaServiceImpl implements ICaptchaService
         {
             throw new CaptchaException();
         }
+        long totalSeconds = Constants.CAPTCHA_EXPIRATION * 60L;
+        if (remainSeconds <= 0 || remainSeconds > totalSeconds)
+        {
+            // 键存在但读不到有效期（0/-1）或数值异常时不做“填写过快”判定，避免误判为已填写满额时长
+            return -1L;
+        }
+        return totalSeconds - remainSeconds;
     }
 }

@@ -25,4 +25,17 @@ public interface ICaptchaService
      * @param uuid 验证码唯一标识
      */
     public void validate(String code, String uuid);
+
+    /**
+     * 校验图形验证码并返回该验证码已存在的时间（秒）
+     * 
+     * <p>用于匿名写入接口的“填写过快”判定：验证码由服务端签发并带固定有效期，
+     * 剩余有效期与总有效期之差即用户真实的填写耗时，无法被前端伪造。
+     * 校验失败时抛出与 {@link #validate} 相同的异常。</p>
+     * 
+     * @param code 用户输入的验证码
+     * @param uuid 验证码唯一标识
+     * @return 已存在秒数；未启用图形验证码时返回 {@code -1}（表示无法判定）
+     */
+    public long validateAndGetAgeSeconds(String code, String uuid);
 }

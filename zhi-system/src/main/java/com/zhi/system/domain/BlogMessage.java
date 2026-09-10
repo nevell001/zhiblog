@@ -60,6 +60,12 @@ public class BlogMessage extends BaseEntity
     /** 删除标志（0代表存在 1代表删除） */
     private String delFlag;
 
+    /** 图形验证码（仅接收前端参数，不落库） */
+    private String code;
+
+    /** 验证码唯一标识（仅接收前端参数，不落库） */
+    private String uuid;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -188,6 +194,26 @@ public class BlogMessage extends BaseEntity
     public String getDelFlag() 
     {
         return delFlag;
+    }
+
+    public void setCode(String code) 
+    {
+        this.code = code;
+    }
+
+    public String getCode() 
+    {
+        return code;
+    }
+
+    public void setUuid(String uuid) 
+    {
+        this.uuid = uuid;
+    }
+
+    public String getUuid() 
+    {
+        return uuid;
     }
 
     @Override

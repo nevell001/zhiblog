@@ -99,4 +99,49 @@ class CaptchaServiceImplTest {
 
         assertThrows(CaptchaExpireException.class, () -> captchaService.validate("a1b2", null));
     }
+
+    @Test
+    void testValidateAndGetAgeReturnsMinusOneWhenCaptchaDisabled() {
+        when(configService.selectCaptchaEnabled()).thenReturn(false);
+
+        assertEquals(-1L, captchaService.validateAndGetAgeSeconds("a1b2", "uuid-5"));
+    }
+
+    @Test
+    void testValidateAndGetAgeComputesElapsedSeconds() {
+        String key = CacheConstants.CAPTCHA_CODE_KEY + "uuid-6";
+        when(unifiedCacheManager.get(key, String.class)).thenReturn("a1b2");
+        // 总有效期 2 分钟，剩余 115 秒 => 已过 5 秒
+        when(unifiedCacheManager.getExpire(key)).thenReturn(115L);
+
+        assertEquals(5L, captchaService.validateAndGetAgeSeconds("A1B2", "uuid-6"));
+        verify(unifiedCacheManager).delete(key);
+    }
+
+    @Test
+    void testValidateAndGetAgeReturnsMinusOneWhenTtlUnavailable() {
+        String key = CacheConstants.CAPTCHA_CODE_KEY + "uuid-7";
+        when(unifiedCacheManager.get(key, String.class)).thenReturn("a1b2");
+        when(unifiedCacheManager.getExpire(key)).thenReturn(0L);
+
+        assertEquals(-1L, captchaService.validateAndGetAgeSeconds("a1b2", "uuid-7"));
+    }
+
+    @Test
+    void testValidateAndGetAgeReturnsMinusOneWhenTtlBeyondTotal() {
+        String key = CacheConstants.CAPTCHA_CODE_KEY + "uuid-8";
+        when(unifiedCacheManager.get(key, String.class)).thenReturn("a1b2");
+        when(unifiedCacheManager.getExpire(key)).thenReturn(999L);
+
+        assertEquals(-1L, captchaService.validateAndGetAgeSeconds("a1b2", "uuid-8"));
+    }
+
+    @Test
+    void testValidateAndGetAgeStillThrowsOnMismatch() {
+        String key = CacheConstants.CAPTCHA_CODE_KEY + "uuid-9";
+        when(unifiedCacheManager.get(key, String.class)).thenReturn("a1b2");
+
+        assertThrows(CaptchaException.class,
+            () -> captchaService.validateAndGetAgeSeconds("wrong", "uuid-9"));
+    }
 }
