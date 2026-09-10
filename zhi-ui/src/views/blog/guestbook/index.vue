@@ -52,9 +52,33 @@
               />
             </el-form-item>
 
+            <el-form-item v-if="captchaEnabled" label="验证码" prop="code">
+              <div class="captcha-row">
+                <el-input
+                  v-model="form.code"
+                  placeholder="请输入验证码"
+                  maxlength="10"
+                  @keyup.enter="handleSubmit"
+                />
+                <img
+                  :src="captchaUrl"
+                  class="captcha-img"
+                  alt="验证码"
+                  title="点击刷新验证码"
+                  @click="refreshCaptcha"
+                />
+              </div>
+            </el-form-item>
+
             <div class="form-actions">
-              <el-button type="primary" :loading="submitting" @click="handleSubmit">
-                提交留言
+              <span class="form-hint">留言需间隔 {{ SUBMIT_COOLDOWN_SECONDS }} 秒</span>
+              <el-button
+                type="primary"
+                :loading="submitting"
+                :disabled="cooldownSeconds > 0"
+                @click="handleSubmit"
+              >
+                {{ cooldownSeconds > 0 ? `${cooldownSeconds} 秒后可再次留言` : '提交留言' }}
               </el-button>
             </div>
           </el-form>
@@ -118,9 +142,13 @@ import { ElMessage } from '@/plugins/element-plus-service'
 import type { FormInstance, FormRules } from 'element-plus'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
+import { getCodeImg } from '@/api/blog/auth'
 import { addMessage, getMessageCount, getMessageList, type BlogMessage } from '@/api/blog/message'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { logger } from '@/utils/logger'
+
+/** 与后端 BlogFrontMessageController.SUBMIT_INTERVAL_SECONDS 保持一致 */
+const SUBMIT_COOLDOWN_SECONDS = 60
 
 const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
@@ -128,6 +156,10 @@ const blogSettings = computed(() => blogSettingsStore.blogSettings)
 const formRef = ref<FormInstance>()
 const submitting = ref(false)
 const loading = ref(false)
+const captchaEnabled = ref(true)
+const captchaUrl = ref('')
+const cooldownSeconds = ref(0)
+let cooldownTimer: ReturnType<typeof setInterval> | undefined
 
 const messages = ref<BlogMessage[]>([])
 const messageCount = ref(0)
@@ -139,10 +171,12 @@ const form = reactive({
   nickname: '',
   email: '',
   website: '',
-  content: ''
+  content: '',
+  code: '',
+  uuid: ''
 })
 
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   nickname: [
     { required: true, message: '请输入昵称', trigger: 'blur' },
     { max: 50, message: '昵称长度不能超过50个字符', trigger: 'blur' }
@@ -151,8 +185,11 @@ const rules: FormRules = {
   content: [
     { required: true, message: '请输入留言内容', trigger: 'blur' },
     { max: 500, message: '留言内容长度不能超过500个字符', trigger: 'blur' }
-  ]
-}
+  ],
+  ...(captchaEnabled.value
+    ? { code: [{ required: true, message: '请输入验证码', trigger: 'blur' }] }
+    : {})
+}))
 
 // comment_review 走 store 统一判定：未配置时按后端语义视为“需要审核”
 const needsReview = computed(() => blogSettingsStore.isFeatureEnabled('comment_review'))
@@ -217,8 +254,49 @@ const handlePagination = (payload: { page?: number; limit?: number }) => {
   loadMessages()
 }
 
+// 刷新验证码（验证码是否启用与登录/注册同一开关，由后端下发）
+const refreshCaptcha = async () => {
+  try {
+    const res = await getCodeImg()
+    captchaEnabled.value = res?.captchaEnabled === undefined ? true : Boolean(res.captchaEnabled)
+    if (captchaEnabled.value) {
+      captchaUrl.value = 'data:image/jpeg;base64,' + res.img
+      form.uuid = res.uuid
+      form.code = ''
+    } else {
+      captchaUrl.value = ''
+      form.uuid = ''
+      form.code = ''
+    }
+  } catch (error) {
+    logger.error('获取验证码失败:', error)
+    captchaEnabled.value = false
+  }
+}
+
+const clearCooldownTimer = () => {
+  if (cooldownTimer) {
+    clearInterval(cooldownTimer)
+    cooldownTimer = undefined
+  }
+}
+
+// 提交冷却倒计时（服务端同样校验，此处仅用于提前禁用按钮）
+const startCooldown = (seconds: number) => {
+  clearCooldownTimer()
+  cooldownSeconds.value = Math.max(0, Math.floor(seconds) || 0)
+  if (cooldownSeconds.value === 0) return
+  cooldownTimer = setInterval(() => {
+    cooldownSeconds.value -= 1
+    if (cooldownSeconds.value <= 0) {
+      cooldownSeconds.value = 0
+      clearCooldownTimer()
+    }
+  }, 1000)
+}
+
 const handleSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value || cooldownSeconds.value > 0) return
   try {
     await formRef.value.validate()
   } catch {
@@ -231,14 +309,29 @@ const handleSubmit = async () => {
       nickname: form.nickname.trim(),
       content: form.content.trim(),
       email: form.email.trim() || undefined,
-      website: form.website.trim() || undefined
+      website: form.website.trim() || undefined,
+      ...(captchaEnabled.value ? { code: form.code.trim(), uuid: form.uuid } : {})
     })
     ElMessage.success(needsReview.value ? '留言已提交，审核通过后展示' : '留言成功')
     form.content = ''
+    if (captchaEnabled.value) {
+      refreshCaptcha()
+    }
+    startCooldown(SUBMIT_COOLDOWN_SECONDS)
     pageNum.value = 1
     await Promise.all([loadMessages(), loadMessageCount()])
   } catch (error: any) {
-    ElMessage.error(error?.message || '留言提交失败，请稍后重试')
+    // 后端 msg（验证码错误/过期、提交过快、冷却中）由响应拦截器转为 error.message
+    const msg = error?.msg || error?.message || '留言提交失败，请稍后重试'
+    ElMessage.error(msg)
+    const waitSeconds = /请\s*(\d+)\s*秒后再试/.exec(String(msg))
+    if (waitSeconds) {
+      startCooldown(Number(waitSeconds[1]))
+    }
+    // 验证码一次性使用，失败后必须刷新
+    if (captchaEnabled.value) {
+      refreshCaptcha()
+    }
   } finally {
     submitting.value = false
   }
@@ -256,8 +349,13 @@ const applyGuestbookSeo = () => {
 onMounted(async () => {
   await loadBlogSettings()
   applyGuestbookSeo()
+  refreshCaptcha()
   loadMessages()
   loadMessageCount()
+})
+
+onUnmounted(() => {
+  clearCooldownTimer()
 })
 </script>
 
@@ -351,7 +449,35 @@ onMounted(async () => {
 
 .form-actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  gap: 12px;
+}
+
+.form-hint {
+  color: var(--mo-n500);
+  font-size: 12px;
+}
+
+.captcha-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.captcha-row .el-input {
+  flex: 1;
+}
+
+.captcha-img {
+  width: 110px;
+  height: 32px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 1px solid var(--mo-n200);
+  border-radius: 6px;
+  background: #fff;
 }
 
 .message-body {
@@ -408,7 +534,7 @@ onMounted(async () => {
 
 .message-time {
   margin-left: auto;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   font-size: 12px;
 }
 
@@ -449,7 +575,7 @@ onMounted(async () => {
 .reply-time {
   display: block;
   margin-top: 6px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   font-size: 12px;
 }
 
@@ -507,7 +633,20 @@ html.dark .message-reply {
 
 html.dark .message-time,
 html.dark .reply-time {
-  color: var(--mo-n500);
+  color: var(--mo-n400);
+}
+
+/* hover 态原用 p800，深色下对比度不足，改为更亮的 p200 */
+html.dark .message-website:hover {
+  color: var(--mo-p200);
+}
+
+html.dark .form-hint {
+  color: var(--mo-n400);
+}
+
+html.dark .captcha-img {
+  border-color: var(--mo-n700);
 }
 
 @media (max-width: 760px) {

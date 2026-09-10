@@ -18,12 +18,14 @@ export interface BlogMessage {
   createTime?: string
 }
 
-/** 留言提交参数（昵称、内容必填，邮箱与网站选填） */
+/** 留言提交参数（昵称、内容必填，邮箱与网站选填；验证码启用时需带 code/uuid） */
 export interface BlogMessageForm {
   nickname: string
   email?: string
   website?: string
   content: string
+  code?: string
+  uuid?: string
 }
 
 /** 已发布留言总数响应 */

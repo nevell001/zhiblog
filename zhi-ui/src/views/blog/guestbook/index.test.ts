@@ -79,4 +79,37 @@ describe('留言板页面测试', () => {
     expect(source).toContain('留言成功')
     expect(source).toContain('await Promise.all([loadMessages(), loadMessageCount()])')
   })
+
+  it('应该带有图形验证码（启用开关由后端下发，与登录一致）', () => {
+    expect(source).toContain("import { getCodeImg } from '@/api/blog/auth'")
+    expect(source).toContain('v-if="captchaEnabled"')
+    expect(source).toContain('prop="code"')
+    expect(source).toContain('@click="refreshCaptcha"')
+    expect(source).toContain('captchaEnabled.value = res?.captchaEnabled')
+  })
+
+  it('验证码启用时提交应携带 code/uuid，失败后刷新一次性验证码', () => {
+    expect(source).toContain('{ code: form.code.trim(), uuid: form.uuid }')
+    expect(source).toContain('// 验证码一次性使用，失败后必须刷新')
+  })
+
+  it('应该有输入时限：提交冷却倒计时并禁用按钮', () => {
+    expect(source).toContain('const SUBMIT_COOLDOWN_SECONDS = 60')
+    expect(source).toContain('startCooldown(SUBMIT_COOLDOWN_SECONDS)')
+    expect(source).toContain(':disabled="cooldownSeconds > 0"')
+    expect(source).toContain('秒后可再次留言')
+    expect(source).toContain('clearCooldownTimer')
+  })
+
+  it('后端返回冷却提示时应解析剩余秒数并倒计时', () => {
+    expect(source).toContain('/请\\s*(\\d+)\\s*秒后再试/')
+    expect(source).toContain('startCooldown(Number(waitSeconds[1]))')
+  })
+
+  it('深色模式不应该再使用对比度不足的 n500 文字色', () => {
+    const darkBlock = source.slice(source.indexOf('html.dark'))
+    expect(darkBlock).not.toContain('--mo-n500')
+    expect(darkBlock).toContain('html.dark .message-time,')
+    expect(darkBlock).toContain('html.dark .message-website:hover')
+  })
 })
