@@ -77,10 +77,7 @@ const router = useRouter()
 const blogSettingsStore = useBlogSettingsStore()
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
-const isSearchEnabled = computed(() => {
-  const v = (blogSettings.value as any).search_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
+const isSearchEnabled = computed(() => blogSettingsStore.isFeatureEnabled('search_enabled'))
 
 const keyword = ref('')
 const query = ref('')

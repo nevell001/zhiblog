@@ -318,11 +318,8 @@ const recentArticles = ref([])
 
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 
-// 前台功能开关（sidebar_enabled 默认开启）
-const isSidebarEnabled = computed(() => {
-  const v = (blogSettings.value as any).sidebar_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
+// 前台功能开关统一走 store 判定（sidebar_enabled 默认开启）
+const isSidebarEnabled = computed(() => blogSettingsStore.isFeatureEnabled('sidebar_enabled'))
 
 // 查询参数
 const queryParams = reactive({

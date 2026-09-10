@@ -250,6 +250,7 @@ import {
   Menu
 } from '@element-plus/icons-vue'
 import { getFrontFriendLinkList } from '@/api/blog/friendLink'
+import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { getPublishedPages, type BlogPage } from '@/api/blog/page'
 import {
   getNotificationList,
@@ -393,30 +394,16 @@ const markAllNotifications = async () => {
   }
 }
 
-// 布尔型博客开关统一判定：只有明确为 false/'false'/'0'/0 才视为关闭，
-// 未设置或为 true/'true'/'1'/1 均视为开启（避免不同写入格式造成“开关不生效”）
-const isSwitchOn = (value: unknown): boolean =>
-  !(value === false || value === 'false' || value === '0' || value === 0)
-
-// 页脚友情链接列表开关（默认开启）
+// 页脚/版权/友链相关开关统一走 store 判定（store.isFeatureEnabled 为全站唯一口径），
+// 避免多处判定规则不一致导致“开关不生效”
 const isFriendLinkEnabled = computed(() =>
-  isSwitchOn((blogSettings.value as any).friend_link_enabled)
+  blogSettingsStore.isFeatureEnabled('friend_link_enabled')
 )
-
-// 友链申请入口开关（默认开启；同时影响页脚入口与申请页）
 const isFriendLinkApplyEnabled = computed(() =>
-  isSwitchOn((blogSettings.value as any).friend_link_apply_enabled)
+  blogSettingsStore.isFeatureEnabled('friend_link_apply_enabled')
 )
-
-// 页脚与版权开关（默认开启）
-const isFooterEnabled = computed(() => {
-  const v = (blogSettings.value as any).footer_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
-const isCopyrightEnabled = computed(() => {
-  const v = (blogSettings.value as any).copyright_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
+const isFooterEnabled = computed(() => blogSettingsStore.isFeatureEnabled('footer_enabled'))
+const isCopyrightEnabled = computed(() => blogSettingsStore.isFeatureEnabled('copyright_enabled'))
 
 // 导航菜单：固定入口 + showInNav === '1' 的自定义页面
 interface NavMenuItem {
@@ -515,6 +502,10 @@ const handleUserCommand = async (command: string) => {
 }
 
 onMounted(() => {
+  // 加载博客设置：页脚/版权/友链开关依赖它，而本组件在所有前台页面都会渲染，
+  // 必须自行拉取，不能依赖各页面各自加载
+  fetchBlogSettings()
+
   // 加载友情链接
   fetchFriendLinks()
 
@@ -543,6 +534,23 @@ function fetchFriendLinks() {
     })
     .catch(() => {
       friendLinks.value = []
+    })
+}
+
+/** 拉取公开博客设置（60 秒内已拉过则复用，避免与页面自身的加载重复请求） */
+function fetchBlogSettings() {
+  if (Date.now() - (blogSettingsStore.lastUpdate || 0) < 60000) {
+    return
+  }
+  getBlogSettingsAnonymous()
+    .then(response => {
+      const settings = response?.data
+      if (settings && typeof settings === 'object') {
+        blogSettingsStore.updateBlogSettings(settings)
+      }
+    })
+    .catch(() => {
+      // 拉取失败时沿用已有值（store 内有默认值），不影响页面展示
     })
 }
 

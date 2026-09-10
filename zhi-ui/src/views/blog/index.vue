@@ -185,15 +185,9 @@ const searchKeyword = ref('')
 const showContact = ref(false)
 const blogLayoutRef = ref<any>(null)
 
-// 前台功能开关（search_enabled / sidebar_enabled 默认开启）
-const isSearchEnabled = computed(() => {
-  const v = (blogSettings.value as any).search_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
-const isSidebarEnabled = computed(() => {
-  const v = (blogSettings.value as any).sidebar_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
+// 前台功能开关统一走 store 判定（search_enabled / sidebar_enabled 默认开启）
+const isSearchEnabled = computed(() => blogSettingsStore.isFeatureEnabled('search_enabled'))
+const isSidebarEnabled = computed(() => blogSettingsStore.isFeatureEnabled('sidebar_enabled'))
 
 const formatDate = (date: string) => {
   return parseTime(date, '{y}-{m}-{d}')

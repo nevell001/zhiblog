@@ -97,10 +97,11 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     getBlogAuthor: (state: BlogSettingsStoreState) => state.blogSettings.blog_author || 'nevell',
     getBlogName: (state: BlogSettingsStoreState) => state.blogSettings.blog_name || '我的博客',
 
-    // 功能开关辅助方法
+    // 功能开关辅助方法（全站唯一判定口径）：
+    // 只有 false / 'false' / '0' / 0 视为关闭，未设置或 true / 'true' / '1' / 1 视为开启
     isFeatureEnabled: (state: BlogSettingsStoreState) => (feature: string) => {
       const value = state.blogSettings[feature]
-      return value !== false && value !== 'false'
+      return !(value === false || value === 'false' || value === '0' || value === 0)
     }
   },
 

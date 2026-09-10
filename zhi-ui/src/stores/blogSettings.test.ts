@@ -101,6 +101,18 @@ describe('BlogSettings Store 测试', () => {
       store.updateBlogSettings({ comment_enabled: 'false' as any })
       expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
     })
+
+    it('字符串 "1"/"0" 与数字 1/0 的口径应与后端 BlogSwitchUtils 一致', () => {
+      const store = useBlogSettingsStore()
+      store.updateBlogSettings({ comment_enabled: '1' as any })
+      expect(store.isFeatureEnabled('comment_enabled')).toBe(true)
+      store.updateBlogSettings({ comment_enabled: '0' as any })
+      expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
+      store.updateBlogSettings({ comment_enabled: 0 as any })
+      expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
+      store.updateBlogSettings({ comment_enabled: undefined as any })
+      expect(store.isFeatureEnabled('comment_enabled')).toBe(true)
+    })
   })
 
   describe('updateBlogSettings action', () => {
