@@ -28,6 +28,17 @@ describe('BlogSetting 视图组件测试', () => {
     expect(source).not.toMatch(/#4a7bff|#6b8cff|#f093fb|#f5576c|#4facfe|#00f2fe/i)
   })
 
+  it('开关类设置应改动即生效（绑定 applySwitch 且带失败回滚）', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).toContain('@change="applySwitch(\'friend_link_apply_enabled\')"')
+    expect(source).toContain('@change="applySwitch(\'friend_link_enabled\')"')
+    expect(source).toContain('async function applySwitch')
+    expect(source).toContain('updateSettingValueByKey(key, storedValue)')
+    // 保存失败要把开关回滚，避免界面与数据库不一致
+    expect(source).toContain('originalSettings.value[key]')
+  })
+
   it('应该在后台提供友链申请入口开关', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 

@@ -89,6 +89,7 @@
                 v-model="settingsMap.referer_enabled"
                 active-text="启用"
                 inactive-text="关闭"
+                @change="applySwitch('referer_enabled')"
               />
               <div class="setting-tip">
                 开启后仅允许白名单域名引用 /profile 下的上传资源（图片等），防止被其他网站盗链
@@ -294,7 +295,10 @@
               </span>
             </el-divider>
             <el-form-item label="评论功能" prop="comment_enabled">
-              <el-switch v-model="settingsMap.comment_enabled" />
+              <el-switch
+                v-model="settingsMap.comment_enabled"
+                @change="applySwitch('comment_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -310,7 +314,10 @@
               label="评论审核"
               prop="comment_review"
             >
-              <el-switch v-model="settingsMap.comment_review" />
+              <el-switch
+                v-model="settingsMap.comment_review"
+                @change="applySwitch('comment_review')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -322,7 +329,7 @@
               </span>
             </el-form-item>
             <el-form-item label="点赞功能" prop="like_enabled">
-              <el-switch v-model="settingsMap.like_enabled" />
+              <el-switch v-model="settingsMap.like_enabled" @change="applySwitch('like_enabled')" />
               <span
                 style="
                   margin-left: 10px;
@@ -341,7 +348,10 @@
               </span>
             </el-divider>
             <el-form-item label="浏览统计" prop="view_count_enabled">
-              <el-switch v-model="settingsMap.view_count_enabled" />
+              <el-switch
+                v-model="settingsMap.view_count_enabled"
+                @change="applySwitch('view_count_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -353,7 +363,10 @@
               </span>
             </el-form-item>
             <el-form-item label="分享功能" prop="share_enabled">
-              <el-switch v-model="settingsMap.share_enabled" />
+              <el-switch
+                v-model="settingsMap.share_enabled"
+                @change="applySwitch('share_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -365,7 +378,10 @@
               </span>
             </el-form-item>
             <el-form-item label="搜索功能" prop="search_enabled">
-              <el-switch v-model="settingsMap.search_enabled" />
+              <el-switch
+                v-model="settingsMap.search_enabled"
+                @change="applySwitch('search_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -384,7 +400,10 @@
               </span>
             </el-divider>
             <el-form-item label="显示侧边栏" prop="sidebar_enabled">
-              <el-switch v-model="settingsMap.sidebar_enabled" />
+              <el-switch
+                v-model="settingsMap.sidebar_enabled"
+                @change="applySwitch('sidebar_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -396,7 +415,10 @@
               </span>
             </el-form-item>
             <el-form-item label="显示底部" prop="footer_enabled">
-              <el-switch v-model="settingsMap.footer_enabled" />
+              <el-switch
+                v-model="settingsMap.footer_enabled"
+                @change="applySwitch('footer_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -408,7 +430,10 @@
               </span>
             </el-form-item>
             <el-form-item label="显示版权" prop="copyright_enabled">
-              <el-switch v-model="settingsMap.copyright_enabled" />
+              <el-switch
+                v-model="settingsMap.copyright_enabled"
+                @change="applySwitch('copyright_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -420,20 +445,30 @@
               </span>
             </el-form-item>
             <el-form-item label="页脚友链列表" prop="friend_link_enabled">
-              <el-switch v-model="settingsMap.friend_link_enabled" />
+              <el-switch
+                v-model="settingsMap.friend_link_enabled"
+                @change="applySwitch('friend_link_enabled')"
+              />
               <span class="setting-tip" style="margin-left: 10px">
                 控制页脚「友情链接」列表（已通过的友链）是否展示，与申请入口互不影响
               </span>
             </el-form-item>
             <el-form-item label="友链申请入口" prop="friend_link_apply_enabled">
-              <el-switch v-model="settingsMap.friend_link_apply_enabled" />
+              <el-switch
+                v-model="settingsMap.friend_link_apply_enabled"
+                @change="applySwitch('friend_link_apply_enabled')"
+              />
               <span class="setting-tip" style="margin-left: 10px">
                 控制页脚「友链申请」链接与申请页是否开放；关闭后申请页提示未开放，
-                提交接口也会直接拒绝（保存后立即生效）
+                提交接口也会直接拒绝。
+                <b>本开关改动即时生效，无需点保存</b>
               </span>
             </el-form-item>
             <el-form-item label="邮件通知" prop="email_notify_enabled">
-              <el-switch v-model="settingsMap.email_notify_enabled" />
+              <el-switch
+                v-model="settingsMap.email_notify_enabled"
+                @change="applySwitch('email_notify_enabled')"
+              />
               <span
                 style="
                   margin-left: 10px;
@@ -1166,6 +1201,33 @@ async function getAllSettings() {
 /**
  * 保存所有设置
  */
+/**
+ * 开关类设置改动即生效：立即写入数据库并刷新前台缓存，
+ * 避免“改了但忘记点保存导致看起来不生效”
+ */
+async function applySwitch(key: string) {
+  const current = settingsMap.value[key]
+  const storedValue = typeof current === 'boolean' ? current.toString() : String(current ?? '')
+
+  try {
+    const response = await updateSettingValueByKey(key, storedValue)
+    if (response?.code === 200) {
+      // 已落库，同步“原始值”避免点“保存所有设置”时重复提交
+      originalSettings.value[key] = storedValue
+      ElMessage.success('设置已生效')
+      // 主题等需要即时感知的键：通知全局状态
+      blogSettingsStore.updateBlogSettings({ [key]: current })
+    } else {
+      throw new Error(response?.msg || '保存失败')
+    }
+  } catch (error: any) {
+    // 保存失败则回滚开关显示，避免界面与数据库不一致
+    const original = originalSettings.value[key]
+    settingsMap.value[key] = original === 'true' || original === true
+    ElMessage.error(error?.msg || error?.message || '设置保存失败')
+  }
+}
+
 async function saveAllSettings() {
   loading.value = true
   try {
