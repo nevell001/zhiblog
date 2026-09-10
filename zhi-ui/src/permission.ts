@@ -25,6 +25,10 @@ const whiteList = [
   '/blog/article/*',
   '/blog/category/*',
   '/blog/tag/*',
+  // 多段路径必须单独列出：/blog/* 只匹配一层（* 编译为 [^/]*）
+  '/blog/author/*',
+  '/blog/page/*',
+  '/blog/friend-links/apply',
   '/blog/archive',
   '/blog/simple',
   '/blog/article',

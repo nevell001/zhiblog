@@ -31,6 +31,16 @@ describe('Permission 模块测试', () => {
     // )
   })
 
+  it('匿名可访问的多段博客路径必须显式加入白名单', () => {
+    // /blog/* 只匹配单层路径，多段公开页（作者主页、自定义页面、友链申请）必须单独列出，
+    // 否则匿名访问会被重定向到 /login
+    expect(permissionSource).toContain("'/blog/author/*'")
+    expect(permissionSource).toContain("'/blog/page/*'")
+    expect(permissionSource).toContain("'/blog/friend-links/apply'")
+    // 单层公开页仍由通配覆盖
+    expect(permissionSource).toContain("'/blog/*'")
+  })
+
   it('进入后台时即使用户信息已存在也应确保动态菜单已生成', () => {
     expect(permissionSource).toContain('hasGeneratedRoutes')
     expect(permissionSource).toContain('permissionStore.sidebarRouters.length > 0')
