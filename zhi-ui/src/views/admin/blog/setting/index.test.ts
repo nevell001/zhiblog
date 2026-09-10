@@ -27,4 +27,14 @@ describe('BlogSetting 视图组件测试', () => {
 
     expect(source).not.toMatch(/#4a7bff|#6b8cff|#f093fb|#f5576c|#4facfe|#00f2fe/i)
   })
+
+  it('应该在后台提供友链申请入口开关', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    expect(source).toContain('prop="friend_link_apply_enabled"')
+    expect(source).toContain('v-model="settingsMap.friend_link_apply_enabled"')
+    expect(source).toContain('显示友链申请入口')
+    expect(source).toContain("'friend_link_apply_enabled'")
+    expect(source).toContain('friend_link_apply_enabled: true')
+  })
 })

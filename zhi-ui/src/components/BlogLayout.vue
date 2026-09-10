@@ -181,7 +181,9 @@
             <router-link to="/blog/tag">标签</router-link>
             <router-link to="/blog/archive">归档</router-link>
             <router-link to="/blog/about">关于</router-link>
-            <router-link to="/blog/friend-links/apply">友链申请</router-link>
+            <router-link v-if="isFriendLinkApplyEnabled" to="/blog/friend-links/apply">
+              友链申请
+            </router-link>
           </div>
           <div class="footer-col">
             <h4>社交平台</h4>
@@ -395,6 +397,12 @@ const markAllNotifications = async () => {
 const isFriendLinkEnabled = computed(() => {
   const v = (blogSettings.value as any).friend_link_enabled
   return v === undefined || v === null || v === 'true' || v === true
+})
+
+// 友链申请入口开关（默认开启；'false' / '0' / false 视为关闭）
+const isFriendLinkApplyEnabled = computed(() => {
+  const v = (blogSettings.value as any).friend_link_apply_enabled
+  return !(v === 'false' || v === '0' || v === false)
 })
 
 // 页脚与版权开关（默认开启）

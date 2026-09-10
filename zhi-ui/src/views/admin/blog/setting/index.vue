@@ -431,6 +431,12 @@
                 在页脚显示友情链接模块
               </span>
             </el-form-item>
+            <el-form-item label="显示友链申请入口" prop="friend_link_apply_enabled">
+              <el-switch v-model="settingsMap.friend_link_apply_enabled" />
+              <span class="setting-tip" style="margin-left: 10px">
+                关闭后前台不再展示友链申请入口，申请接口也会拒绝提交
+              </span>
+            </el-form-item>
             <el-form-item label="邮件通知" prop="email_notify_enabled">
               <el-switch v-model="settingsMap.email_notify_enabled" />
               <span
@@ -743,6 +749,7 @@ async function getAllSettings() {
       'footer_enabled',
       'copyright_enabled',
       'friend_link_enabled',
+      'friend_link_apply_enabled',
       'page_size',
       'hot_article_count',
       'recent_comment_count',
@@ -969,6 +976,7 @@ async function getAllSettings() {
       footer_enabled: true,
       copyright_enabled: true,
       friend_link_enabled: true,
+      friend_link_apply_enabled: true,
       email_notify_enabled: true,
       page_size: 10, // 确保数值类型
       hot_article_count: 5, // 确保数值类型
@@ -1093,6 +1101,7 @@ async function getAllSettings() {
       footer_enabled: true,
       copyright_enabled: true,
       friend_link_enabled: true,
+      friend_link_apply_enabled: true,
       email_notify_enabled: true,
       page_size: 10,
       hot_article_count: 5,

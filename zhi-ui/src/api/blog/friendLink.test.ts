@@ -5,8 +5,10 @@ import {
   addFriendLink,
   updateFriendLink,
   delFriendLink,
-  getFrontFriendLinkList
+  getFrontFriendLinkList,
+  applyFriendLink
 } from './friendLink'
+import type { FriendLinkApplyForm } from './friendLink'
 import type { FriendLink } from '@/types'
 import request from '@/utils/request'
 
@@ -168,6 +170,51 @@ describe('Friend Link API 测试', () => {
         headers: { isToken: false }
       })
       expect(result).toEqual(friendLinks)
+    })
+  })
+
+  describe('applyFriendLink', () => {
+    it('应该导出 applyFriendLink 函数', () => {
+      expect(applyFriendLink).toBeDefined()
+      expect(typeof applyFriendLink).toBe('function')
+    })
+
+    it('应该调用 POST /system/friendLink/apply 并携带 code 与 uuid', async () => {
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      const payload: FriendLinkApplyForm = {
+        name: '测试站点',
+        url: 'https://apply.example.com',
+        email: 'apply@example.com',
+        description: '一句话介绍',
+        code: '1234',
+        uuid: 'uuid-abc-123'
+      }
+      await applyFriendLink(payload)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/apply',
+        method: 'post',
+        data: payload,
+        headers: { isToken: false }
+      })
+    })
+
+    it('未开启验证码时应该允许不传 code 与 uuid', async () => {
+      mockRequest.mockResolvedValue({ code: 200 })
+
+      const payload: FriendLinkApplyForm = {
+        name: '无验证码站点',
+        url: 'https://nocaptcha.example.com'
+      }
+      await applyFriendLink(payload)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/system/friendLink/apply',
+        method: 'post',
+        data: payload,
+        headers: { isToken: false }
+      })
     })
   })
 })
