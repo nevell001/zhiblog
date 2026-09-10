@@ -996,6 +996,13 @@ html.dark .no-data h3 {
   color: var(--mo-n200);
 }
 
+/* p600/p700 不参与深色重映射，深色下强调色文字统一改用 p300 */
+html.dark .highlight-number,
+html.dark .archive-year,
+html.dark .toggle-icon {
+  color: var(--mo-p300);
+}
+
 html.dark .timeline-line {
   background: linear-gradient(180deg, var(--mo-p600) 0%, var(--mo-p800) 100%);
 }
@@ -1034,7 +1041,7 @@ html.dark .archive-month {
 
 html.dark .archive-count {
   background: var(--mo-n800);
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .archive-articles {
@@ -1055,7 +1062,7 @@ html.dark .article-title {
 }
 
 html.dark .article-title:hover {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .article-summary {
@@ -1067,7 +1074,7 @@ html.dark .article-meta {
 }
 
 html.dark .article-item:hover .meta-item {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .no-articles {

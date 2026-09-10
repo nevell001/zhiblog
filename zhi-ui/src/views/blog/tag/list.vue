@@ -136,4 +136,8 @@ onMounted(loadTags)
   font-size: 11px;
   opacity: 0.7;
 }
+/* 深色：p600/p700 不参与深色重映射，文字改用 p300（默认主题=主色，Mo-Blog=#a5b4fc） */
+html.dark .tag-card {
+  color: var(--mo-p300);
+}
 </style>

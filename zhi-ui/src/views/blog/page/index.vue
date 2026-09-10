@@ -308,28 +308,30 @@ html.dark .custom-page-panel {
 }
 
 html.dark .section-label {
-  background: rgba(99, 102, 241, 0.16);
+  background: var(--mo-p50);
   color: var(--mo-p300);
 }
 
+/* 深色下 --mo-* 色阶被重映射：n50/n0/n800/n900 是背景色，
+   文字必须用 n100~n200（主文字）或 n300~n500（次要文字） */
 html.dark .custom-page-title,
 html.dark .empty-title,
 html.dark .custom-page-content :deep(h1),
 html.dark .custom-page-content :deep(h2),
 html.dark .custom-page-content :deep(h3),
 html.dark .custom-page-content :deep(h4) {
-  color: var(--mo-n50);
+  color: var(--mo-n200);
 }
 
 html.dark .empty-code {
-  color: var(--mo-p700);
+  color: var(--mo-p300);
 }
 
 html.dark .custom-page-summary,
 html.dark .empty-desc,
 html.dark .custom-page-meta,
 html.dark .custom-page-no-content {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .custom-page-meta {
@@ -337,7 +339,7 @@ html.dark .custom-page-meta {
 }
 
 html.dark .custom-page-content {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .custom-page-content :deep(pre) {
@@ -345,8 +347,8 @@ html.dark .custom-page-content :deep(pre) {
 }
 
 html.dark .custom-page-content :deep(blockquote) {
-  background: rgba(99, 102, 241, 0.12);
-  color: var(--mo-n400);
+  background: var(--mo-p50);
+  color: var(--mo-n500);
 }
 
 @media (max-width: 760px) {

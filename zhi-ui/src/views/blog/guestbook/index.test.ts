@@ -106,10 +106,11 @@ describe('留言板页面测试', () => {
     expect(source).toContain('startCooldown(Number(waitSeconds[1]))')
   })
 
-  it('深色模式不应该再使用对比度不足的 n500 文字色', () => {
+  it('深色模式文字必须使用重映射后的文字色阶（n50/n900 是背景色）', () => {
     const darkBlock = source.slice(source.indexOf('html.dark'))
-    expect(darkBlock).not.toContain('--mo-n500')
-    expect(darkBlock).toContain('html.dark .message-time,')
+    expect(darkBlock).toContain('color: var(--mo-n200)')
+    expect(darkBlock).toContain('color: var(--mo-n500)')
+    expect(darkBlock).not.toMatch(/(?:^|[;{\s])color:\s*var\(--mo-n(?:0|50|800|900)\)/)
     expect(darkBlock).toContain('html.dark .message-website:hover')
   })
 })

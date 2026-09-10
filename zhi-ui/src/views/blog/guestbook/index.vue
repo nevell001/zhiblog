@@ -595,20 +595,22 @@ html.dark .guestbook-panel {
 }
 
 html.dark .section-label {
-  background: rgba(99, 102, 241, 0.16);
+  background: var(--mo-p50);
   color: var(--mo-p300);
 }
 
+/* 深色下 --mo-* 色阶被重映射：n50/n0/n800/n900 是背景色，
+   文字必须用 n100~n200（主文字）或 n300~n500（次要文字） */
 html.dark .guestbook-title,
 html.dark .section-head h2,
 html.dark .message-nickname {
-  color: var(--mo-n50);
+  color: var(--mo-n200);
 }
 
 html.dark .guestbook-desc,
 html.dark .message-content,
 html.dark .reply-content {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .guestbook-count,
@@ -624,16 +626,16 @@ html.dark .message-item {
 
 html.dark .message-item:hover {
   border-color: var(--mo-p700);
-  background: rgba(99, 102, 241, 0.1);
+  background: var(--mo-p50);
 }
 
 html.dark .message-reply {
-  background: rgba(99, 102, 241, 0.12);
+  background: var(--mo-p50);
 }
 
 html.dark .message-time,
 html.dark .reply-time {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 /* hover 态原用 p800，深色下对比度不足，改为更亮的 p200 */
@@ -642,7 +644,7 @@ html.dark .message-website:hover {
 }
 
 html.dark .form-hint {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .captcha-img {

@@ -50,11 +50,12 @@ describe('About 页面测试', () => {
     expect(contactInfo.github).toContain('github.com')
   })
 
-  it('深色模式正文不应该使用对比度不足的 n500 文字色', () => {
+  it('深色模式文字必须使用重映射后的文字色阶（n50/n900 是背景色）', () => {
     const darkBlock = source.slice(source.indexOf('html.dark'))
-    expect(darkBlock).not.toContain('--mo-n500')
-    expect(darkBlock).toContain('html.dark .about-desc,')
-    expect(darkBlock).toContain('color: var(--mo-n300)')
+    // 标题用主文字色 n200，正文用次要文字色 n500；不得把背景色阶当文字色
+    expect(darkBlock).toContain('color: var(--mo-n200)')
+    expect(darkBlock).toContain('color: var(--mo-n500)')
+    expect(darkBlock).not.toMatch(/(?:^|[;{\s])color:\s*var\(--mo-n(?:0|50|800|900)\)/)
   })
 
   it('深色模式正文链接应该使用浅色阶（p700/p800 在深色底上几乎不可见）', () => {

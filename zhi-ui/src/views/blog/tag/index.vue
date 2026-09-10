@@ -1394,7 +1394,7 @@ html.dark .article-title a {
 }
 
 html.dark .article-title a:hover {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .article-meta {
@@ -1408,7 +1408,7 @@ html.dark .meta-item {
 
 html.dark .meta-item:hover {
   background: rgba(79, 70, 229, 0.15);
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .article-summary {
@@ -1420,7 +1420,7 @@ html.dark .article-footer {
 }
 
 html.dark .read-more {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .read-more:hover {
@@ -1464,7 +1464,7 @@ html.dark .popular-tag-item {
 }
 
 html.dark .tag-rank {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .tag-link {
@@ -1484,7 +1484,7 @@ html.dark .article-link {
 }
 
 html.dark .article-link:hover {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .article-date {
@@ -1501,6 +1501,15 @@ html.dark .empty-icon {
 
 html.dark .empty-content h3 {
   color: var(--mo-n200);
+}
+
+/* p600/p700 不参与深色重映射，深色下强调色文字统一改用 p300 */
+html.dark .tag-badge,
+html.dark .related-tag-item,
+html.dark .tag-icon,
+html.dark .tag-link,
+html.dark .read-more:hover {
+  color: var(--mo-p300);
 }
 
 /* 动画效果 */

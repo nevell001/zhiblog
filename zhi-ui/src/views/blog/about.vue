@@ -504,16 +504,18 @@ html.dark .about-avatar-wrap img {
 }
 
 html.dark .section-label {
-  background: rgba(99, 102, 241, 0.16);
+  background: var(--mo-p50);
   color: var(--mo-p300);
 }
 
+/* 深色下 --mo-* 色阶被重映射：n50/n0/n800/n900 是背景色，
+   文字必须用 n100~n200（主文字）或 n300~n500（次要文字） */
 html.dark .about-name,
 html.dark .section-head h2,
 html.dark .about-content :deep(h1),
 html.dark .about-content :deep(h2),
 html.dark .about-content :deep(h3) {
-  color: var(--mo-n50);
+  color: var(--mo-n200);
 }
 
 html.dark .about-role,
@@ -524,7 +526,7 @@ html.dark a.contact-value {
 
 html.dark .about-desc,
 html.dark .about-content {
-  color: var(--mo-n300);
+  color: var(--mo-n500);
 }
 
 /* 深色下正文链接沿用浅色主题的 p700/p800 会几乎不可见（≈2:1），改用浅色阶 */
@@ -549,7 +551,7 @@ html.dark .contact-card {
 html.dark .stat-label,
 html.dark .contact-type,
 html.dark .contact-empty {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 html.dark .contact-card {
