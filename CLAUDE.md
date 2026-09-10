@@ -66,14 +66,8 @@ CREATE DATABASE zhiblog CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 mysql -u root -p zhiblog < sql/00_init_database.sql
 ```
 
-**SQL Migration Scripts** (run in order on existing databases):
-
-```bash
-mysql -u root -p zhiblog < sql/01_fix_fulltext_index.sql           # Adds FULLTEXT indexes
-mysql -u root -p zhiblog < sql/02_fix_notifications_and_search.sql # Creates blog_notification table + indexes
-```
-
-All migration scripts are idempotent (`IF NOT EXISTS` / checked before apply).
+**SQL Migration**: 仓库仅保留唯一幂等脚本 `sql/00_init_database.sql`（原 01/02 已合并其中）。
+已有数据库升级时直接重跑该脚本即可（补齐表/列/索引/菜单/权限并重算评论数）。
 
 ## Architecture
 
