@@ -187,6 +187,21 @@ class BlogVisitLogServiceImplTest {
     }
 
     @Test
+    void testSelectVisitSummaryConvertsNullUvToZero() {
+        java.util.Map<String, Object> summary = new HashMap<>();
+        summary.put("pv", 5L);
+        summary.put("uv", null); // 空区间时 SQL sum() 返回 NULL
+        when(blogVisitLogMapper.selectVisitSummary(anyMap())).thenReturn(summary);
+        when(blogVisitLogMapper.selectTopTargets(anyMap())).thenReturn(java.util.Collections.emptyList());
+
+        Map<String, Object> result = blogVisitLogService.selectVisitSummary(30);
+
+        assertEquals(5L, result.get("pv"));
+        assertEquals(0L, result.get("uv"));
+        assertEquals(0L, result.get("todayUv"));
+    }
+
+    @Test
     void testDeleteBlogVisitLogByIds() {
         Long[] ids = {1L, 2L};
         when(blogVisitLogMapper.deleteBlogVisitLogByIds(ids)).thenReturn(2);

@@ -154,13 +154,13 @@ public class BlogVisitLogServiceImpl implements IBlogVisitLogService
         result.put("beginDate", beginDate);
         result.put("endDate", endDate);
         result.put("days", range);
-        result.put("pv", summary == null ? 0L : summary.get("pv"));
-        result.put("uv", summary == null ? 0L : summary.get("uv"));
+        result.put("pv", longValue(summary == null ? null : summary.get("pv")));
+        result.put("uv", longValue(summary == null ? null : summary.get("uv")));
 
         params.put("beginDate", endDate);
         Map<String, Object> todaySummary = blogVisitLogMapper.selectVisitSummary(params);
-        result.put("todayPv", todaySummary == null ? 0L : todaySummary.get("pv"));
-        result.put("todayUv", todaySummary == null ? 0L : todaySummary.get("uv"));
+        result.put("todayPv", longValue(todaySummary == null ? null : todaySummary.get("pv")));
+        result.put("todayUv", longValue(todaySummary == null ? null : todaySummary.get("uv")));
 
         params.put("beginDate", beginDate);
         params.put("limit", DEFAULT_TOP_LIMIT);
@@ -192,6 +192,18 @@ public class BlogVisitLogServiceImpl implements IBlogVisitLogService
         int retention = days == null || days < 1 ? DEFAULT_RETENTION_DAYS : days;
         String cutoff = DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, offsetDays(-retention));
         return blogVisitLogMapper.deleteBlogVisitLogBefore(cutoff);
+    }
+
+    /**
+     * 汇总字段兜底：SQL 的 sum() 在空区间返回 NULL，统一转成 0
+     */
+    private long longValue(Object value)
+    {
+        if (value instanceof Number)
+        {
+            return ((Number) value).longValue();
+        }
+        return 0L;
     }
 
     /**
