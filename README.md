@@ -24,12 +24,16 @@
 
 - **定时发布**：文章支持 `publish_time` + 状态流转，到期自动发布
 - **Markdown 文章**：`format`(html|markdown) + Markdown 源码入库，服务端 flexmark 渲染 HTML 双写（GFM 表格），与前端 `marked` 预览一致
+- **自定义页面**：后台单页管理（标题/别名/Markdown 内容/SEO/导航显示/发布状态），
+  已发布页面按 `/blog/page/<别名>` 渲染，可配置是否出现在前台导航
 - 管理端编辑器支持富文本/Markdown 切换与实时预览
 
 ### 读者互动与前台体验
 
 - **评论自洽**：游客可直接发表评论/回复（昵称/邮箱字段生效），登录用户走账号；保留审核、IP 限流
 - **点赞体系**：文章/评论点赞支持取消与按用户去重（新表记录），并回显点赞态
+- **留言板**：独立于文章的留言页 `/blog/guestbook`，匿名可提交（IP 限流 + 长度校验），
+  是否待审复用评论审核开关（`comment_review`）；后台可审核/回复/删除/导出（回复即发布）
 - **收藏**：支持收藏/取消并新增“我的收藏”列表页
 - **前台通知铃铛**：未读数轮询、最近通知、已读跳转（BlogLayout）
 - **移动端导航**：≤768px 汉堡菜单 + 下拉导航
@@ -155,9 +159,9 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 重跑会自动补齐（无需手工建表/加列）：
 
-- `blog_upload`（媒体库）、`blog_article_like` / `blog_comment_like`（点赞）、`blog_article_daily_stats`（每日 PV/UV）、`blog_bookmark`/`blog_notification` 等表
+- `blog_upload`（媒体库）、`blog_article_like` / `blog_comment_like`（点赞）、`blog_article_daily_stats`（每日 PV/UV）、`blog_bookmark`/`blog_notification`、`blog_message`（留言板）、`blog_page`（自定义页面）等表
 - `blog_comment.like_count`、`blog_article.publish_time/format/content_md`、`blog_friend_link.email` 等列
-- 新菜单与按钮权限（媒体管理等，含角色 1/2 分配）、`email_notify_enabled` 等设置种子
+- 新菜单与按钮权限（媒体管理、留言管理、页面管理等，含角色 1/2 分配）、`email_notify_enabled` 等设置种子
 - **评论数一次性重算**（按已发布评论重写 `comment_count`）
 
 > 部署提示：`/sitemap.xml`、`/robots.txt` 位于后端根路径，若使用 Nginx 等对前端做同源反代，请将这两个路径转发到后端；PV/UV 曲线依赖定时任务每小时汇总（当天数据约 1 小时延迟）。
@@ -188,7 +192,7 @@ ZhiBlog/
 
 ### 前台展示
 
-- 首页/文章详情/分类/标签/归档/关于/作者主页/独立搜索页
+- 首页/文章详情/分类/标签/归档/关于/作者主页/独立搜索页/**留言板**/**自定义页面**
 - 分类与标签**总览页**，标签与作者名可点击
 - 文章**定时发布**；支持**富文本**与 **Markdown** 内容
 - 文章目录（TOC）、相关/热门文章、RSS 订阅
@@ -200,6 +204,7 @@ ZhiBlog/
 
 - 文章管理（含草稿/发布/定时发布、Markdown 与富文本、置顶/推荐）
 - 分类 / 标签 / 评论（审核、导出）/ 友链（申请审核）/ 博客设置（站点信息 + 功能开关 + 防盗链域名 + **SEO优化**）
+- **留言管理**（审核/回复/删除/导出）、**页面管理**（自定义页面的增删改查与发布/下架）
 - **媒体库**（上传记录检索、删除联动文件）
 - 用户 / 角色权限 / 系统 / 日志 / 定时任务 / 代码生成
 
@@ -311,7 +316,9 @@ chore: 构建/工具
 - SEO 闭环（动态 meta、sitemap、robots、后台 SEO 设置）
 - 评论游客直发/回复、邮件通知、友链申请审核、媒体库全覆盖
 - 每日 PV/UV 聚合、浏览/点赞去重、评论数与真实评论联动
+- 留言板（匿名提交/审核/回复）与自定义页面（Markdown + SEO + 导航接入）
 - 死代码/孤儿依赖清理、统计假数据与失效导出修复、认证页一致性
+- 修复迁移脚本非幂等问题（分类/友链重跑重复插入）与若干失效路由/权限
 
 ### v1.3.6 (2026-07-30)
 

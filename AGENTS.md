@@ -58,6 +58,8 @@ Unified login via `UnifiedAuthController` (`zhi-admin/src/main/java/com/zhi/web/
 - Dev: set `EMAIL_DEV_PRINT_CODE=true` to print verification codes to console instead of sending mail.
 - Email codes: `verifyCode` is brute-force protected via Redis fail-counter per `email:codeType` (`max-verify-attempts`, default 5; locked for `verify-lock-minutes`). `BlogFrontController` POST `/comment` and `/article/view/*` are IP rate-limited via `@RateLimiter` (60s / 10 req / IP); `UnifiedAuthController` `POST /auth/login` is IP rate-limited (60s / 20 req / IP); every `/common/upload*` endpoint is IP rate-limited (60s / 20 req / IP).
 - Public stats: `GET /blog/stats/overview` (`@Anonymous`) exposes published article/category/tag/comment counts and total views for the public 关于 page. The full admin overview `GET /system-stats/overview` requires `statistics:overview:list` (`StatisticsController`) — never call it from public pages.
+- Guestbook (留言板): public `GET /blog/message/list|count` + `POST /blog/message` (`@Anonymous`, IP rate-limited 60s / 5 req, length-validated, nickname/content only; the public list query deliberately omits `email`/`ip`/`user_agent`). Moderation reuses the `comment_review` setting. Admin endpoints live in `BlogMessageController` (`/system/message`, perms `blog:message:list|query|edit|reply|remove|export`) — replies set status to published.
+- Custom pages (自定义页面): public `GET /blog/page/list` + `GET /blog/page/{slug}` (`@Anonymous`, published only; slug detail increments `view_count`). Admin CRUD in `BlogPageController` (`/system/page`, perms `blog:page:*`). `slug` is unique and restricted to `[A-Za-z0-9_-]{1,100}`; `show_in_nav='1'` pages appear in the blog navigation.
 
 ## Version Management (single source of truth)
 
