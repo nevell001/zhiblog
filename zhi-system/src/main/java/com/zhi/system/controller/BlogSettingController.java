@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Log;
+import com.zhi.common.cache.annotation.BlogCacheEvict;
+import com.zhi.common.constant.CacheConstants;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
@@ -78,6 +80,7 @@ public class BlogSettingController extends BaseController
      * 新增博客设置
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:add')")
+    @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "博客设置", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody BlogSetting blogSetting)
@@ -89,6 +92,7 @@ public class BlogSettingController extends BaseController
      * 修改博客设置
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody BlogSetting blogSetting)
@@ -100,6 +104,7 @@ public class BlogSettingController extends BaseController
      * 通过设置键修改设置值
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PutMapping("/updateByKey")
     public AjaxResult updateByKey(@RequestBody BlogSetting blogSetting)
@@ -150,6 +155,7 @@ public class BlogSettingController extends BaseController
      * 通过设置键修改设置值 (POST方法支持)
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "博客设置", businessType = BusinessType.UPDATE)
     @PostMapping("/updateByKey")
     public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
@@ -200,6 +206,7 @@ public class BlogSettingController extends BaseController
      * 删除博客设置
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:remove')")
+    @BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)
     @Log(title = "博客设置", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable("ids") Long[] ids)

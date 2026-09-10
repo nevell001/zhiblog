@@ -46,4 +46,9 @@ public class CacheConstants
      * 友情链接列表 redis key
      */
     public static final String BLOG_FRIEND_LINK_LIST = "blog:friend_link:list";
+
+    /**
+     * 博客公开设置聚合缓存键（前台 /common/blog/setting 使用，任何设置写入都必须清除）
+     */
+    public static final String BLOG_SETTINGS_ALL = "blog:settings:all";
 }

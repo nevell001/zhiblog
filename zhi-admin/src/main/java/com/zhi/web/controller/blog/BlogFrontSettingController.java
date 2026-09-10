@@ -16,6 +16,7 @@ import com.zhi.common.annotation.Anonymous;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.cache.UnifiedCacheManager;
+import com.zhi.common.constant.CacheConstants;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.SysConfig;
 import com.zhi.system.service.ISysConfigService;
@@ -55,12 +56,12 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 博客设置缓存键
      */
-    private static final String BLOG_SETTINGS_CACHE_KEY = "blog:settings:all";
+    private static final String BLOG_SETTINGS_CACHE_KEY = CacheConstants.BLOG_SETTINGS_ALL;
 
     /**
      * 缓存过期时间（秒）
      */
-    private static final int CACHE_EXPIRE_SECONDS = 3600;
+    private static final int CACHE_EXPIRE_SECONDS = 600;
 
     @Autowired
     private ISysConfigService configService;

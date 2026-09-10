@@ -182,7 +182,7 @@ public class SysProfileController extends BaseController
 
                 // 清除博客设置缓存，确保前台能立即看到新头像
                 try {
-                    unifiedCacheManager.delete("blog:settings:all");
+                    unifiedCacheManager.delete(CacheConstants.BLOG_SETTINGS_ALL);
                     logger.info("已清除博客设置缓存");
                 } catch (Exception e) {
                     logger.error("清除博客设置缓存失败", e);
