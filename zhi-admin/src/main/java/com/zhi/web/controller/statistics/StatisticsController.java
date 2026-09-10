@@ -1,6 +1,7 @@
 package com.zhi.web.controller.statistics;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +44,7 @@ public class StatisticsController {
     /**
      * 获取系统概览统计信息
      */
+    @PreAuthorize("@ss.hasPermi('statistics:overview:list')")
     @GetMapping("/overview")
     public AjaxResult getOverview() {
         Map<String, Object> data = new HashMap<>();
