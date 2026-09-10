@@ -6,6 +6,8 @@ export interface SeoData {
   keywords?: string
   /** 绝对地址，例如文章页完整 URL；不传则移除 canonical */
   canonical?: string
+  /** 站点图标地址（seo_favicon）；传空字符串则忽略 */
+  favicon?: string
 }
 
 function findMeta(name: string, attribute = 'name'): HTMLMetaElement | null {
@@ -61,6 +63,17 @@ export function applySeo(data: SeoData) {
     }
   } else if (existing) {
     existing.remove()
+  }
+
+  // 站点图标
+  if (data.favicon) {
+    let icon = document.head.querySelector('link[rel="icon"]') as HTMLLinkElement | null
+    if (!icon) {
+      icon = document.createElement('link')
+      icon.setAttribute('rel', 'icon')
+      document.head.appendChild(icon)
+    }
+    icon.setAttribute('href', data.favicon)
   }
 }
 

@@ -208,6 +208,14 @@
                 <el-option v-for="r in robotsOptions" :key="r" :label="r" :value="r" />
               </el-select>
             </el-form-item>
+            <el-form-item label="站点图标" prop="seo_favicon">
+              <el-input
+                v-model="settingsMap.seo_favicon"
+                placeholder="/favicon.ico 或图片 URL"
+                maxlength="200"
+              />
+              <div class="setting-tip">用于前台浏览器标签页图标（rel=icon）</div>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
 

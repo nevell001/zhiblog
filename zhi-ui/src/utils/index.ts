@@ -443,33 +443,27 @@ export function isNumberStr(str: string): boolean {
 export function getApiBaseUrl(): string {
   const hostname = window.location.hostname
   const protocol = window.location.protocol
+  const port = window.location.port
 
   // 本地开发环境
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    // 检查是否有环境变量配置
     const envApiUrl = import.meta.env?.VITE_API_BASE_URL
-    if (envApiUrl) {
-      // 如果环境变量是 Docker 内部地址，返回 localhost
-      if (envApiUrl.includes('zhi-admin') || envApiUrl.includes('host.docker.internal')) {
-        return `${protocol}//localhost:8080`
-      }
+    // 环境变量若为 Docker 内部地址则不可在浏览器解析，统一回退 localhost
+    if (
+      envApiUrl &&
+      !envApiUrl.includes('zhi-admin') &&
+      !envApiUrl.includes('host.docker.internal')
+    ) {
       return envApiUrl
     }
     return `${protocol}//localhost:8080`
   }
 
-  // 生产环境使用当前域名，假设前后端同域名不同端口
-  // 如果前端是 80/443，后端通常是 8080
-  // 如果前端是其他端口，使用当前域名
-  const port =
-    window.location.port === '3000' || window.location.port === '80'
-      ? '8080'
-      : window.location.port || '80'
-
-  // 如果是 HTTPS，默认端口 443
-  if (protocol === 'https:' && port === '80') {
+  // HTTPS 或标准 Web 端口：认为由反向代理同源提供后端，无需额外端口
+  if (protocol === 'https:' || port === '' || port === '80') {
     return `${protocol}//${hostname}`
   }
 
-  return `${protocol}//${hostname}:${port}`
+  // 前端开发端口（3000/5173 等）：后端默认在 8080
+  return `${protocol}//${hostname}:8080`
 }
