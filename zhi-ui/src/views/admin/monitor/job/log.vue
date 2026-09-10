@@ -261,7 +261,7 @@ function getList() {
 
 // 返回按钮
 function handleClose() {
-  const obj = { path: '/monitor/job' }
+  const obj = { path: '/admin/monitor/job' }
   proxy.$tab.closeOpenPage(obj)
 }
 
