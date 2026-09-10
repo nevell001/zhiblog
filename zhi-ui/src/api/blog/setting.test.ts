@@ -5,7 +5,6 @@ import {
   addSetting,
   updateSetting,
   delSetting,
-  getSettingValueByKey,
   updateSettingValueByKey,
   getBlogSettings,
   getBlogSettingsAnonymous,
@@ -163,25 +162,6 @@ describe('Blog Setting API 测试', () => {
       })
     })
   })
-
-  describe('getSettingValueByKey', () => {
-    it('应该导出 getSettingValueByKey 函数', () => {
-      expect(getSettingValueByKey).toBeDefined()
-      expect(typeof getSettingValueByKey).toBe('function')
-    })
-
-    it('应该调用 GET /system/setting/value/:key', async () => {
-      mockRequest.mockResolvedValue({ value: 'test-value' })
-
-      await getSettingValueByKey('blog_name')
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/system/setting/value/blog_name',
-        method: 'get'
-      })
-    })
-  })
-
   describe('updateSettingValueByKey', () => {
     it('应该导出 updateSettingValueByKey 函数', () => {
       expect(updateSettingValueByKey).toBeDefined()

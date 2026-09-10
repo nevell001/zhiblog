@@ -11,18 +11,6 @@ import type {
 } from '@/types/api'
 
 /**
- * 前台匿名访问文章列表
- */
-export function getArticleListAnonymous(query?: ArticleParams): Promise<QueryResult<Article>> {
-  return request({
-    url: '/blog/api/article/list',
-    method: 'get',
-    params: query,
-    headers: { isToken: false }
-  })
-}
-
-/**
  * 获取文章列表（前台用，包含分类和标签信息，支持分页）
  */
 export function getArticleList(query?: ArticleParams): Promise<QueryResult<Article>> {
@@ -35,50 +23,11 @@ export function getArticleList(query?: ArticleParams): Promise<QueryResult<Artic
 }
 
 /**
- * 根据分类获取文章列表（前台用，支持分页）
- */
-export function getArticlesByCategory(
-  categoryId: number,
-  query?: ArticleParams
-): Promise<QueryResult<Article>> {
-  return request({
-    url: '/blog/api/article/category/' + categoryId,
-    method: 'get',
-    params: query,
-    headers: { isToken: false }
-  })
-}
-
-/**
  * 获取热门文章（支持分页）
  */
 export function getHotArticles(query?: ArticleParams): Promise<QueryResult<Article>> {
   return request({
     url: '/blog/api/article/hot',
-    method: 'get',
-    params: { ...query, pageSize: query?.pageSize || 5 },
-    headers: { isToken: false }
-  })
-}
-
-/**
- * 获取置顶文章
- */
-export function getTopArticles(query?: ArticleParams): Promise<QueryResult<Article>> {
-  return request({
-    url: '/common/blog/article/top',
-    method: 'get',
-    params: { ...query, pageSize: query?.pageSize || 5 },
-    headers: { isToken: false }
-  })
-}
-
-/**
- * 获取推荐文章
- */
-export function getRecommendArticles(query?: ArticleParams): Promise<QueryResult<Article>> {
-  return request({
-    url: '/common/blog/article/recommend',
     method: 'get',
     params: { ...query, pageSize: query?.pageSize || 5 },
     headers: { isToken: false }

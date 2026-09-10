@@ -114,22 +114,6 @@ describe('Article API 测试', () => {
       })
     })
   })
-
-  describe('likeArticle', () => {
-    it('应该导出 likeArticle 函数', () => {
-      expect(articleApi.likeArticle).toBeDefined()
-      expect(typeof articleApi.likeArticle).toBe('function')
-    })
-
-    it('应该调用点赞接口', () => {
-      articleApi.likeArticle(123)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/article/like/123',
-        method: 'put'
-      })
-    })
-  })
-
   describe('updateArticleTopStatus', () => {
     it('应该导出 updateArticleTopStatus 函数', () => {
       expect(articleApi.updateArticleTopStatus).toBeDefined()

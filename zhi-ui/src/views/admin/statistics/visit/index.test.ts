@@ -7,7 +7,6 @@ import { getVisitLogList, getVisitSummary } from '@/api/statistics'
 vi.mock('@/api/statistics', () => ({
   getVisitLogList: vi.fn(),
   getVisitSummary: vi.fn(),
-  exportVisitLog: vi.fn(),
   cleanVisitLog: vi.fn(),
   delVisitLog: vi.fn()
 }))

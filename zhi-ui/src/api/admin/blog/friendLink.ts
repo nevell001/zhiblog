@@ -55,17 +55,6 @@ export function delFriendLink(ids: number | number[]): Promise<any> {
 }
 
 /**
- * 导出友链
- */
-export function exportFriendLink(query?: PageParams): Promise<any> {
-  return request({
-    url: '/system/friendLink/export',
-    method: 'post',
-    params: query
-  })
-}
-
-/**
  * 审核友链申请（status：0=拒绝/停用，1=通过/正常）
  */
 export function auditFriendLink(id: number, status: 0 | 1): Promise<any> {

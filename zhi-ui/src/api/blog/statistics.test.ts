@@ -8,7 +8,6 @@ import {
   getArticleTrend,
   getVisitLogList,
   getVisitSummary,
-  exportVisitLog,
   cleanVisitLog,
   delVisitLog
 } from '@/api/statistics'
@@ -88,15 +87,6 @@ describe('访问明细（PV/UV 明细）API 测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
-  it('应该导出访问明细相关的五个函数', () => {
-    const visitApi = [getVisitLogList, getVisitSummary, exportVisitLog, cleanVisitLog, delVisitLog]
-    visitApi.forEach(fn => {
-      expect(fn).toBeDefined()
-      expect(typeof fn).toBe('function')
-    })
-  })
-
   it('getVisitLogList 应该调用访问明细列表接口并透传筛选参数', () => {
     const params = {
       pageNum: 1,
@@ -135,17 +125,6 @@ describe('访问明细（PV/UV 明细）API 测试', () => {
       params: { days: 7 }
     })
   })
-
-  it('exportVisitLog 应该以 POST 提交筛选条件', () => {
-    const params = { targetType: 'page', beginDate: '2026-01-01', endDate: '2026-01-31' }
-    exportVisitLog(params)
-    expect(request).toHaveBeenCalledWith({
-      url: '/statistics/visit/export',
-      method: 'post',
-      params
-    })
-  })
-
   it('cleanVisitLog 默认保留 90 天', () => {
     cleanVisitLog()
     expect(request).toHaveBeenCalledWith({

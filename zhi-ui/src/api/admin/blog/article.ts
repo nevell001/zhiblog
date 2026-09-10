@@ -76,16 +76,6 @@ export function updateArticleViewCount(id: number): Promise<any> {
 }
 
 /**
- * 点赞文章
- */
-export function likeArticle(id: number): Promise<any> {
-  return request({
-    url: '/system/article/like/' + id,
-    method: 'put'
-  })
-}
-
-/**
  * 批量更新文章置顶状态
  */
 export function updateArticleTopStatus(

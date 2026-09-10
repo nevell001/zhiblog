@@ -52,27 +52,6 @@ export function listMessage(query?: MessageQueryParams): Promise<QueryResult<Blo
 }
 
 /**
- * 查询留言详细
- */
-export function getMessage(id: number): Promise<DataResult<BlogMessage>> {
-  return request({
-    url: '/system/message/' + id,
-    method: 'get'
-  })
-}
-
-/**
- * 修改留言（昵称/内容/状态等）
- */
-export function updateMessage(data: Partial<BlogMessage>): Promise<OperResult> {
-  return request({
-    url: '/system/message',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
  * 审核留言（status：1通过 2拒绝）
  */
 export function auditMessage(id: number, status: MessageAuditStatus): Promise<OperResult> {
@@ -100,16 +79,5 @@ export function delMessage(ids: number | number[]): Promise<OperResult> {
   return request({
     url: '/system/message/' + ids,
     method: 'delete'
-  })
-}
-
-/**
- * 导出留言
- */
-export function exportMessage(query?: MessageQueryParams): Promise<OperResult> {
-  return request({
-    url: '/system/message/export',
-    method: 'post',
-    params: query
   })
 }

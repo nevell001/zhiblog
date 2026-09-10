@@ -23,16 +23,6 @@ export function getSetting(id: number): Promise<BlogSetting> {
 }
 
 /**
- * 获取当前博客设置
- */
-export function getCurrentSetting(): Promise<BlogSetting[]> {
-  return request({
-    url: '/system/setting/current',
-    method: 'get'
-  })
-}
-
-/**
  * 新增博客设置
  */
 export function addSetting(data: BlogSetting): Promise<OperResult> {
@@ -61,16 +51,6 @@ export function delSetting(id: number | number[]): Promise<OperResult> {
   return request({
     url: '/system/setting/' + id,
     method: 'delete'
-  })
-}
-
-/**
- * 根据键获取设置值
- */
-export function getSettingValueByKey(key: string): Promise<DataResult<string>> {
-  return request({
-    url: '/system/setting/value/' + key,
-    method: 'get'
   })
 }
 

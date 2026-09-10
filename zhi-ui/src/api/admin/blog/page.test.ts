@@ -122,20 +122,4 @@ describe('Page API 测试', () => {
       })
     })
   })
-
-  describe('exportPage', () => {
-    it('应该导出 exportPage 函数', () => {
-      expect(pageApi.exportPage).toBeDefined()
-      expect(typeof pageApi.exportPage).toBe('function')
-    })
-
-    it('应该调用导出页面接口', () => {
-      pageApi.exportPage({ pageNum: 1, pageSize: 10, slug: 'about' })
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/page/export',
-        method: 'post',
-        params: { pageNum: 1, pageSize: 10, slug: 'about' }
-      })
-    })
-  })
 })

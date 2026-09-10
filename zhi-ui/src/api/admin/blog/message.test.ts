@@ -27,39 +27,6 @@ describe('Message API 测试', () => {
       })
     })
   })
-
-  describe('getMessage', () => {
-    it('应该导出 getMessage 函数', () => {
-      expect(messageApi.getMessage).toBeDefined()
-      expect(typeof messageApi.getMessage).toBe('function')
-    })
-
-    it('应该调用留言详情接口', () => {
-      messageApi.getMessage(123)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/message/123',
-        method: 'get'
-      })
-    })
-  })
-
-  describe('updateMessage', () => {
-    it('应该导出 updateMessage 函数', () => {
-      expect(messageApi.updateMessage).toBeDefined()
-      expect(typeof messageApi.updateMessage).toBe('function')
-    })
-
-    it('应该调用修改留言接口', () => {
-      const messageData = { id: 123, nickname: '李四', status: '1' as const }
-      messageApi.updateMessage(messageData)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/message',
-        method: 'put',
-        data: messageData
-      })
-    })
-  })
-
   describe('auditMessage', () => {
     it('应该导出 auditMessage 函数', () => {
       expect(messageApi.auditMessage).toBeDefined()
@@ -118,22 +85,6 @@ describe('Message API 测试', () => {
       expect(request).toHaveBeenCalledWith({
         url: '/system/message/1,2,3',
         method: 'delete'
-      })
-    })
-  })
-
-  describe('exportMessage', () => {
-    it('应该导出 exportMessage 函数', () => {
-      expect(messageApi.exportMessage).toBeDefined()
-      expect(typeof messageApi.exportMessage).toBe('function')
-    })
-
-    it('应该调用导出留言接口', () => {
-      messageApi.exportMessage({ pageNum: 1, pageSize: 10, status: '1' })
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/message/export',
-        method: 'post',
-        params: { pageNum: 1, pageSize: 10, status: '1' }
       })
     })
   })

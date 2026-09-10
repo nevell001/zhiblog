@@ -99,20 +99,4 @@ describe('Friend Link API 测试', () => {
       })
     })
   })
-
-  describe('exportFriendLink', () => {
-    it('应该导出 exportFriendLink 函数', () => {
-      expect(friendLinkApi.exportFriendLink).toBeDefined()
-      expect(typeof friendLinkApi.exportFriendLink).toBe('function')
-    })
-
-    it('应该调用导出友链接口', () => {
-      friendLinkApi.exportFriendLink({ pageNum: 1, pageSize: 10 })
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/friendLink/export',
-        method: 'post',
-        params: { pageNum: 1, pageSize: 10 }
-      })
-    })
-  })
 })

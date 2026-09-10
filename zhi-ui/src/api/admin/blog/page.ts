@@ -99,14 +99,3 @@ export function delPage(ids: number | number[]): Promise<OperResult> {
     method: 'delete'
   })
 }
-
-/**
- * 导出页面
- */
-export function exportPage(query?: PageQueryParams): Promise<OperResult> {
-  return request({
-    url: '/system/page/export',
-    method: 'post',
-    params: query
-  })
-}

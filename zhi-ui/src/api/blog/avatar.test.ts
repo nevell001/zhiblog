@@ -1,11 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import {
-  processAvatarUrl,
-  getDefaultAvatar,
-  getAvatarWithDefault,
-  uploadAvatar,
-  checkAvatarExists
-} from './avatar'
+import { processAvatarUrl, uploadAvatar, checkAvatarExists } from './avatar'
 
 // Mock request module
 vi.mock('@/utils/request', () => ({
@@ -53,46 +47,6 @@ describe('Avatar API 测试', () => {
       expect(processAvatarUrl('uploads/avatar.jpg')).toBe('/dev-api/uploads/avatar.jpg')
     })
   })
-
-  describe('getDefaultAvatar', () => {
-    it('应该导出 getDefaultAvatar 函数', () => {
-      expect(getDefaultAvatar).toBeDefined()
-      expect(typeof getDefaultAvatar).toBe('function')
-    })
-
-    it('应该返回 SVG 格式的默认头像', () => {
-      const avatar = getDefaultAvatar()
-      expect(avatar).toContain('data:image/svg+xml')
-      expect(avatar).toContain('svg')
-    })
-  })
-
-  describe('getAvatarWithDefault', () => {
-    it('应该导出 getAvatarWithDefault 函数', () => {
-      expect(getAvatarWithDefault).toBeDefined()
-      expect(typeof getAvatarWithDefault).toBe('function')
-    })
-
-    it('应该返回处理后的头像URL', () => {
-      expect(getAvatarWithDefault('/uploads/avatar.jpg')).toBe('/dev-api/uploads/avatar.jpg')
-    })
-
-    it('应该返回默认头像当头像URL为空时', () => {
-      const result = getAvatarWithDefault('')
-      expect(result).toContain('data:image/svg+xml')
-    })
-
-    it('应该返回默认头像当头像URL为null时', () => {
-      const result = getAvatarWithDefault(null as any)
-      expect(result).toContain('data:image/svg+xml')
-    })
-
-    it('应该返回默认头像当头像URL为undefined时', () => {
-      const result = getAvatarWithDefault(undefined as any)
-      expect(result).toContain('data:image/svg+xml')
-    })
-  })
-
   describe('uploadAvatar', () => {
     it('应该导出 uploadAvatar 函数', () => {
       expect(uploadAvatar).toBeDefined()

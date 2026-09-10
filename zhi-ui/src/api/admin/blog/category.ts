@@ -53,13 +53,3 @@ export function delCategory(ids: number | number[]): Promise<any> {
     method: 'delete'
   })
 }
-
-/**
- * 获取分类下拉树
- */
-export function categoryTreeSelect(): Promise<any> {
-  return request({
-    url: '/system/category/treeSelect',
-    method: 'get'
-  })
-}

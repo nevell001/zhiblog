@@ -11,25 +11,6 @@ describe('Blog Article API 测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
-
-  describe('getArticleListAnonymous', () => {
-    it('应该导出 getArticleListAnonymous 函数', () => {
-      expect(articleApi.getArticleListAnonymous).toBeDefined()
-      expect(typeof articleApi.getArticleListAnonymous).toBe('function')
-    })
-
-    it('应该调用文章列表匿名接口', () => {
-      articleApi.getArticleListAnonymous({ pageNum: 1, pageSize: 10 })
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/list',
-        method: 'get',
-        params: { pageNum: 1, pageSize: 10 },
-        headers: { isToken: false }
-      })
-    })
-  })
-
   describe('getArticleList', () => {
     it('应该导出 getArticleList 函数', () => {
       expect(articleApi.getArticleList).toBeDefined()
@@ -47,25 +28,6 @@ describe('Blog Article API 测试', () => {
       })
     })
   })
-
-  describe('getArticlesByCategory', () => {
-    it('应该导出 getArticlesByCategory 函数', () => {
-      expect(articleApi.getArticlesByCategory).toBeDefined()
-      expect(typeof articleApi.getArticlesByCategory).toBe('function')
-    })
-
-    it('应该根据分类获取文章列表', () => {
-      articleApi.getArticlesByCategory(1, { pageNum: 1, pageSize: 10 })
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/category/1',
-        method: 'get',
-        params: { pageNum: 1, pageSize: 10 },
-        headers: { isToken: false }
-      })
-    })
-  })
-
   describe('getHotArticles', () => {
     it('应该导出 getHotArticles 函数', () => {
       expect(articleApi.getHotArticles).toBeDefined()
@@ -94,43 +56,6 @@ describe('Blog Article API 测试', () => {
       })
     })
   })
-
-  describe('getTopArticles', () => {
-    it('应该导出 getTopArticles 函数', () => {
-      expect(articleApi.getTopArticles).toBeDefined()
-      expect(typeof articleApi.getTopArticles).toBe('function')
-    })
-
-    it('应该调用置顶文章接口', () => {
-      articleApi.getTopArticles()
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/common/blog/article/top',
-        method: 'get',
-        params: { pageSize: 5 },
-        headers: { isToken: false }
-      })
-    })
-  })
-
-  describe('getRecommendArticles', () => {
-    it('应该导出 getRecommendArticles 函数', () => {
-      expect(articleApi.getRecommendArticles).toBeDefined()
-      expect(typeof articleApi.getRecommendArticles).toBe('function')
-    })
-
-    it('应该调用推荐文章接口', () => {
-      articleApi.getRecommendArticles()
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/common/blog/article/recommend',
-        method: 'get',
-        params: { pageSize: 5 },
-        headers: { isToken: false }
-      })
-    })
-  })
-
   describe('getArticleDetail', () => {
     it('应该导出 getArticleDetail 函数', () => {
       expect(articleApi.getArticleDetail).toBeDefined()

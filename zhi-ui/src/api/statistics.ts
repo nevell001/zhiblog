@@ -204,17 +204,6 @@ export function getVisitSummary(days = 30): Promise<DataResult<VisitSummary>> {
 }
 
 /**
- * 导出访问明细
- */
-export function exportVisitLog(query?: VisitQueryParams): Promise<any> {
-  return request({
-    url: '/statistics/visit/export',
-    method: 'post',
-    params: query
-  })
-}
-
-/**
  * 清理指定天数之前的访问明细（默认保留 90 天）
  */
 export function cleanVisitLog(days = 90): Promise<OperResult> {

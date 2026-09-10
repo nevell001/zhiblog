@@ -44,27 +44,6 @@ export function processAvatarUrl(avatarUrl: string | null | undefined): string {
 }
 
 /**
- * 获取默认头像SVG
- * @returns SVG格式的默认头像
- */
-export function getDefaultAvatar(): string {
-  return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23409EFF' rx='40'/%3E%3Ccircle cx='40' cy='30' r='14' fill='white'/%3E%3Cellipse cx='40' cy='58' rx='20' ry='16' fill='white'/%3E%3C/svg%3E"
-}
-
-/**
- * 获取头像URL（带默认值）
- * @param avatarUrl - 头像URL
- * @returns 头像URL或默认头像
- */
-export function getAvatarWithDefault(avatarUrl: string | null | undefined): string {
-  const processedUrl = processAvatarUrl(avatarUrl)
-  if (!processedUrl) {
-    return getDefaultAvatar()
-  }
-  return processedUrl
-}
-
-/**
  * 上传头像
  * @param file - 头像文件
  * @param options - 上传选项

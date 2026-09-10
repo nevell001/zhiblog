@@ -99,19 +99,4 @@ describe('Category API 测试', () => {
       })
     })
   })
-
-  describe('categoryTreeSelect', () => {
-    it('应该导出 categoryTreeSelect 函数', () => {
-      expect(categoryApi.categoryTreeSelect).toBeDefined()
-      expect(typeof categoryApi.categoryTreeSelect).toBe('function')
-    })
-
-    it('应该调用分类下拉树接口', () => {
-      categoryApi.categoryTreeSelect()
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/category/treeSelect',
-        method: 'get'
-      })
-    })
-  })
 })
