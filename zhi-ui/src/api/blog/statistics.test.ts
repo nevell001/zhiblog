@@ -1,10 +1,16 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import request from '@/utils/request'
 import {
   getStatisticsOverview,
   getPublicStatisticsOverview,
   getArticleStatistics,
   getUserStatistics,
-  getArticleTrend
+  getArticleTrend,
+  getVisitLogList,
+  getVisitSummary,
+  exportVisitLog,
+  cleanVisitLog,
+  delVisitLog
 } from '@/api/statistics'
 
 // Mock request
@@ -75,5 +81,102 @@ describe('Blog Statistics API 测试', () => {
     }
     expect(visitStats.totalVisits).toBe(10000)
     expect(visitStats.uniqueVisitors).toBe(5000)
+  })
+})
+
+describe('访问明细（PV/UV 明细）API 测试', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('应该导出访问明细相关的五个函数', () => {
+    const visitApi = [getVisitLogList, getVisitSummary, exportVisitLog, cleanVisitLog, delVisitLog]
+    visitApi.forEach(fn => {
+      expect(fn).toBeDefined()
+      expect(typeof fn).toBe('function')
+    })
+  })
+
+  it('getVisitLogList 应该调用访问明细列表接口并透传筛选参数', () => {
+    const params = {
+      pageNum: 1,
+      pageSize: 10,
+      targetType: 'article',
+      targetId: 3,
+      ip: '127.0.0.1',
+      visitorKey: 'u1',
+      uniqueOnly: true,
+      keyword: 'hello',
+      beginDate: '2026-01-01',
+      endDate: '2026-01-31'
+    }
+    getVisitLogList(params)
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/list',
+      method: 'get',
+      params
+    })
+  })
+
+  it('getVisitSummary 默认查询近 30 天', () => {
+    getVisitSummary()
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/summary',
+      method: 'get',
+      params: { days: 30 }
+    })
+  })
+
+  it('getVisitSummary 应该支持自定义天数', () => {
+    getVisitSummary(7)
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/summary',
+      method: 'get',
+      params: { days: 7 }
+    })
+  })
+
+  it('exportVisitLog 应该以 POST 提交筛选条件', () => {
+    const params = { targetType: 'page', beginDate: '2026-01-01', endDate: '2026-01-31' }
+    exportVisitLog(params)
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/export',
+      method: 'post',
+      params
+    })
+  })
+
+  it('cleanVisitLog 默认保留 90 天', () => {
+    cleanVisitLog()
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/clean',
+      method: 'delete',
+      params: { days: 90 }
+    })
+  })
+
+  it('cleanVisitLog 应该支持自定义保留天数', () => {
+    cleanVisitLog(30)
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/clean',
+      method: 'delete',
+      params: { days: 30 }
+    })
+  })
+
+  it('delVisitLog 应该支持单个 id', () => {
+    delVisitLog(1)
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/1',
+      method: 'delete'
+    })
+  })
+
+  it('delVisitLog 应该支持逗号分隔的多个 id', () => {
+    delVisitLog('1,2,3')
+    expect(request).toHaveBeenCalledWith({
+      url: '/statistics/visit/1,2,3',
+      method: 'delete'
+    })
   })
 })
