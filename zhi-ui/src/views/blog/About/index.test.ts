@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import About from '../about.vue'
+
+const source = readFileSync(resolve(__dirname, '../about.vue'), 'utf8')
 
 describe('About 页面测试', () => {
   beforeEach(() => {
@@ -44,5 +48,20 @@ describe('About 页面测试', () => {
     }
     expect(contactInfo.email).toBe('test@example.com')
     expect(contactInfo.github).toContain('github.com')
+  })
+
+  it('深色模式正文不应该使用对比度不足的 n500 文字色', () => {
+    const darkBlock = source.slice(source.indexOf('html.dark'))
+    expect(darkBlock).not.toContain('--mo-n500')
+    expect(darkBlock).toContain('html.dark .about-desc,')
+    expect(darkBlock).toContain('color: var(--mo-n300)')
+  })
+
+  it('深色模式正文链接应该使用浅色阶（p700/p800 在深色底上几乎不可见）', () => {
+    const darkBlock = source.slice(source.indexOf('html.dark'))
+    expect(darkBlock).toContain('html.dark .about-content :deep(a)')
+    expect(darkBlock).toContain('color: var(--mo-p300)')
+    expect(darkBlock).toContain('html.dark .about-content :deep(a:hover)')
+    expect(darkBlock).toContain('color: var(--mo-p200)')
   })
 })

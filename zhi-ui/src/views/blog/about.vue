@@ -524,7 +524,16 @@ html.dark a.contact-value {
 
 html.dark .about-desc,
 html.dark .about-content {
-  color: var(--mo-n500);
+  color: var(--mo-n300);
+}
+
+/* 深色下正文链接沿用浅色主题的 p700/p800 会几乎不可见（≈2:1），改用浅色阶 */
+html.dark .about-content :deep(a) {
+  color: var(--mo-p300);
+}
+
+html.dark .about-content :deep(a:hover) {
+  color: var(--mo-p200);
 }
 
 html.dark .about-stat-strip {
