@@ -23,6 +23,8 @@ import com.zhi.common.cache.annotation.BlogCacheEvict;
 import com.zhi.common.constant.CacheConstants;
 import com.zhi.system.domain.BlogFriendLink;
 import com.zhi.system.service.IBlogFriendLinkService;
+import com.zhi.system.service.IBlogSettingService;
+import com.zhi.system.service.ICaptchaService;
 import com.zhi.common.utils.poi.ExcelUtil;
 import com.zhi.common.core.page.TableDataInfo;
 
@@ -38,6 +40,12 @@ public class BlogFriendLinkController extends BaseController
 {
     @Autowired
     private IBlogFriendLinkService blogFriendLinkService;
+
+    @Autowired
+    private IBlogSettingService blogSettingService;
+
+    @Autowired
+    private ICaptchaService captchaService;
 
     /**
      * 查询友情链接列表
@@ -104,6 +112,16 @@ public class BlogFriendLinkController extends BaseController
         {
             blogFriendLink.setLogo(blogFriendLink.getLogo().substring(0, 255));
         }
+        // 前台是否开放友链申请（后台开关，默认开放）
+        String applyEnabled = blogSettingService.selectSettingValueByKey("friend_link_apply_enabled");
+        if ("false".equalsIgnoreCase(applyEnabled) || "0".equals(applyEnabled))
+        {
+            return error("本站暂未开放友链申请");
+        }
+
+        // 图形验证码：仅在验证码启用时校验（与登录/注册同一开关）
+        captchaService.validate(blogFriendLink.getCode(), blogFriendLink.getUuid());
+
         blogFriendLink.setStatus("2"); // 待审核
         blogFriendLink.setDelFlag("0");
         if (blogFriendLink.getSort() == null)

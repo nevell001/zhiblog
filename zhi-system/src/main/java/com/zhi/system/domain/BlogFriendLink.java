@@ -49,6 +49,12 @@ public class BlogFriendLink extends BaseEntity
     /** 删除标志（0代表存在 1代表删除） */
     private String delFlag;
 
+    /** 图形验证码（仅前台申请时使用，不落库） */
+    private String code;
+
+    /** 图形验证码唯一标识（仅前台申请时使用，不落库） */
+    private String uuid;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -132,6 +138,26 @@ public class BlogFriendLink extends BaseEntity
     public void setDelFlag(String delFlag) 
     {
         this.delFlag = delFlag;
+    }
+
+    public void setCode(String code) 
+    {
+        this.code = code;
+    }
+
+    public String getCode() 
+    {
+        return code;
+    }
+
+    public void setUuid(String uuid) 
+    {
+        this.uuid = uuid;
+    }
+
+    public String getUuid() 
+    {
+        return uuid;
     }
 
     public String getDelFlag() 

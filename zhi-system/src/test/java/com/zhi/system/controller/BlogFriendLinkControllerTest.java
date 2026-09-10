@@ -37,6 +37,12 @@ class BlogFriendLinkControllerTest {
     @MockBean
     private com.zhi.system.service.IBlogFriendLinkService blogFriendLinkService;
 
+    @MockBean
+    private com.zhi.system.service.IBlogSettingService blogSettingService;
+
+    @MockBean
+    private com.zhi.system.service.ICaptchaService captchaService;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -298,6 +304,50 @@ class BlogFriendLinkControllerTest {
                 .andExpect(jsonPath("$.code").value(200));
 
         verify(blogFriendLinkService).insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试前台申请友情链接 - 申请入口关闭时拒绝提交
+     */
+    @Test
+    void testApplyFriendLink_RejectedWhenApplyDisabled() throws Exception {
+        when(blogSettingService.selectSettingValueByKey("friend_link_apply_enabled")).thenReturn("false");
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "申请站点");
+        params.put("url", "https://blog.example.com");
+
+        mockMvc.perform(post("/system/friendLink/apply")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(jsonPath("$.msg").value("本站暂未开放友链申请"));
+
+        verify(blogFriendLinkService, never()).insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class));
+    }
+
+    /**
+     * 测试前台申请友情链接 - 启用验证码时把 code/uuid 交给验证码服务校验
+     */
+    @Test
+    void testApplyFriendLink_ValidatesCaptcha() throws Exception {
+        when(blogFriendLinkService.insertBlogFriendLink(any(com.zhi.system.domain.BlogFriendLink.class)))
+            .thenReturn(1);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("name", "申请站点");
+        params.put("url", "https://blog.example.com");
+        params.put("code", "1234");
+        params.put("uuid", "uuid-abc");
+
+        mockMvc.perform(post("/system/friendLink/apply")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(captchaService).validate("1234", "uuid-abc");
     }
 
     /**
