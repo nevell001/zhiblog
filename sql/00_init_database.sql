@@ -1615,7 +1615,8 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (1107, '任务详细', 110, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:detail', '#', 'admin', NOW(), '', NULL, ''),
 (1108, '任务执行', 110, 8, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:job:execute', '#', 'admin', NOW(), '', NULL, '');
 
--- 3、数据监控菜单
+-- 3、数据监控菜单（已停用：Druid 监控页面前端已移除，如需启用请先恢复
+--    zhi-ui/src/views/admin/monitor/druid/index.vue 再取消下面的注释）
 -- INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 -- VALUES (111, '数据监控', 2, 3, 'druid', 'monitor/druid/index', '', '', 1, 0, 'C', '0', '0', 'monitor:druid:list', 'druid', 'admin', NOW(), '', NULL, '数据监控菜单');
 
@@ -1641,7 +1642,8 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 
 -- ========== 配置系统工具菜单 ==========
 
--- 1、表单构建菜单
+-- 1、表单构建菜单（已停用：表单构建页面为占位实现且前端已移除，如需启用请先恢复
+--    zhi-ui/src/views/admin/tool/build/index.vue 再取消下面的注释）
 -- INSERT INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
 -- VALUES (115, '表单构建', 3, 1, 'build', 'tool/build/index', '', '', 1, 0, 'C', '0', '0', 'tool:build:list', 'build', 'admin', NOW(), '', NULL, '表单构建菜单');
 
@@ -1697,7 +1699,8 @@ VALUES (5006, '登录日志', 2, 7, 'logininfor', 'monitor/logininfor/index', ''
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
 (5007, '登录日志查询', 5006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:query', '#', 'admin', NOW(), '', NULL, ''),
 (5008, '登录日志删除', 5006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:remove', '#', 'admin', NOW(), '', NULL, ''),
-(5009, '登录日志导出', 5006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export', '#', 'admin', NOW(), '', NULL, '');
+(5009, '登录日志导出', 5006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:export', '#', 'admin', NOW(), '', NULL, ''),
+(5014, '登录日志解锁', 5006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'monitor:logininfor:unlock', '#', 'admin', NOW(), '', NULL, '');
 
 -- 5、操作日志菜单
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
@@ -1774,17 +1777,17 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 109), (1, 1091), (1, 1092), (1, 1093),
 (1, 110), (1, 1101), (1, 1102), (1, 1103), (1, 1104), (1, 1105), (1, 1106), (1, 1107), (1, 1108),
-(1, 111), (1, 112), (1, 113),
+(1, 112), (1, 113),
 (1, 114), (1, 1141), (1, 1142), (1, 1143), (1, 1144), (1, 1145),
 (1, 5000), (1, 5001),
 (1, 5002), (1, 5003),
 (1, 5004), (1, 5005),
-(1, 5006), (1, 5007), (1, 5008), (1, 5009),
+(1, 5006), (1, 5007), (1, 5008), (1, 5009), (1, 5014),
 (1, 5010), (1, 5011), (1, 5012), (1, 5013);
 
 -- 系统工具菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
-(1, 115), (1, 116), (1, 1161), (1, 1162), (1, 1163), (1, 1164), (1, 1165), (1, 1166), (1, 1167), (1, 117);
+(1, 116), (1, 1161), (1, 1162), (1, 1163), (1, 1164), (1, 1165), (1, 1166), (1, 1167), (1, 117);
 
 -- 数据统计菜单权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
