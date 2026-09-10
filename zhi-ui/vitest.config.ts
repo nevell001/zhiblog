@@ -55,7 +55,6 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.*',
         '**/mock/**',
-        'src/utils/generator/**', // 代码生成模板字符串，无单测价值
         'src/utils/request.ts', // axios 封装
         'src/main.ts',
         // 测试文件应该被排除（本身不需要测试覆盖）
