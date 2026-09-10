@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
 import com.zhi.system.domain.BlogArticle;
+import com.zhi.system.domain.BlogPage;
 import com.zhi.system.service.IBlogArticleService;
+import com.zhi.system.service.IBlogPageService;
 import com.zhi.system.service.IBlogSettingService;
 
 /**
@@ -22,13 +24,16 @@ import com.zhi.system.service.IBlogSettingService;
 public class BlogSeoController
 {
     /** 页面地址集合 */
-    private static final String[] STATIC_PATHS = { "/blog", "/blog/about", "/blog/category", "/blog/tag", "/blog/archive" };
+    private static final String[] STATIC_PATHS = { "/blog", "/blog/about", "/blog/category", "/blog/tag", "/blog/archive", "/blog/guestbook" };
 
     @Autowired
     private IBlogSettingService blogSettingService;
 
     @Autowired
     private IBlogArticleService blogArticleService;
+
+    @Autowired
+    private IBlogPageService blogPageService;
 
     /**
      * 站点地图
@@ -73,6 +78,32 @@ public class BlogSeoController
         catch (Exception e)
         {
             // 单篇文章失败不阻塞整体输出
+        }
+        // 已发布的自定义页面
+        try
+        {
+            List<BlogPage> pages = blogPageService.selectPublishedPageList();
+            if (pages != null)
+            {
+                for (BlogPage page : pages)
+                {
+                    if (page.getSlug() == null || page.getSlug().isEmpty())
+                    {
+                        continue;
+                    }
+                    String lastmod = null;
+                    if (page.getUpdateTime() != null)
+                    {
+                        lastmod = new java.text.SimpleDateFormat("yyyy-MM-dd")
+                                .format(page.getUpdateTime());
+                    }
+                    writeUrl(out, baseUrl + "/blog/page/" + page.getSlug(), lastmod);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            // 单个页面失败不阻塞整体输出
         }
         out.println("</urlset>");
         out.flush();
