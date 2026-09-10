@@ -9,7 +9,6 @@ import {
   updateSettingValueByKey,
   getBlogSettings,
   getBlogSettingsAnonymous,
-  updateBlogSettings,
   clearBlogCache
 } from './setting'
 import type { BlogSetting } from '@/types'
@@ -238,29 +237,6 @@ describe('Blog Setting API 测试', () => {
         method: 'get',
         headers: { isToken: false },
         params: { _t: expect.any(Number) }
-      })
-    })
-  })
-
-  describe('updateBlogSettings', () => {
-    it('应该导出 updateBlogSettings 函数', () => {
-      expect(updateBlogSettings).toBeDefined()
-      expect(typeof updateBlogSettings).toBe('function')
-    })
-
-    it('应该调用 POST /common/blog/setting/update', async () => {
-      mockRequest.mockResolvedValue({ code: 200 })
-
-      const settings = {
-        blog_name: '我的博客',
-        blog_desc: '博客描述'
-      }
-      await updateBlogSettings(settings)
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/common/blog/setting/update',
-        method: 'post',
-        data: settings
       })
     })
   })

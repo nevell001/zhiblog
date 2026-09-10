@@ -7,7 +7,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -254,81 +253,6 @@ public class BlogFrontSettingController extends BaseController {
         }
     }
 
-    /**
-     * 批量更新博客设置
-     */
-    @Operation(summary = "批量更新博客设置")
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
-    @PostMapping("/update")
-    public AjaxResult updateBlogSettings(@RequestBody Map<String, Object> settings) {
-        try {
-            for (Map.Entry<String, Object> entry : settings.entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue() != null ? entry.getValue().toString() : "";
-
-                // 更新系统配置表
-                try {
-                    // 先尝试获取现有配置
-                    List<SysConfig> configList = configService.selectConfigList(new SysConfig());
-                    SysConfig config = null;
-                    for (SysConfig c : configList) {
-                        if (key.equals(c.getConfigKey())) {
-                            config = c;
-                            break;
-                        }
-                    }
-
-                    if (config != null) {
-                        config.setConfigValue(value);
-                        configService.updateConfig(config);
-                    } else {
-                        // 如果配置不存在，创建新配置
-                        config = new SysConfig();
-                        config.setConfigKey(key);
-                        config.setConfigValue(value);
-                        config.setConfigName("博客设置 - " + key);
-                        configService.insertConfig(config);
-                    }
-                } catch (Exception e) {
-                    logger.warn("更新系统配置失败: {}, 错误: {}", key, e.getMessage());
-                    // 如果系统配置失败，尝试更新博客设置表
-                    try {
-                        int result = blogSettingService.updateSettingValueByKey(key, value);
-                        if (result == 0) {
-                            logger.info("博客设置 {} 不存在，已自动创建", key);
-                        }
-                    } catch (Exception be) {
-                        logger.error("更新博客设置失败: {}", key, be);
-                    }
-                }
-            }
-
-            // 清除博客设置缓存
-            unifiedCacheManager.delete(BLOG_SETTINGS_CACHE_KEY);
-
-            return AjaxResult.success();
-        } catch (Exception e) {
-            logger.error("批量更新博客设置失败", e);
-            return AjaxResult.error("更新设置失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 清除头像缓存（解决头像更新后缓存问题）
-     */
-    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
-    @PostMapping("/clear-avatar-cache")
-    public AjaxResult clearAvatarCache() {
-        try {
-            unifiedCacheManager.delete("sys_config:blog_avatar");
-            logger.info("头像缓存已清除");
-            return AjaxResult.success("头像缓存已清除");
-        } catch (Exception e) {
-            logger.error("清除头像缓存失败", e);
-            return AjaxResult.error("清除头像缓存失败: " + e.getMessage());
-        }
-    }
-
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @GetMapping("/clear-blog-cache")
     @Operation(summary = "清除博客设置缓存")
@@ -347,59 +271,6 @@ public class BlogFrontSettingController extends BaseController {
         } catch (Exception e) {
             logger.error("清除博客设置缓存失败", e);
             return AjaxResult.error("清除博客设置缓存失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 清除所有标签缓存
-     */
-    @PreAuthorize("@ss.hasPermi('system:config:edit')")
-    @GetMapping("/clear-tag-cache")
-    public AjaxResult clearTagCache() {
-        try {
-            // 清除所有标签相关缓存
-            unifiedCacheManager.deleteByPattern("blog:tag:*");
-            logger.info("所有标签缓存已清除");
-            return AjaxResult.success("所有标签缓存已清除");
-        } catch (Exception e) {
-            logger.error("清除标签缓存失败", e);
-            return AjaxResult.error("清除标签缓存失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 清除所有文章缓存
-     */
-    @PreAuthorize("@ss.hasPermi('system:config:edit')")
-    @GetMapping("/clear-article-cache")
-    public AjaxResult clearArticleCache() {
-        try {
-            // 清除所有文章相关缓存
-            unifiedCacheManager.deleteByPattern("blog:article:*");
-            unifiedCacheManager.deleteByPattern("blog:search:*");
-            unifiedCacheManager.deleteByPattern("blog:hot:*");
-            logger.info("所有文章缓存已清除");
-            return AjaxResult.success("所有文章缓存已清除");
-        } catch (Exception e) {
-            logger.error("清除文章缓存失败", e);
-            return AjaxResult.error("清除文章缓存失败: " + e.getMessage());
-        }
-    }
-
-    /**
-     * 清除所有博客缓存（文章、分类、标签等）
-     */
-    @PreAuthorize("@ss.hasPermi('system:config:edit')")
-    @GetMapping("/clear-all-cache")
-    public AjaxResult clearAllBlogCache() {
-        try {
-            // 清除所有博客相关缓存
-            unifiedCacheManager.deleteByPattern("blog:*");
-            logger.info("所有博客缓存已清除");
-            return AjaxResult.success("所有博客缓存已清除（文章、分类、标签、搜索等）");
-        } catch (Exception e) {
-            logger.error("清除所有博客缓存失败", e);
-            return AjaxResult.error("清除所有博客缓存失败: " + e.getMessage());
         }
     }
 

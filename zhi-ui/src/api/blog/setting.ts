@@ -110,17 +110,6 @@ export function getBlogSettingsAnonymous(): Promise<DataResult<Record<string, un
 }
 
 /**
- * 更新博客设置
- */
-export function updateBlogSettings(data: Record<string, unknown>): Promise<OperResult> {
-  return request({
-    url: '/common/blog/setting/update',
-    method: 'post',
-    data: data
-  })
-}
-
-/**
  * 清除博客设置缓存
  */
 export function clearBlogCache(): Promise<{ code: number; msg: string }> {
