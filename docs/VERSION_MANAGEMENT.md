@@ -42,7 +42,7 @@
    ```
    **重要说明**：生产环境配置文件必须使用 `@app.version@` 占位符，不能硬编码版本号，否则会在生产环境中显示错误的版本号。
 
-4. **配置类** (`zhi-common/src/main/java/com/ruoyi/common/config/RuoYiConfig.java`)
+4. **配置类** (`zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java`)
    ```java
    @Value("${ruoyi.version:1.4.0}")
    private String version;
@@ -69,12 +69,13 @@
 
 #### 前端
 
-1. **管理后台首页** (`zhi-ui/src/views/admin/dashboard/index.vue`)
-   ```typescript
-   const version = ref('1.4.0')
-   ```
-   - 显示位置：系统状态卡片
-   - 数据来源：后端 API `/system/version`
+前端不再硬编码版本号：
+
+1. **package.json** (`zhi-ui/package.json`)
+   - `"version": "1.4.0"` 必须与后端保持一致（仅用于包元信息）。
+2. **界面展示**
+   - 前端没有静态版本展示页；如需展示版本，调用后端接口 `GET /system/version` 获取
+     （返回值来自 `@app.version@` 资源过滤，是唯一可信来源）。
 
 ### 如何更新版本号
 
@@ -83,8 +84,8 @@
 **需要修改多个地方**（重要！）：
 
 1. **修改父 POM** (`pom.xml`)
-   - 第 8 行：`<version>1.3.6</version>` → `<version>1.4.0</version>`
-   - 第 28 行：`<app.version>1.3.6</app.version>` → `<app.version>1.4.0</app.version>`
+   - 第 9 行：`<version>1.3.6</version>` → `<version>1.4.0</version>`
+   - 第 24 行：`<app.version>1.3.6</app.version>` → `<app.version>1.4.0</app.version>`
 
 2. **修改所有子模块的 parent 版本**：
    - `zhi-common/pom.xml`
