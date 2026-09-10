@@ -3,6 +3,7 @@ import {
   listTable,
   listDbTable,
   getGenTable,
+  columnList,
   updateGenTable,
   importTable,
   createTable,
@@ -60,6 +61,13 @@ describe('Tool Gen API 测试', () => {
     createTable({ tableName: 't' })
     expect(mockRequest).toHaveBeenCalledWith(
       expect.objectContaining({ url: '/tool/gen/createTable', method: 'post' })
+    )
+  })
+
+  it('columnList 应调用 GET /tool/gen/column/:id', () => {
+    columnList(1)
+    expect(mockRequest).toHaveBeenCalledWith(
+      expect.objectContaining({ url: '/tool/gen/column/1', method: 'get' })
     )
   })
 

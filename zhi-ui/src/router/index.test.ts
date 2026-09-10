@@ -57,5 +57,45 @@ describe('Router Index 测试', () => {
     }
   })
 
+  it('应该包含后台隐藏子页面路由（否则页面内跳转必然 404）', () => {
+    const paths = flattenRoutes(constantRoutes).map(route => route.path)
+
+    expect(paths).toContain('/redirect/:path(.*)')
+    expect(paths).toContain('/401')
+    expect(paths).toContain('/admin/system/user-auth/role/:userId(\\d+)')
+    expect(paths).toContain('/admin/system/role-auth/user/:roleId(\\d+)')
+    expect(paths).toContain('/admin/system/dict-data/index/:dictId(\\d+)')
+    expect(paths).toContain('/admin/monitor/job-log/index/:jobId(\\d+)')
+    expect(paths).toContain('/admin/tool/gen-edit/index/:tableId(\\d+)')
+  })
+
+  it('隐藏子页面路由应该能解析出对应名称', () => {
+    expect(router.resolve('/redirect/admin/blog/article').name).toBe('Redirect')
+    expect(router.resolve('/401').name).toBe('Page401')
+    expect(router.resolve('/admin/system/user-auth/role/1').name).toBe('AuthRole')
+    expect(router.resolve('/admin/system/role-auth/user/1').name).toBe('AuthUser')
+    expect(router.resolve('/admin/system/dict-data/index/1').name).toBe('DictData')
+    expect(router.resolve('/admin/monitor/job-log/index/1').name).toBe('JobLog')
+    expect(router.resolve('/admin/tool/gen-edit/index/1').name).toBe('GenEdit')
+  })
+
+  it('隐藏子页面路由不应该出现在菜单中', () => {
+    const hiddenParents = constantRoutes.filter(route =>
+      [
+        '/redirect',
+        '/admin/system/user-auth',
+        '/admin/system/role-auth',
+        '/admin/system/dict-data',
+        '/admin/monitor/job-log',
+        '/admin/tool/gen-edit'
+      ].includes(route.path)
+    )
+
+    expect(hiddenParents).toHaveLength(6)
+    hiddenParents.forEach(route => {
+      expect(route.hidden).toBe(true)
+    })
+  })
+
   // 移除所有关于管理后台静态存在的断言
 })

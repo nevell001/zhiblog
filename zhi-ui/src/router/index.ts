@@ -13,6 +13,8 @@ interface ExtendedRouteRecordRaw extends Omit<RouteRecordRaw, 'children'> {
   children?: ExtendedRouteRecordRaw[]
 }
 
+const Layout = () => import('@/layout/index.vue')
+
 const routes: ExtendedRouteRecordRaw[] = [
   {
     path: '/',
@@ -25,6 +27,98 @@ const routes: ExtendedRouteRecordRaw[] = [
   {
     path: '/index',
     redirect: '/blog'
+  },
+  // 标签页刷新中转站（$tab.refreshPage 依赖该路由）
+  {
+    path: '/redirect',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: '/redirect/:path(.*)',
+        name: 'Redirect',
+        component: () => import('@/views/redirect/index.vue'),
+        meta: { title: '跳转中' }
+      }
+    ]
+  },
+  {
+    path: '/401',
+    name: 'Page401',
+    component: () => import('@/views/error/401.vue'),
+    hidden: true,
+    meta: { title: '401' }
+  },
+  // 后台功能子页面：仅由页面内跳转进入，不展示在菜单中
+  {
+    path: '/admin/system/user-auth',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:user:edit'],
+    children: [
+      {
+        path: 'role/:userId(\\d+)',
+        name: 'AuthRole',
+        component: () => import('@/views/admin/system/user/user/authRole.vue'),
+        meta: { title: '分配角色', activeMenu: '/admin/system/user' }
+      }
+    ]
+  },
+  {
+    path: '/admin/system/role-auth',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:role:edit'],
+    children: [
+      {
+        path: 'user/:roleId(\\d+)',
+        name: 'AuthUser',
+        component: () => import('@/views/admin/system/role/role/authUser.vue'),
+        meta: { title: '分配用户', activeMenu: '/admin/system/role' }
+      }
+    ]
+  },
+  {
+    path: '/admin/system/dict-data',
+    component: Layout,
+    hidden: true,
+    permissions: ['system:dict:list'],
+    children: [
+      {
+        path: 'index/:dictId(\\d+)',
+        name: 'DictData',
+        component: () => import('@/views/admin/system/dict/dict/data.vue'),
+        meta: { title: '字典数据', activeMenu: '/admin/system/dict' }
+      }
+    ]
+  },
+  {
+    path: '/admin/monitor/job-log',
+    component: Layout,
+    hidden: true,
+    permissions: ['monitor:job:list'],
+    children: [
+      {
+        path: 'index/:jobId(\\d+)',
+        name: 'JobLog',
+        component: () => import('@/views/admin/monitor/job/log.vue'),
+        meta: { title: '调度日志', activeMenu: '/admin/monitor/job' }
+      }
+    ]
+  },
+  {
+    path: '/admin/tool/gen-edit',
+    component: Layout,
+    hidden: true,
+    permissions: ['tool:gen:edit'],
+    children: [
+      {
+        path: 'index/:tableId(\\d+)',
+        name: 'GenEdit',
+        component: () => import('@/views/admin/tool/gen/editTable.vue'),
+        meta: { title: '修改生成配置', activeMenu: '/admin/tool/gen' }
+      }
+    ]
   },
   // 个人中心（所有登录用户可访问）
   {

@@ -8,10 +8,50 @@ export interface GenTable {
   tableId?: number
   tableName?: string
   tableComment?: string
+  subTableName?: string
+  subTableFkName?: string
   className?: string
+  tplCategory?: string
+  tplWebType?: string
+  packageName?: string
+  moduleName?: string
+  businessName?: string
+  functionName?: string
   functionAuthor?: string
   genType?: string
   genPath?: string
+  treeCode?: string
+  treeParentCode?: string
+  treeName?: string
+  parentMenuId?: number | null
+  parentMenuName?: string
+  remark?: string
+  columns?: GenTableColumn[]
+  params?: Record<string, any>
+}
+
+/**
+ * 代码生成表字段信息
+ */
+export interface GenTableColumn {
+  columnId?: number
+  tableId?: number
+  columnName?: string
+  columnComment?: string
+  columnType?: string
+  javaType?: string
+  javaField?: string
+  isPk?: string
+  isIncrement?: string
+  isRequired?: string
+  isInsert?: string
+  isEdit?: string
+  isList?: string
+  isQuery?: string
+  queryType?: string
+  htmlType?: string
+  dictType?: string
+  sort?: number
 }
 
 /**
@@ -42,6 +82,16 @@ export function listDbTable(query?: Record<string, any>): Promise<any> {
 export function getGenTable(tableId: number): Promise<any> {
   return request({
     url: '/tool/gen/' + tableId,
+    method: 'get'
+  })
+}
+
+/**
+ * 查询表的字段列表
+ */
+export function columnList(tableId: number): Promise<QueryResult<GenTableColumn>> {
+  return request({
+    url: '/tool/gen/column/' + tableId,
     method: 'get'
   })
 }
