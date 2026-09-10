@@ -393,17 +393,20 @@ const markAllNotifications = async () => {
   }
 }
 
-// 友链全局开关（默认开启）
-const isFriendLinkEnabled = computed(() => {
-  const v = (blogSettings.value as any).friend_link_enabled
-  return v === undefined || v === null || v === 'true' || v === true
-})
+// 布尔型博客开关统一判定：只有明确为 false/'false'/'0'/0 才视为关闭，
+// 未设置或为 true/'true'/'1'/1 均视为开启（避免不同写入格式造成“开关不生效”）
+const isSwitchOn = (value: unknown): boolean =>
+  !(value === false || value === 'false' || value === '0' || value === 0)
 
-// 友链申请入口开关（默认开启；'false' / '0' / false 视为关闭）
-const isFriendLinkApplyEnabled = computed(() => {
-  const v = (blogSettings.value as any).friend_link_apply_enabled
-  return !(v === 'false' || v === '0' || v === false)
-})
+// 页脚友情链接列表开关（默认开启）
+const isFriendLinkEnabled = computed(() =>
+  isSwitchOn((blogSettings.value as any).friend_link_enabled)
+)
+
+// 友链申请入口开关（默认开启；同时影响页脚入口与申请页）
+const isFriendLinkApplyEnabled = computed(() =>
+  isSwitchOn((blogSettings.value as any).friend_link_apply_enabled)
+)
 
 // 页脚与版权开关（默认开启）
 const isFooterEnabled = computed(() => {

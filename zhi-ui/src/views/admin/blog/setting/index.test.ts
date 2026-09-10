@@ -33,7 +33,9 @@ describe('BlogSetting 视图组件测试', () => {
 
     expect(source).toContain('prop="friend_link_apply_enabled"')
     expect(source).toContain('v-model="settingsMap.friend_link_apply_enabled"')
-    expect(source).toContain('显示友链申请入口')
+    // 两个开关标签需能一眼区分：页脚友链列表 vs 友链申请入口
+    expect(source).toContain('label="友链申请入口"')
+    expect(source).toContain('label="页脚友链列表"')
     expect(source).toContain("'friend_link_apply_enabled'")
     expect(source).toContain('friend_link_apply_enabled: true')
   })

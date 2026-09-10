@@ -419,22 +419,17 @@
                 在底部显示版权信息
               </span>
             </el-form-item>
-            <el-form-item label="显示友情链接" prop="friend_link_enabled">
+            <el-form-item label="页脚友链列表" prop="friend_link_enabled">
               <el-switch v-model="settingsMap.friend_link_enabled" />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                在页脚显示友情链接模块
+              <span class="setting-tip" style="margin-left: 10px">
+                控制页脚「友情链接」列表（已通过的友链）是否展示，与申请入口互不影响
               </span>
             </el-form-item>
-            <el-form-item label="显示友链申请入口" prop="friend_link_apply_enabled">
+            <el-form-item label="友链申请入口" prop="friend_link_apply_enabled">
               <el-switch v-model="settingsMap.friend_link_apply_enabled" />
               <span class="setting-tip" style="margin-left: 10px">
-                关闭后前台不再展示友链申请入口，申请接口也会拒绝提交
+                控制页脚「友链申请」链接与申请页是否开放；关闭后申请页提示未开放，
+                提交接口也会直接拒绝（保存后立即生效）
               </span>
             </el-form-item>
             <el-form-item label="邮件通知" prop="email_notify_enabled">
