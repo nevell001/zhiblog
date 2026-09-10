@@ -68,6 +68,10 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 **SQL Migration**: 仓库仅保留唯一幂等脚本 `sql/00_init_database.sql`（原 01/02 已合并其中）。
 已有数据库升级时直接重跑该脚本即可（补齐表/列/索引/菜单/权限并重算评论数）。
+幂等性已在 MySQL 8.4 实测（全新建库 + 已有库重跑，数据无重复）。注意：种子数据必须显式指定
+主键 `id`（或用带 `COUNT(*)` 判断的存储过程，如 `sp_insert_sample_articles`），否则
+`INSERT IGNORE` 不会忽略任何行、每次重跑都会追加重复数据——`blog_category` 与
+`blog_friend_link` 曾因此重复，脚本内已补显式 id 与历史重复行清理语句。
 
 ## Architecture
 

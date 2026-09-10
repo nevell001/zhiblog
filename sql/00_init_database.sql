@@ -864,23 +864,31 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 ('email_notify_enabled', 'true', '邮件通知开关（评论/回复/审核结果）', NOW(), NOW());
 
 -- 插入完整的博客分类数据（包含层级结构）
-INSERT IGNORE INTO `blog_category` (`name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
+-- 幂等保护 1：清理历史重跑产生的重复分类（同 alias+name 保留最小 id，且只删没有被文章引用的重复行）
+DELETE c1 FROM `blog_category` c1
+JOIN `blog_category` c2
+  ON c1.`alias` = c2.`alias` AND c1.`name` = c2.`name` AND c1.`id` > c2.`id`
+LEFT JOIN `blog_article` a ON a.`category_id` = c1.`id`
+WHERE a.`id` IS NULL;
+-- 幂等保护 2：种子数据显式指定主键 id（与 blog_tag 一致），
+-- 这样 INSERT IGNORE 在重跑时会因主键冲突而被忽略，不会重复插入
+INSERT IGNORE INTO `blog_category` (`id`, `name`, `alias`, `description`, `parent_id`, `sort_order`, `sort`, `status`) VALUES
 -- 一级分类
-('技术分享', 'tech', '技术相关文章和教程', 0, 1, 1, 1),
-('生活随笔', 'life', '生活记录和感悟分享', 0, 2, 2, 1),
-('学习笔记', 'study', '学习过程中的知识整理', 0, 4, 4, 1),
-('资源分享', 'resource', '优质工具和资源推荐', 0, 5, 5, 1),
+(1, '技术分享', 'tech', '技术相关文章和教程', 0, 1, 1, 1),
+(2, '生活随笔', 'life', '生活记录和感悟分享', 0, 2, 2, 1),
+(3, '学习笔记', 'study', '学习过程中的知识整理', 0, 4, 4, 1),
+(4, '资源分享', 'resource', '优质工具和资源推荐', 0, 5, 5, 1),
 
 -- 二级分类（技术分享下的子分类）
-('前端开发', 'frontend', '前端技术相关内容', 1, 1, 1, 1),
-('后端开发', 'backend', '后端技术相关内容', 1, 2, 2, 1),
-('数据库', 'database', '数据库相关技术', 1, 3, 3, 1),
-('运维部署', 'devops', '系统运维和部署相关', 1, 4, 4, 1),
+(5, '前端开发', 'frontend', '前端技术相关内容', 1, 1, 1, 1),
+(6, '后端开发', 'backend', '后端技术相关内容', 1, 2, 2, 1),
+(7, '数据库', 'database', '数据库相关技术', 1, 3, 3, 1),
+(8, '运维部署', 'devops', '系统运维和部署相关', 1, 4, 4, 1),
 
 -- 二级分类（生活随笔下的子分类）
-('日常记录', 'daily', '日常生活记录', 2, 1, 1, 1),
-('读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
-('旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
+(9, '日常记录', 'daily', '日常生活记录', 2, 1, 1, 1),
+(10, '读书笔记', 'reading', '读书心得和笔记', 2, 2, 2, 1),
+(11, '旅行见闻', 'travel', '旅行经历和见闻', 2, 3, 3, 1);
 
 -- 插入完整的博客标签数据（18个常用标签）
 INSERT IGNORE INTO `blog_tag` (`id`, `name`, `description`, `color`, `icon`, `article_count`) VALUES
@@ -1327,17 +1335,22 @@ GROUP BY c.id, c.name, c.status, c.del_flag, c.article_count
 ORDER BY c.sort_order ASC;
 
 -- 插入完整的友情链接数据
-INSERT IGNORE INTO `blog_friend_link` (`name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
-('Spring官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', 'Spring框架官方网站，提供最新的Spring生态系统资讯和文档', 0, 1),
-('Vue.js官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', 'Vue.js渐进式JavaScript框架官方网站', 1, 2),
-('Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3桌面端组件库，提供丰富的UI组件', 1, 3),
-('GitHub', 'https://github.com/', 'https://github.com/github.png', '全球最大的代码托管平台和开源社区', 0, 4),
-('MDN Web Docs', 'https://developer.mozilla.org/', 'https://developer.mozilla.org/mdn-social-share.cd6c89a5a1a.png', 'Web开发者资源中心，提供权威的前端技术文档', 0, 5),
-('Stack Overflow', 'https://stackoverflow.com/', 'https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png', '程序员问答社区，解决编程问题的首选平台', 0, 6),
-('掘金', 'https://juejin.cn/', 'https://lf3-cdn-tos.bytegoofy.com/obj/iconpark/icons_19361_1.svg', '技术社区，分享技术文章和经验', 0, 7),
-('CSDN', 'https://www.csdn.net/', 'https://www.csdn.net/images/logo.png', '中国最大的IT技术社区和开发者服务平台', 0, 8),
-('Redis官网', 'https://redis.io/', 'https://redis.io/images/redis-white.svg', 'Redis内存数据库官方网站', 0, 9),
-('MySQL官网', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', 'MySQL数据库官方网站，提供数据库软件和文档', 0, 10);
+-- 幂等保护 1：清理历史重跑产生的重复友链（同 url+name 保留最小 id）
+DELETE f1 FROM `blog_friend_link` f1
+JOIN `blog_friend_link` f2
+  ON f1.`url` = f2.`url` AND f1.`name` = f2.`name` AND f1.`id` > f2.`id`;
+-- 幂等保护 2：种子数据显式指定主键 id，重跑时 INSERT IGNORE 因主键冲突被忽略
+INSERT IGNORE INTO `blog_friend_link` (`id`, `name`, `url`, `logo`, `description`, `status`, `sort`) VALUES
+(1, 'Spring官网', 'https://spring.io/', 'https://spring.io/images/spring-logo.png', 'Spring框架官方网站，提供最新的Spring生态系统资讯和文档', 0, 1),
+(2, 'Vue.js官网', 'https://vuejs.org/', 'https://vuejs.org/logo.svg', 'Vue.js渐进式JavaScript框架官方网站', 1, 2),
+(3, 'Element Plus', 'https://element-plus.org/', 'https://element-plus.org/images/element-plus-logo.svg', 'Vue 3桌面端组件库，提供丰富的UI组件', 1, 3),
+(4, 'GitHub', 'https://github.com/', 'https://github.com/github.png', '全球最大的代码托管平台和开源社区', 0, 4),
+(5, 'MDN Web Docs', 'https://developer.mozilla.org/', 'https://developer.mozilla.org/mdn-social-share.cd6c89a5a1a.png', 'Web开发者资源中心，提供权威的前端技术文档', 0, 5),
+(6, 'Stack Overflow', 'https://stackoverflow.com/', 'https://cdn.sstatic.net/Sites/stackoverflow/Img/apple-touch-icon.png', '程序员问答社区，解决编程问题的首选平台', 0, 6),
+(7, '掘金', 'https://juejin.cn/', 'https://lf3-cdn-tos.bytegoofy.com/obj/iconpark/icons_19361_1.svg', '技术社区，分享技术文章和经验', 0, 7),
+(8, 'CSDN', 'https://www.csdn.net/', 'https://www.csdn.net/images/logo.png', '中国最大的IT技术社区和开发者服务平台', 0, 8),
+(9, 'Redis官网', 'https://redis.io/', 'https://redis.io/images/redis-white.svg', 'Redis内存数据库官方网站', 0, 9),
+(10, 'MySQL官网', 'https://www.mysql.com/', 'https://www.mysql.com/common/logos/logo-mysql-170x115.png', 'MySQL数据库官方网站，提供数据库软件和文档', 0, 10);
 
 -- ========== 配置博客管理菜单 ==========
 
