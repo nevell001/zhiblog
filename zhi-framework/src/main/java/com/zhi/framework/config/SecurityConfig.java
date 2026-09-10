@@ -133,6 +133,12 @@ public class SecurityConfig
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/sitemap.xml"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/robots.txt"),
                             org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/profile/**")).permitAll();
+
+                // 错误转发端点必须放行：过滤器/静态资源用 sendError() 触发的是 ERROR 转发，
+                // 若 /error 被鉴权拦截，返回体与状态码会被 401 处理器覆盖
+                // （防盗链 403 曾被包装成 HTTP 200 + code 401）
+                requests.requestMatchers(
+                        org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher("/error")).permitAll();
                 
                 // Actuator 安全监控端点（所有环境允许访问，不含敏感信息）
                 requests.requestMatchers(
