@@ -258,7 +258,7 @@ public class BlogFrontSettingController extends BaseController {
      * 批量更新博客设置
      */
     @Operation(summary = "批量更新博客设置")
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @PostMapping("/update")
     public AjaxResult updateBlogSettings(@RequestBody Map<String, Object> settings) {
         try {
@@ -316,7 +316,7 @@ public class BlogFrontSettingController extends BaseController {
     /**
      * 清除头像缓存（解决头像更新后缓存问题）
      */
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @PostMapping("/clear-avatar-cache")
     public AjaxResult clearAvatarCache() {
         try {
@@ -329,7 +329,7 @@ public class BlogFrontSettingController extends BaseController {
         }
     }
 
-    @PreAuthorize("@ss.hasPermi('system:setting:edit')")
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @GetMapping("/clear-blog-cache")
     @Operation(summary = "清除博客设置缓存")
     public AjaxResult clearBlogCache() {
