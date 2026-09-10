@@ -56,7 +56,8 @@ Unified login via `UnifiedAuthController` (`zhi-admin/src/main/java/com/zhi/web/
 - `BlogAuthController` (`/blog/auth/*`) — registration + email code + password reset only.
 - JWT in `Authorization` header. Blog settings control features via `blog_setting` table: `comment_review`, `view_count_enabled`, `like_enabled`, `share_enabled`, `search_enabled`, `sidebar_enabled`, `footer_enabled`, `copyright_enabled`.
 - Dev: set `EMAIL_DEV_PRINT_CODE=true` to print verification codes to console instead of sending mail.
-- Email codes: `verifyCode` is brute-force protected via Redis fail-counter per `email:codeType` (`max-verify-attempts`, default 5; locked for `verify-lock-minutes`). `BlogFrontController` POST `/comment` and `/article/view/*` are IP rate-limited via `@RateLimiter` (60s / 10 req / IP); `UnifiedAuthController` `POST /auth/login` is IP rate-limited (60s / 20 req / IP).
+- Email codes: `verifyCode` is brute-force protected via Redis fail-counter per `email:codeType` (`max-verify-attempts`, default 5; locked for `verify-lock-minutes`). `BlogFrontController` POST `/comment` and `/article/view/*` are IP rate-limited via `@RateLimiter` (60s / 10 req / IP); `UnifiedAuthController` `POST /auth/login` is IP rate-limited (60s / 20 req / IP); every `/common/upload*` endpoint is IP rate-limited (60s / 20 req / IP).
+- Public stats: `GET /blog/stats/overview` (`@Anonymous`) exposes published article/category/tag/comment counts and total views for the public 关于 page. The full admin overview `GET /system-stats/overview` requires `statistics:overview:list` (`StatisticsController`) — never call it from public pages.
 
 ## Version Management (single source of truth)
 

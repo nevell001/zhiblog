@@ -84,7 +84,7 @@
 import { ref, computed, onMounted, type Component } from 'vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
-import { getStatisticsOverview } from '@/api/statistics'
+import { getPublicStatisticsOverview } from '@/api/statistics'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import { sanitizeArticleContent } from '@/utils/sanitize'
@@ -206,7 +206,7 @@ const loadBlogSettings = async () => {
 
 const loadStats = async () => {
   try {
-    const response = await getStatisticsOverview()
+    const response = await getPublicStatisticsOverview()
     const data = response?.data || {}
     stats.value = {
       articleCount: data.articleCount || 0,

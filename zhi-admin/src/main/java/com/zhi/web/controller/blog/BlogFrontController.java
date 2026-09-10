@@ -171,6 +171,42 @@ public class BlogFrontController extends BaseController
     }
 
     /**
+     * 获取前台公开展示的统计概览（匿名可访问）
+     *
+     * <p>只返回博客维度的公开计数（已发布文章/分类/标签/已通过评论/总浏览量），
+     * 不包含注册用户数、系统运行状态等后台敏感信息。
+     * 后台完整统计请使用 {@code /system-stats/overview}（需要 statistics:overview:list 权限）。</p>
+     */
+    @Anonymous
+    @GetMapping("/stats/overview")
+    public AjaxResult getPublicStatsOverview()
+    {
+        Map<String, Object> data = new HashMap<>();
+
+        BlogArticle articleQuery = new BlogArticle();
+        articleQuery.setStatus(1L); // 只统计已发布文章
+        long articleCount = blogArticleService.selectBlogArticleCount(articleQuery);
+
+        BlogComment commentQuery = new BlogComment();
+        commentQuery.setStatus("1"); // 只统计已通过审核的评论
+        long commentCount = blogCommentService.selectBlogCommentCount(commentQuery);
+
+        long categoryCount = blogCategoryService.selectBlogCategoryList(new BlogCategory()).size();
+        long tagCount = blogTagService.selectBlogTagList(new BlogTag()).size();
+        long totalViews = blogArticleService.selectTotalViewCount();
+
+        data.put("articleCount", articleCount);
+        data.put("categoryCount", categoryCount);
+        data.put("tagCount", tagCount);
+        data.put("commentCount", commentCount);
+        data.put("totalViews", totalViews);
+        // 兼容后台概览的字段名
+        data.put("viewCount", totalViews);
+
+        return success(data);
+    }
+
+    /**
      * 将设置项做类型转换后放入Map（布尔值、头像URL特殊处理）
      */
     private void putConvertedSetting(Map<String, Object> settingsMap, String key, String value) {

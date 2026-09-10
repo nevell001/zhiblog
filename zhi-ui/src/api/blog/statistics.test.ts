@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import {
   getStatisticsOverview,
+  getPublicStatisticsOverview,
   getArticleStatistics,
   getUserStatistics,
   getArticleTrend
@@ -15,6 +16,11 @@ describe('Blog Statistics API 测试', () => {
   it('应该导出 getStatisticsOverview 函数', () => {
     expect(getStatisticsOverview).toBeDefined()
     expect(typeof getStatisticsOverview).toBe('function')
+  })
+
+  it('应该导出 getPublicStatisticsOverview 函数', () => {
+    expect(getPublicStatisticsOverview).toBeDefined()
+    expect(typeof getPublicStatisticsOverview).toBe('function')
   })
 
   it('应该导出 getArticleStatistics 函数', () => {
