@@ -72,7 +72,8 @@ Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). Whe
 - Env vars come from `.env` (copy `.env.example`). Security-critical: `R_TOKEN_SECRET` (JWT, ≥64 chars), `DRUID_PASSWORD`, `REDIS_PASSWORD`, `DB_PASSWORD`.
 - `SecurityConfigValidator` runs at startup: in prod it **blocks startup** if those are missing/weak; in dev it only warns. Set `SECURITY_VALIDATION_ENABLED=false` to bypass (dev only).
 - Spring Security 6: use `requestMatchers()` / `authorizeHttpRequests()` / `SecurityFilterChain` — NOT Spring Boot 2 APIs.
-- `spring.profiles.active` switches dev/prod; `captchaEnabled` controls captcha (disabled in dev).
+- `spring.profiles.active` switches dev/prod; `captchaEnabled` controls captcha (disabled in dev). Env `CAPTCHA_ENABLED` overrides the DB switch.
+- Blog settings cache: `GET /common/blog/setting` caches the aggregated map in Redis at `blog:settings:all` (`CacheConstants.BLOG_SETTINGS_ALL`, 600s TTL). **Every** path that writes `blog_setting` must evict it (`@BlogCacheEvict(value = CacheConstants.BLOG_SETTINGS_ALL)` on the controller method) — missing eviction makes admin toggles appear to have no effect on the frontend, which is why `BlogSettingController`'s 5 write methods all carry the annotation.
 - Uploads go to `./uploadPath/` (project root, Docker mount point).
 - Vite dev proxies: `/dev-api/*` (strip prefix), `^/blog/api/` → `/blog`, `/profile/` → uploads, `/manage/*` → Actuator. Auto-detects Docker via `DOCKER=true` env var.
 
