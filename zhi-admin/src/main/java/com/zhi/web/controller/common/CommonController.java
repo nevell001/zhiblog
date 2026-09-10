@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import com.zhi.common.config.RuoYiConfig;
+import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.domain.AjaxResult;
+import com.zhi.common.enums.LimitType;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.file.FileUploadUtils;
 import com.zhi.common.utils.file.FileUtils;
@@ -79,6 +81,7 @@ public class CommonController
     /**
      * 通用上传请求（单个）
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload")
     public AjaxResult uploadFile(MultipartFile file) throws Exception
     {
@@ -106,6 +109,7 @@ public class CommonController
     /**
      * 通用上传请求（带图片压缩）
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/compressed")
     public AjaxResult uploadFileCompressed(MultipartFile file) throws Exception
     {
@@ -137,6 +141,7 @@ public class CommonController
     /**
      * 头像上传接口（专门压缩为头像尺寸）
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/avatar")
     public AjaxResult uploadAvatar(MultipartFile file) throws Exception
     {
@@ -168,6 +173,7 @@ public class CommonController
     /**
      * 缩略图上传接口
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/thumbnail")
     public AjaxResult uploadThumbnail(MultipartFile file) throws Exception
     {
@@ -199,6 +205,7 @@ public class CommonController
     /**
      * 文章封面图上传接口
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/article-cover")
     public AjaxResult uploadArticleCover(MultipartFile file) throws Exception
     {
@@ -230,6 +237,7 @@ public class CommonController
     /**
      * 移动端图片上传接口
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/mobile")
     public AjaxResult uploadMobileImage(MultipartFile file) throws Exception
     {
@@ -261,6 +269,7 @@ public class CommonController
     /**
      * 带水印图片上传接口
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/upload/watermark")
     public AjaxResult uploadWatermarkImage(MultipartFile file, String watermarkText) throws Exception
     {
@@ -297,6 +306,7 @@ public class CommonController
     /**
      * 通用上传请求（多个）
      */
+    @RateLimiter(key = "common:upload:", time = 60, count = 20, limitType = LimitType.IP)
     @PostMapping("/uploads")
     public AjaxResult uploadFiles(List<MultipartFile> files) throws Exception
     {
