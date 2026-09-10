@@ -43,7 +43,8 @@ import BlogLayout from '@/components/BlogLayout.vue'
 import { getCategoryList } from '@/api/blog/category'
 
 interface CategoryItem {
-  id: number
+  // 与共享类型 @/types 的 Category 对齐（接口返回的 id 允许为空）
+  id?: number
   name: string
   description?: string
   articleCount?: number
@@ -56,8 +57,14 @@ const categories = ref<CategoryItem[]>([])
 const loadCategories = async () => {
   loading.value = true
   try {
-    const response = (await getCategoryList({ pageSize: 100 })) as any
-    const list = Array.isArray(response?.rows) ? response.rows : []
+    const response = await getCategoryList({ pageSize: 100 })
+    // 后端 /blog/category/list 不分页，分类数组放在 data 里（不是 rows），
+    // 这里同时兼容 data / rows / 裸数组三种形态，避免总览页误判为空。
+    const list = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.data)
+        ? response.data
+        : response?.rows || []
     categories.value = Array.isArray(list) ? list : []
   } catch {
     categories.value = []

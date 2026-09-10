@@ -12,7 +12,8 @@ vi.mock('@/api/blog', () => ({
 }))
 
 vi.mock('@/api/blog/category', () => ({
-  getCategoryList: vi.fn().mockResolvedValue({ rows: [] })
+  // /blog/category/list 不分页，分类数组在 data 里
+  getCategoryList: vi.fn().mockResolvedValue({ code: 200, data: [] })
 }))
 
 vi.mock('@/api/blog/tag', () => ({
