@@ -82,6 +82,21 @@ $--color-info: #909399;
   --mo-on-primary: #06272e;
 }
 
+/* Element Plus 的 secondary 文字（输入框计数、空状态描述、placeholder 等）默认
+   #909399 在白底只有 3.08:1；html:root 用于压过 element-plus 自带的 :root 定义，
+   深色值见下方 html.dark。 */
+html:not(.dark) {
+  --el-text-color-secondary: #78716c;
+  /* EP 的信息色（输入框字数计数 el-input__count、info 标签/按钮）默认 #909399，
+     白底只有 3.08:1 */
+  --el-color-info: #78716c;
+  /* EP 的 error 文字默认 #f56c6c，白底只有 2.90:1（校验提示、消息提示） */
+  --el-color-error: #b13a3a;
+  /* 主色当文字用在浅色底上时的取值（#409eff on #fff 只有 2.78:1）：
+     把主色压暗一档，主题换色时自动跟随；深色模式改用浅色阶（见 html.dark） */
+  --mo-primary-text: color-mix(in srgb, var(--el-color-primary) 55%, #000000);
+}
+
 // Tech Blue 模式变量
 html.dark {
   /* 基础颜色覆盖 */
@@ -89,11 +104,16 @@ html.dark {
   --el-bg-color-overlay: #{$--tech-bg-light};
   --el-text-color-primary: #{$--tech-text};
   --el-text-color-regular: #{$--tech-text-dark};
+  --el-text-color-secondary: #a8a29e;
   --el-color-primary: #{$--tech-primary};
   --el-border-color: #{$--tech-bg-light};
 
   /* 深色下主色是亮青 #00d4ff，白字仅 1.77:1 → 主色填充控件用深墨色文字 */
   --mo-on-primary: #06272e;
+  --el-color-info: #a8a29e;
+  /* 深色下主色文字用主题的浅色阶（博客前台=--mo-p300 映射，后台=浅靛）；
+     error 保持 EP 默认（#f56c6c 在深色底上 ≈6.4:1） */
+  --mo-primary-text: var(--mo-p300, #a5b4fc);
 
   /* 侧边栏 */
   --sidebar-bg: #{$--tech-bg};

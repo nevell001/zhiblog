@@ -1126,6 +1126,24 @@ html.dark.theme-mo-blog .auth-footer {
   background: var(--mo-n900);
 }
 
+/* 该主题页脚在浅色模式下也是深色底（n900），而 BlogLayout 的页脚文字是按浅底写的
+   深灰（n800/n600/n500 → 1.15~3.65:1），浅色下必须换成浅色文字；
+   深色模式的对应覆盖见 theme-dark.css。 */
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .brand-name,
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .footer-col h4 {
+  color: var(--mo-n100);
+}
+
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .brand-desc,
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .footer-col a,
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .footer-bottom {
+  color: var(--mo-n300);
+}
+
+html:not(.dark).theme-mo-blog .blog-layout .blog-site-footer .footer-col a:hover {
+  color: var(--mo-p300);
+}
+
 html.dark.theme-mo-blog .blog-layout .blog-top-nav {
   background: rgba(28, 25, 23, 0.92);
   border-bottom-color: var(--mo-n700);

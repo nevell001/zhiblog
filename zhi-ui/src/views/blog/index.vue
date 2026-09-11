@@ -415,7 +415,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   font-size: 12px;
 }
 
@@ -447,7 +447,7 @@ onMounted(async () => {
 }
 
 .mo-home-page .dot-sep {
-  color: var(--mo-n300);
+  color: var(--mo-n500);
 }
 
 .mo-home-page .sidebar-widget {
@@ -505,7 +505,7 @@ onMounted(async () => {
   padding: 2px 8px;
   border-radius: var(--mo-r-full);
   background: var(--mo-n100);
-  color: var(--mo-n400);
+  color: var(--mo-n600);
   font-size: 11px;
 }
 
@@ -546,7 +546,7 @@ onMounted(async () => {
 .mo-home-page .rank {
   width: 24px;
   flex-shrink: 0;
-  color: var(--mo-p300);
+  color: var(--mo-n500);
   font-size: 18px;
   font-weight: 700;
   text-align: center;
@@ -569,7 +569,7 @@ onMounted(async () => {
 
 .mo-home-page .hmeta {
   margin-top: 2px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   font-size: 11px;
 }
 
@@ -691,7 +691,7 @@ onMounted(async () => {
   right: 16px;
   border: none;
   background: transparent;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   cursor: pointer;
   font-size: 24px;
   line-height: 1;

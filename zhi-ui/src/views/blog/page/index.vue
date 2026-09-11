@@ -158,7 +158,7 @@ onMounted(loadPage)
 }
 
 .empty-code {
-  color: var(--mo-p200);
+  color: var(--mo-p700);
   font-family: var(--mo-font-serif);
   font-size: 64px;
   font-weight: 700;

@@ -72,6 +72,26 @@ const violations = (pattern: RegExp) =>
       .map(rule => `${file.replace(`${blogRoot}/`, '')} → ${rule.selector.replace(/\s+/g, ' ')}`)
   )
 
+/**
+ * 浅色模式下 n300/n400 是浅灰、p200/p300 是淡紫，直接当文字用只有 1.5~2.5:1
+ * （曾导致首页元信息、分类/标签计数、文章正文链接等 169 处不达标）。
+ * 结构性图标（空态插画）不参与该约定。
+ */
+const PALE_SCALE_AS_TEXT = /(?:^|[;{\s])color:\s*var\(--mo-(?:n300|n400|p200|p300)\)/
+const DECORATIVE_ICON_SELECTORS = ['.empty-icon', '.not-found-icon']
+
+const lightViolations = () =>
+  files.flatMap(file =>
+    parseRules(readFileSync(file, 'utf8'))
+      .filter(
+        rule =>
+          !rule.selector.includes('html.dark') &&
+          !DECORATIVE_ICON_SELECTORS.some(icon => rule.selector.includes(icon)) &&
+          PALE_SCALE_AS_TEXT.test(rule.body)
+      )
+      .map(rule => `${file.replace(`${blogRoot}/`, '')} → ${rule.selector.replace(/\s+/g, ' ')}`)
+  )
+
 describe('深色模式 --mo-* 色阶使用约定', () => {
   it('深色规则不得把背景色阶（n0/n50/n800/n900）当作文字颜色', () => {
     expect(violations(BG_SCALE_AS_TEXT)).toEqual([])
@@ -79,6 +99,10 @@ describe('深色模式 --mo-* 色阶使用约定', () => {
 
   it('深色规则不得用未重映射的深色强调色（p600~p900）作文字颜色', () => {
     expect(violations(DARK_ACCENT_AS_TEXT)).toEqual([])
+  })
+
+  it('浅色规则不得把淡色阶（n300/n400/p200/p300）当作文字颜色', () => {
+    expect(lightViolations()).toEqual([])
   })
 
   it('扫描范围应覆盖博客前台页面与公共组件', () => {

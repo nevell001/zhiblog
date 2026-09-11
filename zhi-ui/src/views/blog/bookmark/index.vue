@@ -183,7 +183,7 @@ onMounted(loadBookmarks)
 }
 
 .bookmark-article-title:hover {
-  color: var(--el-color-primary, #409eff);
+  color: var(--mo-primary-text, #409eff);
 }
 
 .bookmark-summary {

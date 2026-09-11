@@ -686,7 +686,7 @@ function fetchPublishedPages() {
   color: var(--mo-n800);
 }
 .dropdown-icon {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 .theme-btn {
   background: none;
@@ -753,7 +753,7 @@ function fetchPublishedPages() {
 }
 .brand-desc {
   font-size: 13px;
-  color: var(--mo-n500);
+  color: var(--mo-n600);
   margin-top: 4px;
 }
 .footer-links {
@@ -784,7 +784,7 @@ function fetchPublishedPages() {
   padding-top: 24px;
   text-align: center;
   font-size: 13px;
-  color: var(--mo-n500);
+  color: var(--mo-n600);
 }
 .tech-info {
   margin-top: 6px;
@@ -865,13 +865,13 @@ function fetchPublishedPages() {
 .notif-item-time {
   margin-top: 4px;
   font-size: 11px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 .notif-empty {
   padding: 18px 0;
   text-align: center;
   font-size: 13px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 .notif-panel-foot {
   margin-top: 8px;

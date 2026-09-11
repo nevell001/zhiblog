@@ -246,7 +246,7 @@ watch(
   color: var(--el-text-color-primary, #303133);
 }
 .result-card:hover .result-card-title {
-  color: var(--el-color-primary, #409eff);
+  color: var(--mo-primary-text, #409eff);
 }
 .result-card-excerpt {
   margin: 8px 0 10px;
@@ -266,7 +266,7 @@ watch(
   color: var(--el-text-color-secondary, #909399);
 }
 .result-card-meta .author {
-  color: var(--el-color-primary, #409eff);
+  color: var(--mo-primary-text, #409eff);
 }
 .dot {
   color: var(--el-border-color, #dcdfe6);

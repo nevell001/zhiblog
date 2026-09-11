@@ -157,7 +157,7 @@ watch(authorId, loadAuthorArticles)
   color: var(--el-text-color-primary, #303133);
 }
 .author-article:hover .aa-title {
-  color: var(--el-color-primary, #409eff);
+  color: var(--mo-primary-text, #409eff);
 }
 .aa-excerpt {
   margin: 0 0 10px;

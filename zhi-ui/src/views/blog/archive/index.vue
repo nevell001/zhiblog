@@ -475,7 +475,7 @@ onMounted(() => {
 .no-data {
   text-align: center;
   padding: 80px 20px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 .empty-icon {
@@ -503,7 +503,7 @@ onMounted(() => {
 
 .no-data p {
   font-size: 1rem;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   margin-bottom: 30px;
 }
 
@@ -661,7 +661,7 @@ onMounted(() => {
   justify-content: center;
   gap: 12px;
   padding: 50px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   font-size: 1rem;
 }
 
@@ -784,7 +784,7 @@ onMounted(() => {
   display: flex;
   gap: 18px;
   font-size: 0.85rem;
-  color: var(--mo-n400);
+  color: var(--mo-n600);
   flex-wrap: wrap;
 }
 
@@ -803,7 +803,7 @@ onMounted(() => {
 .no-articles {
   text-align: center;
   padding: 40px;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 .no-articles .el-icon {

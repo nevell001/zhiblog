@@ -731,7 +731,7 @@ onMounted(() => {
   gap: 20px;
   margin-bottom: 15px;
   font-size: 0.9rem;
-  color: var(--mo-n500);
+  color: var(--mo-n600);
   flex-wrap: wrap;
 }
 
@@ -933,7 +933,7 @@ onMounted(() => {
   justify-content: center;
   gap: 6px;
   font-size: 0.85rem;
-  color: var(--mo-n500);
+  color: var(--mo-n600);
   background: rgba(102, 102, 102, 0.05);
   padding: 6px 12px;
   border-radius: 6px;
@@ -1017,7 +1017,7 @@ onMounted(() => {
 
 .tag-article-count {
   font-size: 0.8rem;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 .recent-articles {
@@ -1054,7 +1054,7 @@ onMounted(() => {
 
 .article-date {
   font-size: 0.8rem;
-  color: var(--mo-n400);
+  color: var(--mo-n500);
   min-width: 40px;
 }
 

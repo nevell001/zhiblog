@@ -228,6 +228,18 @@ html.dark .el-table th.el-table__cell {
    默认主题的主色偏亮：Element Plus 默认 #409eff 配白字只有 2.78:1，Tech Blue 深色
    #00d4ff 更是只有 1.77:1。--mo-on-primary 由主色对比度自动推导（深墨/白色）。
    只作用于默认主题：Mo-Blog 主题的靛蓝主色配白字本来就达标（6.29:1），不受影响。 */
+/* plain 主按钮：EP 用主色文字 + primary-light-9 底色（#409eff on #ecf5ff 只有 2.53:1），
+   浅色模式下文字改用深一档的主色；hover/active 会变成实心主色，此时用配对前景色。 */
+html:not(.dark):not(.theme-mo-blog) .el-button--primary.is-plain:not(.is-disabled) {
+  --el-button-text-color: color-mix(in srgb, var(--el-color-primary) 55%, #000000);
+  --el-button-hover-text-color: var(--mo-on-primary, #fff);
+  --el-button-hover-bg-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--el-color-primary);
+  --el-button-active-text-color: var(--mo-on-primary, #fff);
+  --el-button-active-bg-color: var(--el-color-primary);
+  --el-button-active-border-color: var(--el-color-primary);
+}
+
 html:not(.theme-mo-blog) .el-button--primary:not(.is-plain):not(.is-text):not(.is-link) {
   --el-button-text-color: var(--mo-on-primary, #fff);
   /* hover/active 的浅色变体在两种模式下明暗相反（深色模式下 light-3 反而更深），
