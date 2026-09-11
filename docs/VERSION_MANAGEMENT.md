@@ -219,6 +219,44 @@ mvn clean install -DskipTests
    - 错误信息：`Non-resolvable parent POM`
    - 解决方法：确保所有版本号一致
 
+## 发布流程（tag 与 Release）
+
+版本号改完、代码推送之后，**还必须单独打标签**，否则 GitHub/Gitee 的 Releases 页会一直停留在旧版本。
+
+### 1. 准备发行说明
+
+在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.0.md` 的结构：新增与增强 / 配色与可读性 / 主要修复 / 工程与质量 / 升级提示）。
+
+### 2. 推送代码（含标签）
+
+```bash
+./sync-github.sh          # 已用 --follow-tags，会一并推送 main 上可达的注释标签
+```
+
+### 3. 打注释标签并推送（首次发布新版本时执行）
+
+```bash
+git tag -a v1.4.0 -F docs/releases/v1.4.0.md     # 标签消息 = 发行说明
+git push origin v1.4.0                            # Gitee
+git push github v1.4.0                            # GitHub
+```
+
+### 4. 创建 Release（必须手动，标签不会自动生成 Release）
+
+- **GitHub**：仓库 → Releases → *Draft a new release* → 选择上面推送的 tag → 粘贴 `docs/releases/<版本>.md` 内容 → Publish
+- **Gitee**：仓库 → 发行版 → 新建发行版（同样选择 tag 并粘贴发行说明）
+
+### 5. 校验
+
+```bash
+git ls-remote --tags origin    # Gitee 上应有的 tag
+git ls-remote --tags github    # GitHub 上应有的 tag
+```
+
+> **常见坑**：`git push origin main` **不会**推送标签（`git push` 默认不带 tag），
+> 早期 `sync-github.sh` 只推 main，导致 GitHub 上只有 v1.3.6 标签与 Release。
+> Releases 页仍是旧版本时，先查上一步的两个 `ls-remote` 输出里有没有新 tag。
+
 ### 常见问题
 
 **Q: 为什么需要同时修改父 POM 和子模块的版本号？**
@@ -255,6 +293,6 @@ A: 这说明父 POM 版本与子模块 parent 版本不一致。检查并确保�
 
 ---
 
-**文档版本**: v2.0
-**最后更新**: 2026-01-27
+**文档版本**: v2.1
+**最后更新**: 2026-09-11
 **维护者**: nevell

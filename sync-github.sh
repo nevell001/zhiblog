@@ -34,11 +34,21 @@ git remote -v
 
 echo ""
 echo -e "${YELLOW}正在推送到 Gitee (origin)...${NC}"
-git push origin main
+# --follow-tags：一并推送 main 上可达的注释标签（普通 git push 不会带标签）
+git push origin main --follow-tags
 
 echo ""
 echo -e "${YELLOW}正在推送到 GitHub (github)...${NC}"
-git push github main
+git push github main --follow-tags
+
+echo ""
+echo -e "${BLUE}已推送的标签：${NC}"
+git ls-remote --tags origin | sed 's/^/  origin  /' | grep -v '\^{}' || true
+git ls-remote --tags github | sed 's/^/  github  /' | grep -v '\^{}' || true
+
+echo ""
+echo -e "${YELLOW}提示：标签不会自动变成 Release，需在 GitHub/Gitee 手动创建发行版${NC}"
+echo -e "${YELLOW}      （说明见 docs/VERSION_MANAGEMENT.md 的「发布流程」）${NC}"
 
 echo ""
 echo -e "${GREEN}======================================${NC}"

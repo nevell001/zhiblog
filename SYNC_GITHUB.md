@@ -52,6 +52,24 @@ git push github main
 # 添加 GitHub 远端
 git remote add github https://github.com/你的用户名/zhiblog.git
 
-# 推送到两个仓库
-git push origin main && git push github main
+# 推送到两个仓库（--follow-tags 会一并推送 main 上可达的注释标签）
+git push origin main --follow-tags && git push github main --follow-tags
 ```
+
+## 同步标签与创建 Release
+
+`git push main` **不会**推送标签，而 GitHub 的 Releases 是按标签生成的，需要单独处理：
+
+```bash
+# 1) 打注释标签（消息用 docs/releases/<版本>.md 的发行说明）
+git tag -a v1.4.0 -F docs/releases/v1.4.0.md
+
+# 2) 推送到两个远端
+git push origin v1.4.0 && git push github v1.4.0
+
+# 3) 校验
+git ls-remote --tags origin && git ls-remote --tags github
+```
+
+最后在 GitHub → Releases → *Draft a new release* 选择该标签、粘贴发行说明并 Publish（Gitee 的「发行版」同理）。完整流程见 [版本管理指南](docs/VERSION_MANAGEMENT.md#发布流程tag-与-release)。
+
