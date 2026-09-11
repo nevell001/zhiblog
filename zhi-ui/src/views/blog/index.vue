@@ -723,14 +723,15 @@ html.dark .mo-home-page {
   color: var(--el-text-color-primary);
 }
 
-/* Mo-Blog 主题深色：恢复棕色色阶（覆盖默认主题映射） */
+/* Mo-Blog 主题深色：恢复棕色色阶（覆盖默认主题映射）
+   n300/n400 是次要文字色，深色下必须是浅灰（原 #57534e/#78716c 比背景还深） */
 html.dark.theme-mo-blog .mo-home-page {
   --mo-n900: #1c1917;
   --mo-n800: #292524;
   --mo-n700: #44403c;
   --mo-n500: #a8a29e;
-  --mo-n400: #78716c;
-  --mo-n300: #57534e;
+  --mo-n400: #a8a29e;
+  --mo-n300: #a8a29e;
   --mo-n200: #d6d3d1;
   --mo-n100: #f5f5f4;
   --mo-p50: rgba(99, 102, 241, 0.12);
@@ -806,12 +807,12 @@ html.dark .mo-home-page .cat-item.active {
 
 html.dark .mo-home-page .cat-item .count {
   background: var(--mo-n700);
-  color: var(--mo-n400);
+  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .tc {
   background: var(--mo-n700);
-  color: var(--mo-n400);
+  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .tc:hover,
@@ -851,7 +852,7 @@ html.dark .mo-home-page .tag-blue {
 
 html.dark .mo-home-page .tag-gray {
   background: var(--mo-n700);
-  color: var(--mo-n300);
+  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .search-result-note {
@@ -880,6 +881,12 @@ html.dark .contact-close {
 }
 
 html.dark .contact-close:hover {
+  color: var(--mo-p300);
+}
+
+/* p600 不参与深色重映射（Mo-Blog 下仍是深靛蓝），深色下强调色文字改用 p300 */
+html.dark .mo-home-page .avatar-sm,
+html.dark .mo-home-page .rank.top {
   color: var(--mo-p300);
 }
 </style>

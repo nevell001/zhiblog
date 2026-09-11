@@ -2017,6 +2017,9 @@ html.dark .mo-editor-form {
   --mo-p50: rgba(0, 212, 255, 0.12);
   --mo-p100: rgba(0, 212, 255, 0.2);
   --mo-p200: rgba(0, 212, 255, 0.3);
+  /* 强调色文字：p600 不参与深色重映射（浅色主题的深靛蓝在深色底上仅 ≈2:1），
+     改为按主题主色即时混出的浅色强调（默认主题=浅青，Mo-Blog=浅靛） */
+  --mo-p300: color-mix(in srgb, var(--el-color-primary) 45%, #ffffff);
   color: var(--mo-n700);
   background: var(--mo-n50);
 }
@@ -2036,6 +2039,7 @@ html.dark.theme-mo-blog .mo-editor-form {
   --mo-p50: rgba(99, 102, 241, 0.12);
   --mo-p100: rgba(99, 102, 241, 0.2);
   --mo-p200: rgba(99, 102, 241, 0.3);
+  --mo-p300: color-mix(in srgb, var(--el-color-primary) 45%, #ffffff);
 }
 
 /* 顶栏 / 工具栏 / 编辑区 / 预览区 / 侧面板背景 */
@@ -2129,7 +2133,8 @@ html.dark .mo-editor-form .editor-preview :deep(blockquote) {
 
 /* 空预览提示 */
 html.dark .mo-editor-form .preview-empty {
-  color: var(--mo-n400);
+  /* n400 在 Mo-Blog 深色作用域里是深灰 #78716c（3.65:1），改用 n500 */
+  color: var(--mo-n500);
 }
 
 /* 封面预览边框 */
@@ -2146,7 +2151,7 @@ html.dark .mo-editor-form .side-actions {
 /* 字数统计 / 保存状态 */
 html.dark .mo-editor-form .word-count,
 html.dark .mo-editor-form .save-status {
-  color: var(--mo-n400);
+  color: var(--mo-n500);
 }
 
 /* ===== Element Plus 表单控件深色模式适配 ===== */
@@ -2185,7 +2190,7 @@ html.dark .mo-editor-form :deep(.el-select-dropdown__item:hover) {
 }
 
 html.dark .mo-editor-form :deep(.el-select-dropdown__item.selected) {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
   background: var(--mo-p50);
 }
 
@@ -2212,7 +2217,7 @@ html.dark
 }
 
 html.dark .mo-editor-form :deep(.el-radio-button__inner:hover) {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
   border-color: var(--mo-n300);
 }
 
@@ -2275,19 +2280,19 @@ html.dark .mo-editor-form :deep(.ql-fill) {
 }
 
 html.dark .mo-editor-form :deep(.ql-picker-item:hover) {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .mo-editor-form :deep(.ql-picker-label:hover) {
-  color: var(--mo-p600);
+  color: var(--mo-p300);
 }
 
 html.dark .mo-editor-form :deep(.ql-active) {
-  color: var(--mo-p600) !important;
+  color: var(--mo-p300) !important;
 }
 
 html.dark .mo-editor-form :deep(.ql-selected) {
-  color: var(--mo-p600) !important;
+  color: var(--mo-p300) !important;
 }
 /* 定时发布时间选择 */
 .publish-time-picker {

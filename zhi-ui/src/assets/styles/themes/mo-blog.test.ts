@@ -36,4 +36,18 @@ describe('mo-blog theme stylesheet', () => {
     expect(stylesheet).toContain('.theme-mo-blog .el-tag')
     expect(stylesheet).toContain('background: var(--mo-n50)')
   })
+
+  it('主色填充控件应该提供配对的前景色（亮色主色下白字不达 AA）', () => {
+    expect(stylesheet).toContain('html.theme-mo-blog {')
+    expect(stylesheet).toContain('--mo-on-primary: #ffffff')
+    // 后台表单标签在深色下不能用浅色主题的 --mo-n300（≈2:1）
+    expect(stylesheet).toContain('html.dark.theme-mo-blog .el-form-item__label')
+    expect(stylesheet).toContain('color: var(--el-text-color-regular)')
+  })
+
+  it('Mo-Blog 深色的次要文字色阶必须是浅灰', () => {
+    // --mo-n300/n400 误映射成 #57534e/#78716c 会让全站文字对比度掉到 1.99~3.65:1
+    expect(stylesheet).not.toContain('--mo-n300: #57534e')
+    expect(stylesheet).not.toContain('--mo-n400: #78716c')
+  })
 })

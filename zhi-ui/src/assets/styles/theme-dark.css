@@ -27,7 +27,10 @@ html.dark .mo-home-page {
   color: var(--el-text-color-primary);
 }
 
-/* Mo-Blog 主题深色：恢复棕色色阶 */
+/* Mo-Blog 主题深色：恢复棕色色阶
+   注意：n300/n400 在浅色主题里是「次要文字色」（中灰 #d6d3d1 / #a8a29e），
+   深色下必须仍是浅灰；曾误映射为 #57534e / #78716c（比卡片背景还深），
+   导致全站导航/页脚/文章摘要/元信息对比度只有 1.99~3.65:1。 */
 html.dark.theme-mo-blog .blog-layout,
 html.dark.theme-mo-blog .mo-auth-page,
 html.dark.theme-mo-blog .mo-home-page {
@@ -35,8 +38,8 @@ html.dark.theme-mo-blog .mo-home-page {
   --mo-n800: #292524;
   --mo-n700: #44403c;
   --mo-n500: #a8a29e;
-  --mo-n400: #78716c;
-  --mo-n300: #57534e;
+  --mo-n400: #a8a29e;
+  --mo-n300: #a8a29e;
   --mo-n200: #d6d3d1;
   --mo-n100: #f5f5f4;
   --mo-p50: rgba(99, 102, 241, 0.12);

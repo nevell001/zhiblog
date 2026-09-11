@@ -1568,7 +1568,9 @@ html.dark.theme-mo-blog .el-textarea__inner::placeholder {
 }
 
 html.dark.theme-mo-blog .el-form-item__label {
-  color: var(--mo-n300);
+  /* 后台作用域没有 --mo-n* 重映射，n300 会是浅色主题的中灰（深色底上 ≈2:1）；
+     直接用 Element Plus 的常规文字色，跟随当前主题深色配色 */
+  color: var(--el-text-color-regular);
 }
 
 html.dark.theme-mo-blog .el-select .el-input__wrapper,
@@ -1990,7 +1992,8 @@ html.dark.theme-mo-blog .auth-form label,
 html.dark.theme-mo-blog .register-form label,
 html.dark.theme-mo-blog .login-form label,
 html.dark.theme-mo-blog label[class*='label'] {
-  color: #78716c !important;
+  /* 原来是浅色主题的中灰 #78716c，深色底上仅 3.16:1；改用与 n500 一致的浅灰 */
+  color: #a8a29e !important;
 }
 
 /* 输入框样式修复 */
@@ -2020,4 +2023,16 @@ html.dark.theme-mo-blog .mo-auth-page .el-input__inner {
 html.dark.theme-mo-blog .el-input__inner::placeholder,
 html.dark.theme-mo-blog .mo-auth-page .el-input__inner::placeholder {
   color: #a8a29e !important;
+}
+
+/* ===== 深色补丁：标题/正文色阶 =====
+   上面的 .theme-mo-blog 规则是浅色主题写法（n700~n900 = 深色文字），
+   而深色下 --mo-n900 被映射为页面底色，直接用会让标题与背景同色（≈1.15:1）。
+   深色下标题统一用 n200，次要文字用 n300（= #a8a29e，见 theme-dark.css 的映射）。 */
+html.dark.theme-mo-blog .popular-title,
+html.dark.theme-mo-blog .row-title,
+html.dark.theme-mo-blog .card-title,
+html.dark.theme-mo-blog .article-title,
+html.dark.theme-mo-blog .htitle {
+  color: var(--mo-n200);
 }

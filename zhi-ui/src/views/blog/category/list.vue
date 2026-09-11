@@ -150,4 +150,9 @@ onMounted(loadCategories)
   font-size: 12px;
   color: var(--el-color-primary, #409eff);
 }
+/* 深色下主题主色（Mo-Blog = #6366f1）作文字仅 3.4:1；p300 在默认主题下
+   等于 --el-color-primary，在 Mo-Blog 下是 #a5b4fc */
+html.dark .cat-meta {
+  color: var(--mo-p300);
+}
 </style>
