@@ -74,6 +74,12 @@ $--color-info: #909399;
 
   --navbar-bg: #ffffff;
   --navbar-text: #303133;
+
+  /* 主色填充控件的前景色。默认主题亮色用 Element Plus 主色 #409eff（白字仅 2.78:1），
+     深色用 Tech Blue 亮青 #00d4ff（白字仅 1.77:1），因此默认取深墨色；
+     Mo-Blog 主题的主色是靛蓝，会在 mo-blog.scss 里覆盖为白色。
+     运行时可被 handleThemeStyle() 按实际主色算出的值覆盖。 */
+  --mo-on-primary: #06272e;
 }
 
 // Tech Blue 模式变量
@@ -85,6 +91,9 @@ html.dark {
   --el-text-color-regular: #{$--tech-text-dark};
   --el-color-primary: #{$--tech-primary};
   --el-border-color: #{$--tech-bg-light};
+
+  /* 深色下主色是亮青 #00d4ff，白字仅 1.77:1 → 主色填充控件用深墨色文字 */
+  --mo-on-primary: #06272e;
 
   /* 侧边栏 */
   --sidebar-bg: #{$--tech-bg};

@@ -288,6 +288,12 @@ html.dark .verify {
   --tags-close-hover: #b4bccc;
 }
 
+/* 本主题主色是靛蓝（#4f46e5 / 深色 #6366f1），白字对比度 6.29 / 4.47，故选白色。
+   html.theme-mo-blog 用来压过 variables.module.scss 中 :root 的默认深墨色。 */
+html.theme-mo-blog {
+  --mo-on-primary: #ffffff;
+}
+
 .theme-mo-blog body {
   background: var(--mo-n50);
   color: var(--mo-n800);
@@ -1820,7 +1826,8 @@ html.dark.theme-mo-blog {
   --el-bg-color-page: #1c1917;
   --el-text-color-primary: #d6d3d1;
   --el-text-color-regular: #a8a29e;
-  --el-color-primary: #6366f1;
+  /* 略调深，使白字达到 AA（#6366f1 时白字 4.47:1，仍差一点） */
+  --el-color-primary: #5f62e7;
   --el-border-color: #44403c;
   --el-border-color-light: #44403c;
   --el-border-color-lighter: #44403c;

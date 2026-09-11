@@ -224,6 +224,39 @@ html.dark .el-table th.el-table__cell {
   margin-bottom: 10px;
 }
 
+/* 主色填充控件的前景色（按钮/分页/单选按钮）——
+   默认主题的主色偏亮：Element Plus 默认 #409eff 配白字只有 2.78:1，Tech Blue 深色
+   #00d4ff 更是只有 1.77:1。--mo-on-primary 由主色对比度自动推导（深墨/白色）。
+   只作用于默认主题：Mo-Blog 主题的靛蓝主色配白字本来就达标（6.29:1），不受影响。 */
+html:not(.theme-mo-blog) .el-button--primary:not(.is-plain):not(.is-text):not(.is-link) {
+  --el-button-text-color: var(--mo-on-primary, #fff);
+  /* hover/active 的浅色变体在两种模式下明暗相反（深色模式下 light-3 反而更深），
+     固定用主色打底 + 亮度反馈，保证过渡态与默认态同样是可读组合 */
+  --el-button-hover-text-color: var(--mo-on-primary, #fff);
+  --el-button-hover-bg-color: var(--el-color-primary);
+  --el-button-hover-border-color: var(--el-color-primary);
+  --el-button-active-text-color: var(--mo-on-primary, #fff);
+  --el-button-active-bg-color: var(--el-color-primary);
+  --el-button-active-border-color: var(--el-color-primary);
+}
+
+html:not(.theme-mo-blog)
+  .el-button--primary:not(.is-plain):not(.is-text):not(.is-link):not(.is-disabled):hover {
+  filter: brightness(1.08);
+}
+
+html .el-pager li.is-active,
+html .el-pagination.is-background .el-pager li.is-active,
+html .el-pagination.is-background .btn-next.is-active,
+html .el-pagination.is-background .btn-prev.is-active {
+  color: var(--mo-on-primary, #fff);
+}
+
+html .el-radio-button__original-radio:checked + .el-radio-button__inner,
+html .el-checkbox-button.is-checked .el-checkbox-button__inner {
+  color: var(--mo-on-primary, #fff);
+}
+
 /* button color */
 .el-button--cyan.is-active,
 .el-button--cyan:active {

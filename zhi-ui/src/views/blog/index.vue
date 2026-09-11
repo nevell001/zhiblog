@@ -344,8 +344,9 @@ onMounted(async () => {
   padding: 9px 24px;
   border: none;
   border-radius: var(--mo-r-full);
-  background: var(--mo-p600);
-  color: #fff;
+  background: var(--el-color-primary, #409eff);
+  /* 与主色配对的前景色（默认主题亮主色 → 深墨；Mo-Blog 靛蓝 → 白） */
+  color: var(--mo-on-primary, #fff);
   font-size: 13px;
   font-weight: 500;
 }
@@ -595,9 +596,10 @@ onMounted(async () => {
 }
 
 .mo-home-page .pg.active {
-  border-color: var(--mo-p600);
-  background: var(--mo-p600);
-  color: #fff;
+  border-color: var(--el-color-primary, #409eff);
+  background: var(--el-color-primary, #409eff);
+  /* 亮色主色（#409eff/#00d4ff）上的白字不达 AA，改用与主色配对的前景色 */
+  color: var(--mo-on-primary, #fff);
 }
 
 .mo-home-page .tag {
@@ -837,9 +839,9 @@ html.dark .mo-home-page .pg {
 }
 
 html.dark .mo-home-page .pg.active {
-  background: var(--mo-p600);
-  border-color: var(--mo-p600);
-  color: #fff;
+  background: var(--el-color-primary, #409eff);
+  border-color: var(--el-color-primary, #409eff);
+  color: var(--mo-on-primary, #fff);
 }
 
 html.dark .mo-home-page .tag-blue {

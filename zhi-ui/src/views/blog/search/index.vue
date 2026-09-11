@@ -208,7 +208,8 @@ watch(
   border: none;
   border-radius: 8px;
   background: var(--el-color-primary, #409eff);
-  color: #fff;
+  /* 与主色配对的前景色（默认主题亮主色 → 深墨；Mo-Blog 靛蓝 → 白） */
+  color: var(--mo-on-primary, #fff);
   font-size: 14px;
   cursor: pointer;
 }

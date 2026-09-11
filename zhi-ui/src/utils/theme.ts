@@ -55,6 +55,43 @@ export function handleThemeStyle(theme: string): void {
       `${getDarkColor(theme, i / 10)}`
     )
   }
+  // 主色填充控件（主按钮/分页激活态等）的前景色，按对比度自动在白与深墨之间二选一
+  document.documentElement.style.setProperty('--mo-on-primary', readableOnPrimary(theme))
+}
+
+/** 主色填充控件可用的前景色候选 */
+const ON_PRIMARY_WHITE = '#ffffff'
+const ON_PRIMARY_INK = '#06272e'
+
+// 相对亮度（WCAG）
+function relativeLuminance(rgb: number[]): number {
+  const [r, g, b] = rgb.map(value => {
+    const channel = value / 255
+    return channel <= 0.03928 ? channel / 12.92 : Math.pow((channel + 0.055) / 1.055, 2.4)
+  })
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+}
+
+// 对比度（WCAG）
+function contrastRatio(foreground: number[], background: number[]): number {
+  const [lighter, darker] = [relativeLuminance(foreground), relativeLuminance(background)].sort(
+    (a, b) => b - a
+  )
+  return (lighter + 0.05) / (darker + 0.05)
+}
+
+/**
+ * 主色上的可读前景色。
+ *
+ * 默认主题的主色偏亮（Element Plus 默认 #409eff、Tech Blue 深色 #00d4ff），
+ * 白字对比度只有 2.78:1 / 1.77:1；Mo-Blog 主题的靛蓝（#4f46e5 / #6366f1）
+ * 则相反，白字更清楚。这里取两者中对比度更高的一个，避免任何一侧被改坏。
+ */
+export function readableOnPrimary(theme: string): string {
+  const background = hexToRgb(theme)
+  const white = contrastRatio(hexToRgb(ON_PRIMARY_WHITE), background)
+  const ink = contrastRatio(hexToRgb(ON_PRIMARY_INK), background)
+  return white >= ink ? ON_PRIMARY_WHITE : ON_PRIMARY_INK
 }
 
 // hex颜色转rgb颜色
