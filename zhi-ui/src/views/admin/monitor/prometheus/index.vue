@@ -46,7 +46,12 @@
                 <el-button type="success" style="width: 100%" @click="openPrometheus">
                   访问 Prometheus UI
                 </el-button>
-                <p class="metric-url">http://localhost:9090</p>
+                <p class="metric-url">
+                  {{
+                    prometheusUrl ||
+                    '未配置 Prometheus 地址（可在 博客设置 → 站点信息 → 监控入口 填写）'
+                  }}
+                </p>
               </div>
             </el-card>
           </el-col>
@@ -106,14 +111,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ElMessage } from '@/plugins/element-plus-service'
+import { loadMonitorUrl } from '@/utils/monitorConfig'
 import { DataLine, TrendCharts, InfoFilled, CopyDocument, View } from '@element-plus/icons-vue'
 
 const loading = ref(false)
-const metricsUrl = ref(
-  (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + '/manage/actuator/prometheus'
-)
+const metricsBaseUrl = ref('/manage/actuator')
+const metricsUrl = computed(() => `${metricsBaseUrl.value}/prometheus`)
+// Prometheus UI 地址：后台设置 → 环境变量 → 按站点访问地址推导
+const prometheusUrl = ref('')
+
+onMounted(async () => {
+  const [prometheus, actuator] = await Promise.all([
+    loadMonitorUrl('prometheus'),
+    loadMonitorUrl('actuator')
+  ])
+  prometheusUrl.value = prometheus
+  metricsBaseUrl.value = actuator
+})
 
 // 指标数据弹窗相关
 const metricsDialogVisible = ref(false)
@@ -168,8 +184,8 @@ const viewMetrics = async () => {
 
 // 打开指标数据（新窗口）
 const openMetricsInNewWindow = () => {
-  const url = metricsUrl.value.replace('/dev-api', 'http://localhost:8080')
-  window.open(url, '_blank')
+  // metricsUrl 已是同源相对路径（dev 走 Vite 代理，prod 走 Nginx），直接打开即可
+  window.open(metricsUrl.value, '_blank')
 }
 
 // 复制指标数据
@@ -185,13 +201,21 @@ const copyMetrics = async () => {
 
 // 打开 Prometheus UI
 const openPrometheus = () => {
-  window.open('http://localhost:9090', '_blank')
+  if (!prometheusUrl.value) {
+    ElMessage.warning('未配置 Prometheus 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    return
+  }
+  window.open(prometheusUrl.value, '_blank')
 }
 
 // 在 Prometheus 中运行查询
 const runQuery = query => {
+  if (!prometheusUrl.value) {
+    ElMessage.warning('未配置 Prometheus 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    return
+  }
   const encodedQuery = encodeURIComponent(query)
-  window.open(`http://localhost:9090/graph?g0.expr=${encodedQuery}&g0.tab=0`, '_blank')
+  window.open(`${prometheusUrl.value}/graph?g0.expr=${encodedQuery}&g0.tab=0`, '_blank')
 }
 </script>
 

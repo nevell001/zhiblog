@@ -263,6 +263,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { loadMonitorUrl } from '@/utils/monitorConfig'
+import { resolveActuatorEndpointUrl } from '@/utils/monitorUrl'
 import { ElMessage } from '@/plugins/element-plus-service'
 import {
   Link,
@@ -281,7 +283,14 @@ interface ActuatorEndpoint {
 }
 
 const endpoints = ref<Record<string, ActuatorEndpoint>>({})
-const baseUrl = (import.meta.env?.VITE_APP_BASE_API || '/dev-api') + '/manage/actuator'
+// Actuator 入口：后台设置 → 环境变量 → 同源相对路径（dev 走 Vite 代理、prod 走 Nginx）
+const baseUrl = ref('/manage/actuator')
+
+/** 入口地址解析（onMounted 里先 await 它，避免首次拉取用不到自定义地址） */
+const baseUrlReady = loadMonitorUrl('actuator').then(url => {
+  baseUrl.value = url
+  return url
+})
 
 // 详情弹窗相关
 const detailDialogVisible = ref(false)
@@ -518,21 +527,10 @@ const viewEndpoint = async (url, key) => {
   activeNames.value = [0]
 
   try {
-    // 将容器内地址转换为本地访问地址
-    let localUrl = url
-    if (import.meta.env?.VUE_APP_ENV === 'production') {
-      // 生产环境：使用相对路径，通过 Nginx 代理
-      localUrl = url
-        .replace('http://zhi-admin:8080', '')
-        .replace('http://host.docker.internal:8080', '')
-    } else {
-      // 开发环境：使用 localhost
-      localUrl = url
-        .replace('http://zhi-admin:8080', 'http://localhost:8080')
-        .replace('http://host.docker.internal:8080', 'http://localhost:8080')
-    }
+    // 后端返回的 href 指向容器内地址（zhi-admin:8080），只取端点路径后接到解析出的入口地址
+    const accessibleUrl = resolveActuatorEndpointUrl(baseUrl.value, url)
 
-    const response = await fetch(localUrl)
+    const response = await fetch(accessibleUrl)
     if (!response.ok) {
       throw new Error('获取端点详情失败')
     }
@@ -582,39 +580,20 @@ const copyToClipboard = async () => {
 
 // 在新窗口打开
 const openInNewWindow = () => {
-  let localUrl = detailUrl.value
-  if (import.meta.env?.VUE_APP_ENV === 'production') {
-    // 生产环境：使用相对路径，通过 Nginx 代理
-    localUrl = detailUrl.value
-      .replace('http://zhi-admin:8080', '')
-      .replace('http://host.docker.internal:8080', '')
-  } else {
-    // 开发环境：使用 localhost
-    localUrl = detailUrl.value
-      .replace('http://zhi-admin:8080', 'http://localhost:8080')
-      .replace('http://host.docker.internal:8080', 'http://localhost:8080')
-  }
-  window.open(localUrl, '_blank')
+  window.open(resolveActuatorEndpointUrl(baseUrl.value, detailUrl.value), '_blank')
 }
 
 // 查看指标详情
 const viewMetricDetail = metricName => {
-  let metricUrl
-  if (import.meta.env?.VUE_APP_ENV === 'production') {
-    // 生产环境：使用相对路径，通过 Nginx 代理
-    metricUrl = `/manage/actuator/metrics/${metricName}`
-  } else {
-    // 开发环境：使用 localhost
-    metricUrl = `http://localhost:8080/manage/actuator/metrics/${metricName}`
-  }
-  window.open(metricUrl, '_blank')
+  // 同源相对路径：dev 由 Vite 代理、prod 由 Nginx 代理，自动跟随当前访问域名
+  window.open(`${baseUrl.value}/metrics/${metricName}`, '_blank')
 }
 
 // 获取端点列表
 const fetchEndpoints = async () => {
   try {
     loading.value = true
-    const response = await fetch(baseUrl)
+    const response = await fetch(baseUrl.value)
     if (!response.ok) {
       throw new Error('获取端点列表失败')
     }
@@ -628,8 +607,9 @@ const fetchEndpoints = async () => {
   }
 }
 
-onMounted(() => {
-  fetchEndpoints()
+onMounted(async () => {
+  await baseUrlReady
+  await fetchEndpoints()
 })
 </script>
 

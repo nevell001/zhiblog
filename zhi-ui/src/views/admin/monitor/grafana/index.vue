@@ -30,7 +30,9 @@
                   打开 Grafana 界面
                 </el-button>
                 <p class="grafana-url">
-                  {{ grafanaUrl }}
+                  {{
+                    grafanaUrl || '未配置 Grafana 地址（可在 博客设置 → 站点信息 → 监控入口 填写）'
+                  }}
                 </p>
               </div>
             </el-card>
@@ -49,7 +51,7 @@
                   <el-descriptions-item label="密码">
                     请查看 .env 文件中的 GF_SECURITY_ADMIN_PASSWORD 变量
                   </el-descriptions-item>
-                  <el-descriptions-item label="端口">3001</el-descriptions-item>
+                  <el-descriptions-item label="端口">{{ grafanaPort }}</el-descriptions-item>
                 </el-descriptions>
               </div>
             </el-card>
@@ -91,7 +93,8 @@
                     :closable="false"
                     style="margin-top: 10px"
                   >
-                    http://prometheus:9090
+                    http://prometheus:9090（Grafana 容器内按 Compose
+                    服务名访问，与浏览器访问地址无关）
                   </el-alert>
                 </el-card>
               </el-timeline-item>
@@ -110,13 +113,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { DataBoard, User, InfoFilled } from '@element-plus/icons-vue'
+import { ElMessage } from '@/plugins/element-plus-service'
+import { loadMonitorUrl } from '@/utils/monitorConfig'
+import { monitorUrlPort } from '@/utils/monitorUrl'
 
-const grafanaUrl = ref((import.meta.env?.VITE_GRAFANA_URL as string) || 'http://localhost:3001')
+// Grafana 地址：后台设置 → 构建期环境变量 → 按站点访问地址推导
+const grafanaUrl = ref('')
+const grafanaPort = computed(() =>
+  grafanaUrl.value ? monitorUrlPort(grafanaUrl.value, 'grafana') : '—'
+)
+
+onMounted(async () => {
+  grafanaUrl.value = await loadMonitorUrl('grafana')
+})
 
 // 打开 Grafana 界面
 const openGrafana = () => {
+  if (!grafanaUrl.value) {
+    ElMessage.warning('未配置 Grafana 地址，请到 博客设置 → 站点信息 → 监控入口 填写')
+    return
+  }
   window.open(grafanaUrl.value, '_blank')
 }
 </script>

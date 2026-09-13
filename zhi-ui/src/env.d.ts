@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_BUILD_COMPRESS: string
   readonly VITE_API_BASE_URL: string
   readonly VITE_GRAFANA_URL: string
+  readonly VITE_PROMETHEUS_URL: string
+  readonly VITE_ACTUATOR_URL: string
 }
 
 interface ImportMeta {

@@ -157,6 +157,34 @@
               </div>
             </el-form-item>
             -->
+
+            <el-divider content-position="left">监控入口</el-divider>
+            <el-form-item label="Prometheus 地址" prop="prometheus_url">
+              <el-input
+                v-model="settingsMap.prometheus_url"
+                placeholder="留空 = 站点访问地址 + :9090，例如 https://blog.example.com:9090"
+                maxlength="255"
+              />
+            </el-form-item>
+            <el-form-item label="Grafana 地址" prop="grafana_url">
+              <el-input
+                v-model="settingsMap.grafana_url"
+                placeholder="留空 = 站点访问地址 + :3001；也可以填其它域名/反代路径"
+                maxlength="255"
+              />
+            </el-form-item>
+            <el-form-item label="Actuator 地址" prop="actuator_url">
+              <el-input
+                v-model="settingsMap.actuator_url"
+                placeholder="留空 = 同源 /manage/actuator（跟随当前域名与反代）"
+                maxlength="255"
+              />
+              <div class="setting-tip">
+                监控页里的「访问 Prometheus / 打开 Grafana / 查看指标」都会跳转到这里配置的地址；
+                留空时按站点访问地址自动推导，因此换域名无需重新构建前端。生产环境默认只把
+                Prometheus / Grafana 绑定在 127.0.0.1，如需外网访问请自行反代或使用隧道。
+              </div>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
 
@@ -755,6 +783,9 @@ async function getAllSettings() {
       'blog_author',
       'blog_email',
       'blog_url',
+      'prometheus_url',
+      'grafana_url',
+      'actuator_url',
       'blog_start_time',
       'blog_avatar',
       'blog_signature',
@@ -963,6 +994,9 @@ async function getAllSettings() {
             'blog_author',
             'blog_email',
             'blog_url',
+            'prometheus_url',
+            'grafana_url',
+            'actuator_url',
             'blog_start_time',
             'blog_avatar',
             'blog_signature'
@@ -980,6 +1014,9 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
+      prometheus_url: '',
+      grafana_url: '',
+      actuator_url: '',
       referer_enabled: false,
       referer_allowed_domains: 'localhost,127.0.0.1',
       blog_start_time: null, // 不设置默认值，让用户自行选择
@@ -1088,6 +1125,9 @@ async function getAllSettings() {
           'blog_author',
           'blog_email',
           'blog_url',
+          'prometheus_url',
+          'grafana_url',
+          'actuator_url',
           'blog_start_time',
           'blog_avatar',
           'blog_signature'
@@ -1105,6 +1145,9 @@ async function getAllSettings() {
       blog_author: '博主',
       blog_email: '',
       blog_url: '',
+      prometheus_url: '',
+      grafana_url: '',
+      actuator_url: '',
       referer_enabled: false,
       referer_allowed_domains: 'localhost,127.0.0.1',
       blog_start_time: null, // 不设置默认值，让用户自行选择
@@ -1259,6 +1302,9 @@ async function saveAllSettings() {
           'blog_author',
           'blog_email',
           'blog_url',
+          'prometheus_url',
+          'grafana_url',
+          'actuator_url',
           'blog_start_time',
           'blog_avatar',
           'blog_signature'
@@ -1459,6 +1505,9 @@ async function saveAllSettings() {
           'blog_author',
           'blog_email',
           'blog_url',
+          'prometheus_url',
+          'grafana_url',
+          'actuator_url',
           'blog_start_time',
           'blog_avatar',
           'blog_signature'

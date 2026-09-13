@@ -878,6 +878,10 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 -- 联系方式设置
 ('blog_email', 'admin@example.com', '博客联系邮箱', NOW(), NOW()),
 ('blog_url', 'http://localhost:3000', '博客访问地址', NOW(), NOW()),
+-- 监控入口（留空表示按站点访问地址自动推导：Prometheus +:9090 / Grafana +:3001 / Actuator 同源）
+('prometheus_url', '', 'Prometheus 监控地址', NOW(), NOW()),
+('grafana_url', '', 'Grafana 监控地址', NOW(), NOW()),
+('actuator_url', '', 'Actuator 监控地址', NOW(), NOW()),
 ('blog_avatar', '', '博主头像', NOW(), NOW()),
 ('blog_signature', 'Stay hungry, Stay foolish', '博主签名', NOW(), NOW()),
 ('blog_start_time', '2025-01-01', '博客创建时间', NOW(), NOW()),
