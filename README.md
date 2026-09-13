@@ -182,6 +182,10 @@ R_TOKEN_SECRET={your_secret_key}
 - 生产环境缺关键密钥时 `SecurityConfigValidator` 会**阻止启动**；开发环境可用 `SECURITY_VALIDATION_ENABLED=false` 跳过
 - 防盗链（`referer_*`）与邮件通知（`email_notify_enabled`）默认取 .env/yml，**保存到后台设置后以数据库为准**
 - 图片压缩见 `application.yml` 的 `image.compress`（默认开启，阈值 2MB、最大 2560×1440、头像 200、缩略图 400）
+- **监控入口**（后台监控页里的 Prometheus / Grafana / Actuator 地址）默认按「站点访问地址」自动推导
+  （域名 + 9090 / 域名 + 3001，Actuator 走同源 `/manage/actuator`），也可在
+  后台 → 博客设置 → 站点信息 → **监控入口** 单独填写其它域名；换域名**无需重新构建前端**。
+  生产 compose 出于安全只把 Prometheus / Grafana 绑定在 `127.0.0.1`，如需外网访问请自行反代或使用隧道
 - 上传端点：`/common/upload[/compressed|avatar|thumbnail|article-cover|mobile|watermark]`、`/common/uploads`、用户头像 `/system/user/profile/avatar`、图片处理 `/system/image/*`
 
 ## 📋 开发规范
@@ -227,6 +231,7 @@ R_TOKEN_SECRET={your_secret_key}
 5. **邮箱验证码/通知邮件收不到**：检查 `.env` 的 `MAIL_*`；开发可设 `EMAIL_DEV_PRINT_CODE=true` 在控制台查看
 6. **媒体删除后文件仍在 / 角色 2 看不到媒体管理**：前者是“尽力删除”（占用时仅删记录）；后者确认已重跑 00 并在角色管理中补勾权限
 7. **个人中心 404、登录后闪退、改了前端代码页面没变化**：确认后端已重启；前端清浏览器缓存，容器内 dev server 已启用轮询监听
+8. **监控页里的 Prometheus/Grafana 地址是 localhost 或打不开**：地址按「站点访问地址」推导，先确认后台该地址已填成真实域名；也可在「监控入口」里直接写完整地址。生产环境这两个服务默认只监听 `127.0.0.1`（安全考虑），外网访问需自行反代或走 SSH 隧道
 
 ## 📄 许可证
 
