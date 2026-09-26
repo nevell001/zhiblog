@@ -164,7 +164,7 @@
               link
               type="success"
               size="small"
-              @click="auditLink(scope.row, 1)"
+              @click="auditLink(scope.row, 'approve')"
             >
               通过
             </el-button>
@@ -173,7 +173,7 @@
               link
               type="danger"
               size="small"
-              @click="auditLink(scope.row, 0)"
+              @click="auditLink(scope.row, 'reject')"
             >
               拒绝
             </el-button>
@@ -182,8 +182,8 @@
             v-else
             v-model="scope.row.status"
             v-hasPermi="['blog:friendLink:edit']"
-            :active-value="'0'"
-            :inactive-value="'1'"
+            :active-value="FRIEND_LINK_STATUS.NORMAL"
+            :inactive-value="FRIEND_LINK_STATUS.DISABLED"
             active-text="正常"
             inactive-text="停用"
             inline-prompt
@@ -312,6 +312,7 @@ import {
   updateFriendLink,
   auditFriendLink
 } from '@/api/admin/blog/friendLink'
+import { FRIEND_LINK_STATUS, auditStatusFor, type FriendLinkAuditAction } from './status'
 import { parseTime } from '@/utils/zhi' // 导入时间解析工具
 
 const { proxy } = getCurrentInstance()
@@ -519,11 +520,12 @@ function handleStatusChange(row) {
     })
 }
 
-/** 审核友链申请 */
-async function auditLink(row, status) {
+/** 审核友链申请：模板只传语义化动作，落库状态由 auditStatusFor 统一映射（通过=0，拒绝=1） */
+async function auditLink(row, action: FriendLinkAuditAction) {
+  const status = auditStatusFor(action)
   try {
     await auditFriendLink(row.id, status)
-    proxy.$modal.msgSuccess(status === 1 ? '已通过该申请' : '已拒绝该申请')
+    proxy.$modal.msgSuccess(action === 'approve' ? '已通过该申请' : '已拒绝该申请')
     getList()
   } catch (error: any) {
     proxy.$modal.msgError('审核失败：' + (error.message || '未知错误'))
