@@ -8,8 +8,12 @@ services:
       context: .
       dockerfile: Dockerfile-admin
     container_name: zhi-admin
+    # 仅本机暴露：对外统一走 nginx，避免绕过反代直连后端（限流/审计都依赖反代）
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
+    # 邮件/验证码/上传上限等配置来自 .env；缺了它这些变量在容器里全是空值
+    env_file:
+      - .env
     volumes:
       - ./uploadPath:/app/uploadPath
     deploy:

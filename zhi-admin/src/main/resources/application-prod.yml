@@ -2,6 +2,10 @@
 # 生产环境专用配置，安全性更高
 
 # Spring配置
+# 生产环境强制关闭"验证码打印到日志"（否则注册/找回密码收不到邮件，且验证码明文进日志）
+email-code:
+  dev-print-code: false
+
 spring:
   # 数据源配置
   datasource:

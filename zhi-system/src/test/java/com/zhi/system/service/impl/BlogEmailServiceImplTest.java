@@ -115,4 +115,23 @@ class BlogEmailServiceImplTest {
         assertFalse(result);
         verify(valueOperations).increment(anyString());
     }
+
+    @Test
+    void devPrintCodeShouldBeForcedOffInProdProfile() {
+        org.springframework.test.util.ReflectionTestUtils.setField(blogEmailService, "activeProfile", "prod");
+        when(emailCodeConfig.isDevPrintCode()).thenReturn(true); // 即使配置被误开
+
+        assertFalse(blogEmailService.isDevPrintCodeEnabled(),
+            "生产 profile 下必须强制关闭打印验证码，否则不发邮件且会跳过 IP 频率限制");
+    }
+
+    @Test
+    void devPrintCodeShouldFollowConfigOutsideProd() {
+        org.springframework.test.util.ReflectionTestUtils.setField(blogEmailService, "activeProfile", "dev");
+        when(emailCodeConfig.isDevPrintCode()).thenReturn(true);
+        assertTrue(blogEmailService.isDevPrintCodeEnabled());
+
+        when(emailCodeConfig.isDevPrintCode()).thenReturn(false);
+        assertFalse(blogEmailService.isDevPrintCodeEnabled());
+    }
 }

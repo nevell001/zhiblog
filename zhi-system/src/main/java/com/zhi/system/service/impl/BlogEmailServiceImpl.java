@@ -45,6 +45,10 @@ public class BlogEmailServiceImpl implements IBlogEmailService
     @Autowired
     private EmailCodeConfig emailCodeConfig;
 
+    /** 当前激活的 profile：生产环境必须关掉"打印验证码"的开发捷径 */
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile = "dev";
+
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
@@ -175,8 +179,8 @@ public class BlogEmailServiceImpl implements IBlogEmailService
             // 设置Redis频率限制
             setRateLimit(email, ipAddress, codeType);
 
-            // 开发环境：打印验证码到控制台
-            if (emailCodeConfig.isDevPrintCode())
+            // 开发环境：打印验证码到控制台（生产 profile 会强制关闭）
+            if (isDevPrintCodeEnabled())
             {
                 log.warn("========== 邮件验证码（开发环境）==========");
                 log.warn("邮箱：{}", email);
@@ -355,6 +359,21 @@ public class BlogEmailServiceImpl implements IBlogEmailService
     }
 
     /**
+     * 是否走"开发环境打印验证码"捷径。
+     *
+     * <p>生产 profile 下一律返回 false：否则验证码只会写进日志而不真正发邮件，
+     * 并且 {@link #checkIpRateLimit} 会连带跳过 IP 频率限制。</p>
+     */
+    boolean isDevPrintCodeEnabled()
+    {
+        if (activeProfile != null && activeProfile.contains("prod"))
+        {
+            return false;
+        }
+        return emailCodeConfig.isDevPrintCode();
+    }
+
+    /**
      * 检查IP频率限制
      *
      * @param ipAddress IP地址
@@ -364,7 +383,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
     public boolean checkIpRateLimit(String ipAddress)
     {
         // 开发模式下跳过IP频率限制（因为Docker环境中所有请求来自同一IP）
-        if (emailCodeConfig.isDevPrintCode())
+        if (isDevPrintCodeEnabled())
         {
             log.debug("开发模式：跳过IP频率限制 ip={}", ipAddress);
             return true;
