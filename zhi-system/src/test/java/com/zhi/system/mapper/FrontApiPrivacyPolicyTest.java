@@ -37,6 +37,16 @@ class FrontApiPrivacyPolicyTest {
     }
 
     @Test
+    @DisplayName("前台评论列表不得返回评论者 email")
+    void frontCommentListMustNotExposeEmail() throws IOException {
+        String sql = statement(readMapper("BlogCommentMapper.xml"), "selectFrontCommentList");
+        assertFalse(sql.contains("email"),
+            "selectFrontCommentList 是 @Anonymous 接口，不能带出评论者 email：\n" + sql);
+        assertFalse(sql.contains("c.ip") || sql.contains("user_agent"),
+            "前台评论列表不应带出 IP / User-Agent");
+    }
+
+    @Test
     @DisplayName("前台友链列表不得返回申请者 email")
     void frontFriendLinkListMustNotExposeEmail() throws IOException {
         String sql = statement(readMapper("BlogFriendLinkMapper.xml"), "selectFrontFriendLinkList");

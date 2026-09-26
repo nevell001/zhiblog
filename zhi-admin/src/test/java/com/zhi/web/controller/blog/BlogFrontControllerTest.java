@@ -198,4 +198,25 @@ class BlogFrontControllerTest
         comment.setContent("这是一条测试评论");
         return comment;
     }
+
+    @Test
+    void articleCommentsShouldNotExposeEmail() throws Exception
+    {
+        BlogComment comment = new BlogComment();
+        comment.setId(1L);
+        comment.setArticleId(1L);
+        comment.setNickname("访客");
+        comment.setContent("你好");
+        comment.setEmail("secret@example.com"); // 实体即便带 email，前台接口也不允许输出
+        when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of(comment));
+
+        mockMvc.perform(get("/blog/comment/article/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.data[0].nickname").value("访客"))
+            .andExpect(jsonPath("$.data[0].content").value("你好"))
+            .andExpect(jsonPath("$.data[0].email").doesNotExist());
+
+        verify(blogCommentService).selectFrontCommentList(any());
+        verify(blogCommentService, never()).selectBlogCommentList(any());
+    }
 }

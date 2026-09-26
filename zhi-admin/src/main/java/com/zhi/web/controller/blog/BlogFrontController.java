@@ -1,6 +1,7 @@
 package com.zhi.web.controller.blog;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Map;
 import java.util.HashMap;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import com.zhi.common.core.page.TableDataInfo;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogComment;
+import com.zhi.web.controller.blog.vo.FrontCommentVo;
 import com.zhi.system.domain.BlogSetting;
 import com.zhi.system.domain.BlogTag;
 import com.zhi.system.service.IBlogArticleService;
@@ -602,8 +604,9 @@ public class BlogFrontController extends BaseController
         BlogComment blogComment = new BlogComment();
         blogComment.setArticleId(articleId);
         blogComment.setStatus("1"); // 只查询已发布的评论（status=1）
-        List<BlogComment> list = blogCommentService.selectBlogCommentList(blogComment);
-        return success(list);
+        // 前台专用查询 + 显式投影：既不从库里取、也不在响应里输出 email 等 PII
+        List<BlogComment> list = blogCommentService.selectFrontCommentList(blogComment);
+        return success(list.stream().map(FrontCommentVo::from).collect(Collectors.toList()));
     }
 
     /**

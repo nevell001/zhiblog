@@ -39,6 +39,20 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         order by c.create_time desc
     </select>
 
+    <!-- 前台公开接口用：显式列出渲染所需字段，不带 email（PII）；该接口是 @Anonymous -->
+    <select id="selectFrontCommentList" parameterType="BlogComment" resultMap="BlogCommentResult">
+        select c.id, c.article_id, c.user_id, c.nickname, c.content, c.parent_id, c.status, c.like_count, c.create_time,
+               COALESCE(u.avatar, '') as avatar
+        from blog_comment c
+        left join sys_user u on c.user_id = u.user_id
+        <where>
+            <if test="articleId != null "> and c.article_id = #{articleId}</if>
+            <if test="parentId != null "> and c.parent_id = #{parentId}</if>
+            <if test="status != null  and status != ''"> and c.status = #{status}</if>
+        </where>
+        order by c.create_time desc
+    </select>
+
     <select id="selectBlogCommentById" parameterType="Long" resultMap="BlogCommentResult">
         <include refid="selectBlogCommentVo"/>
         where c.id = #{id}

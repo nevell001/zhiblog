@@ -79,6 +79,15 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     }
 
     /**
+     * 查询前台公开评论列表（不含 email 等 PII）
+     */
+    @Override
+    public List<BlogComment> selectFrontCommentList(BlogComment blogComment)
+    {
+        return blogCommentMapper.selectFrontCommentList(blogComment);
+    }
+
+    /**
      * 新增博客评论
      * 
      * @param blogComment 博客评论

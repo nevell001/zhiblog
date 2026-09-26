@@ -27,6 +27,14 @@ public interface BlogCommentMapper
     public List<BlogComment> selectBlogCommentList(BlogComment blogComment);
 
     /**
+     * 查询前台公开评论列表（不含 email 等 PII）
+     *
+     * @param blogComment 评论查询条件
+     * @return 评论集合
+     */
+    public List<BlogComment> selectFrontCommentList(BlogComment blogComment);
+
+    /**
      * 新增博客评论
      * 
      * @param blogComment 博客评论
