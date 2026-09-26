@@ -42,30 +42,127 @@ public class IpUtils
         {
             return "unknown";
         }
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+
+        String peer = normalizeIp(request.getRemoteAddr());
+        if (StringUtils.isEmpty(peer))
         {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("X-Forwarded-For");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
-        {
-            ip = request.getHeader("X-Real-IP");
+            return "unknown";
         }
 
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip))
+        // 只有直连方是可信代理（回环/内网，例如同机 nginx、Docker 网络里的前端容器）时才采信转发头。
+        // 否则任何客户端都能自带 X-Forwarded-For 伪造 IP，从而绕过限流、留言冷却与浏览去重。
+        if (!isTrustedProxy(peer))
         {
-            ip = request.getRemoteAddr();
+            return peer;
         }
 
-        return "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : getMultistageReverseProxyIp(ip);
+        String realIp = parseHeaderIp(request.getHeader("X-Real-IP"));
+        if (realIp != null)
+        {
+            return realIp;
+        }
+
+        // X-Forwarded-For 可能形如 "客户端伪造值, 真实客户端"（代理以 append 方式写入），
+        // 最右侧一跳才是可信代理写入的真实地址，因此从右往左取第一个合法 IP。
+        String forwarded = parseForwardedFor(request.getHeader("X-Forwarded-For"));
+        if (forwarded != null)
+        {
+            return forwarded;
+        }
+
+        for (String header : new String[] { "Proxy-Client-IP", "WL-Proxy-Client-IP" })
+        {
+            String value = parseHeaderIp(request.getHeader(header));
+            if (value != null)
+            {
+                return value;
+            }
+        }
+
+        return peer;
+    }
+
+    /**
+     * 直连方是否为可信代理（回环地址或内网地址）
+     *
+     * @param ip 直连方地址
+     * @return 结果
+     */
+    public static boolean isTrustedProxy(String ip)
+    {
+        String normalized = normalizeIp(ip);
+        if (StringUtils.isEmpty(normalized))
+        {
+            return false;
+        }
+        return "127.0.0.1".equals(normalized) || internalIp(normalized);
+    }
+
+    /** 统一 IPv6 回环与 IPv4 映射写法 */
+    private static String normalizeIp(String ip)
+    {
+        if (ip == null)
+        {
+            return null;
+        }
+        String value = ip.trim();
+        if (value.isEmpty())
+        {
+            return null;
+        }
+        if ("0:0:0:0:0:0:0:1".equals(value) || "::1".equals(value))
+        {
+            return "127.0.0.1";
+        }
+        if (value.regionMatches(true, 0, "::ffff:", 0, 7))
+        {
+            value = value.substring(7);
+        }
+        return value;
+    }
+
+    /** 解析单个地址形式的请求头，非法/占位值返回 null */
+    private static String parseHeaderIp(String header)
+    {
+        String value = normalizeIp(header);
+        if (value == null || "unknown".equalsIgnoreCase(value))
+        {
+            return null;
+        }
+        return isIpLiteral(value) ? value : null;
+    }
+
+    /** 从 X-Forwarded-For 中取最右侧的合法地址 */
+    private static String parseForwardedFor(String header)
+    {
+        if (StringUtils.isEmpty(header))
+        {
+            return null;
+        }
+        String[] hops = header.split(",");
+        for (int i = hops.length - 1; i >= 0; i--)
+        {
+            String hop = parseHeaderIp(hops[i]);
+            if (hop != null)
+            {
+                return hop;
+            }
+        }
+        return null;
+    }
+
+    /** 仅接受 IPv4 / IPv6 字面量，避免把任意字符串当作 IP 记入日志或限流键 */
+    public static boolean isIpLiteral(String value)
+    {
+        if (StringUtils.isEmpty(value))
+        {
+            return false;
+        }
+        if (value.indexOf(':') >= 0)
+        {
+            return value.matches("[0-9a-fA-F:.]+") && value.indexOf(':') > 0;
+        }
+        return value.matches("(\\d{1,3}\\.){3}\\d{1,3}");
     }
 
     /**

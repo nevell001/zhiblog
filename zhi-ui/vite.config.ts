@@ -83,33 +83,45 @@ export default defineConfig(({ mode, command }: ConfigEnv): UserConfig => {
         '/dev-api': {
           target: baseUrl,
           changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true,
           rewrite: path => path.replace(/^\/dev-api/, '')
         },
         // 代理博客前台接口 (只代理API请求，不代理前端路由)
         '^/blog/api/': {
           target: baseUrl,
           changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true,
           rewrite: path => path.replace(/^\/blog\/api/, '/blog')
         },
         // 代理系统管理接口
         '/system': {
           target: baseUrl,
-          changeOrigin: true
+          changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true
         },
         // 代理通用接口（包括头像上传）
         '/common': {
           target: baseUrl,
-          changeOrigin: true
+          changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true
         },
         // 代理静态资源访问（上传的图片、头像等）
         '/profile': {
           target: baseUrl,
-          changeOrigin: true
+          changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true
         },
         // 代理 Actuator 监控端点
         '/manage': {
           target: baseUrl,
-          changeOrigin: true
+          changeOrigin: true,
+          // 转发真实客户端 IP，后端限流/冷却按访客生效（容器网络下直连方是内网代理）
+          xfwd: true
         }
         // 解决 SPA 应用 history 模式下刷新404问题
         // 在Vite中，默认支持SPA history模式，无需额外配置

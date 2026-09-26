@@ -12,6 +12,14 @@ describe('Vite dev proxy route boundaries', () => {
     expect(source).not.toContain("'^/blog/(article|tag|category|setting|comment)/'")
   })
 
+  it('should forward the real client IP to the backend through dev proxies', () => {
+    const source = readFileSync(sourcePath, 'utf-8')
+
+    // 没有 xfwd 时，后端看到的直连方是前端容器（内网），限流/留言冷却会按容器 IP 计，
+    // 与生产（nginx 覆盖 X-Forwarded-For）行为不一致
+    expect(source.match(/xfwd: true/g)?.length ?? 0).toBeGreaterThanOrEqual(6)
+  })
+
   it('should only generate visualizer report when ANALYZE is enabled', () => {
     const source = readFileSync(sourcePath, 'utf-8')
 
