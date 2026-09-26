@@ -43,6 +43,12 @@ git push github main
 # 加速重写规则，https 推送会被改写到第三方代理而无法认证（且会把令牌交给代理），
 # 此时必须用 SSH 推送，或临时剥离规则：
 #   GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) git push github main
+
+# 若 pushurl 已经是 SSH 而本机暂时没有可用密钥（ssh -T git@github.com 报 Permission denied），
+# 可以临时用显式 URL 走 https 直连推送 —— 注意 -c remote.github.pushurl=... 无法覆盖
+# 已存在的 pushurl（多值配置会累加），必须显式给 URL：
+#   GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) \
+#     git -c http.version=HTTP/1.1 push https://github.com/你的用户名/zhiblog.git main --follow-tags
 ```
 
 ## GitHub Token 生成

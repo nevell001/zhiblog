@@ -65,6 +65,10 @@ if ! git push github main --follow-tags; then
     echo -e "     而加速站不接受推送 → 改用 SSH：git remote set-url --push github $GITHUB_REPO_SSH"
     echo -e "  2) SSH 未生效 → 先验证：ssh -T git@github.com（应显示 Hi <用户名>!）"
     echo -e "  3) 临时绕过重写推送：GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) git push github main"
+    echo -e "  4) pushurl 指向 SSH 但本机没有可用密钥时，可直接用显式 URL 走 https 直连"
+    echo -e "     （注意：-c remote.github.pushurl=... 无法覆盖已存在的 pushurl，必须显式给 URL）："
+    echo -e "     GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) \\"
+    echo -e "       git -c http.version=HTTP/1.1 push https://github.com/nevell001/zhiblog.git main --follow-tags"
     exit 1
 fi
 
