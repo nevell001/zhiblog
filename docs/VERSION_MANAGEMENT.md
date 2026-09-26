@@ -8,11 +8,11 @@
 
 **后端版本号**：
 - **主配置文件**：`pom.xml` 中的 `<version>` 和 `<app.version>` 属性
-- **当前版本**：`1.4.0`
+- **当前版本**：`1.4.1`
 
 **前端版本号**：
 - **配置文件**：`zhi-ui/package.json` 中的 `version` 字段
-- **当前版本**：`1.4.0`（与后端同步）
+- **当前版本**：`1.4.1`（与后端同步）
 
 ### 版本号使用位置
 
@@ -22,10 +22,10 @@
    ```xml
    <groupId>top.nevell</groupId>
    <artifactId>zhiblog</artifactId>
-   <version>1.4.0</version>  <!-- 项目版本 -->
+   <version>1.4.1</version>  <!-- 项目版本 -->
    
    <properties>
-       <app.version>1.4.0</app.version>  <!-- 应用版本 -->
+       <app.version>1.4.1</app.version>  <!-- 应用版本 -->
    </properties>
    ```
 
@@ -44,13 +44,13 @@
 
 4. **配置类** (`zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java`)
    ```java
-   @Value("${ruoyi.version:1.4.0}")
+   @Value("${ruoyi.version:1.4.1}")
    private String version;
    ```
 
 5. **API 接口** (`SysIndexController.java`)
    - 接口路径：`GET /system/version`
-   - 返回数据：`{ "version": "1.4.0", "name": "ZhiBlog" }`
+   - 返回数据：`{ "version": "1.4.1", "name": "ZhiBlog" }`
 
 6. **子模块 parent 版本**：
    - `zhi-common/pom.xml`
@@ -63,7 +63,7 @@
    <parent>
        <groupId>top.nevell</groupId>
        <artifactId>zhiblog</artifactId>
-       <version>1.4.0</version>  <!-- 必须与父 POM 版本一致 -->
+       <version>1.4.1</version>  <!-- 必须与父 POM 版本一致 -->
    </parent>
    ```
 
@@ -72,7 +72,7 @@
 前端不再硬编码版本号：
 
 1. **package.json** (`zhi-ui/package.json`)
-   - `"version": "1.4.0"` 必须与后端保持一致（仅用于包元信息）。
+   - `"version": "1.4.1"` 必须与后端保持一致（仅用于包元信息）。
 2. **界面展示**
    - 前端没有静态版本展示页；如需展示版本，调用后端接口 `GET /system/version` 获取
      （返回值来自 `@app.version@` 资源过滤，是唯一可信来源）。
@@ -84,8 +84,8 @@
 **需要修改多个地方**（重要！）：
 
 1. **修改父 POM** (`pom.xml`)
-   - 第 9 行：`<version>1.3.6</version>` → `<version>1.4.0</version>`
-   - 第 24 行：`<app.version>1.3.6</app.version>` → `<app.version>1.4.0</app.version>`
+   - 第 9 行：`<version>1.4.0</version>` → `<version>1.4.1</version>`
+   - 第 24 行：`<app.version>1.4.0</app.version>` → `<app.version>1.4.1</app.version>`
 
 2. **修改所有子模块的 parent 版本**：
    - `zhi-common/pom.xml`
@@ -97,7 +97,7 @@
    
    每个文件中的：
    ```xml
-   <version>1.3.6</version>  →  <version>1.4.0</version>
+   <version>1.4.0</version>  →  <version>1.4.1</version>
    ```
 
 3. **重新编译项目**：
@@ -117,11 +117,11 @@
 
 ```bash
 # 1. 修改父 POM 的版本号
-sed -i 's/<version>1.3.6<\/version>/<version>1.4.0<\/version>/g' pom.xml
-sed -i 's/<app.version>1.3.6<\/app.version>/<app.version>1.4.0<\/app.version>/g' pom.xml
+sed -i 's/<version>1.4.0<\/version>/<version>1.4.1<\/version>/g' pom.xml
+sed -i 's/<app.version>1.4.0<\/app.version>/<app.version>1.4.1<\/app.version>/g' pom.xml
 
 # 2. 批量更新所有子模块的 parent 版本
-sed -i 's/<version>1.3.6<\/version>/<version>1.4.0<\/version>/g' \
+sed -i 's/<version>1.4.0<\/version>/<version>1.4.1<\/version>/g' \
     zhi-common/pom.xml \
     zhi-system/pom.xml \
     zhi-framework/pom.xml \
@@ -149,7 +149,7 @@ mvn clean install -DskipTests
 - **次版本号（MINOR）**：向下兼容的功能性新增
 - **修订号（PATCH）**：向下兼容的问题修正
 
-示例：`1.4.0`
+示例：`1.4.1`
 - `1`：主版本号
 - `3`：次版本号
 - `3`：修订号
@@ -225,7 +225,7 @@ mvn clean install -DskipTests
 
 ### 1. 准备发行说明
 
-在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.0.md` 的结构：新增与增强 / 配色与可读性 / 主要修复 / 工程与质量 / 升级提示）。
+在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.1.md` 的结构：新增与增强 / 配色与可读性 / 主要修复 / 工程与质量 / 升级提示）。
 
 ### 2. 推送代码（含标签）
 
@@ -236,9 +236,9 @@ mvn clean install -DskipTests
 ### 3. 打注释标签并推送（首次发布新版本时执行）
 
 ```bash
-git tag -a v1.4.0 -F docs/releases/v1.4.0.md     # 标签消息 = 发行说明
-git push origin v1.4.0                            # Gitee
-git push github v1.4.0                            # GitHub
+git tag -a v1.4.1 -F docs/releases/v1.4.1.md     # 标签消息 = 发行说明
+git push origin v1.4.1                            # Gitee
+git push github v1.4.1                            # GitHub
 ```
 
 ### 4. 创建 Release（必须手动，标签不会自动生成 Release）
@@ -269,7 +269,7 @@ A: 这是 Maven 资源过滤的占位符，在构建时会自动替换为 `pom.x
 
 **Q: 为什么前端版本号和后端版本号不一样？**
 
-A: 前端版本号（1.4.0）与后端版本号保持一致（均已同步至 1.4.0）。
+A: 前端版本号（1.4.1）与后端版本号保持一致（均已同步至 1.4.1）。
 
 **Q: 如何确保所有地方的版本号一致？**
 
@@ -293,6 +293,6 @@ A: 这说明父 POM 版本与子模块 parent 版本不一致。检查并确保�
 
 ---
 
-**文档版本**: v2.1
-**最后更新**: 2026-09-11
+**文档版本**: v2.2
+**最后更新**: 2026-09-26
 **维护者**: nevell
