@@ -52,5 +52,7 @@ class FrontApiPrivacyPolicyTest {
         String sql = statement(readMapper("BlogFriendLinkMapper.xml"), "selectFrontFriendLinkList");
         assertFalse(sql.contains("email"),
             "selectFrontFriendLinkList 是 @Anonymous 接口，不能带出申请者 email：\n" + sql);
+        assertTrue(sql.contains("select id, name, url"),
+            "前台友链列表应使用显式字段列表而不是共享 VO（共享 VO 里含 email）");
     }
 }

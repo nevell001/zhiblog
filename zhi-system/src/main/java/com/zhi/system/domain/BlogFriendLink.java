@@ -3,6 +3,7 @@ package com.zhi.system.domain;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.zhi.common.annotation.Excel;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhi.common.core.domain.BaseEntity;
 
 /**
@@ -36,6 +37,8 @@ public class BlogFriendLink extends BaseEntity
 
     /** 申请人邮箱（友链申请） */
     @Excel(name = "申请人邮箱")
+    /** 申请者邮箱：仅后台可见，前台查询不取该列，因此这里让 null 值不出现在 JSON 中 */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String email;
 
     /** 排序 */
