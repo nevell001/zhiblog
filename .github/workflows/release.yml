@@ -88,19 +88,35 @@ jobs:
           path: release/deploy-assets
       - name: 打包前端产物
         run: cd release/frontend && zip -qr ../frontend-dist.zip .
+      - name: 解析发行说明（docs/releases/<tag>.md）
+        id: notes
+        run: |
+          NOTES_FILE="docs/releases/${GITHUB_REF_NAME}.md"
+          if [ -f "${NOTES_FILE}" ]; then
+            echo "file=${NOTES_FILE}" >> "$GITHUB_OUTPUT"
+            echo "使用发行说明：${NOTES_FILE}"
+          else
+            echo "file=" >> "$GITHUB_OUTPUT"
+            echo "::warning::未找到 ${NOTES_FILE}，回落到自动生成的说明文字"
+          fi
       - name: 创建 GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           # 同 tag 已存在 Release 时先删除，保证重复发布可覆盖
           gh release view "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" >/dev/null 2>&1 && gh release delete "${GITHUB_REF_NAME}" --repo "${GITHUB_REPOSITORY}" --yes || true
+          # 优先用仓库里的 docs/releases/<tag>.md（与 Gitee、README 共用同一份发行说明）
+          NOTES_ARGS=(--notes "ZhiBlog ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。包含：后端 jar、前端 dist、部署配套（sql / nginx / .env 示例），部署步骤见 docs/DEPLOYMENT_RELEASE.md。")
+          if [ -n "${{ steps.notes.outputs.file }}" ]; then
+            NOTES_ARGS=(--notes-file "${{ steps.notes.outputs.file }}")
+          fi
           gh release create "${GITHUB_REF_NAME}" \
             --repo "${GITHUB_REPOSITORY}" \
             release/backend/zhi-admin.jar \
             release/frontend-dist.zip \
             release/deploy-assets/deploy-assets.zip \
             --title "ZhiBlog ${GITHUB_REF_NAME}" \
-            --notes "ZhiBlog ${GITHUB_REF_NAME} 自动发布构建（GitHub Actions 生成）。包含：后端 jar、前端 dist、部署配套（sql / nginx / .env 示例），部署步骤见 docs/DEPLOYMENT_RELEASE.md。"
+            "${NOTES_ARGS[@]}"
 
   # ------------------------------------------------------------------
   # 部署骨架：在 GitHub 仓库 Settings -> Secrets and variables 配置
