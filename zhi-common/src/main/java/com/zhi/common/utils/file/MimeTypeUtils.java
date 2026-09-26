@@ -30,7 +30,9 @@ public class MimeTypeUtils
             // 图片
             "bmp", "gif", "jpg", "jpeg", "png",
             // word excel powerpoint
-            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "html", "htm", "txt",
+            // 注意：不得放行 html/htm/svg 等可执行后缀 —— 上传目录与前台同源托管，
+            // 放行即可被任意登录用户用来构造存储型 XSS（窃取管理员 token）
+            "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt",
             // 压缩文件
             "rar", "zip", "gz", "bz2",
             // 视频格式
