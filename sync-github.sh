@@ -17,11 +17,29 @@ echo ""
 
 # GitHub 仓库地址（请修改为你的仓库地址）
 GITHUB_REPO="https://github.com/nevell001/zhiblog.git"
+GITHUB_REPO_SSH="git@github.com:nevell001/zhiblog.git"
 
 # 检查是否已添加 github 远端
 if git remote | grep -q "^github$"; then
     echo -e "${GREEN}✓ GitHub 远端已存在${NC}"
-    git remote set-url github "$GITHUB_REPO"
+    current_url="$(git remote get-url github)"
+    current_pushurl="$(git remote get-url --push github)"
+    case "$current_url" in
+        git@*|ssh://*)
+            # 已经改成 SSH 了（常见于 https 直连不稳或全局配了 GitHub 加速代理的情况），不要覆盖
+            echo -e "${GREEN}  保留已配置的 SSH 地址：$current_url${NC}"
+            ;;
+        *)
+            # 只写 https 的 fetch 地址；pushurl 单独配置时（例如 SSH 推送）不会被影响
+            git remote set-url github "$GITHUB_REPO"
+            ;;
+    esac
+    case "$current_pushurl" in
+        *ghproxy*|*ghfast*|*gh-proxy*)
+            echo -e "${YELLOW}  提示：推送地址走了第三方加速代理（$current_pushurl），建议改用 SSH：${NC}"
+            echo -e "${YELLOW}        git remote set-url --push github $GITHUB_REPO_SSH${NC}"
+            ;;
+    esac
 else
     echo -e "${YELLOW}添加 GitHub 远端...${NC}"
     git remote add github "$GITHUB_REPO"
@@ -39,7 +57,16 @@ git push origin main --follow-tags
 
 echo ""
 echo -e "${YELLOW}正在推送到 GitHub (github)...${NC}"
-git push github main --follow-tags
+if ! git push github main --follow-tags; then
+    echo ""
+    echo -e "${RED}✗ GitHub 推送失败${NC}"
+    echo -e "${YELLOW}常见原因与处理：${NC}"
+    echo -e "  1) https 直连不稳 / 全局 gitconfig 把 github.com 重写成 ghproxy 等加速站，"
+    echo -e "     而加速站不接受推送 → 改用 SSH：git remote set-url --push github $GITHUB_REPO_SSH"
+    echo -e "  2) SSH 未生效 → 先验证：ssh -T git@github.com（应显示 Hi <用户名>!）"
+    echo -e "  3) 临时绕过重写推送：GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) git push github main"
+    exit 1
+fi
 
 echo ""
 echo -e "${BLUE}已推送的标签：${NC}"

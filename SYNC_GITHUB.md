@@ -34,8 +34,15 @@ chmod +x sync-github.sh
 # 使用 GitHub Token（推荐）
 git push github main
 
-# 或使用 SSH（需要配置 SSH 密钥）
-# 将脚本中的 https://github.com/... 改为 git@github.com:...
+# 或使用 SSH（推荐：不受全球 GitHub 加速代理影响）——只需给 push 配 SSH，
+# fetch 仍走 https 加速代理也可以：
+#   git remote set-url --push github git@github.com:你的用户名/zhiblog.git
+#   ssh -T git@github.com    # 应显示 Hi <用户名>! You've successfully authenticated
+#
+# 注意：若 ~/.gitconfig 里有 url.https://ghproxy.net/https://github.com/.insteadOf 这类
+# 加速重写规则，https 推送会被改写到第三方代理而无法认证（且会把令牌交给代理），
+# 此时必须用 SSH 推送，或临时剥离规则：
+#   GIT_CONFIG_GLOBAL=<(grep -v insteadOf ~/.gitconfig) git push github main
 ```
 
 ## GitHub Token 生成
