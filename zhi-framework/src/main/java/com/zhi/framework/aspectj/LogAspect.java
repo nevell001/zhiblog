@@ -203,6 +203,7 @@ public class LogAspect
                     }
                     catch (Exception e)
                     {
+                        log.debug("参数序列化失败: {}", e.getMessage());
                     }
                 }
             }

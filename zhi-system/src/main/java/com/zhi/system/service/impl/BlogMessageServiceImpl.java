@@ -1,10 +1,10 @@
 package com.zhi.system.service.impl;
 
-import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zhi.common.exception.ServiceException;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.BlogMessage;
@@ -95,7 +95,7 @@ public class BlogMessageServiceImpl implements IBlogMessageService
         {
             blogMessage.setDelFlag("0");
         }
-        blogMessage.setCreateTime(new Date());
+        blogMessage.setCreateTime(ModernDateUtils.now());
         return blogMessageMapper.insertBlogMessage(blogMessage);
     }
 
@@ -108,7 +108,7 @@ public class BlogMessageServiceImpl implements IBlogMessageService
     @Override
     public int updateBlogMessage(BlogMessage blogMessage)
     {
-        blogMessage.setUpdateTime(new Date());
+        blogMessage.setUpdateTime(ModernDateUtils.now());
         return blogMessageMapper.updateBlogMessage(blogMessage);
     }
 
@@ -130,7 +130,7 @@ public class BlogMessageServiceImpl implements IBlogMessageService
         message.setId(id);
         message.setStatus(status);
         message.setUpdateBy(SecurityUtils.getUsername());
-        message.setUpdateTime(new Date());
+        message.setUpdateTime(ModernDateUtils.now());
         return blogMessageMapper.updateBlogMessage(message);
     }
 
@@ -155,12 +155,12 @@ public class BlogMessageServiceImpl implements IBlogMessageService
         BlogMessage message = new BlogMessage();
         message.setId(id);
         message.setReplyContent(replyContent);
-        message.setReplyTime(new Date());
+        message.setReplyTime(ModernDateUtils.now());
         message.setReplyBy(SecurityUtils.getUsername());
         // 回复即视为审核通过
         message.setStatus(STATUS_PUBLISHED);
         message.setUpdateBy(SecurityUtils.getUsername());
-        message.setUpdateTime(new Date());
+        message.setUpdateTime(ModernDateUtils.now());
         return blogMessageMapper.updateBlogMessage(message);
     }
 

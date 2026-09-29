@@ -1,13 +1,12 @@
 package com.zhi.web.task;
 
-import java.util.Calendar;
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import com.zhi.common.utils.DateUtils;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.service.IBlogDailyStatsService;
 import com.zhi.system.service.IBlogVisitLogService;
 
@@ -34,7 +33,7 @@ public class DailyStatsSyncTask
     @Scheduled(cron = "0 20 * * * ?")
     public void syncToday()
     {
-        String today = DateUtils.parseDateToStr("yyyyMMdd", new Date());
+        String today = ModernDateUtils.formatNow("yyyyMMdd");
         try
         {
             int handled = blogDailyStatsService.upsertDailyFromRedis(today);
@@ -55,9 +54,8 @@ public class DailyStatsSyncTask
     @Scheduled(cron = "0 35 0 * * ?")
     public void finalizeYesterday()
     {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, -1);
-        String yesterday = DateUtils.parseDateToStr("yyyyMMdd", calendar.getTime());
+        Date yesterdayDate = ModernDateUtils.toDate(ModernDateUtils.getNowDateTime().minusDays(1));
+        String yesterday = ModernDateUtils.format(yesterdayDate, "yyyyMMdd");
         try
         {
             int handled = blogDailyStatsService.upsertDailyFromRedis(yesterday);

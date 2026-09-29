@@ -1,6 +1,7 @@
 package com.zhi.system.service.impl;
 
 import com.zhi.common.config.EmailCodeConfig;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.BlogEmailCode;
 import com.zhi.system.mapper.BlogEmailCodeMapper;
@@ -15,7 +16,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -169,7 +169,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         emailCode.setExpireTime(expireTime);
         emailCode.setUsed(0);
         emailCode.setIpAddress(ipAddress);
-        emailCode.setCreateTime(new Date());
+        emailCode.setCreateTime(ModernDateUtils.now());
 
         try
         {
@@ -258,7 +258,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         }
 
         // 检查是否过期
-        if (new Date().after(emailCode.getExpireTime()))
+        if (ModernDateUtils.now().after(emailCode.getExpireTime()))
         {
             log.warn("验证码验证失败：验证码已过期 email={}, code={}", email, code);
             return false;
@@ -273,7 +273,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         }
 
         // 标记为已使用
-        emailCodeMapper.markCodeAsUsed(emailCode.getId(), new Date());
+        emailCodeMapper.markCodeAsUsed(emailCode.getId(), ModernDateUtils.now());
         // 清除失败记录
         redisTemplate.delete(failKey);
 
@@ -406,9 +406,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         }
 
         // 检查数据库中的发送记录（1小时内）
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR_OF_DAY, -1);
-        Date startTime = calendar.getTime();
+        Date startTime = ModernDateUtils.toDate(ModernDateUtils.getNowDateTime().minusHours(1));
 
         int count = emailCodeMapper.countCodesByIpAndTime(ipAddress, startTime);
 
@@ -449,9 +447,7 @@ public class BlogEmailServiceImpl implements IBlogEmailService
      */
     private Date calculateExpireTime()
     {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, emailCodeConfig.getExpireMinutes());
-        return calendar.getTime();
+        return ModernDateUtils.toDate(ModernDateUtils.getNowDateTime().plusMinutes(emailCodeConfig.getExpireMinutes()));
     }
 
     /**

@@ -3,6 +3,8 @@ package com.zhi.common.utils.ip;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.zhi.common.utils.ServletUtils;
 import com.zhi.common.utils.StringUtils;
 
@@ -13,6 +15,8 @@ import com.zhi.common.utils.StringUtils;
  */
 public class IpUtils
 {
+    private static final Logger log = LoggerFactory.getLogger(IpUtils.class);
+
     public final static String REGX_0_255 = "(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]\\d|\\d)";
     // 匹配 ip
     public final static String REGX_IP = "((" + REGX_0_255 + "\\.){3}" + REGX_0_255 + ")";
@@ -324,6 +328,7 @@ public class IpUtils
         }
         catch (UnknownHostException e)
         {
+            log.debug("无法获取本机IP地址", e);
         }
         return "127.0.0.1";
     }
@@ -341,6 +346,7 @@ public class IpUtils
         }
         catch (UnknownHostException e)
         {
+            log.debug("无法获取本机主机名", e);
         }
         return "未知";
     }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.annotation.Anonymous;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogPage;
 import com.zhi.system.service.IBlogArticleService;
@@ -68,8 +69,7 @@ public class BlogSeoController
                     String lastmod = null;
                     if (article.getUpdateTime() != null)
                     {
-                        lastmod = new java.text.SimpleDateFormat("yyyy-MM-dd")
-                                .format(article.getUpdateTime());
+                        lastmod = ModernDateUtils.format(article.getUpdateTime(), ModernDateUtils.YYYY_MM_DD);
                     }
                     writeUrl(out, baseUrl + "/blog/article/" + article.getId(), lastmod);
                 }
@@ -94,8 +94,7 @@ public class BlogSeoController
                     String lastmod = null;
                     if (page.getUpdateTime() != null)
                     {
-                        lastmod = new java.text.SimpleDateFormat("yyyy-MM-dd")
-                                .format(page.getUpdateTime());
+                        lastmod = ModernDateUtils.format(page.getUpdateTime(), ModernDateUtils.YYYY_MM_DD);
                     }
                     writeUrl(out, baseUrl + "/blog/page/" + page.getSlug(), lastmod);
                 }

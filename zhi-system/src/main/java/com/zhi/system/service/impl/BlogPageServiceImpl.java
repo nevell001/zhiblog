@@ -1,11 +1,11 @@
 package com.zhi.system.service.impl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zhi.common.exception.ServiceException;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.BlogPage;
@@ -113,7 +113,7 @@ public class BlogPageServiceImpl implements IBlogPageService
         blogPage.setViewCount(0L);
         blogPage.setDelFlag("0");
         blogPage.setCreateBy(SecurityUtils.getUsername());
-        blogPage.setCreateTime(new Date());
+        blogPage.setCreateTime(ModernDateUtils.now());
         return blogPageMapper.insertBlogPage(blogPage);
     }
 
@@ -139,7 +139,7 @@ public class BlogPageServiceImpl implements IBlogPageService
             }
         }
         blogPage.setUpdateBy(SecurityUtils.getUsername());
-        blogPage.setUpdateTime(new Date());
+        blogPage.setUpdateTime(ModernDateUtils.now());
         return blogPageMapper.updateBlogPage(blogPage);
     }
 
@@ -161,7 +161,7 @@ public class BlogPageServiceImpl implements IBlogPageService
         page.setId(id);
         page.setStatus(status);
         page.setUpdateBy(SecurityUtils.getUsername());
-        page.setUpdateTime(new Date());
+        page.setUpdateTime(ModernDateUtils.now());
         return blogPageMapper.updateBlogPage(page);
     }
 

@@ -20,6 +20,7 @@ import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
 import com.zhi.common.utils.StringUtils;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogTag;
@@ -356,10 +357,10 @@ public class BlogArticleController extends BaseController
         if (params.get("publishTime") != null) {
             String publishTimeStr = params.get("publishTime").toString().trim();
             if (!publishTimeStr.isEmpty()) {
-                try {
-                    article.setPublishTime(
-                        new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(publishTimeStr));
-                } catch (java.text.ParseException e) {
+                java.time.LocalDateTime parsed = ModernDateUtils.parseDateTime(publishTimeStr);
+                if (parsed != null) {
+                    article.setPublishTime(ModernDateUtils.toDate(parsed));
+                } else {
                     log.warn("无效的发布时间参数: {}", publishTimeStr);
                 }
             }

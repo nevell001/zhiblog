@@ -1,6 +1,5 @@
 package com.zhi.system.service.impl;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.zhi.common.cache.UnifiedCacheManager;
 import com.zhi.common.utils.DateUtils;
+import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ip.IpUtils;
@@ -86,7 +86,7 @@ public class BlogVisitLogServiceImpl implements IBlogVisitLogService
             visitLog.setIp(ip);
             visitLog.setIsUnique(unique ? "1" : "0");
             visitLog.setVisitDate(visitDate);
-            visitLog.setCreateTime(new Date());
+            visitLog.setCreateTime(ModernDateUtils.now());
             if (request != null)
             {
                 visitLog.setUserAgent(truncate(request.getHeader("User-Agent"), MAX_USER_AGENT_LENGTH));
@@ -211,9 +211,7 @@ public class BlogVisitLogServiceImpl implements IBlogVisitLogService
      */
     private Date offsetDays(int amount)
     {
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE, amount);
-        return calendar.getTime();
+        return ModernDateUtils.toDate(ModernDateUtils.getNowDateTime().plusDays(amount));
     }
 
     /**

@@ -92,6 +92,26 @@ public class ModernDateUtils
     }
 
     /**
+     * 格式化指定Date为字符串（便捷方法，内部转换为LocalDateTime）
+     */
+    public static String format(Date date, String pattern)
+    {
+        if (date == null)
+        {
+            return null;
+        }
+        return toLocalDateTime(date).format(DateTimeFormatter.ofPattern(pattern));
+    }
+
+    /**
+     * 获取当前时间作为java.util.Date（替代 new Date()）
+     */
+    public static Date now()
+    {
+        return toDate(getNowDateTime());
+    }
+
+    /**
      * 格式化指定日期为字符串
      */
     public static String format(LocalDateTime dateTime, String pattern)

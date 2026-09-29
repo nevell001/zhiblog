@@ -650,6 +650,7 @@ import { clearBlogCache } from '@/api/blog/setting'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import { getToken } from '@/utils/auth'
+import logger from '@/utils/logger'
 
 const { proxy } = getCurrentInstance()
 
@@ -851,7 +852,7 @@ async function getAllSettings() {
         allSettings.push(...settingList)
       }
     } catch (error: any) {
-      console.warn('❌ 标准查询失败:', error.message)
+      logger.warn('❌ 标准查询失败:', error.message)
     }
 
     // 如果标准查询没有找到关键的博客设置，才执行单独查询
@@ -892,7 +893,7 @@ async function getAllSettings() {
           })
         }
       } catch (batchError: any) {
-        console.warn('❌ 批量查询失败，回退到单独查询:', batchError.message)
+        logger.warn('❌ 批量查询失败，回退到单独查询:', batchError.message)
 
         // 回退策略：使用并行查询来提高速度
         if (missingKeys.length > 0) {
@@ -909,7 +910,7 @@ async function getAllSettings() {
                 return singleSettings[0] // 返回找到的设置项
               }
             } catch (singleError: any) {
-              console.warn(`❌ 并行查询 ${key} 失败:`, singleError.message)
+              logger.warn(`❌ 并行查询 ${key} 失败:`, singleError.message)
             }
             return null
           })
@@ -943,7 +944,7 @@ async function getAllSettings() {
           allSettings = retrySettings
         }
       } catch (retryError: any) {
-        console.warn('重试查询也失败:', retryError.message)
+        logger.warn('重试查询也失败:', retryError.message)
       }
     }
 
@@ -968,7 +969,7 @@ async function getAllSettings() {
           if (!isNaN(dateValue.getTime())) {
             value = dateValue
           } else {
-            console.warn(`⚠️ 无效的日期格式 ${setting.configKey}: '${value}'`)
+            logger.warn(`⚠️ 无效的日期格式 ${setting.configKey}: '${value}'`)
             value = null
           }
         }
@@ -976,10 +977,10 @@ async function getAllSettings() {
         // 验证和处理头像数据 - 不再支持Base64格式
         if (setting.configKey === 'blog_avatar') {
           if (value && value.length > 500) {
-            console.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，清空并要求用户重新上传`)
+            logger.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，清空并要求用户重新上传`)
             value = ''
           } else if (value && value.startsWith('data:image/')) {
-            console.warn('⚠️ 检测到Base64格式头像，不再支持，清空并要求用户重新上传')
+            logger.warn('⚠️ 检测到Base64格式头像，不再支持，清空并要求用户重新上传')
             value = ''
           }
         }
@@ -1355,7 +1356,7 @@ async function saveAllSettings() {
 
         // 验证字段长度以符合数据库约束（现已更新为1000字符）
         if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 1000) {
-          console.warn(`头像URL过长: ${processedValue.length} 字符，超过1000字符限制`)
+          logger.warn(`头像URL过长: ${processedValue.length} 字符，超过1000字符限制`)
           // 不再支持Base64格式，只处理URL格式
           if (processedValue.startsWith('http')) {
             ElMessage.warning('头像URL过长，请使用文件上传方式或较短的URL')
@@ -1371,7 +1372,7 @@ async function saveAllSettings() {
         if (processedValue && typeof processedValue === 'string') {
           // 大部分字符串字段限制为1000字符
           if (processedValue.length > 1000) {
-            console.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过1000字符，将被截断`)
+            logger.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过1000字符，将被截断`)
             processedValue = processedValue.substring(0, 997) + '...'
           }
         }
@@ -1411,7 +1412,7 @@ async function saveAllSettings() {
       )
 
       if (conflictErrors.length > 0) {
-        console.warn('检测到键冲突错误，可能是并发操作导致，尝试重新加载配置...')
+        logger.warn('检测到键冲突错误，可能是并发操作导致，尝试重新加载配置...')
         // 减少延迟时间，提高响应速度
         await new Promise(resolve => setTimeout(resolve, 100))
       }
@@ -1428,10 +1429,10 @@ async function saveAllSettings() {
         if (typeof clearBlogCache === 'function') {
           await clearBlogCache()
         } else {
-          console.warn('clearBlogCache 函数未定义，跳过缓存清除')
+          logger.warn('clearBlogCache 函数未定义，跳过缓存清除')
         }
       } catch (error: any) {
-        console.warn('清除前台API缓存失败，但不影响保存:', error)
+        logger.warn('清除前台API缓存失败，但不影响保存:', error)
       }
     }, 100)
 
@@ -1463,7 +1464,7 @@ async function saveAllSettings() {
         })
       )
     } catch (error: any) {
-      console.warn('更新全局状态失败:', error)
+      logger.warn('更新全局状态失败:', error)
     }
 
     // 保存后立即重新获取设置数据，确保显示最新值
