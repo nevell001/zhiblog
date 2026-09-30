@@ -25,7 +25,9 @@
 
             <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
 
-            <spring-boot.version>3.3.0</spring-boot.version>
+            <!-- 3.3.13 是 3.3.x 最后一个 OSS 版本；此前项目把 Spring/Security BOM 显式覆盖成
+                 6.1.6/6.1.5，低于 Boot 托管版本，等于主动降级到有 CVE 的区间 -->
+            <spring-boot.version>3.3.13</spring-boot.version>
 
             <druid.version>1.2.27</druid.version>
 
@@ -55,11 +57,9 @@
 
             <!-- override dependency version -->
 
-            <tomcat.version>10.1.24</tomcat.version>
+            <tomcat.version>10.1.42</tomcat.version>
 
-            <spring-security.version>6.1.5</spring-security.version>
 
-            <spring-framework.version>6.1.6</spring-framework.version>
 
             <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
 
@@ -82,24 +82,6 @@
     <!-- 依赖声明 -->
     <dependencyManagement>
         <dependencies>
-
-            <!-- 覆盖SpringFramework的依赖配置-->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-framework-bom</artifactId>
-                <version>${spring-framework.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- 覆盖SpringSecurity的依赖配置-->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-bom</artifactId>
-                <version>${spring-security.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
             <!-- SpringBoot的依赖配置-->
             <dependency>
