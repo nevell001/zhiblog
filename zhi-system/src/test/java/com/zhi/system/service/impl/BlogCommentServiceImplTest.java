@@ -667,4 +667,33 @@ class BlogCommentServiceImplTest {
 
         verify(blogArticleMapper, never()).changeCommentCount(any(), anyInt());
     }
+
+    @Test
+    void countSyncFailureMustPropagateSoTransactionRollsBack() {
+        BlogComment comment = new BlogComment();
+        comment.setId(1L);
+        comment.setArticleId(9L);
+        comment.setUserId(5L);
+        comment.setStatus("1"); // 已发布 → 需要同步文章评论数
+
+        when(blogCommentMapper.insertBlogComment(comment)).thenReturn(1);
+        doThrow(new RuntimeException("changeCommentCount failed"))
+            .when(blogArticleMapper).changeCommentCount(9L, 1);
+
+        // 旧实现把异常吞掉并返回 1：评论已可见但 comment_count 永久少 1
+        assertThrows(RuntimeException.class, () -> blogCommentService.insertBlogComment(comment),
+            "评论数与真实评论不一致时，写路径必须抛出让事务回滚");
+    }
+
+    @Test
+    void writeMethodsMustBeTransactional() throws Exception {
+        String[] writeMethods = { "insertBlogComment", "updateBlogComment", "deleteBlogCommentByIds",
+            "deleteBlogCommentById", "auditBlogCommentByIds", "rejectBlogCommentByIds" };
+        for (String name : writeMethods) {
+            boolean found = java.util.Arrays.stream(BlogCommentServiceImpl.class.getDeclaredMethods())
+                .filter(m -> m.getName().equals(name))
+                .anyMatch(m -> m.isAnnotationPresent(org.springframework.transaction.annotation.Transactional.class));
+            assertTrue(found, name + " 必须带 @Transactional（评论写入与 comment_count 增减要原子）");
+        }
+    }
 }

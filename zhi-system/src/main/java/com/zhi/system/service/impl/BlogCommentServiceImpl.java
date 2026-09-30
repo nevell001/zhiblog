@@ -5,6 +5,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.core.domain.entity.SysUser;
@@ -94,6 +97,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertBlogComment(BlogComment blogComment)
     {
         int result = blogCommentMapper.insertBlogComment(blogComment);
@@ -104,7 +108,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             {
                 adjustArticleCommentCount(blogComment.getArticleId(), 1);
             }
-            sendCommentNotification(blogComment);
+            afterCommit(() -> sendCommentNotification(blogComment));
         }
         return result;
     }
@@ -201,6 +205,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateBlogComment(BlogComment blogComment)
     {
         BlogComment existing = blogComment.getId() == null ? null
@@ -234,6 +239,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBlogCommentByIds(Long[] ids)
     {
         if (ids == null)
@@ -254,6 +260,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteBlogCommentById(Long id)
     {
         decreaseIfPublished(id);
@@ -267,6 +274,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int auditBlogCommentByIds(Long[] ids)
     {
         int count = 0;
@@ -284,7 +292,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             count += blogCommentMapper.updateBlogComment(blogComment);
 
             // 发送审核通过通知给评论者
-            sendAuditResultNotification(id, true);
+            afterCommit(() -> sendAuditResultNotification(id, true));
         }
         return count;
     }
@@ -296,6 +304,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int rejectBlogCommentByIds(Long[] ids)
     {
         int count = 0;
@@ -313,7 +322,7 @@ public class BlogCommentServiceImpl implements IBlogCommentService
             count += blogCommentMapper.updateBlogComment(blogComment);
 
             // 发送审核拒绝通知给评论者
-            sendAuditResultNotification(id, false);
+            afterCommit(() -> sendAuditResultNotification(id, false));
         }
         return count;
     }
@@ -396,6 +405,30 @@ public class BlogCommentServiceImpl implements IBlogCommentService
     }
 
     /**
+     * 事务提交后再执行（发站内信/邮件这类慢操作不应占用事务连接与行锁）。
+     *
+     * <p>没有活动事务时（例如单元测试或非事务调用）立即执行，保证行为不变。</p>
+     */
+    private void afterCommit(Runnable action)
+    {
+        if (TransactionSynchronizationManager.isSynchronizationActive())
+        {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization()
+            {
+                @Override
+                public void afterCommit()
+                {
+                    action.run();
+                }
+            });
+        }
+        else
+        {
+            action.run();
+        }
+    }
+
+    /**
      * 增减文章评论数（blog_article.comment_count）
      */
     private void adjustArticleCommentCount(Long articleId, int delta)
@@ -404,14 +437,9 @@ public class BlogCommentServiceImpl implements IBlogCommentService
         {
             return;
         }
-        try
-        {
-            blogArticleMapper.changeCommentCount(articleId, delta);
-        }
-        catch (Exception e)
-        {
-            logger.warn("同步文章评论数失败: articleId={}, delta={}, error={}", articleId, delta, e.getMessage());
-        }
+        // 不再吞异常：计数同步失败必须让外层事务回滚，否则会出现"评论已发布、comment_count 永久偏移"
+        // 的历史脏数据（blog_article.comment_count 是列表页展示列，与真实 count 会长期不一致）
+        blogArticleMapper.changeCommentCount(articleId, delta);
     }
 
     /**
