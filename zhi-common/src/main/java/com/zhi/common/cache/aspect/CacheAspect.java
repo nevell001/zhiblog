@@ -25,7 +25,10 @@ import java.util.concurrent.TimeUnit;
 @Aspect
 @Component
 @Order(1)
-public class CacheAspect {
+public class CacheAspect
+{
+    /** 键片段超过该长度就压缩成哈希，避免长正文进 Redis 键 */
+    private static final int MAX_KEY_FRAGMENT_LENGTH = 64;
 
     @Autowired
     private BlogCacheManager blogCacheManager;
@@ -119,8 +122,43 @@ public class CacheAspect {
 
         // 解析SpEL表达式或使用字符串模板
         String resolvedKey = resolveSpEL(keyExpression, joinPoint);
+        resolvedKey = appendPageInfo(resolvedKey);
         log.debug("CacheAspect: 缓存键解析 - 原始表达式: {}, 解析结果: {}", keyExpression, resolvedKey);
         return resolvedKey;
+    }
+
+    /**
+     * 键片段：字符串化参数，过长（例如 BlogArticle.toString() 含正文）时只保留哈希与长度，
+     * 避免 Redis 键被撑到几十 KB，同时保持"参数不同 → 键不同"。
+     */
+    private String keyFragment(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        String text = value.toString();
+        if (text.length() <= MAX_KEY_FRAGMENT_LENGTH) {
+            return text;
+        }
+        return "h" + Integer.toHexString(text.hashCode()) + "L" + text.length();
+    }
+
+    /**
+     * 附加当前分页信息。
+     *
+     * <p>分页参数由 PageHelper 放在线程变量里（调用方先 {@code startPage()} 再进方法），
+     * 并不在方法签名上，因此缓存键里原本没有页码 —— 第 1 页结果被缓存后，第 2/3 页会命中
+     * 同一键并返回第 1 页数据（搜索接口就这样串过页）。这里统一把激活的页码/页大小并进键。</p>
+     */
+    private String appendPageInfo(String key) {
+        try {
+            com.github.pagehelper.Page<?> page = com.github.pagehelper.PageHelper.getLocalPage();
+            if (page != null && page.getPageNum() > 0) {
+                return key + ":p" + page.getPageNum() + ":s" + page.getPageSize();
+            }
+        } catch (Throwable ignored) {
+            // PageHelper 不可用时保持原键
+        }
+        return key;
     }
 
     /**
@@ -169,11 +207,9 @@ public class CacheAspect {
                 Object argValue = args[i];
 
                 // 替换 #p[i]
-                result = result.replace("#p" + i,
-                                      argValue != null ? argValue.toString() : "null");
+                result = result.replace("#p" + i, keyFragment(argValue));
                 // 替换 #a[i] (Spring 也支持这种格式)
-                result = result.replace("#a" + i,
-                                      argValue != null ? argValue.toString() : "null");
+                result = result.replace("#a" + i, keyFragment(argValue));
             }
 
             // 然后处理按参数名的引用 #paramName
@@ -184,8 +220,7 @@ public class CacheAspect {
 
                     log.debug("resolveSpEL: 处理参数名 = {}, 值 = {}", paramName, argValue);
                     
-                    result = result.replace("#" + paramName,
-                                            argValue != null ? argValue.toString() : "null");
+                    result = result.replace("#" + paramName, keyFragment(argValue));
                 }
             }
 

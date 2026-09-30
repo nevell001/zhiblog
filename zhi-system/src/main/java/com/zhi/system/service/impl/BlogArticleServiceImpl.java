@@ -418,7 +418,9 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     @Override
-    @BlogCacheable(key = "blog:search:#keyword + '_' + (#blogArticle != null ? #blogArticle.hashCode() : 'null')", ttl = 10, timeUnit = TimeUnit.MINUTES)
+    // 键写作"#keyword:#blogArticle"即可：CacheAspect 会代入实参（长对象只入哈希），
+    // 并把 PageHelper 的当前页码并进键 —— 否则第 2 页会命中第 1 页的缓存
+    @BlogCacheable(key = "blog:search:#keyword:#blogArticle", ttl = 10, timeUnit = TimeUnit.MINUTES)
     public List<BlogArticle> searchArticles(String keyword, BlogArticle blogArticle) {
         List<BlogArticle> articleList;
         boolean useFullText = keyword != null && !keyword.trim().isEmpty() && isMysqlDatabase() && !fullTextDisabled;
