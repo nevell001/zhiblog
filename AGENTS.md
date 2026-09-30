@@ -109,4 +109,5 @@ Conventional commits: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, 
 
 - `docs/VERSION_MANAGEMENT.md` — full version bump workflow
 - `docs/SECURITY_CONFIG.md` — security config validation details
+- `docs/SECURITY_HARDENING.md` — server/repo hardening checklist (branch & tag protection, least-privilege tokens, deploy user + sudo whitelist, SSH lockdown, backup & rotation)
 - `docs/图片压缩功能使用指南.md` — image compression feature guide (three upload endpoints: `/common/upload/compressed|avatar|thumbnail`)
