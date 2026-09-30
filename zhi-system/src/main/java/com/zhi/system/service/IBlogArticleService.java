@@ -36,6 +36,14 @@ public interface IBlogArticleService
     public List<BlogArticle> selectSitemapArticles();
 
     /**
+     * 导出专用列表（含正文）
+     *
+     * @param blogArticle 查询条件
+     * @return 文章集合
+     */
+    public List<BlogArticle> selectBlogArticleListForExport(BlogArticle blogArticle);
+
+    /**
      * 查询博客文章列表（带缓存）
      * 
      * @param blogArticle 博客文章

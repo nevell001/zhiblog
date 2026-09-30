@@ -33,7 +33,7 @@
     </resultMap>
 
     <sql id="selectBlogArticleVo">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
@@ -53,14 +53,12 @@
     </select>
 
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
         from blog_article ba
         left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
-        left join blog_article_tag bat on ba.id = bat.article_id
-        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         <where>
             <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
             <if test="summary != null  and summary != ''"> and ba.summary = #{summary}</if>
@@ -76,12 +74,27 @@
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
         </where>
-        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.is_top, ba.is_recommend, ba.status, ba.view_count,
-                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag
         order by ba.create_time desc
     </select>
     
+    <!-- 导出专用：Excel 有"文章内容"列，需要带正文；列表接口走上面的轻量查询 -->
+    <select id="selectBlogArticleListForExport" parameterType="BlogArticle" resultMap="BlogArticleResult">
+        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+               ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
+               ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
+               bc.name as category_name
+        from blog_article ba
+        left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
+        <where>
+            <if test="title != null  and title != ''"> and ba.title like concat('%', #{title}, '%')</if>
+            <if test="status != null "> and ba.status = #{status}</if>
+            <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
+            <if test="authorId != null "> and ba.author_id = #{authorId}</if>
+            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
+        </where>
+        order by ba.create_time desc
+    </select>
+
     <select id="selectBlogArticleById" parameterType="Long" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
@@ -92,10 +105,6 @@
         left join blog_article_tag bat on ba.id = bat.article_id
         left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         where ba.id = #{id}
-        group by ba.id, ba.title, ba.summary, ba.content, ba.content_md, ba.format, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.publish_time, ba.view_count,
-                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
-                 bc.name
     </select>
 
     <select id="selectBlogArticleByTitle" parameterType="String" resultMap="BlogArticleResult">
@@ -152,31 +161,24 @@
     </update>
 
     <select id="selectArticlesByTagId" parameterType="Long" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
         from blog_article ba
         left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
         inner join blog_article_tag bat on ba.id = bat.article_id
-        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         where bat.tag_id = #{tagId} and ba.status = 1 and ba.del_flag = 0
-        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
-                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
-                 bc.name
         order by ba.create_time desc
     </select>
 
     <select id="searchArticles" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name
         from blog_article ba
         left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
-        left join blog_article_tag bat on ba.id = bat.article_id
-        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         <where>
             ba.status = 1 and ba.del_flag = 0
             <if test="keyword != null and keyword != ''">
@@ -192,23 +194,17 @@
                 and ba.is_recommend = #{blogArticle.isRecommend}
             </if>
         </where>
-        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
-                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
-                 bc.name
         order by ba.create_time desc
     </select>
 
     <select id="searchArticlesFullText" resultMap="BlogArticleResult">
-        select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
+        select ba.id, ba.title, ba.summary, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
                ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
                bc.name as category_name,
                MATCH(ba.title, ba.content) AGAINST(#{keyword} IN NATURAL LANGUAGE MODE) as search_score
         from blog_article ba
         left join blog_category bc on ba.category_id = bc.id and bc.del_flag = 0
-        left join blog_article_tag bat on ba.id = bat.article_id
-        left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
         <where>
             ba.status = 1 and ba.del_flag = 0
             <if test="keyword != null and keyword != ''">
@@ -224,10 +220,6 @@
                 and ba.is_recommend = #{blogArticle.isRecommend}
             </if>
         </where>
-        group by ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
-                 ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,
-                 ba.like_count, ba.comment_count, ba.create_time, ba.update_time, ba.del_flag,
-                 bc.name
         order by search_score desc, ba.create_time desc
     </select>
 

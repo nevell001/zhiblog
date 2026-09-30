@@ -87,6 +87,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 博客文章
      */
     @Override
+    public List<BlogArticle> selectBlogArticleListForExport(BlogArticle blogArticle)
+    {
+        return blogArticleMapper.selectBlogArticleListForExport(blogArticle);
+    }
+
+    @Override
     public List<BlogArticle> selectSitemapArticles()
     {
         return blogArticleMapper.selectSitemapArticles();

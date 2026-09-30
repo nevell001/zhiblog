@@ -81,7 +81,8 @@ public class BlogArticleController extends BaseController
     @PostMapping("/export")
     public void export(HttpServletResponse response, BlogArticle blogArticle)
     {
-        List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+        // 导出需要正文列，走专用查询（列表接口的查询已不含 longtext）
+        List<BlogArticle> list = blogArticleService.selectBlogArticleListForExport(blogArticle);
         ExcelUtil<BlogArticle> util = new ExcelUtil<BlogArticle>(BlogArticle.class);
         util.exportExcel(response, list, "文章数据");
     }

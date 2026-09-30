@@ -37,6 +37,14 @@ public interface BlogArticleMapper
     public List<BlogArticle> selectSitemapArticles();
 
     /**
+     * 导出专用：带正文（列表接口用轻量投影，不含 longtext）
+     *
+     * @param blogArticle 查询条件
+     * @return 文章集合
+     */
+    public List<BlogArticle> selectBlogArticleListForExport(BlogArticle blogArticle);
+
+    /**
      * 新增博客文章
      * 
      * @param blogArticle 博客文章
