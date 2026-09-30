@@ -929,7 +929,7 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 -- SEO优化设置
 ('seo_title', '我的博客 - 分享技术与生活', 'SEO标题', NOW(), NOW()),
 ('seo_description', '专注于前后端技术分享，包含Spring Boot、Vue.js、MySQL等技术内容', 'SEO描述', NOW(), NOW()),
-('seo_canonical_url', 'http://localhost:8080', '规范URL', NOW(), NOW()),
+('seo_canonical_url', '', '规范URL（留空则用当前访问域名）', NOW(), NOW()),
 ('seo_robots', 'index,follow', 'Robots规则', NOW(), NOW()),
 ('seo_favicon', '/favicon.ico', '网站图标', NOW(), NOW());
 

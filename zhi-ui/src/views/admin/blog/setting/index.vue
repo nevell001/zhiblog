@@ -232,6 +232,10 @@
                 maxlength="200"
               />
               <div class="setting-tip">规范 URL（可选），文章页 canonical 会自动生成</div>
+              <div class="setting-tip">
+                留空=自动使用当前访问域名；填对外域名可让 canonical/og:url 固定指向主域名
+                （localhost/127.0.0.1 会被忽略）
+              </div>
             </el-form-item>
             <el-form-item label="Robots规则" prop="seo_robots">
               <el-select v-model="settingsMap.seo_robots" style="width: 220px">

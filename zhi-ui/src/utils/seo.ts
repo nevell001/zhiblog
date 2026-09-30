@@ -8,6 +8,8 @@ export interface SeoData {
   canonical?: string
   /** 站点图标地址（seo_favicon）；传空字符串则忽略 */
   favicon?: string
+  /** robots 指令（seo_robots），例如 index,follow 或 noindex,nofollow；传空字符串则移除 */
+  robots?: string
 }
 
 function findMeta(name: string, attribute = 'name'): HTMLMetaElement | null {
@@ -65,6 +67,9 @@ export function applySeo(data: SeoData) {
     existing.remove()
   }
 
+  // robots 指令（后台「SEO优化 → Robots规则」）
+  setMetaContent('robots', data.robots || '')
+
   // 站点图标
   if (data.favicon) {
     let icon = document.head.querySelector('link[rel="icon"]') as HTMLLinkElement | null
@@ -77,9 +82,30 @@ export function applySeo(data: SeoData) {
   }
 }
 
+/** 本机地址不是有效的对外规范域名，忽略之（老库里默认值是 http://localhost:8080） */
+function isUsableCanonicalBase(base?: string | null): boolean {
+  if (!base || !base.trim()) return false
+  try {
+    const url = new URL(base.trim())
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+    const host = url.hostname.toLowerCase()
+    return host !== 'localhost' && host !== '127.0.0.1' && host !== '::1' && host !== '[::1]'
+  } catch {
+    return false
+  }
+}
+
 /**
- * 生成当前页面的绝对 URL（不含 query/hash），用于 canonical
+ * 生成当前页面的绝对 URL（不含 query/hash），用于 canonical。
+ *
+ * @param base 后台「SEO优化 → 规范链接」配置的站点地址；为空或本机地址时按当前访问域名推导，
+ *             配置了对外域名时只取它的协议与主机（路径仍用当前页面）
  */
-export function canonicalUrl(): string {
-  return window.location.origin + window.location.pathname
+export function canonicalUrl(base?: string | null): string {
+  const path = window.location.pathname
+  if (isUsableCanonicalBase(base)) {
+    const url = new URL((base as string).trim())
+    return `${url.origin}${path}`
+  }
+  return window.location.origin + path
 }

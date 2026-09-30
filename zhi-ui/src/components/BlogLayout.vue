@@ -471,7 +471,8 @@ const applyDefaultSeo = () => {
     title: s.seo_title || (siteDesc ? `${siteName} - ${siteDesc}` : siteName),
     description: s.seo_description || siteDesc,
     keywords: s.blog_keywords || '',
-    canonical: canonicalUrl(),
+    canonical: canonicalUrl(s.seo_canonical_url),
+    robots: s.seo_robots || '',
     favicon: s.seo_favicon || ''
   })
 }

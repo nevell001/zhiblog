@@ -440,7 +440,7 @@ const loadArticleDetail = async () => {
       applySeo({
         title: `${article.value.title} - ${siteName}`,
         description: article.value.summary || '',
-        canonical: canonicalUrl()
+        canonical: canonicalUrl((blogSettings.value as any)?.seo_canonical_url)
       })
     } else {
       logger.error('未找到文章数据，响应数据:', response.data)
