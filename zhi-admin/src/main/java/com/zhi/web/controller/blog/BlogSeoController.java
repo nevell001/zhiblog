@@ -61,7 +61,7 @@ public class BlogSeoController
             BlogArticle query = new BlogArticle();
             query.setStatus(1L);
             query.setDelFlag(0L);
-            List<BlogArticle> articles = blogArticleService.selectBlogArticleList(query);
+            List<BlogArticle> articles = blogArticleService.selectSitemapArticles();
             if (articles != null)
             {
                 for (BlogArticle article : articles)

@@ -818,8 +818,10 @@ public class BlogFrontController extends BaseController
         blogArticle.setStatus(1L);
         blogArticle.setDelFlag(0L);
 
+        // 只取最新 10 篇：之前是把全部已发布文章（含 longtext 正文）拉进内存再截断
+        com.github.pagehelper.PageHelper.startPage(1, 10, false);
         List<BlogArticle> articles = blogArticleService.selectBlogArticleList(blogArticle);
-        // 只取前10篇文章
+        com.github.pagehelper.PageHelper.clearPage();
         int count = 0;
         for (BlogArticle article : articles) {
             if (count >= 10) break;

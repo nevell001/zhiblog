@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -29,6 +30,8 @@ class BlogSeoControllerTest
 {
     private IBlogSettingService blogSettingService;
 
+    private IBlogArticleService blogArticleService;
+
     private MockMvc mockMvc;
 
     @BeforeEach
@@ -37,7 +40,8 @@ class BlogSeoControllerTest
         blogSettingService = mock(IBlogSettingService.class);
         BlogSeoController controller = new BlogSeoController();
         ReflectionTestUtils.setField(controller, "blogSettingService", blogSettingService);
-        ReflectionTestUtils.setField(controller, "blogArticleService", mock(IBlogArticleService.class));
+        blogArticleService = mock(IBlogArticleService.class);
+        ReflectionTestUtils.setField(controller, "blogArticleService", blogArticleService);
         ReflectionTestUtils.setField(controller, "blogPageService", mock(IBlogPageService.class));
         mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
     }
@@ -67,6 +71,7 @@ class BlogSeoControllerTest
         assertFalse(xml.contains("localhost"), "站点地图绝不能出现 localhost：\n" + xml);
         assertTrue(xml.contains("<loc>https://blog.example.com/</loc>"), xml);
         assertTrue(xml.contains("https://blog.example.com/blog/about"), xml);
+        verify(blogArticleService).selectSitemapArticles();
     }
 
     @Test

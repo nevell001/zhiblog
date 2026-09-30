@@ -35,6 +35,9 @@ public class TableSupport
      */
     public static final String REASONABLE = "reasonable";
 
+    /** 单页最大条数（前端分页器最多给到 50，这里留出余量） */
+    public static final int MAX_PAGE_SIZE = 100;
+
     /**
      * 封装分页对象
      */
@@ -42,7 +45,9 @@ public class TableSupport
     {
         PageDomain pageDomain = new PageDomain();
         pageDomain.setPageNum(Convert.toInt(ServletUtils.getParameter(PAGE_NUM), 1));
-        pageDomain.setPageSize(Convert.toInt(ServletUtils.getParameter(PAGE_SIZE), 10));
+        // 上限 100：pageSize 完全由请求参数控制，不设上限时 ?pageSize=100000 会把整表（含正文）拉进内存
+        // 上限 100：pageSize 完全由请求参数控制，不设上限时 ?pageSize=100000 会把整表（含正文）拉进内存
+        pageDomain.setPageSize(Math.min(Math.max(Convert.toInt(ServletUtils.getParameter(PAGE_SIZE), 10), 1), MAX_PAGE_SIZE));
         pageDomain.setOrderByColumn(ServletUtils.getParameter(ORDER_BY_COLUMN));
         pageDomain.setIsAsc(ServletUtils.getParameter(IS_ASC));
         pageDomain.setReasonable(ServletUtils.getParameterToBool(REASONABLE));

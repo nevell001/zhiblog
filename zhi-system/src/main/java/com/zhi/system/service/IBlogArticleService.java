@@ -29,6 +29,13 @@ public interface IBlogArticleService
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle);
 
     /**
+     * 站点地图专用列表（只含 id 与更新时间）
+     *
+     * @return 文章集合
+     */
+    public List<BlogArticle> selectSitemapArticles();
+
+    /**
      * 查询博客文章列表（带缓存）
      * 
      * @param blogArticle 博客文章

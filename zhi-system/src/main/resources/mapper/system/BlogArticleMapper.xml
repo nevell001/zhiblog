@@ -43,6 +43,15 @@
         left join blog_tag bt on bat.tag_id = bt.id and bt.del_flag = 0
     </sql>
 
+    <!-- 站点地图专用：只取 id/update_time，避免把 longtext 正文拉进内存；sitemap 规范上限 5 万条 -->
+    <select id="selectSitemapArticles" resultMap="BlogArticleResult">
+        select id, update_time
+        from blog_article
+        where status = 1 and del_flag = 0
+        order by create_time desc
+        limit 50000
+    </select>
+
     <select id="selectBlogArticleList" parameterType="BlogArticle" resultMap="BlogArticleResult">
         select ba.id, ba.title, ba.summary, ba.content, ba.cover_url, ba.category_id, ba.author_id,
                ba.author_name, ba.is_top, ba.is_recommend, ba.status, ba.view_count,

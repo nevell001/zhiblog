@@ -30,6 +30,13 @@ public interface BlogArticleMapper
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle);
 
     /**
+     * 站点地图专用：只取 id 与更新时间（不带正文），并限制条数
+     *
+     * @return 文章集合
+     */
+    public List<BlogArticle> selectSitemapArticles();
+
+    /**
      * 新增博客文章
      * 
      * @param blogArticle 博客文章

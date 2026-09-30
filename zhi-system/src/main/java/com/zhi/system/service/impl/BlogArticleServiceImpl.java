@@ -87,6 +87,12 @@ public class BlogArticleServiceImpl implements IBlogArticleService
      * @return 博客文章
      */
     @Override
+    public List<BlogArticle> selectSitemapArticles()
+    {
+        return blogArticleMapper.selectSitemapArticles();
+    }
+
+    @Override
     // 移除缓存以确保前台始终显示最新数据
     public List<BlogArticle> selectBlogArticleList(BlogArticle blogArticle)
     {

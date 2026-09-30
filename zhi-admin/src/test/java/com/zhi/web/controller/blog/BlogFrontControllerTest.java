@@ -21,7 +21,10 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -218,5 +221,24 @@ class BlogFrontControllerTest
 
         verify(blogCommentService).selectFrontCommentList(any());
         verify(blogCommentService, never()).selectBlogCommentList(any());
+    }
+
+    @Test
+    void rssShouldLimitToTenArticles() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("博客");
+        java.util.concurrent.atomic.AtomicReference<com.github.pagehelper.Page<?>> captured =
+            new java.util.concurrent.atomic.AtomicReference<>();
+        when(blogArticleService.selectBlogArticleList(any())).thenAnswer(invocation -> {
+            captured.set(com.github.pagehelper.PageHelper.getLocalPage());
+            return List.of();
+        });
+
+        mockMvc.perform(get("/blog/rss")).andExpect(status().isOk());
+
+        // 旧实现是把全部已发布文章（含正文）拉进内存再截前 10 条
+        assertNotNull(captured.get(), "RSS 必须用 PageHelper 限制条数");
+        assertEquals(1, captured.get().getPageNum());
+        assertEquals(10, captured.get().getPageSize());
     }
 }
