@@ -280,6 +280,7 @@ import { toggleBookmark } from '@/api/blog/bookmark'
 import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { logger } from '@/utils/logger'
 
@@ -370,7 +371,10 @@ const commentRules = {
 const commentFormRef = ref<any>(null)
 
 // 获取文章详情
+const detailGuard = createRequestGuard()
+
 const loadArticleDetail = async () => {
+  const detailToken = detailGuard.next()
   try {
     loading.value = true
     const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
@@ -392,6 +396,8 @@ const loadArticleDetail = async () => {
 
     // 获取文章详情
     const response = await getArticleDetail(numericId)
+    // 快速切换文章时，旧详情不能覆盖新详情
+    if (!detailGuard.isLatest(detailToken)) return
 
     // 检查响应状态
     if (response.code !== 200) {

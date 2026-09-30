@@ -69,6 +69,7 @@ import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { searchArticles } from '@/api/blog/article'
+import { createRequestGuard } from '@/utils/requestGuard'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { parseTime } from '@/utils/zhi'
 
@@ -94,6 +95,8 @@ const formatDate = (date: string) => {
   return parseTime(date, '{y}-{m}-{d}')
 }
 
+const requestGuard = createRequestGuard()
+
 const doSearch = async (page = 1) => {
   const kw = keyword.value.trim() || String(route.query.q || '').trim()
   if (!kw) {
@@ -108,7 +111,10 @@ const doSearch = async (page = 1) => {
   loading.value = true
   try {
     const params = { pageNum: page, pageSize: pageSize.value }
+    const token = requestGuard.next()
     const response = await searchArticles(kw, params)
+    // 连续输入/快速翻页时，慢的旧响应不能覆盖新结果
+    if (!requestGuard.isLatest(token)) return
     results.value = response.rows || []
     total.value = response.total || 0
     query.value = kw

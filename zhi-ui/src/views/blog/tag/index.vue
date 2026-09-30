@@ -330,7 +330,9 @@ const queryParams = reactive({
 })
 
 // 获取标签文章列表
-const loadTagArticles = async (append = false) => {
+const loadTagArticles = async (append = false, page?: number) => {
+  // 加载更多时页码只有在成功后提交，失败重试不会跳页
+  const requestedPage = page ?? queryParams.pageNum
   try {
     loading.value = !append
     if (append) loadingMore.value = true
@@ -339,9 +341,12 @@ const loadTagArticles = async (append = false) => {
 
     // 如果有 tagId，调用 getArticlesByTag，否则调用普通的 getArticleList
     if (queryParams.tagId) {
-      response = await getArticlesByTag(queryParams.tagId, queryParams)
+      response = await getArticlesByTag(queryParams.tagId, {
+        ...queryParams,
+        pageNum: requestedPage
+      })
     } else {
-      response = await getArticleList(queryParams)
+      response = await getArticleList({ ...queryParams, pageNum: requestedPage })
     }
 
     // 处理不同的响应格式
@@ -365,6 +370,9 @@ const loadTagArticles = async (append = false) => {
       newArticles = []
       totalCount = 0
     }
+    // 只有成功才提交页码：失败后加载更多不会跳过一页
+
+    if (append) queryParams.pageNum = requestedPage
 
     if (append) {
       articleList.value = [...articleList.value, ...newArticles]
@@ -440,8 +448,7 @@ const loadRecentArticles = async () => {
 // 加载更多文章
 const loadMoreArticles = () => {
   if (loadingMore.value || articleList.value.length >= total.value) return
-  queryParams.pageNum++
-  loadTagArticles(true)
+  loadTagArticles(true, queryParams.pageNum + 1)
 }
 
 // 分页处理

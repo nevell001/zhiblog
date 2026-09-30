@@ -329,12 +329,18 @@ const queryParams = reactive({
 })
 
 // 获取分类文章列表
-const loadCategoryArticles = async (append = false) => {
+const loadCategoryArticles = async (append = false, page?: number) => {
+  // 加载更多时页码只有在成功后提交，失败重试不会跳页
+  const requestedPage = page ?? queryParams.pageNum
   try {
     loading.value = !append
     if (append) loadingMore.value = true
 
-    const response = await getArticleList({ ...queryParams, categoryId: queryParams.categoryId })
+    const response = await getArticleList({
+      ...queryParams,
+      pageNum: requestedPage,
+      categoryId: queryParams.categoryId
+    })
 
     const newArticles = response.rows || []
     if (append) {
@@ -343,6 +349,8 @@ const loadCategoryArticles = async (append = false) => {
       articleList.value = newArticles
     }
     total.value = response.total || 0
+    // 只有成功才提交页码：失败后"加载更多"不会跳过一页
+    if (append) queryParams.pageNum = requestedPage
   } catch (error) {
     logger.error('获取分类文章失败:', error)
     ElMessage.error('获取文章列表失败')
@@ -414,8 +422,7 @@ const loadRecentArticles = async () => {
 // 加载更多文章
 const loadMoreArticles = () => {
   if (loadingMore.value || articleList.value.length >= total.value) return
-  queryParams.pageNum++
-  loadCategoryArticles(true)
+  loadCategoryArticles(true, queryParams.pageNum + 1)
 }
 
 // 分页处理
