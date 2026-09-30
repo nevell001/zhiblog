@@ -106,7 +106,8 @@
               />
               <div class="setting-tip">
                 支持逗号、分号或换行分隔；留空回退到默认值 localhost,127.0.0.1；域名无需带
-                http(s)://
+                http(s)://。按主机名精确匹配（填 example.com 同时覆盖其子域名），同源访问与 不带
+                Referer 的请求（爬虫/直接访问）一律放行
               </div>
             </el-form-item>
             <!-- 博客头像设置已移除，直接使用账号头像 -->
