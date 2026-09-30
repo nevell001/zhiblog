@@ -39,7 +39,7 @@ service.interceptors.request.use(
     }
 
     // 如果是 FormData，删除 Content-Type 让浏览器自动设置为 multipart/form-data
-    if (config.data instanceof FormData) {
+    if (isFormDataRequest(config)) {
       delete (config.headers as any)['Content-Type']
     }
 
@@ -61,7 +61,7 @@ service.interceptors.request.use(
     }
     if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
       // 对于 FormData 请求，跳过重复提交检查（FormData 包含文件数据，不适合序列化）
-      if (config.data instanceof FormData) {
+      if (isFormDataRequest(config)) {
         return config
       }
 
@@ -235,6 +235,15 @@ export function download(
       ElMessage.error('下载文件出现错误，请联系管理员！')
       downloadLoadingInstance.close()
     })
+}
+
+/**
+ * 是否 FormData 请求（上传文件）：这类请求不能序列化，因此跳过请求体序列化与重复提交检查。
+ * 抽成纯函数以便直接断言行为，而不是在测试里复述判定条件。
+ */
+export function isFormDataRequest(config: { data?: unknown } | null | undefined): boolean {
+  if (!config || typeof FormData === 'undefined') return false
+  return config.data instanceof FormData
 }
 
 export default service

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import {
   isImageFile,
   getImageFormat,
@@ -11,6 +11,14 @@ import {
   needsCompression,
   validateImage
 } from './imageUtils'
+
+// jsdom 未实现 URL.createObjectURL / revokeObjectURL，补桩后即可断言真实行为
+const createObjectURLMock = vi.fn(() => 'blob:mock-preview-url')
+const revokeObjectURLMock = vi.fn()
+beforeAll(() => {
+  ;(URL as any).createObjectURL = createObjectURLMock
+  ;(URL as any).revokeObjectURL = revokeObjectURLMock
+})
 
 describe('ImageUtils 工具函数测试', () => {
   describe('isImageFile', () => {
@@ -80,11 +88,11 @@ describe('ImageUtils 工具函数测试', () => {
   })
 
   describe('createPreviewUrl', () => {
-    it.skip('应该创建预览 URL', () => {
+    it('应该创建预览 URL 并把文件交给 URL.createObjectURL', () => {
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
       const url = createPreviewUrl(file)
-      expect(url).toBeTruthy()
-      expect(url.startsWith('blob:')).toBe(true)
+      expect(url).toBe('blob:mock-preview-url')
+      expect(createObjectURLMock).toHaveBeenCalledWith(file)
       revokePreviewUrl(url) // 清理
     })
 
@@ -94,10 +102,11 @@ describe('ImageUtils 工具函数测试', () => {
   })
 
   describe('revokePreviewUrl', () => {
-    it.skip('应该释放预览 URL', () => {
+    it('应该释放预览 URL（真正调用 URL.revokeObjectURL）', () => {
       const file = new File(['test'], 'test.jpg', { type: 'image/jpeg' })
       const url = createPreviewUrl(file)
-      expect(() => revokePreviewUrl(url)).not.toThrow()
+      revokePreviewUrl(url)
+      expect(revokeObjectURLMock).toHaveBeenCalledWith(url)
     })
 
     it('应该处理空 URL', () => {

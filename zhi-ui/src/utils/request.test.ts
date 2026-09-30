@@ -1,3 +1,4 @@
+import { isFormDataRequest } from './request'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import axios from 'axios'
 import { readFileSync } from 'node:fs'
@@ -253,20 +254,14 @@ describe('Request 工具函数测试', () => {
       expect(isRepeatSubmit).toBe(true)
     })
 
-    it('应该跳过 FormData 请求的重复提交检查', async () => {
+    it('应该跳过 FormData 请求的重复提交检查', () => {
       const formData = new FormData()
       formData.append('file', 'test')
 
-      const config = {
-        url: '/api/test',
-        method: 'post',
-        data: formData
-      }
-
-      if (config.data instanceof FormData) {
-        // Should skip duplicate check
-        expect(true).toBe(true)
-      }
+      // 断言真实行为：FormData 请求会被识别为"跳过序列化/重复提交检查"
+      expect(isFormDataRequest({ url: '/api/test', method: 'post', data: formData })).toBe(true)
+      expect(isFormDataRequest({ data: { content: '普通 JSON' } })).toBe(false)
+      expect(isFormDataRequest(null)).toBe(false)
     })
 
     it('应该跳过 HTML 内容的重复提交检查', async () => {
@@ -276,13 +271,9 @@ describe('Request 工具函数测试', () => {
         data: { content: '<html><body>test</body></html>' }
       }
 
-      const isHtmlContent =
-        config.data &&
-        typeof config.data === 'object' &&
-        (config.data as any).content &&
-        (config.data as any).content.includes('<')
-
-      expect(isHtmlContent).toBe(true)
+      // HTML 字符串走普通 JSON 路径，不会被当成 FormData 跳过检查
+      expect(isFormDataRequest(config)).toBe(false)
+      expect(typeof (config.data as any).content).toBe('string')
     })
   })
 
