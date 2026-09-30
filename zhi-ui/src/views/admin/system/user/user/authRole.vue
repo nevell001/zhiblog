@@ -118,19 +118,22 @@ function submitForm() {
   const userId = Array.isArray(userIdParam) ? userIdParam[0] : userIdParam
   if (userId) {
     loading.value = true
-    getAuthRole(Number(userId)).then(response => {
-      form.value = response.user
-      roles.value = response.roles
-      total.value = roles.value.length
-      nextTick(() => {
-        roles.value.forEach(row => {
-          if (row.flag) {
-            proxy.$refs['roleRef'].toggleRowSelection(row)
-          }
+    getAuthRole(Number(userId))
+      .then(response => {
+        form.value = response.user
+        roles.value = response.roles
+        total.value = roles.value.length
+        nextTick(() => {
+          roles.value.forEach(row => {
+            if (row.flag) {
+              proxy.$refs['roleRef'].toggleRowSelection(row)
+            }
+          })
         })
       })
-      loading.value = false
-    })
+      .finally(() => {
+        loading.value = false
+      })
   }
 })()
 </script>

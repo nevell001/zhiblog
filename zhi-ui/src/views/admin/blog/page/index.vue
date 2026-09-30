@@ -413,6 +413,8 @@ function getList() {
     .then(response => {
       pageList.value = response.rows || []
       total.value = response.total || 0
+    })
+    .finally(() => {
       loading.value = false
     })
     .catch((error: unknown) => {

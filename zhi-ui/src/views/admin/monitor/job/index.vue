@@ -423,11 +423,14 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询定时任务列表 */
 function getList() {
   loading.value = true
-  listJob(queryParams.value).then(response => {
-    jobList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listJob(queryParams.value)
+    .then(response => {
+      jobList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 任务组名字典翻译 */

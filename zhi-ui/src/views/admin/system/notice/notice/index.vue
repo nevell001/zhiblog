@@ -219,11 +219,14 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询公告列表 */
 function getList() {
   loading.value = true
-  listNotice(queryParams.value).then(response => {
-    noticeList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listNotice(queryParams.value)
+    .then(response => {
+      noticeList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 取消按钮 */

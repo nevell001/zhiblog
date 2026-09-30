@@ -371,6 +371,8 @@ function getList() {
     .then(response => {
       friendLinkList.value = response.rows
       total.value = response.total
+    })
+    .finally(() => {
       loading.value = false
     })
     .catch(() => {

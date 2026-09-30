@@ -134,11 +134,14 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询标签列表 */
 function getList() {
   loading.value = true
-  listTag(queryParams.value).then(response => {
-    tagList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listTag(queryParams.value)
+    .then(response => {
+      tagList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 取消按钮 */

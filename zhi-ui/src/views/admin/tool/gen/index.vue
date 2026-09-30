@@ -289,11 +289,14 @@ onActivated(() => {
 /** 查询表集合 */
 function getList() {
   loading.value = true
-  listTable(proxy.addDateRange(queryParams.value, dateRange.value)).then(response => {
-    tableList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listTable(proxy.addDateRange(queryParams.value, dateRange.value))
+    .then(response => {
+      tableList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 搜索按钮操作 */

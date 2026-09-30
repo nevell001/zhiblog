@@ -209,10 +209,13 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询部门列表 */
 function getList() {
   loading.value = true
-  listDept(queryParams.value).then(response => {
-    deptList.value = proxy.handleTree(response.data, 'deptId')
-    loading.value = false
-  })
+  listDept(queryParams.value)
+    .then(response => {
+      deptList.value = proxy.handleTree(response.data, 'deptId')
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 取消按钮 */

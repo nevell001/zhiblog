@@ -381,10 +381,13 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询菜单列表 */
 function getList() {
   loading.value = true
-  listMenu(queryParams.value).then(response => {
-    menuList.value = proxy.handleTree(response.data, 'menuId')
-    loading.value = false
-  })
+  listMenu(queryParams.value)
+    .then(response => {
+      menuList.value = proxy.handleTree(response.data, 'menuId')
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 查询菜单下拉树结构 */

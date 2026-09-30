@@ -559,11 +559,14 @@ watch(deptName, val => {
 /** 查询用户列表 */
 function getList() {
   loading.value = true
-  listUser(proxy.addDateRange(queryParams.value, dateRange.value)).then(res => {
-    loading.value = false
-    userList.value = res.rows
-    total.value = res.total
-  })
+  listUser(proxy.addDateRange(queryParams.value, dateRange.value))
+    .then(res => {
+      userList.value = res.rows
+      total.value = res.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 查询部门下拉树结构 */

@@ -123,11 +123,14 @@ const queryParams = reactive({
 /** 查询授权用户列表 */
 function getList() {
   loading.value = true
-  allocatedUserList(queryParams).then(response => {
-    userList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  allocatedUserList(queryParams)
+    .then(response => {
+      userList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 返回按钮 */

@@ -213,11 +213,14 @@ const { queryParams, form, rules } = toRefs(data)
 /** 查询岗位列表 */
 function getList() {
   loading.value = true
-  listPost(queryParams.value).then(response => {
-    postList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listPost(queryParams.value)
+    .then(response => {
+      postList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 取消按钮 */

@@ -202,11 +202,14 @@ const { queryParams } = toRefs(data)
 /** 查询评论列表 */
 function getList() {
   loading.value = true
-  listComment(queryParams.value).then(response => {
-    commentList.value = response.rows
-    total.value = response.total
-    loading.value = false
-  })
+  listComment(queryParams.value)
+    .then(response => {
+      commentList.value = response.rows
+      total.value = response.total
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 搜索按钮操作 */

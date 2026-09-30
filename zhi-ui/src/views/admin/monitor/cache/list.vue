@@ -183,10 +183,13 @@ const tableHeight = ref(window.innerHeight - 200)
 /** 查询缓存名称列表 */
 function getCacheNames() {
   loading.value = true
-  listCacheName().then(response => {
-    cacheNames.value = response.data
-    loading.value = false
-  })
+  listCacheName()
+    .then(response => {
+      cacheNames.value = response.data
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
 /** 刷新缓存名称列表 */

@@ -542,6 +542,7 @@ import { listTag } from '@/api/admin/blog/tag'
 import ImageUpload from '@/components/ImageUpload'
 import TagCategorySelector from '@/components/TagCategorySelector.vue'
 import { parseTime } from '@/utils/zhi'
+import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 
@@ -927,10 +928,11 @@ const articleRef = ref<any>()
 // Markdown/富文本相关
 const isMarkdownMode = computed(() => form.value.format === 'markdown')
 const previewHtml = computed(() => {
+  // 后台预览与前台详情页用同一个消毒器：编辑器来源的内容同样可能带 onclick/javascript: 等
   if (isMarkdownMode.value) {
-    return renderMarkdown(form.value.contentMd)
+    return sanitizeArticleContent(renderMarkdown(form.value.contentMd))
   }
-  return form.value.content || ''
+  return sanitizeArticleContent(form.value.content || '')
 })
 
 const handleFormatChange = (value: string) => {
