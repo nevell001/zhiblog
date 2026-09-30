@@ -47,6 +47,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 通过文章ID查询标签ID列表
      */
+    @PreAuthorize("@ss.hasPermi('blog:articleTag:list')")
     @GetMapping("/tags/{articleId}")
     public AjaxResult getTagIdsByArticleId(@PathVariable("articleId") Long articleId)
     {
@@ -56,6 +57,7 @@ public class BlogArticleTagController extends BaseController
     /**
      * 通过标签ID查询文章ID列表
      */
+    @PreAuthorize("@ss.hasPermi('blog:articleTag:list')")
     @GetMapping("/articles/{tagId}")
     public AjaxResult getArticleIdsByTagId(@PathVariable("tagId") Long tagId)
     {

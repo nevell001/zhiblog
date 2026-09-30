@@ -129,6 +129,7 @@ public class BlogTagController extends BaseController
     /**
      * 获取所有标签（供前端选择）
      */
+    @PreAuthorize("@ss.hasPermi('blog:tag:list')")
     @GetMapping("/all")
     public AjaxResult getAllTags()
     {
