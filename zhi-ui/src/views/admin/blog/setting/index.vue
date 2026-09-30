@@ -339,7 +339,7 @@
               </span>
             </el-form-item>
             <el-form-item
-              v-if="settingsMap.comment_enabled === 'true' || settingsMap.comment_enabled === true"
+              v-if="isSwitchOn(settingsMap.comment_enabled)"
               label="评论审核"
               prop="comment_review"
             >
@@ -633,6 +633,7 @@
 </template>
 
 <script setup lang="ts" name="BlogSetting">
+import { isSwitchOn } from '@/utils/featureSwitch'
 import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { handleThemeStyle, type AppTheme } from '@/utils/theme'
@@ -1268,7 +1269,7 @@ async function applySwitch(key: string) {
   } catch (error: any) {
     // 保存失败则回滚开关显示，避免界面与数据库不一致
     const original = originalSettings.value[key]
-    settingsMap.value[key] = original === 'true' || original === true
+    settingsMap.value[key] = isSwitchOn(original)
     ElMessage.error(error?.msg || error?.message || '设置保存失败')
   }
 }

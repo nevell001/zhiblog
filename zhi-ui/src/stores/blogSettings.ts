@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { isSwitchOn } from '@/utils/featureSwitch'
 import { processAvatarUrl } from '@/api/blog/avatar'
 
 interface BlogSettingsState {
@@ -100,8 +101,8 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
     // 功能开关辅助方法（全站唯一判定口径）：
     // 只有 false / 'false' / '0' / 0 视为关闭，未设置或 true / 'true' / '1' / 1 视为开启
     isFeatureEnabled: (state: BlogSettingsStoreState) => (feature: string) => {
-      const value = state.blogSettings[feature]
-      return !(value === false || value === 'false' || value === '0' || value === 0)
+      // 口径统一在 utils/featureSwitch.ts（与后端 BlogSwitchUtils.isOn 一致）
+      return isSwitchOn(state.blogSettings[feature])
     }
   },
 

@@ -278,4 +278,18 @@ describe('BlogSettings Store 测试', () => {
       expect(store.blogSettings.github_url).toBe('https://github.com/test')
     })
   })
+
+  it('isFeatureEnabled 与后端口径一致（大小写、首尾空白、缺失都按开启处理）', () => {
+    const store = useBlogSettingsStore()
+    store.setBlogSettings({
+      comment_enabled: 'FALSE',
+      like_enabled: ' 0 ',
+      search_enabled: undefined
+    } as any)
+
+    expect(store.isFeatureEnabled('comment_enabled')).toBe(false)
+    expect(store.isFeatureEnabled('like_enabled')).toBe(false)
+    expect(store.isFeatureEnabled('search_enabled')).toBe(true)
+    expect(store.isFeatureEnabled('nothing_configured')).toBe(true)
+  })
 })
