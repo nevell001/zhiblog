@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, watchEffect, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, watchEffect, onUnmounted } from 'vue'
 import { useWindowSize } from '@vueuse/core'
 import Sidebar from './components/Sidebar/index.vue'
 import { AppMain, Navbar, Settings, TagsView } from './components'
@@ -71,9 +71,6 @@ const settingRef = ref<any>(null)
 function setLayout() {
   settingRef.value.openSetting()
 }
-
-// 组件挂载后执行初始化
-onMounted(() => {})
 
 // 组件卸载时清理
 onUnmounted(() => {

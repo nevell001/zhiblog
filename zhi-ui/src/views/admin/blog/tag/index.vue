@@ -48,6 +48,11 @@
       <el-table-column label="文章数量" align="center" prop="articleCount" />
       <el-table-column label="描述" align="center" prop="description" />
       <el-table-column label="颜色" align="center" prop="color" />
+      <el-table-column label="图标" align="center" prop="icon">
+        <template #default="scope">
+          <span>{{ scope.row.icon || '-' }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" align="center" prop="createTime" width="180">
         <template #default="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
@@ -89,6 +94,9 @@
         </el-form-item>
         <el-form-item label="颜色" prop="color">
           <el-color-picker v-model="form.color" />
+        </el-form-item>
+        <el-form-item label="图标" prop="icon">
+          <el-input v-model="form.icon" placeholder="可输入 emoji 或图标标识，留空则不显示" maxlength="16" clearable />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -156,7 +164,8 @@ function reset() {
     id: undefined,
     name: undefined,
     description: undefined,
-    color: undefined
+    color: undefined,
+    icon: undefined
   }
   proxy.resetForm('tagRef')
 }

@@ -127,10 +127,19 @@
       <el-table-column
         label="操作"
         align="center"
-        width="200"
+        width="240"
         class-name="small-padding fixed-width"
       >
         <template #default="scope">
+          <el-tooltip content="详情" placement="top">
+            <el-button
+              v-hasPermi="['blog:comment:query']"
+              link
+              type="primary"
+              icon="View"
+              @click="handleView(scope.row)"
+            />
+          </el-tooltip>
           <el-tooltip v-if="scope.row.status === '0'" content="审核通过" placement="top">
             <el-button
               v-hasPermi="['blog:comment:audit']"
@@ -169,17 +178,42 @@
       :total="total"
       @pagination="getList"
     />
+
+    <!-- 评论详情（只读） -->
+    <el-dialog v-model="detailOpen" title="评论详情" width="600px" append-to-body>
+      <el-descriptions :column="1" border>
+        <el-descriptions-item label="评论ID">{{ detailForm.id }}</el-descriptions-item>
+        <el-descriptions-item label="文章标题">{{ detailForm.articleTitle || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="评论人">{{ detailForm.authorName || detailForm.nickname || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="邮箱">{{ detailForm.email || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="IP地址">{{ detailForm.ipAddress || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <dict-tag :options="comment_status" :value="detailForm.status" />
+        </el-descriptions-item>
+        <el-descriptions-item label="创建时间">{{ parseTime(detailForm.createTime) }}</el-descriptions-item>
+        <el-descriptions-item label="评论内容">
+          <div style="white-space: pre-wrap; word-break: break-all">{{ detailForm.content }}</div>
+        </el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="detailOpen = false">关 闭</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts" name="BlogComment">
-import { listComment, delComment, auditComment, rejectComment } from '@/api/admin/blog/comment'
+import { listComment, getComment, delComment, auditComment, rejectComment } from '@/api/admin/blog/comment'
 
 const { proxy } = getCurrentInstance()
 const { comment_status } = proxy.useDict('comment_status')
 
 const commentList = ref([])
 const open = ref(false)
+const detailOpen = ref(false)
+const detailForm = ref<Record<string, any>>({})
 const loading = ref(true)
 const showSearch = ref(true)
 const ids = ref([])
@@ -229,6 +263,19 @@ function handleSelectionChange(selection) {
   ids.value = selection.map(item => item.id)
   single.value = selection.length !== 1
   multiple.value = !selection.length
+}
+
+/** 查看评论详情（只读） */
+function handleView(row) {
+  getComment(row.id)
+    .then(response => {
+      detailForm.value = ((response as any)?.data ?? response) || {}
+      detailOpen.value = true
+    })
+    .catch(error => {
+      console.error('获取评论详情失败:', error)
+      proxy.$modal.msgError('获取评论详情失败')
+    })
 }
 
 /** 审核通过按钮操作 */

@@ -708,9 +708,6 @@ const tabTitle = computed(() => {
   return title
 })
 
-// 监听activeTab变化，用于调试
-watch(activeTab, (newVal, oldVal) => {})
-
 // 监听tabTitle变化，确保标题正确更新
 watch(tabTitle, newVal => {
   // 更新页面标题

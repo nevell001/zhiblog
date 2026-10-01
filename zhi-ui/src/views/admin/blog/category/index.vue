@@ -82,6 +82,17 @@
         <el-form-item label="分类名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入分类名称" />
         </el-form-item>
+        <el-form-item label="上级分类" prop="parentId">
+          <el-select v-model="form.parentId" placeholder="请选择上级分类" clearable>
+            <el-option label="顶级分类" :value="0" />
+            <el-option
+              v-for="item in parentOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
         <el-form-item label="排序" prop="sort">
           <el-input-number v-model="form.sort" controls-position="right" :min="0" />
         </el-form-item>
@@ -97,7 +108,7 @@
 </template>
 
 <script setup lang="ts" name="BlogCategory">
-import { ref, reactive, toRefs, getCurrentInstance, onMounted } from 'vue'
+import { ref, reactive, toRefs, computed, getCurrentInstance, onMounted } from 'vue'
 import {
   listCategory,
   getCategory,
@@ -110,6 +121,7 @@ const { proxy } = getCurrentInstance()
 const { sys_normal_disable } = proxy.useDict('sys_normal_disable')
 
 const categoryList = ref([])
+const categoryOptions = ref<any[]>([])
 const open = ref(false)
 const loading = ref(true)
 const showSearch = ref(true)
@@ -133,6 +145,11 @@ const data = reactive<Record<string, any>>({
 
 const { queryParams, form, rules } = toRefs(data)
 
+/** 上级分类候选：排除当前正在编辑的分类自身 */
+const parentOptions = computed(() =>
+  categoryOptions.value.filter(item => item.id !== form.value.id)
+)
+
 /** 查询分类列表 */
 function getList() {
   loading.value = true
@@ -144,6 +161,10 @@ function getList() {
     .finally(() => {
       loading.value = false
     })
+  // 拉取全部分类作为上级分类下拉选项
+  listCategory({ pageNum: 1, pageSize: 1000 }).then(response => {
+    categoryOptions.value = response.rows || []
+  })
 }
 
 /** 取消按钮 */
@@ -157,6 +178,7 @@ function reset() {
   form.value = {
     id: undefined,
     name: undefined,
+    parentId: 0,
     sort: 0
   }
   proxy.resetForm('categoryRef')

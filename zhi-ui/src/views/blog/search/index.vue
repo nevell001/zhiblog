@@ -20,43 +20,48 @@
           <div v-if="loading" v-loading="loading" class="search-loading"></div>
 
           <template v-else-if="hasSearched">
-            <div v-if="results.length > 0" class="search-summary">
-              找到 {{ total }} 篇与
-              <strong>“{{ query }}”</strong>
-              相关的文章
-            </div>
-            <el-empty v-else-if="query" description="没有找到相关文章，换个关键词试试吧">
-              <el-button type="primary" @click="resetSearch">清除搜索</el-button>
+            <el-empty v-if="searchError" :description="searchError">
+              <el-button type="primary" @click="doSearch(currentPage)">重新搜索</el-button>
             </el-empty>
-
-            <article
-              v-for="article in results"
-              :key="article.id"
-              class="result-card"
-              @click="goArticle(article.id)"
-            >
-              <div class="result-card-title">{{ article.title }}</div>
-              <p v-if="article.summary" class="result-card-excerpt">{{ article.summary }}</p>
-              <div class="result-card-meta">
-                <span class="author">{{ article.authorName || '作者' }}</span>
-                <span class="dot">·</span>
-                <span>{{ formatDate(article.createTime) }}</span>
-                <span class="dot">·</span>
-                <span>👁 {{ article.viewCount || 0 }}</span>
-                <span class="dot">·</span>
-                <span>💬 {{ article.commentCount || 0 }}</span>
+            <template v-else>
+              <div v-if="results.length > 0" class="search-summary">
+                找到 {{ total }} 篇与
+                <strong>“{{ query }}”</strong>
+                相关的文章
               </div>
-            </article>
+              <el-empty v-else-if="query" description="没有找到相关文章，换个关键词试试吧">
+                <el-button type="primary" @click="resetSearch">清除搜索</el-button>
+              </el-empty>
 
-            <div v-if="total > pageSize" class="search-pagination">
-              <button :disabled="currentPage <= 1" @click="changePage(currentPage - 1)">
-                上一页
-              </button>
-              <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 页</span>
-              <button :disabled="currentPage >= totalPages" @click="changePage(currentPage + 1)">
-                下一页
-              </button>
-            </div>
+              <article
+                v-for="article in results"
+                :key="article.id"
+                class="result-card"
+                @click="goArticle(article.id)"
+              >
+                <div class="result-card-title">{{ article.title }}</div>
+                <p v-if="article.summary" class="result-card-excerpt">{{ article.summary }}</p>
+                <div class="result-card-meta">
+                  <span class="author">{{ article.authorName || '作者' }}</span>
+                  <span class="dot">·</span>
+                  <span>{{ formatDate(article.createTime) }}</span>
+                  <span class="dot">·</span>
+                  <span>👁 {{ article.viewCount || 0 }}</span>
+                  <span class="dot">·</span>
+                  <span>💬 {{ article.commentCount || 0 }}</span>
+                </div>
+              </article>
+
+              <div v-if="total > pageSize" class="search-pagination">
+                <button :disabled="currentPage <= 1" @click="changePage(currentPage - 1)">
+                  上一页
+                </button>
+                <span class="page-info">第 {{ currentPage }} / {{ totalPages }} 页</span>
+                <button :disabled="currentPage >= totalPages" @click="changePage(currentPage + 1)">
+                  下一页
+                </button>
+              </div>
+            </template>
           </template>
         </div>
       </div>
@@ -72,6 +77,7 @@ import { searchArticles } from '@/api/blog/article'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { parseTime } from '@/utils/zhi'
+import logger from '@/utils/logger'
 
 const route = useRoute()
 const router = useRouter()
@@ -88,6 +94,7 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const loading = ref(false)
 const hasSearched = ref(false)
+const searchError = ref('')
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 
@@ -121,11 +128,16 @@ const doSearch = async (page = 1) => {
     keyword.value = kw
     currentPage.value = page
     hasSearched.value = true
-  } catch {
-    // 静默失败，展示空状态
+    searchError.value = ''
+  } catch (error) {
+    // 区分"请求失败"与"无结果"：失败时给出错误提示和重试入口，而不是伪装成搜索无结果
+    logger.error('搜索请求失败:', error)
     results.value = []
     total.value = 0
+    query.value = kw
+    keyword.value = kw
     hasSearched.value = true
+    searchError.value = '搜索失败，请检查网络后重试'
   } finally {
     loading.value = false
   }
