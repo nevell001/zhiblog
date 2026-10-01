@@ -76,8 +76,10 @@ function mountPage() {
         'el-switch': {
           props: ['modelValue', 'disabled'],
           emits: ['update:modelValue', 'change'],
-          // data-feature 通过默认 inheritAttrs 落到根元素上，供测试精确选取
-          template: '<button class="sw" :disabled="disabled" @click="$emit(\'change\')"></button>'
+          // data-feature / data-mail 通过默认 inheritAttrs 落到根元素上，供测试精确选取；
+          // 点击时按真实 el-switch 的口径同时抛出新值与 change(新值)
+          template:
+            '<button class="sw" :disabled="disabled" @click="$emit(\'update:modelValue\', !modelValue); $emit(\'change\', !modelValue)"></button>'
         },
         editor: { template: '<div class="editor-stub" />' }
       }
@@ -146,15 +148,16 @@ describe('BlogSetting 视图（行为）', () => {
     expect((review.element as HTMLButtonElement).disabled).toBe(true)
   })
 
-  it('切换功能开关会立即调用 updateSettingValueByKey 落库', async () => {
+  it('切换功能开关会把开关的新值落库', async () => {
     const wrapper = mountPage()
     await flushPromises()
 
-    // comment_enabled 默认为 true，触发 change → applySwitch 写入 'true'
+    // comment_enabled 默认 true，点击 → 关掉并写入 'false'
+    // （真实 el-switch 先更新 v-model 再抛 change，stub 按此口径发出新值）
     await wrapper.find('[data-feature="comment_enabled"]').trigger('click')
     await flushPromises()
 
-    expect(updateSettingValueByKey).toHaveBeenCalledWith('comment_enabled', 'true')
+    expect(updateSettingValueByKey).toHaveBeenCalledWith('comment_enabled', 'false')
     expect(ElMessage.success).toHaveBeenCalled()
   })
 
@@ -217,5 +220,40 @@ describe('BlogSetting 视图（行为）', () => {
     expect(testMailConfig).toHaveBeenCalledTimes(1)
     const payload = testMailConfig.mock.calls[0][0] as Record<string, unknown>
     expect(payload.host).toBe('smtp.example.com')
+  })
+
+  it('打开 STARTTLS 会自动关闭 SSL，提交不会出现两者同开', async () => {
+    // 回填：ssl=true / starttls=false
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await wrapper.find('[data-mail="starttls"]').trigger('click')
+    await flushPromises()
+
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存并生效'))
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    const payload = saveMailConfig.mock.calls[0][0] as Record<string, unknown>
+    expect(payload.starttls).toBe(true)
+    expect(payload.ssl).toBe(false)
+  })
+
+  it('后端回显两者同开时，只按 SSL 呈现', async () => {
+    // 环境变量基线可能让后端返回冲突值，表单不能照着画成两个都开
+    getMailConfig.mockResolvedValue({
+      code: 200,
+      data: { host: 'smtp.example.com', port: 465, username: 'a@b.com', ssl: true, starttls: true }
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存并生效'))
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    const payload = saveMailConfig.mock.calls[0][0] as Record<string, unknown>
+    expect(payload.ssl).toBe(true)
+    expect(payload.starttls).toBe(false)
   })
 })
