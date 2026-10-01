@@ -55,9 +55,9 @@ export function delFriendLink(ids: number | number[]): Promise<any> {
 }
 
 /**
- * 审核友链申请（status：0=拒绝/停用，1=通过/正常）
+ * 审核友链申请（status：'0'=通过/正常，'1'=拒绝/停用）
  */
-export function auditFriendLink(id: number, status: 0 | 1): Promise<any> {
+export function auditFriendLink(id: number, status: '0' | '1'): Promise<any> {
   return request({
     url: `/system/friendLink/audit/${id}/${status}`,
     method: 'put'

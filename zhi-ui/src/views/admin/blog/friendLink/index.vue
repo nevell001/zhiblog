@@ -369,7 +369,12 @@ function getList() {
   loading.value = true
   listFriendLink(queryParams.value)
     .then(response => {
-      friendLinkList.value = response.rows
+      // 后端 status 是 String；这里再显式规范一次，确保 el-switch 的
+      // [activeValue, inactiveValue].includes(status) 严格比较命中，不会在渲染时误触发 change。
+      friendLinkList.value = (response.rows || []).map(row => ({
+        ...row,
+        status: row.status === null || row.status === undefined ? row.status : String(row.status)
+      }))
       total.value = response.total
     })
     .finally(() => {
