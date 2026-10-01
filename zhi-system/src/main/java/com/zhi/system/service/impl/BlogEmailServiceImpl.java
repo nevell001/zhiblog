@@ -6,13 +6,13 @@ import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.BlogEmailCode;
 import com.zhi.system.mapper.BlogEmailCodeMapper;
 import com.zhi.system.service.IBlogEmailService;
+import com.zhi.system.service.MailConfigService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,14 +49,11 @@ public class BlogEmailServiceImpl implements IBlogEmailService
     @Value("${spring.profiles.active:dev}")
     private String activeProfile = "dev";
 
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    @Autowired
+    private MailConfigService mailConfigService;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-
-    @Value("${spring.mail.username:}")
-    private String mailFrom;
 
     /**
      * 发送注册验证码
@@ -101,19 +98,19 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         {
             return false;
         }
-        if (mailSender == null || StringUtils.isEmpty(mailFrom))
+        if (!mailConfigService.isReady())
         {
-            log.debug("通知邮件未发送：未配置邮件服务 email={}, subject={}", email, subject);
+            log.debug("通知邮件未发送：未配置或未启用邮件服务 email={}, subject={}", email, subject);
             return false;
         }
         try
         {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(mailFrom);
+            message.setFrom(mailConfigService.getFrom());
             message.setTo(email);
             message.setSubject(subject);
             message.setText(content);
-            mailSender.send(message);
+            mailConfigService.getSender().send(message);
             log.info("通知邮件发送成功：email={}, subject={}", email, subject);
             return true;
         }
@@ -192,17 +189,17 @@ public class BlogEmailServiceImpl implements IBlogEmailService
             }
 
             // 生产环境：发送邮件
-            if (mailSender != null && StringUtils.isNotEmpty(mailFrom))
+            if (mailConfigService.isReady())
             {
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom(mailFrom);
+                message.setFrom(mailConfigService.getFrom());
                 message.setTo(email);
                 message.setSubject(subject + " - 验证码");
                 message.setText("您的验证码是：" + code + "\n" +
                         "有效期：" + emailCodeConfig.getExpireMinutes() + " 分钟\n" +
                         "请勿将验证码告诉他人。");
 
-                mailSender.send(message);
+                mailConfigService.getSender().send(message);
                 log.info("验证码邮件发送成功：email={}, type={}", email, codeType);
                 return true;
             }

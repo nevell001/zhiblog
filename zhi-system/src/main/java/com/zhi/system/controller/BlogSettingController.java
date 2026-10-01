@@ -1,6 +1,7 @@
 package com.zhi.system.controller;
 
 import java.util.List;
+import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zhi.system.domain.SysConfig;
@@ -21,7 +22,9 @@ import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
 import com.zhi.system.domain.BlogSetting;
+import com.zhi.system.domain.MailConfigForm;
 import com.zhi.system.service.IBlogSettingService;
+import com.zhi.system.service.MailConfigService;
 import com.zhi.common.core.page.TableDataInfo;
 
 /**
@@ -43,6 +46,9 @@ public class BlogSettingController extends BaseController
     @Autowired
     private UnifiedCacheManager unifiedCacheManager;
 
+    @Autowired
+    private MailConfigService mailConfigService;
+
     /**
      * 查询博客设置列表
      */
@@ -52,6 +58,7 @@ public class BlogSettingController extends BaseController
     {
         startPage();
         List<BlogSetting> list = blogSettingService.selectBlogSettingList(blogSetting);
+        list.forEach(this::maskMailPassword);
         return getDataTable(list);
     }
 
@@ -63,6 +70,10 @@ public class BlogSettingController extends BaseController
     public AjaxResult getSettingValueByKey(@PathVariable("settingKey") String settingKey)
     {
         String value = blogSettingService.selectSettingValueByKey(settingKey);
+        if (MailConfigService.KEY_PASSWORD.equals(settingKey))
+        {
+            value = (value == null || value.isEmpty()) ? "" : MailConfigService.PASSWORD_MASK;
+        }
         return success(value);
     }
 
@@ -73,7 +84,19 @@ public class BlogSettingController extends BaseController
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(blogSettingService.selectBlogSettingById(id));
+        BlogSetting setting = blogSettingService.selectBlogSettingById(id);
+        maskMailPassword(setting);
+        return success(setting);
+    }
+
+    /** 管理端读取博客设置时，SMTP 密码永不返回明文 */
+    private void maskMailPassword(BlogSetting setting)
+    {
+        if (setting != null && MailConfigService.KEY_PASSWORD.equals(setting.getSettingKey()))
+        {
+            String raw = setting.getSettingValue();
+            setting.setSettingValue((raw == null || raw.isEmpty()) ? "" : MailConfigService.PASSWORD_MASK);
+        }
     }
 
     /**
@@ -133,14 +156,20 @@ public class BlogSettingController extends BaseController
      */
     private AjaxResult applySettingUpdateByKey(BlogSetting blogSetting)
     {
+        String settingKey = blogSetting.getSettingKey();
+        // mail_* 走专用接口：它需要热更新 sender，且绝不能被镜像进 sys_config（含密码）
+        if (settingKey != null && settingKey.startsWith("mail_"))
+        {
+            return AjaxResult.error("邮件配置请使用邮件服务专用设置入口");
+        }
+
         int result = blogSettingService.updateSettingValueByKey(
-            blogSetting.getSettingKey(), blogSetting.getSettingValue());
+            settingKey, blogSetting.getSettingValue());
         if (result <= 0)
         {
             return toAjax(result);
         }
 
-        String settingKey = blogSetting.getSettingKey();
         String settingValue = blogSetting.getSettingValue();
 
         // 同步 sys_config 表（前台设置的真实读取源）
@@ -181,6 +210,40 @@ public class BlogSettingController extends BaseController
         }
 
         return toAjax(result);
+    }
+
+    /**
+     * 获取邮件（SMTP）服务配置（脱敏：不返回密码明文，仅返回是否已配置）
+     */
+    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @GetMapping("/mail")
+    public AjaxResult getMailConfig()
+    {
+        Map<String, Object> view = mailConfigService.getMaskedView();
+        return success(view);
+    }
+
+    /**
+     * 保存邮件（SMTP）配置：写 blog_setting 并热更新到活的邮件发送器（不重启、不进 sys_config）。
+     * 提交空密码表示保留原密码。
+     */
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @Log(title = "邮件服务配置", businessType = BusinessType.UPDATE)
+    @PostMapping("/mail")
+    public AjaxResult saveMailConfig(@RequestBody MailConfigForm form)
+    {
+        return success(mailConfigService.save(form));
+    }
+
+    /**
+     * 测试当前邮件配置能否连接 SMTP 服务器
+     */
+    @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
+    @PostMapping("/mail/test")
+    public AjaxResult testMailConfig()
+    {
+        boolean ok = mailConfigService.testConnection();
+        return ok ? success("连接成功") : error("连接失败，请检查主机、端口、账号密码与 SSL/STARTTLS 设置");
     }
 
     /**

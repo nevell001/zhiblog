@@ -43,6 +43,9 @@ class BlogSettingControllerTest {
     @MockBean
     private com.zhi.common.cache.UnifiedCacheManager unifiedCacheManager;
 
+    @MockBean
+    private com.zhi.system.service.MailConfigService mailConfigService;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -432,5 +435,63 @@ class BlogSettingControllerTest {
                 .content(objectMapper.writeValueAsString(params)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(500));
+    }
+
+    /**
+     * mail_* 键必须走邮件专用接口：通用 updateByKey 会把它镜像进 sys_config（含密码），
+     * 因此这里要直接拒绝，且不能落到 blog_setting。
+     */
+    @Test
+    void testUpdateSettingByKey_RejectsMailKey() throws Exception {
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "mail_password");
+        params.put("settingValue", "secret");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+
+        verify(blogSettingService, never()).updateSettingValueByKey(eq("mail_password"), anyString());
+    }
+
+    /** 管理端列表读取时 SMTP 密码必须脱敏 */
+    @Test
+    void testGetSettingList_MasksMailPassword() throws Exception {
+        List<com.zhi.system.domain.BlogSetting> settingList = new ArrayList<>();
+        com.zhi.system.domain.BlogSetting secret = new com.zhi.system.domain.BlogSetting();
+        secret.setId(9L);
+        secret.setSettingKey("mail_password");
+        secret.setSettingValue("super-secret");
+        settingList.add(secret);
+
+        when(blogSettingService.selectBlogSettingList(any(com.zhi.system.domain.BlogSetting.class)))
+            .thenReturn(settingList);
+
+        mockMvc.perform(get("/system/setting/list")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.rows[0].settingKey").value("mail_password"))
+                .andExpect(jsonPath("$.rows[0].settingValue").value(com.zhi.system.service.MailConfigService.PASSWORD_MASK));
+    }
+
+    /** 邮件配置读取端点：返回脱敏视图，不含 password 字段 */
+    @Test
+    void testGetMailConfig_returnsMaskedView() throws Exception {
+        Map<String, Object> view = new HashMap<>();
+        view.put("host", "smtp.example.com");
+        view.put("port", 465);
+        view.put("username", "no-reply@example.com");
+        view.put("hasPassword", true);
+        when(mailConfigService.getMaskedView()).thenReturn(view);
+
+        mockMvc.perform(get("/system/setting/mail")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.host").value("smtp.example.com"))
+                .andExpect(jsonPath("$.data.hasPassword").value(true))
+                .andExpect(jsonPath("$.data.password").doesNotExist());
     }
 }
