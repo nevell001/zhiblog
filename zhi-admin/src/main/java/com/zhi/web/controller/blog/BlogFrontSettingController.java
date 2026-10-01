@@ -242,7 +242,11 @@ public class BlogFrontSettingController extends BaseController {
             return AjaxResult.error("不支持的配置键");
         }
         try {
-            String configValue = configService.selectConfigByKey(configKey);
+            // 与 getBlogSettings() 同口径：优先读 blog_setting，回退 sys_config，最后取默认值
+            String configValue = blogSettingService.selectSettingValueByKey(configKey);
+            if (StringUtils.isEmpty(configValue)) {
+                configValue = configService.selectConfigByKey(configKey);
+            }
             if (StringUtils.isNotEmpty(configValue)) {
                 return AjaxResult.success(configValue);
             } else {

@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
+import com.zhi.common.enums.LimitType;
 import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.system.service.IBlogLikeService;
@@ -36,6 +38,7 @@ public class BlogLikeController extends BaseController
     /**
      * 切换文章点赞
      */
+    @RateLimiter(key = "blog:like:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/article/{articleId}")
     public AjaxResult toggleArticleLike(@PathVariable("articleId") Long articleId)
     {
@@ -64,6 +67,7 @@ public class BlogLikeController extends BaseController
     /**
      * 切换评论点赞
      */
+    @RateLimiter(key = "blog:like:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/comment/{commentId}")
     public AjaxResult toggleCommentLike(@PathVariable("commentId") Long commentId)
     {

@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.zhi.common.annotation.RateLimiter;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
+import com.zhi.common.enums.LimitType;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.system.service.IBlogBookmarkService;
 
@@ -26,6 +28,7 @@ public class BlogBookmarkController extends BaseController {
     /**
      * 切换收藏状态
      */
+    @RateLimiter(key = "blog:bookmark:", time = 60, count = 30, limitType = LimitType.IP)
     @PostMapping("/toggle/{articleId}")
     public AjaxResult toggleBookmark(@PathVariable("articleId") Long articleId) {
         Long userId = SecurityUtils.getUserId();
