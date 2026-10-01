@@ -66,7 +66,8 @@ function mountPage() {
         'el-input-number': { props: ['modelValue'], template: '<input type="number" />' },
         'el-button': { template: '<button><slot /></button>' },
         'el-icon': { template: '<i><slot /></i>' },
-        'el-alert': { template: '<div><slot /></div>' },
+        // el-alert 的标题走 title 属性而非默认插槽，stub 必须渲染出来才可断言
+        'el-alert': { props: ['title'], template: '<div class="alert">{{ title }}<slot /></div>' },
         'el-divider': { template: '<hr />' },
         'el-select': { template: '<div><slot /></div>' },
         'el-option': { template: '<span><slot /></span>' },
@@ -255,5 +256,32 @@ describe('BlogSetting 视图（行为）', () => {
     const payload = saveMailConfig.mock.calls[0][0] as Record<string, unknown>
     expect(payload.ssl).toBe(true)
     expect(payload.starttls).toBe(false)
+  })
+
+  it('dev-print-code 打开时，邮件服务页显式警告不会真实发信', async () => {
+    getMailConfig.mockResolvedValue({
+      code: 200,
+      data: {
+        host: 'smtp.126.com',
+        port: 465,
+        username: 'a@b.com',
+        ssl: true,
+        starttls: false,
+        devPrintCode: true
+      }
+    })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const warn = wrapper.find('[data-mail="dev-print"]')
+    expect(warn.exists()).toBe(true)
+    expect(warn.text()).toContain('不会真实发信')
+  })
+
+  it('dev-print-code 关闭时不显示该警告', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.find('[data-mail="dev-print"]').exists()).toBe(false)
   })
 })

@@ -1,10 +1,12 @@
 package com.zhi.system.controller;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.zhi.system.domain.SysConfig;
+import com.zhi.system.service.IBlogEmailService;
 import com.zhi.system.service.ISysConfigService;
 import com.zhi.common.cache.UnifiedCacheManager;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,6 +50,9 @@ public class BlogSettingController extends BaseController
 
     @Autowired
     private MailConfigService mailConfigService;
+
+    @Autowired
+    private IBlogEmailService blogEmailService;
 
     /**
      * 查询博客设置列表
@@ -214,12 +219,16 @@ public class BlogSettingController extends BaseController
 
     /**
      * 获取邮件（SMTP）服务配置（脱敏：不返回密码明文，仅返回是否已配置）
+     *
+     * <p>额外带上 dev-print-code 状态：该开关为真时验证码只打印到日志、不会真实发信，
+     * 否则"测试连接成功却收不到信"在管理端无从判断。</p>
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:query')")
     @GetMapping("/mail")
     public AjaxResult getMailConfig()
     {
-        Map<String, Object> view = mailConfigService.getMaskedView();
+        Map<String, Object> view = new LinkedHashMap<>(mailConfigService.getMaskedView());
+        view.put("devPrintCode", blogEmailService.isDevPrintCodeEnabled());
         return success(view);
     }
 

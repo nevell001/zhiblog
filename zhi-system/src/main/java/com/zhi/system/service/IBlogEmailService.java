@@ -88,4 +88,12 @@ public interface IBlogEmailService
      * @return true=允许发送, false=频率限制
      */
     boolean checkIpRateLimit(String ipAddress);
+
+    /**
+     * 是否处于"开发环境打印验证码"模式：为真时验证码只写日志、不会真实发信。
+     * 生产 profile 下恒为 false。
+     *
+     * @return true=只打印不发信
+     */
+    boolean isDevPrintCodeEnabled();
 }

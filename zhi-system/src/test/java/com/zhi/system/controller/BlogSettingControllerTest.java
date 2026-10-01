@@ -46,6 +46,9 @@ class BlogSettingControllerTest {
     @MockBean
     private com.zhi.system.service.MailConfigService mailConfigService;
 
+    @MockBean
+    private com.zhi.system.service.IBlogEmailService blogEmailService;
+
     private ObjectMapper objectMapper;
 
     @BeforeEach
@@ -476,7 +479,7 @@ class BlogSettingControllerTest {
                 .andExpect(jsonPath("$.rows[0].settingValue").value(com.zhi.system.service.MailConfigService.PASSWORD_MASK));
     }
 
-    /** 邮件配置读取端点：返回脱敏视图，不含 password 字段 */
+    /** 邮件配置读取端点：返回脱敏视图（不含 password），并带上"只打印不发信"的开发模式状态 */
     @Test
     void testGetMailConfig_returnsMaskedView() throws Exception {
         Map<String, Object> view = new HashMap<>();
@@ -485,6 +488,7 @@ class BlogSettingControllerTest {
         view.put("username", "no-reply@example.com");
         view.put("hasPassword", true);
         when(mailConfigService.getMaskedView()).thenReturn(view);
+        when(blogEmailService.isDevPrintCodeEnabled()).thenReturn(true);
 
         mockMvc.perform(get("/system/setting/mail")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -492,6 +496,19 @@ class BlogSettingControllerTest {
                 .andExpect(jsonPath("$.code").value(200))
                 .andExpect(jsonPath("$.data.host").value("smtp.example.com"))
                 .andExpect(jsonPath("$.data.hasPassword").value(true))
+                .andExpect(jsonPath("$.data.devPrintCode").value(true))
                 .andExpect(jsonPath("$.data.password").doesNotExist());
+    }
+
+    /** 开发模式关闭时该字段必须是 false，前端据此不再显示"不会真实发信"的警告 */
+    @Test
+    void testGetMailConfig_reportsDevPrintDisabled() throws Exception {
+        when(mailConfigService.getMaskedView()).thenReturn(new HashMap<>());
+        when(blogEmailService.isDevPrintCodeEnabled()).thenReturn(false);
+
+        mockMvc.perform(get("/system/setting/mail")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.devPrintCode").value(false));
     }
 }

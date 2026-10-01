@@ -430,6 +430,14 @@
               :closable="false"
               class="tab-alert"
             />
+            <el-alert
+              v-if="mailForm.devPrintCode"
+              title="当前 email-code.dev-print-code=true：验证码只打印到后端控制台，不会真实发信。要收信请把该环境变量改为 false 并重启后端。"
+              type="warning"
+              :closable="false"
+              class="tab-alert"
+              data-mail="dev-print"
+            />
             <el-form-item label="启用邮件服务">
               <el-switch v-model="mailForm.enabled" active-text="启用" inactive-text="关闭" />
               <div class="setting-tip">
@@ -548,7 +556,8 @@ const mailForm = ref({
   ssl: true,
   starttls: false,
   enabled: true,
-  hasPassword: false
+  hasPassword: false,
+  devPrintCode: false
 })
 const mailSaving = ref(false)
 const mailTesting = ref(false)
@@ -956,6 +965,7 @@ async function fetchMailConfig() {
       mailForm.value.starttls = !!view.starttls && !view.ssl
       mailForm.value.enabled = view.enabled !== false
       mailForm.value.hasPassword = !!view.hasPassword
+      mailForm.value.devPrintCode = !!view.devPrintCode
       mailForm.value.password = ''
     }
   } catch {

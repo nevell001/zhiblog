@@ -96,6 +96,8 @@ export interface MailConfigView {
   ssl: boolean
   starttls: boolean
   enabled: boolean
+  /** 后端 email-code.dev-print-code：为真时验证码只打印日志、不会真实发信 */
+  devPrintCode?: boolean
 }
 
 /** 邮件（SMTP）配置保存载荷；password 留空表示保留原密码 */

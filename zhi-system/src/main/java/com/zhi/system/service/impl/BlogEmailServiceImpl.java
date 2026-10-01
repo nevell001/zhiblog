@@ -361,7 +361,8 @@ public class BlogEmailServiceImpl implements IBlogEmailService
      * <p>生产 profile 下一律返回 false：否则验证码只会写进日志而不真正发邮件，
      * 并且 {@link #checkIpRateLimit} 会连带跳过 IP 频率限制。</p>
      */
-    boolean isDevPrintCodeEnabled()
+    @Override
+    public boolean isDevPrintCodeEnabled()
     {
         if (activeProfile != null && activeProfile.contains("prod"))
         {
