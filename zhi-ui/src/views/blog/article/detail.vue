@@ -234,6 +234,10 @@
                     {{ comment.liked ? '❤️' : '👍' }} {{ comment.likeCount || 0 }}
                   </span>
                   <span @click="handleReply(comment)">💬 回复</span>
+                  <template v-if="isMyComment(comment)">
+                    <span class="c-edit" @click="editMyComment(comment)">✏️ 编辑</span>
+                    <span class="c-delete" @click="removeMyComment(comment)">🗑️ 删除</span>
+                  </template>
                 </div>
 
                 <div v-if="comment.replies && comment.replies.length > 0" class="c-reply">
@@ -245,6 +249,10 @@
                         <span class="c-time">{{ formatDate(reply.createTime) }}</span>
                       </div>
                       <div class="c-text">{{ reply.content }}</div>
+                      <div v-if="isMyComment(reply)" class="c-actions">
+                        <span class="c-edit" @click="editMyComment(reply)">✏️ 编辑</span>
+                        <span class="c-delete" @click="removeMyComment(reply)">🗑️ 删除</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -264,7 +272,7 @@ import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { ElMessage } from '@/plugins/element-plus-service'
+import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import ShareButton from '@/components/ShareButton.vue'
@@ -277,7 +285,12 @@ import {
 } from '@/api/blog/like'
 import { toggleBookmark } from '@/api/blog/bookmark'
 
-import { getArticleComments, addBlogComment as apiSubmitComment } from '@/api/blog/comment'
+import {
+  getArticleComments,
+  addBlogComment as apiSubmitComment,
+  updateMyComment,
+  deleteMyComment
+} from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { createRequestGuard } from '@/utils/requestGuard'
@@ -662,6 +675,65 @@ const submitComment = async () => {
     }
   } finally {
     commentSubmitting.value = false
+  }
+}
+
+// 当前登录用户 ID（permission.ts 已在有 token 时调用 getInfo 填充 userStore.userId）
+const currentUserId = computed(() => {
+  const id = userStore.userId
+  return id === undefined || id === null || id === '' ? null : Number(id)
+})
+
+// 是否为本人评论（仅登录用户且 userId 匹配才显示改删入口）
+const isMyComment = (comment: any) => {
+  const uid = currentUserId.value
+  return (
+    isLoggedIn.value && uid !== null && !!comment && Number(comment.userId) === uid
+  )
+}
+
+// 编辑本人评论
+const editMyComment = async (comment: any) => {
+  try {
+    const { value } = await ElMessageBox.prompt('修改评论', '编辑', {
+      inputValue: comment.content,
+      inputType: 'textarea',
+      inputValidator: val => {
+        const text = (val || '').trim()
+        if (!text) return '评论内容不能为空'
+        if (text.length > 500) return '评论内容长度不能超过500个字符'
+        return true
+      },
+      confirmButtonText: '保存',
+      cancelButtonText: '取消'
+    })
+    await updateMyComment(comment.id, { content: value.trim() })
+    ElMessage.success('评论已更新')
+    await loadComments()
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      logger.error('修改评论失败:', error)
+      ElMessage.error('修改评论失败')
+    }
+  }
+}
+
+// 删除本人评论
+const removeMyComment = async (comment: any) => {
+  try {
+    await ElMessageBox.confirm('确认删除这条评论吗？', '删除评论', {
+      type: 'warning',
+      confirmButtonText: '删除',
+      cancelButtonText: '取消'
+    })
+    await deleteMyComment(comment.id)
+    ElMessage.success('评论已删除')
+    await loadComments()
+  } catch (error: any) {
+    if (error !== 'cancel') {
+      logger.error('删除评论失败:', error)
+      ElMessage.error('删除评论失败')
+    }
   }
 }
 
@@ -1341,6 +1413,10 @@ html.dark .mo-article-page .content-body {
 
 .mo-article-page .c-actions span {
   cursor: pointer;
+}
+
+.mo-article-page .c-actions .c-delete:hover {
+  color: var(--el-color-danger);
 }
 
 .mo-article-page .c-reply {

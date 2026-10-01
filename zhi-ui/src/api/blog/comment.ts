@@ -76,6 +76,27 @@ export function addBlogComment(data: Comment): Promise<any> {
 }
 
 /**
+ * 修改本人评论（前台用，需登录 + 服务端归属校验）
+ */
+export function updateMyComment(id: number, data: { content: string }): Promise<any> {
+  return request({
+    url: '/blog/comment/' + id,
+    method: 'put',
+    data: data
+  })
+}
+
+/**
+ * 删除本人评论（前台用，需登录 + 服务端归属校验）
+ */
+export function deleteMyComment(id: number): Promise<any> {
+  return request({
+    url: '/blog/comment/' + id,
+    method: 'delete'
+  })
+}
+
+/**
  * 审核评论
  */
 export function auditComment(id: number): Promise<any> {

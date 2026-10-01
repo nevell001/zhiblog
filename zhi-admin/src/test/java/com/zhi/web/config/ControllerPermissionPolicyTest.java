@@ -71,6 +71,8 @@ class ControllerPermissionPolicyTest
         "BlogLikeController#",                  // 点赞状态与切换
         "BlogNotificationController#",          // 站内通知
         "BlogArticleController#getMyArticles",  // 我的文章
+        "BlogFrontController#updateMyComment",  // 改自己评论：登录即可，服务端按当前 userId 校验归属
+        "BlogFrontController#deleteMyComment",  // 删自己评论：登录即可，服务端按当前 userId 校验归属
 
         // ── RuoYi 约定的「登录即可读」的下拉/树数据 ─────────────────────────
         "SysLoginController#getRouters",        // 当前用户可访问菜单

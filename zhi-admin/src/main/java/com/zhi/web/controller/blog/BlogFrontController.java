@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -310,7 +312,10 @@ public class BlogFrontController extends BaseController
             boolean shouldCount = BlogSwitchUtils.isOn(viewCountEnabled);
 
             if (shouldCount) {
-                blogArticleService.addViewCount(id, buildViewerKey(request));
+                String viewerKey = buildViewerKey(request);
+                blogArticleService.addViewCount(id, viewerKey);
+                // 文章访问同样写入 blog_visit_log 明细，否则管理端文章 PV/UV 明细永远为空
+                blogVisitLogService.recordVisit("article", id, "/blog/article/" + id, viewerKey, request);
                 logger.info("文章浏览量已增加，ID: {}", id);
             } else {
                 logger.info("浏览统计已禁用，跳过增加浏览量，ID: {}", id);
@@ -682,6 +687,67 @@ public class BlogFrontController extends BaseController
                     commentReviewSetting);
 
         return toAjax(blogCommentService.insertBlogComment(blogComment));
+    }
+
+    /**
+     * 修改本人评论（需登录 + 归属校验）
+     */
+    @RateLimiter(key = "blog:comment:update:", time = 60, count = 10, limitType = LimitType.IP)
+    @PutMapping("/comment/{id}")
+    public AjaxResult updateMyComment(@PathVariable("id") Long id, @RequestBody BlogComment payload)
+    {
+        Long userId = SecurityUtils.getUserId();
+        if (userId == null)
+        {
+            return error("请先登录");
+        }
+        BlogComment existing = blogCommentService.selectBlogCommentById(id);
+        if (existing == null || !userId.equals(existing.getUserId()))
+        {
+            return error("评论不存在或无权修改");
+        }
+
+        String content = payload == null ? null : payload.getContent();
+        if (content == null || content.trim().isEmpty())
+        {
+            return error("评论内容不能为空");
+        }
+        if (content.length() > 500)
+        {
+            return error("评论内容长度不能超过500个字符");
+        }
+
+        BlogComment update = new BlogComment();
+        update.setId(id);
+        update.setContent(content);
+        update.setUpdateBy(SecurityUtils.getUsername());
+        update.setUpdateTime(new java.util.Date());
+        // 编辑后若开启评论审核则回退为待审核，避免发布后绕过审核改写内容
+        if (BlogSwitchUtils.isOn(blogSettingService.selectSettingValueByKey("comment_review")))
+        {
+            update.setStatus("0");
+        }
+        return toAjax(blogCommentService.updateBlogComment(update));
+    }
+
+    /**
+     * 删除本人评论（需登录 + 归属校验）
+     */
+    @RateLimiter(key = "blog:comment:delete:", time = 60, count = 10, limitType = LimitType.IP)
+    @DeleteMapping("/comment/{id}")
+    public AjaxResult deleteMyComment(@PathVariable("id") Long id)
+    {
+        Long userId = SecurityUtils.getUserId();
+        if (userId == null)
+        {
+            return error("请先登录");
+        }
+        BlogComment existing = blogCommentService.selectBlogCommentById(id);
+        if (existing == null || !userId.equals(existing.getUserId()))
+        {
+            return error("评论不存在或无权删除");
+        }
+        return toAjax(blogCommentService.deleteBlogCommentById(id));
     }
 
     /**
