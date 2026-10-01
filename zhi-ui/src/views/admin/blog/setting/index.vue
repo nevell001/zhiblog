@@ -525,11 +525,13 @@ import {
   ChatDotRound,
   Search as SearchIcon,
   Grid,
-  Message
+  Message,
+  User
 } from '@element-plus/icons-vue'
 import {
   listSetting,
   updateSettingValueByKey,
+  getRegistrationSwitch,
   getMailConfig,
   saveMailConfig,
   testMailConfig
@@ -577,6 +579,9 @@ const themeColorOptions = ['#4f46e5', '#334155', '#0f766e', '#7c3aed', '#9a3412'
 
 const robotsOptions = ['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow']
 
+/** 注册开关的参数键：真实值在 sys_config（两个注册入口都读它），blog_setting 只是镜像 */
+const REGISTER_KEY = 'sys.account.registerUser'
+
 /** 功能设置分组：每项对应一个 blog_setting 开关键，改动即落库 */
 interface FeatureItem {
   key: string
@@ -600,6 +605,19 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
       },
       { key: 'like_enabled', label: '点赞功能', desc: '允许访客为文章点赞' },
       { key: 'share_enabled', label: '分享功能', desc: '允许访客分享文章到社交媒体' }
+    ]
+  },
+  {
+    title: '账号',
+    desc: '访客注册入口',
+    icon: User,
+    items: [
+      {
+        key: REGISTER_KEY,
+        label: '用户注册',
+        desc: '允许前台注册账号，同时控制后台登录页的自助注册；关闭时注册接口一律拒绝',
+        instant: true
+      }
     ]
   },
   {
@@ -692,6 +710,8 @@ const defaultSettings: Record<string, any> = {
   friend_link_enabled: true,
   friend_link_apply_enabled: true,
   email_notify_enabled: true,
+  // 用户注册（真实值读自 sys_config，默认关闭与 SQL 种子一致）
+  [REGISTER_KEY]: false,
   // 个人信息
   blog_email: '',
   author_title: '',
@@ -747,6 +767,9 @@ const managedKeys = [
   'about_content'
 ]
 const managedKeySet = new Set(managedKeys)
+
+/** 数据源在 sys_config 的开关：blog_setting 里只有它的镜像行，加载时一并合并进来 */
+const sysConfigKeySet = new Set([REGISTER_KEY])
 
 const tabTitle = computed(() => {
   const titleMap: Record<string, string> = {
@@ -854,10 +877,20 @@ async function getAllSettings() {
 
     const merged: Record<string, any> = { ...defaultSettings }
     Object.keys(loaded).forEach(key => {
-      if (managedKeySet.has(key) && loaded[key] !== undefined) {
+      if ((managedKeySet.has(key) || sysConfigKeySet.has(key)) && loaded[key] !== undefined) {
         merged[key] = loaded[key]
       }
     })
+
+    // 注册开关以 sys_config 的真实生效值为准：博客设置页其余项读 blog_setting，
+    // 而 BlogAuthController / SysRegisterController 拦的是 sys.account.registerUser，
+    // 只读本地镜像就会出现"卡片显示已开启、注册仍被拒"
+    try {
+      const res = await getRegistrationSwitch()
+      merged[REGISTER_KEY] = !!res.data
+    } catch {
+      // 读不到就保留镜像值，不让整页回退到默认设置
+    }
 
     settingsMap.value = merged
     originalSettings.value = toStoredMap(merged)

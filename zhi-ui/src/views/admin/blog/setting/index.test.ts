@@ -13,6 +13,7 @@ import BlogSetting from './index.vue'
 const {
   listSetting,
   updateSettingValueByKey,
+  getRegistrationSwitch,
   clearBlogCache,
   getMailConfig,
   saveMailConfig,
@@ -21,6 +22,7 @@ const {
 } = vi.hoisted(() => ({
   listSetting: vi.fn(),
   updateSettingValueByKey: vi.fn(),
+  getRegistrationSwitch: vi.fn(),
   clearBlogCache: vi.fn(),
   getMailConfig: vi.fn(),
   saveMailConfig: vi.fn(),
@@ -31,6 +33,7 @@ const {
 vi.mock('@/api/admin/blog/setting', () => ({
   listSetting: (...args: unknown[]) => listSetting(...args),
   updateSettingValueByKey: (...args: unknown[]) => updateSettingValueByKey(...args),
+  getRegistrationSwitch: (...args: unknown[]) => getRegistrationSwitch(...args),
   getMailConfig: (...args: unknown[]) => getMailConfig(...args),
   saveMailConfig: (...args: unknown[]) => saveMailConfig(...args),
   testMailConfig: (...args: unknown[]) => testMailConfig(...args)
@@ -78,9 +81,9 @@ function mountPage() {
           props: ['modelValue', 'disabled'],
           emits: ['update:modelValue', 'change'],
           // data-feature / data-mail 通过默认 inheritAttrs 落到根元素上，供测试精确选取；
-          // 点击时按真实 el-switch 的口径同时抛出新值与 change(新值)
+          // data-on 暴露开关当前呈现的状态，点击时按真实 el-switch 的口径同时抛出新值与 change(新值)
           template:
-            '<button class="sw" :disabled="disabled" @click="$emit(\'update:modelValue\', !modelValue); $emit(\'change\', !modelValue)"></button>'
+            '<button class="sw" :disabled="disabled" :data-on="String(!!modelValue)" @click="$emit(\'update:modelValue\', !modelValue); $emit(\'change\', !modelValue)"></button>'
         },
         editor: { template: '<div class="editor-stub" />' }
       }
@@ -99,6 +102,7 @@ describe('BlogSetting 视图（行为）', () => {
       rows: [{ configKey: 'blog_name', configValue: 'X' }]
     })
     updateSettingValueByKey.mockResolvedValue({ code: 200 })
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
     clearBlogCache.mockResolvedValue({ code: 200 })
     getMailConfig.mockResolvedValue({
       code: 200,
@@ -283,5 +287,43 @@ describe('BlogSetting 视图（行为）', () => {
     await flushPromises()
 
     expect(wrapper.find('[data-mail="dev-print"]').exists()).toBe(false)
+  })
+
+  it('用户注册开关显示注册入口实际读到的值，而不是本地镜像', async () => {
+    // blog_setting 的镜像说"开"，sys_config（两个注册入口的读取源）说"关"：卡片必须显示关，
+    // 否则用户会看到"已开启却仍提示当前系统没有开启注册功能"
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [{ configKey: 'sys.account.registerUser', configValue: 'true' }]
+    })
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: false })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const sw = wrapper.find('[data-feature="sys.account.registerUser"]')
+    expect(sw.exists()).toBe(true)
+    expect(sw.attributes('data-on')).toBe('false')
+  })
+
+  it('注册入口读到的值为开启时，用户注册开关显示为开', async () => {
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: true })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    expect(wrapper.find('[data-feature="sys.account.registerUser"]').attributes('data-on')).toBe(
+      'true'
+    )
+  })
+
+  it('切换用户注册会把新值落库（后端据此同步 sys_config 并清缓存）', async () => {
+    getRegistrationSwitch.mockResolvedValue({ code: 200, data: true })
+    const wrapper = mountPage()
+    await flushPromises()
+
+    await wrapper.find('[data-feature="sys.account.registerUser"]').trigger('click')
+    await flushPromises()
+
+    expect(updateSettingValueByKey).toHaveBeenCalledWith('sys.account.registerUser', 'false')
+    expect(ElMessage.success).toHaveBeenCalled()
   })
 })

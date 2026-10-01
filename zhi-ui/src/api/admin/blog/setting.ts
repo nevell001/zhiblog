@@ -87,6 +87,17 @@ export function updateSettingValueByKey(key: string, value: string): Promise<any
   })
 }
 
+/**
+ * 用户注册开关的生效值。
+ * 该开关的真实数据源是 sys_config（两个注册入口都读它），后端按同一口径判定后返回布尔。
+ */
+export function getRegistrationSwitch(): Promise<DataResult<boolean>> {
+  return request({
+    url: '/system/setting/registration',
+    method: 'get'
+  })
+}
+
 /** 邮件（SMTP）配置读取（脱敏，不含密码明文） */
 export interface MailConfigView {
   host: string

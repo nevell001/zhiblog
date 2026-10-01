@@ -145,4 +145,14 @@ describe('Blog Setting API 测试', () => {
       })
     })
   })
+
+  describe('getRegistrationSwitch', () => {
+    it('应该调用注册开关接口', () => {
+      settingApi.getRegistrationSwitch()
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/setting/registration',
+        method: 'get'
+      })
+    })
+  })
 })
