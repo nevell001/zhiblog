@@ -511,4 +511,25 @@ class BlogSettingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.devPrintCode").value(false));
     }
+
+    /**
+     * 注册开关读的是 sys_config（两个注册入口的读取源），而不是 blog_setting，
+     * 且判定口径与注册入口一致：只有字面 "true" 算开启。
+     */
+    @Test
+    void testGetRegistrationSwitch_readsSysConfigWithStrictTrueRule() throws Exception {
+        when(configService.selectConfigByKey("sys.account.registerUser")).thenReturn("true");
+        mockMvc.perform(get("/system/setting/registration"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").value(true));
+
+        // 博客开关的宽松口径会把 "1" 当作开启，注册入口却按 "true".equals 拒绝：
+        // 卡片必须如实显示关闭，否则又是"显示已开启、注册仍被拒"
+        when(configService.selectConfigByKey("sys.account.registerUser")).thenReturn("1");
+        mockMvc.perform(get("/system/setting/registration"))
+                .andExpect(jsonPath("$.data").value(false));
+
+        verify(configService, times(2)).selectConfigByKey("sys.account.registerUser");
+        verifyNoInteractions(blogSettingService);
+    }
 }

@@ -39,6 +39,11 @@ import com.zhi.common.core.page.TableDataInfo;
 @RequestMapping("/system/setting")
 public class BlogSettingController extends BaseController
 {
+    /** 注册开关的参数键与取值：两个注册入口都按"仅字面 true 开启"判定 */
+    private static final String REGISTER_USER_CONFIG_KEY = "sys.account.registerUser";
+
+    private static final String REGISTER_VALUE = "true";
+
     @Autowired
     private IBlogSettingService blogSettingService;
 
@@ -215,6 +220,20 @@ public class BlogSettingController extends BaseController
         }
 
         return toAjax(result);
+    }
+
+    /**
+     * 用户注册开关的生效值。
+     *
+     * <p>该开关只存在于 sys_config（前台注册 BlogAuthController 与后台自助注册 SysRegisterController
+     * 都读它），而本页其余设置读的是 blog_setting，所以这里直接返回注册入口实际读到的值，
+     * 避免卡片显示与真实拦截行为不一致。判定口径与两个注册入口相同：仅字面 "true" 为开启。</p>
+     */
+    @PreAuthorize("@ss.hasPermi('blog:setting:query')")
+    @GetMapping("/registration")
+    public AjaxResult getRegistrationSwitch()
+    {
+        return success(REGISTER_VALUE.equals(configService.selectConfigByKey(REGISTER_USER_CONFIG_KEY)));
     }
 
     /**
