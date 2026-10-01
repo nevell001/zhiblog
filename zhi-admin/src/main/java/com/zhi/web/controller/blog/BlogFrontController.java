@@ -629,6 +629,22 @@ public class BlogFrontController extends BaseController
             return error("评论功能已关闭");
         }
 
+        // 先按登录账号补全 userId 与昵称，再校验：登录态的评论表单不采集昵称，
+        // 校验放在补全之前会把登录用户的评论一律拒成"昵称不能为空"
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof LoginUser loginUser) {
+                if (blogComment.getUserId() == null) {
+                    blogComment.setUserId(loginUser.getUserId());
+                }
+                if (blogComment.getNickname() == null || blogComment.getNickname().isEmpty()) {
+                    blogComment.setNickname(loginUser.getUser().getNickName());
+                }
+            }
+        } catch (Exception ignored) {
+            // 匿名用户，无需填充
+        }
+
         // 服务端校验，防止绕过前端限制
         String nickname = blogComment.getNickname();
         String content = blogComment.getContent();
@@ -655,21 +671,6 @@ public class BlogFrontController extends BaseController
         if (blogComment.getEmail() != null && blogComment.getEmail().length() > 100)
         {
             return error("邮箱长度不能超过100个字符");
-        }
-
-        // 自动填充登录用户信息（userId 和 nickname），确保推荐和通知功能正常
-        try {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof LoginUser loginUser) {
-                if (blogComment.getUserId() == null) {
-                    blogComment.setUserId(loginUser.getUserId());
-                }
-                if (blogComment.getNickname() == null || blogComment.getNickname().isEmpty()) {
-                    blogComment.setNickname(loginUser.getUser().getNickName());
-                }
-            }
-        } catch (Exception ignored) {
-            // 匿名用户，无需填充
         }
 
         // 检查评论审核开关，根据博客设置决定是否需要审核

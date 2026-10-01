@@ -1,6 +1,8 @@
 package com.zhi.web.controller.blog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zhi.common.core.domain.entity.SysUser;
+import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.system.domain.BlogArticle;
 import com.zhi.system.domain.BlogCategory;
 import com.zhi.system.domain.BlogComment;
@@ -13,7 +15,10 @@ import com.zhi.system.service.IBlogTagService;
 import com.zhi.system.service.IBlogVisitLogService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -183,6 +188,39 @@ class BlogFrontControllerTest
             .andExpect(jsonPath("$.code").value(200));
 
         verify(blogCommentService).insertBlogComment(any(BlogComment.class));
+    }
+
+    /**
+     * 登录用户（含新注册的博客用户）提交评论时不带昵称：应按账号信息补全后放行。
+     * 曾经补全写在校验之后，登录态评论一律被拒成"昵称不能为空"。
+     */
+    @Test
+    void addCommentShouldFillNicknameFromAccountWhenLoggedIn() throws Exception
+    {
+        BlogComment comment = validComment();
+        comment.setNickname(null);
+        when(blogCommentService.insertBlogComment(any(BlogComment.class))).thenReturn(1);
+
+        SysUser account = new SysUser();
+        account.setNickName("新注册用户");
+        LoginUser loginUser = new LoginUser(100L, null, account, null);
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(loginUser, null, List.of()));
+        try
+        {
+            perform(comment)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+        }
+        finally
+        {
+            SecurityContextHolder.clearContext();
+        }
+
+        ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
+        verify(blogCommentService).insertBlogComment(captor.capture());
+        assertEquals("新注册用户", captor.getValue().getNickname());
+        assertEquals(100L, captor.getValue().getUserId());
     }
 
     private ResultActions perform(BlogComment comment)
