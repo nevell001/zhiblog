@@ -236,14 +236,15 @@ public class BlogSettingController extends BaseController
     }
 
     /**
-     * 测试当前邮件配置能否连接 SMTP 服务器
+     * 测试邮件配置能否连接 SMTP 服务器。传入当前表单则测表单值（密码留空沿用已存密码），
+     * 不传则测已保存的配置。
      */
     @PreAuthorize("@ss.hasPermi('blog:setting:edit')")
     @PostMapping("/mail/test")
-    public AjaxResult testMailConfig()
+    public AjaxResult testMailConfig(@RequestBody(required = false) MailConfigForm form)
     {
-        boolean ok = mailConfigService.testConnection();
-        return ok ? success("连接成功") : error("连接失败，请检查主机、端口、账号密码与 SSL/STARTTLS 设置");
+        String reason = mailConfigService.testConnection(form);
+        return reason == null ? success("连接成功") : error("连接失败：" + reason);
     }
 
     /**

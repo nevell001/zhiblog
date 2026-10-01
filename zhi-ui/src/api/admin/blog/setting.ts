@@ -131,11 +131,12 @@ export function saveMailConfig(data: MailConfigPayload): Promise<DataResult<Mail
 }
 
 /**
- * 测试邮件服务连接
+ * 测试邮件服务连接（传入当前表单则测表单值，密码留空沿用已存密码）
  */
-export function testMailConfig(): Promise<any> {
+export function testMailConfig(data: MailConfigPayload): Promise<any> {
   return request({
     url: '/system/setting/mail/test',
-    method: 'post'
+    method: 'post',
+    data
   })
 }

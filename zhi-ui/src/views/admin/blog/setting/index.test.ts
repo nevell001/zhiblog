@@ -204,4 +204,18 @@ describe('BlogSetting 视图（行为）', () => {
     expect(payload.host).toBe('smtp.example.com')
     expect(ElMessage.success).toHaveBeenCalled()
   })
+
+  it('测试连接会把当前表单发给后端', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const testBtn = wrapper.findAll('button').find(b => b.text().includes('测试连接'))
+    expect(testBtn).toBeTruthy()
+    await testBtn!.trigger('click')
+    await flushPromises()
+
+    expect(testMailConfig).toHaveBeenCalledTimes(1)
+    const payload = testMailConfig.mock.calls[0][0] as Record<string, unknown>
+    expect(payload.host).toBe('smtp.example.com')
+  })
 })

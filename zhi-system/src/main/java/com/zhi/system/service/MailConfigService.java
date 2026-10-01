@@ -190,18 +190,34 @@ public class MailConfigService
     }
 
     /**
-     * 用当前生效配置尝试连接 SMTP 服务器（不做真实发信）。
+     * 测试 SMTP 连接（不做真实发信）。表单字段非空时以表单值为准，留空则回退已保存的配置，
+     * 因此可以在"尚未保存"时就测试当前正在填写的配置；密码留空表示沿用已保存的密码。
      *
-     * @return 连接成功返回 true
+     * @param form 前端当前表单，可为 null（等价于测试已保存配置）
+     * @return 连接成功返回 {@code null}；失败返回可展示给管理员的原因（不含密码）
      */
-    public boolean testConnection()
+    public String testConnection(MailConfigForm form)
     {
-        String host = effective(KEY_HOST, baselineHost);
-        int port = effectivePort();
-        String username = effective(KEY_USERNAME, baselineUsername);
-        String password = effective(KEY_PASSWORD, baselinePassword);
-        boolean ssl = effectiveSwitch(KEY_SSL, baselineSsl);
-        boolean starttls = effectiveSwitch(KEY_STARTTLS, baselineStarttls);
+        String host = pick(form != null && StringUtils.isNotEmpty(form.getHost()), form.getHost(),
+                effective(KEY_HOST, baselineHost));
+        int port = form != null && form.getPort() != null ? form.getPort() : effectivePort();
+        String username = pick(form != null && StringUtils.isNotEmpty(form.getUsername()), form.getUsername(),
+                effective(KEY_USERNAME, baselineUsername));
+        // 密码：表单填了就测填的，否则用已保存/环境变量里的
+        String password = form != null && StringUtils.isNotEmpty(form.getPassword())
+                ? form.getPassword() : effective(KEY_PASSWORD, baselinePassword);
+        boolean ssl = form != null && form.getSsl() != null ? form.getSsl() : effectiveSwitch(KEY_SSL, baselineSsl);
+        boolean starttls = form != null && form.getStarttls() != null
+                ? form.getStarttls() : effectiveSwitch(KEY_STARTTLS, baselineStarttls);
+
+        if (StringUtils.isEmpty(host))
+        {
+            return "未配置 SMTP 主机";
+        }
+        if (ssl && starttls)
+        {
+            return "SSL 与 STARTTLS 不能同时开启：465 端口用 SSL、587 端口用 STARTTLS";
+        }
 
         // 独立临时实例，避免连接测试影响共享 sender 或产生副作用
         JavaMailSenderImpl probe = new JavaMailSenderImpl();
@@ -218,13 +234,53 @@ public class MailConfigService
         try
         {
             probe.testConnection();
-            return true;
+            return null;
         }
         catch (Exception e)
         {
-            log.warn("邮件连接测试失败：host={}, port={}, error={}", host, port, e.getMessage());
-            return false;
+            String reason = describe(e);
+            log.warn("邮件连接测试失败：host={}, port={}, reason={}", host, port, reason);
+            return reason;
         }
+    }
+
+    private static String pick(boolean useValue, String value, String fallback)
+    {
+        return useValue ? value : fallback;
+    }
+
+    /** 取异常链最底层、最有信息量的报错；连接类失败给出常见成因提示 */
+    private static String describe(Throwable e)
+    {
+        Throwable root = e;
+        String message = e.getMessage();
+        while (root.getCause() != null)
+        {
+            root = root.getCause();
+            if (StringUtils.isNotEmpty(root.getMessage()))
+            {
+                message = root.getMessage();
+            }
+        }
+        if (StringUtils.isEmpty(message))
+        {
+            message = root.getClass().getSimpleName();
+        }
+        String lower = message.toLowerCase();
+        if (lower.contains("authentication") || lower.contains("535") || lower.contains("login"))
+        {
+            return message + "（用户名或密码/授权码错误，QQ/163 等需使用授权码而非登录密码）";
+        }
+        if (lower.contains("timed out") || lower.contains("connection refused") || lower.contains("unknownhost")
+            || lower.contains("connect failed"))
+        {
+            return message + "（无法连到该主机/端口，请检查主机、端口与网络/防火墙）";
+        }
+        if (lower.contains("ssl") || lower.contains("handshake"))
+        {
+            return message + "（SSL/STARTTLS 与端口不匹配：465 用 SSL、587 用 STARTTLS）";
+        }
+        return message;
     }
 
     /** 发送前用于判断邮件服务是否可用 */

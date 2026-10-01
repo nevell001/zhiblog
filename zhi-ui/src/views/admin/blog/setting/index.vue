@@ -980,7 +980,15 @@ async function handleSaveMail() {
 async function handleTestMail() {
   mailTesting.value = true
   try {
-    const res: any = await testMailConfig()
+    const res: any = await testMailConfig({
+      host: mailForm.value.host,
+      port: mailForm.value.port,
+      username: mailForm.value.username,
+      password: mailForm.value.password || undefined,
+      ssl: mailForm.value.ssl,
+      starttls: mailForm.value.starttls,
+      enabled: mailForm.value.enabled
+    })
     if (res?.code === 200) {
       ElMessage.success(res?.msg || '连接成功')
     } else {
