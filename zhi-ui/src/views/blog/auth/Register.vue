@@ -1,6 +1,6 @@
 <template>
-  <div class="blog-register-container mo-auth-page">
-    <BlogLayout>
+  <BlogLayout>
+    <div class="mo-auth-page">
       <section class="auth-card">
         <router-link to="/blog" class="auth-brand">
           <span class="brand-mark">知</span>
@@ -137,8 +137,8 @@
           <router-link to="/login">返回登录</router-link>
         </p>
       </section>
-    </BlogLayout>
-  </div>
+    </div>
+  </BlogLayout>
 </template>
 
 <script setup lang="ts">
@@ -325,11 +325,13 @@ onUnmounted(() => {
 
 <style scoped>
 .mo-auth-page {
+  box-sizing: border-box;
   min-height: 100vh;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px;
+  /* 顶部避开 BlogLayout 的 fixed 导航（60px） */
+  padding: calc(60px + 24px) 24px 24px;
   background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
 }
 
@@ -525,7 +527,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .mo-auth-page {
-    padding: 16px;
+    padding: calc(60px + 16px) 16px 16px;
   }
 
   .auth-card {
@@ -542,6 +544,14 @@ onUnmounted(() => {
 :global(html.dark .auth-card) {
   background: var(--mo-bg-card) !important;
   border-color: var(--mo-border, #44403c) !important;
+}
+
+/* 深色下 --mo-n900 被重映射成背景色，直接用作文字色会与卡片同色而隐形，这里显式改回前景色 */
+:global(html.dark.theme-mo-blog .auth-head h2),
+:global(html.dark .auth-head h2),
+:global(html.dark.theme-mo-blog .auth-brand),
+:global(html.dark .auth-brand) {
+  color: var(--mo-n100, #f5f5f4) !important;
 }
 
 :global(html.dark.theme-mo-blog .auth-switch),
