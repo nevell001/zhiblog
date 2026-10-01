@@ -24,11 +24,11 @@
             <artifactId>zhi-common</artifactId>
         </dependency>
 
-        <!-- Spring Boot Mail (可选，用于博客用户注册验证码) -->
+        <!-- Spring Boot Mail：注册/找回密码验证码与评论通知邮件依赖它，必须随应用打包（不可设为 optional，
+             否则 jakarta.mail 不会传递进 zhi-admin 运行时，调用邮件服务会抛 NoClassDefFoundError） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
-            <optional>true</optional>
         </dependency>
 
         <!-- Jackson 用于 JSON 序列化 -->
