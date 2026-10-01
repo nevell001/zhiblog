@@ -436,8 +436,12 @@ function handleStatusChange(row) {
     .then(() => {
       proxy.$modal.msgSuccess(text + '成功')
     })
-    .catch(function () {
+    .catch(function (err) {
       row.status = row.status === '0' ? '1' : '0'
+      // confirm 取消会 reject 'cancel'/'close'，静默回滚即可；真正的请求失败要提示用户
+      if (err !== 'cancel' && err !== 'close') {
+        proxy.$modal.msgError(text + '失败')
+      }
     })
 }
 

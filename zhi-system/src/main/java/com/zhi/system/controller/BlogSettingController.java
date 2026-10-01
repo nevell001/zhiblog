@@ -109,46 +109,7 @@ public class BlogSettingController extends BaseController
     @PutMapping("/updateByKey")
     public AjaxResult updateByKey(@RequestBody BlogSetting blogSetting)
     {
-        int result = blogSettingService.updateSettingValueByKey(
-            blogSetting.getSettingKey(), blogSetting.getSettingValue());
-
-        // 同时更新 sys_config 表，保持数据同步
-        if (result > 0) {
-            try {
-                String settingKey = blogSetting.getSettingKey();
-                String settingValue = blogSetting.getSettingValue();
-
-                // 先尝试获取现有配置
-                SysConfig config = new SysConfig();
-                config.setConfigKey(settingKey);
-                SysConfig existingConfig = configService.selectConfigList(config).stream()
-                    .filter(c -> settingKey.equals(c.getConfigKey()))
-                    .findFirst()
-                    .orElse(null);
-
-                if (existingConfig != null) {
-                    // 更新现有配置
-                    existingConfig.setConfigValue(settingValue);
-                    configService.updateConfig(existingConfig);
-                    logger.info("已同步更新 sys_config 表中的 {}: {}", settingKey, settingValue);
-                } else {
-                    // 创建新配置
-                    config.setConfigName("博客设置 - " + settingKey);
-                    config.setConfigValue(settingValue);
-                    config.setConfigType("Y");
-                    configService.insertConfig(config);
-                    logger.info("已在 sys_config 表中创建 {}: {}", settingKey, settingValue);
-                }
-
-                // 清除缓存
-                unifiedCacheManager.delete("sys_config:" + settingKey);
-                logger.info("已清除缓存: sys_config:{}", settingKey);
-            } catch (Exception e) {
-                logger.error("同步更新 sys_config 表失败", e);
-            }
-        }
-
-        return toAjax(result);
+        return applySettingUpdateByKey(blogSetting);
     }
 
     /**
@@ -160,43 +121,63 @@ public class BlogSettingController extends BaseController
     @PostMapping("/updateByKey")
     public AjaxResult updateByKeyPost(@RequestBody BlogSetting blogSetting)
     {
+        return applySettingUpdateByKey(blogSetting);
+    }
+
+    /**
+     * 修改单个设置值，并同步到 sys_config 表。
+     *
+     * <p>前台公开设置 {@code GET /blog/setting}（BlogFrontController）以 sys_config 为**主数据源**，
+     * 仅在 sys_config 为空时才回退 blog_setting。因此这里的镜像同步失败会让改动"看似成功、前台却不生效"。
+     * 之前把同步异常吞掉后仍返回 success，正是这个假成功；现在如实返回错误，让管理端提示用户重试。</p>
+     */
+    private AjaxResult applySettingUpdateByKey(BlogSetting blogSetting)
+    {
         int result = blogSettingService.updateSettingValueByKey(
             blogSetting.getSettingKey(), blogSetting.getSettingValue());
+        if (result <= 0)
+        {
+            return toAjax(result);
+        }
 
-        // 同时更新 sys_config 表，保持数据同步
-        if (result > 0) {
-            try {
-                String settingKey = blogSetting.getSettingKey();
-                String settingValue = blogSetting.getSettingValue();
+        String settingKey = blogSetting.getSettingKey();
+        String settingValue = blogSetting.getSettingValue();
 
-                // 先尝试获取现有配置
+        // 同步 sys_config 表（前台设置的真实读取源）
+        try
+        {
+            SysConfig query = new SysConfig();
+            query.setConfigKey(settingKey);
+            SysConfig existingConfig = configService.selectConfigList(query).stream()
+                .filter(c -> settingKey.equals(c.getConfigKey()))
+                .findFirst()
+                .orElse(null);
+
+            if (existingConfig != null)
+            {
+                existingConfig.setConfigValue(settingValue);
+                configService.updateConfig(existingConfig);
+                logger.info("已同步更新 sys_config 表中的 {}: {}", settingKey, settingValue);
+            }
+            else
+            {
                 SysConfig config = new SysConfig();
                 config.setConfigKey(settingKey);
-                SysConfig existingConfig = configService.selectConfigList(config).stream()
-                    .filter(c -> settingKey.equals(c.getConfigKey()))
-                    .findFirst()
-                    .orElse(null);
-
-                if (existingConfig != null) {
-                    // 更新现有配置
-                    existingConfig.setConfigValue(settingValue);
-                    configService.updateConfig(existingConfig);
-                    logger.info("已同步更新 sys_config 表中的 {}: {}", settingKey, settingValue);
-                } else {
-                    // 创建新配置
-                    config.setConfigName("博客设置 - " + settingKey);
-                    config.setConfigValue(settingValue);
-                    config.setConfigType("Y");
-                    configService.insertConfig(config);
-                    logger.info("已在 sys_config 表中创建 {}: {}", settingKey, settingValue);
-                }
-
-                // 清除缓存
-                unifiedCacheManager.delete("sys_config:" + settingKey);
-                logger.info("已清除缓存: sys_config:{}", settingKey);
-            } catch (Exception e) {
-                logger.error("同步更新 sys_config 表失败", e);
+                config.setConfigName("博客设置 - " + settingKey);
+                config.setConfigValue(settingValue);
+                config.setConfigType("Y");
+                configService.insertConfig(config);
+                logger.info("已在 sys_config 表中创建 {}: {}", settingKey, settingValue);
             }
+
+            // 清除缓存
+            unifiedCacheManager.delete("sys_config:" + settingKey);
+            logger.info("已清除缓存: sys_config:{}", settingKey);
+        }
+        catch (Exception e)
+        {
+            logger.error("同步更新 sys_config 表失败: {}", settingKey, e);
+            return AjaxResult.error("博客设置已保存，但同步到公开配置失败，前台可能不会生效，请重试");
         }
 
         return toAjax(result);

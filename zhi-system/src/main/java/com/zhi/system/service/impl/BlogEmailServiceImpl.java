@@ -260,14 +260,14 @@ public class BlogEmailServiceImpl implements IBlogEmailService
         // 检查是否过期
         if (ModernDateUtils.now().after(emailCode.getExpireTime()))
         {
-            log.warn("验证码验证失败：验证码已过期 email={}, code={}", email, code);
+            log.warn("验证码验证失败：验证码已过期 email={}, type={}", email, codeType);
             return false;
         }
 
         // 验证码匹配
         if (!code.equals(emailCode.getCode()))
         {
-            log.warn("验证码验证失败：验证码错误 email={}, input={}, db={}", email, code, emailCode.getCode());
+            log.warn("验证码验证失败：验证码不匹配 email={}, type={}", email, codeType);
             recordVerifyFail(failKey);
             return false;
         }

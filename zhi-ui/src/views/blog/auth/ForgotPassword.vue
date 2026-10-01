@@ -168,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from '@/plugins/element-plus-service'
 import type { FormInstance, FormRules } from 'element-plus'
@@ -183,6 +183,7 @@ const passwordFormRef = ref<FormInstance>()
 const loading = ref(false)
 const codeSending = ref(false)
 const codeCountdown = ref(0)
+let codeTimer: ReturnType<typeof setInterval> | null = null
 const currentStep = ref(0)
 const captchaEnabled = ref(true)
 const captchaUrl = ref('')
@@ -241,6 +242,13 @@ const refreshCaptcha = async () => {
 
 onMounted(refreshCaptcha)
 
+onUnmounted(() => {
+  if (codeTimer) {
+    clearInterval(codeTimer)
+    codeTimer = null
+  }
+})
+
 const passwordRules: FormRules = {
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
@@ -281,10 +289,12 @@ const sendEmailCode = async () => {
 
     // 开始倒计时
     codeCountdown.value = 60
-    const timer = setInterval(() => {
+    if (codeTimer) clearInterval(codeTimer)
+    codeTimer = setInterval(() => {
       codeCountdown.value--
-      if (codeCountdown.value <= 0) {
-        clearInterval(timer)
+      if (codeCountdown.value <= 0 && codeTimer) {
+        clearInterval(codeTimer)
+        codeTimer = null
       }
     }, 1000)
   } catch (error: any) {

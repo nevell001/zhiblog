@@ -409,4 +409,28 @@ class BlogSettingControllerTest {
         // 验证不会调用 configService
         verify(configService, never()).selectConfigList(any(com.zhi.system.domain.SysConfig.class));
     }
+
+    /**
+     * 回归护栏：blog_setting 写入成功但 sys_config 同步抛异常时，
+     * 必须如实返回错误（前台公开设置以 sys_config 为主数据源，同步失败=前台不生效），
+     * 不能像以前那样吞掉异常仍返回 200 伪装成功。
+     */
+    @Test
+    void testUpdateSettingByKey_Post_SyncFailure_ReturnsError() throws Exception {
+        when(blogSettingService.updateSettingValueByKey("blog_name", "新博客名称")).thenReturn(1);
+        when(configService.selectConfigList(any(com.zhi.system.domain.SysConfig.class)))
+            .thenReturn(new ArrayList<>());
+        when(configService.insertConfig(any(com.zhi.system.domain.SysConfig.class)))
+            .thenThrow(new RuntimeException("db down"));
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("settingKey", "blog_name");
+        params.put("settingValue", "新博客名称");
+
+        mockMvc.perform(post("/system/setting/updateByKey")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(params)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(500));
+    }
 }
