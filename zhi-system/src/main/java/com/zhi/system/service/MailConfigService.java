@@ -233,8 +233,8 @@ public class MailConfigService
         props.setProperty("mail.smtp.auth", "true");
         props.setProperty("mail.smtp.ssl.enable", String.valueOf(ssl));
         props.setProperty("mail.smtp.starttls.enable", String.valueOf(starttls));
-        props.setProperty("mail.smtp.connectiontimeout", "10000");
-        props.setProperty("mail.smtp.timeout", "10000");
+        props.setProperty("mail.smtp.connectiontimeout", "5000");
+        props.setProperty("mail.smtp.timeout", "5000");
         try
         {
             probe.testConnection();
@@ -278,7 +278,8 @@ public class MailConfigService
         if (lower.contains("timed out") || lower.contains("connection refused") || lower.contains("unknownhost")
             || lower.contains("connect failed"))
         {
-            return message + "（无法连到该主机/端口，请检查主机、端口与网络/防火墙）";
+            return message + "（连不上该主机/端口：检查主机、端口与网络/防火墙；"
+                    + "明文去连 465 这类 SSL 端口同样会卡到超时，465 需开启 SSL）";
         }
         if (lower.contains("ssl") || lower.contains("handshake"))
         {

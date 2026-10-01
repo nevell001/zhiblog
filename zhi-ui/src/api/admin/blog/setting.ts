@@ -132,11 +132,14 @@ export function saveMailConfig(data: MailConfigPayload): Promise<DataResult<Mail
 
 /**
  * 测试邮件服务连接（传入当前表单则测表单值，密码留空沿用已存密码）
+ * SMTP 连不上时会一直挂到连接超时，故放宽本请求超时，让后端把真实失败原因返回来，
+ * 而不是被默认 10s 掐断成"接口请求超时"。
  */
 export function testMailConfig(data: MailConfigPayload): Promise<any> {
   return request({
     url: '/system/setting/mail/test',
     method: 'post',
+    timeout: 30000,
     data
   })
 }
