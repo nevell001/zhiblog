@@ -420,6 +420,74 @@
             </el-form-item>
           </el-form>
         </el-tab-pane>
+
+        <!-- 邮件服务 -->
+        <el-tab-pane label="邮件服务" name="mail">
+          <el-form :model="mailForm" label-width="140px">
+            <el-alert
+              title="用于注册/找回密码验证码与评论通知邮件。此处填写后覆盖环境变量配置并立即生效，无需重启；环境变量仍作为未填写时的默认值。"
+              type="info"
+              :closable="false"
+              class="tab-alert"
+            />
+            <el-form-item label="启用邮件服务">
+              <el-switch v-model="mailForm.enabled" active-text="启用" inactive-text="关闭" />
+              <div class="setting-tip">
+                关闭后验证码/通知邮件不会发出（开发环境仍可能打印验证码到控制台）
+              </div>
+            </el-form-item>
+            <el-form-item label="SMTP 主机">
+              <el-input
+                v-model="mailForm.host"
+                placeholder="如 smtp.qq.com / smtp.gmail.com"
+                maxlength="100"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item label="SMTP 端口">
+              <el-input-number
+                v-model="mailForm.port"
+                :min="1"
+                :max="65535"
+                controls-position="right"
+              />
+              <div class="setting-tip">SSL 常用 465，STARTTLS/TLS 常用 587，明文 25</div>
+            </el-form-item>
+            <el-form-item label="发件邮箱">
+              <el-input
+                v-model="mailForm.username"
+                placeholder="发件邮箱账号"
+                maxlength="100"
+                clearable
+              />
+            </el-form-item>
+            <el-form-item label="邮箱密码/授权码">
+              <el-input
+                v-model="mailForm.password"
+                type="password"
+                show-password
+                :placeholder="mailForm.hasPassword ? '已配置，留空则不修改' : '请输入密码或授权码'"
+                maxlength="200"
+              />
+              <div class="setting-tip">
+                QQ/163 等邮箱需使用「授权码」而非登录密码；出于安全考虑密码不会回显
+              </div>
+            </el-form-item>
+            <el-form-item label="SSL">
+              <el-switch v-model="mailForm.ssl" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+            <el-form-item label="STARTTLS">
+              <el-switch v-model="mailForm.starttls" active-text="开启" inactive-text="关闭" />
+            </el-form-item>
+
+            <el-form-item>
+              <el-button type="primary" :loading="mailSaving" @click="handleSaveMail">
+                保存并生效
+              </el-button>
+              <el-button :loading="mailTesting" @click="handleTestMail">测试连接</el-button>
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -438,7 +506,13 @@ import {
   Grid,
   Message
 } from '@element-plus/icons-vue'
-import { listSetting, updateSettingValueByKey } from '@/api/admin/blog/setting'
+import {
+  listSetting,
+  updateSettingValueByKey,
+  getMailConfig,
+  saveMailConfig,
+  testMailConfig
+} from '@/api/admin/blog/setting'
 import { clearBlogCache } from '@/api/blog/setting'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 
@@ -451,6 +525,20 @@ const loading = ref(false)
 const activeTab = ref('basic')
 const settingsMap = ref<Record<string, any>>({})
 const originalSettings = ref<Record<string, any>>({})
+
+// 邮件服务（SMTP）配置：独立于通用设置，走专用接口，只写 blog_setting、不进 sys_config
+const mailForm = ref({
+  host: '',
+  port: 465,
+  username: '',
+  password: '',
+  ssl: true,
+  starttls: false,
+  enabled: true,
+  hasPassword: false
+})
+const mailSaving = ref(false)
+const mailTesting = ref(false)
 
 const appThemeOptions: { label: string; value: AppTheme; description: string }[] = [
   { label: '默认主题', value: 'default', description: '保留管理后台的默认布局和交互习惯' },
@@ -645,6 +733,7 @@ const tabTitle = computed(() => {
     features: '功能设置',
     author: '个人信息',
     other: '关于页面',
+    mail: '邮件服务',
     seo: 'SEO优化'
   }
   return titleMap[activeTab.value] || '博客设置管理'
@@ -841,8 +930,73 @@ async function resetSettings() {
   }
 }
 
+/** 读取邮件服务配置（密码脱敏，仅告知是否已配置） */
+async function fetchMailConfig() {
+  try {
+    const res: any = await getMailConfig()
+    const view = res?.data
+    if (view && typeof view === 'object') {
+      mailForm.value.host = view.host ?? ''
+      mailForm.value.port = Number(view.port) || 465
+      mailForm.value.username = view.username ?? ''
+      mailForm.value.ssl = !!view.ssl
+      mailForm.value.starttls = !!view.starttls
+      mailForm.value.enabled = view.enabled !== false
+      mailForm.value.hasPassword = !!view.hasPassword
+      mailForm.value.password = ''
+    }
+  } catch {
+    ElMessage.warning('获取邮件服务配置失败')
+  }
+}
+
+async function handleSaveMail() {
+  mailSaving.value = true
+  try {
+    const res: any = await saveMailConfig({
+      host: mailForm.value.host,
+      port: mailForm.value.port,
+      username: mailForm.value.username,
+      password: mailForm.value.password || undefined,
+      ssl: mailForm.value.ssl,
+      starttls: mailForm.value.starttls,
+      enabled: mailForm.value.enabled
+    })
+    if (res?.code === 200) {
+      const view = res.data || {}
+      mailForm.value.hasPassword = !!view.hasPassword
+      mailForm.value.password = ''
+      ElMessage.success('邮件配置已保存并生效')
+    } else {
+      throw new Error(res?.msg || '保存失败')
+    }
+  } catch (error: any) {
+    ElMessage.error(error?.msg || error?.message || '邮件配置保存失败')
+  } finally {
+    mailSaving.value = false
+  }
+}
+
+async function handleTestMail() {
+  mailTesting.value = true
+  try {
+    const res: any = await testMailConfig()
+    if (res?.code === 200) {
+      ElMessage.success(res?.msg || '连接成功')
+    } else {
+      ElMessage.error(res?.msg || '连接失败')
+    }
+  } catch (error: any) {
+    ElMessage.error(error?.msg || error?.message || '连接失败')
+  } finally {
+    mailTesting.value = false
+  }
+}
+
 onMounted(() => {
   settingsStore.setTitle('博客设置')
+
+  fetchMailConfig()
 
   getAllSettings().then(() => {
     if (settingsMap.value.theme_color) {

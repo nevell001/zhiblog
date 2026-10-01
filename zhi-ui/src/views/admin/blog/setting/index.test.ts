@@ -10,16 +10,30 @@ import BlogSetting from './index.vue'
  * 继续 grep 源码文本没有意义。这里断言可观察行为：分组渲染、开关触发落库接口、
  * 主题/明暗切换真的作用到 <html> 与 store。
  */
-const { listSetting, updateSettingValueByKey, clearBlogCache, ElMessage } = vi.hoisted(() => ({
+const {
+  listSetting,
+  updateSettingValueByKey,
+  clearBlogCache,
+  getMailConfig,
+  saveMailConfig,
+  testMailConfig,
+  ElMessage
+} = vi.hoisted(() => ({
   listSetting: vi.fn(),
   updateSettingValueByKey: vi.fn(),
   clearBlogCache: vi.fn(),
+  getMailConfig: vi.fn(),
+  saveMailConfig: vi.fn(),
+  testMailConfig: vi.fn(),
   ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
 }))
 
 vi.mock('@/api/admin/blog/setting', () => ({
   listSetting: (...args: unknown[]) => listSetting(...args),
-  updateSettingValueByKey: (...args: unknown[]) => updateSettingValueByKey(...args)
+  updateSettingValueByKey: (...args: unknown[]) => updateSettingValueByKey(...args),
+  getMailConfig: (...args: unknown[]) => getMailConfig(...args),
+  saveMailConfig: (...args: unknown[]) => saveMailConfig(...args),
+  testMailConfig: (...args: unknown[]) => testMailConfig(...args)
 }))
 
 vi.mock('@/api/blog/setting', () => ({
@@ -49,6 +63,7 @@ function mountPage() {
         'el-form': { template: '<form><slot /></form>' },
         'el-form-item': { template: '<div class="fi"><slot /></div>' },
         'el-input': { props: ['modelValue'], template: '<input />' },
+        'el-input-number': { props: ['modelValue'], template: '<input type="number" />' },
         'el-button': { template: '<button><slot /></button>' },
         'el-icon': { template: '<i><slot /></i>' },
         'el-alert': { template: '<div><slot /></div>' },
@@ -82,6 +97,20 @@ describe('BlogSetting 视图（行为）', () => {
     })
     updateSettingValueByKey.mockResolvedValue({ code: 200 })
     clearBlogCache.mockResolvedValue({ code: 200 })
+    getMailConfig.mockResolvedValue({
+      code: 200,
+      data: {
+        host: 'smtp.example.com',
+        port: 465,
+        username: 'a@b.com',
+        hasPassword: true,
+        ssl: true,
+        starttls: false,
+        enabled: true
+      }
+    })
+    saveMailConfig.mockResolvedValue({ code: 200, data: { hasPassword: true } })
+    testMailConfig.mockResolvedValue({ code: 200, msg: '连接成功' })
   })
 
   it('导出组件', () => {
@@ -151,5 +180,28 @@ describe('BlogSetting 视图（行为）', () => {
     await flushPromises()
 
     expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
+  })
+
+  it('挂载时读取邮件服务配置', async () => {
+    mountPage()
+    await flushPromises()
+    expect(getMailConfig).toHaveBeenCalled()
+  })
+
+  it('保存邮件配置走专用接口且空密码不提交', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const saveBtn = wrapper.findAll('button').find(b => b.text().includes('保存并生效'))
+    expect(saveBtn).toBeTruthy()
+    await saveBtn!.trigger('click')
+    await flushPromises()
+
+    expect(saveMailConfig).toHaveBeenCalledTimes(1)
+    const payload = saveMailConfig.mock.calls[0][0] as Record<string, unknown>
+    // fetchMailConfig 未回显密码，保存时空密码不应作为 password 提交（保留原密码由后端处理）
+    expect(payload.password === undefined || payload.password === '').toBe(true)
+    expect(payload.host).toBe('smtp.example.com')
+    expect(ElMessage.success).toHaveBeenCalled()
   })
 })

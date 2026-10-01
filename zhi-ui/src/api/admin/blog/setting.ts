@@ -86,3 +86,56 @@ export function updateSettingValueByKey(key: string, value: string): Promise<any
     data: { settingKey: key, settingValue: value }
   })
 }
+
+/** 邮件（SMTP）配置读取（脱敏，不含密码明文） */
+export interface MailConfigView {
+  host: string
+  port: number
+  username: string
+  hasPassword: boolean
+  ssl: boolean
+  starttls: boolean
+  enabled: boolean
+}
+
+/** 邮件（SMTP）配置保存载荷；password 留空表示保留原密码 */
+export interface MailConfigPayload {
+  host: string
+  port: number
+  username: string
+  password?: string
+  ssl: boolean
+  starttls: boolean
+  enabled: boolean
+}
+
+/**
+ * 获取邮件服务配置（脱敏）
+ */
+export function getMailConfig(): Promise<DataResult<MailConfigView>> {
+  return request({
+    url: '/system/setting/mail',
+    method: 'get'
+  })
+}
+
+/**
+ * 保存邮件服务配置（热更新，立即生效）
+ */
+export function saveMailConfig(data: MailConfigPayload): Promise<DataResult<MailConfigView>> {
+  return request({
+    url: '/system/setting/mail',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 测试邮件服务连接
+ */
+export function testMailConfig(): Promise<any> {
+  return request({
+    url: '/system/setting/mail/test',
+    method: 'post'
+  })
+}
