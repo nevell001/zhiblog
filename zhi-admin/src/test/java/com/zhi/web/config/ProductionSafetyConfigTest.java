@@ -52,6 +52,30 @@ class ProductionSafetyConfigTest {
             "生产环境 dev-print-code 必须为 false");
     }
 
+    /**
+     * 跨文件配置契约（行为覆盖不到：这里断言的是两份 yml 合并后的最终生效值）。
+     * Spring 按 key 合并 profile，基础 application.yml 里的
+     * {@code logging.level.com.zhi.system.mapper: debug} 会被 prod 继承，
+     * 于是生产日志会把 SQL 绑定参数原样写出——SMTP 授权码、邮箱验证码都在这条路径上。
+     */
+    @Test
+    @DisplayName("生产必须显式关掉 SQL 参数日志，不能继承基础配置的 mapper debug")
+    void prodProfileDoesNotInheritSqlParameterLogging() throws IOException {
+        Map<String, Object> merged = new java.util.HashMap<>(logLevels(loadFilteredYaml("application.yml")));
+        logLevels(loadFilteredYaml("application-prod.yml")).forEach(merged::put);
+
+        String mapperLevel = String.valueOf(merged.get("com.zhi.system.mapper"));
+        assertTrue("info".equals(mapperLevel) || "warn".equals(mapperLevel) || "error".equals(mapperLevel),
+            "生产环境 com.zhi.system.mapper 日志级别必须 >= info，否则 SQL 参数（含 SMTP 授权码、验证码）会明文进日志：实际 "
+                + mapperLevel);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> logLevels(Map<String, Object> yaml) {
+        Object logging = yaml.get("logging");
+        return logging == null ? Map.of() : (Map<String, Object>) ((Map<String, Object>) logging).getOrDefault("level", Map.of());
+    }
+
     @Test
     @DisplayName("生产 compose 的 zhi-admin 必须通过 env_file 注入 .env")
     void prodComposeInjectsDotEnvIntoAdmin() throws IOException {

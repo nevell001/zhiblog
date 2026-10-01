@@ -39,6 +39,9 @@ springdoc:
 logging:
   level:
     com.zhi: info
+    # 生产必须显式关掉：基础配置里的 mapper debug 会被继承，SQL 会把绑定参数
+    # （SMTP 授权码、邮箱验证码、用户密码字段）原样写进日志文件
+    com.zhi.system.mapper: info
     org.springframework: warn
 
 # 生产环境安全配置
