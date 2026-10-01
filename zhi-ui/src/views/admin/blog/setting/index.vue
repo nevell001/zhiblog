@@ -474,10 +474,23 @@
               </div>
             </el-form-item>
             <el-form-item label="SSL">
-              <el-switch v-model="mailForm.ssl" active-text="开启" inactive-text="关闭" />
+              <el-switch
+                v-model="mailForm.ssl"
+                data-mail="ssl"
+                active-text="开启"
+                inactive-text="关闭"
+                @change="onMailSslChange"
+              />
             </el-form-item>
             <el-form-item label="STARTTLS">
-              <el-switch v-model="mailForm.starttls" active-text="开启" inactive-text="关闭" />
+              <el-switch
+                v-model="mailForm.starttls"
+                data-mail="starttls"
+                active-text="开启"
+                inactive-text="关闭"
+                @change="onMailStarttlsChange"
+              />
+              <div class="setting-tip">SSL 用于 465 端口，STARTTLS 用于 587 端口，两者互斥</div>
             </el-form-item>
 
             <el-form-item>
@@ -940,7 +953,7 @@ async function fetchMailConfig() {
       mailForm.value.port = Number(view.port) || 465
       mailForm.value.username = view.username ?? ''
       mailForm.value.ssl = !!view.ssl
-      mailForm.value.starttls = !!view.starttls
+      mailForm.value.starttls = !!view.starttls && !view.ssl
       mailForm.value.enabled = view.enabled !== false
       mailForm.value.hasPassword = !!view.hasPassword
       mailForm.value.password = ''
@@ -948,6 +961,15 @@ async function fetchMailConfig() {
   } catch {
     ElMessage.warning('获取邮件服务配置失败')
   }
+}
+
+/** SSL(465) 与 STARTTLS(587) 互斥：同时开启会导致 SMTP 握手失败，勾选一个即取消另一个 */
+function onMailSslChange(value: unknown) {
+  if (value) mailForm.value.starttls = false
+}
+
+function onMailStarttlsChange(value: unknown) {
+  if (value) mailForm.value.ssl = false
 }
 
 async function handleSaveMail() {

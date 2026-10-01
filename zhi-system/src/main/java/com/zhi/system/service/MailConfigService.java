@@ -3,7 +3,6 @@ package com.zhi.system.service;
 import com.zhi.common.utils.BlogSwitchUtils;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.system.domain.MailConfigForm;
-import com.zhi.system.mapper.BlogSettingMapper;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +42,9 @@ public class MailConfigService
     /** 读取（含匿名/管理列表）时用于替换密码明文的占位符 */
     public static final String PASSWORD_MASK = "********";
 
+    /** 走 service 而非 mapper：mail_* 键没有 SQL 种子，写入必须是 upsert，纯 UPDATE 会静默丢失 */
     @Autowired
-    private BlogSettingMapper blogSettingMapper;
+    private IBlogSettingService blogSettingService;
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -116,7 +116,7 @@ public class MailConfigService
         String username = effective(KEY_USERNAME, baselineUsername);
         String password = effective(KEY_PASSWORD, baselinePassword);
         boolean ssl = effectiveSwitch(KEY_SSL, baselineSsl);
-        boolean starttls = effectiveSwitch(KEY_STARTTLS, baselineStarttls);
+        boolean starttls = starttlsOf(ssl, effectiveSwitch(KEY_STARTTLS, baselineStarttls));
         boolean enabled = BlogSwitchUtils.isOn(read(KEY_ENABLED));
 
         from = username;
@@ -157,13 +157,20 @@ public class MailConfigService
             // 仅在提交了新密码时更新，空值保留原密码
             upsert(KEY_PASSWORD, form.getPassword());
         }
-        if (form.getSsl() != null)
+        Boolean ssl = form.getSsl();
+        Boolean starttls = form.getStarttls();
+        if (Boolean.TRUE.equals(ssl))
         {
-            upsert(KEY_SSL, String.valueOf(form.getSsl()));
+            // 同开时以 SSL 为准，并把这个结论落库，否则下次回填又是一对冲突值
+            starttls = Boolean.FALSE;
         }
-        if (form.getStarttls() != null)
+        if (ssl != null)
         {
-            upsert(KEY_STARTTLS, String.valueOf(form.getStarttls()));
+            upsert(KEY_SSL, String.valueOf(ssl));
+        }
+        if (starttls != null)
+        {
+            upsert(KEY_STARTTLS, String.valueOf(starttls));
         }
         if (form.getEnabled() != null)
         {
@@ -183,8 +190,9 @@ public class MailConfigService
         view.put("port", effectivePort());
         view.put("username", effective(KEY_USERNAME, baselineUsername));
         view.put("hasPassword", StringUtils.isNotEmpty(effective(KEY_PASSWORD, baselinePassword)));
-        view.put("ssl", effectiveSwitch(KEY_SSL, baselineSsl));
-        view.put("starttls", effectiveSwitch(KEY_STARTTLS, baselineStarttls));
+        boolean ssl = effectiveSwitch(KEY_SSL, baselineSsl);
+        view.put("ssl", ssl);
+        view.put("starttls", starttlsOf(ssl, effectiveSwitch(KEY_STARTTLS, baselineStarttls)));
         view.put("enabled", BlogSwitchUtils.isOn(read(KEY_ENABLED)));
         return view;
     }
@@ -207,16 +215,12 @@ public class MailConfigService
         String password = form != null && StringUtils.isNotEmpty(form.getPassword())
                 ? form.getPassword() : effective(KEY_PASSWORD, baselinePassword);
         boolean ssl = form != null && form.getSsl() != null ? form.getSsl() : effectiveSwitch(KEY_SSL, baselineSsl);
-        boolean starttls = form != null && form.getStarttls() != null
-                ? form.getStarttls() : effectiveSwitch(KEY_STARTTLS, baselineStarttls);
+        boolean starttls = starttlsOf(ssl, form != null && form.getStarttls() != null
+                ? form.getStarttls() : effectiveSwitch(KEY_STARTTLS, baselineStarttls));
 
         if (StringUtils.isEmpty(host))
         {
             return "未配置 SMTP 主机";
-        }
-        if (ssl && starttls)
-        {
-            return "SSL 与 STARTTLS 不能同时开启：465 端口用 SSL、587 端口用 STARTTLS";
         }
 
         // 独立临时实例，避免连接测试影响共享 sender 或产生副作用
@@ -306,7 +310,7 @@ public class MailConfigService
     {
         try
         {
-            return blogSettingMapper.selectSettingValueByKey(key);
+            return blogSettingService.selectSettingValueByKey(key);
         }
         catch (Exception e)
         {
@@ -316,7 +320,7 @@ public class MailConfigService
 
     private void upsert(String key, String value)
     {
-        blogSettingMapper.updateSettingValueByKey(key, value);
+        blogSettingService.updateSettingValueByKey(key, value);
     }
 
     private String effective(String key, String baseline)
@@ -340,6 +344,15 @@ public class MailConfigService
             }
         }
         return baselinePort;
+    }
+
+    /**
+     * SSL(465) 与 STARTTLS(587) 语义互斥，同时开启会导致握手失败。
+     * 环境变量基线可能两者皆开，因此统一以 SSL 为准收敛生效值，而不是把冲突抛给用户。
+     */
+    private static boolean starttlsOf(boolean ssl, boolean starttls)
+    {
+        return ssl ? false : starttls;
     }
 
     private boolean effectiveSwitch(String key, boolean baseline)
