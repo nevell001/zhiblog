@@ -96,7 +96,12 @@
           <el-color-picker v-model="form.color" />
         </el-form-item>
         <el-form-item label="图标" prop="icon">
-          <el-input v-model="form.icon" placeholder="可输入 emoji 或图标标识，留空则不显示" maxlength="16" clearable />
+          <el-input
+            v-model="form.icon"
+            placeholder="可输入 emoji 或图标标识，留空则不显示"
+            maxlength="16"
+            clearable
+          />
         </el-form-item>
       </el-form>
       <template #footer>

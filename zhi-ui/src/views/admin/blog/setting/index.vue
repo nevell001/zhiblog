@@ -6,13 +6,9 @@
           <span class="card-title">{{ tabTitle }}</span>
           <div class="card-extra">
             <el-button type="primary" size="small" :loading="loading" @click="saveAllSettings">
-              <i class="el-icon-check"></i>
               保存所有设置
             </el-button>
-            <el-button type="warning" size="small" :loading="loading" @click="resetSettings">
-              <i class="el-icon-refresh"></i>
-              重置设置
-            </el-button>
+            <el-button size="small" :loading="loading" @click="resetSettings">重置设置</el-button>
           </div>
         </div>
       </template>
@@ -25,7 +21,7 @@
               title="站点信息将在博客首页、关于页面等位置显示"
               type="info"
               :closable="false"
-              style="margin-bottom: 20px"
+              class="tab-alert"
             />
             <el-form-item label="博客名称" prop="blog_name">
               <el-input
@@ -70,7 +66,6 @@
               />
             </el-form-item>
 
-            <!-- 域名管理：站点访问地址 -->
             <el-form-item label="站点访问地址" prop="blog_url">
               <el-input
                 v-model="settingsMap.blog_url"
@@ -110,54 +105,6 @@
                 Referer 的请求（爬虫/直接访问）一律放行
               </div>
             </el-form-item>
-            <!-- 博客头像设置已移除，直接使用账号头像 -->
-            <!--
-            <el-form-item
-              label="博主头像"
-              prop="blog_avatar"
-            >
-              <div class="avatar-upload">
-                <el-upload
-                  class="avatar-uploader"
-                  :action="uploadAvatarUrl"
-                  :headers="headers"
-                  :before-upload="handleAvatarBeforeUpload"
-                  :show-file-list="false"
-                >
-                  <img
-                    v-if="settingsMap.blog_avatar"
-                    :src="processedAvatarUrl"
-                    class="avatar"
-                  />
-                  <i
-                    v-else
-                    class="el-icon-plus avatar-uploader-icon"
-                  ></i>
-                </el-upload>
-                <el-input
-                  v-model="settingsMap.blog_avatar"
-                  class="avatar-input"
-                  placeholder="或直接输入头像URL"
-                />
-                <div
-                  class="upload-tip"
-                  style="
-                    font-size: 12px;
-                    color: var(--el-text-color-placeholder, #999);
-                    margin-top: 5px;
-                  "
-                >
-                  🚀
-                  <strong>基于Thumbnailator专业处理</strong>
-                  ：智能压缩为200x200像素，质量优化
-                  <br />
-                  💡 支持 JPG/PNG/GIF 格式，最大10MB，自动居中裁剪，高性能
-                  <br />
-                  📦 文件存储，数据库仅存URL，性能卓越
-                </div>
-              </div>
-            </el-form-item>
-            -->
 
             <el-divider content-position="left">监控入口</el-divider>
             <el-form-item label="Prometheus 地址" prop="prometheus_url">
@@ -196,7 +143,7 @@
               title="用于博客前台页面 title/description/keywords 与搜索引擎收录"
               type="info"
               :closable="false"
-              style="margin-bottom: 20px"
+              class="tab-alert"
             />
             <el-form-item label="站点标题" prop="seo_title">
               <el-input
@@ -257,23 +204,42 @@
         <el-tab-pane label="界面主题" name="theme">
           <el-form ref="themeForm" :model="settingsMap" label-width="120px">
             <el-alert
-              title="主题切换会立即应用到当前管理后台，主题色随保存写入博客设置"
+              title="外观模式与布局主题记忆在当前浏览器；主题色保存后写入博客设置并作用于管理后台。"
               type="info"
               :closable="false"
-              style="margin-bottom: 20px"
+              class="tab-alert"
             />
+
+            <el-form-item label="外观模式">
+              <el-radio-group
+                :model-value="settingsStore.themeMode"
+                class="theme-mode-group"
+                @change="handleThemeModeChange"
+              >
+                <el-radio-button
+                  v-for="option in themeModeOptions"
+                  :key="option.value"
+                  :data-theme-mode="option.value"
+                  :label="option.value"
+                >
+                  {{ option.label }}
+                </el-radio-button>
+              </el-radio-group>
+              <span class="setting-tip">「跟随系统」会随操作系统的深/浅色偏好自动切换</span>
+            </el-form-item>
 
             <el-form-item label="应用主题">
               <el-radio-group :model-value="settingsStore.appTheme" @change="handleAppThemeChange">
                 <el-radio-button
                   v-for="option in appThemeOptions"
                   :key="option.value"
+                  :data-app-theme="option.value"
                   :label="option.value"
                 >
                   {{ option.label }}
                 </el-radio-button>
               </el-radio-group>
-              <span class="setting-tip">切换后自动记住当前浏览器的后台主题</span>
+              <span class="setting-tip">切换后自动记住当前浏览器的后台布局主题</span>
             </el-form-item>
 
             <el-form-item label="主题颜色" prop="theme_color">
@@ -320,199 +286,37 @@
 
         <!-- 功能设置 -->
         <el-tab-pane label="功能设置" name="features">
-          <el-form ref="featuresForm" :model="settingsMap" label-width="120px">
-            <!-- 互动功能 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                互动功能
-              </span>
-            </el-divider>
-            <el-form-item label="评论功能" prop="comment_enabled">
-              <el-switch
-                v-model="settingsMap.comment_enabled"
-                @change="applySwitch('comment_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                允许访客在文章下方发表评论
-              </span>
-            </el-form-item>
-            <el-form-item
-              v-if="isSwitchOn(settingsMap.comment_enabled)"
-              label="评论审核"
-              prop="comment_review"
-            >
-              <el-switch
-                v-model="settingsMap.comment_review"
-                @change="applySwitch('comment_review')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                新评论需要管理员审核后才能显示
-              </span>
-            </el-form-item>
-            <el-form-item label="点赞功能" prop="like_enabled">
-              <el-switch v-model="settingsMap.like_enabled" @change="applySwitch('like_enabled')" />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                允许访客为文章点赞
-              </span>
-            </el-form-item>
-
-            <!-- 内容功能 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                内容功能
-              </span>
-            </el-divider>
-            <el-form-item label="浏览统计" prop="view_count_enabled">
-              <el-switch
-                v-model="settingsMap.view_count_enabled"
-                @change="applySwitch('view_count_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                统计文章浏览次数
-              </span>
-            </el-form-item>
-            <el-form-item label="分享功能" prop="share_enabled">
-              <el-switch
-                v-model="settingsMap.share_enabled"
-                @change="applySwitch('share_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                允许访客分享文章到社交媒体
-              </span>
-            </el-form-item>
-            <el-form-item label="搜索功能" prop="search_enabled">
-              <el-switch
-                v-model="settingsMap.search_enabled"
-                @change="applySwitch('search_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                启用文章搜索功能
-              </span>
-            </el-form-item>
-
-            <!-- 界面设置 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                界面设置
-              </span>
-            </el-divider>
-            <el-form-item label="显示侧边栏" prop="sidebar_enabled">
-              <el-switch
-                v-model="settingsMap.sidebar_enabled"
-                @change="applySwitch('sidebar_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                在博客首页显示侧边栏
-              </span>
-            </el-form-item>
-            <el-form-item label="显示底部" prop="footer_enabled">
-              <el-switch
-                v-model="settingsMap.footer_enabled"
-                @change="applySwitch('footer_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                在博客页面底部显示页脚信息
-              </span>
-            </el-form-item>
-            <el-form-item label="显示版权" prop="copyright_enabled">
-              <el-switch
-                v-model="settingsMap.copyright_enabled"
-                @change="applySwitch('copyright_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                在底部显示版权信息
-              </span>
-            </el-form-item>
-            <el-form-item label="页脚友链列表" prop="friend_link_enabled">
-              <el-switch
-                v-model="settingsMap.friend_link_enabled"
-                @change="applySwitch('friend_link_enabled')"
-              />
-              <span class="setting-tip" style="margin-left: 10px">
-                控制页脚「友情链接」列表（已通过的友链）是否展示，与申请入口互不影响
-              </span>
-            </el-form-item>
-            <el-form-item label="友链申请入口" prop="friend_link_apply_enabled">
-              <el-switch
-                v-model="settingsMap.friend_link_apply_enabled"
-                @change="applySwitch('friend_link_apply_enabled')"
-              />
-              <span class="setting-tip" style="margin-left: 10px">
-                控制页脚「友链申请」链接与申请页是否开放；关闭后申请页提示未开放，
-                提交接口也会直接拒绝。
-                <b>本开关改动即时生效，无需点保存</b>
-              </span>
-            </el-form-item>
-            <el-form-item label="邮件通知" prop="email_notify_enabled">
-              <el-switch
-                v-model="settingsMap.email_notify_enabled"
-                @change="applySwitch('email_notify_enabled')"
-              />
-              <span
-                style="
-                  margin-left: 10px;
-                  color: var(--el-text-color-secondary, #909399);
-                  font-size: 12px;
-                "
-              >
-                评论/回复/审核结果通过邮件通知（需已配置邮件服务）
-              </span>
-            </el-form-item>
-          </el-form>
+          <div class="feature-groups">
+            <section v-for="group in featureGroups" :key="group.title" class="feature-group">
+              <header class="feature-group__head">
+                <el-icon class="feature-group__icon"><component :is="group.icon" /></el-icon>
+                <div class="feature-group__heading">
+                  <h4 class="feature-group__title">{{ group.title }}</h4>
+                  <p class="feature-group__desc">{{ group.desc }}</p>
+                </div>
+              </header>
+              <div class="feature-grid">
+                <div
+                  v-for="item in group.items"
+                  :key="item.key"
+                  class="feature-card"
+                  :class="{ 'is-disabled': isFeatureDisabled(item) }"
+                >
+                  <div class="feature-card__body">
+                    <span class="feature-card__label">{{ item.label }}</span>
+                    <span class="feature-card__desc">{{ item.desc }}</span>
+                    <span v-if="item.instant" class="feature-card__badge">即时生效</span>
+                  </div>
+                  <el-switch
+                    v-model="settingsMap[item.key]"
+                    :data-feature="item.key"
+                    :disabled="isFeatureDisabled(item)"
+                    @change="applySwitch(item.key)"
+                  />
+                </div>
+              </div>
+            </section>
+          </div>
         </el-tab-pane>
 
         <!-- 个人信息 -->
@@ -522,14 +326,9 @@
               title="个人信息将在关于页面和博客侧边栏显示"
               type="info"
               :closable="false"
-              style="margin-bottom: 20px"
+              class="tab-alert"
             />
-            <!-- 基本信息 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                基本信息
-              </span>
-            </el-divider>
+            <el-divider content-position="left">基本信息</el-divider>
             <el-form-item label="作者职位" prop="author_title">
               <el-input
                 v-model="settingsMap.author_title"
@@ -557,12 +356,7 @@
               />
             </el-form-item>
 
-            <!-- 联系方式 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                联系方式
-              </span>
-            </el-divider>
+            <el-divider content-position="left">联系方式</el-divider>
             <el-form-item label="联系邮箱" prop="blog_email">
               <el-input
                 v-model="settingsMap.blog_email"
@@ -572,12 +366,7 @@
               />
             </el-form-item>
 
-            <!-- 社交媒体 -->
-            <el-divider content-position="left">
-              <span style="font-weight: 600; color: var(--el-color-primary, #409eff)">
-                社交媒体
-              </span>
-            </el-divider>
+            <el-divider content-position="left">社交媒体</el-divider>
             <el-form-item label="GitHub地址" prop="github_url">
               <el-input
                 v-model="settingsMap.github_url"
@@ -624,7 +413,7 @@
               title="关于页面内容将在博客的关于页面显示，支持富文本编辑"
               type="info"
               :closable="false"
-              style="margin-bottom: 20px"
+              class="tab-alert"
             />
             <el-form-item label="关于页面内容" prop="about_content">
               <editor v-model="settingsMap.about_content" :min-height="400" />
@@ -638,65 +427,219 @@
 
 <script setup lang="ts" name="BlogSetting">
 import { isSwitchOn } from '@/utils/featureSwitch'
-import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from 'vue'
-import { useSettingsStore } from '@/stores/settings'
+import { ref, computed, onMounted, getCurrentInstance, watch } from 'vue'
+import { useSettingsStore, type ThemeMode } from '@/stores/settings'
 import { handleThemeStyle, type AppTheme } from '@/utils/theme'
 import { ElMessage } from '@/plugins/element-plus-service'
-import { Link as LinkIcon } from '@element-plus/icons-vue'
 import {
-  listSetting,
-  getSetting,
-  updateSetting,
-  updateSettingValueByKey,
-  addSetting,
-  getConfigByKey,
-  delSetting
-} from '@/api/admin/blog/setting'
+  Link as LinkIcon,
+  ChatDotRound,
+  Search as SearchIcon,
+  Grid,
+  Message
+} from '@element-plus/icons-vue'
+import { listSetting, updateSettingValueByKey } from '@/api/admin/blog/setting'
 import { clearBlogCache } from '@/api/blog/setting'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
-import { processAvatarUrl } from '@/api/blog/avatar'
-import { getToken } from '@/utils/auth'
-import logger from '@/utils/logger'
 
 const { proxy } = getCurrentInstance()
 
-// 头像上传相关
-const baseApi = import.meta.env?.VITE_APP_BASE_API || '/dev-api'
-const baseUrl = baseApi
-const uploadAvatarUrl = baseUrl + '/common/upload/avatar'
-const uploadThumbnailUrl = baseUrl + '/common/upload/thumbnail'
-const headers = ref({ Authorization: 'Bearer ' + getToken() })
-
-// 初始化博客设置全局状态
 const blogSettingsStore = useBlogSettingsStore()
 const settingsStore = useSettingsStore()
 
-// 响应式数据
 const loading = ref(false)
 const activeTab = ref('basic')
 const settingsMap = ref<Record<string, any>>({})
 const originalSettings = ref<Record<string, any>>({})
 
 const appThemeOptions: { label: string; value: AppTheme; description: string }[] = [
-  {
-    label: '默认主题',
-    value: 'default',
-    description: '保留管理后台的默认布局和交互习惯'
-  },
-  {
-    label: 'Mo-Blog',
-    value: 'mo-blog',
-    description: '与前台博客一致的低饱和靛蓝、石色背景风格'
-  }
+  { label: '默认主题', value: 'default', description: '保留管理后台的默认布局和交互习惯' },
+  { label: 'Mo-Blog', value: 'mo-blog', description: '与前台博客一致的低饱和靛蓝、石色背景风格' }
+]
+
+const themeModeOptions: { label: string; value: ThemeMode }[] = [
+  { label: '跟随系统', value: 'system' },
+  { label: '浅色', value: 'light' },
+  { label: '深色', value: 'dark' }
 ]
 
 const themeColorOptions = ['#4f46e5', '#334155', '#0f766e', '#7c3aed', '#9a3412', '#409EFF']
 
 const robotsOptions = ['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow']
 
-// 计算属性：根据当前标签页返回对应的标题
+/** 功能设置分组：每项对应一个 blog_setting 开关键，改动即落库 */
+interface FeatureItem {
+  key: string
+  label: string
+  desc: string
+  dependsOn?: string
+  instant?: boolean
+}
+const featureGroups: { title: string; desc: string; icon: any; items: FeatureItem[] }[] = [
+  {
+    title: '互动',
+    desc: '读者与内容的互动能力',
+    icon: ChatDotRound,
+    items: [
+      { key: 'comment_enabled', label: '评论功能', desc: '允许访客在文章下方发表评论' },
+      {
+        key: 'comment_review',
+        label: '评论审核',
+        desc: '新评论需要管理员审核后才能显示',
+        dependsOn: 'comment_enabled'
+      },
+      { key: 'like_enabled', label: '点赞功能', desc: '允许访客为文章点赞' },
+      { key: 'share_enabled', label: '分享功能', desc: '允许访客分享文章到社交媒体' }
+    ]
+  },
+  {
+    title: '内容与检索',
+    desc: '浏览统计与站内搜索',
+    icon: SearchIcon,
+    items: [
+      { key: 'view_count_enabled', label: '浏览统计', desc: '统计文章浏览次数' },
+      { key: 'search_enabled', label: '搜索功能', desc: '启用文章搜索功能' }
+    ]
+  },
+  {
+    title: '布局与外观',
+    desc: '前台页面的结构展示',
+    icon: Grid,
+    items: [
+      { key: 'sidebar_enabled', label: '显示侧边栏', desc: '在博客首页显示侧边栏' },
+      { key: 'footer_enabled', label: '显示底部', desc: '在博客页面底部显示页脚信息' },
+      { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' }
+    ]
+  },
+  {
+    title: '友情链接',
+    desc: '页脚友链列表与申请入口',
+    icon: Message,
+    items: [
+      {
+        key: 'friend_link_enabled',
+        label: '页脚友链列表',
+        desc: '控制页脚「友情链接」列表（已通过的友链）是否展示'
+      },
+      {
+        key: 'friend_link_apply_enabled',
+        label: '友链申请入口',
+        desc: '控制页脚「友链申请」链接与申请页是否开放，关闭后提交接口也会拒绝',
+        instant: true
+      }
+    ]
+  },
+  {
+    title: '通知',
+    desc: '评论与审核的邮件提醒',
+    icon: Message,
+    items: [
+      {
+        key: 'email_notify_enabled',
+        label: '邮件通知',
+        desc: '评论/回复/审核结果通过邮件通知（需已配置邮件服务）'
+      }
+    ]
+  }
+]
+
+function isFeatureDisabled(item: FeatureItem): boolean {
+  return !!item.dependsOn && !isSwitchOn(settingsMap.value[item.dependsOn])
+}
+
+const defaultSettings: Record<string, any> = {
+  // 站点信息
+  blog_name: '我的博客',
+  blog_desc: '欢迎来到我的博客',
+  blog_author: '博主',
+  blog_copyright: '',
+  blog_beian: '',
+  blog_url: '',
+  prometheus_url: '',
+  grafana_url: '',
+  actuator_url: '',
+  referer_enabled: false,
+  referer_allowed_domains: 'localhost,127.0.0.1',
+  // SEO
+  seo_title: '',
+  seo_description: '',
+  blog_keywords: '',
+  seo_canonical_url: '',
+  seo_robots: 'index,follow',
+  seo_favicon: '',
+  // 主题
+  theme_color: '#4f46e5',
+  // 功能开关
+  comment_enabled: true,
+  comment_review: true,
+  like_enabled: true,
+  view_count_enabled: true,
+  share_enabled: true,
+  search_enabled: true,
+  sidebar_enabled: true,
+  footer_enabled: true,
+  copyright_enabled: true,
+  friend_link_enabled: true,
+  friend_link_apply_enabled: true,
+  email_notify_enabled: true,
+  // 个人信息
+  blog_email: '',
+  author_title: '',
+  author_bio: '',
+  author_location: '',
+  github_url: '',
+  weibo_url: '',
+  personal_website: '',
+  // 关于页面
+  about_content: ''
+}
+
+// 本页管理的 blog_setting 键集合（与 sql/00_init_database.sql 的种子一一对应，
+// 由 settings-seeds.test.ts 守卫一致性；加载时也只合并这些键）
+const managedKeys = [
+  'blog_name',
+  'blog_desc',
+  'blog_author',
+  'blog_copyright',
+  'blog_beian',
+  'blog_url',
+  'prometheus_url',
+  'grafana_url',
+  'actuator_url',
+  'referer_enabled',
+  'referer_allowed_domains',
+  'seo_title',
+  'seo_description',
+  'blog_keywords',
+  'seo_canonical_url',
+  'seo_robots',
+  'seo_favicon',
+  'theme_color',
+  'comment_enabled',
+  'comment_review',
+  'like_enabled',
+  'view_count_enabled',
+  'share_enabled',
+  'search_enabled',
+  'sidebar_enabled',
+  'footer_enabled',
+  'copyright_enabled',
+  'friend_link_enabled',
+  'friend_link_apply_enabled',
+  'email_notify_enabled',
+  'blog_email',
+  'author_title',
+  'author_bio',
+  'author_location',
+  'github_url',
+  'weibo_url',
+  'personal_website',
+  'about_content'
+]
+const managedKeySet = new Set(managedKeys)
+
 const tabTitle = computed(() => {
-  const titleMap = {
+  const titleMap: Record<string, string> = {
     basic: '站点信息',
     theme: '界面主题',
     features: '功能设置',
@@ -704,24 +647,12 @@ const tabTitle = computed(() => {
     other: '关于页面',
     seo: 'SEO优化'
   }
-  const title = titleMap[activeTab.value] || '博客设置管理'
-  return title
+  return titleMap[activeTab.value] || '博客设置管理'
 })
 
-// 监听tabTitle变化，确保标题正确更新
 watch(tabTitle, newVal => {
-  // 更新页面标题
   settingsStore.setTitle(newVal)
 })
-
-// 计算属性：处理头像URL，确保与前端首页显示一致
-const processedAvatarUrl = computed(() => {
-  const avatarUrl = settingsMap.value.blog_avatar
-  const processedUrl = processAvatarUrl(avatarUrl)
-  return processedUrl
-})
-
-// 微信二维码处理已移除
 
 function normalizeThemeColor(value: unknown): string {
   if (typeof value === 'string' && value.trim()) {
@@ -753,524 +684,95 @@ function handleAppThemeChange(value: unknown) {
   handleThemeColorChange(settingsMap.value.theme_color)
 }
 
-/**
- * 获取所有博客设置
- */
+function handleThemeModeChange(mode: unknown) {
+  const nextMode: ThemeMode = mode === 'light' || mode === 'dark' ? mode : 'system'
+  settingsStore.setThemeMode(nextMode)
+}
+
+/** 将设置值转换为数据库存储用的字符串形式 */
+function toStoredValue(value: any): string {
+  if (value instanceof Date) {
+    return value.toISOString().split('T')[0]
+  }
+  if (typeof value === 'boolean' || typeof value === 'number') {
+    return value.toString()
+  }
+  if (value === null || value === undefined) {
+    return ''
+  }
+  return String(value)
+}
+
+function toStoredMap(source: Record<string, any>): Record<string, string> {
+  const result: Record<string, string> = {}
+  Object.keys(source).forEach(key => {
+    result[key] = toStoredValue(source[key])
+  })
+  return result
+}
+
+/** 将数据库字符串还原为表单需要的类型 */
+function coerceValue(key: string, raw: any): any {
+  if (raw === 'true') return true
+  if (raw === 'false') return false
+  return raw
+}
+
+async function fetchSettingRows(): Promise<any[]> {
+  const res = await listSetting({ pageSize: 500, pageNum: 1 })
+  return res.rows || res.data || []
+}
+
+/** 获取所有博客设置 */
 async function getAllSettings() {
   loading.value = true
   try {
-    // 强制清除可能的缓存，使用多重策略
-    const timestamp = new Date().getTime()
-    const randomNonce = Math.random().toString(36).substring(7)
-    const cacheBuster = `${timestamp}_${randomNonce}`
-
-    // 尝试多种查询策略来获取博客设置
-    let allSettings = []
-    const queryStrategies = []
-
-    // 策略1: 标准查询，大页面大小
-    queryStrategies.push({
-      name: '标准查询(大页面)',
-      params: { _t: cacheBuster, pageSize: 200, pageNum: 1 }
-    })
-
-    // 策略2: 查询包含blog_前缀的配置
-    queryStrategies.push({
-      name: '博客配置查询',
-      params: { _t: cacheBuster, configKey: 'blog_', pageSize: 200 }
-    })
-
-    // 策略3: 查询所有可能的博客相关配置键
-    const blogKeys = [
-      'blog_name',
-      'blog_desc',
-      'blog_author',
-      'blog_email',
-      'blog_url',
-      'prometheus_url',
-      'grafana_url',
-      'actuator_url',
-      'blog_start_time',
-      'blog_avatar',
-      'blog_signature',
-      'blog_keywords',
-      'blog_copyright',
-      'blog_beian',
-      'seo_title',
-      'seo_description',
-      'seo_canonical_url',
-      'seo_robots',
-      'seo_favicon',
-      'theme_color',
-      'header_background',
-      'sidebar_style',
-      'comment_enabled',
-      'comment_review',
-      'like_enabled',
-      'view_count_enabled',
-      'share_enabled',
-      'search_enabled',
-      'sidebar_enabled',
-      'footer_enabled',
-      'copyright_enabled',
-      'friend_link_enabled',
-      'friend_link_apply_enabled',
-      'page_size',
-      'hot_article_count',
-      'recent_comment_count',
-      'greeting_message',
-      'about_content',
-      'author_title',
-      'author_bio',
-      'github_url',
-      'weibo_url',
-      'wechat_qr',
-      'author_location',
-      'personal_website'
-    ]
-
-    // 策略4: 分别查询关键的博客设置
-    for (const key of blogKeys) {
-      queryStrategies.push({
-        name: `单独查询: ${key}`,
-        params: { _t: cacheBuster, configKey: key, pageSize: 1 }
-      })
+    let rows = await fetchSettingRows()
+    if (rows.length === 0) {
+      // 缓存尚未建立时重试一次
+      await new Promise(resolve => setTimeout(resolve, 300))
+      rows = await fetchSettingRows()
     }
 
-    // 执行优化的查询策略 - 减少API调用
-    let successfulQueries = 0
-    let totalFound = 0
-
-    // 策略1: 先尝试标准查询
-    try {
-      const response = await listSetting(queryStrategies[0].params)
-      const settingList = response.rows || response.data || []
-
-      if (settingList.length > 0) {
-        successfulQueries++
-        totalFound += settingList.length
-
-        const foundKeys = settingList.map(s => s.configKey).filter(Boolean)
-
-        allSettings.push(...settingList)
-      }
-    } catch (error: any) {
-      logger.warn('❌ 标准查询失败:', error.message)
-    }
-
-    // 如果标准查询没有找到关键的博客设置，才执行单独查询
-    const loadCriticalKeys = ['blog_start_time', 'blog_avatar', 'blog_signature']
-    const foundCriticalKeys = allSettings
-      .map(s => s.configKey)
-      .filter(key => loadCriticalKeys.includes(key))
-
-    if (foundCriticalKeys.length < 3) {
-      // 只查询缺失的关键设置，减少API调用
-      const missingKeys = loadCriticalKeys.filter(key => !foundCriticalKeys.includes(key))
-      const batchQuery = {
-        _t: cacheBuster,
-        configKey: missingKeys.join(','), // 假设API支持批量查询
-        pageSize: 50
-      }
-
-      try {
-        const batchResponse = await listSetting(batchQuery)
-        const batchSettings = batchResponse.rows || batchResponse.data || []
-
-        if (batchSettings.length > 0) {
-          successfulQueries++
-          totalFound += batchSettings.length
-
-          const batchFoundKeys = batchSettings.map(s => s.configKey).filter(Boolean)
-
-          // 合并并去重
-          batchSettings.forEach(setting => {
-            if (setting.configKey) {
-              const existingIndex = allSettings.findIndex(s => s.configKey === setting.configKey)
-              if (existingIndex >= 0) {
-                allSettings[existingIndex] = setting
-              } else {
-                allSettings.push(setting)
-              }
-            }
-          })
-        }
-      } catch (batchError: any) {
-        logger.warn('❌ 批量查询失败，回退到单独查询:', batchError.message)
-
-        // 回退策略：使用并行查询来提高速度
-        if (missingKeys.length > 0) {
-          const parallelQueries = missingKeys.map(async key => {
-            try {
-              const singleResponse = await listSetting({
-                _t: cacheBuster,
-                configKey: key,
-                pageSize: 1
-              })
-
-              const singleSettings = singleResponse.rows || singleResponse.data || []
-              if (singleSettings.length > 0) {
-                return singleSettings[0] // 返回找到的设置项
-              }
-            } catch (singleError: any) {
-              logger.warn(`❌ 并行查询 ${key} 失败:`, singleError.message)
-            }
-            return null
-          })
-
-          // 等待所有并行查询完成
-          const parallelResults = await Promise.all(parallelQueries)
-          const validResults = parallelResults.filter(result => result !== null)
-
-          successfulQueries += validResults.length
-          totalFound += validResults.length
-          allSettings.push(...validResults)
-        }
-      }
-    }
-
-    // 如果还是没有找到博客设置，尝试强制刷新和延迟重试
-    if (allSettings.length <= 10) {
-      // 减少延迟时间到500毫秒，提高响应速度
-      await new Promise(resolve => setTimeout(resolve, 500))
-
-      try {
-        const retryResponse = await listSetting({
-          _t: new Date().getTime(),
-          pageSize: 500,
-          pageNum: 1
-        })
-
-        const retrySettings = retryResponse.rows || retryResponse.data || []
-
-        if (retrySettings.length > allSettings.length) {
-          allSettings = retrySettings
-        }
-      } catch (retryError: any) {
-        logger.warn('重试查询也失败:', retryError.message)
-      }
-    }
-
-    // 将设置项转换为Map格式，并处理特殊类型
-    const settings = {}
-    allSettings.forEach(setting => {
+    const loaded: Record<string, any> = {}
+    rows.forEach((setting: any) => {
       if (setting.configKey) {
-        let value = setting.configValue
-        const originalType = typeof value
-
-        // 处理布尔值转换
-        if (value === 'true') {
-          value = true
-        } else if (value === 'false') {
-          value = false
-        }
-
-        // 处理日期类型转换
-        if (setting.configKey === 'blog_start_time' && value && typeof value === 'string') {
-          // 将YYYY-MM-DD格式的字符串转换为Date对象
-          const dateValue = new Date(value)
-          if (!isNaN(dateValue.getTime())) {
-            value = dateValue
-          } else {
-            logger.warn(`⚠️ 无效的日期格式 ${setting.configKey}: '${value}'`)
-            value = null
-          }
-        }
-
-        // 验证和处理头像数据 - 不再支持Base64格式
-        if (setting.configKey === 'blog_avatar') {
-          if (value && value.length > 500) {
-            logger.warn(`⚠️ 数据库中的头像数据过长 (${value.length} 字符)，清空并要求用户重新上传`)
-            value = ''
-          } else if (value && value.startsWith('data:image/')) {
-            logger.warn('⚠️ 检测到Base64格式头像，不再支持，清空并要求用户重新上传')
-            value = ''
-          }
-        }
-
-        settings[setting.configKey] = value
-
-        // 为关键字段添加详细调试信息
-        if (
-          [
-            'blog_name',
-            'blog_desc',
-            'blog_author',
-            'blog_email',
-            'blog_url',
-            'prometheus_url',
-            'grafana_url',
-            'actuator_url',
-            'blog_start_time',
-            'blog_avatar',
-            'blog_signature'
-          ].includes(setting.configKey)
-        ) {
-          // 关键字段调试已移除
-        }
+        loaded[setting.configKey] = coerceValue(setting.configKey, setting.configValue)
       }
     })
 
-    // 设置默认值，确保所有必要的设置项都有值，并确保数值类型正确
-    const defaultSettings = {
-      blog_name: '我的博客',
-      blog_desc: '欢迎来到我的博客',
-      blog_author: '博主',
-      blog_email: '',
-      blog_url: '',
-      prometheus_url: '',
-      grafana_url: '',
-      actuator_url: '',
-      referer_enabled: false,
-      referer_allowed_domains: 'localhost,127.0.0.1',
-      blog_start_time: null, // 不设置默认值，让用户自行选择
-      blog_avatar: '',
-      blog_signature: '',
-      seo_title: '',
-      seo_description: '',
-      blog_keywords: '',
-      seo_canonical_url: '',
-      seo_robots: 'index,follow',
-      seo_favicon: '',
-      theme_color: '#4f46e5',
-      header_background: '#304156',
-      sidebar_style: 'dark',
-      blog_copyright: '',
-      blog_beian: '',
-      comment_enabled: true,
-      comment_review: true,
-      like_enabled: true,
-      view_count_enabled: true,
-      share_enabled: true,
-      search_enabled: true,
-      sidebar_enabled: true,
-      footer_enabled: true,
-      copyright_enabled: true,
-      friend_link_enabled: true,
-      friend_link_apply_enabled: true,
-      email_notify_enabled: true,
-      page_size: 10, // 确保数值类型
-      hot_article_count: 5, // 确保数值类型
-      recent_comment_count: 5, // 确保数值类型
-      greeting_message: '欢迎来到我的博客！',
-      about_content: '',
-      // 社交链接
-      github_url: '',
-      weibo_url: '',
-      wechat_qr: '',
-      author_title: '',
-      author_bio: '',
-      author_location: '',
-      personal_website: ''
-    }
-
-    // 合并默认设置和从服务器获取的设置（服务器设置优先）
-    const mergedSettings = { ...defaultSettings }
-
-    // 统计从服务器获取的设置数量
-    const serverSettingKeys = Object.keys(settings)
-    const criticalKeys = ['blog_start_time', 'blog_avatar', 'blog_signature']
-    const retrievedCriticalKeys = serverSettingKeys.filter(key => criticalKeys.includes(key))
-
-    // 用服务器获取的设置覆盖默认设置
-    Object.keys(settings).forEach(key => {
-      if (settings[key] !== undefined) {
-        // 即使是 null 或空字符串也要保留，因为有些字段可能就是空的
-        mergedSettings[key] = settings[key]
-
-        // 对数值类型字段进行类型转换
-        if (['page_size', 'hot_article_count', 'recent_comment_count'].includes(key)) {
-          mergedSettings[key] = Number(settings[key]) || defaultSettings[key]
-        }
+    const merged: Record<string, any> = { ...defaultSettings }
+    Object.keys(loaded).forEach(key => {
+      if (managedKeySet.has(key) && loaded[key] !== undefined) {
+        merged[key] = loaded[key]
       }
     })
 
-    // 验证关键字段是否正确加载
-    criticalKeys.forEach(key => {
-      const finalValue = mergedSettings[key]
-      // 验证调试已移除
-    })
-
-    // 特别处理头像URL，确保格式正确
-    if (mergedSettings.blog_avatar) {
-      mergedSettings.blog_avatar = validateAvatarUrl(mergedSettings.blog_avatar)
-    }
-    if (mergedSettings.wechat_qr) {
-      mergedSettings.wechat_qr = validateAvatarUrl(mergedSettings.wechat_qr)
-    }
-
-    // 保存设置到响应式数据
-    settingsMap.value = mergedSettings
-    // 保存原始设置用于重置（转换为存储格式以便比较）
-    originalSettings.value = {}
-    Object.keys(mergedSettings).forEach(key => {
-      let value = mergedSettings[key]
-      let originalType: string = typeof value
-      if (value instanceof Date) {
-        // 将日期转换为YYYY-MM-DD格式
-        value = value.toISOString().split('T')[0]
-        originalType = 'Date->' + typeof value
-      } else if (typeof value === 'boolean') {
-        // 将布尔值转换为字符串
-        value = value.toString()
-        originalType = 'boolean->' + typeof value
-      } else if (typeof value === 'number') {
-        // 将数字转换为字符串
-        value = value.toString()
-        originalType = 'number->' + typeof value
-      }
-      originalSettings.value[key] = value
-
-      // 对关键字段添加调试信息
-      if (
-        [
-          'blog_name',
-          'blog_desc',
-          'blog_author',
-          'blog_email',
-          'blog_url',
-          'prometheus_url',
-          'grafana_url',
-          'actuator_url',
-          'blog_start_time',
-          'blog_avatar',
-          'blog_signature'
-        ].includes(key)
-      ) {
-        // 调试代码已移除
-      }
-    })
-  } catch (error: any) {
-    console.error('获取设置失败:', error)
-    // 如果获取失败，使用默认设置
-    const defaultSettings = {
-      blog_name: '我的博客',
-      blog_desc: '欢迎来到我的博客',
-      blog_author: '博主',
-      blog_email: '',
-      blog_url: '',
-      prometheus_url: '',
-      grafana_url: '',
-      actuator_url: '',
-      referer_enabled: false,
-      referer_allowed_domains: 'localhost,127.0.0.1',
-      blog_start_time: null, // 不设置默认值，让用户自行选择
-      blog_avatar: '',
-      blog_signature: '',
-      seo_title: '',
-      seo_description: '',
-      blog_keywords: '',
-      seo_canonical_url: '',
-      seo_robots: 'index,follow',
-      seo_favicon: '',
-      theme_color: '#4f46e5',
-      header_background: '#304156',
-      sidebar_style: 'dark',
-      blog_copyright: '',
-      blog_beian: '',
-      comment_enabled: true,
-      comment_review: true,
-      like_enabled: true,
-      view_count_enabled: true,
-      share_enabled: true,
-      search_enabled: true,
-      sidebar_enabled: true,
-      footer_enabled: true,
-      copyright_enabled: true,
-      friend_link_enabled: true,
-      friend_link_apply_enabled: true,
-      email_notify_enabled: true,
-      page_size: 10,
-      hot_article_count: 5,
-      recent_comment_count: 5,
-      greeting_message: '欢迎来到我的博客！',
-      about_content: '',
-      // 社交链接
-      github_url: '',
-      weibo_url: '',
-      wechat_qr: ''
-    }
-
-    // 特别处理默认头像URL
-    defaultSettings.blog_avatar = validateAvatarUrl(defaultSettings.blog_avatar)
-    defaultSettings.wechat_qr = validateAvatarUrl(defaultSettings.wechat_qr)
-
-    settingsMap.value = defaultSettings
-    // 保存原始设置用于重置（转换为存储格式以便比较）
-    originalSettings.value = {}
-    Object.keys(defaultSettings).forEach(key => {
-      let value = defaultSettings[key]
-      let originalType: string = typeof value
-      if (value instanceof Date) {
-        // 将日期转换为YYYY-MM-DD格式
-        value = value.toISOString().split('T')[0]
-        originalType = 'Date->' + typeof value
-      } else if (typeof value === 'boolean') {
-        // 将布尔值转换为字符串
-        value = value.toString()
-        originalType = 'boolean->' + typeof value
-      } else if (typeof value === 'number') {
-        // 将数字转换为字符串
-        value = value.toString()
-        originalType = 'number->' + typeof value
-      } else if (value === null || value === undefined) {
-        // 将 null/undefined 转换为空字符串
-        value = ''
-        originalType = 'null/undef->string'
-      }
-      originalSettings.value[key] = value
-
-      // 对关键字段添加调试信息
-      if (
-        [
-          'blog_start_time',
-          'blog_avatar',
-          'blog_signature',
-          'author_title',
-          'author_bio',
-          'github_url',
-          'weibo_url',
-          'wechat_qr',
-          'author_location',
-          'personal_website'
-        ].includes(key)
-      ) {
-        // 调试代码已移除
-      }
-    })
-
+    settingsMap.value = merged
+    originalSettings.value = toStoredMap(merged)
+  } catch (error) {
+    settingsMap.value = { ...defaultSettings }
+    originalSettings.value = toStoredMap(defaultSettings)
     ElMessage.warning('获取设置失败，已使用默认设置')
   } finally {
     loading.value = false
   }
 }
 
-/**
- * 保存所有设置
- */
-/**
- * 开关类设置改动即生效：立即写入数据库并刷新前台缓存，
- * 避免“改了但忘记点保存导致看起来不生效”
- */
+/** 开关类设置改动即生效：立即写入并刷新前台缓存，失败则回滚显示 */
 async function applySwitch(key: string) {
-  const current = settingsMap.value[key]
-  const storedValue = typeof current === 'boolean' ? current.toString() : String(current ?? '')
-
+  const storedValue = toStoredValue(settingsMap.value[key])
   try {
     const response = await updateSettingValueByKey(key, storedValue)
     if (response?.code === 200) {
-      // 已落库，同步“原始值”避免点“保存所有设置”时重复提交
       originalSettings.value[key] = storedValue
       ElMessage.success('设置已生效')
-      // 主题等需要即时感知的键：通知全局状态
-      blogSettingsStore.updateBlogSettings({ [key]: current })
+      blogSettingsStore.updateBlogSettings({ [key]: settingsMap.value[key] })
     } else {
       throw new Error(response?.msg || '保存失败')
     }
   } catch (error: any) {
-    // 保存失败则回滚开关显示，避免界面与数据库不一致
-    const original = originalSettings.value[key]
-    settingsMap.value[key] = isSwitchOn(original)
+    settingsMap.value[key] = isSwitchOn(originalSettings.value[key])
     ElMessage.error(error?.msg || error?.message || '设置保存失败')
   }
 }
@@ -1278,401 +780,84 @@ async function applySwitch(key: string) {
 async function saveAllSettings() {
   loading.value = true
   try {
-    // 获取修改过的设置项
-    const modifiedSettings = []
-    for (const key in settingsMap.value) {
-      const currentValue = settingsMap.value[key]
-      const originalValue = originalSettings.value[key]
-
-      // 统一比较格式：将当前值转换为存储格式
-      let comparableCurrentValue = currentValue
-      if (currentValue instanceof Date) {
-        comparableCurrentValue = currentValue.toISOString().split('T')[0]
-      } else if (typeof currentValue === 'boolean') {
-        comparableCurrentValue = currentValue.toString()
-      } else if (typeof currentValue === 'number') {
-        comparableCurrentValue = currentValue.toString()
-      }
-      // 字符串类型保持不变，但需要处理 null/undefined
-      else if (comparableCurrentValue === null || comparableCurrentValue === undefined) {
-        comparableCurrentValue = ''
-      }
-
-      // 对关键字段添加详细调试信息
-      if (
-        [
-          'blog_name',
-          'blog_desc',
-          'blog_author',
-          'blog_email',
-          'blog_url',
-          'prometheus_url',
-          'grafana_url',
-          'actuator_url',
-          'blog_start_time',
-          'blog_avatar',
-          'blog_signature'
-        ].includes(key)
-      ) {
-        // 字段比较调试已移除
-      }
-
-      // 如果值有变化，则加入保存列表
-      if (comparableCurrentValue !== originalValue) {
-        let value = currentValue
-
-        // 将布尔值和数字转换为字符串，以便保存到数据库
-        if (typeof value === 'boolean') {
-          value = value.toString()
-        } else if (typeof value === 'number') {
-          value = value.toString()
-        } else if (value === null || value === undefined) {
-          value = '' // 将 null/undefined 转换为空字符串
-        }
-
-        modifiedSettings.push({
-          key,
-          value: value
-        })
+    const modified: { key: string; value: string }[] = []
+    for (const key of Object.keys(settingsMap.value)) {
+      const comparable = toStoredValue(settingsMap.value[key])
+      if (comparable !== originalSettings.value[key]) {
+        modified.push({ key, value: comparable })
       }
     }
 
-    if (modifiedSettings.length === 0) {
+    if (modified.length === 0) {
       ElMessage.success('没有修改任何设置')
       return
     }
 
-    // 移除获取配置列表的步骤，直接在保存时动态检测是否存在
-    // 这可以减少一次API调用，提高性能
-
-    // 使用简化的保存逻辑，直接使用 updateSettingValueByKey 方法
-    const results = []
-
-    for (const setting of modifiedSettings) {
+    const failed: string[] = []
+    for (const item of modified) {
       try {
-        // 处理日期类型的值
-        let processedValue = setting.value
-        if (setting.value instanceof Date) {
-          // 将日期转换为YYYY-MM-DD格式
-          processedValue = setting.value.toISOString().split('T')[0]
+        const response = await updateSettingValueByKey(item.key, item.value)
+        if (response?.code !== 200) {
+          failed.push(item.key)
         }
-
-        // 验证字段长度以符合数据库约束（现已更新为1000字符）
-        if (setting.key === 'blog_avatar' && processedValue && processedValue.length > 1000) {
-          logger.warn(`头像URL过长: ${processedValue.length} 字符，超过1000字符限制`)
-          // 不再支持Base64格式，只处理URL格式
-          if (processedValue.startsWith('http')) {
-            ElMessage.warning('头像URL过长，请使用文件上传方式或较短的URL')
-            processedValue = processedValue.substring(0, 997) + '...'
-          } else {
-            // 清空过长的值，要求用户重新上传
-            ElMessage.warning('头像数据格式不支持，请使用文件上传功能')
-            processedValue = ''
-          }
-        }
-
-        // 验证其他字段的长度
-        if (processedValue && typeof processedValue === 'string') {
-          // 大部分字符串字段限制为1000字符
-          if (processedValue.length > 1000) {
-            logger.warn(`字段 ${setting.key} 长度 ${processedValue.length} 超过1000字符，将被截断`)
-            processedValue = processedValue.substring(0, 997) + '...'
-          }
-        }
-
-        // 使用 updateSettingValueByKey 方法，它会自动处理不存在的情况
-        const response = await updateSettingValueByKey(setting.key, processedValue)
-
-        const success = response.code === 200
-        if (success) {
-          // 保存成功
-        } else {
-          console.error(
-            `❌ 设置 ${setting.key} 保存失败，返回码: ${response.code}, 消息: ${response.msg}`
-          )
-        }
-
-        results.push({ success, key: setting.key })
-
-        // 减少延迟以提高性能
-        await new Promise(resolve => setTimeout(resolve, 10))
-      } catch (err) {
-        console.error(`设置 ${setting.key} 保存过程出错:`, err)
-        results.push({ success: false, key: setting.key, error: err })
+      } catch {
+        failed.push(item.key)
       }
     }
 
-    // 检查结果
-    const failedSettings = results.filter(result => !result.success)
-
-    if (failedSettings.length > 0) {
-      const failedKeys = failedSettings.map(s => s.key).join(', ')
-      const conflictErrors = failedSettings.filter(
-        s =>
-          s.error &&
-          (s.error.message.includes('参数键名已存在') ||
-            s.error.message.includes('key already exists'))
-      )
-
-      if (conflictErrors.length > 0) {
-        logger.warn('检测到键冲突错误，可能是并发操作导致，尝试重新加载配置...')
-        // 减少延迟时间，提高响应速度
-        await new Promise(resolve => setTimeout(resolve, 100))
-      }
-
-      throw new Error(`以下设置保存失败: ${failedKeys}`)
+    if (failed.length > 0) {
+      throw new Error(`以下设置保存失败: ${failed.join(', ')}`)
     }
 
-    // 注释掉复杂的重新加载逻辑，避免可能的认证问题
-    // 清除前台API缓存，确保前台能获取到最新设置
-    // 使用异步方式，避免阻塞保存流程
-    setTimeout(async () => {
-      try {
-        // 确保 clearBlogCache 函数存在且可调用
-        if (typeof clearBlogCache === 'function') {
-          await clearBlogCache()
-        } else {
-          logger.warn('clearBlogCache 函数未定义，跳过缓存清除')
-        }
-      } catch (error: any) {
-        logger.warn('清除前台API缓存失败，但不影响保存:', error)
-      }
-    }, 100)
-
-    // 更新全局博客设置状态，通知前台页面
-    try {
-      // 构建最新的设置对象
-      const latestSettings = {}
-      Object.keys(settingsMap.value).forEach(key => {
-        let value = settingsMap.value[key]
-        // 转换为存储格式
-        if (value instanceof Date) {
-          value = value.toISOString().split('T')[0]
-        } else if (typeof value === 'boolean') {
-          value = value.toString()
-        } else if (typeof value === 'number') {
-          value = value.toString()
-        } else if (value === null || value === undefined) {
-          value = ''
-        }
-        latestSettings[key] = value
-      })
-
-      blogSettingsStore.updateBlogSettings(latestSettings)
-
-      // 触发自定义事件，通知其他组件
-      window.dispatchEvent(
-        new CustomEvent('blogSettingsUpdated', {
-          detail: latestSettings
-        })
-      )
-    } catch (error: any) {
-      logger.warn('更新全局状态失败:', error)
-    }
-
-    // 保存后立即重新获取设置数据，确保显示最新值
-
-    // 减少延迟时间，提高响应速度
-    await new Promise(resolve => setTimeout(resolve, 300))
+    // 清除前台缓存并同步全局状态
+    clearBlogCache().catch(() => {})
+    const latest = toStoredMap(settingsMap.value)
+    blogSettingsStore.updateBlogSettings(latest)
+    window.dispatchEvent(new CustomEvent('blogSettingsUpdated', { detail: latest }))
 
     await getAllSettings()
-
-    // 更新原始设置（转换为存储格式以便比较）
-    originalSettings.value = {}
-    Object.keys(settingsMap.value).forEach(key => {
-      let value = settingsMap.value[key]
-      let originalType: string = typeof value
-      if (value instanceof Date) {
-        // 将日期转换为YYYY-MM-DD格式
-        value = value.toISOString().split('T')[0]
-        originalType = 'Date->' + typeof value
-      } else if (typeof value === 'boolean') {
-        // 将布尔值转换为字符串
-        value = value.toString()
-        originalType = 'boolean->' + typeof value
-      } else if (typeof value === 'number') {
-        // 将数字转换为字符串
-        value = value.toString()
-        originalType = 'number->' + typeof value
-      } else if (value === null || value === undefined) {
-        // 将 null/undefined 转换为空字符串
-        value = ''
-        originalType = 'null/undef->string'
-      }
-      originalSettings.value[key] = value
-
-      // 对关键字段添加调试信息
-      if (
-        [
-          'blog_name',
-          'blog_desc',
-          'blog_author',
-          'blog_email',
-          'blog_url',
-          'prometheus_url',
-          'grafana_url',
-          'actuator_url',
-          'blog_start_time',
-          'blog_avatar',
-          'blog_signature'
-        ].includes(key)
-      ) {
-        // 调试代码已移除
-      }
-    })
-
-    ElMessage.success(`成功保存 ${modifiedSettings.length} 项设置`)
+    ElMessage.success(`成功保存 ${modified.length} 项设置`)
   } catch (error: any) {
-    console.error('保存设置失败详情:', error)
-    // 根据错误类型显示不同的错误信息
-    if (error.message && error.message.includes('Request method')) {
-      ElMessage.error('保存设置失败: API方法不支持，请检查后端配置')
-    } else if (error.message && error.message.includes('Network Error')) {
-      ElMessage.error('保存设置失败: 网络连接错误，请检查网络配置')
-    } else {
-      ElMessage.error(`保存设置失败: ${error.message || '请稍后重试'}`)
-    }
+    ElMessage.error(`保存设置失败: ${error?.message || '请稍后重试'}`)
   } finally {
     loading.value = false
   }
 }
 
-/**
- * 验证头像URL格式
- * 专注于文件上传，不再支持Base64格式
- */
-function validateAvatarUrl(url) {
-  if (!url) return ''
-
-  // 如果是base64格式，直接清空并提示用户使用文件上传
-  if (url.startsWith('data:image/')) {
-    ElMessage.warning('不再支持Base64格式头像，请使用文件上传功能')
-    return ''
-  }
-
-  // 如果是相对路径，确保格式正确
-  if (!url.startsWith('http') && !url.startsWith('/')) {
-    url = '/' + url
-  }
-
-  return url
-}
-
-/**
- * 处理单个设置项的变更保存
- */
-async function handleSingleSettingChange(key, value) {
+async function resetSettings() {
   try {
-    // 处理日期类型的值
-    let processedValue = value
-    if (value instanceof Date) {
-      processedValue = value.toISOString().split('T')[0]
-    }
-
-    // 使用 updateSettingValueByKey 方法，这个方法会自动处理不存在的情况
-    const response = await updateSettingValueByKey(key, processedValue)
-
-    if (response.code === 200) {
-      ElMessage.success(`设置 ${key} 保存成功`)
-
-      // 更新原始设置以避免重复保存
-      originalSettings.value[key] = processedValue
-
-      // 博客头像已移除，不再需要同步到前台store
-    } else {
-      throw new Error(response.msg || '操作失败')
-    }
-  } catch (error: any) {
-    console.error(`❌ 保存设置 ${key} 失败:`, error)
-    ElMessage.error(`保存设置 ${key} 失败: ${error.message}`)
-    throw error
-  }
-}
-
-/**
- * 强制刷新前台头像显示
- */
-function refreshFrontendAvatar() {
-  const blogSettingsStore = useBlogSettingsStore()
-
-  // 博客头像已移除，不再需要刷新前台头像
-  // 刷新前台二维码
-  if (settingsMap.value.wechat_qr) {
-    blogSettingsStore.updateBlogSettings({
-      wechat_qr: settingsMap.value.wechat_qr
+    await proxy.$modal.confirm('确定要重置所有设置吗？将放弃当前未保存的修改。', '警告', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     })
+    loading.value = true
+    await getAllSettings()
+    proxy.$modal.msgSuccess('设置已重置')
+  } catch {
+    // 用户取消
+  } finally {
+    loading.value = false
   }
 }
 
-/**
- * 初始化获取设置
- */
 onMounted(() => {
-  // 设置正确的页面标题
   settingsStore.setTitle('博客设置')
 
   getAllSettings().then(() => {
-    // 头像已移除，不再需要刷新前台头像
-    // 应用加载的主题色到CSS变量
     if (settingsMap.value.theme_color) {
       handleThemeStyle(settingsMap.value.theme_color)
     }
   })
 })
-
-/**
- * 头像上传前检查
- */
-function handleAvatarBeforeUpload(file) {
-  // 检查文件类型
-  const isImage = file.type.startsWith('image/')
-  if (!isImage) {
-    ElMessage.error('只能上传图片文件!')
-    return false
-  }
-
-  // 检查文件大小 (10MB)
-  const isLt10M = file.size / 1024 / 1024 < 10
-  if (!isLt10M) {
-    ElMessage.error('头像图片大小不能超过 10MB!')
-    return false
-  }
-
-  ElMessage.info('正在上传并压缩头像...')
-  return true
-}
-
-/**
- * 重置设置
- */
-async function resetSettings() {
-  try {
-    await proxy.$modal.confirm('确定要重置所有设置吗？此操作不可恢复！', '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
-
-    loading.value = true
-    // 重新加载原始设置
-    await getAllSettings()
-    proxy.$modal.msgSuccess('设置已重置')
-  } catch (error: any) {
-    // 用户取消操作
-  } finally {
-    loading.value = false
-  }
-}
 </script>
 
 <style scoped>
-/* 主容器背景修复 - 支持暗色主题自动切换 */
 .app-container {
   background-color: var(--el-bg-color-page);
   min-height: calc(100vh - 84px);
 }
 
-/* 暗色主题下的背景色 */
 html.dark .app-container {
   background-color: var(--el-bg-color-page, #141414);
 }
@@ -1683,13 +868,11 @@ html.dark .app-container {
   border: 1px solid var(--el-border-color-light);
 }
 
-/* 暗色主题下的卡片样式 */
 html.dark .blog-setting-card {
   background-color: var(--el-bg-color-overlay, #1d1e1f);
   border: 1px solid var(--el-border-color-light, #434343);
 }
 
-/* 确保所有卡片组件在暗色主题下正确显示 */
 :deep(.el-card) {
   background-color: var(--el-bg-color-overlay);
   border: 1px solid var(--el-border-color-light);
@@ -1704,16 +887,29 @@ html.dark .blog-setting-card {
   background-color: var(--el-bg-color-overlay);
 }
 
-/* 卡片标题样式 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .card-title {
   font-size: 16px;
   font-weight: bold;
   color: var(--el-text-color-primary, #303133);
 }
 
-/* 标签页样式优化 */
+.card-extra {
+  display: flex;
+  gap: 10px;
+}
+
+.tab-alert {
+  margin-bottom: 20px;
+}
+
 .blog-setting-tabs {
-  margin-top: 16px;
+  margin-top: 20px;
 }
 
 :deep(.el-tabs__header) {
@@ -1722,11 +918,6 @@ html.dark .blog-setting-card {
   padding: 0 16px;
   margin: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-:deep(.el-tabs__nav-wrap) {
-  background-color: transparent;
-  padding: 8px 0;
 }
 
 :deep(.el-tabs__nav-wrap::after) {
@@ -1745,7 +936,6 @@ html.dark .blog-setting-card {
   border-radius: 6px;
   margin-right: 4px;
   transition: all 0.3s ease;
-  position: relative;
 }
 
 :deep(.el-tabs__item:hover) {
@@ -1757,7 +947,6 @@ html.dark .blog-setting-card {
   color: var(--el-color-primary, #409eff);
   background-color: var(--el-bg-color-overlay, #ffffff);
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
 }
 
 :deep(.el-tabs__active-bar) {
@@ -1769,6 +958,109 @@ html.dark .blog-setting-card {
   padding: 24px;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 功能设置卡片 */
+.feature-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.feature-group__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--el-border-color-lighter, #ebeef5);
+}
+
+.feature-group__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 18px;
+  color: var(--el-color-primary, #409eff);
+  background: var(--el-color-primary-light-9, #ecf5ff);
+}
+
+.feature-group__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--el-text-color-primary, #303133);
+}
+
+.feature-group__desc {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: var(--el-text-color-secondary, #909399);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.feature-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--el-border-color-light, #e4e7ed);
+  border-radius: 10px;
+  background: var(--el-bg-color-overlay, #ffffff);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.feature-card:hover {
+  border-color: var(--el-color-primary-light-5, #a0cfff);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+}
+
+.feature-card.is-disabled {
+  opacity: 0.6;
+}
+
+.feature-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.feature-card__label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--el-text-color-primary, #303133);
+}
+
+.feature-card__desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--el-text-color-secondary, #909399);
+}
+
+.feature-card__badge {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  border-radius: 10px;
+  color: var(--el-color-success, #67c23a);
+  background: var(--el-color-success-light-9, #f0f9eb);
+}
+
+/* 主题控制 */
+.theme-mode-group {
+  margin-right: 12px;
 }
 
 .theme-color-control {
@@ -1879,177 +1171,22 @@ html.dark .blog-setting-card {
   background: #c7d2fe;
 }
 
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.card-title {
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.card-extra {
-  display: flex;
-  gap: 10px;
-}
-
-.blog-setting-tabs {
-  margin-top: 20px;
-}
-
-/* 头像上传样式 */
-.avatar-upload {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.avatar-uploader {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.avatar:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.avatar-uploader-icon {
-  width: 100px;
-  height: 100px;
-  border: 1px dashed var(--el-border-color-light, #d9d9d9);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--el-text-color-placeholder, #999);
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.avatar-uploader-icon:hover {
-  color: var(--el-color-primary, #409eff);
-  border-color: var(--el-color-primary, #409eff);
-}
-
-.avatar-input {
-  flex: 1;
-}
-
-/* 表单样式优化 */
+/* 表单 */
 .el-form {
   padding: 0;
   background-color: transparent;
-  border-radius: 0;
 }
 
-/* 暗色主题下的表单背景 */
-html.dark .el-form {
-  background-color: transparent;
-}
-
-/* 表单项标签和输入框样式修复 */
 :deep(.el-form-item__label) {
   color: var(--el-text-color-primary, #303133);
   font-weight: 700;
-}
-
-:deep(.el-input__wrapper) {
-  background-color: var(--el-bg-color-overlay, #ffffff);
-  border: 1px solid var(--el-border-color, #dcdfe6);
-}
-
-:deep(.el-input__inner) {
-  background-color: var(--el-bg-color-overlay, #ffffff);
-  color: var(--el-text-color-primary, #303133);
-}
-
-:deep(.el-textarea__inner) {
-  background-color: var(--el-bg-color-overlay, #ffffff);
-  color: var(--el-text-color-primary, #303133);
-  border: 1px solid var(--el-border-color, #dcdfe6);
-}
-
-:deep(.el-upload) {
-  border: 1px dashed var(--el-border-color-light, #d9d9d9);
-  border-radius: 6px;
-  background-color: var(--el-bg-color-overlay, #ffffff);
 }
 
 .el-form-item {
   margin-bottom: 20px;
 }
 
-/* 响应式优化 */
-@media (max-width: 768px) {
-  .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-
-  .avatar-upload {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .avatar-input {
-    width: 100%;
-  }
-
-  .blog-setting-tabs {
-    margin-top: 12px;
-  }
-
-  :deep(.el-tabs__header) {
-    padding: 0 8px;
-  }
-
-  :deep(.el-tabs__item) {
-    padding: 0 12px;
-    font-size: 13px;
-    height: 36px;
-    line-height: 36px;
-  }
-
-  :deep(.el-tabs__content) {
-    padding: 16px;
-  }
-
-  :deep(.el-form-item__label) {
-    font-size: 13px;
-    font-weight: 600;
-  }
-}
-
-@media (max-width: 480px) {
-  :deep(.el-tabs__item) {
-    padding: 0 8px;
-    font-size: 12px;
-  }
-
-  :deep(.el-tabs__content) {
-    padding: 12px;
-  }
-
-  :deep(.el-form-item) {
-    margin-bottom: 16px;
-  }
-}
-
-/* 深色模式下主题预览卡片样式 */
+/* 暗色主题 */
 html.dark .theme-preview-card {
   background: var(--el-bg-color-overlay, #1d1e1f);
   border-color: var(--el-border-color-light, #3f3f46);
@@ -2086,7 +1223,6 @@ html.dark .theme-preview-content span:first-child {
   background: rgba(79, 70, 229, 0.3);
 }
 
-/* 深色模式下 mo-blog 主题预览卡片 */
 html.dark .theme-preview-card.mo-blog .theme-preview-surface {
   background: #292524;
   border-color: #44403c;
@@ -2102,5 +1238,30 @@ html.dark .theme-preview-card.mo-blog .theme-preview-content span {
 
 html.dark .theme-preview-card.mo-blog .theme-preview-content span:first-child {
   background: rgba(99, 102, 241, 0.3);
+}
+
+html.dark .feature-card {
+  background: var(--el-bg-color-overlay, #1d1e1f);
+  border-color: var(--el-border-color-light, #434346);
+}
+
+html.dark .feature-group__icon {
+  background: rgba(79, 70, 229, 0.16);
+}
+
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  :deep(.el-tabs__content) {
+    padding: 16px;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

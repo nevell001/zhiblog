@@ -1,53 +1,155 @@
-import { describe, it, expect } from 'vitest'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import BlogSetting from './index.vue'
 
-const sourcePath = resolve(process.cwd(), 'src/views/admin/blog/setting/index.vue')
+/**
+ * 后台博客设置页行为测试（挂载真实组件）。
+ *
+ * 取代原来的源码字符串断言：改版把「功能设置」做成卡片网格、「界面主题」加了明暗切换，
+ * 继续 grep 源码文本没有意义。这里断言可观察行为：分组渲染、开关触发落库接口、
+ * 主题/明暗切换真的作用到 <html> 与 store。
+ */
+const { listSetting, updateSettingValueByKey, clearBlogCache, ElMessage } = vi.hoisted(() => ({
+  listSetting: vi.fn(),
+  updateSettingValueByKey: vi.fn(),
+  clearBlogCache: vi.fn(),
+  ElMessage: { success: vi.fn(), warning: vi.fn(), error: vi.fn() }
+}))
 
-describe('BlogSetting 视图组件测试', () => {
-  it('应该导出 BlogSetting 组件', () => {
+vi.mock('@/api/admin/blog/setting', () => ({
+  listSetting: (...args: unknown[]) => listSetting(...args),
+  updateSettingValueByKey: (...args: unknown[]) => updateSettingValueByKey(...args)
+}))
+
+vi.mock('@/api/blog/setting', () => ({
+  clearBlogCache: (...args: unknown[]) => clearBlogCache(...args)
+}))
+
+vi.mock('@/plugins/element-plus-service', () => ({
+  ElMessage
+}))
+
+// el-radio-group 用 stub 暴露 change，测试通过 $emit 选中值，驱动页面真正的处理逻辑
+const ElRadioGroupStub = {
+  name: 'ElRadioGroupStub',
+  props: ['modelValue'],
+  emits: ['change'],
+  template: '<div class="rg"><slot /></div>'
+}
+
+function mountPage() {
+  return mount(BlogSetting, {
+    global: {
+      plugins: [createPinia()],
+      stubs: {
+        'el-card': { template: '<div class="card"><slot /></div>' },
+        'el-tabs': { template: '<div><slot /></div>' },
+        'el-tab-pane': { template: '<div class="pane"><slot /></div>' },
+        'el-form': { template: '<form><slot /></form>' },
+        'el-form-item': { template: '<div class="fi"><slot /></div>' },
+        'el-input': { props: ['modelValue'], template: '<input />' },
+        'el-button': { template: '<button><slot /></button>' },
+        'el-icon': { template: '<i><slot /></i>' },
+        'el-alert': { template: '<div><slot /></div>' },
+        'el-divider': { template: '<hr />' },
+        'el-select': { template: '<div><slot /></div>' },
+        'el-option': { template: '<span><slot /></span>' },
+        'el-color-picker': { props: ['modelValue'], template: '<span class="cp" />' },
+        'el-radio-group': ElRadioGroupStub,
+        'el-radio-button': { template: '<span class="rb"><slot /></span>' },
+        'el-switch': {
+          props: ['modelValue', 'disabled'],
+          emits: ['update:modelValue', 'change'],
+          // data-feature 通过默认 inheritAttrs 落到根元素上，供测试精确选取
+          template: '<button class="sw" :disabled="disabled" @click="$emit(\'change\')"></button>'
+        },
+        editor: { template: '<div class="editor-stub" />' }
+      }
+    }
+  })
+}
+
+describe('BlogSetting 视图（行为）', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia())
+    vi.clearAllMocks()
+    document.documentElement.classList.remove('dark', 'theme-mo-blog')
+    // 返回一行，跳过空结果时的重试；其余键回落到默认值
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [{ configKey: 'blog_name', configValue: 'X' }]
+    })
+    updateSettingValueByKey.mockResolvedValue({ code: 200 })
+    clearBlogCache.mockResolvedValue({ code: 200 })
+  })
+
+  it('导出组件', () => {
     expect(BlogSetting).toBeDefined()
-    expect(typeof BlogSetting).toBe('object')
   })
 
-  it('应该在后台博客设置中提供应用主题切换入口', () => {
-    const source = readFileSync(sourcePath, 'utf-8')
+  it('功能设置以分组卡片渲染出各功能开关', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
 
-    expect(source).toContain('<el-tab-pane label="界面主题" name="theme">')
-    expect(source).toContain(':model-value="settingsStore.appTheme"')
-    expect(source).toContain('@change="handleAppThemeChange"')
-    expect(source).toContain("value: 'default'")
-    expect(source).toContain("value: 'mo-blog'")
-    expect(source).toContain('settingsStore.setAppTheme')
+    const text = wrapper.text()
+    expect(text).toContain('评论功能')
+    expect(text).toContain('评论审核')
+    expect(text).toContain('浏览统计')
+    expect(text).toContain('友链申请入口')
+    expect(text).toContain('邮件通知')
+
+    // 每个功能开关都带 data-feature，供真实交互
+    expect(wrapper.find('[data-feature="comment_enabled"]').exists()).toBe(true)
+    expect(wrapper.find('[data-feature="like_enabled"]').exists()).toBe(true)
   })
 
-  it('不应该继续使用旧的高饱和彩色渐变作为后台设置页装饰', () => {
-    const source = readFileSync(sourcePath, 'utf-8')
+  it('评论功能关闭时，评论审核开关被置灰禁用', async () => {
+    listSetting.mockResolvedValue({
+      code: 200,
+      rows: [{ configKey: 'comment_enabled', configValue: 'false' }]
+    })
+    const wrapper = mountPage()
+    await flushPromises()
 
-    expect(source).not.toMatch(/#4a7bff|#6b8cff|#f093fb|#f5576c|#4facfe|#00f2fe/i)
+    const review = wrapper.find('[data-feature="comment_review"]')
+    expect(review.exists()).toBe(true)
+    expect((review.element as HTMLButtonElement).disabled).toBe(true)
   })
 
-  it('开关类设置应改动即生效（绑定 applySwitch 且带失败回滚）', () => {
-    const source = readFileSync(sourcePath, 'utf-8')
+  it('切换功能开关会立即调用 updateSettingValueByKey 落库', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
 
-    expect(source).toContain('@change="applySwitch(\'friend_link_apply_enabled\')"')
-    expect(source).toContain('@change="applySwitch(\'friend_link_enabled\')"')
-    expect(source).toContain('async function applySwitch')
-    expect(source).toContain('updateSettingValueByKey(key, storedValue)')
-    // 保存失败要把开关回滚，避免界面与数据库不一致
-    expect(source).toContain('originalSettings.value[key]')
+    // comment_enabled 默认为 true，触发 change → applySwitch 写入 'true'
+    await wrapper.find('[data-feature="comment_enabled"]').trigger('click')
+    await flushPromises()
+
+    expect(updateSettingValueByKey).toHaveBeenCalledWith('comment_enabled', 'true')
+    expect(ElMessage.success).toHaveBeenCalled()
   })
 
-  it('应该在后台提供友链申请入口开关', () => {
-    const source = readFileSync(sourcePath, 'utf-8')
+  it('选择「深色」外观模式会给 <html> 加上 dark 类', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
 
-    expect(source).toContain('prop="friend_link_apply_enabled"')
-    expect(source).toContain('v-model="settingsMap.friend_link_apply_enabled"')
-    // 两个开关标签需能一眼区分：页脚友链列表 vs 友链申请入口
-    expect(source).toContain('label="友链申请入口"')
-    expect(source).toContain('label="页脚友链列表"')
-    expect(source).toContain("'friend_link_apply_enabled'")
-    expect(source).toContain('friend_link_apply_enabled: true')
+    // 主题页第一个 el-radio-group 是外观模式
+    const groups = wrapper.findAllComponents(ElRadioGroupStub)
+    groups[0].vm.$emit('change', 'dark')
+    await flushPromises()
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('选择 Mo-Blog 应用主题会给 <html> 加上 theme-mo-blog 类', async () => {
+    const wrapper = mountPage()
+    await flushPromises()
+
+    const groups = wrapper.findAllComponents(ElRadioGroupStub)
+    // 第二个 el-radio-group 是应用主题
+    groups[1].vm.$emit('change', 'mo-blog')
+    await flushPromises()
+
+    expect(document.documentElement.classList.contains('theme-mo-blog')).toBe(true)
   })
 })

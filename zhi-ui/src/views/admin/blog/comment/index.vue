@@ -183,14 +183,22 @@
     <el-dialog v-model="detailOpen" title="评论详情" width="600px" append-to-body>
       <el-descriptions :column="1" border>
         <el-descriptions-item label="评论ID">{{ detailForm.id }}</el-descriptions-item>
-        <el-descriptions-item label="文章标题">{{ detailForm.articleTitle || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="评论人">{{ detailForm.authorName || detailForm.nickname || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="文章标题">
+          {{ detailForm.articleTitle || '-' }}
+        </el-descriptions-item>
+        <el-descriptions-item label="评论人">
+          {{ detailForm.authorName || detailForm.nickname || '-' }}
+        </el-descriptions-item>
         <el-descriptions-item label="邮箱">{{ detailForm.email || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="IP地址">{{ detailForm.ipAddress || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="IP地址">
+          {{ detailForm.ipAddress || '-' }}
+        </el-descriptions-item>
         <el-descriptions-item label="状态">
           <dict-tag :options="comment_status" :value="detailForm.status" />
         </el-descriptions-item>
-        <el-descriptions-item label="创建时间">{{ parseTime(detailForm.createTime) }}</el-descriptions-item>
+        <el-descriptions-item label="创建时间">
+          {{ parseTime(detailForm.createTime) }}
+        </el-descriptions-item>
         <el-descriptions-item label="评论内容">
           <div style="white-space: pre-wrap; word-break: break-all">{{ detailForm.content }}</div>
         </el-descriptions-item>
@@ -205,7 +213,13 @@
 </template>
 
 <script setup lang="ts" name="BlogComment">
-import { listComment, getComment, delComment, auditComment, rejectComment } from '@/api/admin/blog/comment'
+import {
+  listComment,
+  getComment,
+  delComment,
+  auditComment,
+  rejectComment
+} from '@/api/admin/blog/comment'
 
 const { proxy } = getCurrentInstance()
 const { comment_status } = proxy.useDict('comment_status')

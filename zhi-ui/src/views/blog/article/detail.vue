@@ -687,9 +687,7 @@ const currentUserId = computed(() => {
 // 是否为本人评论（仅登录用户且 userId 匹配才显示改删入口）
 const isMyComment = (comment: any) => {
   const uid = currentUserId.value
-  return (
-    isLoggedIn.value && uid !== null && !!comment && Number(comment.userId) === uid
-  )
+  return isLoggedIn.value && uid !== null && !!comment && Number(comment.userId) === uid
 }
 
 // 编辑本人评论
