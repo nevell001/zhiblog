@@ -1,9 +1,11 @@
 package com.zhi.system.service.impl;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.zhi.common.core.redis.RedisCache;
 import com.zhi.common.exception.ServiceException;
 import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.common.utils.SecurityUtils;
@@ -32,6 +34,9 @@ public class BlogPageServiceImpl implements IBlogPageService
 
     @Autowired
     private BlogPageMapper blogPageMapper;
+
+    @Autowired
+    private RedisCache redisCache;
 
     /**
      * 查询页面列表
@@ -178,6 +183,31 @@ public class BlogPageServiceImpl implements IBlogPageService
         {
             return 0;
         }
+        return blogPageMapper.increaseViewCount(id);
+    }
+
+    /**
+     * 按访客去重增加浏览次数（同一访客 24 小时内对同一页面只计一次）
+     */
+    @Override
+    public int addViewCount(Long id, String viewerKey)
+    {
+        if (id == null)
+        {
+            return 0;
+        }
+        if (StringUtils.isEmpty(viewerKey))
+        {
+            // 无法判定访客身份时不去重，保持与旧行为一致
+            return blogPageMapper.increaseViewCount(id);
+        }
+        String dedupeKey = "blog:page:viewed:" + id + ":" + viewerKey;
+        if (Boolean.TRUE.equals(redisCache.hasKey(dedupeKey)))
+        {
+            // 24 小时内已计过，跳过累加
+            return 0;
+        }
+        redisCache.setCacheObject(dedupeKey, "1", 24, TimeUnit.HOURS);
         return blogPageMapper.increaseViewCount(id);
     }
 

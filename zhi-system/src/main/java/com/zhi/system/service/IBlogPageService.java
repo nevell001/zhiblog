@@ -76,6 +76,15 @@ public interface IBlogPageService
     public int increaseViewCount(Long id);
 
     /**
+     * 按访客去重增加浏览次数（同一访客 24 小时内对同一页面只计一次）
+     *
+     * @param id 页面ID
+     * @param viewerKey 访客标识（登录用户ID或IP），为空时不去重直接累加
+     * @return 实际累加的行数（0 表示被去重跳过）
+     */
+    public int addViewCount(Long id, String viewerKey);
+
+    /**
      * 通过主键删除数据
      * 
      * @param id 页面ID

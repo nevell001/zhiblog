@@ -1,5 +1,6 @@
 package com.zhi.system.service.impl;
 
+import com.zhi.common.core.redis.RedisCache;
 import com.zhi.common.exception.ServiceException;
 import com.zhi.common.utils.SecurityUtils;
 import com.zhi.system.domain.BlogPage;
@@ -32,6 +33,9 @@ class BlogPageServiceImplTest {
 
     @Mock
     private BlogPageMapper blogPageMapper;
+
+    @Mock
+    private RedisCache redisCache;
 
     @InjectMocks
     private BlogPageServiceImpl blogPageService;
@@ -266,6 +270,39 @@ class BlogPageServiceImplTest {
     @Test
     void testIncreaseViewCountWithNullId() {
         assertEquals(0, blogPageService.increaseViewCount(null));
+        verify(blogPageMapper, never()).increaseViewCount(anyLong());
+    }
+
+    @Test
+    void testAddViewCountNullId() {
+        assertEquals(0, blogPageService.addViewCount(null, "u1"));
+        verify(blogPageMapper, never()).increaseViewCount(anyLong());
+    }
+
+    @Test
+    void testAddViewCountWithoutViewerKeyIncrements() {
+        when(blogPageMapper.increaseViewCount(1L)).thenReturn(1);
+
+        // 无访客标识时不去重，直接累加
+        assertEquals(1, blogPageService.addViewCount(1L, null));
+        verify(blogPageMapper).increaseViewCount(1L);
+    }
+
+    @Test
+    void testAddViewCountFirstVisitIncrements() {
+        when(redisCache.hasKey(any())).thenReturn(false);
+        when(blogPageMapper.increaseViewCount(1L)).thenReturn(1);
+
+        assertEquals(1, blogPageService.addViewCount(1L, "u1"));
+        verify(blogPageMapper).increaseViewCount(1L);
+    }
+
+    @Test
+    void testAddViewCountDedupedWithin24h() {
+        when(redisCache.hasKey(any())).thenReturn(true);
+
+        // 24 小时内同一访客再次访问不累加
+        assertEquals(0, blogPageService.addViewCount(1L, "u1"));
         verify(blogPageMapper, never()).increaseViewCount(anyLong());
     }
 
