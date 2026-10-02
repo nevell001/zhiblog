@@ -698,7 +698,9 @@ CREATE TABLE IF NOT EXISTS `blog_message` (
   `status` tinyint DEFAULT '0' COMMENT '状态 0待审核 1已发布 2已拒绝',
   `ip` varchar(64) DEFAULT NULL COMMENT '留言IP',
   `user_agent` varchar(255) DEFAULT NULL COMMENT '浏览器UA',
+  `create_by` varchar(64) DEFAULT '' COMMENT '创建者',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_by` varchar(64) DEFAULT '' COMMENT '更新者',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `del_flag` tinyint DEFAULT '0' COMMENT '删除标志（0代表存在 1代表删除）',
   PRIMARY KEY (`id`),
@@ -2528,6 +2530,27 @@ SET @add_friend_link_email := IF(@has_friend_link_email = 0,
 PREPARE add_friend_link_email_stmt FROM @add_friend_link_email;
 EXECUTE add_friend_link_email_stmt;
 DEALLOCATE PREPARE add_friend_link_email_stmt;
+
+-- 老库升级：补齐 blog_message 的 create_by / update_by 列（幂等）
+-- 表初建时漏了这两列，而 BlogMessageMapper 的列表查询与审核/回复更新一直按 RuoYi 约定引用它们，
+-- 于是「留言管理」列表、审核、回复三处都会抛 Unknown column 'create_by'/'update_by' in 'field list'。
+SET @has_message_create_by := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_message' AND COLUMN_NAME = 'create_by');
+SET @add_message_create_by := IF(@has_message_create_by = 0,
+    'ALTER TABLE `blog_message` ADD COLUMN `create_by` varchar(64) DEFAULT '''' COMMENT ''创建者'' AFTER `user_agent`',
+    'SELECT 1');
+PREPARE add_message_create_by_stmt FROM @add_message_create_by;
+EXECUTE add_message_create_by_stmt;
+DEALLOCATE PREPARE add_message_create_by_stmt;
+
+SET @has_message_update_by := (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'blog_message' AND COLUMN_NAME = 'update_by');
+SET @add_message_update_by := IF(@has_message_update_by = 0,
+    'ALTER TABLE `blog_message` ADD COLUMN `update_by` varchar(64) DEFAULT '''' COMMENT ''更新者'' AFTER `create_time`',
+    'SELECT 1');
+PREPARE add_message_update_by_stmt FROM @add_message_update_by;
+EXECUTE add_message_update_by_stmt;
+DEALLOCATE PREPARE add_message_update_by_stmt;
 
 -- ===============================================================
 -- 📌 站内信通知表 (v1.3.6 新增)
