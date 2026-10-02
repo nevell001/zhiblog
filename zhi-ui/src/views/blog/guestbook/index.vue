@@ -5,11 +5,21 @@
         <header class="guestbook-panel guestbook-hero">
           <span class="section-label">Guestbook</span>
           <h1 class="guestbook-title">留言板</h1>
-          <p class="guestbook-desc">欢迎在这里留下你的想法、建议或问候，看到后我会尽快回复。</p>
-          <p class="guestbook-count">共 {{ messageCount }} 条留言</p>
+          <p class="guestbook-desc">
+            {{
+              guestbookEnabled
+                ? '欢迎在这里留下你的想法、建议或问候，看到后我会尽快回复。'
+                : '博主已关闭留言板，欢迎通过邮件或文章评论区与我交流。'
+            }}
+          </p>
+          <p v-if="guestbookEnabled" class="guestbook-count">共 {{ messageCount }} 条留言</p>
         </header>
 
-        <section class="guestbook-panel guestbook-form-panel">
+        <section v-if="!guestbookEnabled" class="guestbook-panel guestbook-closed">
+          <el-empty description="本站暂未开放留言板" />
+        </section>
+
+        <section v-else class="guestbook-panel guestbook-form-panel">
           <div class="section-head">
             <span class="section-label">Message</span>
             <h2>写下留言</h2>
@@ -84,7 +94,7 @@
           </el-form>
         </section>
 
-        <section class="guestbook-panel guestbook-list-panel">
+        <section v-if="guestbookEnabled" class="guestbook-panel guestbook-list-panel">
           <div class="section-head">
             <span class="section-label">Messages</span>
             <h2>全部留言</h2>
@@ -193,6 +203,9 @@ const rules = computed<FormRules>(() => ({
 
 // comment_review 走 store 统一判定：未配置时按后端语义视为“需要审核”
 const needsReview = computed(() => blogSettingsStore.isFeatureEnabled('comment_review'))
+
+// guestbook_enabled 关闭时页面只展示提示，不发起留言相关的请求
+const guestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
 const formatUrl = (url?: string | null) => {
   if (!url || typeof url !== 'string') return ''
@@ -349,6 +362,7 @@ const applyGuestbookSeo = () => {
 onMounted(async () => {
   await loadBlogSettings()
   applyGuestbookSeo()
+  if (!guestbookEnabled.value) return
   refreshCaptcha()
   loadMessages()
   loadMessageCount()

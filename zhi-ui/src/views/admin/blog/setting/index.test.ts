@@ -133,11 +133,13 @@ describe('BlogSetting 视图（行为）', () => {
     expect(text).toContain('评论审核')
     expect(text).toContain('浏览统计')
     expect(text).toContain('友链申请入口')
+    expect(text).toContain('留言板')
     expect(text).toContain('邮件通知')
 
     // 每个功能开关都带 data-feature，供真实交互
     expect(wrapper.find('[data-feature="comment_enabled"]').exists()).toBe(true)
     expect(wrapper.find('[data-feature="like_enabled"]').exists()).toBe(true)
+    expect(wrapper.find('[data-feature="guestbook_enabled"]').exists()).toBe(true)
   })
 
   it('评论功能关闭时，评论审核开关被置灰禁用', async () => {

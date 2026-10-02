@@ -604,7 +604,12 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
         dependsOn: 'comment_enabled'
       },
       { key: 'like_enabled', label: '点赞功能', desc: '允许访客为文章点赞' },
-      { key: 'share_enabled', label: '分享功能', desc: '允许访客分享文章到社交媒体' }
+      { key: 'share_enabled', label: '分享功能', desc: '允许访客分享文章到社交媒体' },
+      {
+        key: 'guestbook_enabled',
+        label: '留言板',
+        desc: '允许访客在留言板发言；关闭后前台导航隐藏入口，且留言接口也会拒绝'
+      }
     ]
   },
   {
@@ -701,6 +706,7 @@ const defaultSettings: Record<string, any> = {
   comment_enabled: true,
   comment_review: true,
   like_enabled: true,
+  guestbook_enabled: true,
   view_count_enabled: true,
   share_enabled: true,
   search_enabled: true,
@@ -748,6 +754,7 @@ const managedKeys = [
   'comment_enabled',
   'comment_review',
   'like_enabled',
+  'guestbook_enabled',
   'view_count_enabled',
   'share_enabled',
   'search_enabled',

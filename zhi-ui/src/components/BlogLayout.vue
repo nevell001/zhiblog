@@ -404,6 +404,7 @@ const isFriendLinkApplyEnabled = computed(() =>
 )
 const isFooterEnabled = computed(() => blogSettingsStore.isFeatureEnabled('footer_enabled'))
 const isCopyrightEnabled = computed(() => blogSettingsStore.isFeatureEnabled('copyright_enabled'))
+const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
 // 导航菜单：固定入口 + showInNav === '1' 的自定义页面
 interface NavMenuItem {
@@ -419,9 +420,12 @@ const menus = computed<NavMenuItem[]>(() => {
     { name: '分类', path: '/blog/category' },
     { name: '标签', path: '/blog/tag' },
     { name: '归档', path: '/blog/archive' },
-    { name: '关于', path: '/blog/about' },
-    { name: '留言板', path: '/blog/guestbook' }
+    { name: '关于', path: '/blog/about' }
   ]
+  // 留言板是固定入口里唯一受开关控制的一项，关闭后同时隐藏导航与页面内容
+  if (isGuestbookEnabled.value) {
+    items.push({ name: '留言板', path: '/blog/guestbook' })
+  }
 
   customPages.value.forEach(page => {
     if (page?.showInNav === '1' && page.slug) {

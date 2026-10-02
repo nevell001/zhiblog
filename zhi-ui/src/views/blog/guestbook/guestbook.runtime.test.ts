@@ -13,6 +13,8 @@ import BlogLayout from '@/components/BlogLayout.vue'
 const getMessageList = vi.fn()
 const getMessageCount = vi.fn()
 const addMessage = vi.fn()
+const getBlogSettingsAnonymous = vi.fn()
+const getCodeImg = vi.fn()
 
 vi.mock('@/api/blog/message', () => ({
   getMessageList: (...args: unknown[]) => getMessageList(...args),
@@ -21,13 +23,13 @@ vi.mock('@/api/blog/message', () => ({
 }))
 
 vi.mock('@/api/blog/setting', () => ({
-  getBlogSettingsAnonymous: vi.fn().mockResolvedValue({ data: { comment_enabled: 'true' } })
+  getBlogSettingsAnonymous: (...args: unknown[]) => getBlogSettingsAnonymous(...args)
 }))
 
 vi.mock('@/api/blog/page', () => ({ getPageList: vi.fn().mockResolvedValue({ data: [] }) }))
 
 vi.mock('@/api/blog/auth', () => ({
-  getCodeImg: vi.fn().mockResolvedValue({ img: '', uuid: 'uuid-1' })
+  getCodeImg: (...args: unknown[]) => getCodeImg(...args)
 }))
 
 vi.mock('@/utils/seo', () => ({
@@ -48,7 +50,7 @@ function mountGuestbook() {
         'el-avatar': { template: '<span><slot /></span>' },
         'el-icon': { template: '<span><slot /></span>' },
         'el-pagination': { template: '<div />' },
-        'el-empty': { template: '<div>暂无留言</div>' },
+        'el-empty': { props: ['description'], template: '<div>{{ description }}</div>' },
         'el-tag': { template: '<span><slot /></span>' }
       }
     }
@@ -58,6 +60,9 @@ function mountGuestbook() {
 describe('留言板页面（行为）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    // 默认留言板开关按“未配置”处理（全站口径：未配置即开启）
+    getBlogSettingsAnonymous.mockResolvedValue({ data: { comment_enabled: 'true' } })
+    getCodeImg.mockResolvedValue({ img: '', uuid: 'uuid-1' })
     getMessageList.mockResolvedValue({
       rows: [
         {
@@ -96,5 +101,35 @@ describe('留言板页面（行为）', () => {
 
     await expect(flushPromises()).resolves.not.toThrow()
     expect(wrapper.text()).toContain('留言板')
+  })
+
+  it('开关关闭时隐藏表单与列表，且不请求留言数据', async () => {
+    getBlogSettingsAnonymous.mockResolvedValue({ data: { guestbook_enabled: 'false' } })
+
+    const wrapper = mountGuestbook()
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('本站暂未开放留言板')
+    expect(wrapper.find('form').exists()).toBe(false)
+    expect(getMessageList).not.toHaveBeenCalled()
+    expect(getMessageCount).not.toHaveBeenCalled()
+  })
+
+  it('开关开启时渲染留言表单并拉取列表', async () => {
+    getBlogSettingsAnonymous.mockResolvedValue({ data: { guestbook_enabled: 'true' } })
+
+    const wrapper = mountGuestbook()
+    await flushPromises()
+
+    expect(wrapper.find('form').exists()).toBe(true)
+    expect(getMessageList).toHaveBeenCalled()
+  })
+
+  it('开关缺失时按开启处理（默认开启口径）', async () => {
+    const wrapper = mountGuestbook()
+    await flushPromises()
+
+    expect(wrapper.find('form').exists()).toBe(true)
+    expect(getMessageList).toHaveBeenCalled()
   })
 })
