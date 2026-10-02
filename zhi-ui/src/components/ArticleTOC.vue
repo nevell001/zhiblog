@@ -389,7 +389,9 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 30px 20px;
-  color: #a8a29e;
+  /* #a8a29e 在白底只有 2.52:1；n500 亮色为 #78716c（4.80:1），
+     深色下该令牌已被 theme-dark.css 重映射为浅灰，无需再写 html.dark 覆写 */
+  color: var(--mo-n500);
   text-align: center;
 }
 
