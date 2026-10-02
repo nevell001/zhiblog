@@ -23,6 +23,25 @@ svg,
   transition: none !important;
 }
 
+/* 减少动效：系统开启「减少动态效果」时把动画/过渡压成瞬时完成。
+   这里刻意不写 animation: none —— 入场动画（fadeInUp / articleCardIn /
+   slideDown 等）依赖 animation-fill-mode: forwards（或 both）停在终态，
+   直接取消动画会让停在 opacity: 0 起点的元素永远不可见。保留动画、
+   只把时长与延迟归零，动画仍会「播完」并落到终态。
+   延迟也必须归零：部分动画带 0.2~0.5s 延迟，否则这段延迟内仍停在起点。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 body {
   height: 100%;
   margin: 0;
