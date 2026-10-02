@@ -152,52 +152,12 @@ html.dark {
 }
 
 /* ==================== Mo Blog 主题样式 ==================== */
+/* 色板（--mo-p* / --mo-n* / --mo-a* / --mo-success 等）、字体栈、圆角
+   （--mo-r-*）、阴影（--mo-shadow-*）、字号（--mo-fs-*）、间距（--mo-sp-*）
+   以及 TagsView 变量都定义在文件顶部的 :root 一处——本类挂在 <html> 上，
+   与 :root 是同一个元素，在这里重复声明只是让两份副本有机会互相漂移
+   （历史上就这么漂过）。这里只留本主题真正专有的 Element Plus 覆盖。 */
 .theme-mo-blog {
-  --mo-p50: #eef2ff;
-  --mo-p100: #e0e7ff;
-  --mo-p200: #c7d2fe;
-  --mo-p300: #a5b4fc;
-  --mo-p400: #818cf8;
-  --mo-p500: #6366f1;
-  --mo-p600: #4f46e5;
-  --mo-p700: #4338ca;
-  --mo-p800: #3730a3;
-  --mo-p900: #312e81;
-  --mo-n0: #ffffff;
-  --mo-n50: #fafaf9;
-  --mo-n100: #f5f5f4;
-  --mo-n200: #e7e5e4;
-  --mo-n300: #d6d3d1;
-  --mo-n400: #a8a29e;
-  --mo-n500: #78716c;
-  --mo-n600: #57534e;
-  --mo-n700: #44403c;
-  --mo-n800: #292524;
-  --mo-n900: #1c1917;
-  --mo-a50: #fdf2f8;
-  --mo-a100: #fce7f3;
-  --mo-a200: #fbcfe8;
-  --mo-a400: #f472b6;
-  --mo-a500: #ec4899;
-  --mo-a600: #db2777;
-  --mo-success: #10b981;
-  --mo-warning: #f59e0b;
-  --mo-danger: #ef4444;
-  --mo-info: #3b82f6;
-  /* 字体栈：Inter / Noto Serif SC / JetBrains Mono 从未通过 @font-face
-     或外链加载，写在这里只会白白回退；已删除，保留原本实际生效的顺序
-     （PingFang SC / Microsoft YaHei / system-ui；Georgia；Fira Code / Consolas）。 */
-  --mo-font-sans: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --mo-font-serif: Georgia, 'Songti SC', serif;
-  --mo-font-mono: 'Fira Code', Consolas, monospace;
-  --mo-r-sm: 6px;
-  --mo-r-md: 8px;
-  --mo-r-lg: 12px;
-  --mo-r-xl: 16px;
-  --mo-r-full: 9999px;
-  --mo-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --mo-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --mo-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
   --el-color-primary: var(--mo-p600);
   --el-color-primary-light-3: var(--mo-p400);
   --el-color-primary-light-5: var(--mo-p300);
@@ -214,13 +174,6 @@ html.dark {
   color: var(--mo-n800);
   background: var(--mo-n50);
   font-family: var(--mo-font-sans);
-  /* TagsView 标签栏变量 */
-  --tags-bg: #fff;
-  --tags-item-border: #d8dce5;
-  --tags-item-text: #495060;
-  --tags-item-bg: #fff;
-  --tags-item-hover: #eee;
-  --tags-close-hover: #b4bccc;
 }
 
 /* 本主题主色是靛蓝（#4f46e5 / 深色 #6366f1），白字对比度 6.29 / 4.47，故选白色。
