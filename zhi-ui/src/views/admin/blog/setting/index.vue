@@ -1440,15 +1440,18 @@ html.dark .theme-preview-desc {
   color: var(--el-text-color-secondary, #a3a8ad);
 }
 
+/* 默认深色主题预览：zinc 色阶不在 --mo-* 色板内，保留字面量 */
 html.dark .theme-preview-surface {
   background: #27272a;
   border-color: #3f3f46;
 }
 
+/* 默认深色侧边栏预览 */
 html.dark .theme-preview-sidebar {
   background: #1f2937;
 }
 
+/* 默认深色内容条预览 */
 html.dark .theme-preview-content span {
   background: #3f3f46;
 }
@@ -1457,17 +1460,18 @@ html.dark .theme-preview-content span:first-child {
   background: rgba(79, 70, 229, 0.3);
 }
 
+/* Mo-Blog 深色主题预览：用 --mo-n* 令牌（:root 作用域下解析为棕色色阶原值） */
 html.dark .theme-preview-card.mo-blog .theme-preview-surface {
-  background: #292524;
-  border-color: #44403c;
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
 }
 
 html.dark .theme-preview-card.mo-blog .theme-preview-sidebar {
-  background: #1c1917;
+  background: var(--mo-n900);
 }
 
 html.dark .theme-preview-card.mo-blog .theme-preview-content span {
-  background: #44403c;
+  background: var(--mo-n700);
 }
 
 html.dark .theme-preview-card.mo-blog .theme-preview-content span:first-child {

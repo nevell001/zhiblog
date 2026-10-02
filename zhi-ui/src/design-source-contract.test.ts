@@ -35,7 +35,7 @@ const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/system/user/user/profile/index.vue': 50,
   'components/ArticleTOC.vue': 1,
   'assets/styles/themes/mo-blog.scss': 2,
-  'views/admin/blog/setting/index.vue': 8,
+  'views/admin/blog/setting/index.vue': 4,
   'views/admin/blog/article/index.vue': 1
 }
 
