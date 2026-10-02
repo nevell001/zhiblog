@@ -28,6 +28,24 @@ const LEGACY_ICON_ALLOWLIST = [
   'components/FileUpload/index.vue'
 ]
 
+// 每个文件「深色块内裸 hex」的当前数量上限，只允许下降（见下方棘轮测试）。
+// 2026-10-02 B 批基线：127 处 / 13 个文件。
+const DARK_HEX_CEILING: Record<string, number> = {
+  'views/admin/system/user/user/profile/index.vue': 50,
+  'views/UnifiedLogin.vue': 21,
+  'components/ArticleTOC.vue': 13,
+  'assets/styles/themes/mo-blog.scss': 11,
+  'views/admin/blog/setting/index.vue': 8,
+  'views/blog/auth/Register.vue': 7,
+  'views/blog/article/detail.vue': 5,
+  'views/admin/blog/article/index.vue': 4,
+  'assets/styles/theme-dark.css': 2,
+  'components/ShareButton.vue': 2,
+  'views/blog/index.vue': 2,
+  'views/blog/archive/index.vue': 1,
+  'views/blog/auth/ForgotPassword.vue': 1
+}
+
 // svgicon.ts 的 import 名单 = 运行时全局注册的 EP 图标
 const globallyRegistered = new Set(
   readFileSync(join(SRC, 'components/SvgIcon/svgicon.ts'), 'utf8')
@@ -162,5 +180,53 @@ describe('设计源码契约', () => {
     })
 
     expect(hits).toEqual([])
+  })
+
+  // 深色样式的裸 hex 棘轮。深色规则里的字面色值不会跟随主题令牌：默认主题与
+  // Mo-Blog 主题共用一条 `html.dark .x` 时，写死的棕色就会渗进默认主题。
+  // 令牌定义（属性以 -- 开头）是色板的唯一来源，不计入。
+  // 上限只允许下降：新增硬编码、或新建一个带硬编码的文件，都会让这条测试变红。
+  it('深色块的裸 hex 数量不得超过登记上限', () => {
+    const styleFiles = filesUnder(SRC, name => /\.(vue|scss|css)$/.test(name))
+    const actual = new Map<string, number>()
+
+    for (const file of styleFiles) {
+      const source = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+      const dark: boolean[] = []
+      let pending = ''
+      let count = 0
+
+      for (const rawLine of source.split('\n')) {
+        const line = rawLine.replace(/^\s*\/\/.*$/, '')
+        for (const ch of line) {
+          if (ch === '{') {
+            dark.push(/html\.dark|html\.theme-mo-blog/.test(pending) || (dark.at(-1) ?? false))
+            pending = ''
+          } else if (ch === '}') {
+            dark.pop()
+            pending = ''
+          } else pending += ch
+        }
+        if (dark.at(-1) && !/^\s*--/.test(line)) {
+          count += (line.replace(/var\([^()]*\)/g, 'V()').match(/#[0-9a-fA-F]{3,8}\b/g) || [])
+            .length
+        }
+      }
+
+      if (count) actual.set(relative(file), count)
+    }
+
+    const grown: string[] = []
+    for (const [file, count] of actual) {
+      const ceiling = DARK_HEX_CEILING[file]
+      if (ceiling === undefined) grown.push(`${file}: 新增 ${count} 处`)
+      else if (count > ceiling) grown.push(`${file}: ${ceiling} → ${count}`)
+    }
+    // 上限本身过期也要被发现：文件已降到上限以下时提示收紧。
+    const stale = Object.keys(DARK_HEX_CEILING).filter(
+      f => (actual.get(f) ?? 0) < DARK_HEX_CEILING[f]
+    )
+
+    expect({ grown, stale }).toEqual({ grown: [], stale: [] })
   })
 })
