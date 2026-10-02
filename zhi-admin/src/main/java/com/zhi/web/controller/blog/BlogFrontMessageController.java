@@ -1,5 +1,6 @@
 package com.zhi.web.controller.blog;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import jakarta.servlet.http.HttpServletRequest;
@@ -61,6 +62,12 @@ public class BlogFrontMessageController extends BaseController
     /** 提交冷却缓存键前缀 */
     private static final String COOLDOWN_KEY_PREFIX = "blog:message:cooldown:";
 
+    /** 留言板功能开关键 */
+    private static final String GUESTBOOK_ENABLED_KEY = "guestbook_enabled";
+
+    /** 留言板关闭时的统一提示 */
+    private static final String DISABLED_TIP = "本站暂未开放留言板";
+
     @Autowired
     private IBlogMessageService blogMessageService;
 
@@ -80,6 +87,16 @@ public class BlogFrontMessageController extends BaseController
     @GetMapping("/list")
     public TableDataInfo list(BlogMessage blogMessage)
     {
+        // 功能开关：关闭后连读取一起拒绝，避免只隐藏前端入口
+        if (isGuestbookClosed())
+        {
+            TableDataInfo disabled = new TableDataInfo();
+            disabled.setCode(500);
+            disabled.setMsg(DISABLED_TIP);
+            disabled.setRows(new ArrayList<>());
+            disabled.setTotal(0);
+            return disabled;
+        }
         startPage();
         List<BlogMessage> list = blogMessageService.selectPublishedMessageList();
         return getDataTable(list);
@@ -92,6 +109,10 @@ public class BlogFrontMessageController extends BaseController
     @GetMapping("/count")
     public AjaxResult count()
     {
+        if (isGuestbookClosed())
+        {
+            return error(DISABLED_TIP);
+        }
         return success(blogMessageService.selectPublishedMessageCount());
     }
 
@@ -103,6 +124,12 @@ public class BlogFrontMessageController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody BlogMessage blogMessage, HttpServletRequest request)
     {
+        // 关闭时短路在最前，避免消耗一次性的验证码
+        if (isGuestbookClosed())
+        {
+            return error(DISABLED_TIP);
+        }
+
         // 先按登录账号补全 userId 与昵称，再校验：登录态的留言表单不采集昵称，
         // 校验放在补全之前会把登录用户的留言一律拒成"昵称不能为空"
         try
@@ -194,6 +221,14 @@ public class BlogFrontMessageController extends BaseController
                     SUBMIT_INTERVAL_SECONDS, TimeUnit.SECONDS);
         }
         return toAjax(rows);
+    }
+
+    /**
+     * 留言板是否已关闭（未配置视为开启，与全站开关同一口径）
+     */
+    private boolean isGuestbookClosed()
+    {
+        return BlogSwitchUtils.isOff(blogSettingService.selectSettingValueByKey(GUESTBOOK_ENABLED_KEY));
     }
 
     /**

@@ -100,6 +100,64 @@ class BlogFrontMessageControllerTest
             .andExpect(jsonPath("$.data").value(7));
     }
 
+    /**
+     * 留言板开关 guestbook_enabled：关闭后三个公开端点全部拒绝；
+     * 未配置时按开启处理（与全站开关口径一致）。
+     */
+    @Test
+    void listShouldBeRejectedWhenGuestbookDisabled() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
+
+        mockMvc.perform(get("/blog/message/list"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("本站暂未开放留言板"))
+            .andExpect(jsonPath("$.total").value(0));
+
+        verify(blogMessageService, never()).selectPublishedMessageList();
+    }
+
+    @Test
+    void countShouldBeRejectedWhenGuestbookDisabled() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("0");
+
+        mockMvc.perform(get("/blog/message/count"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("本站暂未开放留言板"));
+
+        verify(blogMessageService, never()).selectPublishedMessageCount();
+    }
+
+    @Test
+    void addShouldBeRejectedWhenGuestbookDisabled() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn("false");
+
+        perform(validMessage())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("本站暂未开放留言板"));
+
+        verify(blogMessageService, never()).insertBlogMessage(any(BlogMessage.class));
+        // 关闭判定在验证码之前，被拒不会消耗一次性验证码
+        verify(captchaService, never()).validateAndGetAgeSeconds(any(), any());
+    }
+
+    @Test
+    void shouldKeepGuestbookOpenWhenSettingMissing() throws Exception
+    {
+        when(blogSettingService.selectSettingValueByKey("guestbook_enabled")).thenReturn(null);
+        when(blogMessageService.selectPublishedMessageCount()).thenReturn(3L);
+
+        mockMvc.perform(get("/blog/message/count"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.data").value(3));
+    }
+
     @Test
     void addShouldRejectMissingNickname() throws Exception
     {
@@ -242,7 +300,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldCaptureClientInfoAndResetServerFields() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(1);
 
         BlogMessage message = validMessage();
@@ -270,7 +328,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldRejectSubmissionFasterThanMinimumFillTime() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         // 验证码签发后 1 秒即提交
         when(captchaService.validateAndGetAgeSeconds(any(), any())).thenReturn(1L);
 
@@ -285,7 +343,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldAcceptSubmissionReachingMinimumFillTime() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(captchaService.validateAndGetAgeSeconds(any(), any())).thenReturn(3L);
         when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(1);
 
@@ -324,7 +382,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldSetCooldownKeyAfterSuccessfulInsert() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(1);
 
         perform(validMessage()).andExpect(jsonPath("$.code").value(200));
@@ -339,7 +397,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldNotSetCooldownWhenInsertFails() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(0);
 
         perform(validMessage()).andExpect(jsonPath("$.code").value(500));
@@ -350,7 +408,7 @@ class BlogFrontMessageControllerTest
     @Test
     void addShouldForwardCaptchaParamsToService() throws Exception
     {
-        when(blogSettingService.selectSettingValueByKey(anyString())).thenReturn("false");
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
         when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(1);
 
         BlogMessage message = validMessage();

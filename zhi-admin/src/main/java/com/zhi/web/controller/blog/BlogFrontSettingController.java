@@ -45,7 +45,7 @@ public class BlogFrontSettingController extends BaseController {
         "blog_avatar", "blog_copyright", "blog_beian",
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
-        "friend_link_enabled", "friend_link_apply_enabled",
+        "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
         "about_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
         // SEO 相关键（前台动态 title/description/keywords 使用）
@@ -223,6 +223,9 @@ public class BlogFrontSettingController extends BaseController {
                 settings.put(configKey, "true");
                 break;
             case "friend_link_apply_enabled":
+                settings.put(configKey, "true");
+                break;
+            case "guestbook_enabled":
                 settings.put(configKey, "true");
                 break;
             default:
