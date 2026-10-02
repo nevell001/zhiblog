@@ -103,6 +103,28 @@ public class BlogFrontMessageController extends BaseController
     @PostMapping
     public AjaxResult add(@RequestBody BlogMessage blogMessage, HttpServletRequest request)
     {
+        // 先按登录账号补全 userId 与昵称，再校验：登录态的留言表单不采集昵称，
+        // 校验放在补全之前会把登录用户的留言一律拒成"昵称不能为空"
+        try
+        {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof LoginUser loginUser)
+            {
+                if (blogMessage.getUserId() == null)
+                {
+                    blogMessage.setUserId(loginUser.getUserId());
+                }
+                if (StringUtils.isEmpty(blogMessage.getNickname()))
+                {
+                    blogMessage.setNickname(loginUser.getUser().getNickName());
+                }
+            }
+        }
+        catch (Exception ignored)
+        {
+            // 匿名用户，无需填充
+        }
+
         String nickname = blogMessage.getNickname();
         String content = blogMessage.getContent();
         if (StringUtils.isEmpty(nickname) || nickname.trim().isEmpty())
@@ -128,27 +150,6 @@ public class BlogFrontMessageController extends BaseController
         if (blogMessage.getWebsite() != null && blogMessage.getWebsite().length() > MAX_WEBSITE_LENGTH)
         {
             return error("网站地址长度不能超过" + MAX_WEBSITE_LENGTH + "个字符");
-        }
-
-        // 登录用户自动补全 userId 与昵称
-        try
-        {
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof LoginUser loginUser)
-            {
-                if (blogMessage.getUserId() == null)
-                {
-                    blogMessage.setUserId(loginUser.getUserId());
-                }
-                if (StringUtils.isEmpty(blogMessage.getNickname()))
-                {
-                    blogMessage.setNickname(loginUser.getUser().getNickName());
-                }
-            }
-        }
-        catch (Exception ignored)
-        {
-            // 匿名用户，无需填充
         }
 
         // 提交冷却：同一访客（登录用户按 userId，匿名按 IP）在间隔内只允许一条留言

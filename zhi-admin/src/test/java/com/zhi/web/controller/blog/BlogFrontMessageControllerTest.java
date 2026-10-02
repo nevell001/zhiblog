@@ -2,21 +2,28 @@ package com.zhi.web.controller.blog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zhi.common.cache.UnifiedCacheManager;
+import com.zhi.common.core.domain.entity.SysUser;
+import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.system.domain.BlogMessage;
 import com.zhi.system.service.IBlogMessageService;
 import com.zhi.system.service.IBlogSettingService;
 import com.zhi.system.service.ICaptchaService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -104,6 +111,40 @@ class BlogFrontMessageControllerTest
             .andExpect(jsonPath("$.code").value(500));
 
         verify(blogMessageService, never()).insertBlogMessage(any(BlogMessage.class));
+    }
+
+    /**
+     * 登录用户不带昵称提交留言：应按账号信息补全后放行。
+     * 补全曾写在校验之后，登录态留言会被一律拒成"昵称不能为空"（与评论同一处顺序缺陷）。
+     */
+    @Test
+    void addShouldFillNicknameFromAccountWhenLoggedIn() throws Exception
+    {
+        BlogMessage message = validMessage();
+        message.setNickname(null);
+        when(blogSettingService.selectSettingValueByKey("comment_review")).thenReturn("false");
+        when(blogMessageService.insertBlogMessage(any(BlogMessage.class))).thenReturn(1);
+
+        SysUser account = new SysUser();
+        account.setNickName("留言用户");
+        LoginUser loginUser = new LoginUser(88L, null, account, null);
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(loginUser, null, List.of()));
+        try
+        {
+            perform(message)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+        }
+        finally
+        {
+            SecurityContextHolder.clearContext();
+        }
+
+        ArgumentCaptor<BlogMessage> captor = ArgumentCaptor.forClass(BlogMessage.class);
+        verify(blogMessageService).insertBlogMessage(captor.capture());
+        assertEquals("留言用户", captor.getValue().getNickname());
+        assertEquals(88L, captor.getValue().getUserId());
     }
 
     @Test
