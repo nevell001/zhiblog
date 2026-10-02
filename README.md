@@ -116,7 +116,7 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 > 数据卷已存在的 Docker 数据库**不会**再自动执行 `docker-entrypoint-initdb.d`，必须手动重跑一次。
 > 注意幂等是靠 `INSERT IGNORE` 与「按标题判存在」实现的：**已存在的数据行不会被修复**，
-> 例如 v1.4.2 修正的示例文章正文/分类标签关联，重跑只会跳过旧行，需要另行按发布说明处理。
+> 所以 v1.4.2 的示例文章正文/分类标签要单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`（新装库不需要）。
 > 部署提示：`/sitemap.xml`、`/robots.txt` 在后端根路径，Nginx 同源反代时请转发到后端；PV/UV 曲线依赖每小时定时汇总（当天数据约 1 小时延迟）。
 
 ## 📁 项目结构
@@ -213,7 +213,7 @@ R_TOKEN_SECRET={your_secret_key}
 
 ### v1.4.2 (2026-10-02)
 
-- 见上方「最近更新」与 [发布说明](docs/releases/v1.4.2.md)；未改表结构，但已有安装的示例文章数据需单独修复
+- 见上方「最近更新」与 [发布说明](docs/releases/v1.4.2.md)；未改表结构，但已有安装的示例文章数据需跑 [`sql/99_fix_sample_articles_v1.4.2.sql`](sql/README.md) 单独修复
 
 ### v1.4.1 (2026-09-26)
 
@@ -251,7 +251,7 @@ R_TOKEN_SECRET={your_secret_key}
 常见问题：
 
 1. **版本号显示不正确 / 构建报 “Non-resolvable parent POM”**：检查根 `pom.xml` 与 6 个子模块 parent `<version>` 是否一致
-2. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**（如示例文章的正文与分类标签关联），这类需按发布说明单独处理
+2. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**，示例文章的正文与分类标签关联请单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`
 3. **「每日阅读 PV/UV」没有数据**：等定时任务（每小时）首次汇总；当天数据约 1 小时延迟
 4. **`/sitemap.xml`、`/robots.txt` 404**：生产反代把这两个根路径转发到后端（:8080）
 5. **邮箱验证码/通知邮件收不到**：到「博客设置 → 邮件服务」填 SMTP 并点「测试连接」（失败原因会直接显示），确认「邮件服务」卡片上的 dev-print-code 状态；开发期可设 `EMAIL_DEV_PRINT_CODE=true` 在控制台查看验证码
