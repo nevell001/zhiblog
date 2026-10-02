@@ -76,15 +76,15 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: backend-jar
           path: release/backend
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: frontend-dist
           path: release/frontend
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: deploy-assets
           path: release/deploy-assets
@@ -131,11 +131,11 @@ jobs:
   #   needs: build
   #   steps:
   #     - uses: actions/checkout@v4
-  #     - uses: actions/download-artifact@v4
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: backend-jar
   #         path: deploy/backend
-  #     - uses: actions/download-artifact@v4
+  #     - uses: actions/download-artifact@v8
   #       with:
   #         name: frontend-dist
   #         path: deploy/frontend
