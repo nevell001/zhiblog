@@ -29,7 +29,7 @@ const LEGACY_ICON_ALLOWLIST = [
 ]
 
 // 每个文件「深色块内裸 hex」的当前数量上限，只允许下降（见下方棘轮测试）。
-// 2026-10-02 B 批基线：127 处 / 13 个文件；B2 令牌化后剩 65 处 / 5 个文件。
+// 2026-10-02 B 批基线：127 处 / 13 个文件；B2 令牌化后剩 39 处 / 5 个文件。
 // 降到 0 的文件从表里删除，再写回来就会被当成「新增」直接报错。
 const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/system/user/user/profile/index.vue': 31,
