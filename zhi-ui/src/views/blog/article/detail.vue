@@ -37,7 +37,7 @@
       <!-- 文章不存在 -->
       <div v-else-if="!article" class="not-found-container">
         <div class="not-found-content">
-          <i class="el-icon-document-copy not-found-icon"></i>
+          <el-icon class="not-found-icon"><DocumentCopy /></el-icon>
           <h2>文章不存在</h2>
           <p>抱歉，您访问的文章不存在或已被删除。</p>
           <router-link to="/" class="back-home-btn">
@@ -276,6 +276,7 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import ShareButton from '@/components/ShareButton.vue'
+import { DocumentCopy } from '@element-plus/icons-vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/blog/article'
 import {
   getArticleLikeStatus,

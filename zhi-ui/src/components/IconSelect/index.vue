@@ -9,7 +9,7 @@
       @input="filterIcons"
     >
       <template #suffix>
-        <i class="el-icon-search el-input__icon"></i>
+        <el-icon class="el-input__icon"><Search /></el-icon>
       </template>
     </el-input>
     <div class="icon-list">

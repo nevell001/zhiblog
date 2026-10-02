@@ -14,7 +14,7 @@
             </p>
             <div class="category-stats">
               <span class="stat-item">
-                <i class="el-icon-document-copy"></i>
+                <el-icon><DocumentCopy /></el-icon>
                 {{ total }} 篇文章
               </span>
             </div>
@@ -24,7 +24,7 @@
           <div class="back-button">
             <router-link to="/" class="back-link">
               <el-button type="default" plain>
-                <i class="el-icon-arrow-left"></i>
+                <el-icon><ArrowLeft /></el-icon>
                 返回首页
               </el-button>
             </router-link>
@@ -70,7 +70,7 @@
           <!-- 空状态 -->
           <div v-else-if="articleList.length === 0" class="empty-state">
             <div class="empty-content">
-              <i class="el-icon-document-copy empty-icon"></i>
+              <el-icon class="empty-icon"><DocumentCopy /></el-icon>
               <h3>暂无文章</h3>
               <p>该分类下还没有文章，敬请期待...</p>
               <router-link to="/" class="back-home-btn">
@@ -101,19 +101,19 @@
                 </h2>
                 <div class="article-meta">
                   <span class="meta-item">
-                    <i class="el-icon-date"></i>
+                    <el-icon><Calendar /></el-icon>
                     {{ formatDate(article.createTime) }}
                   </span>
                   <span class="meta-item">
-                    <i class="el-icon-view"></i>
+                    <el-icon><View /></el-icon>
                     {{ article.viewCount || 0 }} 阅读
                   </span>
                   <span v-if="article.likeCount" class="meta-item">
-                    <i class="el-icon-star-off"></i>
+                    <el-icon><Star /></el-icon>
                     {{ article.likeCount }} 点赞
                   </span>
                   <span v-if="article.commentCount" class="meta-item">
-                    <i class="el-icon-chat-line-round"></i>
+                    <el-icon><ChatDotRound /></el-icon>
                     {{ article.commentCount }} 评论
                   </span>
                 </div>
@@ -128,7 +128,7 @@
                 <div class="article-footer">
                   <router-link :to="`/blog/article/${article.id}`" class="read-more">
                     阅读全文
-                    <i class="el-icon-arrow-right"></i>
+                    <el-icon><ArrowRight /></el-icon>
                   </router-link>
                 </div>
               </div>
@@ -160,12 +160,12 @@
           <!-- 关于这个分类 -->
           <div class="sidebar-widget" :style="{ animationDelay: '0.1s' }">
             <h3 class="widget-title">
-              <i class="el-icon-menu"></i>
+              <el-icon><Menu /></el-icon>
               关于这个分类
             </h3>
             <div class="category-about">
               <div class="category-icon">
-                <i class="el-icon-menu"></i>
+                <el-icon><Menu /></el-icon>
               </div>
               <h4 class="category-name">
                 {{ categoryName || '未命名分类' }}
@@ -175,11 +175,11 @@
               </p>
               <div class="category-meta">
                 <span class="meta-item">
-                  <i class="el-icon-document-copy"></i>
+                  <el-icon><DocumentCopy /></el-icon>
                   {{ total }} 篇文章
                 </span>
                 <span class="meta-item">
-                  <i class="el-icon-date"></i>
+                  <el-icon><Calendar /></el-icon>
                   最后更新 {{ lastUpdateTime }}
                 </span>
               </div>
@@ -189,7 +189,7 @@
           <!-- 相关分类 -->
           <div class="sidebar-widget" :style="{ animationDelay: '0.2s' }">
             <h3 class="widget-title">
-              <i class="el-icon-share"></i>
+              <el-icon><Share /></el-icon>
               相关分类
             </h3>
             <ul class="related-categories">
@@ -214,7 +214,7 @@
           <!-- 热门标签 -->
           <div class="sidebar-widget" :style="{ animationDelay: '0.3s' }">
             <h3 class="widget-title">
-              <i class="el-icon-collection-tag"></i>
+              <el-icon><CollectionTag /></el-icon>
               热门标签
             </h3>
             <div class="tag-cloud">
@@ -238,7 +238,7 @@
           <!-- 最新文章 -->
           <div class="sidebar-widget" :style="{ animationDelay: '0.4s' }">
             <h3 class="widget-title">
-              <i class="el-icon-star-on"></i>
+              <el-icon><StarFilled /></el-icon>
               最新文章
             </h3>
             <ul class="recent-articles">
@@ -286,6 +286,19 @@ import { getBlogSettingsAnonymous } from '@/api/blog/setting'
 
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { logger } from '@/utils/logger'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Calendar,
+  ChatDotRound,
+  CollectionTag,
+  DocumentCopy,
+  Menu,
+  Share,
+  Star,
+  StarFilled,
+  View
+} from '@element-plus/icons-vue'
 
 const route = useRoute()
 
@@ -586,7 +599,7 @@ onMounted(() => {
   color: var(--mo-n500);
 }
 
-.stat-item i {
+.stat-item .el-icon {
   font-size: 1.1rem;
 }
 
@@ -725,7 +738,7 @@ onMounted(() => {
   color: var(--mo-p600);
 }
 
-.meta-item i {
+.meta-item .el-icon {
   font-size: 1rem;
   opacity: 0.8;
 }
@@ -823,11 +836,11 @@ onMounted(() => {
   width: 100%;
 }
 
-.read-more i {
+.read-more .el-icon {
   transition: transform 0.3s ease;
 }
 
-.read-more:hover i {
+.read-more:hover .el-icon {
   transform: translateX(3px);
 }
 
