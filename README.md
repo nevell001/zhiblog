@@ -106,7 +106,7 @@ cd zhi-ui && npm install && npm run dev
 所有表/列/索引/菜单/权限变更都收敛在唯一且**幂等**的 `sql/00_init_database.sql`，**已有库直接重跑**即可，会自动补齐：
 
 - 表：媒体库 `blog_upload`、点赞、每日 PV/UV、收藏、通知、留言板、自定义页面、访问明细等
-- 列：`blog_comment.like_count`、`blog_article.publish_time/format/content_md`、`blog_friend_link.email` 等
+- 列：`blog_comment.like_count`、`blog_article.publish_time/format/content_md`、`blog_friend_link.email`、`blog_message.create_by/update_by` 等
 - 新菜单与按钮权限（含角色 1/2 分配）、`email_notify_enabled` / `friend_link_apply_enabled` 等设置种子
 - 按已发布评论**重算评论数**
 
