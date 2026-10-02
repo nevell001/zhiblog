@@ -665,7 +665,7 @@ html.dark .captcha-img {
   border-color: var(--mo-n700);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .mo-guestbook-page {
     padding: 72px 16px 48px;
   }

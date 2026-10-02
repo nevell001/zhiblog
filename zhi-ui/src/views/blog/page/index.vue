@@ -351,7 +351,7 @@ html.dark .custom-page-content :deep(blockquote) {
   color: var(--mo-n500);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .mo-custom-page {
     padding: 72px 16px 48px;
   }

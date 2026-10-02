@@ -572,7 +572,7 @@ html.dark .contact-value {
   color: var(--mo-n100);
 }
 
-@media (max-width: 760px) {
+@media (max-width: 768px) {
   .mo-about-page {
     padding: 72px 16px 48px;
   }

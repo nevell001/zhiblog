@@ -926,7 +926,7 @@ html.dark.theme-mo-blog .tags-view-container {
   --tags-close-hover: var(--mo-n500);
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 1024px) {
   .theme-mo-blog .nav-center {
     gap: 8px;
   }
@@ -936,7 +936,7 @@ html.dark.theme-mo-blog .tags-view-container {
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .theme-mo-blog .nav-inner {
     height: auto;
     min-height: 60px;
