@@ -268,10 +268,25 @@ git push origin v1.4.2                            # Gitee
 git push github v1.4.2                            # GitHub
 ```
 
-### 4. 创建 Release（必须手动，标签不会自动生成 Release）
+### 4. Release 由 CI 自动创建（推送 tag 之后只需校验）
 
-- **GitHub**：仓库 → Releases → *Draft a new release* → 选择上面推送的 tag → 粘贴 `docs/releases/<版本>.md` 内容 → Publish
-- **Gitee**：仓库 → 发行版 → 新建发行版（同样选择 tag 并粘贴发行说明）
+**两个平台的 tag 推送都会自动建 Release，不需要手动新建**：
+
+- **GitHub**：`.github/workflows/release.yml` 在 `v*` tag 推送后跑 `mvn clean verify` + 前端全套门禁，
+  成功后用 `gh release create` 建 Release，**发行说明直接取 `docs/releases/<tag>.md`**
+  （找不到该文件才回落到自动生成的说明文字），并附三个产物：`zhi-admin.jar`、`frontend-dist.zip`、`deploy-assets.zip`。
+  同 tag 重复发布时它会先 `gh release delete --yes` 再重建，所以**不要在网页上手改**这个 Release——重跑流水线会覆盖。
+- **Gitee**：`.workflow/ReleasePipeline.yml` 的 `release@gitee` 步骤同理，
+  但它读的是文件里写死的 `releaseName` / `description` / `tagName`，**每次发版要手工改版本号**（见 `.workflow/README.md`）。
+
+校验（两边都应有该 tag 的 Release，且 workflow 已跑完）：
+
+```bash
+gh run list -R nevell001/zhiblog --workflow release.yml --limit 1
+gh release view v1.4.2 -R nevell001/zhiblog \
+  --json name,isDraft,assets -q '"\(.name) draft=\(.isDraft) 附件=\([.assets[].name] | join(", "))"'
+git ls-remote --tags github "refs/tags/v1.4.2"       # tag 对象 SHA 应为 v1.4.2 的 tag，不是裸 commit
+```
 
 ### 5. 校验
 
