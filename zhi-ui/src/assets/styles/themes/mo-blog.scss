@@ -112,6 +112,7 @@ html.dark {
     background: transparent;
   }
 
+  /* 状态栏（草稿/已删除）：中性灰，不在主题色板内 */
   .sub-navbar.draft,
   .sub-navbar.deleted {
     background: #4a4a4a;
@@ -1366,6 +1367,7 @@ html.dark.theme-mo-blog .navbar .avatar-wrapper .user-avatar {
   border-color: var(--mo-n600);
 }
 
+/* 侧边栏渐变：从 n900 到更深的棕色（#171312），装饰性效果 */
 html.dark.theme-mo-blog .sidebar-container {
   background: linear-gradient(180deg, var(--mo-n900), #171312);
   border-right-color: var(--mo-n700);
