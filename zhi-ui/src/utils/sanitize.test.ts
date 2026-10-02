@@ -112,7 +112,8 @@ describe('Sanitize Utils 测试', () => {
     })
 
     it('应该移除 style 属性防止 CSS 注入', () => {
-      const input = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.01">钓鱼</div>'
+      const input =
+        '<div style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.01">钓鱼</div>'
       const result = sanitizeArticleContent(input)
 
       expect(result).not.toContain('style=')

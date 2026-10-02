@@ -57,10 +57,7 @@ export function delComment(id: number): Promise<any> {
 /**
  * 获取文章评论列表（前台用，支持分页）
  */
-export function getArticleComments(
-  articleId: number,
-  query?: PageParams
-): Promise<any> {
+export function getArticleComments(articleId: number, query?: PageParams): Promise<any> {
   return request({
     url: '/blog/comment/article/' + articleId,
     method: 'get',
