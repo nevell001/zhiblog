@@ -5,14 +5,20 @@
 | 平台 | 配置文件 | 说明 |
 | --- | --- | --- |
 | Gitee Go | `.workflow/*.yml` | Gitee 侧流水线，由 Gitee Go 执行 |
-| GitHub Actions | `.github/workflows/ci.yml` | push / PR 触发，后端 `mvn verify` + 前端 lint/format/test/build |
+| GitHub Actions | `.github/workflows/ci.yml` | push / PR 触发，后端 `mvn verify` + 前端依赖审计 + lint/format/test/build |
 | GitHub Actions | `.github/workflows/release.yml` | 打 `v*` tag 触发，测试构建 + 自动创建 GitHub Release（后端 jar + 前端 dist + 部署配套 zip）+ 部署骨架 |
+| GitHub Dependabot | `.github/dependabot.yml` | 依赖漏洞自动提醒与升级 PR（maven / npm / github-actions），仅 GitHub 远端生效 |
 
 ## 与 Gitee Go 的差异
 
 - 触发方式一样：push 到任意分支、向 `main` 发 PR 跑 CI；打 `v1.3.7` 这样的 tag 跑发布流水线。
 - 后端命令相同：`mvn -B clean verify`（编译 + 单测 + checkstyle + JaCoCo 覆盖率门槛），无需 MySQL/Redis。
 - 前端命令相同：`npm ci` + lint + format + test + build。
+- **依赖审计只在 GitHub 侧**：`npm run audit`（= `npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org`，
+  命令定义在 `zhi-ui/package.json`）加在 `ci.yml` 与 `release.yml`，`npm ci` 之后立刻跑，只卡产线依赖。
+  Gitee Go 侧不加：默认镜像 npmmirror **未实现** `/-/npm/v1/security/*`（实测 404），要么在 Gitee runner 上
+  也显式指向 npmjs 并先手工验证一次，要么就别加。Dependabot 同样只覆盖 GitHub，`origin`（Gitee）
+  那边的依赖更新仍靠人工或从 GitHub 的 PR 往回同步。
 - GitHub Actions 免费额度：公开仓库不限时长，私有仓库每月 2000 分钟。
 
 ## 发布部署

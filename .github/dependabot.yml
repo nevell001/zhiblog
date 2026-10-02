@@ -1,0 +1,54 @@
+# 依赖漏洞自动提醒（GitHub Dependabot）
+# 用 GitHub Advisory Database 比对 root pom.xml 反应堆、zhi-ui/package.json 与 workflow 引用，
+# 命中 CVE 时自动开 PR；安全类 PR 不受 open-pull-requests-limit 限制。
+# 仅对 GitHub 镜像生效（origin/Gitee 无此能力），Gitee 侧的依赖更新仍靠人工 `mvn versions:` / `npm outdated`。
+version: 2
+updates:
+  # 后端：Maven 多模块只需指向根 POM，Dependabot 会解析整个反应堆
+  - package-ecosystem: maven
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '02:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 10
+    groups:
+      # patch/minor 合并成一个 PR，major 单独开，减少一个人维护的噪音
+      minor-and-patch:
+        update-types:
+          - patch
+          - minor
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # 前端：锁定文件即产线依赖版本
+  - package-ecosystem: npm
+    directory: '/zhi-ui'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '02:00'
+      timezone: Asia/Shanghai
+    open-pull-requests-limit: 10
+    groups:
+      minor-and-patch:
+        update-types:
+          - patch
+          - minor
+    commit-message:
+      prefix: chore
+      include: scope
+
+  # 构建供应链：action 的 tag 同样会被人劫持，跟随升级
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+      day: monday
+      time: '02:00'
+      timezone: Asia/Shanghai
+    commit-message:
+      prefix: chore
+      include: scope

@@ -45,6 +45,10 @@ jobs:
           cache: npm
           cache-dependency-path: zhi-ui/package-lock.json
       - run: npm ci
+      # 依赖漏洞闸门：只查产线依赖（dev 工具链的 CVE 不进发布物），high 及以上直接阻断
+      # 走 npm run audit，把 registry 钉在 npmjs：npmmirror 未实现 /-/npm/v1/security/* 端点
+      - name: 依赖漏洞审计
+        run: npm run audit
       - run: npm run lint:check
       - run: npm run format:check
       - run: npm run typecheck
