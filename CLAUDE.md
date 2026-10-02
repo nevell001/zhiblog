@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ZhiBlog (知博) is a full-stack blog system built on Spring Boot 3.3.0 + Vue 3 + Element Plus + TypeScript. The backend is a multi-module Maven project based on RuoYi-Vue 3.9.1, upgraded to Jakarta EE and Java 17.
 
-**Current Version**: v1.4.1 (defined in `pom.xml`)
+**Current Version**: v1.4.2 (defined in `pom.xml`)
 
 **Brand Identity**:
 - Brand name: "ZhiBlog - 知博"
@@ -139,7 +139,7 @@ The `comment_review` blog setting controls whether new comments default to statu
 Version defined in `pom.xml` (`<version>` and `<app.version>`). When updating:
 1. Update root `pom.xml` `<version>` and `<app.version>`
 2. Update all 6 sub-module parent `<version>` references
-3. Frontend version in `package.json` is aligned with the backend (currently 1.4.1)
+3. Frontend version in `package.json` (and the two `"version"` fields in `package-lock.json`) is aligned with the backend (currently 1.4.2)
 
 See `docs/VERSION_MANAGEMENT.md` for detailed instructions.
 

@@ -8,11 +8,11 @@
 
 **后端版本号**：
 - **主配置文件**：`pom.xml` 中的 `<version>` 和 `<app.version>` 属性
-- **当前版本**：`1.4.1`
+- **当前版本**：`1.4.2`
 
 **前端版本号**：
-- **配置文件**：`zhi-ui/package.json` 中的 `version` 字段
-- **当前版本**：`1.4.1`（与后端同步）
+- **配置文件**：`zhi-ui/package.json` 中的 `version` 字段（`zhi-ui/package-lock.json` 的两处 `"version"` 一并同步）
+- **当前版本**：`1.4.2`（与后端同步）
 
 ### 版本号使用位置
 
@@ -22,10 +22,10 @@
    ```xml
    <groupId>top.nevell</groupId>
    <artifactId>zhiblog</artifactId>
-   <version>1.4.1</version>  <!-- 项目版本 -->
+   <version>1.4.2</version>  <!-- 项目版本 -->
    
    <properties>
-       <app.version>1.4.1</app.version>  <!-- 应用版本 -->
+       <app.version>1.4.2</app.version>  <!-- 应用版本 -->
    </properties>
    ```
 
@@ -44,13 +44,13 @@
 
 4. **配置类** (`zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java`)
    ```java
-   @Value("${ruoyi.version:1.4.1}")
+   @Value("${ruoyi.version:1.4.2}")
    private String version;
    ```
 
 5. **API 接口** (`SysIndexController.java`)
    - 接口路径：`GET /system/version`
-   - 返回数据：`{ "version": "1.4.1", "name": "ZhiBlog" }`
+   - 返回数据：`{ "version": "1.4.2", "name": "ZhiBlog" }`
 
 6. **子模块 parent 版本**：
    - `zhi-common/pom.xml`
@@ -63,7 +63,7 @@
    <parent>
        <groupId>top.nevell</groupId>
        <artifactId>zhiblog</artifactId>
-       <version>1.4.1</version>  <!-- 必须与父 POM 版本一致 -->
+       <version>1.4.2</version>  <!-- 必须与父 POM 版本一致 -->
    </parent>
    ```
 
@@ -72,8 +72,10 @@
 前端不再硬编码版本号：
 
 1. **package.json** (`zhi-ui/package.json`)
-   - `"version": "1.4.1"` 必须与后端保持一致（仅用于包元信息）。
-2. **界面展示**
+   - `"version": "1.4.2"` 必须与后端保持一致（仅用于包元信息）。
+2. **lock 文件** (`zhi-ui/package-lock.json`)
+   - 根节点的 `"version"` 与 `packages[""].version` 两处都要跟着 `package.json` 改。
+3. **界面展示**
    - 前端没有静态版本展示页；如需展示版本，调用后端接口 `GET /system/version` 获取
      （返回值来自 `@app.version@` 资源过滤，是唯一可信来源）。
 
@@ -84,8 +86,8 @@
 **需要修改多个地方**（重要！）：
 
 1. **修改父 POM** (`pom.xml`)
-   - 第 9 行：`<version>1.4.0</version>` → `<version>1.4.1</version>`
-   - 第 24 行：`<app.version>1.4.0</app.version>` → `<app.version>1.4.1</app.version>`
+   - 第 9 行：`<version>1.4.1</version>` → `<version>1.4.2</version>`
+   - 第 24 行：`<app.version>1.4.1</app.version>` → `<app.version>1.4.2</app.version>`
 
 2. **修改所有子模块的 parent 版本**：
    - `zhi-common/pom.xml`
@@ -97,15 +99,19 @@
    
    每个文件中的：
    ```xml
-   <version>1.4.0</version>  →  <version>1.4.1</version>
+   <version>1.4.1</version>  →  <version>1.4.2</version>
    ```
 
-3. **重新编译项目**：
+3. **修改配置类兜底值**（`zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java`）：
+   `@Value("${ruoyi.version:1.4.1}")` 的默认值一并跟上，否则哪天 `ruoyi.version` 没注入成功，
+   `/system/version` 会静默回落到旧版本号。
+
+4. **重新编译项目**：
    ```bash
    mvn clean install -DskipTests
    ```
 
-4. **重启后端服务**
+5. **重启后端服务**
 
 **自动同步**：
 - Maven 构建时会自动将 `application.yml` 中的 `@app.version@` 替换为实际版本号
@@ -113,33 +119,49 @@
 
 #### 批量更新脚本
 
-为了简化版本号更新，可以使用以下命令批量更新：
+为了简化版本号更新，可以使用以下命令批量更新（以 `1.4.1` → `1.4.2` 为例；macOS/BSD 的 `sed -i` 必须带空后缀 `''`，GNU/Linux 上写成 `sed -i` 即可）：
 
 ```bash
-# 1. 修改父 POM 的版本号
-sed -i 's/<version>1.4.0<\/version>/<version>1.4.1<\/version>/g' pom.xml
-sed -i 's/<app.version>1.4.0<\/app.version>/<app.version>1.4.1<\/app.version>/g' pom.xml
+OLD=1.4.1 NEW=1.4.2
 
-# 2. 批量更新所有子模块的 parent 版本
-sed -i 's/<version>1.4.0<\/version>/<version>1.4.1<\/version>/g' \
-    zhi-common/pom.xml \
-    zhi-system/pom.xml \
-    zhi-framework/pom.xml \
-    zhi-quartz/pom.xml \
-    zhi-generator/pom.xml \
-    zhi-admin/pom.xml
+# 1. 父 POM：第 9 行 <version> 与第 24 行 <app.version>
+sed -i '' -e "s|<version>${OLD}</version>|<version>${NEW}</version>|" \
+          -e "s|<app.version>${OLD}</app.version>|<app.version>${NEW}</app.version>|" pom.xml
 
-# 3. 重新编译
+# 2. 所有子模块的 parent 版本（各自第 8 行）
+for m in zhi-common zhi-system zhi-framework zhi-quartz zhi-generator zhi-admin; do
+    sed -i '' "8s|<version>${OLD}</version>|<version>${NEW}</version>|" $m/pom.xml
+done
+
+# 3. 配置类兜底值
+sed -i '' "s|ruoyi.version:${OLD}|ruoyi.version:${NEW}|" \
+    zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java
+
+# 4. 前端 package.json + package-lock.json（lock 有两处：根节点与 packages[""]）
+sed -i '' "3s|\"version\": \"${OLD}\",|\"version\": \"${NEW}\",|" zhi-ui/package.json
+sed -i '' -e "3s|\"version\": \"${OLD}\",|\"version\": \"${NEW}\",|" \
+          -e "9s|\"version\": \"${OLD}\",|\"version\": \"${NEW}\",|" zhi-ui/package-lock.json
+
+# 5. 重新编译
 mvn clean install -DskipTests
+```
+
+改完自查（`${OLD}([^0-9]|$)` 是为了不被依赖树里的 `1.4.14` 之类噪声淹没；正常只会剩发布说明、版本历史与上面「从旧版本升级」的示例）：
+
+```bash
+grep -rEn "${OLD}([^0-9]|$)" --include='*.xml' --include='*.java' --include='*.json' --include='*.md' \
+    --exclude-dir=node_modules --exclude-dir=target .
 ```
 
 #### 更新前端版本号
 
-前端版本号独立管理，用于跟踪前端框架的更新：
+前端版本号不独立演进，始终与后端保持一致：
 
-1. 打开 `zhi-ui/package.json`
-2. 修改 `version` 字段
-3. 保存文件
+1. 打开 `zhi-ui/package.json`，修改 `version` 字段
+2. 同步 `zhi-ui/package-lock.json` 里本包的两处 `"version"`：根节点（第 3 行）与 `packages[""]`（第 9 行）；其余 `"version"` 属于第三方依赖，不要动
+3. 界面不再静态展示版本：需要显示时调 `GET /system/version`
+
+> 前端版本只是包元信息，运行时版本号唯一可信来源仍是后端 `@app.version@`。
 
 ### 版本号规范
 
@@ -149,10 +171,10 @@ mvn clean install -DskipTests
 - **次版本号（MINOR）**：向下兼容的功能性新增
 - **修订号（PATCH）**：向下兼容的问题修正
 
-示例：`1.4.1`
-- `1`：主版本号
-- `3`：次版本号
-- `3`：修订号
+示例：`1.4.2`
+- `1`：主版本号（MAJOR）
+- `4`：次版本号（MINOR）
+- `2`：修订号（PATCH）
 
 ### 版本号检查
 
@@ -225,7 +247,12 @@ mvn clean install -DskipTests
 
 ### 1. 准备发行说明
 
-在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.1.md` 的结构：新增与增强 / 配色与可读性 / 主要修复 / 工程与质量 / 升级提示）。
+在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.2.md` 的结构：安全与隐私 / 新增与增强 / 主要修复 / 工程与质量 / 升级提示）。
+
+同时把 README 的「最近更新」「版本历史」「项目信息」三处，以及 `AGENTS.md` / `CLAUDE.md` 开头的 `Current version` 一起对齐。
+
+> **先改版本号再打 tag**：`.workflow/ReleasePipeline.yml` 在 backend 阶段比对「tag 去 `v` 后的版本」与根 `pom.xml` 的 `<version>`，不一致直接 `exit 1`。
+> 该流水线的 `release@gitee` 步骤里 `releaseName` / `description` / `tagName` 与 `triggers.push.tags.exclude` 也写死了版本号，发新版时一并改。
 
 ### 2. 推送代码（含标签）
 
@@ -236,9 +263,9 @@ mvn clean install -DskipTests
 ### 3. 打注释标签并推送（首次发布新版本时执行）
 
 ```bash
-git tag -a v1.4.1 -F docs/releases/v1.4.1.md     # 标签消息 = 发行说明
-git push origin v1.4.1                            # Gitee
-git push github v1.4.1                            # GitHub
+git tag -a v1.4.2 -F docs/releases/v1.4.2.md     # 标签消息 = 发行说明
+git push origin v1.4.2                            # Gitee
+git push github v1.4.2                            # GitHub
 ```
 
 ### 4. 创建 Release（必须手动，标签不会自动生成 Release）
@@ -269,23 +296,27 @@ A: 这是 Maven 资源过滤的占位符，在构建时会自动替换为 `pom.x
 
 **Q: 为什么前端版本号和后端版本号不一样？**
 
-A: 前端版本号（1.4.1）与后端版本号保持一致（均已同步至 1.4.1）。
+A: 不应该不一样。前端 `package.json`（及 `package-lock.json`）的版本号与后端保持一致（当前均为 1.4.2），仅作包元信息；界面要展示版本时读 `GET /system/version`。
 
 **Q: 如何确保所有地方的版本号一致？**
 
 A: 需要同时修改：
 1. 父 POM 的 `<version>` 和 `<app.version>`
 2. 所有子模块的 parent `<version>`
-3. 然后运行 `mvn clean install`
+3. `RuoYiConfig` 的 `${ruoyi.version:}` 兜底值
+4. `zhi-ui/package.json` 与 `package-lock.json`
+5. 文档：README、`AGENTS.md`、`CLAUDE.md`，以及 `.workflow/ReleasePipeline.yml`
+6. 然后运行 `mvn clean install`
 
 **Q: 版本号更新后需要做什么？**
 
 A:
 1. 修改 `pom.xml` 中的 `<version>` 和 `<app.version>`
 2. 修改所有子模块的 parent `<version>`
-3. 运行 `mvn clean install -DskipTests`
-4. 重启后端服务
-5. 前端会自动获取最新版本号
+3. 同步 `RuoYiConfig` 兜底值、前端 `package.json` / `package-lock.json` 与上述文档
+4. 运行 `mvn clean install -DskipTests`
+5. 重启后端服务（或重建镜像）
+6. 前端会自动获取最新版本号
 
 **Q: 构建时提示 "Non-resolvable parent POM" 怎么办？**
 
@@ -293,6 +324,6 @@ A: 这说明父 POM 版本与子模块 parent 版本不一致。检查并确保�
 
 ---
 
-**文档版本**: v2.2
-**最后更新**: 2026-09-26
+**文档版本**: v2.3
+**最后更新**: 2026-10-02
 **维护者**: nevell

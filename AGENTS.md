@@ -1,6 +1,6 @@
 # AGENTS.md
 
-ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.4.1.
+ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.4.2.
 
 ## Commands
 
@@ -66,7 +66,7 @@ Unified login via `UnifiedAuthController` (`zhi-admin/src/main/java/com/zhi/web/
 
 ## Version Management (single source of truth)
 
-Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). When bumping, **must update** root `pom.xml` lines 9/24 AND the parent `<version>` in all 6 child poms (`zhi-common`, `zhi-system`, `zhi-framework`, `zhi-quartz`, `zhi-generator`, `zhi-admin`). Maven resource filtering replaces `@app.version@` in `application.yml`; `GET /system/version` serves it. See `docs/VERSION_MANAGEMENT.md`.
+Version is defined once in root `pom.xml` (`<version>` and `<app.version>`). When bumping, **must update** root `pom.xml` lines 9/24 AND the parent `<version>` in all 6 child poms (`zhi-common`, `zhi-system`, `zhi-framework`, `zhi-quartz`, `zhi-generator`, `zhi-admin`). Three further spots carry the number too and are easy to miss: the `${ruoyi.version:…}` fallback in `RuoYiConfig` (zhi-common), and `zhi-ui/package.json` + `zhi-ui/package-lock.json` (both the root `"version"` and the `packages[""].version` copy). Maven resource filtering replaces `@app.version@` in `application.yml`; `GET /system/version` serves it — and `.workflow/ReleasePipeline.yml` fails the tag build unless the pushed `vX.Y.Z` tag equals the root pom `<version>`, so bump the poms **before** tagging. See `docs/VERSION_MANAGEMENT.md`.
 
 ## Config / Env Gotchas
 
