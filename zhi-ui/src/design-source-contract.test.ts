@@ -29,12 +29,12 @@ const LEGACY_ICON_ALLOWLIST = [
 ]
 
 // 每个文件「深色块内裸 hex」的当前数量上限，只允许下降（见下方棘轮测试）。
-// 2026-10-02 B 批基线：127 处 / 13 个文件。
+// 2026-10-02 B 批基线：127 处 / 13 个文件。降到 0 的文件从表里删除，
+// 再写回来就会被当成「新增」直接报错。
 const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/system/user/user/profile/index.vue': 50,
-  'views/UnifiedLogin.vue': 21,
   'components/ArticleTOC.vue': 13,
-  'assets/styles/themes/mo-blog.scss': 11,
+  'assets/styles/themes/mo-blog.scss': 2,
   'views/admin/blog/setting/index.vue': 8,
   'views/blog/auth/Register.vue': 7,
   'views/blog/article/detail.vue': 5,
@@ -222,10 +222,10 @@ describe('设计源码契约', () => {
       if (ceiling === undefined) grown.push(`${file}: 新增 ${count} 处`)
       else if (count > ceiling) grown.push(`${file}: ${ceiling} → ${count}`)
     }
-    // 上限本身过期也要被发现：文件已降到上限以下时提示收紧。
-    const stale = Object.keys(DARK_HEX_CEILING).filter(
-      f => (actual.get(f) ?? 0) < DARK_HEX_CEILING[f]
-    )
+    // 上限本身过期也要被发现：文件已降到上限以下时提示收紧到实际值。
+    const stale = Object.entries(DARK_HEX_CEILING)
+      .filter(([file, ceiling]) => (actual.get(file) ?? 0) < ceiling)
+      .map(([file, ceiling]) => `${file}: 上限 ${ceiling} → 实际 ${actual.get(file) ?? 0}`)
 
     expect({ grown, stale }).toEqual({ grown: [], stale: [] })
   })

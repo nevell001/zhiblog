@@ -370,14 +370,20 @@ onMounted(() => {
   box-shadow: var(--unified-switch-active-shadow, 0 1px 3px rgba(15, 23, 42, 0.08));
 }
 
-html.dark .switch-item.active,
-html.dark.theme-mo-blog .switch-item.active {
-  --unified-switch-active-color: var(--mo-n100, #f5f5f4);
-  --unified-switch-active-bg: var(--mo-n700, #292524);
+/* 选中态只改 --unified-switch-* 钩子，由上面的浅色规则消费，避免再叠一层
+   !important。两种主题的胶囊底色不同：Mo-Blog 用与容器同系的 n700 + n100 文字；
+   默认主题（EP 灰阶）的容器已经是 n700，胶囊再用 n700 就看不出选中态，
+   改走更深的页面底色 n900。 */
+html.dark .switch-item.active {
+  --unified-switch-active-color: var(--mo-n100);
+  --unified-switch-active-bg: var(--mo-n900);
   --unified-switch-active-shadow: none;
-  color: var(--mo-n100, #f5f5f4) !important;
-  background: var(--mo-n700, #292524) !important;
-  border-color: transparent !important;
+}
+
+html.dark.theme-mo-blog .switch-item.active {
+  --unified-switch-active-color: var(--mo-n100);
+  --unified-switch-active-bg: var(--mo-n700);
+  --unified-switch-active-shadow: none;
 }
 
 html.dark .auth-switch,
@@ -493,191 +499,90 @@ html.dark.theme-mo-blog .auth-switch {
   text-decoration: none;
 }
 
-/* ===== 深色模式：使用 mo-blog.scss 全局 CSS 变量 ===== */
+/* ===== 深色模式 =====
+   统一走 --mo-* 令牌：theme-dark.css 会在 .mo-auth-page 上反转色阶，
+   默认主题解析到 --el-*（Tech Blue 深蓝系），Mo-Blog 主题解析到棕色系。
+   这里此前每个属性都写成一对「html.dark 字面棕色 + html.dark.theme-mo-blog 令牌」，
+   等于把 Mo-Blog 的配色硬塞进默认主题；合并后两条规则变成一条。 */
 
 html.dark .mo-auth-page {
-  background:
-    radial-gradient(circle at top left, rgba(0, 212, 255, 0.12), transparent 34%),
-    var(--el-bg-color);
-}
-
-html.dark.theme-mo-blog .mo-auth-page {
-  background:
-    radial-gradient(circle at top left, rgba(129, 140, 248, 0.12), transparent 34%), var(--mo-n900);
+  background: radial-gradient(circle at top left, var(--mo-p50), transparent 34%), var(--mo-n900);
 }
 
 html.dark .auth-card {
-  background: #292524;
-  border-color: #1c1917;
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
 }
 
-html.dark.theme-mo-blog .auth-card {
-  background: var(--mo-n800) !important;
-  border-color: var(--mo-n700) !important;
+/* 未激活的登录/注册切换项：次要文字色。选择器带上页面与容器层级，
+   与 theme-dark.css 里的同名覆盖规则比优先级，避免靠加载顺序取胜。 */
+html.dark .mo-auth-page .auth-switch .switch-item {
+  color: var(--mo-n600) !important;
 }
 
-html.dark .auth-switch {
-  background: #292524 !important;
-}
-
-html.dark.theme-mo-blog .auth-switch {
-  background: var(--mo-n700) !important;
-}
-
-html.dark .switch-item {
-  color: #57534e !important;
-}
-
-html.dark.theme-mo-blog .switch-item {
-  color: var(--mo-n600, #57534e) !important;
-}
-
-html.dark .switch-item:hover {
-  color: #f5f5f4 !important;
-}
-
-html.dark.theme-mo-blog .switch-item:hover {
-  color: var(--mo-n100, #f5f5f4) !important;
-}
-
-html.dark .switch-item.active {
-  background: #292524 !important;
-  color: #f5f5f4 !important;
-  box-shadow: none !important;
-  border-color: transparent !important;
-}
-
-html.dark.theme-mo-blog .switch-item.active,
-html.dark.theme-mo-blog .unified-login-container.mo-auth-page .auth-switch .switch-item.active,
-html.dark.theme-mo-blog .unified-login-container.mo-auth-page .auth-switch a.switch-item.active {
-  background: var(--mo-n700, #292524) !important;
-  color: var(--mo-n100, #f5f5f4) !important;
-  box-shadow: none !important;
-  border-color: transparent !important;
+html.dark .mo-auth-page .auth-switch .switch-item:hover {
+  color: var(--mo-n100) !important;
 }
 
 html.dark .auth-submit {
-  background: #4f46e5 !important;
-  color: #f5f5f4 !important;
-  border-color: transparent !important;
-}
-
-html.dark.theme-mo-blog .auth-submit {
   background: var(--mo-p600) !important;
   color: var(--mo-n100) !important;
   border-color: transparent !important;
 }
 
-html.dark .tab {
-  color: #78716c !important;
-}
-
-html.dark.theme-mo-blog .tab {
-  color: var(--mo-n400) !important;
-}
-
-html.dark .tab.active {
-  background: #292524 !important;
-  color: #f5f5f4 !important;
-}
-
-html.dark.theme-mo-blog .tab.active {
-  background: var(--mo-n700) !important;
-  color: var(--mo-n100) !important;
-}
-
-/* 默认深色模式使用直接颜色值 */
-html.dark .mo-auth-page :deep(.el-input__wrapper) {
-  background: #292524;
-  box-shadow: 0 0 0 1px #44403c inset;
-}
-
-html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
-  box-shadow:
-    0 0 0 1px #818cf8 inset,
-    0 0 0 3px rgba(99, 102, 241, 0.18);
-}
-
-/* Mo-Blog 主题深色模式使用 CSS 变量 */
-html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper) {
+/* 输入框：描边一律用 inset box-shadow。真实 border 会把 Element Plus 的
+   .el-input__wrapper 从 32px 撑到 34px，和同页按钮、浅色态都不齐。 */
+html.dark .unified-login-container.mo-auth-page :deep(.el-input__wrapper) {
   background: var(--mo-n800) !important;
-  border: 1px solid var(--mo-n700) !important;
-  box-shadow: none !important;
+  box-shadow: 0 0 0 1px var(--mo-n700) inset !important;
 }
 
-html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__wrapper.is-focus) {
+html.dark .unified-login-container.mo-auth-page :deep(.el-input__wrapper.is-focus) {
   box-shadow:
     0 0 0 1px var(--mo-p400) inset,
     0 0 0 3px var(--mo-p50) !important;
-  border-color: var(--mo-p400) !important;
 }
 
 html.dark .mo-auth-page :deep(.el-input__inner) {
-  color: #f5f5f4;
-}
-
-html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__inner) {
   color: var(--mo-n100) !important;
 }
 
 html.dark .mo-auth-page :deep(.el-input__inner::placeholder) {
-  color: #a8a29e;
-}
-
-html.dark.theme-mo-blog .mo-auth-page :deep(.el-input__inner::placeholder) {
   color: var(--mo-n400) !important;
 }
 
 html.dark .mo-auth-page .captcha-img {
-  border-color: #44403c !important;
+  border-color: var(--mo-n700) !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
 }
 
-html.dark.theme-mo-blog .mo-auth-page .captcha-img {
-  border-color: var(--mo-n700) !important;
-}
-
 html.dark .mo-auth-page .captcha-img:hover {
-  border-color: #818cf8 !important;
+  border-color: var(--mo-p400) !important;
   box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2) !important;
 }
 
-html.dark.theme-mo-blog .mo-auth-page .captcha-img:hover {
-  border-color: var(--mo-p400) !important;
-}
-
-html.dark .auth-head h2,
-html.dark .auth-brand,
-html.dark .sub,
-html.dark .remember,
-html.dark .auth-footer {
-  color: #f5f5f4 !important;
-}
-
-html.dark.theme-mo-blog .auth-head h2,
-html.dark.theme-mo-blog .auth-brand {
+html.dark .mo-auth-page .auth-head h2,
+html.dark .mo-auth-page .auth-brand {
   color: var(--mo-n100) !important;
 }
 
-html.dark.theme-mo-blog .sub,
-html.dark.theme-mo-blog .remember,
-html.dark.theme-mo-blog .auth-footer {
+/* 浅色主题下强调文字用 p600/p700，深色底上只有 2.4:1，换回亮档 p300。 */
+html.dark .forgot {
+  color: var(--mo-p300);
+}
+
+html.dark .mo-auth-page .sub,
+html.dark .mo-auth-page .remember,
+html.dark .mo-auth-page .auth-footer {
   color: var(--mo-n400) !important;
 }
 
-/* 默认深色模式使用直接颜色值 */
-html.dark .form-group label {
-  color: #78716c !important;
-}
-
-/* Mo-Blog 主题深色模式使用 CSS 变量 */
-html.dark.theme-mo-blog .form-group label {
+html.dark .mo-auth-page .form-group label {
   color: var(--mo-n400) !important;
 }
 
-html.dark .auth-footer a,
-html.dark.theme-mo-blog .auth-footer a {
-  color: var(--mo-p300, #a5b4fc) !important;
+html.dark .auth-footer a {
+  color: var(--mo-p300) !important;
 }
 
 @media (max-width: 768px) {
