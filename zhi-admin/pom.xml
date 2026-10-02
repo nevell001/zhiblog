@@ -119,7 +119,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>4.1.1</version>
                 <configuration>
                     <!-- 启用分层 JAR 构建，提高启动速度和构建效率 -->
                     <layers>
