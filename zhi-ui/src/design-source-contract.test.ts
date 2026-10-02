@@ -219,4 +219,50 @@ describe('设计源码契约', () => {
 
     expect({ grown, stale }).toEqual({ grown: [], stale: [] })
   })
+
+  // 博客前台的「未走令牌」字号/间距字面量棘轮。前台字号走 --mo-fs-*（rem）、
+  // 间距走 --mo-sp-*（px），但只归并了本来就在刻度上的值（Option B）；
+  // 刻度外的畸零值（13px / 0.9rem / 6px / 18px …）暂时保留字面量。
+  // 未走令牌的数量只允许下降：新增硬编码字号/间距会让这条测试变红。
+  // 范围刻意只含博客前台——后台（views/admin、layout）不在这套尺度内。
+  it('博客前台未令牌化的字号/间距字面量不得超过登记上限', () => {
+    const FRONT_END = (rel: string) =>
+      rel.startsWith('views/blog/') ||
+      /^components\/(BlogLayout|ArticleCard|ArticleTOC|ShareButton|ArticleEmptyState|ArticleListSkeleton|LinkIcon)\.vue$/.test(
+        rel
+      ) ||
+      rel.includes('themes/mo-blog')
+
+    const FONT_SIZE_CEILING = 141
+    const SPACING_CEILING = 389
+    const SPACING_DECL =
+      /(?:padding|margin|gap|row-gap|column-gap)(?:-top|-right|-bottom|-left|-inline|-block)?\s*:\s*([^;{}]+);/g
+    const LITERAL = /^-?[0-9.]+(px|rem)$/
+
+    let fontSize = 0
+    let spacing = 0
+
+    for (const file of filesUnder(SRC, name => /\.(vue|scss|css)$/.test(name))) {
+      if (!FRONT_END(relative(file))) continue
+      const source = readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '')
+
+      for (const rawLine of source.split('\n')) {
+        const line = rawLine.replace(/^\s*\/\/.*$/, '')
+        for (const m of line.matchAll(/font-size:\s*([^;{}]+);/g)) {
+          if (!/^\s*var\(/.test(m[1])) fontSize++
+        }
+        for (const m of line.matchAll(SPACING_DECL)) {
+          for (const token of m[1].trim().split(/\s+/)) {
+            if (LITERAL.test(token) && parseFloat(token) !== 0) spacing++
+          }
+        }
+      }
+    }
+
+    const grown: string[] = []
+    if (fontSize > FONT_SIZE_CEILING) grown.push(`字号字面量: ${FONT_SIZE_CEILING} → ${fontSize}`)
+    if (spacing > SPACING_CEILING) grown.push(`间距字面量: ${SPACING_CEILING} → ${spacing}`)
+
+    expect(grown).toEqual([])
+  })
 })
