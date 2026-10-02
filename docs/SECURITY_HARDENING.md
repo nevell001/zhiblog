@@ -250,9 +250,15 @@ permissions:
   `npm outdated` / `mvn versions:display-dependency-updates`，或者以 GitHub 的 PR 为准再同步过去。
   同理，`npm audit` 那道闸门也没有加进 `.workflow/*.yml`：Gitee Go 的 runner 用的是未实现审计端点的镜像，
   要加就得在 Gitee 侧也显式指到 npmjs，先手工验证一次再放开。
-- 首次推送后要确认仓库 **Settings → Security → Analysis and dependencies** 里
-  "Dependency graph" 与 "Dependabot security updates" 已开启（免费私有仓库需启用 Dependency graph，
-  否则不会自动提安全 PR）。
+- 首次推送后要确认仓库 **Settings → Code security and analysis** 里 **Dependabot alerts** 与
+  **Dependabot security updates** 都已勾选。**这一步不做，上面那行"比对 Advisory Database"是不成立的**：
+  只注册 `dependabot.yml` 只会得到"有新版本"的升级 PR，不会有 CVE 告警，也不会有安全类 PR。
+  实测本仓库推送后（2026-10-02）`GET /repos/nevell001/zhiblog/dependabot/alerts` 返回
+  `403 Dependabot alerts are disabled for this repository`，`security_and_analysis.dependabot_security_updates`
+  仍是 `disabled`。命令行开：`gh api -X PUT repos/nevell001/zhiblog/vulnerability-alerts`
+  （令牌需要 `admin:repo_hook` scope，没有就走 UI）。
+- 开了 alerts 之后才有意义的那句"安全类 PR 不受 `open-pull-requests-limit` 限制"才有出处可查：
+  `gh pr list --author app/dependabot`。
 - 根 POM 的 `<repositories>` 只有阿里云 public 镜像、没有需要认证的仓库，所以 Dependabot 能直接解析；
   **将来若加入私有源**，必须同时在本文件加 `registries:` 配置，否则 Maven 生态会静默不报警。
 - 后端**没有**在 CI 里跑 OWASP dependency-check：它需要 NVD API Key，且无 Key 时首次同步要 30~60 分钟，
