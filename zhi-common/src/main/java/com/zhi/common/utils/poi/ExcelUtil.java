@@ -1418,6 +1418,7 @@ public class ExcelUtil<T>
             }
             catch (NumberFormatException e)
             {
+                log.debug("数值转换失败，使用默认值0: {}", text);
             }
             statistics.put(index, statistics.get(index) + temp);
         }
@@ -1717,6 +1718,7 @@ public class ExcelUtil<T>
         }
         catch (Exception e)
         {
+            log.debug("获取单元格值异常，返回当前值: {}", e.getMessage());
             return val;
         }
         return val;
@@ -1864,6 +1866,7 @@ public class ExcelUtil<T>
         }
         catch (Exception e)
         {
+            log.debug("获取列表单元格值异常，返回空列表: {}", e.getMessage());
             return new ArrayList<Object>();
         }
         return (Collection<?>) value;
