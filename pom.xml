@@ -31,7 +31,7 @@
 
             <druid.version>1.2.27</druid.version>
 
-            <mysql.version>8.4.0</mysql.version>
+            <mysql.version>26.7.0</mysql.version>
 
             <yauaa.version>7.32.0</yauaa.version>
 
