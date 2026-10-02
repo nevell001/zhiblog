@@ -1011,50 +1011,51 @@ BEGIN
 INSERT IGNORE INTO `blog_article` (`title`, `summary`, `content`, `cover_url`, `category_id`, `author_id`, `author_name`, `is_top`, `is_recommend`, `status`, `view_count`, `like_count`) VALUES
 -- 置顶推荐文章
 ('Spring Boot + Vue.js 全栈开发实战', '本文详细介绍如何使用Spring Boot和Vue.js构建现代化的全栈Web应用，包含完整的项目搭建和部署流程。',
-'# Spring Boot + Vue.js 全栈开发实战
-
-## 📋 项目介绍
-本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化博客系统，采用前后端分离架构，提供完整的内容管理功能。
-
-## 🛠️ 技术栈详解
-### 后端技术栈
-- **Spring Boot 3.3.0** - 核心框架
-- **MyBatis** - 持久层框架
-- **MySQL 8.0** - 关系型数据库
-- **Redis** - 缓存和会话存储
-- **Spring Security** - 安全认证框架
-
-### 前端技术栈
-- **Vue.js 3.x** - 前端框架
-- **Element Plus** - UI组件库
-- **Vite** - 构建工具
-- **Axios** - HTTP客户端
-- **Vue Router** - 路由管理
-
-## 🚀 核心功能特性
-1. **用户管理** - 注册、登录、权限控制
-2. **文章管理** - 增删改查、富文本编辑
-3. **分类标签** - 分类管理、标签关联
-4. **评论系统** - 评论发布、回复、审核
-5. **搜索功能** - 全文搜索、关键词高亮
-6. **统计分析** - 访问统计、热度排行
-
-## 💡 开发经验总结
-通过本项目的实践，深入理解了：
-- 前后端分离架构的设计思想
-- RESTful API设计规范
-- 数据库性能优化技巧
-- 前端组件化开发模式
-- 安全防护和权限控制',
+'<h1>Spring Boot + Vue.js 全栈开发实战</h1>
+<h2>📋 项目介绍</h2>
+<p>本项目是基于Spring Boot 3.3.0和Vue.js 3.x构建的现代化博客系统，采用前后端分离架构，提供完整的内容管理功能。</p>
+<h2>🛠️ 技术栈详解</h2>
+<h3>后端技术栈</h3>
+<ul>
+<li><strong>Spring Boot 3.3.0</strong> - 核心框架</li>
+<li><strong>MyBatis</strong> - 持久层框架</li>
+<li><strong>MySQL 8.0</strong> - 关系型数据库</li>
+<li><strong>Redis</strong> - 缓存和会话存储</li>
+<li><strong>Spring Security</strong> - 安全认证框架</li>
+</ul>
+<h3>前端技术栈</h3>
+<ul>
+<li><strong>Vue.js 3.x</strong> - 前端框架</li>
+<li><strong>Element Plus</strong> - UI组件库</li>
+<li><strong>Vite</strong> - 构建工具</li>
+<li><strong>Axios</strong> - HTTP客户端</li>
+<li><strong>Vue Router</strong> - 路由管理</li>
+</ul>
+<h2>🚀 核心功能特性</h2>
+<ol>
+<li><strong>用户管理</strong> - 注册、登录、权限控制</li>
+<li><strong>文章管理</strong> - 增删改查、富文本编辑</li>
+<li><strong>分类标签</strong> - 分类管理、标签关联</li>
+<li><strong>评论系统</strong> - 评论发布、回复、审核</li>
+<li><strong>搜索功能</strong> - 全文搜索、关键词高亮</li>
+<li><strong>统计分析</strong> - 访问统计、热度排行</li>
+</ol>
+<h2>💡 开发经验总结</h2>
+<p>通过本项目的实践，深入理解了：</p>
+<ul>
+<li>前后端分离架构的设计思想</li>
+<li>RESTful API设计规范</li>
+<li>数据库性能优化技巧</li>
+<li>前端组件化开发模式</li>
+<li>安全防护和权限控制</li>
+</ul>',
 '', 1, 1, 'admin', 1, 1, 1, 156, 23),
 
 ('MySQL数据库优化实战指南', '分享MySQL数据库在生产环境中的性能优化经验，包含索引设计、查询优化、配置调优等实用技巧。',
-'# MySQL数据库优化实战指南
-
-## 🔍 索引优化策略
-### 合理创建索引
-```sql
--- 单列索引
+'<h1>MySQL数据库优化实战指南</h1>
+<h2>🔍 索引优化策略</h2>
+<h3>合理创建索引</h3>
+<pre><code class="language-sql">-- 单列索引
 CREATE INDEX idx_user_email ON user(email);
 
 -- 复合索引
@@ -1062,31 +1063,29 @@ CREATE INDEX idx_article_status_create_time ON article(status, create_time);
 
 -- 覆盖索引
 CREATE INDEX idx_article_cover ON article(id, title, status);
-```
-
-### 避免索引失效
-- 避免在索引列上使用函数
-- 避免隐式类型转换
-- 避免左模糊查询（LIKE "%value"）
-
-## ⚡ 查询优化技巧
-### SQL语句优化
-- 使用EXPLAIN分析执行计划
-- 避免SELECT * 查询
-- 合理使用JOIN和子查询
-
-### 分页优化
-```sql
--- 传统分页（深度分页性能差）
+</code></pre>
+<h3>避免索引失效</h3>
+<ul>
+<li>避免在索引列上使用函数</li>
+<li>避免隐式类型转换</li>
+<li>避免左模糊查询（LIKE &quot;%value&quot;）</li>
+</ul>
+<h2>⚡ 查询优化技巧</h2>
+<h3>SQL语句优化</h3>
+<ul>
+<li>使用EXPLAIN分析执行计划</li>
+<li>避免SELECT * 查询</li>
+<li>合理使用JOIN和子查询</li>
+</ul>
+<h3>分页优化</h3>
+<pre><code class="language-sql">-- 传统分页（深度分页性能差）
 SELECT * FROM article ORDER BY id LIMIT 100000, 10;
 
 -- 优化分页（使用书签模式）
-SELECT * FROM article WHERE id > 100000 ORDER BY id LIMIT 10;
-```
-
-## 🛠️ 配置参数调优
-```ini
-# 内存相关配置
+SELECT * FROM article WHERE id &gt; 100000 ORDER BY id LIMIT 10;
+</code></pre>
+<h2>🛠️ 配置参数调优</h2>
+<pre><code class="language-ini"># 内存相关配置
 innodb_buffer_pool_size = 4G
 innodb_log_file_size = 256M
 
@@ -1097,78 +1096,69 @@ max_connect_errors = 1000
 # 查询缓存
 query_cache_type = 1
 query_cache_size = 256M
-```
-
-通过以上优化措施，数据库性能可提升3-5倍。',
-'', 6, 1, 'admin', 1, 1, 1, 89, 15),
+</code></pre>
+<p>通过以上优化措施，数据库性能可提升3-5倍。</p>',
+'', 7, 1, 'admin', 1, 1, 1, 89, 15),
 
 -- 普通文章
 ('Vue.js 3.0 Composition API 深度解析', '深入了解Vue.js 3.0的Composition API，通过实际案例学习如何使用组合式API构建复杂应用。',
-'# Vue.js 3.0 Composition API 深度解析
-
-## 🎯 Composition API 核心概念
-### 基本语法
-```javascript
-import { ref, reactive, computed, watch } from ''vue''
+'<h1>Vue.js 3.0 Composition API 深度解析</h1>
+<h2>🎯 Composition API 核心概念</h2>
+<h3>基本语法</h3>
+<pre><code class="language-javascript">import { ref, reactive, computed, watch } from &#39;vue&#39;
 
 export default {
   setup() {
     const count = ref(0)
-    const state = reactive({ name: ''Vue'', version: 3 })
+    const state = reactive({ name: &#39;Vue&#39;, version: 3 })
 
-    const doubled = computed(() => count.value * 2)
+    const doubled = computed(() =&gt; count.value * 2)
 
-    watch(count, (newVal, oldVal) => {
+    watch(count, (newVal, oldVal) =&gt; {
       console.log(`Count changed from ${oldVal} to ${newVal}`)
     })
 
     return { count, state, doubled }
   }
 }
-```
-
-### 逻辑复用
-通过自定义Hook实现逻辑复用：
-```javascript
-// useCounter.js
+</code></pre>
+<h3>逻辑复用</h3>
+<p>通过自定义Hook实现逻辑复用：</p>
+<pre><code class="language-javascript">// useCounter.js
 export function useCounter(initialValue = 0) {
   const count = ref(initialValue)
-  const increment = () => count.value++
-  const decrement = () => count.value--
+  const increment = () =&gt; count.value++
+  const decrement = () =&gt; count.value--
 
   return { count, increment, decrement }
 }
-```
-
-## 🚀 性能提升
-Vue 3相比Vue 2在以下方面有显著提升：
-- **打包体积** 减少41%
-- **初始渲染** 快55%
-- **更新渲染** 快133%
-- **内存占用** 减少54%
-
-## 🔧 TypeScript支持
-Vue 3提供更好的TypeScript集成：
-```typescript
-interface User {
+</code></pre>
+<h2>🚀 性能提升</h2>
+<p>Vue 3相比Vue 2在以下方面有显著提升：</p>
+<ul>
+<li><strong>打包体积</strong> 减少41%</li>
+<li><strong>初始渲染</strong> 快55%</li>
+<li><strong>更新渲染</strong> 快133%</li>
+<li><strong>内存占用</strong> 减少54%</li>
+</ul>
+<h2>🔧 TypeScript支持</h2>
+<p>Vue 3提供更好的TypeScript集成：</p>
+<pre><code class="language-typescript">interface User {
   id: number
   name: string
   email: string
 }
 
-const user = ref<User>({ id: 1, name: ''Admin'', email: ''admin@example.com'' })
-```
-
-Composition API让代码更加模块化和可维护，特别适合大型项目开发。',
-'', 6, 1, 'admin', 0, 1, 1, 67, 12),
+const user = ref&lt;User&gt;({ id: 1, name: &#39;Admin&#39;, email: &#39;admin@example.com&#39; })
+</code></pre>
+<p>Composition API让代码更加模块化和可维护，特别适合大型项目开发。</p>',
+'', 5, 1, 'admin', 0, 1, 1, 67, 12),
 
 ('Docker容器化部署最佳实践', '详细介绍如何使用Docker对Spring Boot应用进行容器化部署，包含Dockerfile编写、镜像优化、多阶段构建等技巧。',
-'# Docker容器化部署最佳实践
-
-## 🐳 Dockerfile编写技巧
-### 多阶段构建优化
-```dockerfile
-# 构建阶段
+'<h1>Docker容器化部署最佳实践</h1>
+<h2>🐳 Dockerfile编写技巧</h2>
+<h3>多阶段构建优化</h3>
+<pre><code class="language-dockerfile"># 构建阶段
 FROM maven:3.8.4-openjdk-11 AS builder
 WORKDIR /app
 COPY pom.xml .
@@ -1180,23 +1170,22 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-### 镜像体积优化
-- 使用合适的基础镜像（alpine、slim）
-- 清理不必要的包和缓存
-- 合并RUN指令减少层数
-
-## 🚀 部署配置
-### Docker Compose配置
-```yaml
-version: ''3.8''
+ENTRYPOINT [&quot;java&quot;, &quot;-jar&quot;, &quot;app.jar&quot;]
+</code></pre>
+<h3>镜像体积优化</h3>
+<ul>
+<li>使用合适的基础镜像（alpine、slim）</li>
+<li>清理不必要的包和缓存</li>
+<li>合并RUN指令减少层数</li>
+</ul>
+<h2>🚀 部署配置</h2>
+<h3>Docker Compose配置</h3>
+<pre><code class="language-yaml">version: &#39;3.8&#39;
 services:
   app:
     build: .
     ports:
-      - "8080:8080"
+      - &quot;8080:8080&quot;
     environment:
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
@@ -1219,26 +1208,21 @@ services:
 volumes:
   mysql_data:
   redis_data:
-```
-
-## 📊 监控和日志
-### 健康检查
-```dockerfile
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+</code></pre>
+<h2>📊 监控和日志</h2>
+<h3>健康检查</h3>
+<pre><code class="language-dockerfile">HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
   CMD curl -f http://localhost:8080/actuator/health || exit 1
-```
-
-通过容器化部署，大大简化了应用的环境管理和部署流程。',
-'', 3, 1, 'admin', 0, 1, 1, 45, 8),
+</code></pre>
+<p>通过容器化部署，大大简化了应用的环境管理和部署流程。</p>',
+'', 8, 1, 'admin', 0, 1, 1, 45, 8),
 
 ('Redis缓存设计与实战', '深入讲解Redis在Web应用中的缓存设计模式，包含缓存更新策略、数据一致性、分布式锁等高级话题。',
-'# Redis缓存设计与实战
-
-## 🎯 缓存设计模式
-### Cache-Aside模式
-```java
-public User getUser(Long id) {
-    String key = "user:" + id;
+'<h1>Redis缓存设计与实战</h1>
+<h2>🎯 缓存设计模式</h2>
+<h3>Cache-Aside模式</h3>
+<pre><code class="language-java">public User getUser(Long id) {
+    String key = &quot;user:&quot; + id;
     User user = redisTemplate.opsForValue().get(key);
 
     if (user == null) {
@@ -1249,104 +1233,99 @@ public User getUser(Long id) {
     }
     return user;
 }
-```
-
-### Write-Through模式
-在写入数据库的同时更新缓存，保证数据一致性。
-
-## 🔄 缓存更新策略
-### 延迟双删策略
-```java
-public void updateUser(User user) {
+</code></pre>
+<h3>Write-Through模式</h3>
+<p>在写入数据库的同时更新缓存，保证数据一致性。</p>
+<h2>🔄 缓存更新策略</h2>
+<h3>延迟双删策略</h3>
+<pre><code class="language-java">public void updateUser(User user) {
     // 第一次删除
-    redisTemplate.delete("user:" + user.getId());
+    redisTemplate.delete(&quot;user:&quot; + user.getId());
 
     // 更新数据库
     userMapper.updateById(user);
 
     // 延迟删除（避免脏数据）
     Thread.sleep(500);
-    redisTemplate.delete("user:" + user.getId());
+    redisTemplate.delete(&quot;user:&quot; + user.getId());
 }
-```
-
-## ⚡ 性能优化技巧
-### Pipeline批量操作
-```java
-List<Object> results = redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+</code></pre>
+<h2>⚡ 性能优化技巧</h2>
+<h3>Pipeline批量操作</h3>
+<pre><code class="language-java">List&lt;Object&gt; results = redisTemplate.executePipelined((RedisCallback&lt;Object&gt;) connection -&gt; {
     for (Long id : userIds) {
-        connection.get(("user:" + id).getBytes());
+        connection.get((&quot;user:&quot; + id).getBytes());
     }
     return null;
 });
-```
-
-### 合理设置过期时间
-- 热点数据：短过期时间
-- 静态数据：长过期时间
-- 活动数据：动态过期时间
-
-通过合理使用Redis缓存，可以将系统性能提升10倍以上。',
+</code></pre>
+<h3>合理设置过期时间</h3>
+<ul>
+<li>热点数据：短过期时间</li>
+<li>静态数据：长过期时间</li>
+<li>活动数据：动态过期时间</li>
+</ul>
+<p>通过合理使用Redis缓存，可以将系统性能提升10倍以上。</p>',
 '', 7, 1, 'admin', 0, 0, 1, 78, 11),
 
 ('Git工作流程与团队协作规范', '介绍高效的Git工作流程，包括分支策略、提交规范、代码审查等团队协作最佳实践。',
-'# Git工作流程与团队协作规范
-
-## 🌲 分支管理策略
-### Git Flow工作流
-```
-master (生产分支)
+'<h1>Git工作流程与团队协作规范</h1>
+<h2>🌲 分支管理策略</h2>
+<h3>Git Flow工作流</h3>
+<pre><code>master (生产分支)
   ↑
 develop (开发分支)
   ↑
 feature/* (功能分支)
 hotfix/* (热修复分支)
 release/* (发布分支)
-```
-
-### 分支命名规范
-- `feature/用户登录功能`
-- `bugfix/修复支付接口异常`
-- `hotfix/紧急修复内存泄漏`
-- `release/v1.2.0`
-
-## 📝 提交信息规范
-### Conventional Commits规范
-```
-<type>(<scope>): <description>
+</code></pre>
+<h3>分支命名规范</h3>
+<ul>
+<li><code>feature/用户登录功能</code></li>
+<li><code>bugfix/修复支付接口异常</code></li>
+<li><code>hotfix/紧急修复内存泄漏</code></li>
+<li><code>release/v1.2.0</code></li>
+</ul>
+<h2>📝 提交信息规范</h2>
+<h3>Conventional Commits规范</h3>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
 
 [optional body]
 
 [optional footer(s)]
-```
-
-### 提交类型
-- `feat`: 新功能
-- `fix`: 修复bug
-- `docs`: 文档更新
-- `style`: 代码格式调整
-- `refactor`: 重构代码
-- `test`: 测试相关
-- `chore`: 构建过程或辅助工具的变动
-
-## 🔍 代码审查清单
-### 功能性检查
-- [ ] 功能是否按需求实现
-- [ ] 边界条件是否处理
-- [ ] 异常情况是否有处理
-
-### 代码质量检查
-- [ ] 代码是否遵循规范
-- [ ] 是否有重复代码
-- [ ] 注释是否充分
-
-### 安全性检查
-- [ ] 是否有SQL注入风险
-- [ ] 敏感信息是否脱敏
-- [ ] 权限控制是否合理
-
-良好的Git工作流程可以显著提升团队的协作效率和代码质量。',
-'', 5, 1, 'admin', 0, 0, 1, 92, 16);
+</code></pre>
+<h3>提交类型</h3>
+<ul>
+<li><code>feat</code>: 新功能</li>
+<li><code>fix</code>: 修复bug</li>
+<li><code>docs</code>: 文档更新</li>
+<li><code>style</code>: 代码格式调整</li>
+<li><code>refactor</code>: 重构代码</li>
+<li><code>test</code>: 测试相关</li>
+<li><code>chore</code>: 构建过程或辅助工具的变动</li>
+</ul>
+<h2>🔍 代码审查清单</h2>
+<h3>功能性检查</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 功能是否按需求实现</li>
+<li><input disabled="" type="checkbox"> 边界条件是否处理</li>
+<li><input disabled="" type="checkbox"> 异常情况是否有处理</li>
+</ul>
+<h3>代码质量检查</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 代码是否遵循规范</li>
+<li><input disabled="" type="checkbox"> 是否有重复代码</li>
+<li><input disabled="" type="checkbox"> 注释是否充分</li>
+</ul>
+<h3>安全性检查</h3>
+<ul>
+<li><input disabled="" type="checkbox"> 是否有SQL注入风险</li>
+<li><input disabled="" type="checkbox"> 敏感信息是否脱敏</li>
+<li><input disabled="" type="checkbox"> 权限控制是否合理</li>
+</ul>
+<p>良好的Git工作流程可以显著提升团队的协作效率和代码质量。</p>',
+'', 3, 1, 'admin', 0, 0, 1, 92, 16);
   END IF;
 END$$
 DELIMITER ;
@@ -1355,23 +1334,23 @@ DROP PROCEDURE IF EXISTS sp_insert_sample_articles;
 
 -- 插入文章标签关联数据（建立文章与标签的多对多关系）
 INSERT IGNORE INTO `blog_article_tag` (`article_id`, `tag_id`) VALUES
--- 文章1：Spring Boot + Vue.js 全栈开发实战
+-- 文章1：Spring Boot + Vue.js 全栈开发实战（Java / Vue.js / Spring Boot）
 (1, 1), (1, 2), (1, 3),
 
--- 文章2：MySQL数据库优化实战指南
+-- 文章2：MySQL数据库优化实战指南（Java / MySQL / 后端开发）
 (2, 1), (2, 4), (2, 6),
 
--- 文章3：Vue.js 3.0 Composition API 深度解析
-(3, 3), (3, 4), (3, 10), (3, 11),
+-- 文章3：Vue.js 3.0 Composition API 深度解析（Vue.js / 前端开发 / JavaScript / TypeScript）
+(3, 2), (3, 5), (3, 7), (3, 8),
 
--- 文章4：Docker容器化部署最佳实践
-(4, 6),
+-- 文章4：Docker容器化部署最佳实践（Docker / 后端开发 / Linux）
+(4, 16), (4, 6), (4, 18),
 
--- 文章5：Redis缓存设计与实战
-(5, 1), (5, 7), (5, 15),
+-- 文章5：Redis缓存设计与实战（Redis / 后端开发）
+(5, 14), (5, 6),
 
--- 文章6：Git工作流程与团队协作规范
-(6, 18), (6, 19);
+-- 文章6：Git工作流程与团队协作规范（Git）
+(6, 17);
 
 -- ========== 更新分类文章数量 ==========
 
