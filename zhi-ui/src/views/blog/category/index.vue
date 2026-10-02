@@ -68,71 +68,20 @@
           </div>
 
           <!-- 空状态 -->
-          <div v-else-if="articleList.length === 0" class="empty-state">
-            <div class="empty-content">
-              <el-icon class="empty-icon"><DocumentCopy /></el-icon>
-              <h3>暂无文章</h3>
-              <p>该分类下还没有文章，敬请期待...</p>
-              <router-link to="/" class="back-home-btn">
-                <el-button type="primary">返回首页</el-button>
-              </router-link>
-            </div>
-          </div>
+          <ArticleEmptyState
+            v-else-if="articleList.length === 0"
+            :icon="DocumentCopy"
+            description="该分类下还没有文章，敬请期待..."
+          />
 
           <!-- 文章列表 -->
           <div v-else class="article-list">
-            <div
+            <ArticleCard
               v-for="(article, index) in articleList"
               :key="article.id"
-              class="article-item"
-              :style="{ animationDelay: `${index * 0.1}s` }"
-            >
-              <div v-if="article.coverUrl" class="article-cover">
-                <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
-                <div v-if="article.categoryName" class="article-category-badge">
-                  {{ article.categoryName }}
-                </div>
-              </div>
-              <div class="article-content">
-                <h2 class="article-title">
-                  <router-link :to="`/blog/article/${article.id}`" :title="article.title">
-                    {{ article.title }}
-                  </router-link>
-                </h2>
-                <div class="article-meta">
-                  <span class="meta-item">
-                    <el-icon><Calendar /></el-icon>
-                    {{ formatDate(article.createTime) }}
-                  </span>
-                  <span class="meta-item">
-                    <el-icon><View /></el-icon>
-                    {{ article.viewCount || 0 }} 阅读
-                  </span>
-                  <span v-if="article.likeCount" class="meta-item">
-                    <el-icon><Star /></el-icon>
-                    {{ article.likeCount }} 点赞
-                  </span>
-                  <span v-if="article.commentCount" class="meta-item">
-                    <el-icon><ChatDotRound /></el-icon>
-                    {{ article.commentCount }} 评论
-                  </span>
-                </div>
-                <p class="article-summary">
-                  {{ article.summary || stripHtmlTags(article.content).substring(0, 150) + '...' }}
-                </p>
-                <div v-if="article.tags && article.tags.length" class="article-tags">
-                  <span v-for="tag in article.tags.slice(0, 3)" :key="tag.id" class="tag-badge">
-                    {{ tag.name }}
-                  </span>
-                </div>
-                <div class="article-footer">
-                  <router-link :to="`/blog/article/${article.id}`" class="read-more">
-                    阅读全文
-                    <el-icon><ArrowRight /></el-icon>
-                  </router-link>
-                </div>
-              </div>
-            </div>
+              :article="article"
+              :index="index"
+            />
           </div>
 
           <!-- 加载更多 -->
@@ -143,16 +92,12 @@
           </div>
 
           <!-- 分页 -->
-          <div v-if="total > queryParams.pageSize" class="pagination-container">
-            <el-pagination
-              background
-              layout="prev, pager, next"
-              :total="total"
-              :page-size="queryParams.pageSize"
-              :current-page="queryParams.pageNum"
-              @current-change="handlePageChange"
-            />
-          </div>
+          <BlogPager
+            :total="total"
+            :page-size="queryParams.pageSize"
+            :page-num="queryParams.pageNum"
+            @page-change="handlePageChange"
+          />
         </div>
 
         <!-- 侧边栏 -->
@@ -275,6 +220,9 @@ import { useRoute } from 'vue-router'
 import { ElMessage } from '@/plugins/element-plus-service'
 
 import BlogLayout from '@/components/BlogLayout.vue'
+import ArticleCard from '@/components/ArticleCard.vue'
+import ArticleEmptyState from '@/components/ArticleEmptyState.vue'
+import BlogPager from '@/components/BlogPager.vue'
 
 import { getCategoryDetail, getCategoryList } from '@/api/blog/category'
 
@@ -288,16 +236,12 @@ import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { logger } from '@/utils/logger'
 import {
   ArrowLeft,
-  ArrowRight,
   Calendar,
-  ChatDotRound,
   CollectionTag,
   DocumentCopy,
   Menu,
   Share,
-  Star,
-  StarFilled,
-  View
+  StarFilled
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -477,12 +421,6 @@ const getTagScale = count => {
   if (count >= 5) return 1.05
   if (count >= 2) return 1.0
   return 0.95
-}
-
-// 去除HTML标签
-const stripHtmlTags = html => {
-  if (!html) return ''
-  return html.replace(/<[^>]*>/g, '')
 }
 
 // 监听路由变化，Vue 3 会自动清理
@@ -666,21 +604,6 @@ onMounted(() => {
   transform: scale(1.08);
 }
 
-.article-category-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(238, 242, 255, 0.94);
-  color: var(--mo-p700);
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--mo-p200);
-  box-shadow: 0 2px 8px rgba(28, 25, 23, 0.08);
-}
-
 .article-content {
   padding: 25px;
   flex: 1;
@@ -695,34 +618,7 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.article-title a {
-  color: var(--mo-n900);
-  text-decoration: none;
-  transition: all 0.3s ease;
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  background: linear-gradient(135deg, var(--mo-n900), var(--mo-n800));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.article-title a:hover {
-  color: var(--mo-p600);
-  transform: translateX(4px);
-}
-
-.article-meta {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
-  color: var(--mo-n600);
-  flex-wrap: wrap;
-}
-
+/* 侧边栏 .category-meta .meta-item / .article-link .article-title 复用这两个基类，勿删 */
 .meta-item {
   display: flex;
   align-items: center;
@@ -743,118 +639,11 @@ onMounted(() => {
   opacity: 0.8;
 }
 
-.article-summary {
-  color: var(--mo-n600);
-  line-height: 1.7;
-  margin-bottom: 18px;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex: 1;
-  font-size: 0.95rem;
-}
-
-.article-tags {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 18px;
-  flex-wrap: wrap;
-  margin-top: auto;
-}
-
-.tag-badge {
-  background: var(--mo-p50);
-  color: var(--mo-p700);
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.tag-badge::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.tag-badge:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.tag-badge:hover::before {
-  left: 100%;
-}
-
-.article-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: auto;
-  padding-top: 15px;
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.read-more {
-  color: var(--mo-p600);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  position: relative;
-}
-
-.read-more::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--mo-p600), var(--mo-p800));
-  transition: width 0.3s ease;
-}
-
-.read-more:hover {
-  color: var(--mo-p800);
-  transform: translateX(4px);
-}
-
-.read-more:hover::after {
-  width: 100%;
-}
-
-.read-more .el-icon {
-  transition: transform 0.3s ease;
-}
-
-.read-more:hover .el-icon {
-  transform: translateX(3px);
-}
-
 .load-more-container {
   display: flex;
   justify-content: center;
   margin-top: 40px;
   padding-bottom: 20px;
-}
-
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 40px;
 }
 
 .sidebar {
@@ -1062,35 +851,6 @@ onMounted(() => {
   width: 100%;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 80px 20px;
-  color: var(--mo-n500);
-}
-
-.empty-content {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  color: var(--mo-n300);
-  margin-bottom: 20px;
-  display: block;
-}
-
-.empty-content h3 {
-  margin: 0 0 10px 0;
-  color: var(--mo-n800);
-  font-size: 1.5rem;
-}
-
-.back-home-btn {
-  margin-top: 20px;
-  text-decoration: none;
-}
-
 /* 响应式设计 */
 @media (max-width: 1200px) {
   .category-main {
@@ -1180,33 +940,6 @@ onMounted(() => {
     font-size: 1.4rem;
   }
 
-  .article-meta {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 15px;
-    font-size: 0.85rem;
-  }
-
-  .article-summary {
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-
-  .article-tags {
-    gap: 6px;
-  }
-
-  .tag-badge {
-    font-size: 0.75rem;
-    padding: 3px 8px;
-  }
-
-  .article-footer {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   .tag-cloud {
     gap: 8px;
   }
@@ -1264,12 +997,6 @@ onMounted(() => {
     margin-bottom: 12px;
   }
 
-  .article-summary {
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-    -webkit-line-clamp: 2;
-  }
-
   .sidebar {
     grid-template-columns: 1fr;
     gap: 12px;
@@ -1319,28 +1046,6 @@ html.dark .article-item:hover {
   border-color: rgba(79, 70, 229, 0.2);
 }
 
-html.dark .article-category-badge {
-  background: rgba(79, 70, 229, 0.2);
-  color: var(--mo-p300);
-  border-color: var(--mo-p600);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-html.dark .article-title a {
-  background: linear-gradient(135deg, var(--mo-n100), var(--mo-n200));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-html.dark .article-title a:hover {
-  color: var(--mo-p300);
-}
-
-html.dark .article-meta {
-  color: var(--mo-n400);
-}
-
 html.dark .meta-item {
   background: rgba(255, 255, 255, 0.05);
   color: var(--mo-n400);
@@ -1348,22 +1053,6 @@ html.dark .meta-item {
 
 html.dark .meta-item:hover {
   background: rgba(79, 70, 229, 0.15);
-  color: var(--mo-p300);
-}
-
-html.dark .article-summary {
-  color: var(--mo-n400);
-}
-
-html.dark .article-footer {
-  border-top-color: var(--mo-n800);
-}
-
-html.dark .read-more {
-  color: var(--mo-p300);
-}
-
-html.dark .read-more:hover {
   color: var(--mo-p300);
 }
 
@@ -1432,22 +1121,8 @@ html.dark .article-date {
   color: var(--mo-n500);
 }
 
-html.dark .empty-state {
-  color: var(--mo-n500);
-}
-
-html.dark .empty-icon {
-  color: var(--mo-n400);
-}
-
-html.dark .empty-content h3 {
-  color: var(--mo-n200);
-}
-
 /* p600/p700 不参与深色重映射，深色下强调色文字统一改用 p300 */
-html.dark .tag-badge,
-html.dark .tag-item,
-html.dark .read-more:hover {
+html.dark .tag-item {
   color: var(--mo-p300);
 }
 
