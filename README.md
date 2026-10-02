@@ -11,7 +11,7 @@
 - **安全**：JWT + 图形验证码 + 邮箱码防爆破、IP 限流、XSS 消毒、防盗链白名单后台化
 - **权限与开关**：Spring Security 细粒度权限；博客功能开关前台隐藏入口且接口拒绝
 - **一键部署**：Docker Compose 管理前后端、MySQL、Redis 与 Prometheus/Grafana
-- **工程化**：JaCoCo 60% / Vitest 覆盖率门槛，Checkstyle + ESLint + Prettier，统一版本管理
+- **工程化**：JaCoCo 60% / Vitest 覆盖率门槛，Checkstyle + ESLint + Prettier，产线依赖 `npm audit` 闸门 + Dependabot 自动安全 PR，统一版本管理
 
 ## 📦 最近更新 (v1.4.2)
 
@@ -167,7 +167,7 @@ ZhiBlog/
 
 - **后端**：Spring Boot 3.3 / Java 17、MyBatis + PageHelper、MySQL 8.4、Redis 6.2、Spring Security 6 + JWT、flexmark（Markdown 渲染）、Thumbnailator（图片压缩）、Quartz
 - **前端**：Vue 3.5 / TypeScript 5.9 / Vite 7、Element Plus 2.13、Pinia、Vue Router、Quill + marked、DOMPurify、ECharts
-- **测试与质量**：JUnit + JaCoCo（60%）、Vitest（覆盖率门槛）、Checkstyle、ESLint + Prettier
+- **测试与质量**：JUnit + JaCoCo（60%）、Vitest（覆盖率门槛）、Checkstyle、ESLint + Prettier、npm audit + Dependabot
 
 ## 🔧 配置说明
 

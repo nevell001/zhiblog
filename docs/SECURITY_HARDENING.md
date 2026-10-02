@@ -230,6 +230,45 @@ permissions:
   发布后记录 tag 与 HEAD 的对应关系，避免"线上跑的不是这个 tag"；
 - 移动已发布 tag 会**重建**同名 Release 附件，操作前在 release notes 里注明原因。
 
+### 3.4 `[P0]` 依赖漏洞扫描（前端已闭环，后端靠 Dependabot）
+
+两道闸门，都不需要额外密钥：
+
+1. **CI 阻断**：`ci.yml`（push/PR）与 `release.yml`（打 tag）在 `npm ci` 之后立刻跑 `npm run audit`
+   （即 `npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org`）。只查**产线依赖**，
+   因为 dev 工具链（vitest/eslint 一类的 DoS 类 CVE）不会进 `dist/`，把它们算进闸门只会让红线永远挂着、
+   最后被人加 `|| true` 关掉。`--registry` 必须钉在 npmjs：本机 `~/.npmrc` 的默认镜像是 npmmirror，
+   它**没有实现** `/-/npm/v1/security/*`（实测 `404 [NOT_IMPLEMENTED]`），不钉住的话审计直接报错而不是给出结论。
+2. **自动提 PR**：`.github/dependabot.yml` 对 `maven`（指向根 POM，会解析整个反应堆）、
+   `npm`（`/zhi-ui`）与 `github-actions` 每周（周一 02:00 Asia/Shanghai）比对
+   GitHub Advisory Database，patch/minor 合并成单个 PR、major 另开。安全类 PR 不受
+   `open-pull-requests-limit` 限制，所以它不会被排队排掉。
+
+要点与已知边界：
+
+- **Dependabot 只在 GitHub 远端生效**，`origin`（Gitee）没有等价能力；Gitee 侧的依赖更新仍需人工
+  `npm outdated` / `mvn versions:display-dependency-updates`，或者以 GitHub 的 PR 为准再同步过去。
+  同理，`npm audit` 那道闸门也没有加进 `.workflow/*.yml`：Gitee Go 的 runner 用的是未实现审计端点的镜像，
+  要加就得在 Gitee 侧也显式指到 npmjs，先手工验证一次再放开。
+- 首次推送后要确认仓库 **Settings → Security → Analysis and dependencies** 里
+  "Dependency graph" 与 "Dependabot security updates" 已开启（免费私有仓库需启用 Dependency graph，
+  否则不会自动提安全 PR）。
+- 根 POM 的 `<repositories>` 只有阿里云 public 镜像、没有需要认证的仓库，所以 Dependabot 能直接解析；
+  **将来若加入私有源**，必须同时在本文件加 `registries:` 配置，否则 Maven 生态会静默不报警。
+- 后端**没有**在 CI 里跑 OWASP dependency-check：它需要 NVD API Key，且无 Key 时首次同步要 30~60 分钟，
+  会让每次 push 都变慢。当前由 Dependabot 覆盖 Maven CVE。真需要 SARIF 进 Code Scanning 时，
+  再单独加一个 `schedule:` 触发的 workflow，不要挂进 `ci.yml`。
+- 本地随时可查（GitHub 之外的第一道自查）：
+
+  ```bash
+  # 产线依赖（CI 闸门口径，含 npmjs 审计端点）
+  cd zhi-ui && npm run audit
+  # 含 dev，用于排查工具链
+  cd zhi-ui && npm audit --audit-level=high --registry=https://registry.npmjs.org
+  # 后端看已知 CVE 需要工具，先用版本时效自查
+  mvn -q versions:display-dependency-updates
+  ```
+
 ---
 
 ## 4. 开发机（macOS）
@@ -253,6 +292,9 @@ permissions:
 git config --global --unset-all url."https://ghproxy.net/https://github.com/".insteadOf
 git config --global --unset-all url."https://ghfast.top/https://github.com/".insteadOf
 
+# —— 依赖 ——
+(cd zhi-ui && npm run audit)   # 产线依赖，与 CI 同口径（审计端点钉在 npmjs）
+
 # —— 服务器 ——
 sudo sshd -t && sudo systemctl reload ssh      # PermitRootLogin no / PasswordAuthentication no / AllowUsers deploy
 sudo visudo -c                                  # sudo 白名单语法
@@ -263,7 +305,7 @@ crontab -l -u deploy                            # 备份任务存在
 ```
 
 **季度动作**：轮换 PAT 与平台密钥 → 检查 `authorized_keys` 是否有废弃钥匙 → 跑一次备份恢复演练 →
-复查告警是否还能收到。
+复查告警是否还能收到 → 过一遍 Dependabot 开着的安全 PR（`gh pr list --author app/dependabot`）。
 
 ---
 
@@ -277,7 +319,12 @@ crontab -l -u deploy                            # 备份任务存在
 - 客户端 IP 只信任可信代理链，nginx 覆写 `X-Forwarded-For`（限流/去重不被伪造头绕过）；
 - 前台暴露接口收敛了 `email` 字段（友链/评论列表走专用投影）；
 - 所有管理接口都有 `@PreAuthorize`，并由 `ControllerPermissionPolicyTest` 反射扫描兜底；
-- 依赖已升到 Boot 3.3.13（Spring 6.1.21 / Security 6.3.10 / Tomcat 10.1.42），去掉了主动降级的 BOM 覆盖。
+- 依赖已升到 Boot 3.3.13（Spring 6.1.21 / Security 6.3.10 / Tomcat 10.1.42），去掉了主动降级的 BOM 覆盖；
+- 产线依赖审计 `npm run audit` 已进 `ci.yml` 与 `release.yml`（发 tag 也过这道闸；命令本体在
+  `zhi-ui/package.json`，审计端点钉在 npmjs，因为 npmmirror 未实现 `/-/npm/v1/security/*`），
+  `.github/dependabot.yml` 覆盖 maven / npm / github-actions 三个生态（见 3.4）；
+- 前端依赖已修掉两个高危传递项：`axios` 1.18.1 → 1.20.0（原型污染 gadget / ReDoS / header 注入 / SSRF 一串）、
+  `brace-expansion` → 1.1.21 / 2.1.7（CPU DoS），当前 `--omit=dev` 口径为 0 漏洞。
 
 > 相关文档：`docs/SECURITY_CONFIG.md`（启动校验与必需密钥）、`AGENTS.md`（开发约定）、
 > `SYNC_GITHUB.md`（双远端同步与 SSH 推送）。
