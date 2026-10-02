@@ -39,36 +39,7 @@
       <div class="tag-main">
         <div class="main-content">
           <!-- 加载状态 -->
-          <div v-if="loading" class="loading-container">
-            <div class="loading-grid">
-              <el-skeleton
-                v-for="i in 6"
-                :key="i"
-                :loading="loading"
-                animated
-                class="skeleton-item"
-              >
-                <template #template>
-                  <div class="article-item">
-                    <div class="article-cover">
-                      <el-skeleton-item variant="image" style="width: 100%; height: 200px" />
-                    </div>
-                    <div class="article-content">
-                      <el-skeleton-item variant="h3" style="width: 70%; margin-bottom: 15px" />
-                      <el-skeleton-item variant="text" style="width: 100%; margin-bottom: 10px" />
-                      <el-skeleton-item variant="text" style="width: 90%; margin-bottom: 10px" />
-                      <el-skeleton-item variant="text" style="width: 60%; margin-bottom: 15px" />
-                      <div style="display: flex; gap: 8px; margin-bottom: 15px">
-                        <el-skeleton-item variant="text" style="width: 60px; height: 24px" />
-                        <el-skeleton-item variant="text" style="width: 50px; height: 24px" />
-                      </div>
-                      <el-skeleton-item variant="text" style="width: 80px; height: 20px" />
-                    </div>
-                  </div>
-                </template>
-              </el-skeleton>
-            </div>
-          </div>
+          <ArticleListSkeleton v-if="loading" />
 
           <!-- 空状态 -->
           <ArticleEmptyState
@@ -223,6 +194,7 @@ import { useRoute } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleCard from '@/components/ArticleCard.vue'
 import ArticleEmptyState from '@/components/ArticleEmptyState.vue'
+import ArticleListSkeleton from '@/components/ArticleListSkeleton.vue'
 import BlogPager from '@/components/BlogPager.vue'
 
 import { getArticlesByTag, getTagDetail } from '@/api/blog/tag'
@@ -617,24 +589,6 @@ onMounted(() => {
   border-color: rgba(79, 70, 229, 0.1);
 }
 
-.article-cover {
-  position: relative;
-  height: 200px;
-  overflow: hidden;
-  background: linear-gradient(45deg, var(--mo-n100), var(--mo-n200));
-}
-
-.article-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.article-cover:hover img {
-  transform: scale(1.08);
-}
-
 /* 侧边栏 .tag-meta .meta-item / .article-link .article-title 复用这两个基类，勿删 */
 .meta-item {
   display: flex;
@@ -654,13 +608,6 @@ onMounted(() => {
 .meta-item .el-icon {
   font-size: 1rem;
   opacity: 0.8;
-}
-
-.article-content {
-  padding: 25px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
 }
 
 .article-title {
@@ -876,25 +823,6 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.loading-container {
-  padding: 60px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.loading-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
-  gap: 30px;
-  width: 100%;
-  max-width: 1200px;
-}
-
-.skeleton-item {
-  width: 100%;
-}
-
 @media (max-width: 1200px) {
   .tag-main {
     max-width: 100%;
@@ -914,10 +842,6 @@ onMounted(() => {
 
   .sidebar {
     width: auto;
-  }
-
-  .article-cover {
-    height: 180px;
   }
 }
 
@@ -979,10 +903,6 @@ onMounted(() => {
     margin-bottom: 20px;
   }
 
-  .article-content {
-    padding: 20px;
-  }
-
   .article-title {
     font-size: 1.4rem;
   }
@@ -1038,14 +958,6 @@ onMounted(() => {
   .article-item {
     border-radius: 6px;
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
-  }
-
-  .article-cover {
-    height: 160px;
-  }
-
-  .article-content {
-    padding: 18px;
   }
 
   .article-title {
