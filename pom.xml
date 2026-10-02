@@ -29,7 +29,7 @@
                  6.1.6/6.1.5，低于 Boot 托管版本，等于主动降级到有 CVE 的区间 -->
             <spring-boot.version>3.3.13</spring-boot.version>
 
-            <druid.version>1.2.27</druid.version>
+            <druid.version>1.2.28</druid.version>
 
             <mysql.version>8.4.0</mysql.version>
 
@@ -41,19 +41,19 @@
 
             <pagehelper.boot.version>1.4.7</pagehelper.boot.version>
 
-            <fastjson.version>2.0.60</fastjson.version>
+            <fastjson.version>2.0.65</fastjson.version>
 
             <oshi.version>6.9.1</oshi.version>
 
-            <commons.io.version>2.21.0</commons.io.version>
+            <commons.io.version>2.22.0</commons.io.version>
 
-            <poi.version>5.4.0</poi.version>
+            <poi.version>5.5.1</poi.version>
 
-            <velocity.version>2.3</velocity.version>
+            <velocity.version>2.4.1</velocity.version>
 
-            <jwt.version>0.12.3</jwt.version>
+            <jwt.version>0.13.0</jwt.version>
 
-            <thumbnailator.version>0.4.20</thumbnailator.version>
+            <thumbnailator.version>0.4.21</thumbnailator.version>
 
             <!-- override dependency version -->
 
@@ -65,17 +65,17 @@
 
             <jaxb-api.version>2.3.1</jaxb-api.version>
 
-            <jakarta.version>6.0.0</jakarta.version>
+            <jakarta.version>6.1.0</jakarta.version>
 
             <springdoc.version>2.5.0</springdoc.version>
 
-                        <micrometer.version>1.13.0</micrometer.version>
+                        <micrometer.version>1.17.1</micrometer.version>
 
             <!-- 测试框架版本 -->
             <junit.version>5.11.4</junit.version>
-            <mockito.version>5.14.2</mockito.version>
-            <jacoco.version>0.8.12</jacoco.version>
-            <surefire.version>3.2.5</surefire.version>
+            <mockito.version>5.24.0</mockito.version>
+            <jacoco.version>0.8.15</jacoco.version>
+            <surefire.version>3.6.0</surefire.version>
             <argLine></argLine>
 
             </properties>
@@ -192,7 +192,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.27.1</version>
+                <version>1.28.0</version>
             </dependency>
 
             <!-- velocity代码生成使用模板 -->
@@ -326,7 +326,7 @@
             <dependency>
                 <groupId>com.h2database</groupId>
                 <artifactId>h2</artifactId>
-                <version>2.2.224</version>
+                <version>2.5.252</version>
                 <scope>test</scope>
             </dependency>
 
@@ -349,7 +349,7 @@
             <dependency>
                 <groupId>io.micrometer</groupId>
                 <artifactId>context-propagation</artifactId>
-                <version>1.1.1</version>
+                <version>1.2.1</version>
             </dependency>
 
         </dependencies>
@@ -372,7 +372,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.16.2</version>
+                    <version>2.22.0</version>
                     <configuration>
                         <generateBackupPoms>false</generateBackupPoms>
                     </configuration>
@@ -381,7 +381,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.3.1</version>
+                    <version>3.6.0</version>
                     <configuration>
                         <configLocation>checkstyle.xml</configLocation>
                         <consoleOutput>true</consoleOutput>
@@ -503,7 +503,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.16.0</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
