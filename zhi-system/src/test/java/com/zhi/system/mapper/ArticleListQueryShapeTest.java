@@ -57,13 +57,28 @@ class ArticleListQueryShapeTest
     void tagJoinOnlyWhereUsedForFiltering() throws Exception
     {
         String xml = readXml();
-        for (String id : List.of("selectBlogArticleList", "searchArticles", "searchArticlesFullText"))
+        for (String id : List.of("selectBlogArticleList", "searchArticles", "searchArticlesFullText",
+            "selectHotArticles", "selectArticlesByArchive"))
         {
             assertFalse(selectBlock(xml, id).contains("blog_article_tag"),
                 id + " 不使用标签表，JOIN 纯属浪费（标签由 loadTagsForArticles 单独批量查）");
+            assertFalse(selectBlock(xml, id).toLowerCase().contains("group by"),
+                id + " 去掉标签 JOIN 后 GROUP BY 也必须一并去掉");
         }
         assertTrue(selectBlock(xml, "selectArticlesByTagId").contains("inner join blog_article_tag"),
             "按标签过滤的查询需要 blog_article_tag");
+    }
+
+    @Test
+    @DisplayName("热门列表不投影正文；归档页要留正文（无摘要时前端回退截断）")
+    void hotDropsContentButArchiveKeepsIt() throws Exception
+    {
+        String xml = readXml();
+
+        assertFalse(selectBlock(xml, "selectHotArticles").contains("ba.content"),
+            "热门文章只出标题/摘要，侧栏与相关推荐都不读正文");
+        assertTrue(selectBlock(xml, "selectArticlesByArchive").contains("ba.content"),
+            "归档页用 summary || content 截断做预览，正文不能去掉");
     }
 
     @Test
