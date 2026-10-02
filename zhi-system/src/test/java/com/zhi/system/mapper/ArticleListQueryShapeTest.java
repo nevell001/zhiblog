@@ -67,6 +67,20 @@ class ArticleListQueryShapeTest
     }
 
     @Test
+    @DisplayName("单条查询不许为标签 JOIN 扇出（否则 selectOne 直接抛 TooManyResults）")
+    void singleRowQueryMustNotFanOutOnTags() throws Exception
+    {
+        String block = selectBlock(readXml(), "selectBlogArticleById");
+
+        // 曾经只删掉 GROUP BY 却留着两个标签 JOIN：多标签文章返回 N 行，
+        // 前台 /blog/article/{id} 与后台详情一律 500
+        assertFalse(block.contains("blog_article_tag"),
+            "selectBlogArticleById 不投影标签列，JOIN 会让一行变多行");
+        assertFalse(block.toLowerCase().contains("group by"),
+            "去掉标签 JOIN 后 GROUP BY 也应一并去掉");
+    }
+
+    @Test
     @DisplayName("导出查询必须保留正文（Excel 有\"文章内容\"列）")
     void exportQueryKeepsContent() throws Exception
     {
