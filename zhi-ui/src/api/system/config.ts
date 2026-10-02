@@ -37,10 +37,11 @@ export function getConfig(configId: number): Promise<DataResult<Config>> {
 /**
  * 根据参数键名查询参数值
  */
-export function getConfigKey(configKey: string): Promise<Config> {
+export function getConfigKey(configKey: string, config?: Record<string, any>): Promise<Config> {
   return request({
     url: '/system/config/configKey/' + configKey,
-    method: 'get'
+    method: 'get',
+    ...config
   })
 }
 

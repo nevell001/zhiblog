@@ -31,8 +31,8 @@ describe('blogSettings 工具', () => {
     await initBlogSettings()
 
     const settingsStore = useSettingsStore()
-    expect(getConfigKey).toHaveBeenCalledWith('theme_color')
-    expect(getConfigKey).not.toHaveBeenCalledWith('blog.custom.themeColor')
+    expect(getConfigKey).toHaveBeenCalledWith('theme_color', { silent: true })
+    expect(getConfigKey).not.toHaveBeenCalledWith('blog.custom.themeColor', { silent: true })
     expect(settingsStore.theme).toBe('#4f46e5')
     expect(document.documentElement.style.getPropertyValue('--el-color-primary')).toBe('#4f46e5')
   })
