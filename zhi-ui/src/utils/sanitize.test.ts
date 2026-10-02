@@ -96,6 +96,28 @@ describe('Sanitize Utils 测试', () => {
       expect(result).toContain('data-safe-iframe="true"')
       expect(result).toContain('<iframe')
     })
+
+    it('应该拒绝非白名单域名的 iframe', () => {
+      const input = '<iframe src="https://evil.com/phish"></iframe>'
+      const result = sanitizeArticleContent(input)
+
+      expect(result).not.toContain('src="https://evil.com')
+    })
+
+    it('应该允许 bilibili 嵌入', () => {
+      const input = '<iframe src="https://player.bilibili.com/player.html?bvid=123"></iframe>'
+      const result = sanitizeArticleContent(input)
+
+      expect(result).toContain('player.bilibili.com')
+    })
+
+    it('应该移除 style 属性防止 CSS 注入', () => {
+      const input = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;opacity:0.01">钓鱼</div>'
+      const result = sanitizeArticleContent(input)
+
+      expect(result).not.toContain('style=')
+      expect(result).not.toContain('position:fixed')
+    })
   })
 
   describe('sanitizeComment', () => {

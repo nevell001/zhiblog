@@ -73,8 +73,7 @@ const ALLOWED_ATTR: string[] = [
   'width',
   'height',
   'class',
-  'id',
-  'style'
+  'id'
 ]
 
 /**
@@ -110,6 +109,20 @@ export function sanitizeHtml(dirty: string, options: SanitizeOptions = {}): stri
 }
 
 /**
+ * iframe src 允许的安全视频嵌入域名
+ */
+const SAFE_IFRAME_HOSTS = [
+  'youtube.com',
+  'www.youtube.com',
+  'youtube-nocookie.com',
+  'www.youtube-nocookie.com',
+  'player.bilibili.com',
+  'bilibili.com',
+  'player.vimeo.com',
+  'vimeo.com'
+]
+
+/**
  * 消毒博客文章内容（宽松模式，允许更多标签）
  *
  * @param content - 文章内容
@@ -135,7 +148,28 @@ export function sanitizeArticleContent(content: string): string {
     ADD_ATTR: ['data-safe-iframe']
   }
 
-  return sanitizeHtml(content, articleOptions)
+  const sanitized = sanitizeHtml(content, articleOptions)
+  return restrictIframeSrc(sanitized)
+}
+
+/**
+ * 移除 iframe 中非白名单域名的 src 属性
+ */
+function restrictIframeSrc(html: string): string {
+  return html.replace(/<iframe\b[^>]*\bsrc="([^"]*)"[^>]*>/gi, (match, src: string) => {
+    try {
+      const url = new URL(src)
+      const allowed = SAFE_IFRAME_HOSTS.some(
+        h => url.hostname === h || url.hostname.endsWith('.' + h)
+      )
+      if (!allowed) {
+        return match.replace(/\bsrc="[^"]*"/, '')
+      }
+    } catch {
+      return match.replace(/\bsrc="[^"]*"/, '')
+    }
+    return match
+  })
 }
 
 /**
