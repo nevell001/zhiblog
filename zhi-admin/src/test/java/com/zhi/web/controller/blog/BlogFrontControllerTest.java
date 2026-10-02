@@ -106,10 +106,8 @@ class BlogFrontControllerTest
     {
         when(blogArticleService.selectBlogArticleCount(any(BlogArticle.class))).thenReturn(12L);
         when(blogCommentService.selectBlogCommentCount(any(BlogComment.class))).thenReturn(34L);
-        when(blogCategoryService.selectBlogCategoryList(any(BlogCategory.class)))
-            .thenReturn(List.of(new BlogCategory(), new BlogCategory()));
-        when(blogTagService.selectBlogTagList(any(BlogTag.class)))
-            .thenReturn(List.of(new BlogTag()));
+        when(blogCategoryService.selectBlogCategoryCount(any(BlogCategory.class))).thenReturn(2L);
+        when(blogTagService.selectBlogTagCount(any(BlogTag.class))).thenReturn(1L);
         when(blogArticleService.selectTotalViewCount()).thenReturn(567L);
 
         mockMvc.perform(get("/blog/stats/overview"))
@@ -253,9 +251,9 @@ class BlogFrontControllerTest
 
         mockMvc.perform(get("/blog/comment/article/1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data[0].nickname").value("访客"))
-            .andExpect(jsonPath("$.data[0].content").value("你好"))
-            .andExpect(jsonPath("$.data[0].email").doesNotExist());
+            .andExpect(jsonPath("$.rows[0].nickname").value("访客"))
+            .andExpect(jsonPath("$.rows[0].content").value("你好"))
+            .andExpect(jsonPath("$.rows[0].email").doesNotExist());
 
         verify(blogCommentService).selectFrontCommentList(any());
         verify(blogCommentService, never()).selectBlogCommentList(any());

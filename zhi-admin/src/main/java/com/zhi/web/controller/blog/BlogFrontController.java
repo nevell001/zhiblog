@@ -200,8 +200,8 @@ public class BlogFrontController extends BaseController
         commentQuery.setStatus("1"); // 只统计已通过审核的评论
         long commentCount = blogCommentService.selectBlogCommentCount(commentQuery);
 
-        long categoryCount = blogCategoryService.selectBlogCategoryList(new BlogCategory()).size();
-        long tagCount = blogTagService.selectBlogTagList(new BlogTag()).size();
+        long categoryCount = blogCategoryService.selectBlogCategoryCount(new BlogCategory());
+        long tagCount = blogTagService.selectBlogTagCount(new BlogTag());
         long totalViews = blogArticleService.selectTotalViewCount();
 
         data.put("articleCount", articleCount);
@@ -600,18 +600,19 @@ public class BlogFrontController extends BaseController
     }
 
     /**
-     * 获取文章评论列表（前台用）
+     * 获取文章评论列表（前台用，支持分页）
      */
     @Anonymous
     @GetMapping("/comment/article/{articleId}")
-    public AjaxResult getArticleComments(@PathVariable("articleId") Long articleId)
+    public TableDataInfo getArticleComments(@PathVariable("articleId") Long articleId)
     {
         BlogComment blogComment = new BlogComment();
         blogComment.setArticleId(articleId);
         blogComment.setStatus("1"); // 只查询已发布的评论（status=1）
+        startPage(); // 启用分页
         // 前台专用查询 + 显式投影：既不从库里取、也不在响应里输出 email 等 PII
         List<BlogComment> list = blogCommentService.selectFrontCommentList(blogComment);
-        return success(list.stream().map(FrontCommentVo::from).collect(Collectors.toList()));
+        return getDataTable(list.stream().map(FrontCommentVo::from).collect(Collectors.toList()));
     }
 
     /**

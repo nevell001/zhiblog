@@ -489,18 +489,22 @@ const loadArticleDetail = async () => {
 const loadComments = async () => {
   try {
     const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
-    const response = await getArticleComments(articleId)
+    const response = await getArticleComments(articleId, { pageNum: 1, pageSize: 100 })
 
-    // 处理响应数据格式
+    // 处理响应数据格式（TableDataInfo: { rows, total }）
     let comments = []
-    if (response && response.code === 200) {
+    if (response && response.rows) {
+      comments = response.rows
+      totalComments.value = response.total || comments.length
+    } else if (response && response.code === 200) {
       comments = response.data || []
+      totalComments.value = comments.length
     } else if (response && Array.isArray(response)) {
       comments = response
+      totalComments.value = comments.length
     }
 
     commentList.value = comments
-    totalComments.value = comments.length
 
     // 登录用户：回显评论点赞态
     if (isLoggedIn.value && Array.isArray(comments) && comments.length > 0) {

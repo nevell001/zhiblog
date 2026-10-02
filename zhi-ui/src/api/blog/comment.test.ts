@@ -141,13 +141,27 @@ describe('Comment API 测试', () => {
     })
 
     it('应该调用 GET /blog/comment/article/:articleId', async () => {
-      mockRequest.mockResolvedValue([])
+      mockRequest.mockResolvedValue({ rows: [], total: 0 })
 
       await getArticleComments(1)
 
       expect(mockRequest).toHaveBeenCalledWith({
         url: '/blog/comment/article/1',
-        method: 'get'
+        method: 'get',
+        params: undefined
+      })
+    })
+
+    it('应该支持分页参数', async () => {
+      mockRequest.mockResolvedValue({ rows: [], total: 0 })
+
+      const query = { pageNum: 1, pageSize: 20 }
+      await getArticleComments(1, query)
+
+      expect(mockRequest).toHaveBeenCalledWith({
+        url: '/blog/comment/article/1',
+        method: 'get',
+        params: query
       })
     })
   })
