@@ -2244,11 +2244,6 @@ html.dark .mo-editor-form :deep(.el-button--primary:hover) {
   border-color: var(--mo-p700);
 }
 
-/* 对话框遮罩 */
-html.dark :deep(.el-overlay) {
-  background: rgba(0, 0, 0, 0.7);
-}
-
 /* 富文本编辑器区域 */
 html.dark .mo-editor-form :deep(.editor) {
   background: var(--mo-n50);
