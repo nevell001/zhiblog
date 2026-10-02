@@ -1879,8 +1879,10 @@ html.dark.theme-mo-blog .auth-form label,
 html.dark.theme-mo-blog .register-form label,
 html.dark.theme-mo-blog .login-form label,
 html.dark.theme-mo-blog label[class*='label'] {
-  /* 原来是浅色主题的中灰 #78716c，深色底上仅 3.16:1；改用与 n500 一致的浅灰 */
-  color: var(--mo-n500) !important;
+  /* 原来是浅色主题的中灰 #78716c，深色底上仅 3.16:1。用 n400 而不是 n500：
+     n500 只在 .mo-auth-page / .blog-layout 的深色反转里等于 #a8a29e，
+     这些选择器也命中后台表单，那里 n500 仍是浅色的 #78716c。 */
+  color: var(--mo-n400) !important;
 }
 
 /* 输入框样式修复：描边一律用 inset box-shadow，不写真实 border。
@@ -1910,7 +1912,7 @@ html.dark.theme-mo-blog .mo-auth-page .el-input__inner {
 
 html.dark.theme-mo-blog .el-input__inner::placeholder,
 html.dark.theme-mo-blog .mo-auth-page .el-input__inner::placeholder {
-  color: var(--mo-n500) !important;
+  color: var(--mo-n400) !important;
 }
 
 /* ===== 深色补丁：标题/正文色阶 =====
