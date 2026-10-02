@@ -414,51 +414,53 @@ onUnmounted(() => {
 }
 
 html.dark .article-toc {
-  background: #292524;
-  border-color: #44403c;
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 html.dark .toc-header {
-  background: #1c1917;
-  border-bottom-color: #44403c;
+  background: var(--mo-n900);
+  border-bottom-color: var(--mo-n700);
 }
 
 html.dark .toc-title {
-  color: #f5f5f4;
+  color: var(--mo-n100);
 }
 
 html.dark .toc-toggle {
-  background: #44403c;
-  color: #d6d3d1;
+  background: var(--mo-n700);
+  color: var(--mo-n200);
 }
 
 html.dark .toc-toggle:hover {
   background: rgba(79, 70, 229, 0.18);
-  color: #a5b4fc;
+  color: var(--mo-p300);
 }
 
 html.dark .toc-item {
-  color: #d6d3d1;
+  color: var(--mo-n200);
 }
 
 html.dark .toc-item:hover,
 html.dark .toc-item.toc-item-active {
   background: rgba(79, 70, 229, 0.18);
-  color: #a5b4fc;
+  color: var(--mo-p300);
 }
 
+/* 这两个色值在深色作用域里没有对应令牌（n400/n500 在 .mo-article-page 的重映射里
+   是 #a8a29e，比原来的 #78716c 亮一档，目录圆点会变成文字级对比），保留字面值。 */
 html.dark .toc-dot {
   background: #78716c;
 }
 
 html.dark .toc-dot.dot-active {
-  background: #a5b4fc;
+  background: var(--mo-p300);
   box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.18);
 }
 
 html.dark .toc-empty {
-  color: #a8a29e;
+  color: var(--mo-n400);
 }
 
 /* 响应式设计 */

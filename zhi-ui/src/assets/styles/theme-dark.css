@@ -53,8 +53,9 @@ html.dark.theme-mo-blog .mo-home-page {
   --mo-bg-card: #292524;
   --mo-border: #44403c;
 
-  background: #1c1917;
-  color: #d6d3d1;
+  /* 同一规则块里已重映射的令牌可直接引用：n900=#1c1917、n200=#d6d3d1 */
+  background: var(--mo-n900);
+  color: var(--mo-n200);
 }
 
 /* Auth Page Dark Mode Overrides */

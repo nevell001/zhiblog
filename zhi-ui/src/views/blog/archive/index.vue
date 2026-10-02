@@ -1082,7 +1082,7 @@ html.dark .no-articles {
 }
 
 html.dark .no-articles .el-icon {
-  color: #444;
+  color: var(--mo-n700);
 }
 
 /* 展开动画 */

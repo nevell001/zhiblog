@@ -29,21 +29,14 @@ const LEGACY_ICON_ALLOWLIST = [
 ]
 
 // 每个文件「深色块内裸 hex」的当前数量上限，只允许下降（见下方棘轮测试）。
-// 2026-10-02 B 批基线：127 处 / 13 个文件。降到 0 的文件从表里删除，
-// 再写回来就会被当成「新增」直接报错。
+// 2026-10-02 B 批基线：127 处 / 13 个文件；B2 令牌化后剩 65 处 / 5 个文件。
+// 降到 0 的文件从表里删除，再写回来就会被当成「新增」直接报错。
 const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/system/user/user/profile/index.vue': 50,
-  'components/ArticleTOC.vue': 13,
+  'components/ArticleTOC.vue': 1,
   'assets/styles/themes/mo-blog.scss': 2,
   'views/admin/blog/setting/index.vue': 8,
-  'views/blog/auth/Register.vue': 7,
-  'views/blog/article/detail.vue': 5,
-  'views/admin/blog/article/index.vue': 4,
-  'assets/styles/theme-dark.css': 2,
-  'components/ShareButton.vue': 2,
-  'views/blog/index.vue': 2,
-  'views/blog/archive/index.vue': 1,
-  'views/blog/auth/ForgotPassword.vue': 1
+  'views/admin/blog/article/index.vue': 4
 }
 
 // svgicon.ts 的 import 名单 = 运行时全局注册的 EP 图标

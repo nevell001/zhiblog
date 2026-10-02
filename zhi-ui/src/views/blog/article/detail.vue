@@ -850,8 +850,9 @@ html.dark .mo-article-page {
 
 /* Mo-Blog 主题深色：恢复棕色色阶 */
 html.dark.theme-mo-blog .article-detail-container {
-  background: #1c1917;
-  color: #d6d3d1;
+  /* 容器在 .mo-article-page 重映射作用域之外，取到的是浅色阶的原始值：
+     n900 = #1c1917、n300 = #d6d3d1，与原写死值全等。 */
+  color: var(--mo-n300);
 }
 
 html.dark.theme-mo-blog .mo-article-page {
@@ -872,8 +873,8 @@ html.dark.theme-mo-blog .mo-article-page {
   --mo-p500: #6366f1;
   --mo-p600: #4f46e5;
   --mo-p700: #4338ca;
-  background: #1c1917;
-  color: #d6d3d1;
+  background: var(--mo-n900);
+  color: var(--mo-n200);
 }
 
 /* 特殊覆盖 */
@@ -963,8 +964,20 @@ html.dark .mo-article-page .article-actions :deep(.el-button.is-plain:hover) {
   color: var(--mo-n200);
 }
 
+html.dark .mo-article-page .btn-primary {
+  /* 默认主题深色下 --mo-p600 被重映射成主色（#00d4ff），白字只有 1.77:1；
+     --mo-on-primary 按主题给出配对前景（默认 #06272e，Mo-Blog 仍是白色）。
+     浅色不动：那里 p600 = #4f46e5，白字 7:1 才是对的。 */
+  color: var(--mo-on-primary);
+}
+
 html.dark .mo-article-page .article-content,
-html.dark .mo-article-page .content-body {
+html.dark .mo-article-page .content-body,
+/* li 在浅色规则里显式写了 color: var(--mo-n700)，深色下 n700 被重映射成描边色
+   （#44403c，1.7:1），正文列表项几乎看不见，所以必须跟着正文一起改回文字色。
+   related-mini 同理（默认主题深色下是 #3f3f46，1.6:1）。 */
+html.dark .mo-article-page .related-mini,
+html.dark .mo-article-page .content-body :deep(li) {
   color: var(--mo-n300);
 }
 
@@ -1045,6 +1058,12 @@ html.dark .mo-article-page .content-body {
   color: var(--mo-n700);
   font-size: 13px;
   font-weight: 600;
+}
+
+/* n700 在深色作用域被重映射成描边色（默认主题 #3f3f46 / Mo-Blog #44403c），
+   拿来当文字色只有 1.6~1.7:1，「目录」标题在深色下几乎看不见。 */
+html.dark .mo-article-page .toc :deep(.toc-title) {
+  color: var(--mo-n100);
 }
 
 .mo-article-page .toc :deep(.toc-toggle) {
@@ -1509,7 +1528,8 @@ html.dark .article-detail-container {
 }
 
 html.dark.theme-mo-blog .article-detail-container {
-  background: #1c1917;
+  /* 容器继承的是浅色阶：--mo-n900 在 :root / html.theme-mo-blog 里都是 #1c1917 */
+  background: var(--mo-n900);
 }
 
 .mo-article-page .article-cover img {

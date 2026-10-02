@@ -740,8 +740,8 @@ html.dark.theme-mo-blog .mo-home-page {
   --mo-p500: #6366f1;
   --mo-p600: #4f46e5;
   --mo-p700: #4338ca;
-  background: #1c1917;
-  color: #d6d3d1;
+  background: var(--mo-n900);
+  color: var(--mo-n200);
 }
 
 html.dark .mo-home-page .home-hero {

@@ -589,55 +589,27 @@ onUnmounted(() => {
   color: var(--mo-p300, #a5b4fc) !important;
 }
 
-/* 默认深色模式使用直接颜色值 */
+/* 默认深色下标签用次要文字色；不写死 #78716c（深色底上只有 3.4:1）。 */
 :global(html.dark .form-group label) {
-  color: #78716c !important;
-}
-
-:global(html.dark :deep(.el-input__wrapper)) {
-  background: var(--mo-bg-card) !important;
-  border: 1px solid #44403c !important;
-  box-shadow: 0 0 0 1px #44403c inset !important;
-}
-
-:global(html.dark :deep(.el-input__wrapper.is-focus)) {
-  box-shadow:
-    0 0 0 1px #818cf8 inset,
-    0 0 0 3px rgba(99, 102, 241, 0.18) !important;
-  border-color: #818cf8 !important;
-}
-
-:global(html.dark :deep(.el-input__inner)) {
-  color: #f5f5f4 !important;
-}
-
-:global(html.dark :deep(.el-input__inner::placeholder)) {
-  color: #a8a29e !important;
-}
-
-/* Mo-Blog 主题深色模式使用 CSS 变量 */
-:global(html.dark.theme-mo-blog .form-group label) {
-  color: var(--mo-n300) !important;
-}
-
-:global(html.dark.theme-mo-blog :deep(.el-input__wrapper)) {
-  background: var(--mo-n100) !important;
-  border: 1px solid var(--mo-n200) !important;
-  box-shadow: 0 0 0 1px var(--mo-n200) inset !important;
-}
-
-:global(html.dark.theme-mo-blog :deep(.el-input__wrapper.is-focus)) {
-  box-shadow:
-    0 0 0 1px var(--mo-p400) inset,
-    0 0 0 3px var(--mo-p50) !important;
-  border-color: var(--mo-p400) !important;
-}
-
-:global(html.dark.theme-mo-blog :deep(.el-input__inner)) {
-  color: var(--mo-n600) !important;
-}
-
-:global(html.dark.theme-mo-blog :deep(.el-input__inner::placeholder)) {
   color: var(--mo-n400) !important;
 }
+
+/* 默认深色下 .el-input__wrapper 的描边：浅色规则用的 --mo-n300 在深色作用域被重映射成
+   次要文字色（#cfd3dc），会画出一条近乎白色的边框，这里换成边框令牌 --mo-n700。
+   Mo-Blog 深色由 theme-dark.css / mo-blog.scss 的同名规则覆盖，值也是 #44403c。 */
+html.dark .mo-auth-page :deep(.el-input__wrapper) {
+  box-shadow: 0 0 0 1px var(--mo-n700) inset;
+}
+
+/* 上一条选择器权重高于浅色区的 .is-focus 规则，聚焦态必须一起补写，否则深色下聚焦没有反馈。 */
+html.dark .mo-auth-page :deep(.el-input__wrapper.is-focus) {
+  box-shadow:
+    0 0 0 1px var(--mo-p400) inset,
+    0 0 0 3px var(--mo-p50);
+}
+
+/* 输入框 / 占位符的深色样式由 theme-dark.css 与 mo-blog.scss 的
+   「Auth 表单」块负责。这里原先还有一批 :global(html.dark :deep(...)) 规则，
+   :deep() 嵌在 :global() 里不会被编译器展开，浏览器把整条选择器当作非法
+   规则丢弃（实测 CSSOM 里查不到），删掉不改变任何渲染结果。 */
 </style>

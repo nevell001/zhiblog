@@ -496,7 +496,7 @@ html.dark.theme-mo-blog .mo-auth-page {
 
 html.dark .forgot-password-card {
   background: var(--mo-bg-card);
-  border-color: #44403c;
+  border-color: var(--mo-n700);
   box-shadow:
     0 18px 45px rgba(0, 0, 0, 0.25),
     0 1px 2px rgba(0, 0, 0, 0.2);
@@ -504,7 +504,7 @@ html.dark .forgot-password-card {
 
 html.dark.theme-mo-blog .forgot-password-card {
   background: var(--mo-bg-card);
-  border-color: var(--mo-border, #44403c);
+  border-color: var(--mo-n700);
 }
 
 html.dark .forgot-password-header h1,
