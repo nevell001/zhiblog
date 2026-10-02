@@ -576,7 +576,7 @@ function fetchPublishedPages() {
   min-height: 100vh;
   background: var(--mo-n50);
   color: var(--mo-n800);
-  font-family: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  font-family: var(--mo-font-sans);
 }
 
 /* 导航栏 */

@@ -291,7 +291,7 @@ onMounted(async () => {
   padding-top: 60px;
   background: var(--mo-n50);
   color: var(--mo-n800);
-  font-family: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  font-family: var(--mo-font-sans);
 }
 
 .mo-home-page .home-hero {

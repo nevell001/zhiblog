@@ -52,9 +52,12 @@
   --mo-warning: #f59e0b;
   --mo-danger: #ef4444;
   --mo-info: #3b82f6;
-  --mo-font-sans: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --mo-font-serif: 'Noto Serif SC', Georgia, 'Songti SC', serif;
-  --mo-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  /* 字体栈：Inter / Noto Serif SC / JetBrains Mono 从未通过 @font-face
+     或外链加载，写在这里只会白白回退；已删除，保留原本实际生效的顺序
+     （PingFang SC / Microsoft YaHei / system-ui；Georgia；Fira Code / Consolas）。 */
+  --mo-font-sans: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mo-font-serif: Georgia, 'Songti SC', serif;
+  --mo-font-mono: 'Fira Code', Consolas, monospace;
   --mo-r-sm: 6px;
   --mo-r-md: 8px;
   --mo-r-lg: 12px;
@@ -152,9 +155,12 @@ html.dark {
   --mo-warning: #f59e0b;
   --mo-danger: #ef4444;
   --mo-info: #3b82f6;
-  --mo-font-sans: Inter, 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
-  --mo-font-serif: 'Noto Serif SC', Georgia, 'Songti SC', serif;
-  --mo-font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+  /* 字体栈：Inter / Noto Serif SC / JetBrains Mono 从未通过 @font-face
+     或外链加载，写在这里只会白白回退；已删除，保留原本实际生效的顺序
+     （PingFang SC / Microsoft YaHei / system-ui；Georgia；Fira Code / Consolas）。 */
+  --mo-font-sans: 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+  --mo-font-serif: Georgia, 'Songti SC', serif;
+  --mo-font-mono: 'Fira Code', Consolas, monospace;
   --mo-r-sm: 6px;
   --mo-r-md: 8px;
   --mo-r-lg: 12px;
