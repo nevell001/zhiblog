@@ -109,12 +109,13 @@ html.dark.theme-mo-blog .login-form label {
   color: var(--mo-n400, #78716c) !important;
 }
 
+/* 描边只用 inset box-shadow，不写真实 border：Element Plus 的
+   .el-input__wrapper 本来就没有边框，加 1px 边框会让控件从 32px 变 34px。 */
 html.dark.theme-mo-blog .mo-auth-page .el-input__wrapper,
 html.dark.theme-mo-blog .auth-form .el-input__wrapper,
 html.dark.theme-mo-blog .register-form .el-input__wrapper,
 html.dark.theme-mo-blog .login-form .el-input__wrapper {
   background-color: var(--mo-n800, #292524) !important;
-  border: 1px solid var(--mo-n700, #44403c) !important;
   box-shadow: 0 0 0 1px var(--mo-n700, #44403c) inset !important;
 }
 
@@ -125,7 +126,6 @@ html.dark.theme-mo-blog .login-form .el-input__wrapper.is-focus {
   box-shadow:
     0 0 0 1px var(--mo-p400) inset,
     0 0 0 3px rgba(79, 70, 229, 0.14) !important;
-  border-color: var(--mo-p400) !important;
 }
 
 html.dark.theme-mo-blog .mo-auth-page .el-input__inner,
