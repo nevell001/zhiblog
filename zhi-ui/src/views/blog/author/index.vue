@@ -43,6 +43,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getArticleList } from '@/api/blog/article'
+import { ElMessage } from '@/plugins/element-plus-service'
+import { logger } from '@/utils/logger'
 import { parseTime } from '@/utils/zhi'
 
 const route = useRoute()
@@ -75,7 +77,9 @@ const loadAuthorArticles = async () => {
     if (first && first.authorName) {
       authorName.value = first.authorName
     }
-  } catch {
+  } catch (error) {
+    logger.error('获取作者文章失败:', error)
+    ElMessage.error('获取文章列表失败')
     articles.value = []
     total.value = 0
   } finally {
