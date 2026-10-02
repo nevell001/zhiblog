@@ -26,7 +26,7 @@ jobs:
       - name: Maven 编译与测试
         run: mvn -B clean verify
       - name: 上传后端产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-jar
           path: zhi-admin/target/zhi-admin.jar
@@ -45,7 +45,7 @@ jobs:
         run: npm run lint:check && npm run format:check && npm run typecheck && npm run test:coverage && npm run build:prod
         working-directory: zhi-ui
       - name: 上传前端产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-dist
           path: zhi-ui/dist
@@ -62,7 +62,7 @@ jobs:
           cp -r grafana deploy-assets/
           cd deploy-assets && zip -qr ../deploy-assets.zip .
       - name: 上传部署配套
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deploy-assets
           path: deploy-assets.zip

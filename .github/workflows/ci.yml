@@ -24,7 +24,7 @@ jobs:
       - name: Maven 编译与测试
         run: mvn -B clean verify
       - name: 上传后端产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: backend-jar
           path: zhi-admin/target/zhi-admin.jar
@@ -55,7 +55,7 @@ jobs:
       - run: npm run test:coverage
       - run: npm run build:prod
       - name: 上传前端产物
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: frontend-dist
           path: zhi-ui/dist
