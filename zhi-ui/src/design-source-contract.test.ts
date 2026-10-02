@@ -21,12 +21,9 @@ const filesUnder = (dir: string, accept: (name: string) => boolean): string[] =>
 const vueFiles = filesUnder(SRC, name => name.endsWith('.vue'))
 const relative = (file: string) => file.slice(SRC.length + 1)
 
-// TagsView 的 <close class="el-icon-close"> 依赖全局注册的 EP 图标 + 非 scoped 的 .el-icon-close 复位样式；
-// FileUpload 零引用（C 批待删）。新增命中必须显式登记在此。
-const LEGACY_ICON_ALLOWLIST = [
-  'layout/components/TagsView/index.vue',
-  'components/FileUpload/index.vue'
-]
+// TagsView 的 <close class="el-icon-close"> 依赖全局注册的 EP 图标 + 非 scoped 的 .el-icon-close 复位样式。
+// 新增命中必须显式登记在此。
+const LEGACY_ICON_ALLOWLIST = ['layout/components/TagsView/index.vue']
 
 // 每个文件「深色块内裸 hex」的当前数量上限，只允许下降（见下方棘轮测试）。
 // 2026-10-02 B 批基线：127 处 / 13 个文件；B2 令牌化后剩 39 处 / 5 个文件。
