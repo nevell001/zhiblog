@@ -1048,19 +1048,21 @@ html.dark .notify-header {
 }
 
 html.dark .profile-page {
-  background: #141414;
+  background: var(--mo-n50);
 }
 
 html.dark .profile-summary {
-  background: #1d1e1f;
-  border-color: #3f3f46;
+  background: var(--mo-n0);
+  border-color: var(--mo-n200);
 }
 
 html.dark .profile-avatar {
+  /* zinc-800 不在 --el-* 令牌内，保留字面量 */
   background: #27272a;
-  border-color: #3f3f46;
+  border-color: var(--mo-n200);
 }
 
+/* zinc-400 不在 --el-* 令牌内，保留字面量 */
 html.dark .profile-kicker {
   color: #a1a1aa;
 }
@@ -1070,10 +1072,11 @@ html.dark .bio {
 }
 
 html.dark .stat-card {
-  background: #1d1e1f;
-  border-color: #3f3f46;
+  background: var(--mo-n0);
+  border-color: var(--mo-n200);
 }
 
+/* zinc-100 不在 --el-* 令牌内，保留字面量 */
 html.dark .stat-card strong {
   color: #f4f4f5;
 }
@@ -1089,13 +1092,13 @@ html.dark .verify {
 
 html.dark .profile-workspace,
 html.dark .settings-card {
-  background: #1d1e1f;
-  border: 1px solid #3f3f46;
+  background: var(--mo-n0);
+  border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-md, 8px);
 }
 
 html.dark .profile-tabs {
-  border-color: #3f3f46;
+  border-color: var(--mo-n200);
 }
 
 html.dark .tab {
@@ -1108,18 +1111,18 @@ html.dark .tab.active {
 }
 
 html.dark .filter-bar {
-  background: #1d1e1f;
-  border-color: #3f3f46;
+  background: var(--mo-n0);
+  border-color: var(--mo-n200);
 }
 
 html.dark .article-table {
-  background: #1d1e1f;
+  background: var(--mo-n0);
 }
 
 html.dark .article-table th {
   background: #27272a;
   color: #f4f4f5;
-  border-color: #3f3f46;
+  border-color: var(--mo-n200);
 }
 
 html.dark .article-table td {
@@ -1127,19 +1130,20 @@ html.dark .article-table td {
 }
 
 html.dark .empty-panel {
-  background: #1d1e1f;
+  background: var(--mo-n0);
 }
 
 html.dark .profile-details {
   background: #27272a;
-  border-color: #3f3f46;
+  border-color: var(--mo-n200);
 }
 
 html.dark .detail-row {
   color: #a1a1aa;
-  border-bottom-color: #3f3f46;
+  border-bottom-color: var(--mo-n200);
 }
 
+/* zinc-200 不在 --el-* 令牌内，保留字面量 */
 html.dark .detail-row span {
   color: #e4e4e7;
 }
@@ -1150,7 +1154,7 @@ html.dark .settings-heading {
 
 html.dark .settings-tabs :deep(.el-tabs__header) {
   background: transparent;
-  border-bottom-color: #3f3f46;
+  border-bottom-color: var(--mo-n200);
 }
 
 html.dark .settings-tabs :deep(.el-tabs__item) {
@@ -1162,11 +1166,12 @@ html.dark .settings-tabs :deep(.el-tabs__item.is-active) {
 }
 
 html.dark .settings-tabs :deep(.el-tabs__active-bar) {
+  /* indigo-500，不在 --mo-* 深色重映射内，保留字面量 */
   background: #6366f1;
 }
 
 html.dark .settings-tabs :deep(.el-tabs__content) {
-  background: #1d1e1f;
+  background: var(--mo-n0);
 }
 
 html.dark .settings-tabs :deep(.el-form-item__label) {
@@ -1175,7 +1180,7 @@ html.dark .settings-tabs :deep(.el-form-item__label) {
 
 html.dark .settings-tabs :deep(.el-input__wrapper) {
   background: #27272a;
-  border-color: #3f3f46;
+  border-color: var(--mo-n200);
 }
 
 html.dark .settings-tabs :deep(.el-input__inner) {
