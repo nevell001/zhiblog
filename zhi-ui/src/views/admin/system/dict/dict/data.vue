@@ -265,18 +265,26 @@ const { queryParams, form, rules } = toRefs(data)
 
 /** 查询字典类型详细 */
 function getTypes(dictId) {
-  getType(dictId).then(response => {
-    queryParams.value.dictType = response.data.dictType
-    defaultDictType.value = response.data.dictType
-    getList()
-  })
+  getType(dictId)
+    .then(response => {
+      queryParams.value.dictType = response.data.dictType
+      defaultDictType.value = response.data.dictType
+      getList()
+    })
+    .catch(error => {
+      console.error('查询字典类型失败:', error)
+    })
 }
 
 /** 查询字典类型列表 */
 function getTypeList() {
-  getDictOptionselect().then(response => {
-    typeOptions.value = response.data
-  })
+  getDictOptionselect()
+    .then(response => {
+      typeOptions.value = response.data
+    })
+    .catch(error => {
+      console.error('查询字典类型列表失败:', error)
+    })
 }
 
 /** 查询字典数据列表 */
@@ -351,11 +359,15 @@ function handleSelectionChange(selection) {
 function handleUpdate(row) {
   reset()
   const dictCode = row.dictCode || ids.value
-  getData(dictCode).then(response => {
-    form.value = response.data
-    open.value = true
-    title.value = '修改字典数据'
-  })
+  getData(dictCode)
+    .then(response => {
+      form.value = response.data
+      open.value = true
+      title.value = '修改字典数据'
+    })
+    .catch(error => {
+      console.error('查询字典数据失败:', error)
+    })
 }
 
 /** 提交按钮 */
@@ -363,19 +375,27 @@ function submitForm() {
   proxy.$refs['dataRef'].validate(valid => {
     if (valid) {
       if (form.value.dictCode !== undefined) {
-        updateData(form.value).then(response => {
-          useDictStore().removeDict(queryParams.value.dictType)
-          proxy.$modal.msgSuccess('修改成功')
-          open.value = false
-          getList()
-        })
+        updateData(form.value)
+          .then(response => {
+            useDictStore().removeDict(queryParams.value.dictType)
+            proxy.$modal.msgSuccess('修改成功')
+            open.value = false
+            getList()
+          })
+          .catch(error => {
+            console.error('修改字典数据失败:', error)
+          })
       } else {
-        addData(form.value).then(response => {
-          useDictStore().removeDict(queryParams.value.dictType)
-          proxy.$modal.msgSuccess('新增成功')
-          open.value = false
-          getList()
-        })
+        addData(form.value)
+          .then(response => {
+            useDictStore().removeDict(queryParams.value.dictType)
+            proxy.$modal.msgSuccess('新增成功')
+            open.value = false
+            getList()
+          })
+          .catch(error => {
+            console.error('新增字典数据失败:', error)
+          })
       }
     }
   })

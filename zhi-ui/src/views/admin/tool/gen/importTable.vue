@@ -92,10 +92,14 @@ function handleSelectionChange(selection) {
 
 /** 查询表数据 */
 function getList() {
-  listDbTable(queryParams).then(res => {
-    dbTableList.value = res.rows
-    total.value = res.total
-  })
+  listDbTable(queryParams)
+    .then(res => {
+      dbTableList.value = res.rows
+      total.value = res.total
+    })
+    .catch(error => {
+      console.error('查询表数据失败:', error)
+    })
 }
 
 /** 搜索按钮操作 */
@@ -117,13 +121,17 @@ function handleImportTable() {
     ;(proxy as any).$modal.msgError('请选择要导入的表')
     return
   }
-  importTable({ tables: tableNames }).then((res: any) => {
-    ;(proxy as any).$modal.msgSuccess(res.msg)
-    if (res.code === 200) {
-      visible.value = false
-      emit('ok')
-    }
-  })
+  importTable({ tables: tableNames })
+    .then((res: any) => {
+      ;(proxy as any).$modal.msgSuccess(res.msg)
+      if (res.code === 200) {
+        visible.value = false
+        emit('ok')
+      }
+    })
+    .catch(error => {
+      console.error('导入表失败:', error)
+    })
 }
 
 defineExpose({

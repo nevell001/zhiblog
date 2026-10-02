@@ -313,9 +313,13 @@ function handleGenTable(row) {
     return
   }
   if (row.genType === '1') {
-    genCode(row.tableName).then(response => {
-      proxy.$modal.msgSuccess('成功生成到自定义路径：' + row.genPath)
-    })
+    genCode(row.tableName)
+      .then(response => {
+        proxy.$modal.msgSuccess('成功生成到自定义路径：' + row.genPath)
+      })
+      .catch(error => {
+        console.error('生成代码失败:', error)
+      })
   } else {
     proxy.$download.zip('/tool/gen/batchGenCode?tables=' + tbNames, 'ruoyi.zip')
   }
@@ -357,11 +361,15 @@ function resetQuery() {
 
 /** 预览按钮 */
 function handlePreview(row) {
-  previewTable(row.tableId).then(response => {
-    preview.value.data = response.data
-    preview.value.open = true
-    preview.value.activeName = 'domain.java'
-  })
+  previewTable(row.tableId)
+    .then(response => {
+      preview.value.data = response.data
+      preview.value.open = true
+      preview.value.activeName = 'domain.java'
+    })
+    .catch(error => {
+      console.error('预览代码失败:', error)
+    })
 }
 
 /** 复制代码成功 */
