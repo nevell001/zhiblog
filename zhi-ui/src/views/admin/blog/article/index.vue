@@ -2085,7 +2085,7 @@ html.dark .mo-editor-form .tool {
 
 html.dark .mo-editor-form .tool:hover,
 html.dark .mo-editor-form .tool.active {
-  color: #a5b4fc;
+  color: var(--mo-p300);
   background: var(--mo-p50);
 }
 
@@ -2122,7 +2122,7 @@ html.dark .mo-editor-form .editor-preview :deep(h3) {
 
 /* 行内代码 */
 html.dark .mo-editor-form .editor-preview :deep(code) {
-  color: #a5b4fc;
+  color: var(--mo-p300);
   background: var(--mo-n100);
 }
 
@@ -2130,7 +2130,7 @@ html.dark .mo-editor-form .editor-preview :deep(code) {
 html.dark .mo-editor-form .editor-preview :deep(blockquote) {
   color: var(--mo-n500);
   background: var(--mo-p50);
-  border-left-color: #818cf8;
+  border-left-color: var(--mo-p400);
 }
 
 /* 空预览提示 */
@@ -2208,6 +2208,7 @@ html.dark
   :deep(.el-radio-button__original-radio:checked + .el-radio-button__inner) {
   background: var(--mo-p600);
   border-color: var(--mo-p600);
+  /* 固定靛蓝填充（p600 不参与深色重映射），前景只能是白色，不能用 --mo-on-primary */
   color: #fff;
 }
 

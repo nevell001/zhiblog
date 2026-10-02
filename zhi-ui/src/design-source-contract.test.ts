@@ -36,7 +36,7 @@ const DARK_HEX_CEILING: Record<string, number> = {
   'components/ArticleTOC.vue': 1,
   'assets/styles/themes/mo-blog.scss': 2,
   'views/admin/blog/setting/index.vue': 8,
-  'views/admin/blog/article/index.vue': 4
+  'views/admin/blog/article/index.vue': 1
 }
 
 // svgicon.ts 的 import 名单 = 运行时全局注册的 EP 图标
