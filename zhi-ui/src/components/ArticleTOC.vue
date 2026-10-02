@@ -230,7 +230,7 @@ onUnmounted(() => {
   top: 20px;
   width: 160px;
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--mo-r-lg);
   box-shadow: 0 4px 18px rgba(28, 25, 23, 0.08);
   border: 1px solid #e7e5e4;
   z-index: 100;
@@ -255,7 +255,7 @@ onUnmounted(() => {
   padding: 12px 16px;
   border-bottom: 1px solid #e7e5e4;
   background: #fafaf9;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--mo-r-lg) var(--mo-r-lg) 0 0;
 }
 
 .toc-title {
@@ -318,7 +318,7 @@ onUnmounted(() => {
   padding: 6px 8px;
   margin-bottom: 4px;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   transition: all 0.3s ease;
   font-size: 0.85rem;
   color: #57534e;

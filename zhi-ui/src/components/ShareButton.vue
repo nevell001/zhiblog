@@ -171,7 +171,7 @@ const shareToQQ = () => {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   cursor: pointer;
   transition: all 0.2s ease;
   user-select: none;
@@ -216,7 +216,7 @@ html.dark .share-item:hover {
 
 .qr-canvas {
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
 }
 
 .qr-tip {

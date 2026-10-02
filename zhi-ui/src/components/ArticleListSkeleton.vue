@@ -56,7 +56,7 @@ withDefaults(defineProps<{ count?: number }>(), { count: 6 })
   overflow: hidden;
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
@@ -101,7 +101,7 @@ withDefaults(defineProps<{ count?: number }>(), { count: 6 })
 
 @media (max-width: 480px) {
   .skeleton-card {
-    border-radius: 6px;
+    border-radius: var(--mo-r-sm);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
 

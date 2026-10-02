@@ -114,7 +114,7 @@ watch(authorId, loadAuthorArticles)
   margin-bottom: 24px;
   padding: 20px;
   background: var(--el-bg-color-overlay, #fff);
-  border-radius: 12px;
+  border-radius: var(--mo-r-lg);
   border: 1px solid var(--el-border-color-lighter, #ebeef5);
 }
 .author-avatar {

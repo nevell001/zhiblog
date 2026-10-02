@@ -341,7 +341,7 @@ onUnmounted(() => {
   padding: 26px 28px;
   background: var(--mo-bg-card, #fff);
   border: 1px solid var(--mo-n200);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
 }
 
@@ -365,7 +365,7 @@ onUnmounted(() => {
   height: 32px;
   color: #fff;
   background: var(--mo-p600);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
 }
 
 .auth-head h2 {
@@ -387,7 +387,7 @@ onUnmounted(() => {
   padding: 4px;
   margin-bottom: 16px;
   background: var(--mo-n100);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
 }
 
 .switch-item {
@@ -398,7 +398,7 @@ onUnmounted(() => {
   font-weight: 500;
   text-align: center;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   transition: all 0.2s;
 }
 
@@ -439,7 +439,7 @@ onUnmounted(() => {
 }
 
 :deep(.el-input__wrapper) {
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 0 0 1px var(--mo-n300) inset;
 }
 
@@ -463,7 +463,7 @@ onUnmounted(() => {
 
 .code-button {
   width: 82px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
 }
 
 .captcha-img {
@@ -472,7 +472,7 @@ onUnmounted(() => {
   object-fit: cover;
   cursor: pointer;
   border: 1px solid var(--mo-n300);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   transition: border-color 0.2s;
 }
 
@@ -501,7 +501,7 @@ onUnmounted(() => {
 .auth-submit {
   width: 100%;
   height: 38px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 14px;
   font-weight: 600;
 }

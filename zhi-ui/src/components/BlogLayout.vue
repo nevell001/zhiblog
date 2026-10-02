@@ -629,7 +629,7 @@ function fetchPublishedPages() {
 }
 .nav-link {
   padding: 8px 16px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 14px;
   font-weight: 500;
   color: var(--mo-n600);
@@ -699,7 +699,7 @@ function fetchPublishedPages() {
   cursor: pointer;
   color: var(--mo-p600);
   padding: 6px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   transition: background 0.2s;
 }
 .theme-btn:hover {
@@ -802,7 +802,7 @@ function fetchPublishedPages() {
   align-items: center;
   padding: 6px;
   margin-right: 4px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   cursor: pointer;
   color: var(--mo-p600);
   transition: background 0.2s;
@@ -832,7 +832,7 @@ function fetchPublishedPages() {
 }
 .notif-item {
   padding: 8px 4px;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   cursor: pointer;
   transition: background 0.15s;
 }
@@ -898,7 +898,7 @@ function fetchPublishedPages() {
   cursor: pointer;
   color: var(--mo-p600);
   padding: 6px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   transition: background 0.2s;
 }
 .hamburger-btn:hover,
@@ -931,7 +931,7 @@ function fetchPublishedPages() {
   }
   .mobile-nav-link {
     padding: 10px 8px;
-    border-radius: 8px;
+    border-radius: var(--mo-r-md);
     font-size: 15px;
     color: var(--mo-n800);
     text-decoration: none;

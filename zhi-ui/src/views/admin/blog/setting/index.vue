@@ -1148,7 +1148,7 @@ html.dark .blog-setting-card {
 
 :deep(.el-tabs__header) {
   background-color: var(--el-bg-color-page, #f5f7fa);
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--mo-r-md) var(--mo-r-md) 0 0;
   padding: 0 16px;
   margin: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -1167,7 +1167,7 @@ html.dark .blog-setting-card {
   line-height: 40px;
   font-size: 14px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   margin-right: 4px;
   transition: all 0.3s ease;
 }
@@ -1190,7 +1190,7 @@ html.dark .blog-setting-card {
 :deep(.el-tabs__content) {
   background-color: var(--el-bg-color-overlay, #ffffff);
   padding: 24px;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--mo-r-md) var(--mo-r-md);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
@@ -1215,7 +1215,7 @@ html.dark .blog-setting-card {
   justify-content: center;
   width: 34px;
   height: 34px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 18px;
   color: var(--el-color-primary, #409eff);
   background: var(--el-color-primary-light-9, #ecf5ff);
@@ -1331,7 +1331,7 @@ html.dark .blog-setting-card {
   cursor: pointer;
   background: var(--el-bg-color-overlay, #ffffff);
   border: 1px solid var(--el-border-color-light, #e5e7eb);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -1366,12 +1366,12 @@ html.dark .blog-setting-card {
   padding: 10px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
 }
 
 .theme-preview-sidebar {
   background: #1f2937;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
 }
 
 .theme-preview-content {

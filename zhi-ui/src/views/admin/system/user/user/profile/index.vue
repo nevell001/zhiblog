@@ -438,8 +438,8 @@ function onSwitchProfileTab(event: Event) {
   padding: 18px 20px;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-lg, 12px);
-  box-shadow: var(--mo-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.04));
+  border-radius: var(--mo-r-lg);
+  box-shadow: var(--mo-shadow-sm);
 }
 
 .profile-identity {
@@ -529,7 +529,7 @@ function onSwitchProfileTab(event: Event) {
   cursor: pointer;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md, 8px);
+  border-radius: var(--mo-r-md);
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
@@ -537,7 +537,7 @@ function onSwitchProfileTab(event: Event) {
 
 .stat-card:hover {
   border-color: var(--mo-p200, #c7d2fe);
-  box-shadow: var(--mo-shadow-md, 0 4px 6px -1px rgba(0, 0, 0, 0.07));
+  box-shadow: var(--mo-shadow-md);
 }
 
 .stat-card strong {
@@ -570,8 +570,8 @@ function onSwitchProfileTab(event: Event) {
   min-width: 0;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-lg, 12px);
-  box-shadow: var(--mo-shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.04));
+  border-radius: var(--mo-r-lg);
+  box-shadow: var(--mo-shadow-sm);
 }
 
 .profile-tabs {
@@ -643,7 +643,7 @@ function onSwitchProfileTab(event: Event) {
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
   border-collapse: collapse;
-  border-radius: var(--mo-r-md, 8px);
+  border-radius: var(--mo-r-md);
 }
 
 .article-table th {
@@ -687,7 +687,7 @@ function onSwitchProfileTab(event: Event) {
   padding: 3px 8px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: var(--mo-r-sm, 6px);
+  border-radius: var(--mo-r-sm);
 }
 
 .tag-blue {
@@ -728,7 +728,7 @@ function onSwitchProfileTab(event: Event) {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: var(--mo-r-sm, 6px);
+  border-radius: var(--mo-r-sm);
 }
 
 .act:hover {
@@ -751,7 +751,7 @@ function onSwitchProfileTab(event: Event) {
   text-align: center;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md, 8px);
+  border-radius: var(--mo-r-md);
 }
 
 .empty-title {
@@ -788,7 +788,7 @@ function onSwitchProfileTab(event: Event) {
   gap: 0;
   margin-bottom: 14px;
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md, 8px);
+  border-radius: var(--mo-r-md);
 }
 
 .detail-row {
@@ -1094,7 +1094,7 @@ html.dark .profile-workspace,
 html.dark .settings-card {
   background: var(--mo-n0);
   border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-md, 8px);
+  border-radius: var(--mo-r-md);
 }
 
 html.dark .profile-tabs {

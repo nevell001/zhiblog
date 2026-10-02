@@ -490,7 +490,7 @@ onUnmounted(() => {
   object-fit: cover;
   cursor: pointer;
   border: 1px solid var(--mo-n200);
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   background: #fff;
 }
 

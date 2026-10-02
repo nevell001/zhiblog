@@ -229,7 +229,7 @@ onMounted(async () => {
   padding: 28px;
   background: var(--el-bg-color-overlay, #fff);
   border: 1px solid var(--el-border-color-lighter, #ebeef5);
-  border-radius: 12px;
+  border-radius: var(--mo-r-lg);
 }
 .apply-closed {
   text-align: center;
@@ -262,6 +262,6 @@ onMounted(async () => {
   object-fit: cover;
   cursor: pointer;
   border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
 }
 </style>

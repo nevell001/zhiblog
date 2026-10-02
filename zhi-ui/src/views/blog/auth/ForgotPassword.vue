@@ -377,7 +377,7 @@ const goToHome = () => {
   padding: 40px;
   background: #fff;
   border: 1px solid var(--mo-n200);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow:
     0 18px 45px rgba(28, 25, 23, 0.08),
     0 1px 2px rgba(28, 25, 23, 0.04);
@@ -472,7 +472,7 @@ const goToHome = () => {
 }
 
 :deep(.el-input__wrapper) {
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 0 0 1px var(--mo-n300) inset;
 }
 
@@ -556,7 +556,7 @@ html.dark.theme-mo-blog .forgot-password-footer .link:hover {
 .captcha-img {
   width: 112px;
   height: 40px;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   cursor: pointer;
   border: 1px solid var(--el-border-color, #dcdfe6);
   object-fit: cover;

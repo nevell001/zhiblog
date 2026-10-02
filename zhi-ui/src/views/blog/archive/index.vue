@@ -374,7 +374,7 @@ onMounted(() => {
   right: 0;
   height: 40px;
   background: var(--mo-n50);
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--mo-r-md) var(--mo-r-md) 0 0;
 }
 
 .header-bg {
@@ -465,7 +465,7 @@ onMounted(() => {
 
 .archive-content {
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   overflow: hidden;
   min-height: 400px;
@@ -574,7 +574,7 @@ onMounted(() => {
 /* 归档卡片 */
 .archive-card {
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
@@ -632,7 +632,7 @@ onMounted(() => {
   gap: 6px;
   padding: 6px 16px;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--mo-p600);
@@ -678,7 +678,7 @@ onMounted(() => {
   display: flex;
   gap: 20px;
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   padding: 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -709,7 +709,7 @@ onMounted(() => {
   width: 200px;
   height: 130px;
   flex-shrink: 0;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   overflow: hidden;
   position: relative;
 }
@@ -840,7 +840,7 @@ onMounted(() => {
   }
 
   .archive-content {
-    border-radius: 8px;
+    border-radius: var(--mo-r-md);
   }
 
   .timeline-container {

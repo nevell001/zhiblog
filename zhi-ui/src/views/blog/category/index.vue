@@ -543,7 +543,7 @@ onMounted(() => {
 
 .article-item {
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -572,7 +572,7 @@ onMounted(() => {
   gap: 6px;
   background: rgba(102, 102, 102, 0.05);
   padding: 4px 8px;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   transition: background-color 0.3s ease;
 }
 
@@ -599,7 +599,7 @@ onMounted(() => {
 
 .sidebar-widget {
   background: white;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   padding: 20px;
   margin-bottom: 20px;
@@ -652,7 +652,7 @@ onMounted(() => {
   color: var(--mo-n600);
   background: rgba(102, 102, 102, 0.05);
   padding: 6px 12px;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
 }
 
 .related-categories {
@@ -673,7 +673,7 @@ onMounted(() => {
   color: var(--mo-n800);
   text-decoration: none;
   transition: color 0.3s ease;
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   padding: 8px 12px;
 }
 
@@ -702,7 +702,7 @@ onMounted(() => {
   text-decoration: none;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 6px 12px;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 0.85rem;
   font-weight: 500;
   position: relative;
@@ -900,7 +900,7 @@ onMounted(() => {
   }
 
   .article-item {
-    border-radius: 6px;
+    border-radius: var(--mo-r-sm);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
 
@@ -916,7 +916,7 @@ onMounted(() => {
 
   .sidebar-widget {
     padding: 15px;
-    border-radius: 6px;
+    border-radius: var(--mo-r-sm);
   }
 
   .widget-title {

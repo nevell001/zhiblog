@@ -91,7 +91,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   overflow: hidden;
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   opacity: 0;
@@ -132,7 +132,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   font-weight: 600;
   background: rgba(238, 242, 255, 0.94);
   border: 1px solid var(--mo-p200);
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   box-shadow: 0 2px 8px rgba(28, 25, 23, 0.08);
   backdrop-filter: blur(10px);
 }
@@ -185,7 +185,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   gap: 6px;
   padding: 4px 8px;
   background: rgba(102, 102, 102, 0.05);
-  border-radius: 6px;
+  border-radius: var(--mo-r-sm);
   transition: background-color 0.3s ease;
 }
 
@@ -227,7 +227,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   font-size: 0.85rem;
   font-weight: 600;
   background: var(--mo-p50);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -349,7 +349,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 
 @media (max-width: 480px) {
   .article-card {
-    border-radius: 6px;
+    border-radius: var(--mo-r-sm);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
 

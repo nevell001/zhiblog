@@ -212,7 +212,7 @@ watch(
   flex: 1;
   padding: 10px 14px;
   border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   font-size: 14px;
   outline: none;
   background: var(--el-bg-color-overlay, #fff);
@@ -224,7 +224,7 @@ watch(
 .search-form button {
   padding: 0 20px;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   background: var(--el-color-primary, #409eff);
   /* 与主色配对的前景色（默认主题亮主色 → 深墨；Mo-Blog 靛蓝 → 白） */
   color: var(--mo-on-primary, #fff);
@@ -299,7 +299,7 @@ watch(
 .search-pagination button {
   padding: 6px 16px;
   border: 1px solid var(--el-border-color, #dcdfe6);
-  border-radius: 8px;
+  border-radius: var(--mo-r-md);
   background: var(--el-bg-color-overlay, #fff);
   color: var(--el-text-color-primary, #303133);
   cursor: pointer;
