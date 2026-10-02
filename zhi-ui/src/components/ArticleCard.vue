@@ -128,7 +128,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   right: 12px;
   padding: 6px 10px;
   color: var(--mo-p700);
-  font-size: 0.75rem;
+  font-size: var(--mo-fs-xs);
   font-weight: 600;
   background: rgba(238, 242, 255, 0.94);
   border: 1px solid var(--mo-p200);
@@ -146,7 +146,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 
 .article-card-title {
   margin: 0 0 15px 0;
-  font-size: 1.5rem;
+  font-size: var(--mo-fs-2xl);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -173,7 +173,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 .article-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+  gap: var(--mo-sp-5);
   margin-bottom: 15px;
   color: var(--mo-n600);
   font-size: 0.9rem;
@@ -183,7 +183,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
+  padding: var(--mo-sp-1) var(--mo-sp-2);
   background: rgba(102, 102, 102, 0.05);
   border-radius: var(--mo-r-sm);
   transition: background-color 0.3s ease;
@@ -195,7 +195,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 }
 
 .article-card-meta-item .el-icon {
-  font-size: 1rem;
+  font-size: var(--mo-fs-md);
   opacity: 0.8;
 }
 
@@ -214,7 +214,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 .article-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--mo-sp-2);
   margin-top: auto;
   margin-bottom: 18px;
 }
@@ -308,11 +308,11 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 
 @media (max-width: 768px) {
   .article-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--mo-sp-5);
   }
 
   .article-card-content {
-    padding: 20px;
+    padding: var(--mo-sp-5);
   }
 
   .article-card-title {
@@ -337,7 +337,7 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 
   .article-card-tag {
     padding: 3px 8px;
-    font-size: 0.75rem;
+    font-size: var(--mo-fs-xs);
   }
 
   .article-card-footer {
@@ -362,12 +362,12 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   }
 
   .article-card-title {
-    margin-bottom: 12px;
-    font-size: 1.25rem;
+    margin-bottom: var(--mo-sp-3);
+    font-size: var(--mo-fs-xl);
   }
 
   .article-card-summary {
-    margin-bottom: 12px;
+    margin-bottom: var(--mo-sp-3);
     font-size: 0.9rem;
     -webkit-line-clamp: 2;
   }

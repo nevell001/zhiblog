@@ -348,7 +348,7 @@ onMounted(() => {
 <style scoped>
 /* 页面容器 */
 .archive-page {
-  padding-top: 64px;
+  padding-top: var(--mo-sp-10);
   min-height: 100vh;
   background: var(--mo-n50);
   padding-bottom: 0;
@@ -399,7 +399,7 @@ onMounted(() => {
 }
 
 .header-icon {
-  margin-bottom: 20px;
+  margin-bottom: var(--mo-sp-5);
   transition: color 0.2s ease;
 }
 
@@ -414,8 +414,8 @@ onMounted(() => {
 }
 
 .page-title {
-  font-size: 3rem;
-  margin-bottom: 16px;
+  font-size: var(--mo-fs-6xl);
+  margin-bottom: var(--mo-sp-4);
   font-weight: 800;
   animation: slideDown 0.8s ease;
 }
@@ -474,12 +474,12 @@ onMounted(() => {
 /* 空状态 */
 .no-data {
   text-align: center;
-  padding: 80px 20px;
+  padding: var(--mo-sp-11) var(--mo-sp-5);
   color: var(--mo-n500);
 }
 
 .empty-icon {
-  margin-bottom: 20px;
+  margin-bottom: var(--mo-sp-5);
   color: #ddd;
 }
 
@@ -496,13 +496,13 @@ onMounted(() => {
 }
 
 .no-data h3 {
-  font-size: 1.5rem;
+  font-size: var(--mo-fs-2xl);
   color: var(--mo-n500);
   margin-bottom: 10px;
 }
 
 .no-data p {
-  font-size: 1rem;
+  font-size: var(--mo-fs-md);
   color: var(--mo-n500);
   margin-bottom: 30px;
 }
@@ -531,7 +531,7 @@ onMounted(() => {
 .timeline-item {
   position: relative;
   margin-bottom: 30px;
-  padding-left: 80px;
+  padding-left: var(--mo-sp-11);
   opacity: 0;
   animation: fadeInRight 0.6s ease forwards;
 }
@@ -605,11 +605,11 @@ onMounted(() => {
 .archive-date-wrapper {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--mo-sp-2);
 }
 
 .archive-year {
-  font-size: 2rem;
+  font-size: var(--mo-fs-4xl);
   font-weight: 800;
   color: var(--mo-p600);
 }
@@ -659,10 +659,10 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: var(--mo-sp-3);
   padding: 50px;
   color: var(--mo-n500);
-  font-size: 1rem;
+  font-size: var(--mo-fs-md);
 }
 
 /* 文章列表 */
@@ -670,16 +670,16 @@ onMounted(() => {
   padding: 20px 25px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--mo-sp-5);
 }
 
 /* 文章项 */
 .article-item {
   display: flex;
-  gap: 20px;
+  gap: var(--mo-sp-5);
   background: white;
   border-radius: var(--mo-r-md);
-  padding: 20px;
+  padding: var(--mo-sp-5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   border: 2px solid transparent;
@@ -791,7 +791,7 @@ onMounted(() => {
 .meta-item {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--mo-sp-1);
   transition: color 0.3s ease;
 }
 
@@ -802,19 +802,19 @@ onMounted(() => {
 /* 无文章状态 */
 .no-articles {
   text-align: center;
-  padding: 40px;
+  padding: var(--mo-sp-8);
   color: var(--mo-n500);
 }
 
 .no-articles .el-icon {
   color: #ddd;
-  margin-bottom: 12px;
+  margin-bottom: var(--mo-sp-3);
 }
 
 /* 响应式设计 */
 @media (max-width: 1024px) {
   .page-title {
-    font-size: 2.5rem;
+    font-size: var(--mo-fs-5xl);
   }
 
   .archive-main {
@@ -828,11 +828,11 @@ onMounted(() => {
   }
 
   .page-title {
-    font-size: 2rem;
+    font-size: var(--mo-fs-4xl);
   }
 
   .page-description {
-    font-size: 1rem;
+    font-size: var(--mo-fs-md);
   }
 
   .archive-main {
@@ -862,7 +862,7 @@ onMounted(() => {
   }
 
   .archive-header {
-    padding: 16px 20px;
+    padding: var(--mo-sp-4) var(--mo-sp-5);
   }
 
   .archive-year {
@@ -870,7 +870,7 @@ onMounted(() => {
   }
 
   .archive-month {
-    font-size: 1rem;
+    font-size: var(--mo-fs-md);
   }
 
   .article-item {
@@ -883,7 +883,7 @@ onMounted(() => {
   }
 
   .article-meta {
-    gap: 12px;
+    gap: var(--mo-sp-3);
   }
 }
 
@@ -932,7 +932,7 @@ onMounted(() => {
 
   .archive-count {
     font-size: 0.8rem;
-    padding: 4px 12px;
+    padding: var(--mo-sp-1) var(--mo-sp-3);
   }
 
   .article-list {
@@ -940,11 +940,11 @@ onMounted(() => {
   }
 
   .article-item {
-    padding: 16px;
+    padding: var(--mo-sp-4);
   }
 
   .article-title {
-    font-size: 1rem;
+    font-size: var(--mo-fs-md);
   }
 
   .article-summary {

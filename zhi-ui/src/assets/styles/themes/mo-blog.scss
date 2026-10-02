@@ -66,6 +66,35 @@
   --mo-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --mo-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --mo-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  /* 字号刻度。用 rem 而非 px：根字号（16px）全库未被改动，默认下 rem 与 px 等价，
+     但 rem 能让「用户调大浏览器默认字号」时文字跟着放大；若这里写 px，现有那批
+     rem 字号会丢掉缩放能力。刻度外的手工值（13px/0.9rem/22px…）暂不归并，
+     上限由 design-source-contract.test.ts 的棘轮守住，只降不升。 */
+  --mo-fs-xs: 0.75rem;
+  --mo-fs-sm: 0.875rem;
+  --mo-fs-md: 1rem;
+  --mo-fs-lg: 1.125rem;
+  --mo-fs-xl: 1.25rem;
+  --mo-fs-2xl: 1.5rem;
+  --mo-fs-3xl: 1.75rem;
+  --mo-fs-4xl: 2rem;
+  --mo-fs-5xl: 2.5rem;
+  --mo-fs-6xl: 3rem;
+  --mo-fs-7xl: 4rem;
+  /* 间距刻度。刻意用 px：间距不该随字号缩放，用 rem 会让调大字号的用户
+     布局被撑开甚至溢出。同样是「只在刻度上的值才走令牌」。 */
+  --mo-sp-1: 4px;
+  --mo-sp-2: 8px;
+  --mo-sp-3: 12px;
+  --mo-sp-4: 16px;
+  --mo-sp-5: 20px;
+  --mo-sp-6: 24px;
+  --mo-sp-7: 32px;
+  --mo-sp-8: 40px;
+  --mo-sp-9: 48px;
+  --mo-sp-10: 64px;
+  --mo-sp-11: 80px;
+  --mo-sp-12: 96px;
   /* TagsView 标签栏变量 - 全局默认值（浅色模式） */
   --tags-bg: #fff;
   --tags-item-border: #d8dce5;
@@ -628,10 +657,10 @@ html.dark.theme-mo-blog .article-actions {
 .theme-mo-blog .navbar .avatar-wrapper {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mo-sp-2);
   height: 54px;
   margin-top: 0;
-  padding: 0 12px;
+  padding: 0 var(--mo-sp-3);
   right: auto;
 }
 
@@ -811,7 +840,7 @@ html.dark.theme-mo-blog .tags-view-container .contextmenu li:hover {
 .theme-mo-blog .el-pagination {
   --el-pagination-button-bg-color: #fff;
   --el-pagination-hover-color: var(--mo-p600);
-  margin-top: 16px;
+  margin-top: var(--mo-sp-4);
 }
 
 .theme-mo-blog .el-pagination .btn-prev,
@@ -843,7 +872,7 @@ html.dark.theme-mo-blog .tags-view-container .contextmenu li:hover {
 
 .theme-mo-blog .el-drawer__header {
   margin-bottom: 0;
-  padding: 16px;
+  padding: var(--mo-sp-4);
   border-bottom: 1px solid var(--mo-n200);
   color: var(--mo-n900);
   font-weight: 750;
@@ -928,7 +957,7 @@ html.dark.theme-mo-blog .tags-view-container {
 
 @media (max-width: 1024px) {
   .theme-mo-blog .nav-center {
-    gap: 8px;
+    gap: var(--mo-sp-2);
   }
 
   .theme-mo-blog .article-content {
@@ -962,7 +991,7 @@ html.dark.theme-mo-blog .tags-view-container {
   }
 
   .theme-mo-blog .content-body {
-    font-size: 16px;
+    font-size: var(--mo-fs-md);
     line-height: 1.82;
   }
 }
@@ -1135,7 +1164,7 @@ html.dark.theme-mo-blog .mo-home-page .home-hero .search-box input {
 .theme-mo-blog .blog-home-v2 .section-label {
   display: inline-block;
   width: auto;
-  margin-bottom: 24px;
+  margin-bottom: var(--mo-sp-6);
   padding: 6px 12px;
   border-radius: var(--mo-r-full);
   background: var(--mo-p50);
@@ -1162,7 +1191,7 @@ html.dark.theme-mo-blog .mo-home-page .home-hero .search-box input {
 
 .theme-mo-blog .blog-home-v2 .article-row {
   margin-bottom: 18px;
-  padding: 24px;
+  padding: var(--mo-sp-6);
   border-bottom: 1px solid var(--mo-n200);
 }
 
@@ -1216,7 +1245,7 @@ html.dark.theme-mo-blog .mo-home-page .home-hero .search-box input {
 }
 
 .theme-mo-blog .blog-home-v2 .cta-inner {
-  padding: 48px;
+  padding: var(--mo-sp-9);
   border-radius: var(--mo-r-xl);
   background:
     radial-gradient(circle at 78% 22%, rgba(236, 72, 153, 0.25), transparent 30%),

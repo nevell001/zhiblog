@@ -80,13 +80,13 @@ onMounted(loadTags)
 .tag-overview-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 96px 20px 48px;
+  padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-9);
 }
 .ov-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--mo-sp-6);
 }
 .ov-header h1 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   font-size: 26px;
   font-weight: 700;
   color: var(--el-text-color-primary, #303133);
@@ -94,7 +94,7 @@ onMounted(loadTags)
 .ov-header p {
   margin: 0;
   color: var(--el-text-color-secondary, #606266);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 .ov-loading {
   min-height: 160px;
@@ -102,13 +102,13 @@ onMounted(loadTags)
 .tag-cloud-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: var(--mo-sp-3);
 }
 .tag-card {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: var(--mo-sp-2);
+  padding: var(--mo-sp-2) var(--mo-sp-4);
   background: var(--mo-p50);
   color: var(--mo-p600);
   border-radius: 999px;
@@ -122,7 +122,7 @@ onMounted(loadTags)
   transform: translateY(-2px);
 }
 .tag-name {
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 .tag-card.is-lg .tag-name {
   font-size: 17px;

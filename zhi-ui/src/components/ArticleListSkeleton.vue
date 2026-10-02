@@ -79,7 +79,7 @@ withDefaults(defineProps<{ count?: number }>(), { count: 6 })
 
 .skeleton-chips {
   display: flex;
-  gap: 8px;
+  gap: var(--mo-sp-2);
   margin-bottom: 15px;
 }
 
@@ -91,11 +91,11 @@ withDefaults(defineProps<{ count?: number }>(), { count: 6 })
 
 @media (max-width: 768px) {
   .skeleton-card {
-    margin-bottom: 20px;
+    margin-bottom: var(--mo-sp-5);
   }
 
   .skeleton-body {
-    padding: 20px;
+    padding: var(--mo-sp-5);
   }
 }
 

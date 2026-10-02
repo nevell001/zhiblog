@@ -123,15 +123,15 @@ onMounted(loadBookmarks)
 .bookmark-container {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 96px 20px 40px;
+  padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-8);
 }
 
 .bookmark-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--mo-sp-6);
 }
 
 .bookmark-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   font-size: 26px;
   font-weight: 700;
   color: var(--el-text-color-primary, #303133);
@@ -139,7 +139,7 @@ onMounted(loadBookmarks)
 
 .bookmark-desc {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   color: var(--el-text-color-secondary, #606266);
 }
 
@@ -150,7 +150,7 @@ onMounted(loadBookmarks)
 .bookmark-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 16px;
+  gap: var(--mo-sp-4);
 }
 
 .bookmark-card {
@@ -176,7 +176,7 @@ onMounted(loadBookmarks)
 }
 
 .bookmark-article-title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   font-size: 17px;
   line-height: 1.4;
   color: var(--el-text-color-primary, #303133);
@@ -187,7 +187,7 @@ onMounted(loadBookmarks)
 }
 
 .bookmark-summary {
-  margin: 0 0 12px;
+  margin: 0 0 var(--mo-sp-3);
   font-size: 13px;
   line-height: 1.6;
   color: var(--el-text-color-regular, #606266);
@@ -200,15 +200,15 @@ onMounted(loadBookmarks)
 .bookmark-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  font-size: 12px;
+  gap: var(--mo-sp-3);
+  font-size: var(--mo-fs-xs);
   color: var(--el-text-color-secondary, #909399);
 }
 
 .bookmark-card-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 12px;
+  margin-top: var(--mo-sp-3);
   padding-top: 10px;
   border-top: 1px dashed var(--el-border-color-lighter, #ebeef5);
 }

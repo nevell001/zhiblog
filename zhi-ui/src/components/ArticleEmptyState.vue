@@ -22,7 +22,7 @@ withDefaults(defineProps<{ icon: Component; title?: string; description?: string
 
 <style lang="scss" scoped>
 .empty-state {
-  padding: 80px 20px;
+  padding: var(--mo-sp-11) var(--mo-sp-5);
   color: var(--mo-n500);
   text-align: center;
 }
@@ -34,19 +34,19 @@ withDefaults(defineProps<{ icon: Component; title?: string; description?: string
 
 .empty-icon {
   display: block;
-  margin-bottom: 20px;
+  margin-bottom: var(--mo-sp-5);
   color: var(--mo-n300);
-  font-size: 4rem;
+  font-size: var(--mo-fs-7xl);
 }
 
 .empty-content h3 {
   margin: 0 0 10px 0;
   color: var(--mo-n800);
-  font-size: 1.5rem;
+  font-size: var(--mo-fs-2xl);
 }
 
 .back-home-btn {
-  margin-top: 20px;
+  margin-top: var(--mo-sp-5);
   text-decoration: none;
 }
 

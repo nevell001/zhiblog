@@ -331,7 +331,7 @@ onUnmounted(() => {
   align-items: flex-start;
   justify-content: center;
   /* 顶部避开 BlogLayout 的 fixed 导航（60px） */
-  padding: calc(60px + 24px) 24px 24px;
+  padding: calc(60px + 24px) var(--mo-sp-6) var(--mo-sp-6);
   background: radial-gradient(circle at top left, var(--mo-p50), transparent 32%), var(--mo-n50);
 }
 
@@ -352,7 +352,7 @@ onUnmounted(() => {
   width: fit-content;
   margin-bottom: 18px;
   color: var(--mo-n900);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   font-weight: 700;
   text-decoration: none;
 }
@@ -371,21 +371,21 @@ onUnmounted(() => {
 .auth-head h2 {
   margin: 0 0 6px;
   color: var(--mo-n900);
-  font-size: 24px;
+  font-size: var(--mo-fs-2xl);
   font-weight: 700;
 }
 
 .sub {
-  margin: 0 0 16px;
+  margin: 0 0 var(--mo-sp-4);
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 .auth-switch {
   display: flex;
-  gap: 4px;
-  padding: 4px;
-  margin-bottom: 16px;
+  gap: var(--mo-sp-1);
+  padding: var(--mo-sp-1);
+  margin-bottom: var(--mo-sp-4);
   background: var(--mo-n100);
   border-radius: var(--mo-r-md);
 }
@@ -394,7 +394,7 @@ onUnmounted(() => {
   flex: 1;
   padding: 7px 10px;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   font-weight: 500;
   text-align: center;
   text-decoration: none;
@@ -418,7 +418,7 @@ onUnmounted(() => {
 
 .form-group {
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: var(--mo-sp-3);
 }
 
 .form-group label {
@@ -453,7 +453,7 @@ onUnmounted(() => {
 .captcha-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mo-sp-2);
 }
 
 .email-code-row :deep(.el-input),
@@ -502,12 +502,12 @@ onUnmounted(() => {
   width: 100%;
   height: 38px;
   border-radius: var(--mo-r-md);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   font-weight: 600;
 }
 
 .auth-footer {
-  margin: 16px 0 0;
+  margin: var(--mo-sp-4) 0 0;
   color: var(--mo-n500);
   font-size: 13px;
   text-align: center;
@@ -527,7 +527,7 @@ onUnmounted(() => {
 
 @media (max-width: 768px) {
   .mo-auth-page {
-    padding: calc(60px + 16px) 16px 16px;
+    padding: calc(60px + 16px) var(--mo-sp-4) var(--mo-sp-4);
   }
 
   .auth-card {

@@ -253,7 +253,7 @@ onMounted(() => {
   width: min(960px, 100%);
   margin: 0 auto;
   display: grid;
-  gap: 20px;
+  gap: var(--mo-sp-5);
 }
 
 .about-panel {
@@ -268,7 +268,7 @@ onMounted(() => {
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 28px;
-  padding: 32px;
+  padding: var(--mo-sp-7);
 }
 
 .about-avatar-wrap {
@@ -296,13 +296,13 @@ onMounted(() => {
   border-radius: var(--mo-r-full);
   background: var(--mo-p50);
   color: var(--mo-p700);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   font-weight: 700;
   letter-spacing: 0;
 }
 
 .about-name {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   color: var(--mo-n900);
   font-family: var(--mo-font-serif);
   font-size: 34px;
@@ -338,7 +338,7 @@ onMounted(() => {
 
 .stat-item {
   min-width: 0;
-  padding: 16px 12px;
+  padding: var(--mo-sp-4) var(--mo-sp-3);
   background: var(--mo-n50);
   text-align: center;
 }
@@ -353,7 +353,7 @@ onMounted(() => {
 .stat-label {
   margin-top: 7px;
   color: var(--mo-n500);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   font-weight: 600;
 }
 
@@ -363,21 +363,21 @@ onMounted(() => {
 }
 
 .section-head {
-  margin-bottom: 20px;
+  margin-bottom: var(--mo-sp-5);
 }
 
 .section-head h2 {
   margin: 0;
   color: var(--mo-n900);
   font-family: var(--mo-font-serif);
-  font-size: 24px;
+  font-size: var(--mo-fs-2xl);
   font-weight: 700;
 }
 
 .about-content {
   color: var(--mo-n700);
   font-family: var(--mo-font-serif);
-  font-size: 16px;
+  font-size: var(--mo-fs-md);
   line-height: 1.9;
 }
 
@@ -392,7 +392,7 @@ onMounted(() => {
 }
 
 .about-content :deep(p) {
-  margin: 0 0 16px;
+  margin: 0 0 var(--mo-sp-4);
 }
 
 .about-content :deep(a) {
@@ -413,7 +413,7 @@ onMounted(() => {
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: var(--mo-sp-3);
 }
 
 .contact-card {
@@ -421,7 +421,7 @@ onMounted(() => {
   align-items: center;
   gap: 14px;
   min-width: 0;
-  padding: 16px;
+  padding: var(--mo-sp-4);
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-md);
   background: var(--mo-n50);
@@ -449,7 +449,7 @@ onMounted(() => {
 }
 
 .contact-icon .el-icon {
-  font-size: 18px;
+  font-size: var(--mo-fs-lg);
 }
 
 .contact-info {
@@ -459,7 +459,7 @@ onMounted(() => {
 .contact-type {
   margin-bottom: 3px;
   color: var(--mo-n500);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   font-weight: 600;
 }
 
@@ -467,7 +467,7 @@ onMounted(() => {
   display: block;
   overflow: hidden;
   color: var(--mo-n800);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   font-weight: 600;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -485,7 +485,7 @@ a.contact-value:hover {
 .contact-empty {
   margin: 0;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 html.dark .mo-about-page {
@@ -580,7 +580,7 @@ html.dark .contact-value {
   .about-hero {
     grid-template-columns: 1fr;
     gap: 18px;
-    padding: 24px;
+    padding: var(--mo-sp-6);
     text-align: center;
   }
 

@@ -186,7 +186,7 @@ html.dark .share-item:hover {
 }
 
 .share-icon {
-  font-size: 18px;
+  font-size: var(--mo-fs-lg);
   flex-shrink: 0;
 }
 
@@ -203,7 +203,7 @@ html.dark .share-item:hover {
 }
 
 .share-label {
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   color: #333;
 }
 
@@ -220,7 +220,7 @@ html.dark .share-item:hover {
 }
 
 .qr-tip {
-  margin: 8px 0 0;
+  margin: var(--mo-sp-2) 0 0;
   font-size: 13px;
   color: #78716c;
   text-align: center;

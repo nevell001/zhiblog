@@ -160,13 +160,13 @@ onMounted(loadPage)
 .empty-code {
   color: var(--mo-p700);
   font-family: var(--mo-font-serif);
-  font-size: 64px;
+  font-size: var(--mo-fs-7xl);
   font-weight: 700;
   line-height: 1;
 }
 
 .empty-title {
-  margin: 16px 0 8px;
+  margin: var(--mo-sp-4) 0 var(--mo-sp-2);
   color: var(--mo-n900);
   font-family: var(--mo-font-serif);
   font-size: 22px;
@@ -176,7 +176,7 @@ onMounted(loadPage)
 .empty-desc {
   margin: 0 0 22px;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 .empty-actions {
@@ -186,7 +186,7 @@ onMounted(loadPage)
 }
 
 .custom-page-article {
-  padding: 32px;
+  padding: var(--mo-sp-7);
 }
 
 .section-label {
@@ -196,7 +196,7 @@ onMounted(loadPage)
   border-radius: var(--mo-r-full);
   background: var(--mo-p50);
   color: var(--mo-p700);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   font-weight: 700;
 }
 
@@ -204,7 +204,7 @@ onMounted(loadPage)
   margin: 0 0 10px;
   color: var(--mo-n900);
   font-family: var(--mo-font-serif);
-  font-size: 32px;
+  font-size: var(--mo-fs-4xl);
   font-weight: 700;
   line-height: 1.2;
 }
@@ -219,9 +219,9 @@ onMounted(loadPage)
 .custom-page-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 16px;
-  padding-top: 16px;
+  gap: var(--mo-sp-4);
+  margin-top: var(--mo-sp-4);
+  padding-top: var(--mo-sp-4);
   border-top: 1px solid var(--mo-n200);
   color: var(--mo-n500);
   font-size: 13px;
@@ -231,7 +231,7 @@ onMounted(loadPage)
   margin-top: 26px;
   color: var(--mo-n700);
   font-family: var(--mo-font-serif);
-  font-size: 16px;
+  font-size: var(--mo-fs-md);
   line-height: 1.9;
 }
 
@@ -247,7 +247,7 @@ onMounted(loadPage)
 }
 
 .custom-page-content :deep(p) {
-  margin: 0 0 16px;
+  margin: 0 0 var(--mo-sp-4);
 }
 
 .custom-page-content :deep(a) {
@@ -280,11 +280,11 @@ onMounted(loadPage)
 
 .custom-page-content :deep(code) {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 .custom-page-content :deep(blockquote) {
-  margin: 0 0 16px;
+  margin: 0 0 var(--mo-sp-4);
   padding: 10px 16px;
   border-left: 3px solid var(--mo-p400);
   background: var(--mo-p50);
@@ -294,7 +294,7 @@ onMounted(loadPage)
 .custom-page-no-content {
   margin: 26px 0 0;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 html.dark .mo-custom-page {

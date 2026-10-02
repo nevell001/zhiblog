@@ -359,7 +359,7 @@ const goToHome = () => {
 <style scoped>
 .mo-auth-page {
   min-height: 100vh;
-  padding-top: 64px;
+  padding-top: var(--mo-sp-10);
   background: var(--mo-n50);
 }
 
@@ -368,13 +368,13 @@ const goToHome = () => {
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 60px);
-  padding: 40px 20px;
+  padding: var(--mo-sp-8) var(--mo-sp-5);
 }
 
 .forgot-password-card {
   width: min(100%, 420px);
   min-width: 0;
-  padding: 40px;
+  padding: var(--mo-sp-8);
   background: #fff;
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-md);
@@ -397,37 +397,37 @@ const goToHome = () => {
 
 .forgot-password-header {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: var(--mo-sp-7);
 }
 
 .forgot-password-header h1 {
-  font-size: 28px;
+  font-size: var(--mo-fs-3xl);
   font-weight: 600;
   color: var(--mo-n900);
-  margin: 0 0 8px 0;
+  margin: 0 0 var(--mo-sp-2) 0;
 }
 
 .forgot-password-header p {
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   margin: 0;
 }
 
 .steps {
-  margin-bottom: 32px;
+  margin-bottom: var(--mo-sp-7);
 }
 
 .step-content {
-  margin-top: 24px;
+  margin-top: var(--mo-sp-6);
 }
 
 .forgot-password-form {
-  margin-top: 24px;
+  margin-top: var(--mo-sp-6);
 }
 
 .email-code-row {
   display: flex;
-  gap: 12px;
+  gap: var(--mo-sp-3);
   align-items: center;
 }
 
@@ -438,25 +438,25 @@ const goToHome = () => {
 .submit-button {
   width: 100%;
   height: 44px;
-  font-size: 16px;
-  margin-top: 8px;
+  font-size: var(--mo-fs-md);
+  margin-top: var(--mo-sp-2);
 }
 
 .back-button {
   width: 100%;
   height: 44px;
-  font-size: 16px;
-  margin-top: 12px;
+  font-size: var(--mo-fs-md);
+  margin-top: var(--mo-sp-3);
 }
 
 .success-content {
-  padding: 20px 0;
+  padding: var(--mo-sp-5) 0;
 }
 
 .forgot-password-footer {
   text-align: center;
-  margin-top: 20px;
-  font-size: 14px;
+  margin-top: var(--mo-sp-5);
+  font-size: var(--mo-fs-sm);
   display: flex;
   justify-content: space-between;
 }
@@ -530,7 +530,7 @@ html.dark.theme-mo-blog .forgot-password-footer .link:hover {
 @media (max-width: 480px) {
   .forgot-password-wrapper {
     align-items: flex-start;
-    padding: 24px 16px;
+    padding: var(--mo-sp-6) var(--mo-sp-4);
   }
 
   .forgot-password-card {

@@ -192,10 +192,10 @@ watch(
 .search-container {
   max-width: 860px;
   margin: 0 auto;
-  padding: 96px 20px 48px;
+  padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-9);
 }
 .search-head {
-  margin-bottom: 24px;
+  margin-bottom: var(--mo-sp-6);
 }
 .search-title {
   margin: 0 0 14px;
@@ -213,7 +213,7 @@ watch(
   padding: 10px 14px;
   border: 1px solid var(--el-border-color, #dcdfe6);
   border-radius: var(--mo-r-md);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   outline: none;
   background: var(--el-bg-color-overlay, #fff);
   color: var(--el-text-color-primary, #303133);
@@ -222,30 +222,30 @@ watch(
   border-color: var(--el-color-primary, #409eff);
 }
 .search-form button {
-  padding: 0 20px;
+  padding: 0 var(--mo-sp-5);
   border: none;
   border-radius: var(--mo-r-md);
   background: var(--el-color-primary, #409eff);
   /* 与主色配对的前景色（默认主题亮主色 → 深墨；Mo-Blog 靛蓝 → 白） */
   color: var(--mo-on-primary, #fff);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   cursor: pointer;
 }
 .search-disabled-tip {
   color: var(--el-text-color-secondary, #909399);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 .search-loading {
   min-height: 160px;
 }
 .search-summary {
   margin-bottom: 14px;
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   color: var(--el-text-color-secondary, #606266);
 }
 .result-card {
   padding: 16px 18px;
-  margin-bottom: 12px;
+  margin-bottom: var(--mo-sp-3);
   background: var(--el-bg-color-overlay, #fff);
   border: 1px solid var(--el-border-color-lighter, #ebeef5);
   border-radius: 10px;
@@ -279,8 +279,8 @@ watch(
 .result-card-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  font-size: 12px;
+  gap: var(--mo-sp-2);
+  font-size: var(--mo-fs-xs);
   color: var(--el-text-color-secondary, #909399);
 }
 .result-card-meta .author {

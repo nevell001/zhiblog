@@ -252,7 +252,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: var(--mo-sp-3) var(--mo-sp-4);
   border-bottom: 1px solid #e7e5e4;
   background: #fafaf9;
   border-radius: var(--mo-r-lg) var(--mo-r-lg) 0 0;
@@ -282,7 +282,7 @@ onUnmounted(() => {
 }
 
 .toc-content {
-  padding: 12px 16px;
+  padding: var(--mo-sp-3) var(--mo-sp-4);
   max-height: 400px;
   overflow-y: auto;
 }
@@ -314,9 +314,9 @@ onUnmounted(() => {
 .toc-item {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mo-sp-2);
   padding: 6px 8px;
-  margin-bottom: 4px;
+  margin-bottom: var(--mo-sp-1);
   cursor: pointer;
   border-radius: var(--mo-r-sm);
   transition: all 0.3s ease;
@@ -360,27 +360,27 @@ onUnmounted(() => {
 
 .toc-level-1 {
   font-weight: 600;
-  padding-left: 8px;
+  padding-left: var(--mo-sp-2);
 }
 
 .toc-level-2 {
-  padding-left: 16px;
+  padding-left: var(--mo-sp-4);
 }
 
 .toc-level-3 {
-  padding-left: 24px;
+  padding-left: var(--mo-sp-6);
 }
 
 .toc-level-4 {
-  padding-left: 32px;
+  padding-left: var(--mo-sp-7);
 }
 
 .toc-level-5 {
-  padding-left: 40px;
+  padding-left: var(--mo-sp-8);
 }
 
 .toc-level-6 {
-  padding-left: 48px;
+  padding-left: var(--mo-sp-9);
 }
 
 .toc-empty {

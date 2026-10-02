@@ -83,13 +83,13 @@ onMounted(loadCategories)
 .category-overview-container {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 96px 20px 48px;
+  padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-9);
 }
 .ov-header {
-  margin-bottom: 24px;
+  margin-bottom: var(--mo-sp-6);
 }
 .ov-header h1 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   font-size: 26px;
   font-weight: 700;
   color: var(--el-text-color-primary, #303133);
@@ -97,7 +97,7 @@ onMounted(loadCategories)
 .ov-header p {
   margin: 0;
   color: var(--el-text-color-secondary, #606266);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 .ov-loading {
   min-height: 160px;
@@ -105,7 +105,7 @@ onMounted(loadCategories)
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
+  gap: var(--mo-sp-4);
 }
 .cat-card {
   display: block;
@@ -125,10 +125,10 @@ onMounted(loadCategories)
 .cat-card-head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mo-sp-2);
 }
 .cat-icon {
-  font-size: 20px;
+  font-size: var(--mo-fs-xl);
 }
 .cat-name {
   margin: 0;
@@ -147,7 +147,7 @@ onMounted(loadCategories)
   -webkit-box-orient: vertical;
 }
 .cat-meta {
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   color: var(--mo-primary-text, #409eff);
 }
 </style>

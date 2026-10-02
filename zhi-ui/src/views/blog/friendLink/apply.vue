@@ -223,7 +223,7 @@ onMounted(async () => {
 .apply-container {
   max-width: 620px;
   margin: 0 auto;
-  padding: 96px 20px 48px;
+  padding: var(--mo-sp-12) var(--mo-sp-5) var(--mo-sp-9);
 }
 .apply-card {
   padding: 28px;

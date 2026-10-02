@@ -304,7 +304,7 @@ onMounted(async () => {
 .mo-home-page .home-hero h1 {
   margin: 0 0 10px;
   color: #fff;
-  font-size: 32px;
+  font-size: var(--mo-fs-4xl);
   font-weight: 700;
   letter-spacing: 0;
 }
@@ -322,8 +322,8 @@ onMounted(async () => {
   align-items: center;
   max-width: 440px;
   width: 100%;
-  margin: 24px auto 0;
-  padding: 4px;
+  margin: var(--mo-sp-6) auto 0;
+  padding: var(--mo-sp-1);
   border: none;
   border-radius: var(--mo-r-full);
   background: #fff;
@@ -337,7 +337,7 @@ onMounted(async () => {
   outline: none;
   background: transparent;
   color: var(--mo-n800);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
 }
 
 .mo-home-page .home-hero .search-box button {
@@ -357,7 +357,7 @@ onMounted(async () => {
   gap: 28px;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 32px;
+  padding: var(--mo-sp-7);
 }
 
 .mo-home-page .article-card {
@@ -393,9 +393,9 @@ onMounted(async () => {
 }
 
 .mo-home-page .article-card .title {
-  margin: 0 0 8px;
+  margin: 0 0 var(--mo-sp-2);
   color: var(--mo-n900);
-  font-size: 18px;
+  font-size: var(--mo-fs-lg);
   font-weight: 600;
   line-height: 1.4;
 }
@@ -405,7 +405,7 @@ onMounted(async () => {
   margin: 0 0 14px;
   overflow: hidden;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   line-height: 1.7;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -414,9 +414,9 @@ onMounted(async () => {
 .mo-home-page .article-card .meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--mo-sp-3);
   color: var(--mo-n500);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
 }
 
 .mo-home-page .article-card .meta .author {
@@ -452,7 +452,7 @@ onMounted(async () => {
 
 .mo-home-page .sidebar-widget {
   margin-bottom: 18px;
-  padding: 20px;
+  padding: var(--mo-sp-5);
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
   background: #fff;
@@ -461,10 +461,10 @@ onMounted(async () => {
 .mo-home-page .widget-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--mo-sp-2);
   margin-bottom: 14px;
   color: var(--mo-n800);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   font-weight: 600;
 }
 
@@ -479,14 +479,14 @@ onMounted(async () => {
 .mo-home-page .cat-list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--mo-sp-1);
 }
 
 .mo-home-page .cat-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: var(--mo-sp-2) var(--mo-sp-3);
   border-radius: var(--mo-r-md);
   color: var(--mo-n600);
   font-size: 13px;
@@ -512,15 +512,15 @@ onMounted(async () => {
 .mo-home-page .tag-cloud {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--mo-sp-2);
 }
 
 .mo-home-page .tc {
-  padding: 4px 12px;
+  padding: var(--mo-sp-1) var(--mo-sp-3);
   border-radius: var(--mo-r-full);
   background: var(--mo-n100);
   color: var(--mo-n600);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   text-decoration: none;
 }
 
@@ -539,7 +539,7 @@ onMounted(async () => {
   display: flex;
   gap: 10px;
   align-items: flex-start;
-  margin-bottom: 12px;
+  margin-bottom: var(--mo-sp-3);
   cursor: pointer;
 }
 
@@ -547,7 +547,7 @@ onMounted(async () => {
   width: 24px;
   flex-shrink: 0;
   color: var(--mo-n500);
-  font-size: 18px;
+  font-size: var(--mo-fs-lg);
   font-weight: 700;
   text-align: center;
 }
@@ -607,7 +607,7 @@ onMounted(async () => {
   align-items: center;
   padding: 3px 12px;
   border-radius: var(--mo-r-full);
-  font-size: 12px;
+  font-size: var(--mo-fs-xs);
   font-weight: 500;
 }
 
@@ -622,29 +622,29 @@ onMounted(async () => {
 }
 
 .mo-home-page .search-result-note {
-  margin-bottom: 16px;
+  margin-bottom: var(--mo-sp-4);
   color: var(--mo-n600);
   font-size: 13px;
 }
 
 .mo-home-page .search-result-note button {
-  margin-left: 12px;
+  margin-left: var(--mo-sp-3);
   color: var(--mo-p600);
 }
 
 @media (max-width: 768px) {
   .mo-home-page .home-hero {
-    padding: 32px 16px;
+    padding: var(--mo-sp-7) var(--mo-sp-4);
   }
 
   .mo-home-page .home-hero h1 {
-    font-size: 24px;
+    font-size: var(--mo-fs-2xl);
   }
 
   .mo-home-page .home-layout {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 16px;
+    gap: var(--mo-sp-4);
+    padding: var(--mo-sp-4);
   }
 }
 
@@ -655,7 +655,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: var(--mo-sp-5);
   background: rgba(28, 25, 23, 0.42);
   backdrop-filter: blur(4px);
 }
@@ -663,7 +663,7 @@ onMounted(async () => {
 .contact-card {
   position: relative;
   width: min(400px, 100%);
-  padding: 32px;
+  padding: var(--mo-sp-7);
   border: 1px solid var(--mo-n200);
   border-radius: var(--mo-r-lg);
   background: #fff;
@@ -681,7 +681,7 @@ onMounted(async () => {
 .contact-card p {
   margin: 0;
   color: var(--mo-n500);
-  font-size: 14px;
+  font-size: var(--mo-fs-sm);
   line-height: 1.7;
 }
 
@@ -693,7 +693,7 @@ onMounted(async () => {
   background: transparent;
   color: var(--mo-n500);
   cursor: pointer;
-  font-size: 24px;
+  font-size: var(--mo-fs-2xl);
   line-height: 1;
 }
 

@@ -29,7 +29,8 @@ const publicBlogSurfaces = [
 describe('blog design layout guards', () => {
   it('首页搜索框应在 hero 区域居中', () => {
     expect(homeView).toContain('text-align: center;')
-    expect(homeView).toContain('margin: 24px auto 0;')
+    // 上外边距走 --mo-sp-6（=24px），左右 auto 保持水平居中
+    expect(homeView).toContain('margin: var(--mo-sp-6) auto 0;')
   })
 
   it('首页分类导航和热门标签应能跳转到对应列表页', () => {
