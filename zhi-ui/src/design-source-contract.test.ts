@@ -225,13 +225,21 @@ describe('设计源码契约', () => {
   // 刻度外的畸零值（13px / 0.9rem / 6px / 18px …）暂时保留字面量。
   // 未走令牌的数量只允许下降：新增硬编码字号/间距会让这条测试变红。
   // 范围刻意只含博客前台——后台（views/admin、layout）不在这套尺度内。
+  //
+  // 前台组件集合从 views/blog/** 的 import 派生，不写死名单：写死过一次，
+  // 结果 C2 新抽的 BlogPager 整条漏在尺度与棘轮之外。
+  const BLOG_COMPONENTS = new Set<string>()
+  for (const file of filesUnder(join(SRC, 'views/blog'), name => name.endsWith('.vue'))) {
+    for (const m of readFileSync(file, 'utf8').matchAll(
+      /from ['"]@\/components\/([A-Za-z0-9/]+)\.vue['"]/g
+    )) {
+      BLOG_COMPONENTS.add(`components/${m[1]}.vue`)
+    }
+  }
+
   it('博客前台未令牌化的字号/间距字面量不得超过登记上限', () => {
     const FRONT_END = (rel: string) =>
-      rel.startsWith('views/blog/') ||
-      /^components\/(BlogLayout|BlogPager|ArticleCard|ArticleTOC|ShareButton|ArticleEmptyState|ArticleListSkeleton|LinkIcon)\.vue$/.test(
-        rel
-      ) ||
-      rel.includes('themes/mo-blog')
+      rel.startsWith('views/blog/') || BLOG_COMPONENTS.has(rel) || rel.includes('themes/mo-blog')
 
     const FONT_SIZE_CEILING = 141
     const SPACING_CEILING = 389
