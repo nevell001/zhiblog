@@ -984,50 +984,6 @@ html.dark .profile-page {
   --mo-p200: rgba(0, 212, 255, 0.3);
 }
 
-/* Mo-Blog 主题深色：用棕色色阶反转 + Element Plus 变量映射 */
-html.dark.theme-mo-blog {
-  /* 深色模式反转：浅色 n0-n300 变深色，深色 n700-n900 变浅色 */
-  --mo-n0: #1c1917; /* 最深色 - 页面背景 */
-  --mo-n50: #292524; /* 深色 - 卡片背景 */
-  --mo-n100: #44403c; /* 深色 - 输入框背景 */
-  --mo-n200: #57534e; /* 中深色 - 边框 */
-  --mo-n300: #78716c; /* 中色 - 次要文字 */
-  --mo-n400: #a8a29e; /* 中浅色 - 次要文字 */
-  --mo-n500: #d6d3d1; /* 浅色 - 常规文字 */
-  --mo-n600: #e7e5e4; /* 浅色 - 主要文字 */
-  --mo-n700: #f5f5f4; /* 很浅色 - 标题 */
-  --mo-n800: #fafaf9; /* 很浅色 - 高亮文字 */
-  --mo-n900: #ffffff; /* 最浅色 - 纯白文字 */
-  --mo-p25: rgba(99, 102, 241, 0.08);
-  --mo-p50: rgba(99, 102, 241, 0.12);
-  --mo-p100: rgba(99, 102, 241, 0.2);
-  --mo-p200: rgba(99, 102, 241, 0.3);
-
-  /* Element Plus 变量映射 - 用于表单控件 */
-  --el-bg-color: #292524;
-  --el-bg-color-overlay: #1c1917;
-  --el-bg-color-page: #1c1917;
-  --el-fill-color-blank: #292524;
-  --el-fill-color-light: #44403c;
-  --el-fill-color-lighter: #292524;
-  --el-fill-color-extra-light: #1c1917;
-  --el-fill-color-dark: #44403c;
-  --el-fill-color-darker: #57534e;
-  --el-border-color: #44403c;
-  --el-border-color-light: #44403c;
-  --el-border-color-lighter: #57534e;
-  --el-border-color-extra-light: #292524;
-  --el-border-color-dark: #78716c;
-  --el-text-color-primary: #fafaf9;
-  --el-text-color-regular: #e7e5e4;
-  --el-text-color-secondary: #d6d3d1;
-  --el-text-color-placeholder: #a8a29e;
-  --el-text-color-disabled: #78716c;
-  --el-box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
-  --el-box-shadow-light: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --el-box-shadow-base: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
 /* 状态标签硬编码浅色 → 深色暗调 */
 html.dark .profile-page .tag-green {
   color: #34d399;
