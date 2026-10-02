@@ -20,6 +20,6 @@ const emit = defineEmits<{ 'page-change': [page: number] }>()
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: var(--mo-sp-8);
 }
 </style>

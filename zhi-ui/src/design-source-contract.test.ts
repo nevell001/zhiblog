@@ -228,7 +228,7 @@ describe('设计源码契约', () => {
   it('博客前台未令牌化的字号/间距字面量不得超过登记上限', () => {
     const FRONT_END = (rel: string) =>
       rel.startsWith('views/blog/') ||
-      /^components\/(BlogLayout|ArticleCard|ArticleTOC|ShareButton|ArticleEmptyState|ArticleListSkeleton|LinkIcon)\.vue$/.test(
+      /^components\/(BlogLayout|BlogPager|ArticleCard|ArticleTOC|ShareButton|ArticleEmptyState|ArticleListSkeleton|LinkIcon)\.vue$/.test(
         rel
       ) ||
       rel.includes('themes/mo-blog')
