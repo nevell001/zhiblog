@@ -85,4 +85,11 @@ public interface BlogCategoryMapper
      * @return 结果
      */
     public int updateAllArticleCount();
+
+    /**
+     * 查询分类总数
+     * @param blogCategory 分类查询条件
+     * @return 分类数量
+     */
+    public long selectBlogCategoryCount(BlogCategory blogCategory);
 }

@@ -166,4 +166,16 @@ public class BlogTagServiceImpl implements IBlogTagService
     {
         return blogTagMapper.selectTagsByArticleId(articleId);
     }
+
+    /**
+     * 查询标签总数
+     *
+     * @param blogTag 标签查询条件
+     * @return 标签数量
+     */
+    @Override
+    public long selectBlogTagCount(BlogTag blogTag)
+    {
+        return blogTagMapper.selectBlogTagCount(blogTag);
+    }
 }

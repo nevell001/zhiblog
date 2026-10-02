@@ -97,4 +97,12 @@ public interface IBlogTagService
      * @return 标签列表
      */
     public List<BlogTag> selectTagsByArticleId(Long articleId);
+
+    /**
+     * 查询标签总数
+     *
+     * @param blogTag 标签查询条件
+     * @return 标签数量
+     */
+    public long selectBlogTagCount(BlogTag blogTag);
 }

@@ -163,4 +163,16 @@ public class BlogCategoryServiceImpl implements IBlogCategoryService
     {
         return blogCategoryMapper.updateAllArticleCount();
     }
+
+    /**
+     * 查询分类总数
+     *
+     * @param blogCategory 分类查询条件
+     * @return 分类数量
+     */
+    @Override
+    public long selectBlogCategoryCount(BlogCategory blogCategory)
+    {
+        return blogCategoryMapper.selectBlogCategoryCount(blogCategory);
+    }
 }

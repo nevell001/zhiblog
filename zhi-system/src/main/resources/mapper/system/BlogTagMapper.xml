@@ -159,4 +159,12 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="selectBlogTagCount" parameterType="BlogTag" resultType="long">
+        select count(*) from blog_tag bt
+        <where>
+            <if test='name != null and name != ""'> and bt.name like concat('%', #{name}, '%')</if>
+            and bt.del_flag = 0
+        </where>
+    </select>
 </mapper>

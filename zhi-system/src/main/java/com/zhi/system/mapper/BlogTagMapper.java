@@ -102,4 +102,11 @@ public interface BlogTagMapper
      * @return 标签映射列表（每行包含 articleId 和标签信息）
      */
     List<Map<String, Object>> selectTagsByArticleIds(List<Long> articleIds);
+
+    /**
+     * 查询标签总数
+     * @param blogTag 标签查询条件
+     * @return 标签数量
+     */
+    public long selectBlogTagCount(BlogTag blogTag);
 }
