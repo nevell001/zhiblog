@@ -237,3 +237,9 @@
     }
   }
 }
+
+/* sideTheme=theme-light 时侧边栏底色是 #ffffff，:root 里的提亮混合值会看不见，
+   改用「主色压暗后用于浅底文字」令牌（见 variables.module.scss 的 --mo-primary-text）。 */
+#app .sidebar-container .el-menu.theme-light {
+  --menu-active-text: var(--mo-primary-text, #303133);
+}

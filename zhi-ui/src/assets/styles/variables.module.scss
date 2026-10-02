@@ -75,6 +75,12 @@ $--color-info: #909399;
   --navbar-bg: #ffffff;
   --navbar-text: #303133;
 
+  /* 侧边栏激活项文字色。浅色模式下侧边栏底色仍是深蓝（--sidebar-bg: #112240），
+     直接给主色会糊成一片（Mo-Blog 的 #4f46e5 压在 #112240 上只有约 1.5:1），
+     所以与白混合提亮；白色侧边栏（sideTheme=theme-light）见 sidebar.scss 的覆盖。
+     用 var(--el-color-primary) 而非写死，handleThemeStyle 换主色时自动跟随。 */
+  --menu-active-text: color-mix(in srgb, var(--el-color-primary) 55%, #ffffff);
+
   /* 主色填充控件的前景色。默认主题亮色用 Element Plus 主色 #409eff（白字仅 2.78:1），
      深色用 Tech Blue 亮青 #00d4ff（白字仅 1.77:1），因此默认取深墨色；
      Mo-Blog 主题的主色是靛蓝，会在 mo-blog.scss 里覆盖为白色。
