@@ -3,7 +3,7 @@
 ## 文件说明
 
 ### `00_init_database.sql` （幂等版）
-**唯一需要的 SQL 文件**。完整的数据库初始化脚本，包含：
+数据库初始化/迁移的**唯一入口**（日常升级只需重跑它），包含：
 - 所有表结构（系统表 + 博客表 + Quartz 表）
 - 所有索引（含 FULLTEXT 全文索引）
 - 站内信通知表 `blog_notification`
@@ -18,6 +18,28 @@
 - 索引通过 `sp_create_index_if_not_exists` 存储过程检查后创建
 
 ✅ **安全的反向兼容**：旧版数据库（v1.3.4 及更早）可直接重跑此脚本以补全缺失的表和索引
+
+⚠️ **但"幂等"不等于"会修复已有行"**：`INSERT IGNORE` + 按标题判存在只会**跳过**已存在的数据。
+需要改动既有数据行的一次性修复，放在 `99_fix_*.sql` 里，见下。
+
+### `99_fix_sample_articles_v1.4.2.sql` （v1.4.2 一次性补丁）
+修 **已有安装** 的 6 篇示例文章：正文是 Markdown 却按 HTML 渲染（整页显示 `#` 与代码围栏）、
+4 处分类挂错、标签关联错乱并残留幽灵 `tag_id=19`。
+
+- **谁需要跑**：v1.4.2 之前就已初始化过数据库的实例。**新装不需要**（00 脚本里的种子已修正）。
+- **为什么不能靠重跑 00**：00 的示例文章受「按标题判存在」保护，重跑直接跳过，坏数据原地留着。
+- **安全性**：只按 6 个示例标题定位行；正文只在 `content LIKE '# %'`（仍是坏数据）时重写，
+  作者自己编辑过的文章不会被覆盖；标签按标题 + 标签名重建，映射不到就不插；显式钉住 `update_time`。
+  可重复执行，第二次跑 0 行受影响。
+- **执行前请备份，脚本刻意不写 `CREATE DATABASE` / `USE`**，库名由命令行给出：
+
+```bash
+mysql -u root -p zhiblog < sql/99_fix_sample_articles_v1.4.2.sql
+# Docker
+docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_fix_sample_articles_v1.4.2.sql
+```
+
+脚本首尾各有一段只读 `SELECT`，跑完对照「正文形态应全为 HTML(正常)、标签数 3/3/4/3/2/1」。
 
 ## 使用方法
 
@@ -48,6 +70,10 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 - 补建 `ft_article_title_content` 等 FULLTEXT 索引（首页搜索功能依赖）
 - 补建其他缺失的表/索引/触发器
 - **不会**删除或覆盖任何已有数据
+
+但也因为「不会覆盖已有数据」，涉及既有数据行的修复要另外跑 `99_*.sql`：
+v1.4.2 的示例文章正文/分类/标签就是这种情况，见上面的
+`99_fix_sample_articles_v1.4.2.sql`。
 
 ### 在 Docker 中执行
 
