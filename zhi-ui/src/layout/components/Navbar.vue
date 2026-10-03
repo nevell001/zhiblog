@@ -100,10 +100,7 @@
         <template #dropdown>
           <el-dropdown-menu>
             <!-- 仅管理员显示管理后台入口 -->
-            <el-dropdown-item
-              v-if="userStore.userType === '00'"
-              @click="goToAdmin"
-            >
+            <el-dropdown-item v-if="userStore.userType === '00'" @click="goToAdmin">
               <span>管理后台</span>
             </el-dropdown-item>
             <!-- 个人中心 -->

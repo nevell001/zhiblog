@@ -45,7 +45,11 @@
           </button>
         </template>
         <template v-else>
-          <button type="button" class="stat-card stat-card--wide" @click="selectedTab = 'notifications'">
+          <button
+            type="button"
+            class="stat-card stat-card--wide"
+            @click="selectedTab = 'notifications'"
+          >
             <span class="stat-label">未读通知</span>
             <strong>{{ unreadNotificationCount }}</strong>
           </button>
@@ -71,7 +75,9 @@
               @click="selectedTab = 'notifications'"
             >
               评论通知
-              <span v-if="unreadNotificationCount" class="tab-badge">{{ unreadNotificationCount }}</span>
+              <span v-if="unreadNotificationCount" class="tab-badge">
+                {{ unreadNotificationCount }}
+              </span>
             </button>
             <button
               type="button"
@@ -90,7 +96,12 @@
                 <span class="ftag">已发布 {{ profileStats.publishedTotal }}</span>
                 <span class="ftag">草稿 {{ profileStats.draftTotal }}</span>
               </div>
-              <el-button v-if="isAdmin" type="primary" size="small" @click="goArticleManage('create')">
+              <el-button
+                v-if="isAdmin"
+                type="primary"
+                size="small"
+                @click="goArticleManage('create')"
+              >
                 写新文章
               </el-button>
             </div>
@@ -131,7 +142,12 @@
                   </td>
                   <td>
                     <div class="actions">
-                      <button v-if="isAdmin" type="button" class="act primary" @click="goArticleManage('list')">
+                      <button
+                        v-if="isAdmin"
+                        type="button"
+                        class="act primary"
+                        @click="goArticleManage('list')"
+                      >
                         管理
                       </button>
                       <button
@@ -214,7 +230,9 @@
               <div v-else class="empty-panel">
                 <div class="empty-title">暂无评论通知</div>
                 <div class="empty-desc">当有人评论你的文章或回复你的评论时，通知会出现在这里。</div>
-                <el-button v-if="isAdmin" plain @click="goArticleManage('list')">查看文章管理</el-button>
+                <el-button v-if="isAdmin" plain @click="goArticleManage('list')">
+                  查看文章管理
+                </el-button>
               </div>
             </template>
           </section>
@@ -306,7 +324,9 @@ const profileBio = computed(() => {
 // 站内信通知
 const notifications = ref<BlogNotification[]>([])
 const notificationsLoading = ref(false)
-const unreadNotificationCount = computed(() => notifications.value.filter(n => n.isRead === 0).length)
+const unreadNotificationCount = computed(
+  () => notifications.value.filter(n => n.isRead === 0).length
+)
 
 function getNotifications() {
   notificationsLoading.value = true

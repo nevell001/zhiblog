@@ -80,7 +80,7 @@ export const useUserStore = defineStore('user', {
       this.name = user.userName
       this.nickName = user.nickName || user.userName || ''
       this.avatar = avatar
-      
+
       // 确保 userType 是字符串格式，优先从 data.userType 读取，其次从 user.userType 读取
       // 如果都没有，默认为 '01'（普通用户）而非 '00'（管理员）
       const rawUserType = data.userType ?? user.userType
