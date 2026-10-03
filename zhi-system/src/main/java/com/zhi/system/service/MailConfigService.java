@@ -204,18 +204,20 @@ public class MailConfigService
      * @param form 前端当前表单，可为 null（等价于测试已保存配置）
      * @return 连接成功返回 {@code null}；失败返回可展示给管理员的原因（不含密码）
      */
-    public String testConnection(MailConfigForm form)
+    public String testConnection(MailConfigForm request)
     {
-        String host = pick(form != null && StringUtils.isNotEmpty(form.getHost()), form.getHost(),
+        // 先归一化再取值：实参会被提前求值，`form != null && ...` 的短路保护不住后面的 form.getX()
+        MailConfigForm form = request == null ? new MailConfigForm() : request;
+        String host = pick(StringUtils.isNotEmpty(form.getHost()), form.getHost(),
                 effective(KEY_HOST, baselineHost));
-        int port = form != null && form.getPort() != null ? form.getPort() : effectivePort();
-        String username = pick(form != null && StringUtils.isNotEmpty(form.getUsername()), form.getUsername(),
+        int port = form.getPort() != null ? form.getPort() : effectivePort();
+        String username = pick(StringUtils.isNotEmpty(form.getUsername()), form.getUsername(),
                 effective(KEY_USERNAME, baselineUsername));
         // 密码：表单填了就测填的，否则用已保存/环境变量里的
-        String password = form != null && StringUtils.isNotEmpty(form.getPassword())
+        String password = StringUtils.isNotEmpty(form.getPassword())
                 ? form.getPassword() : effective(KEY_PASSWORD, baselinePassword);
-        boolean ssl = form != null && form.getSsl() != null ? form.getSsl() : effectiveSwitch(KEY_SSL, baselineSsl);
-        boolean starttls = starttlsOf(ssl, form != null && form.getStarttls() != null
+        boolean ssl = form.getSsl() != null ? form.getSsl() : effectiveSwitch(KEY_SSL, baselineSsl);
+        boolean starttls = starttlsOf(ssl, form.getStarttls() != null
                 ? form.getStarttls() : effectiveSwitch(KEY_STARTTLS, baselineStarttls));
 
         if (StringUtils.isEmpty(host))
