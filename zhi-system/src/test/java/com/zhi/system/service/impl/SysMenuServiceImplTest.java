@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -678,5 +681,156 @@ class SysMenuServiceImplTest {
         String result = menuService.innerLinkReplaceEach(path);
 
         assertEquals("example/com/8080", result);
+    }
+
+    private SysMenu menu(long menuId, long parentId, String type, String name, String path, String component) {
+        SysMenu menu = new SysMenu();
+        menu.setMenuId(menuId);
+        menu.setParentId(parentId);
+        menu.setMenuType(type);
+        menu.setMenuName(name);
+        menu.setPath(path);
+        menu.setComponent(component);
+        menu.setIsFrame("1");
+        menu.setIsCache("0");
+        menu.setVisible("0");
+        menu.setIcon("icon");
+        return menu;
+    }
+
+    private SysMenu childOf(SysMenu parent, SysMenu... children) {
+        parent.setChildren(new ArrayList<>(Arrays.asList(children)));
+        return parent;
+    }
+
+    /**
+     * 一级目录的跳转重定向按菜单路径匹配，改名后仍然生效（曾因按菜单名判断而静默失效）。
+     */
+    @Test
+    void topLevelDirectoryRedirectsAreKeyedByPath() {
+        Map<String, String> expected = new LinkedHashMap<>();
+        expected.put("admin/system", "/admin/system/user");
+        expected.put("admin/monitor", "/admin/monitor/online");
+        expected.put("admin/tool", "/admin/tool/gen");
+        expected.put("admin/blog", "/admin/blog/article");
+        expected.put("admin/statistics", "/admin/statistics/overview");
+
+        for (Map.Entry<String, String> entry : expected.entrySet()) {
+            SysMenu dir = menu(1L, 0L, "M", "任意名称", entry.getKey(), "Layout");
+            childOf(dir, menu(2L, 1L, "C", "子菜单", "child", "some/index"));
+
+            List<RouterVo> routers = menuService.buildMenus(Arrays.asList(dir));
+
+            assertEquals(entry.getValue(), routers.get(0).getRedirect(),
+                    "路径 " + entry.getKey() + " 应重定向到固定首子页");
+            assertEquals("/" + entry.getKey(), routers.get(0).getPath());
+        }
+    }
+
+    /**
+     * 不在重定向清单里的一级目录会清空自身 meta，并合成一个空路径子路由。
+     * 这是当前实现的行为，此处锁定它，避免被误当成回归。
+     */
+    @Test
+    void topLevelDirectoryOutsideRedirectListLosesMetaAndGetsSyntheticChild() {
+        SysMenu dir = menu(1L, 0L, "M", "自定义模块", "custom", "Layout");
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(dir));
+
+        RouterVo router = routers.get(0);
+        assertNull(router.getMeta(), "非清单内的一级目录 meta 被置空");
+        assertEquals(1, router.getChildren().size());
+        RouterVo synthetic = router.getChildren().get(0);
+        assertEquals("", synthetic.getPath());
+        assertEquals("Layout", synthetic.getComponent());
+        assertEquals("Custom", synthetic.getName());
+        assertEquals("自定义模块", synthetic.getMeta().getTitle());
+    }
+
+    @Test
+    void topLevelDirectoryWithChildrenUsesChildrenAsRoutes() {
+        SysMenu dir = menu(1L, 0L, "M", "博客管理", "admin/blog", "Layout");
+        SysMenu article = menu(2L, 1L, "C", "文章管理", "article", "blog/article/index");
+        SysMenu category = menu(3L, 1L, "C", "分类管理", "category", "blog/category/index");
+        childOf(dir, article, category);
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(dir));
+
+        RouterVo router = routers.get(0);
+        assertEquals(2, router.getChildren().size(), "子菜单必须覆盖合成路由，而不是只剩合成路由");
+        assertEquals("文章管理", router.getChildren().get(0).getMeta().getTitle());
+        assertEquals("category", router.getChildren().get(1).getPath());
+    }
+
+    /** 一级菜单（类型 C）即 menu frame：自身作为容器，子菜单挂成 children。 */
+    @Test
+    void topLevelMenuFrameWrapsItsChildren() {
+        SysMenu frame = menu(1L, 0L, "C", "首页", "index", "home/index");
+        childOf(frame, menu(2L, 1L, "C", "子页", "sub", "home/sub/index"));
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(frame));
+
+        RouterVo router = routers.get(0);
+        assertEquals("/", router.getPath(), "menu frame 的路由固定为 /");
+        assertEquals("", router.getName(), "menu frame 不参与命名，避免路由名冲突");
+        assertEquals("Layout", router.getComponent(), "frame 自身组件回退为 Layout");
+        assertEquals(Boolean.FALSE, router.getAlwaysShow());
+        assertEquals("noRedirect", router.getRedirect());
+        assertEquals(1, router.getChildren().size());
+    }
+
+    /** 非一级的目录（M）带子菜单时是 parent_view，且必须把 children 带上。 */
+    @Test
+    void nestedDirectoryBecomesParentView() {
+        SysMenu nested = menu(11L, 1L, "M", "多级目录", "nested", "");
+        childOf(nested, menu(12L, 11L, "C", "叶子", "leaf", "a/b/index"));
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(nested));
+
+        RouterVo router = routers.get(0);
+        assertEquals("ParentView", router.getComponent());
+        assertEquals(Boolean.TRUE, router.getAlwaysShow());
+        assertEquals("noRedirect", router.getRedirect());
+        assertEquals(1, router.getChildren().size());
+    }
+
+    /** 内链菜单（isFrame=1 非外链且 path 是 http(s) 地址）要把协议/域名改写成路径片段。 */
+    @Test
+    void innerLinkMenuRewritesPathAndUsesInnerLinkComponent() {
+        SysMenu inner = menu(21L, 1L, "C", "外部文档", "https://www.doc.com/guide", "");
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(inner));
+
+        RouterVo router = routers.get(0);
+        assertEquals("doc/com/guide", router.getPath());
+        assertEquals("InnerLink", router.getComponent());
+    }
+
+    @Test
+    void leafMenuKeepsItsOwnComponentAndHiddenFlagFollowsVisible() {
+        SysMenu visible = menu(31L, 1L, "C", "列表", "list", "blog/list/index");
+        SysMenu hidden = menu(32L, 1L, "C", "详情", "detail", "blog/detail/index");
+        hidden.setVisible("1");
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(visible, hidden));
+
+        assertEquals(2, routers.size());
+        assertFalse(routers.get(0).getHidden());
+        assertTrue(routers.get(1).getHidden());
+        assertEquals("blog/list/index", routers.get(0).getComponent());
+        assertNull(routers.get(0).getChildren(), "叶子菜单不应被合成 children");
+    }
+
+    /** 缓存与 query 透传给前端，isCache=1 才认为需要缓存。 */
+    @Test
+    void cacheFlagAndQueryArePassedThrough() {
+        SysMenu cached = menu(41L, 1L, "C", "字典", "dict", "system/dict/index");
+        cached.setIsCache("1");
+        cached.setQuery("{\"id\":1}");
+
+        List<RouterVo> routers = menuService.buildMenus(Arrays.asList(cached));
+
+        assertTrue(routers.get(0).getMeta().isNoCache());
+        assertEquals("{\"id\":1}", routers.get(0).getQuery());
     }
 }
