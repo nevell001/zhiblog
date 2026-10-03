@@ -1,23 +1,73 @@
-import { describe, it, expect, vi } from 'vitest'
-import { mount } from '@vue/test-utils'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { mount, flushPromises } from '@vue/test-utils'
+import ElementPlus from 'element-plus'
 import UserInfo from './userInfo.vue'
 
-const sourcePath = resolve(process.cwd(), 'src/views/admin/system/user/user/profile/userInfo.vue')
+const updateUserProfileMock = vi.fn()
 
-describe('UserInfo 视图组件测试', () => {
-  it('应该导出 UserInfo 组件', () => {
-    expect(UserInfo).toBeDefined()
-    expect(typeof UserInfo).toBe('object')
+vi.mock('@/api/system/user', () => ({
+  updateUserProfile: (...args: unknown[]) => updateUserProfileMock(...args)
+}))
+
+/**
+ * 挂真实 Element Plus：本文件断言的是规则驱动的校验结果（空手机号放行、
+ * 非法手机号拦截），stub 掉 el-form 后 validate 恒真，测试会失去意义。
+ */
+function mountForm(user: Record<string, any> = {}) {
+  const $modal = { msgSuccess: vi.fn(), msgError: vi.fn() }
+  const wrapper = mount(UserInfo, {
+    props: {
+      user: {
+        userId: 101,
+        nickName: '博客用户',
+        email: 'blog@example.com',
+        phonenumber: '',
+        sex: '0',
+        ...user
+      }
+    },
+    global: {
+      plugins: [ElementPlus],
+      config: { globalProperties: { $modal } }
+    }
+  })
+  return { wrapper, $modal }
+}
+
+function clickSave(wrapper: ReturnType<typeof mountForm>['wrapper']) {
+  return wrapper.find('button').trigger('click')
+}
+
+describe('基本资料表单（行为）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    updateUserProfileMock.mockResolvedValue({ code: 200 })
   })
 
-  it('保存基本资料成功后应该同步更新当前页面展示字段', () => {
-    const source = readFileSync(sourcePath, 'utf-8')
+  it('没有手机号的博客用户也能保存资料（空手机号放行），并把改动同步回页面', async () => {
+    const { wrapper, $modal } = mountForm()
+    await flushPromises()
 
-    expect(source).toContain('props.user.nickName = form.value.nickName')
-    expect(source).toContain('props.user.phonenumber = form.value.phonenumber')
-    expect(source).toContain('props.user.email = form.value.email')
-    expect(source).toContain('props.user.sex = form.value.sex')
+    await wrapper.find('input').setValue('新昵称')
+    await clickSave(wrapper)
+    await flushPromises()
+
+    expect(updateUserProfileMock).toHaveBeenCalledTimes(1)
+    expect(updateUserProfileMock.mock.calls[0][0]).toMatchObject({
+      nickName: '新昵称',
+      phonenumber: ''
+    })
+    expect($modal.msgSuccess).toHaveBeenCalled()
+    expect((wrapper.props('user') as Record<string, any>).nickName).toBe('新昵称')
+  })
+
+  it('手机号格式不合法时仍然拦截保存', async () => {
+    const { wrapper } = mountForm({ phonenumber: '12345' })
+    await flushPromises()
+
+    await clickSave(wrapper)
+    await flushPromises()
+
+    expect(updateUserProfileMock).not.toHaveBeenCalled()
   })
 })
