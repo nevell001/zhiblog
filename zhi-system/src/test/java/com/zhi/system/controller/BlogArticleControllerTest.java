@@ -6,7 +6,6 @@ import com.zhi.system.service.IBlogArticleService;
 import com.zhi.system.service.IBlogCategoryService;
 import com.zhi.system.service.IBlogTagService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,6 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -599,88 +600,71 @@ class BlogArticleControllerTest {
     }
 
     /**
-     * 测试更新文章状态接口 - 异常情况
-     *
-     * 已禁用：控制器不再捕获异常，由全局异常处理器统一处理
-     * 异常处理由 GlobalExceptionHandler 测试覆盖
+     * 服务层异常必须原样冒泡出去，交给 GlobalExceptionHandler 统一转成错误响应。
+     * <p>
+     * 控制器早前的 try/catch + {@code code=1} 形态已被移除，这三个用例断言的正是
+     * 「不在控制器内吞异常」这条契约；转换后的响应形态由 zhi-framework 的
+     * {@code GlobalExceptionHandlerTest} 断言（跨模块，此处无法引用该处理器）。
      */
     @Test
-    @Disabled("控制器不再捕获异常，由全局异常处理器统一处理")
-    void testChangeStatus_Exception() throws Exception {
-        // 模拟异常
-        when(blogArticleService.updateArticleStatus(anyList(), anyInt())).thenThrow(new RuntimeException("数据库错误"));
+    void updateStatus_propagatesServiceFailureToGlobalHandler() throws Exception {
+        when(blogArticleService.updateArticleStatus(anyList(), anyInt()))
+                .thenThrow(new RuntimeException("数据库错误"));
 
-        // 准备请求体
         Map<String, Object> articleStatus = new HashMap<>();
-        List<Long> ids = new ArrayList<>();
-        ids.add(1L);
-        articleStatus.put("ids", ids);
+        articleStatus.put("ids", List.of(1L));
         articleStatus.put("status", 1);
 
-        // 执行测试 - 全局异常处理器会处理异常
-        mockMvc.perform(put("/system/article/status")
+        Throwable thrown = catchThrowable(() -> mockMvc.perform(put("/system/article/status")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(articleStatus)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(1)); // 全局异常处理器返回失败状态
+                .content(objectMapper.writeValueAsString(articleStatus))));
 
+        assertThat(rootCause(thrown)).isInstanceOf(RuntimeException.class).hasMessage("数据库错误");
         verify(blogArticleService).updateArticleStatus(anyList(), anyInt());
     }
 
-    /**
-     * 测试新增文章接口 - 异常情况
-     *
-     * 已禁用：控制器不再捕获异常，由全局异常处理器统一处理
-     * 异常处理由 GlobalExceptionHandler 测试覆盖
-     */
     @Test
-    @Disabled("控制器不再捕获异常，由全局异常处理器统一处理")
-    void testAddArticle_Exception() throws Exception {
-        // 模拟异常
-        when(blogArticleService.insertBlogArticle(any(BlogArticle.class))).thenThrow(new RuntimeException("数据库错误"));
+    void add_propagatesServiceFailureToGlobalHandler() throws Exception {
+        when(blogArticleService.insertBlogArticle(any(BlogArticle.class)))
+                .thenThrow(new RuntimeException("数据库错误"));
 
-        // 准备请求体
         Map<String, Object> params = new HashMap<>();
         params.put("title", "测试文章标题");
         params.put("content", "测试文章内容");
         params.put("status", 0L);
 
-        // 执行测试 - 全局异常处理器会处理异常
-        mockMvc.perform(post("/system/article")
+        Throwable thrown = catchThrowable(() -> mockMvc.perform(post("/system/article")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(params)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(1)); // 全局异常处理器返回失败状态
+                .content(objectMapper.writeValueAsString(params))));
 
+        assertThat(rootCause(thrown)).isInstanceOf(RuntimeException.class).hasMessage("数据库错误");
         verify(blogArticleService).insertBlogArticle(any(BlogArticle.class));
     }
 
-    /**
-     * 测试更新文章接口 - 异常情况
-     *
-     * 已禁用：控制器不再捕获异常，由全局异常处理器统一处理
-     * 异常处理由 GlobalExceptionHandler 测试覆盖
-     */
     @Test
-    @Disabled("控制器不再捕获异常，由全局异常处理器统一处理")
-    void testEditArticle_Exception() throws Exception {
-        // 模拟异常
-        when(blogArticleService.updateBlogArticle(any(BlogArticle.class))).thenThrow(new RuntimeException("数据库错误"));
+    void edit_propagatesServiceFailureToGlobalHandler() throws Exception {
+        when(blogArticleService.updateBlogArticle(any(BlogArticle.class)))
+                .thenThrow(new RuntimeException("数据库错误"));
 
-        // 准备请求体
         Map<String, Object> params = new HashMap<>();
         params.put("id", 1L);
         params.put("title", "测试文章标题");
         params.put("content", "测试文章内容");
         params.put("status", 0L);
 
-        // 执行测试 - 全局异常处理器会处理异常
-        mockMvc.perform(put("/system/article")
+        Throwable thrown = catchThrowable(() -> mockMvc.perform(put("/system/article")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(params)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(1)); // 全局异常处理器返回失败状态
+                .content(objectMapper.writeValueAsString(params))));
 
+        assertThat(rootCause(thrown)).isInstanceOf(RuntimeException.class).hasMessage("数据库错误");
         verify(blogArticleService).updateBlogArticle(any(BlogArticle.class));
+    }
+
+    private static Throwable rootCause(Throwable thrown) {
+        Throwable current = thrown;
+        while (current.getCause() != null && current.getCause() != current) {
+            current = current.getCause();
+        }
+        return current;
     }
 }
