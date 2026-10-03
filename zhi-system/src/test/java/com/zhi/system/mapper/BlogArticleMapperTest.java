@@ -2,7 +2,6 @@ package com.zhi.system.mapper;
 
 import com.zhi.system.domain.BlogArticle;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.mybatis.spring.annotation.MapperScan;
@@ -224,14 +223,38 @@ class BlogArticleMapperTest {
     }
 
     /**
-     * 测试文章归档功能
-     * 注意：此测试被禁用，因为它使用 DATE_FORMAT 函数，H2 数据库不支持
+     * 归档查询按创建月份分组，只统计已发布（status=1）且未删除（del_flag=0）的文章，
+     * 并按月份倒序返回。DATE_FORMAT 由 schema.sql 里的 H2 别名提供，
+     * 所以这条 SQL 是真的被执行、真的在断言结果，而不是被禁用。
      */
     @Test
-    @Disabled("H2 database doesn't support MySQL's DATE_FORMAT function")
-    void testGetArticleArchive() {
+    @Sql(scripts = "/schema.sql", statements = {
+        "DELETE FROM blog_article",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-1月A', 1, '0', '2026-01-15 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-1月B', 1, '0', '2026-01-28 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('归档-2月A', 1, '0', '2026-02-03 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('草稿', 0, '0', '2026-02-04 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('已删除', 1, '1', '2026-02-05 10:00:00')"
+    })
+    void getArticleArchive按创建月份分组并排除草稿与已删除() {
         List<Map<String, Object>> archiveList = blogArticleMapper.getArticleArchive();
-        assertNotNull(archiveList, "文章归档查询失败");
-        // 归档列表可能为空，但不应该抛出异常
+
+        assertEquals(2, archiveList.size(), "应只聚出 2026-01 与 2026-02 两个分组，草稿和已删除文章不参与");
+        assertEquals("2026-02", String.valueOf(firstValue(archiveList.get(0), "archive_date")),
+                "倒序排列，第一个分组应为最近月份");
+        assertEquals(1L, ((Number) firstValue(archiveList.get(0), "article_count")).longValue(),
+                "2026-02 只有 1 篇已发布文章");
+        assertEquals("2026-01", String.valueOf(firstValue(archiveList.get(1), "archive_date")));
+        assertEquals(2L, ((Number) firstValue(archiveList.get(1), "article_count")).longValue(),
+                "2026-01 的 2 篇已发布文章应归入同一分组");
+    }
+
+    /** H2 返回的列标签是大写，MySQL 是小写，取键时忽略大小写以免绑定数据库实现。 */
+    private static Object firstValue(Map<String, Object> row, String column) {
+        return row.entrySet().stream()
+                .filter(entry -> entry.getKey().equalsIgnoreCase(column))
+                .map(Map.Entry::getValue)
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("归档行缺少列 " + column + "，实际键: " + row.keySet()));
     }
 }

@@ -1,3 +1,6 @@
+-- H2 没有 MySQL 的 DATE_FORMAT，归档等 SQL 依赖它，用别名指到测试内的兼容实现
+CREATE ALIAS IF NOT EXISTS DATE_FORMAT FOR "com.zhi.system.testsupport.H2MysqlCompat.dateFormat";
+
 -- 博客文章表
 CREATE TABLE IF NOT EXISTS blog_article (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
