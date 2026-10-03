@@ -156,20 +156,7 @@ public class GlobalExceptionHandler
     {
         String requestURI = request.getRequestURI();
         log.error("请求地址'{}'未找到，发生404异常.", requestURI, e);
-        
-        String errorMessage = String.format(
-            "页面访问异常 (type=Not Found, status=404)%n" +
-            "错误详情：请求的页面或资源不存在%n%n" +
-            "💡 解决方案建议：%n" +
-            "1. 检查URL地址是否正确拼写%n" +
-            "2. 确认页面是否已被移动或删除%n" +
-            "3. 尝试刷新页面或清除浏览器缓存%n" +
-            "4. 如需访问博客内容，请直接访问：http://localhost:8080/blog%n" +
-            "5. 如问题持续存在，请联系系统管理员%n%n" +
-            "Technical Details: %s",
-            e.getMessage()
-        );
-        
-        return AjaxResult.error(HttpStatus.NOT_FOUND, errorMessage);
+        // 只回一句可读文案：请求地址已在日志里，不把 URI 和异常细节回显给前端
+        return AjaxResult.error(HttpStatus.NOT_FOUND, "请求的页面或资源不存在");
     }
 }

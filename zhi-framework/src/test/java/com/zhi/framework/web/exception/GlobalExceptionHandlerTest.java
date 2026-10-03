@@ -177,14 +177,19 @@ class GlobalExceptionHandlerTest
     }
 
     @Test
-    void missingHandlerReturns404AndKeepsTheRequestedUrlOutOfTheStack()
+    void missingHandlerAnswers404WithoutEchoingUrlOrHostOrStackDetails()
     {
         NoHandlerFoundException e = new NoHandlerFoundException("GET", "/blog/not-exists", null);
 
         AjaxResult result = handler.handleNoHandlerFoundException(e, request);
 
         assertThat(codeOf(result)).isEqualTo(HttpStatus.NOT_FOUND);
-        assertThat(msgOf(result)).contains("404");
+        String msg = msgOf(result);
+        assertThat(msg).isEqualTo("请求的页面或资源不存在");
+        // 回归锁：这段文案曾写死 http://localhost:8080/blog，真实域名下会误导用户
+        assertThat(msg).doesNotContain("localhost").doesNotContain("8080");
+        // 请求地址与异常细节只进日志，不回显给前端
+        assertThat(msg).doesNotContain("/blog/not-exists").doesNotContain("No handler found");
         assertThat(result.get(AjaxResult.DATA_TAG)).isNull();
     }
 }
