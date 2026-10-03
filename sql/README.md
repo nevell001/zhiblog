@@ -59,6 +59,25 @@ docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_fix_sample_a
 
 脚本首尾各有一段只读 `SELECT`，跑完对照「正文形态应全为 HTML(正常)、标签数 3/3/4/3/2/1」。
 
+### `99_fix_blog_user_type_v1.4.3.sql` （v1.4.3 一次性补丁）
+修 **已有安装**里注册用户的 `sys_user.user_type`：v1.4.2 及更早版本 `SysUserMapper.insertUser` 漏了 `user_type` 列，
+注册接口设置的 `'01'`（博客用户）被静默丢弃、落库落到默认 `'00'`（系统用户），前台因此把注册用户当管理员：
+显示「管理后台」入口、个人中心渲染出「写文章」，点击跳 `/admin/blog/article` 404。
+
+- **谁需要跑**：v1.4.3 之前已有注册用户的实例。**新装不需要**（insertUser 已修复，新注册即写入 '01'）。
+- **为什么不能靠重跑 00**：00 的幂等只跳过已有数据行，不会修正已写坏的 `user_type`。
+- **安全性**：只改「持有且仅持有 `blog_user` 角色」的用户（注册流程必配该角色，系统侧账号不会命中）；
+  已是 '01' 或角色集合里还有其它角色的一律跳过；可重复执行，第二次跑 0 行受影响。
+- **执行前请备份，脚本刻意不写 `CREATE DATABASE` / `USE`**，库名由命令行给出：
+
+```bash
+mysql -u root -p zhiblog < sql/99_fix_blog_user_type_v1.4.3.sql
+# Docker
+docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_fix_blog_user_type_v1.4.3.sql
+```
+
+脚本首尾各有一段只读 `SELECT`，跑完对照第二段的「修复后类型」应全为 `01`。
+
 ## 使用方法
 
 ### 新部署（首次安装）
@@ -91,7 +110,8 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 
 但也因为「不会覆盖已有数据」，涉及既有数据行的修复要另外跑 `99_*.sql`：
 v1.4.2 的示例文章正文/分类/标签就是这种情况，见上面的
-`99_fix_sample_articles_v1.4.2.sql`。
+`99_fix_sample_articles_v1.4.2.sql`；v1.4.3 的注册用户 `user_type` 同理，见
+`99_fix_blog_user_type_v1.4.3.sql`。
 
 ### 在 Docker 中执行
 
