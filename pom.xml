@@ -57,7 +57,7 @@
 
             <!-- override dependency version -->
 
-            <tomcat.version>10.1.42</tomcat.version>
+            <tomcat.version>11.0.26</tomcat.version>
 
 
 
