@@ -43,8 +43,7 @@ describe('Permission 模块测试', () => {
 
   it('进入后台时即使用户信息已存在也应确保动态菜单已生成', () => {
     expect(permissionSource).toContain('hasGeneratedRoutes')
-    expect(permissionSource).toContain('permissionStore.sidebarRouters.length > 0')
-    expect(permissionSource).toContain('permissionStore.addRoutes.length > 0')
+    expect(permissionSource).toContain('permissionStore.routesGenerated')
     expect(permissionSource).toContain('!hasUserInfo || !hasGeneratedRoutes')
   })
 })

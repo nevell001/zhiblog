@@ -76,8 +76,7 @@ router.beforeEach(
           }
 
           // 如果后台路由还没生成，则预生成
-          const hasGeneratedRoutes =
-            permissionStore.sidebarRouters.length > 0 || permissionStore.addRoutes.length > 0
+          const hasGeneratedRoutes = permissionStore.routesGenerated
           if (!hasGeneratedRoutes && userStore.roles.length > 0) {
             try {
               const accessRoutes = await permissionStore.generateRoutes()
@@ -128,13 +127,13 @@ router.beforeEach(
           const userStore = useUserStore()
           const permissionStore = usePermissionStore()
           const hasUserInfo = userStore.roles.length > 0
-          const hasGeneratedRoutes =
-            permissionStore.sidebarRouters.length > 0 || permissionStore.addRoutes.length > 0
+          const hasGeneratedRoutes = permissionStore.routesGenerated
 
           if (!hasUserInfo || !hasGeneratedRoutes) {
             // 判断当前用户信息和后台动态菜单是否已初始化
             try {
               if (!hasUserInfo) {
+                permissionStore.routesGenerated = false
                 await userStore.getInfo()
               }
               // 生成可访问的路由表

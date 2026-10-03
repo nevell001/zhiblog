@@ -17,6 +17,7 @@ interface ViewState {
   defaultRoutes: RouteRecordRaw[]
   topbarRouters: RouteRecordRaw[]
   sidebarRouters: RouteRecordRaw[]
+  routesGenerated: boolean
 }
 
 const usePermissionStore = defineStore('permission', {
@@ -25,7 +26,8 @@ const usePermissionStore = defineStore('permission', {
     addRoutes: [],
     defaultRoutes: [],
     topbarRouters: [],
-    sidebarRouters: []
+    sidebarRouters: [],
+    routesGenerated: false
   }),
 
   actions: {
@@ -62,6 +64,7 @@ const usePermissionStore = defineStore('permission', {
             this.setSidebarRouters(sidebarRoutes)
             this.setDefaultRoutes(sidebarRoutes)
             this.setTopbarRoutes(rewriteRoutes)
+            this.routesGenerated = true
             resolve(rewriteRoutes)
           })
           .catch(error => {

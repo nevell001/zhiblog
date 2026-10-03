@@ -331,13 +331,17 @@ function markAllNotificationsRead() {
 }
 
 function getUser() {
-  getUserProfile().then(response => {
-    state.user = response.data
-    state.roleGroup = response.roleGroup
-    state.postGroup = response.postGroup
-    getProfileArticles()
-    getNotifications()
-  })
+  getUserProfile()
+    .then(response => {
+      state.user = response.data
+      state.roleGroup = response.roleGroup
+      state.postGroup = response.postGroup
+      getProfileArticles()
+      getNotifications()
+    })
+    .catch(error => {
+      console.error('加载个人信息失败:', error)
+    })
 }
 
 function getProfileArticles() {
