@@ -116,12 +116,28 @@ router.beforeEach(
 
           next()
         } else if (to.path === '/login') {
-          // 如果有redirect参数，则重定向到指定路径
-          const redirect = to.query.redirect as string
-          if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
-            next({ path: redirect, replace: true })
-          } else {
-            next({ path: '/blog', replace: true })
+          // 访问登录页时，先验证 token 是否有效
+          const userStore = useUserStore()
+          try {
+            // 尝试获取用户信息以验证 token
+            if (userStore.token && (!userStore.name || userStore.roles.length === 0)) {
+              await userStore.getInfo()
+            }
+            // token 有效，已获取到用户信息，重定向到首页或 redirect 参数指定的页面
+            const redirect = to.query.redirect as string
+            if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
+              next({ path: redirect, replace: true })
+            } else {
+              next({ path: '/blog', replace: true })
+            }
+          } catch (error) {
+            // token 无效或过期，清除 token 并允许访问登录页
+            console.warn('token 验证失败，允许访问登录页:', error)
+            userStore.token = ''
+            userStore.roles = []
+            userStore.permissions = []
+            removeToken()
+            next()
           }
         } else {
           const userStore = useUserStore()
