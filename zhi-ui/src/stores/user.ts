@@ -80,7 +80,7 @@ export const useUserStore = defineStore('user', {
       this.name = user.userName
       this.nickName = user.nickName || user.userName || ''
       this.avatar = avatar
-      this.userType = data.userType || user.userType || '00'
+      this.userType = data.userType || user.userType || '01'
 
       const token = getToken()
       if (token && token !== this.token) {
