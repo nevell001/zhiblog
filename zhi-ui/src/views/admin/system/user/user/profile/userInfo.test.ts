@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import ElementPlus from 'element-plus'
+import { useUserStore } from '@/stores/user'
 import UserInfo from './userInfo.vue'
 
 const updateUserProfileMock = vi.fn()
@@ -15,6 +17,8 @@ vi.mock('@/api/system/user', () => ({
  */
 function mountForm(user: Record<string, any> = {}) {
   const $modal = { msgSuccess: vi.fn(), msgError: vi.fn() }
+  const pinia = createPinia()
+  setActivePinia(pinia)
   const wrapper = mount(UserInfo, {
     props: {
       user: {
@@ -27,11 +31,12 @@ function mountForm(user: Record<string, any> = {}) {
       }
     },
     global: {
-      plugins: [ElementPlus],
+      plugins: [ElementPlus, pinia],
       config: { globalProperties: { $modal } }
     }
   })
-  return { wrapper, $modal }
+  const userStore = useUserStore()
+  return { wrapper, $modal, userStore }
 }
 
 function clickSave(wrapper: ReturnType<typeof mountForm>['wrapper']) {
@@ -44,8 +49,9 @@ describe('基本资料表单（行为）', () => {
     updateUserProfileMock.mockResolvedValue({ code: 200 })
   })
 
-  it('没有手机号的博客用户也能保存资料（空手机号放行），并把改动同步回页面', async () => {
-    const { wrapper, $modal } = mountForm()
+  it('没有手机号的博客用户也能保存资料（空手机号放行），并同步页面与顶栏昵称', async () => {
+    const { wrapper, $modal, userStore } = mountForm()
+    userStore.nickName = '旧昵称'
     await flushPromises()
 
     await wrapper.find('input').setValue('新昵称')
@@ -59,6 +65,7 @@ describe('基本资料表单（行为）', () => {
     })
     expect($modal.msgSuccess).toHaveBeenCalled()
     expect((wrapper.props('user') as Record<string, any>).nickName).toBe('新昵称')
+    expect(userStore.nickName).toBe('新昵称')
   })
 
   it('手机号格式不合法时仍然拦截保存', async () => {
