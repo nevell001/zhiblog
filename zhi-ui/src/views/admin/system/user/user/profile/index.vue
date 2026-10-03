@@ -479,6 +479,14 @@ function onSwitchProfileTab(event: Event) {
   height: 72px;
 }
 
+/* 头像图片填满 72×72 容器并居中，避免 120×120 原图从左上角裁剪 */
+.profile-avatar :deep(.img-circle) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
 .profile-meta {
   min-width: 0;
   flex: 1;
