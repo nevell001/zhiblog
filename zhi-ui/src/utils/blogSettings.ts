@@ -18,18 +18,26 @@ export async function initBlogSettings(): Promise<void> {
     // 获取博客个性化设置（silent: 无权限时不弹通知，博客前台有自己的公开设置接口）
     const silentCfg = { silent: true }
     const [themeColor, logoUrl, sidebarStyle, customCss] = await Promise.all([
-      getConfigKey('theme_color', silentCfg).catch(
-        (): Config => ({ configKey: '', configValue: '', configName: '' })
-      ),
-      getConfigKey('blog_avatar', silentCfg).catch(
-        (): Config => ({ configKey: '', configValue: '', configName: '' })
-      ),
-      getConfigKey('sidebar_style', silentCfg).catch(
-        (): Config => ({ configKey: '', configValue: '', configName: '' })
-      ),
-      getConfigKey('custom_css', silentCfg).catch(
-        (): Config => ({ configKey: '', configValue: '', configName: '' })
-      )
+      getConfigKey('theme_color', silentCfg).catch((): Config => ({
+        configKey: '',
+        configValue: '',
+        configName: ''
+      })),
+      getConfigKey('blog_avatar', silentCfg).catch((): Config => ({
+        configKey: '',
+        configValue: '',
+        configName: ''
+      })),
+      getConfigKey('sidebar_style', silentCfg).catch((): Config => ({
+        configKey: '',
+        configValue: '',
+        configName: ''
+      })),
+      getConfigKey('custom_css', silentCfg).catch((): Config => ({
+        configKey: '',
+        configValue: '',
+        configName: ''
+      }))
     ])
 
     const settingsStore = useSettingsStore()
