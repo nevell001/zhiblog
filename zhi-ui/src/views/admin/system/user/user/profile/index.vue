@@ -18,7 +18,7 @@
           </div>
         </div>
         <div class="profile-actions">
-          <el-button type="primary" size="small" @click="goArticleManage('create')">
+          <el-button v-if="isAdmin" type="primary" size="small" @click="goArticleManage('create')">
             写文章
           </el-button>
           <el-button plain size="small" @click="openSettings('userinfo')">编辑资料</el-button>
@@ -26,18 +26,20 @@
       </section>
 
       <section class="profile-stat-grid">
-        <button type="button" class="stat-card" @click="selectedTab = 'articles'">
-          <span class="stat-label">文章总数</span>
-          <strong>{{ profileStats.articleTotal }}</strong>
-        </button>
-        <button type="button" class="stat-card" @click="selectedTab = 'articles'">
-          <span class="stat-label">已发布</span>
-          <strong>{{ profileStats.publishedTotal }}</strong>
-        </button>
-        <button type="button" class="stat-card" @click="selectedTab = 'articles'">
-          <span class="stat-label">草稿</span>
-          <strong>{{ profileStats.draftTotal }}</strong>
-        </button>
+        <template v-if="isAdmin">
+          <button type="button" class="stat-card" @click="selectedTab = 'articles'">
+            <span class="stat-label">文章总数</span>
+            <strong>{{ profileStats.articleTotal }}</strong>
+          </button>
+          <button type="button" class="stat-card" @click="selectedTab = 'articles'">
+            <span class="stat-label">已发布</span>
+            <strong>{{ profileStats.publishedTotal }}</strong>
+          </button>
+          <button type="button" class="stat-card" @click="selectedTab = 'articles'">
+            <span class="stat-label">草稿</span>
+            <strong>{{ profileStats.draftTotal }}</strong>
+          </button>
+        </template>
         <button type="button" class="stat-card" @click="openSettings('userinfo')">
           <span class="stat-label">角色</span>
           <strong>{{ state.roleGroup || '-' }}</strong>
@@ -48,6 +50,7 @@
         <main class="profile-workspace">
           <div class="profile-tabs">
             <button
+              v-if="isAdmin"
               type="button"
               class="tab"
               :class="{ active: selectedTab === 'articles' }"
@@ -72,7 +75,7 @@
                 <span class="ftag">已发布 {{ profileStats.publishedTotal }}</span>
                 <span class="ftag">草稿 {{ profileStats.draftTotal }}</span>
               </div>
-              <el-button type="primary" size="small" @click="goArticleManage('create')">
+              <el-button v-if="isAdmin" type="primary" size="small" @click="goArticleManage('create')">
                 写新文章
               </el-button>
             </div>
@@ -113,7 +116,7 @@
                   </td>
                   <td>
                     <div class="actions">
-                      <button type="button" class="act primary" @click="goArticleManage('list')">
+                      <button v-if="isAdmin" type="button" class="act primary" @click="goArticleManage('list')">
                         管理
                       </button>
                       <button
@@ -141,13 +144,13 @@
                 }}
               </div>
               <el-button
-                v-if="!articlesLoadError || !articlesLoadError.includes('权限')"
+                v-if="isAdmin && (!articlesLoadError || !articlesLoadError.includes('权限'))"
                 type="primary"
                 @click="goArticleManage('create')"
               >
                 去写文章
               </el-button>
-              <el-button v-else type="primary" @click="goArticleManage('list')">
+              <el-button v-else-if="isAdmin" type="primary" @click="goArticleManage('list')">
                 前往文章管理
               </el-button>
             </div>
@@ -196,7 +199,7 @@
               <div v-else class="empty-panel">
                 <div class="empty-title">暂无评论通知</div>
                 <div class="empty-desc">当有人评论你的文章或回复你的评论时，通知会出现在这里。</div>
-                <el-button plain @click="goArticleManage('list')">查看文章管理</el-button>
+                <el-button v-if="isAdmin" plain @click="goArticleManage('list')">查看文章管理</el-button>
               </div>
             </template>
           </section>
@@ -205,7 +208,7 @@
             <div class="empty-panel">
               <div class="empty-title">账号设置已打开</div>
               <div class="empty-desc">可在右侧面板维护基本资料或修改登录密码。</div>
-              <el-button plain @click="selectedTab = 'articles'">返回我的文章</el-button>
+              <el-button v-if="isAdmin" plain @click="selectedTab = 'articles'">返回我的文章</el-button>
             </div>
           </section>
         </main>
@@ -269,10 +272,13 @@ import { getUserProfile } from '@/api/system/user'
 import { getMyArticles } from '@/api/admin/blog/article'
 import { getNotificationList, markAsRead, markAllAsRead } from '@/api/blog/notification'
 import type { BlogNotification } from '@/api/blog/notification'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
-const selectedTab = ref('articles')
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.userType === '00')
+const selectedTab = ref(isAdmin.value ? 'articles' : 'notifications')
 const settingsTab = ref('userinfo')
 const state = reactive<Record<string, any>>({
   user: {},
@@ -336,7 +342,9 @@ function getUser() {
       state.user = response.data
       state.roleGroup = response.roleGroup
       state.postGroup = response.postGroup
-      getProfileArticles()
+      if (isAdmin.value) {
+        getProfileArticles()
+      }
       getNotifications()
     })
     .catch(error => {
