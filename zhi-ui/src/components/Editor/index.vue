@@ -89,7 +89,7 @@ const emit = defineEmits<{
 const options = ref({
   theme: 'snow',
   bounds: document.body,
-  debug: 'warn',
+  debug: 'warn' as const,
   modules: {
     // 工具栏配置
     toolbar: {
