@@ -6,7 +6,7 @@ import createCompression from './compression'
 import createSetupExtend from './setup-extend'
 import createComponents from './components'
 
-export default function createVitePlugins(viteEnv, isBuild = false) {
+export default function createVitePlugins(viteEnv) {
   const vitePlugins = [vue()]
 
   // 自动导入插件
@@ -16,7 +16,7 @@ export default function createVitePlugins(viteEnv, isBuild = false) {
   vitePlugins.push(createComponents())
 
   // SVG 图标插件
-  vitePlugins.push(createSvgIcon(isBuild))
+  vitePlugins.push(createSvgIcon())
 
   // setup 插件
   vitePlugins.push(createSetupExtend())

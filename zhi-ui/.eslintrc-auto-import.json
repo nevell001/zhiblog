@@ -13,6 +13,9 @@
     "MaybeRefOrGetter": true,
     "PropType": true,
     "Ref": true,
+    "ShallowRef": true,
+    "Slot": true,
+    "Slots": true,
     "VNode": true,
     "WritableComputedRef": true,
     "acceptHMRUpdate": true,
@@ -27,12 +30,14 @@
     "getActivePinia": true,
     "getCurrentInstance": true,
     "getCurrentScope": true,
+    "getCurrentWatcher": true,
     "h": true,
     "inject": true,
     "isProxy": true,
     "isReactive": true,
     "isReadonly": true,
     "isRef": true,
+    "isShallow": true,
     "mapActions": true,
     "mapGetters": true,
     "mapState": true,
@@ -61,6 +66,8 @@
     "readonly": true,
     "ref": true,
     "resolveComponent": true,
+    "safeWatch": true,
+    "safeWatchEffect": true,
     "setActivePinia": true,
     "setMapStoreSuffix": true,
     "shallowReactive": true,
@@ -86,8 +93,6 @@
     "watch": true,
     "watchEffect": true,
     "watchPostEffect": true,
-    "watchSyncEffect": true,
-    "safeWatch": true,
-    "safeWatchEffect": true
+    "watchSyncEffect": true
   }
 }
