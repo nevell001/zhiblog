@@ -39,11 +39,17 @@
             <span class="stat-label">草稿</span>
             <strong>{{ profileStats.draftTotal }}</strong>
           </button>
+          <button type="button" class="stat-card" @click="selectedTab = 'notifications'">
+            <span class="stat-label">未读通知</span>
+            <strong>{{ unreadNotificationCount }}</strong>
+          </button>
         </template>
-        <button type="button" class="stat-card" @click="openSettings('userinfo')">
-          <span class="stat-label">角色</span>
-          <strong>{{ state.roleGroup || '-' }}</strong>
-        </button>
+        <template v-else>
+          <button type="button" class="stat-card stat-card--wide" @click="selectedTab = 'notifications'">
+            <span class="stat-label">未读通知</span>
+            <strong>{{ unreadNotificationCount }}</strong>
+          </button>
+        </template>
       </section>
 
       <div class="profile-main-grid">
@@ -65,6 +71,15 @@
               @click="selectedTab = 'notifications'"
             >
               评论通知
+              <span v-if="unreadNotificationCount" class="tab-badge">{{ unreadNotificationCount }}</span>
+            </button>
+            <button
+              type="button"
+              class="tab"
+              :class="{ active: selectedTab === 'settings' }"
+              @click="selectedTab = 'settings'"
+            >
+              账号设置
             </button>
           </div>
 
@@ -204,61 +219,49 @@
             </template>
           </section>
 
-          <section v-else class="profile-content">
-            <div class="empty-panel">
-              <div class="empty-title">账号设置已打开</div>
-              <div class="empty-desc">可在右侧面板维护基本资料或修改登录密码。</div>
-              <el-button v-if="isAdmin" plain @click="selectedTab = 'articles'">返回我的文章</el-button>
+          <section v-else-if="selectedTab === 'settings'" class="profile-content profile-settings">
+            <div class="settings-account-info">
+              <div class="detail-row">
+                <svg-icon icon-class="user" />
+                用户名称
+                <span>{{ state.user.userName || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <svg-icon icon-class="phone" />
+                手机号码
+                <span>{{ state.user.phonenumber || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <svg-icon icon-class="email" />
+                用户邮箱
+                <span>{{ state.user.email || '-' }}</span>
+              </div>
+              <div v-if="state.user.dept" class="detail-row">
+                <svg-icon icon-class="tree" />
+                所属部门
+                <span>{{ state.user.dept.deptName }} / {{ state.postGroup }}</span>
+              </div>
+              <div class="detail-row">
+                <svg-icon icon-class="peoples" />
+                所属角色
+                <span>{{ state.roleGroup || '-' }}</span>
+              </div>
+              <div class="detail-row">
+                <svg-icon icon-class="date" />
+                创建日期
+                <span>{{ state.user.createTime || '-' }}</span>
+              </div>
             </div>
+            <el-tabs v-model="settingsSubTab" class="settings-tabs">
+              <el-tab-pane label="基本资料" name="userinfo">
+                <userInfo :user="state.user" />
+              </el-tab-pane>
+              <el-tab-pane label="修改密码" name="resetPwd">
+                <resetPwd />
+              </el-tab-pane>
+            </el-tabs>
           </section>
         </main>
-
-        <aside class="settings-card">
-          <div class="settings-heading">
-            <span>账号设置</span>
-            <el-button link type="primary" @click="openSettings('userinfo')">编辑</el-button>
-          </div>
-          <div class="profile-details">
-            <div class="detail-row">
-              <svg-icon icon-class="user" />
-              用户名称
-              <span>{{ state.user.userName || '-' }}</span>
-            </div>
-            <div class="detail-row">
-              <svg-icon icon-class="phone" />
-              手机号码
-              <span>{{ state.user.phonenumber || '-' }}</span>
-            </div>
-            <div class="detail-row">
-              <svg-icon icon-class="email" />
-              用户邮箱
-              <span>{{ state.user.email || '-' }}</span>
-            </div>
-            <div v-if="state.user.dept" class="detail-row">
-              <svg-icon icon-class="tree" />
-              所属部门
-              <span>{{ state.user.dept.deptName }} / {{ state.postGroup }}</span>
-            </div>
-            <div class="detail-row">
-              <svg-icon icon-class="peoples" />
-              所属角色
-              <span>{{ state.roleGroup || '-' }}</span>
-            </div>
-            <div class="detail-row">
-              <svg-icon icon-class="date" />
-              创建日期
-              <span>{{ state.user.createTime || '-' }}</span>
-            </div>
-          </div>
-          <el-tabs v-model="settingsTab" class="settings-tabs">
-            <el-tab-pane label="基本资料" name="userinfo">
-              <userInfo :user="state.user" />
-            </el-tab-pane>
-            <el-tab-pane label="修改密码" name="resetPwd">
-              <resetPwd />
-            </el-tab-pane>
-          </el-tabs>
-        </aside>
       </div>
     </div>
   </div>
@@ -279,7 +282,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const isAdmin = computed(() => userStore.userType === '00')
 const selectedTab = ref(isAdmin.value ? 'articles' : 'notifications')
-const settingsTab = ref('userinfo')
+const settingsSubTab = ref('userinfo')
 const state = reactive<Record<string, any>>({
   user: {},
   roleGroup: {},
@@ -303,6 +306,7 @@ const profileBio = computed(() => {
 // 站内信通知
 const notifications = ref<BlogNotification[]>([])
 const notificationsLoading = ref(false)
+const unreadNotificationCount = computed(() => notifications.value.filter(n => n.isRead === 0).length)
 
 function getNotifications() {
   notificationsLoading.value = true
@@ -397,7 +401,7 @@ function isPublished(article: any) {
 }
 
 function openSettings(tab: 'userinfo' | 'resetPwd') {
-  settingsTab.value = tab
+  settingsSubTab.value = tab
   selectedTab.value = 'settings'
 }
 
@@ -408,7 +412,7 @@ function goPublicArticle(articleId: number) {
 onMounted(() => {
   const activeTab = route.params && route.params.activeTab
   if (activeTab) {
-    settingsTab.value = Array.isArray(activeTab) ? activeTab[0] : activeTab
+    settingsSubTab.value = Array.isArray(activeTab) ? activeTab[0] : activeTab
     selectedTab.value = 'settings'
   }
   getUser()
@@ -577,16 +581,15 @@ function onSwitchProfileTab(event: Event) {
   font-weight: 600;
 }
 
+.stat-card--wide {
+  grid-column: 1 / -1;
+}
+
 .profile-main-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 360px;
-  gap: 16px;
-  align-items: start;
   margin-top: 16px;
 }
 
-.profile-workspace,
-.settings-card {
+.profile-workspace {
   min-width: 0;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
@@ -621,8 +624,38 @@ function onSwitchProfileTab(event: Event) {
   border-bottom-color: var(--mo-p600, #4f46e5);
 }
 
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  margin-left: 6px;
+  padding: 0 5px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  background: var(--mo-p600, #4f46e5);
+  border-radius: 9999px;
+}
+
 .profile-content {
   padding: 18px;
+}
+
+/* 账号设置页签：账号信息 + 子 Tab */
+.profile-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.settings-account-info {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mo-n200, #e7e5e4);
+  border-radius: 8px;
 }
 
 .filter-bar {
@@ -786,27 +819,9 @@ function onSwitchProfileTab(event: Event) {
   font-size: 13px;
 }
 
-.settings-card {
-  position: sticky;
-  top: 84px;
-  padding: 16px;
-}
-
-.settings-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-bottom: 12px;
-  color: var(--mo-n900, #1c1917);
-  font-size: 15px;
-  font-weight: 700;
-}
-
-.profile-details {
+.settings-account-info {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin-bottom: 14px;
   border: 1px solid var(--mo-n200, #e7e5e4);
   border-radius: 8px;
 }
@@ -866,10 +881,6 @@ function onSwitchProfileTab(event: Event) {
   .profile-stat-grid,
   .profile-main-grid {
     grid-template-columns: 1fr;
-  }
-
-  .settings-card {
-    position: static;
   }
 
   .article-table {
@@ -1110,8 +1121,7 @@ html.dark .verify {
   background: #27272a;
 }
 
-html.dark .profile-workspace,
-html.dark .settings-card {
+html.dark .profile-workspace {
   background: var(--mo-n0);
   border: 1px solid var(--mo-n200);
   border-radius: 8px;
@@ -1153,7 +1163,7 @@ html.dark .empty-panel {
   background: var(--mo-n0);
 }
 
-html.dark .profile-details {
+html.dark .settings-account-info {
   background: #27272a;
   border-color: var(--mo-n200);
 }
@@ -1166,10 +1176,6 @@ html.dark .detail-row {
 /* zinc-200 不在 --el-* 令牌内，保留字面量 */
 html.dark .detail-row span {
   color: #e4e4e7;
-}
-
-html.dark .settings-heading {
-  color: #f4f4f5;
 }
 
 html.dark .settings-tabs :deep(.el-tabs__header) {
@@ -1335,20 +1341,7 @@ html.dark.theme-mo-blog .settings-tabs :deep(.el-tab-pane) {
   background: transparent !important;
 }
 
-html.dark.theme-mo-blog .settings-card {
-  background: var(--mo-n50) !important;
-  border-color: var(--mo-n200) !important;
-}
-
-html.dark.theme-mo-blog .settings-card > * {
-  background-color: transparent !important;
-}
-
-html.dark.theme-mo-blog .settings-heading {
-  color: var(--mo-n700);
-}
-
-html.dark.theme-mo-blog .profile-details {
+html.dark.theme-mo-blog .settings-account-info {
   background: var(--mo-n50);
   border-color: var(--mo-n200);
 }
