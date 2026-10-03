@@ -27,7 +27,7 @@
 
             <!-- 3.3.13 是 3.3.x 最后一个 OSS 版本；此前项目把 Spring/Security BOM 显式覆盖成
                  6.1.6/6.1.5，低于 Boot 托管版本，等于主动降级到有 CVE 的区间 -->
-            <spring-boot.version>3.3.13</spring-boot.version>
+            <spring-boot.version>4.1.1</spring-boot.version>
 
             <druid.version>1.2.27</druid.version>
 
