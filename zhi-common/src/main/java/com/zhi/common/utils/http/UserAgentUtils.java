@@ -47,6 +47,11 @@ public class UserAgentUtils
      */
     public static String getBrowser(String userAgent)
     {
+        // 无 User-Agent 的请求（健康检查、部分 CLI 客户端）不得让登录链路 NPE
+        if (StringUtils.isEmpty(userAgent))
+        {
+            return UNKNOWN;
+        }
         // 如果启用了 Yauaa，优先使用 Yauaa 解析
         if (ENABLE_YAUAA)
         {
@@ -73,6 +78,10 @@ public class UserAgentUtils
      */
     public static String getOperatingSystem(String userAgent)
     {
+        if (StringUtils.isEmpty(userAgent))
+        {
+            return UNKNOWN;
+        }
         // 如果启用了 Yauaa，优先使用 Yauaa 解析
         if (ENABLE_YAUAA)
         {
