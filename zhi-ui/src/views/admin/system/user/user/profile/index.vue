@@ -438,7 +438,7 @@ function onSwitchProfileTab(event: Event) {
   padding: 18px 20px;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-lg);
+  border-radius: 12px;
   box-shadow: var(--mo-shadow-sm);
 }
 
@@ -494,7 +494,7 @@ function onSwitchProfileTab(event: Event) {
   font-size: 11px;
   font-weight: 600;
   background: var(--mo-p50, #eef2ff);
-  border-radius: var(--mo-r-full, 9999px);
+  border-radius: 9999px;
 }
 
 .bio {
@@ -529,7 +529,7 @@ function onSwitchProfileTab(event: Event) {
   cursor: pointer;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
   transition:
     border-color 0.15s,
     box-shadow 0.15s;
@@ -570,7 +570,7 @@ function onSwitchProfileTab(event: Event) {
   min-width: 0;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-lg);
+  border-radius: 12px;
   box-shadow: var(--mo-shadow-sm);
 }
 
@@ -626,7 +626,7 @@ function onSwitchProfileTab(event: Event) {
   font-size: 13px;
   cursor: pointer;
   background: var(--mo-n100, #f5f5f4);
-  border-radius: var(--mo-r-full, 9999px);
+  border-radius: 9999px;
   transition: all 0.15s;
 }
 
@@ -643,7 +643,7 @@ function onSwitchProfileTab(event: Event) {
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
   border-collapse: collapse;
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 .article-table th {
@@ -687,7 +687,7 @@ function onSwitchProfileTab(event: Event) {
   padding: 3px 8px;
   font-size: 12px;
   font-weight: 500;
-  border-radius: var(--mo-r-sm);
+  border-radius: 4px;
 }
 
 .tag-blue {
@@ -728,7 +728,7 @@ function onSwitchProfileTab(event: Event) {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: var(--mo-r-sm);
+  border-radius: 4px;
 }
 
 .act:hover {
@@ -751,7 +751,7 @@ function onSwitchProfileTab(event: Event) {
   text-align: center;
   background: var(--mo-n0, #fff);
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 .empty-title {
@@ -788,7 +788,7 @@ function onSwitchProfileTab(event: Event) {
   gap: 0;
   margin-bottom: 14px;
   border: 1px solid var(--mo-n200, #e7e5e4);
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 .detail-row {
@@ -1039,7 +1039,7 @@ html.dark .filter-bar {
 html.dark .notification-list {
   background: var(--mo-n800);
   border: 1px solid var(--mo-n700);
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 html.dark .notify-header {
@@ -1094,7 +1094,7 @@ html.dark .profile-workspace,
 html.dark .settings-card {
   background: var(--mo-n0);
   border: 1px solid var(--mo-n200);
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 html.dark .profile-tabs {

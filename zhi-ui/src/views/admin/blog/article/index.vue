@@ -1478,7 +1478,7 @@ onMounted(async () => {
   cursor: pointer;
   background: transparent;
   border: 0;
-  border-radius: var(--mo-r-sm);
+  border-radius: 4px;
   transition: all 0.1s;
 }
 
@@ -1584,7 +1584,7 @@ onMounted(async () => {
   font-style: italic;
   background: #eef2ff;
   border-left: 3px solid #818cf8;
-  border-radius: 0 var(--mo-r-md) var(--mo-r-md) 0;
+  border-radius: 0 8px 8px 0;
 }
 
 .preview-empty {
@@ -1659,7 +1659,7 @@ onMounted(async () => {
   height: 64px;
   object-fit: cover;
   border: 1px solid #e7e5e4;
-  border-radius: var(--mo-r-md);
+  border-radius: 8px;
 }
 
 .switch-row {
