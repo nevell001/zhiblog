@@ -93,11 +93,11 @@
                 {{ tagDescription || '暂无描述' }}
               </p>
               <div class="tag-meta">
-                <span class="meta-item">
+                <span class="tag-meta-item">
                   <el-icon><DocumentCopy /></el-icon>
                   {{ total }} 篇文章
                 </span>
-                <span class="meta-item">
+                <span class="tag-meta-item">
                   <el-icon><Calendar /></el-icon>
                   创建时间 {{ formatDate(tagCreateTime) }}
                 </span>
@@ -162,16 +162,16 @@
               <li
                 v-for="(article, index) in recentArticles.slice(0, 8)"
                 :key="article.id"
-                class="article-item"
+                class="recent-item"
                 :style="{ animationDelay: `${0.5 + index * 0.05}s` }"
               >
                 <router-link
                   :to="`/blog/article/${article.id}`"
-                  class="article-link"
+                  class="recent-link"
                   :title="article.title"
                 >
-                  <span class="article-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
-                  <span class="article-title">{{ article.title }}</span>
+                  <span class="recent-date">{{ formatDate(article.createTime, 'MM-dd') }}</span>
+                  <span class="recent-title">{{ article.title }}</span>
                 </router-link>
               </li>
             </ul>
@@ -572,7 +572,7 @@ onMounted(() => {
   margin-bottom: var(--mo-sp-5);
 }
 
-.article-item {
+.recent-item {
   background: white;
   border-radius: var(--mo-r-md);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -583,14 +583,13 @@ onMounted(() => {
   flex-direction: column;
 }
 
-.article-item:hover {
+.recent-item:hover {
   transform: translateY(-4px);
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
   border-color: rgba(79, 70, 229, 0.1);
 }
 
-/* 侧边栏 .tag-meta .meta-item / .article-link .article-title 复用这两个基类，勿删 */
-.meta-item {
+.tag-meta-item {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -600,17 +599,17 @@ onMounted(() => {
   transition: background-color 0.3s ease;
 }
 
-.meta-item:hover {
+.tag-meta-item:hover {
   background: rgba(79, 70, 229, 0.1);
   color: var(--mo-p600);
 }
 
-.meta-item .el-icon {
+.tag-meta-item .el-icon {
   font-size: var(--mo-fs-md);
   opacity: 0.8;
 }
 
-.article-title {
+.recent-title {
   margin: 0 0 15px 0;
   font-size: var(--mo-fs-2xl);
   line-height: 1.4;
@@ -682,7 +681,7 @@ onMounted(() => {
   gap: var(--mo-sp-2);
 }
 
-.tag-meta .meta-item {
+.tag-meta .tag-meta-item {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -781,18 +780,18 @@ onMounted(() => {
   margin: 0;
 }
 
-.recent-articles .article-item {
+.recent-articles .recent-item {
   margin-bottom: 10px;
   padding-bottom: 10px;
   border-bottom: 1px solid var(--mo-n100);
 }
 
-.recent-articles .article-item:last-child {
+.recent-articles .recent-item:last-child {
   margin-bottom: 0;
   border-bottom: none;
 }
 
-.article-link {
+.recent-link {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -803,17 +802,17 @@ onMounted(() => {
   transition: color 0.3s ease;
 }
 
-.article-link:hover {
+.recent-link:hover {
   color: var(--mo-p600);
 }
 
-.article-date {
+.recent-date {
   font-size: 0.8rem;
   color: var(--mo-n500);
   min-width: 40px;
 }
 
-.article-link .article-title {
+.recent-link .recent-title {
   flex: 1;
   margin: 0;
   font-size: 0.9rem;
@@ -899,11 +898,11 @@ onMounted(() => {
     min-height: 200px;
   }
 
-  .article-item {
+  .recent-item {
     margin-bottom: var(--mo-sp-5);
   }
 
-  .article-title {
+  .recent-title {
     font-size: 1.4rem;
   }
 
@@ -955,12 +954,12 @@ onMounted(() => {
     padding: 15px 10px;
   }
 
-  .article-item {
+  .recent-item {
     border-radius: var(--mo-r-sm);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
   }
 
-  .article-title {
+  .recent-title {
     font-size: var(--mo-fs-xl);
     margin-bottom: var(--mo-sp-3);
   }
@@ -1025,23 +1024,23 @@ html.dark .tag-icon-large {
   color: rgba(255, 255, 255, 0.9);
 }
 
-html.dark .article-item {
+html.dark .recent-item {
   background: var(--mo-n800);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border-color: var(--mo-n800);
 }
 
-html.dark .article-item:hover {
+html.dark .recent-item:hover {
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
   border-color: rgba(79, 70, 229, 0.2);
 }
 
-html.dark .meta-item {
+html.dark .tag-meta-item {
   background: rgba(255, 255, 255, 0.05);
   color: var(--mo-n400);
 }
 
-html.dark .meta-item:hover {
+html.dark .tag-meta-item:hover {
   background: rgba(79, 70, 229, 0.15);
   color: var(--mo-p300);
 }
@@ -1064,7 +1063,7 @@ html.dark .tag-about .tag-desc {
   color: var(--mo-n400);
 }
 
-html.dark .tag-meta .meta-item {
+html.dark .tag-meta .tag-meta-item {
   color: var(--mo-n400);
   background: rgba(255, 255, 255, 0.05);
 }
@@ -1094,19 +1093,19 @@ html.dark .tag-article-count {
   color: var(--mo-n500);
 }
 
-html.dark .recent-articles .article-item {
+html.dark .recent-articles .recent-item {
   border-bottom-color: var(--mo-n800);
 }
 
-html.dark .article-link {
+html.dark .recent-link {
   color: var(--mo-n400);
 }
 
-html.dark .article-link:hover {
+html.dark .recent-link:hover {
   color: var(--mo-p300);
 }
 
-html.dark .article-date {
+html.dark .recent-date {
   color: var(--mo-n500);
 }
 
@@ -1129,11 +1128,11 @@ html.dark .tag-link {
   }
 }
 
-.article-item,
+.recent-item,
 .sidebar-widget,
 .related-tag-item,
 .popular-tag-item,
-.recent-articles .article-item {
+.recent-articles .recent-item {
   opacity: 0;
   animation: fadeInUp 0.6s ease forwards;
 }
