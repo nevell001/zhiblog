@@ -80,7 +80,11 @@ export const useUserStore = defineStore('user', {
       this.name = user.userName
       this.nickName = user.nickName || user.userName || ''
       this.avatar = avatar
-      this.userType = data.userType || user.userType || '01'
+      
+      // 确保 userType 是字符串格式，优先从 data.userType 读取，其次从 user.userType 读取
+      // 如果都没有，默认为 '01'（普通用户）而非 '00'（管理员）
+      const rawUserType = data.userType ?? user.userType
+      this.userType = rawUserType != null ? String(rawUserType) : '01'
 
       const token = getToken()
       if (token && token !== this.token) {
