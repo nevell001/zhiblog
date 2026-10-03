@@ -61,7 +61,7 @@
 
 
 
-            <mybatis-spring-boot.version>3.0.3</mybatis-spring-boot.version>
+            <mybatis-spring-boot.version>4.1.0</mybatis-spring-boot.version>
 
             <jaxb-api.version>2.3.1</jaxb-api.version>
 
