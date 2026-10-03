@@ -22,6 +22,13 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     envDir: '.', // Load .env files from root directory
+    // element-plus 被外部化时，其内部 async-validator 会被 Node 解析到 CJS 构建，
+    // default 导入互操作拿不到构造函数（校验静默全放行）；内联让 Vite 解析到 ESM 构建
+    server: {
+      deps: {
+        inline: ['element-plus', 'async-validator']
+      }
+    },
     // 测试超时时间（毫秒）
     timeout: 10000,
     // 启用并行测试执行
