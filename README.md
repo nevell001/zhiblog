@@ -13,24 +13,29 @@
 - **一键部署**：Docker Compose 管理前后端、MySQL、Redis 与 Prometheus/Grafana
 - **工程化**：JaCoCo 60% / Vitest 覆盖率门槛，Checkstyle + ESLint + Prettier，产线依赖 `npm audit` 闸门 + Dependabot 自动安全 PR，统一版本管理
 
-## 📦 最近更新 (v1.4.2)
+## 📦 最近更新 (v1.4.3)
 
-主题是「注册—邮件—评论」这条自助链路能真正跑通，以及一处会让文章详情页整页打不开的回归。
+主题是「权限」与「设计系统」两条线：一处让所有注册用户看到管理员界面的缺陷，和一次前端令牌化/深色模式收敛；同时把后端覆盖率门禁从静默跳过变成真正生效。
 
-**安全与隐私**
+**安全与修复**
 
-- 点赞/收藏写端点补上 IP 限流；匿名可读的设置值端点改为优先读 `blog_setting`，与后台保存口径一致
-- 验证码不再以明文进日志，生产不再继承 dev 的 SQL 参数打印（此前注册/找回密码的验证码会随 MyBatis 参数日志落到日志文件）
-- 设置保存不再「假成功」：`sys_config` 同步失败如实报错，开关切换失败给提示并回滚 UI 状态
+- **注册用户被当成系统用户**：`SysUserMapper.insertUser` 漏写 `user_type` 列，注册时设的 `'01'` 被静默丢弃、落库成默认 `'00'`，于是自助注册的人在前台看到「管理后台」入口、个人中心渲染出「写文章」，点进去 404。已修 mapper + 加 H2 往返测试，存量数据需跑 `sql/99_fix_blog_user_type_v1.4.3.sql` 并**重新登录**
+- 后台「留言管理」整页 500（`blog_message` 建表缺 `create_by`/`update_by`，而 mapper 查询了它们；公开留言板不写这两列所以前台一直正常）；博客用户保存不了基本资料（手机号被当必填而注册从不采集）；保存后顶栏昵称需整页刷新才更新；头像裁剪选框可拖出图片、预览与实际提交偏离
+- XSS 消毒器移除 `style` 属性并把 `iframe` 收敛到域名白名单；404 响应文案不再回显 `localhost:8080`；缺 User-Agent 的探测请求不再让登录链路空指针；`axios` / `brace-expansion` 产线高危漏洞升级
 
-**功能与修复**
+**功能与体验**
 
-- 邮件服务可在后台配置：填 SMTP 后热更新生效无需重启，密码脱敏回显、支持「用当前表单测试连接」并把失败原因透传到提示，同时显示 dev-print-code 状态
-- 博客设置页改版（功能开关按互动/账号分组为卡片网格），并把「用户注册」开关上设置页（真实数据源是 `sys_config.sys.account.registerUser`，默认关闭且只认字面 `"true"`）
-- 修复多标签文章详情页 500（标签表 `LEFT JOIN` 扇出 + 缺 `GROUP BY`，文章有 2 个以上标签即整页打不开）、登录用户评论/留言被误拒「昵称不能为空」（`SecurityContext` 补全写在校验之后）、示例文章正文是 Markdown 却按 HTML 渲染导致的源码显示与分类/标签错挂
-- 前台登录用户可修改/删除自己的评论
+- 留言板开关（`guestbook_enabled`）：关闭后前台三个接口**读写一并拒绝**，不只是隐藏入口；后台审核不受影响
+- 文章评论列表改分页（此前一次性加载全部）、分类/标签计数改 COUNT 查询（不再全表加载取 `size()`）
+- 标签总览页重设计为数据驱动；个人中心从双栏工作台改为博客风格单栏标签页
+- 设计系统收敛：色板/字体/圆角/阴影令牌收到 `:root` 一处，前台字号间距收到 `--mo-fs-*`/`--mo-sp-*`，断点统一到 768/1024，抽出文章卡/空状态/分页/骨架屏公共组件，删除零引用死组件；修复深色模式下多处文字不可见（`--mo-*` 在暗色下被重映射为背景/文字两种角色），支持 `prefers-reduced-motion`
 
-详细变更见 [v1.4.2 发布说明](docs/releases/v1.4.2.md)。
+**工程与质量**
+
+- **zhi-framework 从 0 个测试到 131 个**：该模块此前没有测试，JaCoCo 因此从不生成 `jacoco.exec`，60% 门禁一直静默跳过。补齐后行覆盖 78.4%、分支覆盖 71.8%，阈值未下调，只排除纯 `@Bean` 装配类与 OSHI 机器快照 POJO
+- 三个 `@Disabled` 僵尸测试改成真实契约断言；H2 补 `DATE_FORMAT` 函数别名让归档 SQL 恢复真实覆盖；约 31 个 `readFileSync` + `toContain` 式「断言源码文本」的测试改为挂载组件断言行为
+
+详细变更见 [v1.4.3 发布说明](docs/releases/v1.4.3.md)。
 
 ## 🌐 访问方式
 
@@ -117,6 +122,8 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 > 数据卷已存在的 Docker 数据库**不会**再自动执行 `docker-entrypoint-initdb.d`，必须手动重跑一次。
 > 注意幂等是靠 `INSERT IGNORE` 与「按标题判存在」实现的：**已存在的数据行不会被修复**，
 > 所以 v1.4.2 的示例文章正文/分类标签要单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`（新装库不需要）。
+> **v1.4.3 必跑** `sql/99_fix_blog_user_type_v1.4.3.sql`：早期 `insertUser` 漏写 `user_type`，
+> 存量注册用户被落成系统用户、因而看到「管理后台」入口；跑完后这些账号需**退出重新登录**才生效。
 > 部署提示：`/sitemap.xml`、`/robots.txt` 在后端根路径，Nginx 同源反代时请转发到后端；PV/UV 曲线依赖每小时定时汇总（当天数据约 1 小时延迟）。
 
 ## 📁 项目结构
@@ -211,9 +218,14 @@ R_TOKEN_SECRET={your_secret_key}
 
 ## 📦 版本历史
 
+### v1.4.3 (2026-10-03)
+
+- 见上方「最近更新」与 [发布说明](docs/releases/v1.4.3.md)；表结构有变更（`blog_message.create_by/update_by`），重跑 `sql/00_init_database.sql` 即可补齐；**存量注册用户必须**再跑 [`sql/99_fix_blog_user_type_v1.4.3.sql`](sql/README.md) 并重新登录
+- 本版本让 zhi-framework 的 JaCoCo 覆盖率门禁真正开始生效（该模块此前 0 测试，门禁静默跳过）
+
 ### v1.4.2 (2026-10-02)
 
-- 见上方「最近更新」与 [发布说明](docs/releases/v1.4.2.md)；未改表结构，但已有安装的示例文章数据需跑 [`sql/99_fix_sample_articles_v1.4.2.sql`](sql/README.md) 单独修复
+- 主题「注册—邮件—评论」自助链路跑通：邮件服务可在后台配置并热更新、博客设置页改版、「用户注册」开关上设置页、前台登录用户可改删自己的评论；修复多标签文章详情页 500、登录用户评论被误拒「昵称不能为空」。未改表结构，但已有安装的示例文章数据需跑 [`sql/99_fix_sample_articles_v1.4.2.sql`](sql/README.md) 单独修复；详见 [发布说明](docs/releases/v1.4.2.md)
 
 ### v1.4.1 (2026-09-26)
 
@@ -245,13 +257,13 @@ R_TOKEN_SECRET={your_secret_key}
 
 ## 📞 相关文档与常见问题
 
-- [发布说明 v1.4.2](docs/releases/v1.4.2.md) · [版本管理指南](docs/VERSION_MANAGEMENT.md) · [安全配置说明](docs/SECURITY_CONFIG.md) · [图片压缩指南](docs/图片压缩功能使用指南.md) · [GitHub 同步说明](SYNC_GITHUB.md)
+- [发布说明 v1.4.3](docs/releases/v1.4.3.md) · [v1.4.2](docs/releases/v1.4.2.md) · [版本管理指南](docs/VERSION_MANAGEMENT.md) · [安全配置说明](docs/SECURITY_CONFIG.md) · [图片压缩指南](docs/图片压缩功能使用指南.md) · [GitHub 同步说明](SYNC_GITHUB.md)
 - 外部文档：[Vue 3](https://cn.vuejs.org/) · [Element Plus](https://element-plus.org/) · [Spring Boot](https://spring.io/projects/spring-boot)
 
 常见问题：
 
 1. **版本号显示不正确 / 构建报 “Non-resolvable parent POM”**：检查根 `pom.xml` 与 6 个子模块 parent `<version>` 是否一致
-2. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**，示例文章的正文与分类标签关联请单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`
+2. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**，示例文章的正文与分类标签关联请单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`；v1.4.3 起存量注册用户的 `user_type` 同理，跑 `sql/99_fix_blog_user_type_v1.4.3.sql` 后需重新登录
 3. **「每日阅读 PV/UV」没有数据**：等定时任务（每小时）首次汇总；当天数据约 1 小时延迟
 4. **`/sitemap.xml`、`/robots.txt` 404**：生产反代把这两个根路径转发到后端（:8080）
 5. **邮箱验证码/通知邮件收不到**：到「博客设置 → 邮件服务」填 SMTP 并点「测试连接」（失败原因会直接显示），确认「邮件服务」卡片上的 dev-print-code 状态；开发期可设 `EMAIL_DEV_PRINT_CODE=true` 在控制台查看验证码
@@ -266,6 +278,6 @@ R_TOKEN_SECRET={your_secret_key}
 
 ## 📊 项目信息
 
-- **项目名称**：ZhiBlog - 知博　**当前版本**：v1.4.2　**Maven GroupId**：top.nevell
+- **项目名称**：ZhiBlog - 知博　**当前版本**：v1.4.3　**Maven GroupId**：top.nevell
 - **项目地址**：https://gitee.com/nevell/zhiblog　**维护者**：nevell
-- **最后更新**：2026-10-02
+- **最后更新**：2026-10-03
