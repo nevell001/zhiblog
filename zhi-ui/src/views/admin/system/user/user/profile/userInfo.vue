@@ -24,7 +24,9 @@
 
 <script setup lang="ts">
 import { updateUserProfile } from '@/api/system/user'
+import { useUserStore } from '@/stores/user'
 
+const userStore = useUserStore()
 const props = defineProps({
   user: {
     type: Object
@@ -63,6 +65,8 @@ function submit() {
         props.user.phonenumber = form.value.phonenumber
         props.user.email = form.value.email
         props.user.sex = form.value.sex
+        // 同步顶栏昵称（Navbar 读的是 user store，不同步要整页刷新才更新）
+        userStore.nickName = form.value.nickName || userStore.nickName
       })
     }
   })
