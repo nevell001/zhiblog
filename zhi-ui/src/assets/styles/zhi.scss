@@ -331,8 +331,10 @@ html .el-checkbox-button.is-checked .el-checkbox-button__inner {
 
 .avatar-upload-preview {
   position: absolute;
+  /* 相对所在列（userAvatar.vue 的 .avatar-preview-col, position:relative）水平垂直居中 */
+  left: 50%;
   top: 50%;
-  transform: translate(50%, -50%);
+  transform: translate(-50%, -50%);
   width: 200px;
   height: 200px;
   border-radius: 50%;

@@ -11,6 +11,7 @@
     >
       <el-row>
         <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+          <!-- 拖动任意位置都是移动图片；选框锁定在图片内，导出不会带上图片外的空白 -->
           <vue-cropper
             v-if="visible"
             ref="cropper"
@@ -20,11 +21,13 @@
             :auto-crop-width="options.autoCropWidth"
             :auto-crop-height="options.autoCropHeight"
             :fixed-box="options.fixedBox"
+            :center-box="true"
+            :can-move-box="false"
             :output-type="options.outputType"
             @real-time="realTime"
           />
         </el-col>
-        <el-col :xs="24" :md="12" :style="{ height: '350px' }">
+        <el-col :xs="24" :md="12" :style="{ height: '350px' }" class="avatar-preview-col">
           <div class="avatar-upload-preview">
             <img :src="options.previews.url" :style="options.previews.img" />
           </div>
@@ -111,11 +114,18 @@ function requestUpload() {}
 /** 向左旋转 */
 function rotateLeft() {
   ;(proxy.$refs.cropper as any).rotateLeft()
+  syncPreview()
 }
 
 /** 向右旋转 */
 function rotateRight() {
   ;(proxy.$refs.cropper as any).rotateRight()
+  syncPreview()
+}
+
+/** 预览更新有 16ms 节流，旋转末尾「选框被钳制」那一拍会被丢弃，延迟一拍强制刷新 */
+function syncPreview() {
+  setTimeout(() => (proxy.$refs.cropper as any)?.showPreview?.(), 40)
 }
 
 /** 图片缩放 */
@@ -184,6 +194,11 @@ function closeDialog() {
   position: relative;
   display: inline-block;
   height: 120px;
+}
+
+/* 预览圆（global 的 .avatar-upload-preview）以本列为定位基准居中 */
+.avatar-preview-col {
+  position: relative;
 }
 
 .user-info-head:hover:after {
