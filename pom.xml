@@ -441,6 +441,26 @@
                             <exclude>com/zhi/common/utils/sql/**</exclude>
                             <exclude>com/zhi/common/utils/uuid/**</exclude>
                             <exclude>com/zhi/common/xss/**</exclude>
+                            <!-- Framework module: Spring @Bean wiring and OSHI/OS machine-snapshot POJOs cannot be
+                                 asserted without booting a container or the host JVM. Every class carrying decision
+                                 logic (SecurityConfigValidator, RefererPolicy, KaptchaTextCreator, the redis
+                                 serializer, aspects, interceptors, web.service.*) stays inside the gate. -->
+                            <exclude>com/zhi/framework/config/SecurityConfig*</exclude>
+                            <exclude>com/zhi/framework/config/MyBatisConfig*</exclude>
+                            <exclude>com/zhi/framework/config/CaptchaConfig*</exclude>
+                            <exclude>com/zhi/framework/config/ResourcesConfig*</exclude>
+                            <exclude>com/zhi/framework/config/FilterConfig*</exclude>
+                            <exclude>com/zhi/framework/config/CacheConfig*</exclude>
+                            <exclude>com/zhi/framework/config/ThreadPoolConfig*</exclude>
+                            <exclude>com/zhi/framework/config/I18nConfig*</exclude>
+                            <exclude>com/zhi/framework/config/ServerConfig*</exclude>
+                            <exclude>com/zhi/framework/config/ActuatorConfig*</exclude>
+                            <exclude>com/zhi/framework/config/CharsetConfig*</exclude>
+                            <exclude>com/zhi/framework/config/ApplicationConfig*</exclude>
+                            <exclude>com/zhi/framework/config/DruidConfig*</exclude>
+                            <exclude>com/zhi/framework/config/DruidServletConfig*</exclude>
+                            <exclude>com/zhi/framework/config/properties/**</exclude>
+                            <exclude>com/zhi/framework/web/domain/**</exclude>
                         </excludes>
                         <rules>
                             <rule>
