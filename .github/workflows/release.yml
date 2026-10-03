@@ -41,6 +41,7 @@ jobs:
         working-directory: zhi-ui
       - name: 依赖漏洞审计
         run: npm run audit
+        working-directory: zhi-ui
       - name: 前端检查与测试
         run: npm run lint:check && npm run format:check && npm run typecheck && npm run test:coverage && npm run build:prod
         working-directory: zhi-ui
