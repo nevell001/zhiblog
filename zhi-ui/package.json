@@ -70,7 +70,7 @@
     "eslint-plugin-typescript": "^0.14.0",
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^17.12.0",
-    "jsdom": "^25.0.1",
+    "jsdom": "^30.1.1",
     "prettier": "^3.9.9",
     "rollup-plugin-visualizer": "^7.1.1",
     "sass-embedded": "1.105.1",
