@@ -77,6 +77,9 @@ public class SysRegisterService
         else
         {
             sysUser.setNickName(username);
+            // 公开注册的用户是博客用户（'01'），与 BlogUserService 保持一致；
+            // 落库默认值 '00' 会被前台当成系统用户，显示「管理后台」入口
+            sysUser.setUserType("01");
             sysUser.setPwdUpdateDate(DateUtils.getNowDate());
             sysUser.setPassword(SecurityUtils.encryptPassword(password));
             boolean regFlag = userService.registerUser(sysUser);

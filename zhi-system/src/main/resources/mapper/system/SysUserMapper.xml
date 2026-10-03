@@ -156,6 +156,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="sex != null and sex != ''">sex,</if>
  			<if test="password != null and password != ''">password,</if>
  			<if test="status != null and status != ''">status,</if>
+ 			<if test="userType != null and userType != ''">user_type,</if>
  			<if test="pwdUpdateDate != null">pwd_update_date,</if>
  			<if test="createBy != null and createBy != ''">create_by,</if>
  			<if test="remark != null and remark != ''">remark,</if>
@@ -171,10 +172,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
  			<if test="sex != null and sex != ''">#{sex},</if>
  			<if test="password != null and password != ''">#{password},</if>
  			<if test="status != null and status != ''">#{status},</if>
+ 			<if test="userType != null and userType != ''">#{userType},</if>
  			<if test="pwdUpdateDate != null">#{pwdUpdateDate},</if>
  			<if test="createBy != null and createBy != ''">#{createBy},</if>
  			<if test="remark != null and remark != ''">#{remark},</if>
- 			sysdate()
+ 			NOW()
  		)
 	</insert>
 	
