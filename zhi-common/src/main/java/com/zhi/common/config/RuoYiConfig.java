@@ -16,7 +16,7 @@ public class RuoYiConfig
     private String name;
 
     /** 版本 */
-    @Value("${ruoyi.version:1.4.2}")
+    @Value("${ruoyi.version:1.4.3}")
     private String version;
 
     /** 版权年份 */
