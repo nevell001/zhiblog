@@ -36,6 +36,33 @@ const DARK_HEX_CEILING: Record<string, number> = {
   'views/admin/blog/article/index.vue': 1
 }
 
+// 另一类漏网：整页/整组件只有浅色字面量、文件内**没有任何**深色分支（下面棘轮的目标）。
+// 2026-10-04 批次 A 发现监控三页（actuator/prometheus/grafana）就是这类：20 处浅色字面量、
+// 零 `var(--el-*)`、零 `html.dark`，`#303133` 落在深色卡片 `#112240` 上只有 1.22:1。
+// 三页令牌化后归零，所以不出现在本表；本表是其余文件的现状快照（只允许下降）。
+// 降为 0 的文件从表里删除，再写回来会被当成「新增」直接报错。
+const LIGHT_ONLY_HEX_CEILING: Record<string, number> = {
+  'components/AvatarUpload.vue': 5,
+  'components/BlogLayout.vue': 1,
+  'components/Breadcrumb/index.vue': 1,
+  'components/Crontab/index.vue': 2,
+  'components/Editor/index.vue': 5,
+  'components/HeaderSearch/index.vue': 1,
+  'components/IconSelect/index.vue': 2,
+  'components/Pagination/index.vue': 1,
+  'components/RightToolbar/index.vue': 1,
+  'components/TopNav/index.vue': 4,
+  'layout/components/AppMain.vue': 2,
+  'layout/components/Copyright/index.vue': 2,
+  'layout/components/Navbar.vue': 1,
+  'layout/components/Settings/index.vue': 1,
+  'layout/components/Sidebar/SidebarItem.vue': 1,
+  'layout/components/TagsView/index.vue': 4,
+  'layout/index.vue': 1,
+  'views/error/401.vue': 8,
+  'views/error/404.vue': 4
+}
+
 // svgicon.ts 的 import 名单 = 运行时全局注册的 EP 图标
 const globallyRegistered = new Set(
   readFileSync(join(SRC, 'components/SvgIcon/svgicon.ts'), 'utf8')
@@ -214,6 +241,53 @@ describe('设计源码契约', () => {
     }
     // 上限本身过期也要被发现：文件已降到上限以下时提示收紧到实际值。
     const stale = Object.entries(DARK_HEX_CEILING)
+      .filter(([file, ceiling]) => (actual.get(file) ?? 0) < ceiling)
+      .map(([file, ceiling]) => `${file}: 上限 ${ceiling} → 实际 ${actual.get(file) ?? 0}`)
+
+    expect({ grown, stale }).toEqual({ grown: [], stale: [] })
+  })
+
+  // 「整页无深色适配」棘轮。actuator/prometheus/grafana 三个监控页曾整页用浅色字面量
+  // （#303133 落在深色卡片 #112240 上仅 1.22:1）且文件内没有任何 html.dark 覆盖，
+  // 深色模式下几乎不可读 —— 而上一条棘轮管不到它们，因为它要求先有 html.dark 块。
+  // 这条测试盯的就是这一类漏网：只有浅色字面量、完全没有深色分支的页面/组件。
+  // 只统计 color / background / background-color（可见性相关），且 var(--x, #hex) 里的
+  // 兜底不算裸值；border/outline/fill 不计入，否则表会被大量刻意的细边框撑爆。
+  // 范围只含 .vue 的 <style>：全局样式层（assets/styles/**、styles/**）是令牌/主题的定义处，
+  // script 段的字面量（ECharts 色板等）也合法，都不在此列。
+  // 判定只看文件自身有无深色分支：zhi.scss 里按类名挂的 `html.dark .x` 覆盖不算「文件有覆盖」——
+  // 那种写法一改类名就静默失效，正是这条测试要逼出来的东西。
+  // 上限只允许下降：新增整页浅色硬编码、或新建一个这样的文件，都会让这条测试变红。
+  it('无深色覆盖的样式块裸 hex 不得超过登记上限', () => {
+    const actual = new Map<string, number>()
+
+    for (const file of vueFiles) {
+      const source = readFileSync(file, 'utf8')
+      // 文件里已有 html.dark / html.theme-mo-blog 分支的，交给上一条深色棘轮管。
+      if (/html\.dark|html\.theme-mo-blog/.test(source)) continue
+      const styles = [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+        .map(match => match[1])
+        .join('\n')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+
+      let count = 0
+      for (const match of styles.matchAll(
+        /(?:^|[;{\s])(color|background|background-color)\s*:\s*([^;}]+)/g
+      )) {
+        count += (match[2].replace(/var\([^()]*\)/g, 'V()').match(/#[0-9a-fA-F]{3,8}\b/g) || [])
+          .length
+      }
+      if (count) actual.set(relative(file), count)
+    }
+
+    const grown: string[] = []
+    for (const [file, count] of actual) {
+      const ceiling = LIGHT_ONLY_HEX_CEILING[file]
+      if (ceiling === undefined) grown.push(`${file}: 新增 ${count} 处`)
+      else if (count > ceiling) grown.push(`${file}: ${ceiling} → ${count}`)
+    }
+    // 上限本身过期也要被发现：文件已降到上限以下时提示收紧到实际值。
+    const stale = Object.entries(LIGHT_ONLY_HEX_CEILING)
       .filter(([file, ceiling]) => (actual.get(file) ?? 0) < ceiling)
       .map(([file, ceiling]) => `${file}: 上限 ${ceiling} → 实际 ${actual.get(file) ?? 0}`)
 
