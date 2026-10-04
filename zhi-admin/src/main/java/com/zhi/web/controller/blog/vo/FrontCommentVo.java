@@ -2,7 +2,9 @@ package com.zhi.web.controller.blog.vo;
 
 import com.zhi.system.domain.BlogComment;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 前台公开评论视图对象。
@@ -24,6 +26,7 @@ public class FrontCommentVo
     private String status;
     private Long likeCount;
     private Date createTime;
+    private List<FrontCommentVo> replies = new ArrayList<>();
 
     public static FrontCommentVo from(BlogComment comment)
     {
@@ -57,4 +60,5 @@ public class FrontCommentVo
     public String getStatus() { return status; }
     public Long getLikeCount() { return likeCount; }
     public Date getCreateTime() { return createTime; }
+    public List<FrontCommentVo> getReplies() { return replies; }
 }

@@ -32,8 +32,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -247,7 +249,7 @@ class BlogFrontControllerTest
         comment.setNickname("访客");
         comment.setContent("你好");
         comment.setEmail("secret@example.com"); // 实体即便带 email，前台接口也不允许输出
-        when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of(comment));
+        when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of(comment), List.of());
 
         mockMvc.perform(get("/blog/comment/article/1"))
             .andExpect(status().isOk())
@@ -255,8 +257,149 @@ class BlogFrontControllerTest
             .andExpect(jsonPath("$.rows[0].content").value("你好"))
             .andExpect(jsonPath("$.rows[0].email").doesNotExist());
 
-        verify(blogCommentService).selectFrontCommentList(any());
+        // 第一次查顶级评论（分页），第二次查回复用于挂楼层
+        verify(blogCommentService, times(2)).selectFrontCommentList(any());
         verify(blogCommentService, never()).selectBlogCommentList(any());
+    }
+
+    @Test
+    void articleCommentsShouldNestRepliesUnderTheirThreadRoot() throws Exception
+    {
+        BlogComment top = comment(10L, 1L, null, "楼主", "沙发");
+        BlogComment reply = comment(11L, 1L, 10L, "访客", "回复");
+        BlogComment nestedReply = comment(12L, 1L, 11L, "路人", "回复的回复"); // 回复的回复也归到同一楼
+        BlogComment otherThreadReply = comment(13L, 1L, null, "误标", "不该出现"); // parentId 为空的"回复"不进列表
+        when(blogCommentService.selectFrontCommentList(any()))
+            .thenReturn(List.of(top))
+            .thenReturn(List.of(reply, nestedReply, otherThreadReply));
+
+        mockMvc.perform(get("/blog/comment/article/1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.rows.length()").value(1))
+            .andExpect(jsonPath("$.rows[0].id").value(10))
+            .andExpect(jsonPath("$.rows[0].replies.length()").value(2))
+            .andExpect(jsonPath("$.rows[0].replies[0].id").value(11))
+            .andExpect(jsonPath("$.rows[0].replies[1].id").value(12))
+            // 分页总数 = 顶级评论数（只有一页一条）
+            .andExpect(jsonPath("$.total").value(1));
+
+        ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
+        verify(blogCommentService, times(2)).selectFrontCommentList(captor.capture());
+        BlogComment topQuery = captor.getAllValues().get(0);
+        BlogComment replyQuery = captor.getAllValues().get(1);
+        assertEquals(Boolean.TRUE, topQuery.getParams().get("topLevelOnly"));
+        assertEquals("newest", topQuery.getParams().get("sort"));
+        assertEquals(Boolean.TRUE, replyQuery.getParams().get("repliesOnly"));
+        assertEquals("oldest", replyQuery.getParams().get("sort"));
+    }
+
+    @Test
+    void articleCommentsShouldNormalizeUnknownSortToNewest() throws Exception
+    {
+        when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of());
+
+        mockMvc.perform(get("/blog/comment/article/1").param("sort", "id desc; drop table blog_comment"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
+        verify(blogCommentService).selectFrontCommentList(captor.capture());
+        assertEquals("newest", captor.getValue().getParams().get("sort"));
+    }
+
+    @Test
+    void articleCommentsShouldPassOldestSortToQuery() throws Exception
+    {
+        when(blogCommentService.selectFrontCommentList(any())).thenReturn(List.of());
+
+        mockMvc.perform(get("/blog/comment/article/1").param("sort", "oldest"))
+            .andExpect(status().isOk());
+
+        ArgumentCaptor<BlogComment> captor = ArgumentCaptor.forClass(BlogComment.class);
+        verify(blogCommentService).selectFrontCommentList(captor.capture());
+        assertEquals("oldest", captor.getValue().getParams().get("sort"));
+    }
+
+    @Test
+    void addCommentShouldRejectReplyToUnknownParent() throws Exception
+    {
+        BlogComment comment = validComment();
+        comment.setParentId(999L);
+        when(blogCommentService.selectBlogCommentById(999L)).thenReturn(null);
+
+        perform(comment)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("回复的评论不存在或不属于当前文章"));
+
+        verify(blogCommentService, never()).insertBlogComment(any(BlogComment.class));
+    }
+
+    @Test
+    void addCommentShouldRejectReplyFromAnotherArticle() throws Exception
+    {
+        BlogComment comment = validComment();
+        comment.setParentId(5L);
+        when(blogCommentService.selectBlogCommentById(5L)).thenReturn(comment(5L, 2L, null, "别处", "另一篇的评论"));
+
+        perform(comment)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(500))
+            .andExpect(jsonPath("$.msg").value("回复的评论不存在或不属于当前文章"));
+
+        verify(blogCommentService, never()).insertBlogComment(any(BlogComment.class));
+    }
+
+    @Test
+    void addCommentShouldReturnFreshCommentCountAfterPublish() throws Exception
+    {
+        BlogComment comment = validComment();
+        when(blogCommentService.insertBlogComment(any(BlogComment.class))).thenReturn(1);
+        when(blogCommentService.selectBlogCommentCount(any(BlogComment.class))).thenReturn(8L);
+
+        perform(comment)
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value(200))
+            .andExpect(jsonPath("$.data.commentCount").value(8));
+
+        ArgumentCaptor<BlogComment> countCaptor = ArgumentCaptor.forClass(BlogComment.class);
+        verify(blogCommentService).selectBlogCommentCount(countCaptor.capture());
+        assertEquals(1L, countCaptor.getValue().getArticleId());
+        assertEquals("1", countCaptor.getValue().getStatus());
+    }
+
+    @Test
+    void deleteMyCommentShouldReturnFreshCommentCount() throws Exception
+    {
+        BlogComment existing = comment(5L, 1L, null, "博主", "待删除");
+        existing.setUserId(100L);
+        when(blogCommentService.selectBlogCommentById(5L)).thenReturn(existing);
+        when(blogCommentService.deleteBlogCommentById(5L)).thenReturn(1);
+        when(blogCommentService.selectBlogCommentCount(any(BlogComment.class))).thenReturn(7L);
+
+        SecurityContextHolder.getContext().setAuthentication(
+            new UsernamePasswordAuthenticationToken(new LoginUser(100L, null, new SysUser(), null), null, List.of()));
+        try
+        {
+            mockMvc.perform(delete("/blog/comment/5"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.commentCount").value(7));
+        }
+        finally
+        {
+            SecurityContextHolder.clearContext();
+        }
+    }
+
+    private BlogComment comment(Long id, Long articleId, Long parentId, String nickname, String content)
+    {
+        BlogComment comment = new BlogComment();
+        comment.setId(id);
+        comment.setArticleId(articleId);
+        comment.setParentId(parentId);
+        comment.setNickname(nickname);
+        comment.setContent(content);
+        return comment;
     }
 
     @Test

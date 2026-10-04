@@ -49,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.zhi.common.core.domain.model.LoginUser;
+import com.github.pagehelper.PageInfo;
 
 /**
  * 上下篇文章信息DTO
@@ -600,19 +601,116 @@ public class BlogFrontController extends BaseController
     }
 
     /**
-     * 获取文章评论列表（前台用，支持分页）
+     * 获取文章评论列表（前台用）
+     * 顶级评论分页，回复按所属楼层挂在各自 replies 里；两级都只取已发布（status=1）
      */
     @Anonymous
     @GetMapping("/comment/article/{articleId}")
-    public TableDataInfo getArticleComments(@PathVariable("articleId") Long articleId)
+    public TableDataInfo getArticleComments(@PathVariable("articleId") Long articleId,
+                                            @RequestParam(value = "sort", required = false, defaultValue = "newest") String sort)
     {
-        BlogComment blogComment = new BlogComment();
-        blogComment.setArticleId(articleId);
-        blogComment.setStatus("1"); // 只查询已发布的评论（status=1）
-        startPage(); // 启用分页
+        String normalizedSort = "oldest".equals(sort) ? "oldest" : "newest";
+
+        BlogComment topQuery = new BlogComment();
+        topQuery.setArticleId(articleId);
+        topQuery.setStatus("1");
+        topQuery.getParams().put("topLevelOnly", Boolean.TRUE);
+        topQuery.getParams().put("sort", normalizedSort);
+
+        startPage(); // 分页只作用于顶级评论
         // 前台专用查询 + 显式投影：既不从库里取、也不在响应里输出 email 等 PII
-        List<BlogComment> list = blogCommentService.selectFrontCommentList(blogComment);
-        return getDataTable(list.stream().map(FrontCommentVo::from).collect(Collectors.toList()));
+        List<BlogComment> topComments = blogCommentService.selectFrontCommentList(topQuery);
+        long total = new PageInfo<>(topComments).getTotal();
+
+        List<FrontCommentVo> rows = topComments.stream().map(FrontCommentVo::from).collect(Collectors.toList());
+        attachReplies(articleId, rows);
+
+        // getDataTable 会按 rows 重新推算 total，这里恢复为顶级评论总数（分页依据）
+        TableDataInfo tableData = getDataTable(rows);
+        tableData.setTotal(total);
+        return tableData;
+    }
+
+    /**
+     * 取回文章的全部回复，按所属楼层（顶级评论）挂到当前页的 rows 上。
+     * 回复列表固定按时间正序，保持对话先后；不属于当前页楼层的回复直接跳过。
+     */
+    private void attachReplies(Long articleId, List<FrontCommentVo> rows)
+    {
+        if (rows.isEmpty())
+        {
+            return;
+        }
+        BlogComment replyQuery = new BlogComment();
+        replyQuery.setArticleId(articleId);
+        replyQuery.setStatus("1");
+        replyQuery.getParams().put("repliesOnly", Boolean.TRUE);
+        replyQuery.getParams().put("sort", "oldest");
+        List<BlogComment> replies = blogCommentService.selectFrontCommentList(replyQuery);
+        if (replies.isEmpty())
+        {
+            return;
+        }
+
+        Map<Long, FrontCommentVo> rowById = new HashMap<>();
+        for (FrontCommentVo row : rows)
+        {
+            rowById.put(row.getId(), row);
+        }
+        Map<Long, Long> parentByReplyId = new HashMap<>();
+        for (BlogComment reply : replies)
+        {
+            // 顶级评论 parent_id 落库是 0（默认值），回复判定统一按 > 0
+            if (reply.getParentId() != null && reply.getParentId() > 0)
+            {
+                parentByReplyId.put(reply.getId(), reply.getParentId());
+            }
+        }
+
+        for (BlogComment reply : replies)
+        {
+            Long rootId = resolveThreadRoot(reply.getParentId(), rowById, parentByReplyId);
+            FrontCommentVo root = rootId == null ? null : rowById.get(rootId);
+            if (root != null)
+            {
+                root.getReplies().add(FrontCommentVo.from(reply));
+            }
+        }
+    }
+
+    /**
+     * 沿 parentId 向上找回复所属的楼层；父级不在当前页或链路异常时返回 null。
+     * 深度上限用于兜底脏数据里的父子环，避免匿名接口死循环。
+     */
+    private static Long resolveThreadRoot(Long parentId, Map<Long, FrontCommentVo> rowById, Map<Long, Long> parentByReplyId)
+    {
+        Long cursor = parentId;
+        for (int depth = 0; cursor != null && depth < 64; depth++)
+        {
+            if (rowById.containsKey(cursor))
+            {
+                return cursor;
+            }
+            if (!parentByReplyId.containsKey(cursor))
+            {
+                return null;
+            }
+            cursor = parentByReplyId.get(cursor);
+        }
+        return null;
+    }
+
+    /**
+     * 当前文章已发布评论数（含回复），随评论增删改回传，前台计数无需猜测审核结果
+     */
+    private Map<String, Object> commentCountData(Long articleId)
+    {
+        BlogComment countQuery = new BlogComment();
+        countQuery.setArticleId(articleId);
+        countQuery.setStatus("1");
+        Map<String, Object> data = new HashMap<>();
+        data.put("commentCount", blogCommentService.selectBlogCommentCount(countQuery));
+        return data;
     }
 
     /**
@@ -674,6 +772,16 @@ public class BlogFrontController extends BaseController
             return error("邮箱长度不能超过100个字符");
         }
 
+        // 回复必须挂在同一篇文章的既有评论下，避免任意 parentId 串文章/凭空造楼层
+        if (blogComment.getParentId() != null)
+        {
+            BlogComment parentComment = blogCommentService.selectBlogCommentById(blogComment.getParentId());
+            if (parentComment == null || !blogComment.getArticleId().equals(parentComment.getArticleId()))
+            {
+                return error("回复的评论不存在或不属于当前文章");
+            }
+        }
+
         // 检查评论审核开关，根据博客设置决定是否需要审核
         String commentReviewSetting = blogSettingService.selectSettingValueByKey("comment_review");
 
@@ -688,7 +796,12 @@ public class BlogFrontController extends BaseController
                     needsReview ? "待审核" : "已发布",
                     commentReviewSetting);
 
-        return toAjax(blogCommentService.insertBlogComment(blogComment));
+        int rows = blogCommentService.insertBlogComment(blogComment);
+        if (rows <= 0)
+        {
+            return error("评论发表失败");
+        }
+        return success(commentCountData(blogComment.getArticleId()));
     }
 
     /**
@@ -729,7 +842,12 @@ public class BlogFrontController extends BaseController
         {
             update.setStatus("0");
         }
-        return toAjax(blogCommentService.updateBlogComment(update));
+        int rows = blogCommentService.updateBlogComment(update);
+        if (rows <= 0)
+        {
+            return error("评论修改失败");
+        }
+        return success(commentCountData(existing.getArticleId()));
     }
 
     /**
@@ -749,7 +867,12 @@ public class BlogFrontController extends BaseController
         {
             return error("评论不存在或无权删除");
         }
-        return toAjax(blogCommentService.deleteBlogCommentById(id));
+        int rows = blogCommentService.deleteBlogCommentById(id);
+        if (rows <= 0)
+        {
+            return error("评论删除失败");
+        }
+        return success(commentCountData(existing.getArticleId()));
     }
 
     /**
