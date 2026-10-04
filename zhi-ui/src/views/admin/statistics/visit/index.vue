@@ -14,30 +14,19 @@
       </template>
       <el-row v-loading="summaryLoading" :gutter="20">
         <el-col :xs="12" :sm="12" :md="6">
-          <div class="stat-item">
-            <div class="stat-title">
-              区间 PV（{{ summary.beginDate || '-' }} ~ {{ summary.endDate || '-' }}）
-            </div>
-            <div class="stat-value">{{ summary.pv }}</div>
-          </div>
+          <StatCard
+            :label="`区间 PV（${summary.beginDate || '-'} ~ ${summary.endDate || '-'}）`"
+            :value="summary.pv"
+          />
         </el-col>
         <el-col :xs="12" :sm="12" :md="6">
-          <div class="stat-item">
-            <div class="stat-title">区间 UV</div>
-            <div class="stat-value">{{ summary.uv }}</div>
-          </div>
+          <StatCard label="区间 UV" :value="summary.uv" />
         </el-col>
         <el-col :xs="12" :sm="12" :md="6">
-          <div class="stat-item">
-            <div class="stat-title">今日 PV</div>
-            <div class="stat-value">{{ summary.todayPv }}</div>
-          </div>
+          <StatCard label="今日 PV" :value="summary.todayPv" />
         </el-col>
         <el-col :xs="12" :sm="12" :md="6">
-          <div class="stat-item">
-            <div class="stat-title">今日 UV</div>
-            <div class="stat-value">{{ summary.todayUv }}</div>
-          </div>
+          <StatCard label="今日 UV" :value="summary.todayUv" />
         </el-col>
       </el-row>
     </el-card>
@@ -296,6 +285,7 @@
 </template>
 
 <script setup lang="ts" name="VisitLog">
+import StatCard from '@/components/StatCard.vue'
 import { parseTime } from '@/utils/zhi'
 import { getVisitLogList, getVisitSummary, cleanVisitLog, delVisitLog } from '@/api/statistics'
 import type { BlogVisitLog, VisitQueryParams, VisitSummary, VisitTopTarget } from '@/api/statistics'
@@ -511,25 +501,6 @@ onMounted(() => {
 
 .rank-card {
   margin-bottom: 12px;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 20px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 4px;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--el-text-color-primary);
 }
 
 /* 搜索表单样式优化 */

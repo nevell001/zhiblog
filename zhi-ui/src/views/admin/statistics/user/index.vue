@@ -3,36 +3,16 @@
     <el-card header="用户统计">
       <el-row :gutter="20">
         <el-col :span="6">
-          <div class="stat-item">
-            <div class="stat-title">总用户数</div>
-            <div class="stat-value">
-              {{ userStats.totalCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="总用户数" :value="userStats.totalCount || 0" />
         </el-col>
         <el-col :span="6">
-          <div class="stat-item">
-            <div class="stat-title">活跃用户</div>
-            <div class="stat-value">
-              {{ userStats.activeCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="活跃用户" :value="userStats.activeCount || 0" />
         </el-col>
         <el-col :span="6">
-          <div class="stat-item">
-            <div class="stat-title">新增用户</div>
-            <div class="stat-value">
-              {{ userStats.newCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="新增用户" :value="userStats.newCount || 0" />
         </el-col>
         <el-col :span="6">
-          <div class="stat-item">
-            <div class="stat-title">管理员数</div>
-            <div class="stat-value">
-              {{ userStats.adminCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="管理员数" :value="userStats.adminCount || 0" />
         </el-col>
       </el-row>
 
@@ -54,6 +34,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue'
+import StatCard from '@/components/StatCard.vue'
 import { getUserStatistics, getUserRegisterTrend, getUserRoleDistribution } from '@/api/statistics'
 import { loadEcharts, getChartThemeColors } from '@/utils/echarts'
 import { useSettingsStore } from '@/stores/settings'
@@ -226,24 +207,3 @@ onMounted(() => {
   loadData()
 })
 </script>
-
-<style scoped>
-.stat-item {
-  text-align: center;
-  padding: 20px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 4px;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--el-text-color-primary);
-}
-</style>

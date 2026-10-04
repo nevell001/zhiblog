@@ -3,28 +3,13 @@
     <el-card header="文章统计">
       <el-row :gutter="20">
         <el-col :span="8">
-          <div class="stat-item">
-            <div class="stat-title">发布文章数</div>
-            <div class="stat-value">
-              {{ articleStats.publishedCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="发布文章数" :value="articleStats.publishedCount || 0" />
         </el-col>
         <el-col :span="8">
-          <div class="stat-item">
-            <div class="stat-title">草稿文章数</div>
-            <div class="stat-value">
-              {{ articleStats.draftCount || 0 }}
-            </div>
-          </div>
+          <StatCard label="草稿文章数" :value="articleStats.draftCount || 0" />
         </el-col>
         <el-col :span="8">
-          <div class="stat-item">
-            <div class="stat-title">平均浏览量</div>
-            <div class="stat-value">
-              {{ articleStats.avgViews || 0 }}
-            </div>
-          </div>
+          <StatCard label="平均浏览量" :value="articleStats.avgViews || 0" />
         </el-col>
       </el-row>
 
@@ -56,6 +41,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from 'vue'
+import StatCard from '@/components/StatCard.vue'
 import {
   getArticleStatistics,
   getArticleCategoryDistribution,
@@ -296,24 +282,3 @@ onMounted(() => {
   loadData()
 })
 </script>
-
-<style scoped>
-.stat-item {
-  text-align: center;
-  padding: 20px;
-  border: 1px solid var(--el-border-color);
-  border-radius: 4px;
-}
-
-.stat-title {
-  font-size: 14px;
-  color: var(--el-text-color-secondary);
-  margin-bottom: 10px;
-}
-
-.stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--el-text-color-primary);
-}
-</style>
