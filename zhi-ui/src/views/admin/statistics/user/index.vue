@@ -19,12 +19,14 @@
       <el-row :gutter="20" style="margin-top: 30px">
         <el-col :span="12">
           <el-card header="用户注册趋势">
-            <div id="registerChart" style="height: 300px"></div>
+            <div v-if="registerReady" id="registerChart" style="height: 300px"></div>
+            <el-empty v-else description="暂无注册趋势数据" :image-size="70" />
           </el-card>
         </el-col>
         <el-col :span="12">
           <el-card header="用户角色分布">
-            <div id="roleChart" style="height: 300px"></div>
+            <div v-if="roleReady" id="roleChart" style="height: 300px"></div>
+            <el-empty v-else description="暂无角色分布数据" :image-size="70" />
           </el-card>
         </el-col>
       </el-row>
@@ -51,6 +53,8 @@ const userStats = ref<UserStats>({})
 const settingsStore = useSettingsStore()
 const registerChart = ref<any>(null)
 const roleChartRef = ref<any>(null)
+const registerReady = ref(false)
+const roleReady = ref(false)
 let registerData: any = null
 let roleData: any = null
 
@@ -72,16 +76,21 @@ const loadChartData = async () => {
     // 加载用户注册趋势
     const registerRes = await getUserRegisterTrend()
     if (registerRes.code === 200) {
-      await renderRegisterChart(registerRes.data)
+      // 先置 ready 再渲染：容器在 v-if 内，否则 render 时取不到 DOM，图表永远是空白
+      registerReady.value = true
+      await renderRegisterChart(registerRes.data || { labels: [], data: [] })
     } else {
+      registerReady.value = false
       logger.error('用户注册趋势API返回错误:', registerRes)
     }
 
     // 加载用户角色分布
     const roleRes = await getUserRoleDistribution()
     if (roleRes.code === 200) {
-      await renderRoleChart(roleRes.data)
+      roleReady.value = true
+      await renderRoleChart(roleRes.data || { labels: [], data: [] })
     } else {
+      roleReady.value = false
       logger.error('用户角色分布API返回错误:', roleRes)
     }
   } catch (error) {

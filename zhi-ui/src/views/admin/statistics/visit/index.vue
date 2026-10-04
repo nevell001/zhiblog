@@ -39,6 +39,7 @@
         size="small"
         stripe
         border
+        empty-text="暂无访问排行数据"
         @row-click="handleRankRowClick"
       >
         <el-table-column label="标题" prop="title" min-width="200" :show-overflow-tooltip="true">
@@ -55,9 +56,6 @@
         </el-table-column>
         <el-table-column label="PV" prop="pv" width="90" align="center" />
         <el-table-column label="UV" prop="uv" width="90" align="center" />
-        <template #empty>
-          <el-empty description="暂无访问排行数据" :image-size="70" />
-        </template>
       </el-table>
     </el-card>
 
@@ -182,6 +180,7 @@
       :data="visitList"
       stripe
       border
+      empty-text="暂无访问明细"
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
@@ -268,9 +267,6 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <template #empty>
-        <el-empty description="暂无访问明细" :image-size="70" />
-      </template>
     </el-table>
 
     <pagination
