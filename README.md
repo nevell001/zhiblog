@@ -11,31 +11,25 @@
 - **安全**：JWT + 图形验证码 + 邮箱码防爆破、IP 限流、XSS 消毒、防盗链白名单后台化
 - **权限与开关**：Spring Security 细粒度权限；博客功能开关前台隐藏入口且接口拒绝
 - **一键部署**：Docker Compose 管理前后端、MySQL、Redis 与 Prometheus/Grafana
-- **工程化**：JaCoCo 60% / Vitest 覆盖率门槛，Checkstyle + ESLint + Prettier，产线依赖 `npm audit` 闸门 + Dependabot 自动安全 PR，统一版本管理
 
-## 📦 最近更新 (v1.4.3)
+## 📦 最近更新 (v1.4.4)
 
-主题是「权限」与「设计系统」两条线：一处让所有注册用户看到管理员界面的缺陷，和一次前端令牌化/深色模式收敛；同时把后端覆盖率门禁从静默跳过变成真正生效。
+主题是文章评论区：回复归位到所属楼层，顶级评论分页并支持排序，评论计数与审核结果一致。
 
-**安全与修复**
+**评论体验**
 
-- **注册用户被当成系统用户**：`SysUserMapper.insertUser` 漏写 `user_type` 列，注册时设的 `'01'` 被静默丢弃、落库成默认 `'00'`，于是自助注册的人在前台看到「管理后台」入口、个人中心渲染出「写文章」，点进去 404。已修 mapper + 加 H2 往返测试，存量数据需跑 `sql/99_fix_blog_user_type_v1.4.3.sql` 并**重新登录**
-- 后台「留言管理」整页 500（`blog_message` 建表缺 `create_by`/`update_by`，而 mapper 查询了它们；公开留言板不写这两列所以前台一直正常）；博客用户保存不了基本资料（手机号被当必填而注册从不采集）；保存后顶栏昵称需整页刷新才更新；头像裁剪选框可拖出图片、预览与实际提交偏离
-- XSS 消毒器移除 `style` 属性并把 `iframe` 收敛到域名白名单；404 响应文案不再回显 `localhost:8080`；缺 User-Agent 的探测请求不再让登录链路空指针；`axios` / `brace-expansion` 产线高危漏洞升级
+- **楼中楼**：回复按所属楼层折叠挂在顶级评论下（此前回复与顶级评论混在同一页平铺，看不出属于哪个楼层），回复与顶级评论一样可点赞、回复、编辑、删除
+- **分页与排序**：顶级评论每页 10 条并带分页器，支持「最新 / 最早」切换；回复随楼层一并返回并保持时间正序
+- **计数准确**：评论新增/修改/删除后接口回传文章已发布评论数（含回复），前台计数不再本地推算或猜测审核结果；登录用户重新进入文章时回显本人点赞态（含楼层内回复）
 
-**功能与体验**
+**修复**
 
-- 留言板开关（`guestbook_enabled`）：关闭后前台三个接口**读写一并拒绝**，不只是隐藏入口；后台审核不受影响
-- 文章评论列表改分页（此前一次性加载全部）、分类/标签计数改 COUNT 查询（不再全表加载取 `size()`）
-- 标签总览页重设计为数据驱动；个人中心从双栏工作台改为博客风格单栏标签页
-- 设计系统收敛：色板/字体/圆角/阴影令牌收到 `:root` 一处，前台字号间距收到 `--mo-fs-*`/`--mo-sp-*`，断点统一到 768/1024，抽出文章卡/空状态/分页/骨架屏公共组件，删除零引用死组件；修复深色模式下多处文字不可见（`--mo-*` 在暗色下被重映射为背景/文字两种角色），支持 `prefers-reduced-motion`
+- 评论排序只按 `create_time`，同一秒的多条评论顺序不定导致翻页重复/漏项；改为 `create_time` + `id` 双重排序
+- 「顶级评论」判定必须同时覆盖 `parent_id` 的 `NULL` 与 `0`（建表默认值是 `0`），否则楼层会漏
+- 前台回复此前不校验父评论，可挂到其它文章的评论或凭空造楼层；现在要求父评论存在且属于同一篇文章
+- 删掉当前页最后一条顶级评论后页面停在空列表；现在自动回退到最后一页
 
-**工程与质量**
-
-- **zhi-framework 从 0 个测试到 131 个**：该模块此前没有测试，JaCoCo 因此从不生成 `jacoco.exec`，60% 门禁一直静默跳过。补齐后行覆盖 78.4%、分支覆盖 71.8%，阈值未下调，只排除纯 `@Bean` 装配类与 OSHI 机器快照 POJO
-- 三个 `@Disabled` 僵尸测试改成真实契约断言；H2 补 `DATE_FORMAT` 函数别名让归档 SQL 恢复真实覆盖；约 31 个 `readFileSync` + `toContain` 式「断言源码文本」的测试改为挂载组件断言行为
-
-详细变更见 [v1.4.3 发布说明](docs/releases/v1.4.3.md)。
+详细变更见 [v1.4.4 发布说明](docs/releases/v1.4.4.md)。
 
 ## 🌐 访问方式
 
@@ -174,7 +168,6 @@ ZhiBlog/
 
 - **后端**：Spring Boot 3.3 / Java 17、MyBatis + PageHelper、MySQL 8.4、Redis 6.2、Spring Security 6 + JWT、flexmark（Markdown 渲染）、Thumbnailator（图片压缩）、Quartz
 - **前端**：Vue 3.5 / TypeScript 5.9 / Vite 7、Element Plus 2.13、Pinia、Vue Router、Quill + marked、DOMPurify、ECharts
-- **测试与质量**：JUnit + JaCoCo（60%）、Vitest（覆盖率门槛）、Checkstyle、ESLint + Prettier、npm audit + Dependabot
 
 ## 🔧 配置说明
 
@@ -209,19 +202,15 @@ R_TOKEN_SECRET={your_secret_key}
   生产 compose 出于安全只把 Prometheus / Grafana 绑定在 `127.0.0.1`，如需外网访问请自行反代或使用隧道
 - 上传端点：`/common/upload[/compressed|avatar|thumbnail|article-cover|mobile|watermark]`、`/common/uploads`、用户头像 `/system/user/profile/avatar`、图片处理 `/system/image/*`
 
-## 📋 开发规范
-
-- **提交**：`feat` / `fix` / `docs` / `style` / `refactor` / `test` / `chore`（可带 scope）
-- **Java**：Checkstyle 在 `validate` 阶段执行；**Vue/TS**：`vue-tsc` 严格类型检查 + ESLint + Prettier
-- **覆盖率门槛**：后端 JaCoCo 60%（行/分支）；前端 Vitest lines/statements ≥70、functions ≥75、branches ≥55
-- **版本管理**：版本号统一在根 `pom.xml` 的 `<version>` 与 `<app.version>`，修改时同步 6 个子模块 parent `<version>`；详见[版本管理指南](docs/VERSION_MANAGEMENT.md)
-
 ## 📦 版本历史
+
+### v1.4.4 (2026-10-04)
+
+- 评论区改为「顶级评论分页 + 回复随楼层返回」：支持楼中楼、最新/最早排序，回复也能点赞/回复/编辑/删除；评论增删改后接口回传文章已发布评论数。未改表结构，详见 [发布说明](docs/releases/v1.4.4.md)
 
 ### v1.4.3 (2026-10-03)
 
 - 见上方「最近更新」与 [发布说明](docs/releases/v1.4.3.md)；表结构有变更（`blog_message.create_by/update_by`），重跑 `sql/00_init_database.sql` 即可补齐；**存量注册用户必须**再跑 [`sql/99_fix_blog_user_type_v1.4.3.sql`](sql/README.md) 并重新登录
-- 本版本让 zhi-framework 的 JaCoCo 覆盖率门禁真正开始生效（该模块此前 0 测试，门禁静默跳过）
 
 ### v1.4.2 (2026-10-02)
 
@@ -255,22 +244,16 @@ R_TOKEN_SECRET={your_secret_key}
 
 - 标签管理与字段统一、验证码优化、生产安全配置、Actuator 监控等，详见 git 历史
 
-## 📞 相关文档与常见问题
+## ❓ 常见问题
 
-- [发布说明 v1.4.3](docs/releases/v1.4.3.md) · [v1.4.2](docs/releases/v1.4.2.md) · [版本管理指南](docs/VERSION_MANAGEMENT.md) · [安全配置说明](docs/SECURITY_CONFIG.md) · [图片压缩指南](docs/图片压缩功能使用指南.md) · [GitHub 同步说明](SYNC_GITHUB.md)
-- 外部文档：[Vue 3](https://cn.vuejs.org/) · [Element Plus](https://element-plus.org/) · [Spring Boot](https://spring.io/projects/spring-boot)
-
-常见问题：
-
-1. **版本号显示不正确 / 构建报 “Non-resolvable parent POM”**：检查根 `pom.xml` 与 6 个子模块 parent `<version>` 是否一致
-2. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**，示例文章的正文与分类标签关联请单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`；v1.4.3 起存量注册用户的 `user_type` 同理，跑 `sql/99_fix_blog_user_type_v1.4.3.sql` 后需重新登录
-3. **「每日阅读 PV/UV」没有数据**：等定时任务（每小时）首次汇总；当天数据约 1 小时延迟
-4. **`/sitemap.xml`、`/robots.txt` 404**：生产反代把这两个根路径转发到后端（:8080）
-5. **邮箱验证码/通知邮件收不到**：到「博客设置 → 邮件服务」填 SMTP 并点「测试连接」（失败原因会直接显示），确认「邮件服务」卡片上的 dev-print-code 状态；开发期可设 `EMAIL_DEV_PRINT_CODE=true` 在控制台查看验证码
-6. **注册页提示「未开放注册」**：`sys.account.registerUser` 默认关闭，去「博客设置 → 功能设置 → 用户注册」打开（只认字面 `true`，且必须走后台，直接改库不会生效）
-7. **媒体删除后文件仍在 / 角色 2 看不到媒体管理**：前者是“尽力删除”（占用时仅删记录）；后者确认已重跑 00 并在角色管理中补勾权限
-8. **个人中心 404、登录后闪退、改了前端代码页面没变化**：确认后端已重启；前端清浏览器缓存，容器内 dev server 已启用轮询监听
-9. **监控页里的 Prometheus/Grafana 地址是 localhost 或打不开**：地址按「站点访问地址」推导，先确认后台该地址已填成真实域名；也可在「监控入口」里直接写完整地址。生产环境这两个服务默认只监听 `127.0.0.1`（安全考虑），外网访问需自行反代或走 SSH 隧道
+1. **升级后缺新菜单/新权限/新字段，或评论数不一致**：重跑 `sql/00_init_database.sql`（幂等，会补齐并重算评论数）；但**已存在的数据行不会被修复**，示例文章的正文与分类标签关联请单独跑 `sql/99_fix_sample_articles_v1.4.2.sql`；v1.4.3 起存量注册用户的 `user_type` 同理，跑 `sql/99_fix_blog_user_type_v1.4.3.sql` 后需重新登录
+2. **「每日阅读 PV/UV」没有数据**：等定时任务（每小时）首次汇总；当天数据约 1 小时延迟
+3. **`/sitemap.xml`、`/robots.txt` 404**：生产反代把这两个根路径转发到后端（:8080）
+4. **邮箱验证码/通知邮件收不到**：到「博客设置 → 邮件服务」填 SMTP 并点「测试连接」（失败原因会直接显示），确认「邮件服务」卡片上的 dev-print-code 状态；开发期可设 `EMAIL_DEV_PRINT_CODE=true` 在控制台查看验证码
+5. **注册页提示「未开放注册」**：`sys.account.registerUser` 默认关闭，去「博客设置 → 功能设置 → 用户注册」打开（只认字面 `true`，且必须走后台，直接改库不会生效）
+6. **媒体删除后文件仍在 / 角色 2 看不到媒体管理**：前者是“尽力删除”（占用时仅删记录）；后者确认已重跑 00 并在角色管理中补勾权限
+7. **个人中心 404、登录后闪退、改了前端代码页面没变化**：确认后端已重启；前端清浏览器缓存，容器内 dev server 已启用轮询监听
+8. **监控页里的 Prometheus/Grafana 地址是 localhost 或打不开**：地址按「站点访问地址」推导，先确认后台该地址已填成真实域名；也可在「监控入口」里直接写完整地址。生产环境这两个服务默认只监听 `127.0.0.1`（安全考虑），外网访问需自行反代或走 SSH 隧道
 
 ## 📄 许可证
 
@@ -278,6 +261,6 @@ R_TOKEN_SECRET={your_secret_key}
 
 ## 📊 项目信息
 
-- **项目名称**：ZhiBlog - 知博　**当前版本**：v1.4.3　**Maven GroupId**：top.nevell
+- **项目名称**：ZhiBlog - 知博　**当前版本**：v1.4.4　**Maven GroupId**：top.nevell
 - **项目地址**：https://gitee.com/nevell/zhiblog　**维护者**：nevell
-- **最后更新**：2026-10-03
+- **最后更新**：2026-10-04

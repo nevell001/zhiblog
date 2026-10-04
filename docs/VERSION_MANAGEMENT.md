@@ -8,11 +8,11 @@
 
 **后端版本号**：
 - **主配置文件**：`pom.xml` 中的 `<version>` 和 `<app.version>` 属性
-- **当前版本**：`1.4.3`
+- **当前版本**：`1.4.4`
 
 **前端版本号**：
 - **配置文件**：`zhi-ui/package.json` 中的 `version` 字段（`zhi-ui/package-lock.json` 的两处 `"version"` 一并同步）
-- **当前版本**：`1.4.3`（与后端同步）
+- **当前版本**：`1.4.4`（与后端同步）
 
 ### 版本号使用位置
 
@@ -22,10 +22,10 @@
    ```xml
    <groupId>top.nevell</groupId>
    <artifactId>zhiblog</artifactId>
-   <version>1.4.3</version>  <!-- 项目版本 -->
+   <version>1.4.4</version>  <!-- 项目版本 -->
    
    <properties>
-       <app.version>1.4.3</app.version>  <!-- 应用版本 -->
+       <app.version>1.4.4</app.version>  <!-- 应用版本 -->
    </properties>
    ```
 
@@ -44,13 +44,13 @@
 
 4. **配置类** (`zhi-common/src/main/java/com/zhi/common/config/RuoYiConfig.java`)
    ```java
-   @Value("${ruoyi.version:1.4.3}")
+   @Value("${ruoyi.version:1.4.4}")
    private String version;
    ```
 
 5. **API 接口** (`SysIndexController.java`)
    - 接口路径：`GET /system/version`
-   - 返回数据：`{ "version": "1.4.3", "name": "ZhiBlog" }`
+   - 返回数据：`{ "version": "1.4.4", "name": "ZhiBlog" }`
 
 6. **子模块 parent 版本**：
    - `zhi-common/pom.xml`
@@ -63,7 +63,7 @@
    <parent>
        <groupId>top.nevell</groupId>
        <artifactId>zhiblog</artifactId>
-       <version>1.4.3</version>  <!-- 必须与父 POM 版本一致 -->
+       <version>1.4.4</version>  <!-- 必须与父 POM 版本一致 -->
    </parent>
    ```
 
@@ -72,7 +72,7 @@
 前端不再硬编码版本号：
 
 1. **package.json** (`zhi-ui/package.json`)
-   - `"version": "1.4.3"` 必须与后端保持一致（仅用于包元信息）。
+   - `"version": "1.4.4"` 必须与后端保持一致（仅用于包元信息）。
 2. **lock 文件** (`zhi-ui/package-lock.json`)
    - 根节点的 `"version"` 与 `packages[""].version` 两处都要跟着 `package.json` 改。
 3. **界面展示**
@@ -247,7 +247,7 @@ grep -rEn "${OLD}([^0-9]|$)" --include='*.xml' --include='*.java' --include='*.j
 
 ### 1. 准备发行说明
 
-在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.3.md` 的结构：安全与隐私 / 新增与增强 / 主要修复 / 工程与质量 / 升级提示）。
+在 `docs/releases/<版本>.md` 写发行说明（可参考 `docs/releases/v1.4.4.md` 的结构：安全与隐私 / 新增与增强 / 主要修复 / 升级提示；只写功能与 bug 修复，不写测试、覆盖率、CI 流水线等工程细节）。
 
 同时把 README 的「最近更新」「版本历史」「项目信息」三处，以及 `AGENTS.md` / `CLAUDE.md` 开头的 `Current version` 一起对齐。
 
@@ -311,7 +311,7 @@ A: 这是 Maven 资源过滤的占位符，在构建时会自动替换为 `pom.x
 
 **Q: 为什么前端版本号和后端版本号不一样？**
 
-A: 不应该不一样。前端 `package.json`（及 `package-lock.json`）的版本号与后端保持一致（当前均为 1.4.3），仅作包元信息；界面要展示版本时读 `GET /system/version`。
+A: 不应该不一样。前端 `package.json`（及 `package-lock.json`）的版本号与后端保持一致（当前均为 1.4.4），仅作包元信息；界面要展示版本时读 `GET /system/version`。
 
 **Q: 如何确保所有地方的版本号一致？**
 
@@ -339,6 +339,6 @@ A: 这说明父 POM 版本与子模块 parent 版本不一致。检查并确保�
 
 ---
 
-**文档版本**: v2.4
-**最后更新**: 2026-10-03
+**文档版本**: v2.5
+**最后更新**: 2026-10-04
 **维护者**: nevell
