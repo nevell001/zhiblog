@@ -10,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
@@ -256,5 +257,93 @@ class BlogArticleMapperTest {
                 .map(Map.Entry::getValue)
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("归档行缺少列 " + column + "，实际键: " + row.keySet()));
+    }
+
+    /**
+     * 列表排序必须可重现：create_time 完全相同的并列行以 id 倒序兜底。
+     * 否则分页（LIMIT/OFFSET 分次执行、每次重新排序）会把并列行随机分布在两页，
+     * 出现「一篇文章重复显示、另一篇消失」（2026-10-04 首页问题）。
+     */
+    @Test
+    @Sql(scripts = "/schema.sql", statements = {
+        "DELETE FROM blog_article",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-A', 1, '0', '2026-10-04 12:38:14')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-B', 1, '0', '2026-10-04 12:38:14')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('并列-C', 1, '0', '2026-10-04 12:38:14')"
+    })
+    void selectBlogArticleListSameCreateTimeMustSortByIdDesc() {
+        BlogArticle queryParam = new BlogArticle();
+        queryParam.setStatus(1L);
+        List<BlogArticle> list = blogArticleMapper.selectBlogArticleList(queryParam);
+
+        assertEquals(3, list.size(), "应返回全部已发布文章");
+        List<Long> ids = list.stream().map(BlogArticle::getId).toList();
+        List<Long> expected = ids.stream().sorted(Comparator.reverseOrder()).toList();
+        assertEquals(expected, ids, "create_time 相同的文章必须按 id 倒序稳定排列");
+    }
+
+    /**
+     * 标题查重只看未删除行：已删除文章不应占用标题（可复用），
+     * 未删除行仍能按标题查到。
+     */
+    @Test
+    @Sql(scripts = "/schema.sql", statements = {
+        "DELETE FROM blog_article",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('已删除的标题', 1, '1', '2026-10-04 12:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time) VALUES ('在用标题', 1, '0', '2026-10-04 12:01:00')"
+    })
+    void selectBlogArticleByTitleMustIgnoreDeletedRows() {
+        assertNull(blogArticleMapper.selectBlogArticleByTitle("已删除的标题"),
+                "已删除文章不应占用标题");
+        assertNotNull(blogArticleMapper.selectBlogArticleByTitle("在用标题"),
+                "未删除文章必须能按标题查到");
+    }
+
+    /**
+     * 置顶文章必须浮到列表最前（is_top 优先于 create_time），
+     * 其余文章仍按创建时间倒序。此前列表只按 create_time 排序，
+     * 后台的置顶操作在前台完全不可见（2026-10-04）。
+     */
+    @Test
+    @Sql(scripts = "/schema.sql", statements = {
+        "DELETE FROM blog_article",
+        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('普通-新', 1, '0', 0, '2026-10-04 13:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('置顶-旧', 1, '0', 1, '2026-10-01 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, is_top, create_time) VALUES ('普通-中', 1, '0', 0, '2026-10-03 10:00:00')"
+    })
+    void selectBlogArticleListPinnedArticleMustFloatToTop() {
+        BlogArticle queryParam = new BlogArticle();
+        queryParam.setStatus(1L);
+        List<BlogArticle> list = blogArticleMapper.selectBlogArticleList(queryParam);
+
+        assertEquals(3, list.size());
+        assertEquals("置顶-旧", list.get(0).getTitle(), "置顶文章必须排最前，即使创建时间更早");
+        assertEquals("普通-新", list.get(1).getTitle(), "非置顶文章按创建时间倒序");
+        assertEquals("普通-中", list.get(2).getTitle());
+    }
+
+    /**
+     * 源码契约：mapper 里所有行级查询的 ORDER BY 都必须以 id 兜底，
+     * 防止并列值（如相同 create_time）在分页/多次请求间随机排序。
+     * 例外：GROUP BY 聚合结果（archive_date / month，天然无并列行）与已按唯一列 id 排序的查询。
+     */
+    @Test
+    void everyOrderByClauseMustBeDeterministic() throws Exception {
+        String mapperXml = new String(
+                getClass().getResourceAsStream("/mapper/system/BlogArticleMapper.xml").readAllBytes(),
+                StandardCharsets.UTF_8);
+        List<String> badClauses = new java.util.ArrayList<>();
+        for (String line : mapperXml.split("\n")) {
+            String trimmed = line.trim().toLowerCase();
+            if (!trimmed.startsWith("order by")) {
+                continue;
+            }
+            boolean byUniqueId = trimmed.matches("order by .*\\bid (desc|asc)( limit \\d+)?");
+            boolean aggregate = trimmed.matches("order by (archive_date|month) desc");
+            if (!byUniqueId && !aggregate) {
+                badClauses.add(trimmed);
+            }
+        }
+        assertTrue(badClauses.isEmpty(), "以下 ORDER BY 不确定，分页/列表会出现重复或乱序: " + badClauses);
     }
 }

@@ -1930,6 +1930,9 @@ CALL sp_create_index_if_not_exists('blog_article', 'idx_status_del_time', 'CREAT
 CALL sp_create_index_if_not_exists('blog_article', 'idx_category_status', 'CREATE INDEX idx_category_status ON blog_article(category_id, status)');
 CALL sp_create_index_if_not_exists('blog_article', 'idx_author_status', 'CREATE INDEX idx_author_status ON blog_article(author_id, status)');
 CALL sp_create_index_if_not_exists('blog_article', 'idx_top_status_time', 'CREATE INDEX idx_top_status_time ON blog_article(is_top, status, create_time)');
+-- 标题唯一（仅约束未删除行）：应用层查重之外兜底并发写入；函数索引使已删除行不占用标题。
+-- MySQL 8.0.13+ 函数索引；建前需保证存量未删除行无重复标题
+CALL sp_create_index_if_not_exists('blog_article', 'uk_article_title_alive', 'CREATE UNIQUE INDEX uk_article_title_alive ON blog_article ((CASE WHEN del_flag = 0 THEN title END))');
 
 -- 博客设置表索引优化
 CALL sp_create_index_if_not_exists('blog_setting', 'idx_config_key', 'CREATE INDEX idx_config_key ON blog_setting(config_key)');
