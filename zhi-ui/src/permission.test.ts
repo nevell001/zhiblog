@@ -1,6 +1,23 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { createPinia, setActivePinia } from 'pinia'
+import router from '@/router/index'
+import '@/permission'
+import { useUserStore } from '@/stores/user'
+import { usePermissionStore } from '@/stores/permission'
+
+const authToken = vi.hoisted(() => ({ value: undefined as string | undefined }))
+const removeTokenMock = vi.hoisted(() => vi.fn())
+
+vi.mock('@/utils/auth', () => ({
+  getToken: () => authToken.value,
+  getBlogToken: () => undefined,
+  setToken: vi.fn(),
+  setBlogToken: vi.fn(),
+  removeToken: () => removeTokenMock(),
+  removeBlogToken: vi.fn()
+}))
 
 const permissionSource = readFileSync(resolve(process.cwd(), 'src/permission.ts'), 'utf-8')
 
@@ -45,5 +62,63 @@ describe('Permission 模块测试', () => {
     expect(permissionSource).toContain('hasGeneratedRoutes')
     expect(permissionSource).toContain('permissionStore.routesGenerated')
     expect(permissionSource).toContain('!hasUserInfo || !hasGeneratedRoutes')
+  })
+})
+
+describe('登录页路由守卫（行为）', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    authToken.value = undefined
+    setActivePinia(createPinia())
+  })
+
+  it('匿名状态点击登录：放行进入登录页', async () => {
+    // 唯一 query 避免 vue-router 对相同 location 去重短路守卫
+    await router.push({ path: '/login', query: { case: 'anon' } })
+    expect(router.currentRoute.value.path).toBe('/login')
+  })
+
+  it('残留过期 token 且 getInfo 拿到 401 假 200 占位响应：清 token 并放行登录页', async () => {
+    authToken.value = 'stale-token'
+    const userStore = useUserStore()
+    const getInfoSpy = vi
+      .spyOn(userStore, 'getInfo')
+      .mockResolvedValue({ code: 200, msg: '匿名访问' })
+
+    await router.push({ path: '/login', query: { case: 'stale' } })
+
+    expect(getInfoSpy).toHaveBeenCalled()
+    // 关键断言：不被重定向回 /blog，登录页可达
+    expect(router.currentRoute.value.path).toBe('/login')
+    expect(userStore.token).toBe('')
+    expect(removeTokenMock).toHaveBeenCalled()
+  })
+
+  it('token 有效（getInfo 填充了用户信息）：重定向到博客首页', async () => {
+    authToken.value = 'valid-token'
+    const userStore = useUserStore()
+    vi.spyOn(userStore, 'getInfo').mockImplementation(async () => {
+      userStore.name = 'admin'
+      userStore.roles = ['ROLE_DEFAULT']
+      userStore.permissions = []
+      return { code: 200 }
+    })
+    usePermissionStore().routesGenerated = true
+
+    await router.push({ path: '/login', query: { case: 'valid' } })
+
+    expect(router.currentRoute.value.path).toBe('/blog')
+  })
+
+  it('博客页携带无效 token：按匿名清理半登录态后放行浏览', async () => {
+    authToken.value = 'stale-token'
+    const userStore = useUserStore()
+    vi.spyOn(userStore, 'getInfo').mockResolvedValue({ code: 200, msg: '匿名访问' })
+
+    await router.push({ path: '/blog', query: { case: 'stale-blog' } })
+
+    expect(router.currentRoute.value.path).toBe('/blog')
+    expect(userStore.token).toBe('')
+    expect(removeTokenMock).toHaveBeenCalled()
   })
 })

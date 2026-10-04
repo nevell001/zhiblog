@@ -74,6 +74,15 @@ router.beforeEach(
               removeToken()
             })
           }
+          // 401 拦截器对博客路径返回假 200 占位响应时 getInfo 不会抛错：
+          // 有 cookie 却拿不到用户信息 = token 实际无效，同样按匿名清理，
+          // 避免留下「登录按钮与残留 token 并存」的半登录态
+          if (!userStore.name && getToken()) {
+            userStore.token = ''
+            userStore.roles = []
+            userStore.permissions = []
+            removeToken()
+          }
 
           // 如果后台路由还没生成，则预生成
           const hasGeneratedRoutes = permissionStore.routesGenerated
@@ -123,6 +132,20 @@ router.beforeEach(
             if (userStore.token && (!userStore.name || userStore.roles.length === 0)) {
               await userStore.getInfo()
             }
+          } catch (error) {
+            console.warn('token 验证失败，允许访问登录页:', error)
+          }
+          // 校验 getInfo 的结果而非依赖它抛错：401 拦截器对博客路径会返回
+          // 「匿名访问」假 200 占位响应，getInfo 静默成功但拿不到用户信息。
+          // 此时 token 实际无效，必须清掉，否则点击「登录」会被重定向回 /blog，
+          // 登录页永远打不开
+          if (!userStore.name) {
+            userStore.token = ''
+            userStore.roles = []
+            userStore.permissions = []
+            removeToken()
+            next()
+          } else {
             // token 有效，已获取到用户信息，重定向到首页或 redirect 参数指定的页面
             const redirect = to.query.redirect as string
             if (redirect && redirect !== '/login' && redirect !== '/' && redirect !== '/index') {
@@ -130,14 +153,6 @@ router.beforeEach(
             } else {
               next({ path: '/blog', replace: true })
             }
-          } catch (error) {
-            // token 无效或过期，清除 token 并允许访问登录页
-            console.warn('token 验证失败，允许访问登录页:', error)
-            userStore.token = ''
-            userStore.roles = []
-            userStore.permissions = []
-            removeToken()
-            next()
           }
         } else {
           const userStore = useUserStore()
