@@ -165,11 +165,11 @@ const openGrafana = () => {
 
 .grafana-url {
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   word-break: break-all;
   margin: 0;
   padding: 8px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 4px;
   width: 100%;
   text-align: center;
@@ -185,11 +185,11 @@ const openGrafana = () => {
 
 .usage-info h4 {
   margin: 0 0 10px 0;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .usage-info p {
   margin: 0;
-  color: #606266;
+  color: var(--el-text-color-regular);
 }
 </style>

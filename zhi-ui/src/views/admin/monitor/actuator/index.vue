@@ -634,7 +634,7 @@ onMounted(async () => {
 
 .endpoint-name {
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .endpoint-content {
@@ -645,11 +645,11 @@ onMounted(async () => {
 
 .endpoint-url {
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   word-break: break-all;
   margin: 0;
   padding: 8px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 4px;
 }
 
@@ -676,7 +676,7 @@ onMounted(async () => {
 .component-name {
   flex: 1;
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .health-component-detail {
@@ -697,7 +697,7 @@ onMounted(async () => {
 .info-name {
   flex: 1;
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .info-item-detail {
@@ -718,7 +718,7 @@ onMounted(async () => {
 .config-name {
   flex: 1;
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .configprops-detail {
@@ -739,7 +739,7 @@ onMounted(async () => {
 .source-name {
   flex: 1;
   font-weight: 500;
-  color: #303133;
+  color: var(--el-text-color-primary);
 }
 
 .empty-properties {
@@ -747,13 +747,13 @@ onMounted(async () => {
 }
 
 .json-display {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   padding: 15px;
   border-radius: 4px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 13px;
   line-height: 1.6;
-  color: #303133;
+  color: var(--el-text-color-primary);
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
@@ -766,16 +766,16 @@ onMounted(async () => {
 }
 
 .json-display::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--el-fill-color-darker);
   border-radius: 4px;
 }
 
 .json-display::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--el-border-color-darker);
   border-radius: 4px;
 }
 
 .json-display::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--el-text-color-disabled);
 }
 </style>

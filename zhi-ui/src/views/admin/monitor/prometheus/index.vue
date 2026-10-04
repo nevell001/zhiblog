@@ -245,11 +245,11 @@ const runQuery = query => {
 
 .metric-url {
   font-size: 12px;
-  color: #909399;
+  color: var(--el-text-color-secondary);
   word-break: break-all;
   margin: 0;
   padding: 8px;
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   border-radius: 4px;
   width: 100%;
   text-align: center;
@@ -264,13 +264,13 @@ const runQuery = query => {
 }
 
 .metrics-display {
-  background-color: #f5f7fa;
+  background-color: var(--el-fill-color-light);
   padding: 15px;
   border-radius: 4px;
   font-family: 'Courier New', Courier, monospace;
   font-size: 12px;
   line-height: 1.6;
-  color: #303133;
+  color: var(--el-text-color-primary);
   white-space: pre-wrap;
   word-wrap: break-word;
   margin: 0;
