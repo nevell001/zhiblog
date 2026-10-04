@@ -262,5 +262,6 @@ R_TOKEN_SECRET={your_secret_key}
 ## 📊 项目信息
 
 - **项目名称**：ZhiBlog - 知博　**当前版本**：v1.4.4　**Maven GroupId**：top.nevell
-- **项目地址**：https://gitee.com/nevell/zhiblog　**维护者**：nevell
+- **项目地址**：https://gitee.com/nevell/zhiblog
+- **维护者**：nevell
 - **最后更新**：2026-10-04
