@@ -9,9 +9,9 @@ triggers:
     tags:
       include:
         - v*
-      # 排除 release@gitee 插件自动创建的 v1.4.3 tag，避免流水线被自身触发死循环
+      # 排除 release@gitee 插件自动创建的 v1.4.4 tag，避免流水线被自身触发死循环
       exclude:
-        - v1.4.3.*
+        - v1.4.4.*
 stages:
   - name: backend
     displayName: 后端编译与测试
@@ -84,13 +84,13 @@ stages:
     strategy: naturally
     trigger: auto
     steps:
-      # Gitee Go Release 插件：自动创建仓库「发行版」，复用触发流水线的 v1.4.3 tag
+      # Gitee Go Release 插件：自动创建仓库「发行版」，复用触发流水线的 v1.4.4 tag
       - step: release@gitee
         name: release_gitee
         displayName: Gitee Release
-        releaseName: ZhiBlog v1.4.3
-        description: ZhiBlog v1.4.3 发布构建（Gitee Go 流水线自动生成）。
-        tagName: v1.4.3
+        releaseName: ZhiBlog v1.4.4
+        description: ZhiBlog v1.4.4 发布构建（Gitee Go 流水线自动生成）。
+        tagName: v1.4.4
         upstreamArtifact:
           - BACKEND_JAR
           - FRONTEND_DIST_PACKAGE
