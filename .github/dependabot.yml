@@ -14,11 +14,17 @@ updates:
       timezone: Asia/Shanghai
     open-pull-requests-limit: 10
     groups:
-      # patch/minor 合并成一个 PR，major 单独开，减少一个人维护的噪音
+      # patch/minor 合并成一个 PR，减少一个人维护的噪音
       minor-and-patch:
         update-types:
           - patch
           - minor
+    # 大版本一律不自动跟（2026-10-02 曾一口气开出 Spring Boot 4 / testcontainers 2 /
+    # mysql-connector 26 / tomcat 11 等 15 个破坏性升级 PR）；需要跟时人工 `mvn versions:` 并删掉对应 ignore
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
     commit-message:
       prefix: chore
       include: scope
@@ -37,6 +43,11 @@ updates:
         update-types:
           - patch
           - minor
+    # 同上：TS 7 / ESLint 10 / Vite 8 这类大版本人工评估，不让 Dependabot 每周重开
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
     commit-message:
       prefix: chore
       include: scope
