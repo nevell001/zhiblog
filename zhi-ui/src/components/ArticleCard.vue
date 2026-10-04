@@ -7,6 +7,13 @@
       </div>
     </div>
     <div class="article-card-content">
+      <div
+        v-if="Number(article.isTop) === 1 || Number(article.isRecommend) === 1"
+        class="article-card-flags"
+      >
+        <span v-if="Number(article.isTop) === 1" class="card-flag flag-top">置顶</span>
+        <span v-if="Number(article.isRecommend) === 1" class="card-flag flag-rec">推荐</span>
+      </div>
       <h2 class="article-card-title">
         <router-link :to="`/blog/article/${article.id}`" :title="article.title">
           {{ article.title }}
@@ -62,6 +69,8 @@ export interface ArticleCardItem {
   coverUrl?: string
   categoryName?: string
   createTime?: string
+  isTop?: number
+  isRecommend?: number
   viewCount?: number
   likeCount?: number
   commentCount?: number
@@ -106,7 +115,8 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
 
 .article-card-cover {
   position: relative;
-  height: 200px;
+  /* 与封面上传裁剪比例（3:1）一致：裁什么显示什么 */
+  aspect-ratio: 3 / 1;
   overflow: hidden;
   background: linear-gradient(45deg, var(--mo-n100), var(--mo-n200));
 }
@@ -142,6 +152,33 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   flex: 1;
   flex-direction: column;
   padding: 25px;
+}
+
+/* 置顶/推荐标识（颜色用 EP 令牌，深色模式自动跟随） */
+.article-card-flags {
+  display: flex;
+  gap: var(--mo-sp-1);
+  margin-bottom: var(--mo-sp-2);
+}
+
+.card-flag {
+  padding: var(--mo-sp-1) var(--mo-sp-2);
+  border-radius: var(--mo-r-full);
+  font-size: var(--mo-fs-xs);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.card-flag.flag-top {
+  color: var(--el-color-danger);
+  background: var(--el-color-danger-light-9);
+  border: 1px solid var(--el-color-danger-light-5);
+}
+
+.card-flag.flag-rec {
+  color: var(--el-color-warning);
+  background: var(--el-color-warning-light-9);
+  border: 1px solid var(--el-color-warning-light-5);
 }
 
 .article-card-title {
@@ -300,12 +337,6 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   transform: translateX(3px);
 }
 
-@media (max-width: 1024px) {
-  .article-card-cover {
-    height: 180px;
-  }
-}
-
 @media (max-width: 768px) {
   .article-card {
     margin-bottom: var(--mo-sp-5);
@@ -351,10 +382,6 @@ const stripHtmlTags = (html?: string) => (html ? html.replace(/<[^>]*>/g, '') : 
   .article-card {
     border-radius: var(--mo-r-sm);
     box-shadow: 0 1px 8px rgba(0, 0, 0, 0.08);
-  }
-
-  .article-card-cover {
-    height: 160px;
   }
 
   .article-card-content {

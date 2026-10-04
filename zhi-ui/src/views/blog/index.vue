@@ -37,6 +37,13 @@
               }"
             ></div>
             <div class="body">
+              <div
+                v-if="Number(article.isTop) === 1 || Number(article.isRecommend) === 1"
+                class="flag-row"
+              >
+                <span v-if="Number(article.isTop) === 1" class="flag flag-top">置顶</span>
+                <span v-if="Number(article.isRecommend) === 1" class="flag flag-rec">推荐</span>
+              </div>
               <div v-if="article.tags?.length" class="tags">
                 <router-link
                   v-for="(tag, index) in article.tags.slice(0, 2)"
@@ -80,10 +87,21 @@
             >
               ‹
             </button>
-            <span class="pg active">{{ currentPage }}</span>
+            <template v-for="(item, idx) in pageItems" :key="`${item}-${idx}`">
+              <span v-if="item === '…'" class="pg pg-ellipsis">…</span>
+              <button
+                v-else
+                class="pg"
+                :class="{ active: item === currentPage }"
+                :disabled="item === currentPage"
+                @click="handleCurrentChange(item as number)"
+              >
+                {{ item }}
+              </button>
+            </template>
             <button
               class="pg"
-              :disabled="currentPage * pageSize >= total"
+              :disabled="currentPage >= totalPages"
               @click="handleCurrentChange(currentPage + 1)"
             >
               ›
@@ -168,6 +186,7 @@ import { getTagCloud } from '@/api/blog/tag'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { logger } from '@/utils/logger'
 import { parseTime } from '@/utils/zhi'
+import { buildPageItems } from '@/utils/pageItems'
 
 const router = useRouter()
 const blogSettingsStore = useBlogSettingsStore()
@@ -184,6 +203,11 @@ const total = ref(0)
 const searchKeyword = ref('')
 const showContact = ref(false)
 const blogLayoutRef = ref<any>(null)
+
+const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
+const pageItems = computed<(number | '…')[]>(() =>
+  buildPageItems(totalPages.value, currentPage.value)
+)
 
 // 前台功能开关统一走 store 判定（search_enabled / sidebar_enabled 默认开启）
 const isSearchEnabled = computed(() => blogSettingsStore.isFeatureEnabled('search_enabled'))
@@ -377,7 +401,8 @@ onMounted(async () => {
 }
 
 .mo-home-page .article-card .thumb {
-  height: 180px;
+  /* 与封面上传裁剪比例（3:1）一致：裁什么显示什么，避免 center/cover 二次裁掉选区 */
+  aspect-ratio: 3 / 1;
   background-position: center;
   background-size: cover;
 }
@@ -593,6 +618,18 @@ onMounted(async () => {
   background: #fff;
   color: var(--mo-n600);
   font-size: 13px;
+  cursor: pointer;
+}
+
+.mo-home-page .pg:disabled:not(.active) {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mo-home-page .pg-ellipsis {
+  border: none;
+  background: transparent;
+  cursor: default;
 }
 
 .mo-home-page .pg.active {
@@ -600,6 +637,33 @@ onMounted(async () => {
   background: var(--el-color-primary, #409eff);
   /* 亮色主色（#409eff/#00d4ff）上的白字不达 AA，改用与主色配对的前景色 */
   color: var(--mo-on-primary, #fff);
+}
+
+/* 置顶/推荐标识（与上传裁剪比例、分页排序同期的后台能力前台化） */
+.mo-home-page .flag-row {
+  display: flex;
+  gap: var(--mo-sp-1);
+  margin-bottom: var(--mo-sp-2);
+}
+
+.mo-home-page .flag {
+  padding: var(--mo-sp-1) var(--mo-sp-2);
+  border-radius: var(--mo-r-full);
+  font-size: var(--mo-fs-xs);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.mo-home-page .flag-top {
+  color: var(--el-color-danger);
+  background: var(--el-color-danger-light-9);
+  border: 1px solid var(--el-color-danger-light-5);
+}
+
+.mo-home-page .flag-rec {
+  color: var(--el-color-warning);
+  background: var(--el-color-warning-light-9);
+  border: 1px solid var(--el-color-warning-light-5);
 }
 
 .mo-home-page .tag {

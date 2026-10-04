@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import ArticleCard from './ArticleCard.vue'
 
 const stubs = {
@@ -51,6 +53,16 @@ describe('ArticleCard 组件', () => {
     expect(wrapper.find('.article-card-badge').exists()).toBe(false)
   })
 
+  it('置顶/推荐文章渲染对应徽标，普通文章不渲染', () => {
+    const flagged = mountCard({ id: 2, title: '旗标文章', isTop: 1, isRecommend: 1 })
+    expect(flagged.find('.article-card-flags').exists()).toBe(true)
+    expect(flagged.find('.card-flag.flag-top').text()).toBe('置顶')
+    expect(flagged.find('.card-flag.flag-rec').text()).toBe('推荐')
+
+    const plain = mountCard({ id: 3, title: '普通文章', isTop: 0, isRecommend: 0 })
+    expect(plain.find('.article-card-flags').exists()).toBe(false)
+  })
+
   it('没有摘要时应该用去掉 HTML 标签的正文兜底', () => {
     const wrapper = mountCard({
       id: 2,
@@ -74,5 +86,32 @@ describe('ArticleCard 组件', () => {
     const wrapper = mountCard({ id: 1, title: 't', summary: 's' }, 5)
 
     expect(wrapper.find('.article-card').attributes('style')).toContain('animation-delay: 0.5s')
+  })
+
+  /**
+   * 跨文件 CSS 契约：封面展示容器必须与上传裁剪比例（3:1）一致。
+   * jsdom 无布局引擎无法行为验证；若容器比例偏离裁剪比例，center/cover 会对
+   * 裁剪结果二次裁切，用户「裁什么」与「首页显示什么」不一致（参考 2026-10-04 首页横条问题）。
+   */
+  it('封面容器保持 3:1，与上传裁剪比例一致（跨文件 CSS 契约）', () => {
+    const vue = readFileSync(resolve(process.cwd(), 'src/components/ArticleCard.vue'), 'utf-8')
+    const coverRule = vue.match(/\.article-card-cover\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(coverRule).toMatch(/aspect-ratio:\s*3\s*\/\s*1/)
+    expect(coverRule).not.toMatch(/height:\s*\d+px/)
+    // 响应式断点里不得残留其他比例（回归过 480px 断点残留 16:9 的问题）
+    const vueRatios = vue.match(/aspect-ratio:\s*[^;]+/g) ?? []
+    expect(vueRatios.every(r => /3\s*\/\s*1/.test(r))).toBe(true)
+
+    const home = readFileSync(resolve(process.cwd(), 'src/views/blog/index.vue'), 'utf-8')
+    const thumbRule = home.match(/\.article-card \.thumb\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(thumbRule).toMatch(/aspect-ratio:\s*3\s*\/\s*1/)
+    expect(thumbRule).not.toMatch(/height:\s*\d+px/)
+
+    const archive = readFileSync(
+      resolve(process.cwd(), 'src/views/blog/archive/index.vue'),
+      'utf-8'
+    )
+    const archiveRule = archive.match(/\.article-cover\s*\{[^}]*\}/)?.[0] ?? ''
+    expect(archiveRule).toMatch(/aspect-ratio:\s*3\s*\/\s*1/)
   })
 })

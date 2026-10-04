@@ -707,7 +707,8 @@ onMounted(() => {
 /* 文章封面 */
 .article-cover {
   width: 200px;
-  height: 130px;
+  /* 与封面上传裁剪比例（3:1）一致 */
+  aspect-ratio: 3 / 1;
   flex-shrink: 0;
   border-radius: var(--mo-r-md);
   overflow: hidden;
@@ -879,7 +880,6 @@ onMounted(() => {
 
   .article-cover {
     width: 100%;
-    height: 160px;
   }
 
   .article-meta {

@@ -40,12 +40,82 @@
     <el-dialog v-model="dialogVisible" title="预览" width="800px" append-to-body>
       <img :src="dialogImageUrl" style="display: block; max-width: 100%; margin: 0 auto" />
     </el-dialog>
+
+    <!-- 裁剪弹窗（crop 开启时生效） -->
+    <el-dialog
+      v-model="cropVisible"
+      title="裁剪图片"
+      width="900px"
+      append-to-body
+      :close-on-click-modal="false"
+      @open="cropRenderVisible = true"
+      @closed="onCropClosed"
+    >
+      <el-row :gutter="12">
+        <el-col :xs="24" :md="16" :style="{ height: '380px' }">
+          <vue-cropper
+            v-if="cropRenderVisible"
+            ref="cropperRef"
+            :img="cropImg"
+            :auto-crop="true"
+            :fixed="true"
+            :fixed-number="fixedNumberPair"
+            :center-box="true"
+            :info="false"
+            :full="true"
+            :output-type="'jpeg'"
+            :output-size="0.8"
+            @real-time="realTime"
+          />
+        </el-col>
+        <el-col :xs="24" :md="8" :style="{ height: '380px' }" class="crop-preview-col">
+          <div class="crop-preview-box" :style="previewBoxOuterStyle">
+            <div :style="previewBoxInnerStyle">
+              <img :src="previews.url" :style="previews.img" />
+            </div>
+          </div>
+        </el-col>
+      </el-row>
+      <el-row class="crop-actions" align="middle">
+        <el-upload
+          action="#"
+          :http-request="noopRequest"
+          :show-file-list="false"
+          :before-upload="handleCropReselect"
+        >
+          <el-button>
+            重新选择
+            <el-icon class="el-icon--right"><upload /></el-icon>
+          </el-button>
+        </el-upload>
+        <el-button icon="Plus" @click="changeScale(1)" />
+        <el-button icon="Minus" @click="changeScale(-1)" />
+        <el-button icon="RefreshLeft" @click="rotateLeft()" />
+        <el-button icon="RefreshRight" @click="rotateRight()" />
+        <div class="crop-actions-right">
+          <el-button :disabled="cropUploading" @click="uploadCropped(true)">
+            跳过裁剪直接上传
+          </el-button>
+          <el-button
+            type="primary"
+            :loading="cropUploading"
+            :disabled="cropUploading"
+            @click="uploadCropped(false)"
+          >
+            确认裁剪并上传
+          </el-button>
+        </div>
+      </el-row>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
+import 'vue-cropper/dist/index.css'
+import { VueCropper } from 'vue-cropper'
 import { ref, computed, watch, getCurrentInstance, onMounted, onUnmounted, nextTick } from 'vue'
 import { ElMessage } from '@/plugins/element-plus-service'
+import request from '@/utils/request'
 import { getToken } from '@/utils/auth'
 import { isExternal } from '@/utils/validate'
 import Sortable from 'sortablejs'
@@ -90,6 +160,16 @@ const props = defineProps({
   drag: {
     type: Boolean,
     default: true
+  },
+  // 选图后先弹裁剪框（封面对齐列表卡片比例等场景）
+  crop: {
+    type: Boolean,
+    default: false
+  },
+  // 裁剪宽高比（宽/高），配合 crop 使用
+  aspectRatio: {
+    type: Number,
+    default: 16 / 9
   }
 })
 
@@ -107,6 +187,36 @@ const uploadImgUrl = ref(baseApi + props.action) // 上传的图片服务器地�
 const headers = ref({ Authorization: 'Bearer ' + getToken() })
 const fileList = ref([])
 const showTip = computed(() => props.isShowTip && (props.fileType || props.fileSize))
+
+// 裁剪弹窗状态
+const cropVisible = ref(false)
+const cropRenderVisible = ref(false)
+const cropUploading = ref(false)
+const cropImg = ref('')
+const cropFile = ref<File | null>(null)
+const cropperRef = ref()
+const previews = ref<any>({})
+const fixedNumberPair = computed<[number, number]>(() => [props.aspectRatio, 1])
+const previewBoxOuterStyle = computed(() => {
+  const w = Number(previews.value.w) || 0
+  const h = Number(previews.value.h) || 0
+  if (!w || !h) return { visibility: 'hidden' as const }
+  const k = Math.min(1, 240 / w, 200 / h)
+  return { width: `${w * k}px`, height: `${h * k}px` }
+})
+const previewBoxInnerStyle = computed(() => {
+  const w = Number(previews.value.w) || 0
+  const h = Number(previews.value.h) || 0
+  if (!w || !h) return {}
+  const k = Math.min(1, 240 / w, 200 / h)
+  return {
+    width: `${w}px`,
+    height: `${h}px`,
+    overflow: 'hidden',
+    transform: `scale(${k})`,
+    transformOrigin: 'top left'
+  }
+})
 
 // 设置 watch 监听器，Vue 3 会自动清理
 watch(
@@ -167,6 +277,17 @@ function handleBeforeUpload(file) {
       return false
     }
   }
+  if (props.crop) {
+    // 拦截 el-upload 自带上传，改走裁剪弹窗，确认后手动上传
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      cropImg.value = String(reader.result || '')
+      cropFile.value = file
+      cropVisible.value = true
+    }
+    return false
+  }
   ;(proxy as any).$modal.loading('正在上传图片，请稍候...')
   number.value++
 }
@@ -179,15 +300,7 @@ function handleExceed() {
 // 上传成功回调
 function handleUploadSuccess(res: any, file: any) {
   if (res.code === 200) {
-    // 保存完整的URL用于显示（包含baseUrl），文件名使用原始路径
-    const fullUrl = res.url || res.fileName
-    // 如果URL不包含baseUrl，添加baseUrl
-    const displayUrl = fullUrl.indexOf(baseUrl) === 0 ? fullUrl : baseUrl + fullUrl
-    uploadList.value.push({
-      name: res.fileName || res.url,
-      url: displayUrl
-    })
-    uploadedSuccessfully()
+    applyUploadSuccess(res)
   } else {
     number.value--
     ;(proxy as any).$modal.closeLoading()
@@ -195,6 +308,19 @@ function handleUploadSuccess(res: any, file: any) {
     ;(proxy.$refs.imageUpload as any).handleRemove(file)
     uploadedSuccessfully()
   }
+}
+
+// 成功响应落地：供 el-upload 回调与裁剪手动上传共用
+function applyUploadSuccess(res: any) {
+  // 保存完整的URL用于显示（包含baseUrl），文件名使用原始路径
+  const fullUrl = res.url || res.fileName
+  // 如果URL不包含baseUrl，添加baseUrl
+  const displayUrl = fullUrl.indexOf(baseUrl) === 0 ? fullUrl : baseUrl + fullUrl
+  uploadList.value.push({
+    name: res.fileName || res.url,
+    url: displayUrl
+  })
+  uploadedSuccessfully()
 }
 
 // 删除图片
@@ -228,6 +354,92 @@ function handleUploadError() {
 function handlePictureCardPreview(file) {
   dialogImageUrl.value = file.url
   dialogVisible.value = true
+}
+
+// ===== 裁剪弹窗 =====
+
+function noopRequest() {}
+
+// 弹窗内重新选图
+function handleCropReselect(file: File) {
+  if (file.type.indexOf('image/') === -1) {
+    ;(proxy as any).$modal.msgError('文件格式错误，请上传图片类型文件。')
+    return false
+  }
+  const reader = new FileReader()
+  reader.readAsDataURL(file)
+  reader.onload = () => {
+    cropImg.value = String(reader.result || '')
+    cropFile.value = file
+  }
+  return false
+}
+
+function changeScale(num: number) {
+  ;(cropperRef.value as any)?.changeScale(num || 1)
+}
+
+function rotateLeft() {
+  ;(cropperRef.value as any)?.rotateLeft()
+  syncPreview()
+}
+
+function rotateRight() {
+  ;(cropperRef.value as any)?.rotateRight()
+  syncPreview()
+}
+
+// 预览更新有 16ms 节流，旋转末尾「选框被钳制」那一拍会被丢弃，延迟一拍强制刷新
+function syncPreview() {
+  setTimeout(() => (cropperRef.value as any)?.showPreview?.(), 40)
+}
+
+function realTime(data: any) {
+  previews.value = data || {}
+}
+
+/**
+ * 裁剪上传：skipped=true 跳过裁剪直接用原文件；成功后均关闭弹窗
+ */
+function uploadCropped(skipped: boolean) {
+  if (cropUploading.value) return
+  const source = skipped || !cropperRef.value ? cropFile.value : null
+  if (source) {
+    doCropUpload(source)
+    return
+  }
+  cropUploading.value = true
+  ;(cropperRef.value as any).getCropBlob((data: Blob) => {
+    cropUploading.value = false
+    if (data) doCropUpload(data)
+  })
+}
+
+function doCropUpload(blob: Blob) {
+  ;(proxy as any).$modal.loading('正在上传图片，请稍候...')
+  number.value++
+  const formData = new FormData()
+  formData.append('file', blob, cropFile.value?.name || 'cover.jpg')
+  request({
+    url: props.action,
+    method: 'post',
+    data: formData,
+    headers: { 'Content-Type': 'multipart/form-data' }
+  })
+    .then((res: any) => {
+      applyUploadSuccess(res)
+      cropVisible.value = false
+    })
+    .catch(() => {
+      number.value = Math.max(0, number.value - 1)
+      ;(proxy as any).$modal.closeLoading()
+      ;(proxy as any).$modal.msgError('上传图片失败')
+    })
+}
+
+function onCropClosed() {
+  cropRenderVisible.value = false
+  previews.value = {}
 }
 
 // 对象转成指定字符串分隔
@@ -273,5 +485,28 @@ onMounted(() => {
 
 :deep(.el-upload.el-upload--picture-card.is-disabled) {
   display: none !important;
+}
+
+.crop-preview-col {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.crop-preview-box {
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.crop-actions {
+  margin-top: 12px;
+
+  :deep(.el-upload) {
+    margin-right: 12px;
+  }
+
+  .crop-actions-right {
+    margin-left: auto;
+  }
 }
 </style>

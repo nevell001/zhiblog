@@ -466,7 +466,13 @@
             <section class="side-section">
               <div class="side-title">封面图片</div>
               <el-form-item prop="coverUrl" class="compact-form-item">
-                <image-upload v-model="form.coverUrl" action="/common/upload/article-cover" />
+                <image-upload
+                  v-model="form.coverUrl"
+                  action="/common/upload/article-cover"
+                  crop
+                  :aspect-ratio="3"
+                  :limit="1"
+                />
                 <div v-if="form.coverUrl" class="cover-preview">
                   <img :src="coverPreviewUrl" alt="封面预览" />
                   <el-button type="danger" size="small" plain @click="form.coverUrl = ''">
