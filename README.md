@@ -210,7 +210,7 @@ R_TOKEN_SECRET={your_secret_key}
 
 ### v1.4.3 (2026-10-03)
 
-- 见上方「最近更新」与 [发布说明](docs/releases/v1.4.3.md)；表结构有变更（`blog_message.create_by/update_by`），重跑 `sql/00_init_database.sql` 即可补齐；**存量注册用户必须**再跑 [`sql/99_fix_blog_user_type_v1.4.3.sql`](sql/README.md) 并重新登录
+- 修复注册用户被当成系统用户（`user_type` 未持久化，自助注册的人会看到「管理后台」入口、点写文章 404）；新增留言板开关、评论分页、标签总览重设计与个人中心单栏重构，设计令牌收敛并修好深色模式多处隐形文字。表结构有变更（`blog_message.create_by/update_by`），重跑 `sql/00_init_database.sql` 即可补齐；**存量注册用户必须**再跑 [`sql/99_fix_blog_user_type_v1.4.3.sql`](sql/README.md) 并重新登录；详见 [发布说明](docs/releases/v1.4.3.md)
 
 ### v1.4.2 (2026-10-02)
 
