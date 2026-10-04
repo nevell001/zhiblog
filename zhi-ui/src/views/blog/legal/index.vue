@@ -76,8 +76,7 @@ onMounted(() => {
 .mo-legal-page {
   min-height: 100vh;
   /* 顶部 84px 为固定导航避让（与 about/guestbook 等页面同口径），刻度上无此值，用 calc 组合表达 */
-  padding:
-    calc(var(--mo-sp-8) * 2 + var(--mo-sp-1)) var(--mo-sp-6)
+  padding: calc(var(--mo-sp-8) * 2 + var(--mo-sp-1)) var(--mo-sp-6)
     calc(var(--mo-sp-8) * 2 + var(--mo-sp-2));
   background: var(--mo-n50);
   color: var(--mo-n800);
@@ -172,9 +171,7 @@ html.dark .legal-content {
 
 @media (max-width: 768px) {
   .mo-legal-page {
-    padding:
-      calc(var(--mo-sp-8) * 2 + var(--mo-sp-2)) var(--mo-sp-4)
-      var(--mo-sp-6);
+    padding: calc(var(--mo-sp-8) * 2 + var(--mo-sp-2)) var(--mo-sp-4) var(--mo-sp-6);
   }
 
   .legal-panel {
