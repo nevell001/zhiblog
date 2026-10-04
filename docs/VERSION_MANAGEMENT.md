@@ -174,7 +174,7 @@ grep -rEn "${OLD}([^0-9]|$)" --include='*.xml' --include='*.java' --include='*.j
 示例：`1.4.3`
 - `1`：主版本号（MAJOR）
 - `4`：次版本号（MINOR）
-- `2`：修订号（PATCH）
+- `3`：修订号（PATCH）
 
 ### 版本号检查
 

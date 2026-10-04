@@ -84,5 +84,5 @@ git push origin v1.4.0 && git push github v1.4.0
 git ls-remote --tags origin && git ls-remote --tags github
 ```
 
-最后在 GitHub → Releases → *Draft a new release* 选择该标签、粘贴发行说明并 Publish（Gitee 的「发行版」同理）。完整流程见 [版本管理指南](docs/VERSION_MANAGEMENT.md#发布流程tag-与-release)。
+推送 tag 后 **Release 由 CI 自动创建，不用手动在网页新建**：GitHub 侧 `.github/workflows/release.yml` 在 `v*` tag 推送后建 Release，Gitee 侧 `.workflow/ReleasePipeline.yml` 的 `release@gitee` 步骤建「发行版」，两边的发行说明都直接取 `docs/releases/<版本>.md`。发布后到 Releases 页校验是否已生成即可（**不要手改**，同 tag 重跑会用流水线的内容覆盖）。完整流程见 [版本管理指南](docs/VERSION_MANAGEMENT.md#发布流程tag-与-release)。
 
