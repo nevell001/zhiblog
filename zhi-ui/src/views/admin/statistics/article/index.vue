@@ -31,7 +31,8 @@
       <el-row :gutter="20" style="margin-top: 30px">
         <el-col :span="24">
           <el-card header="每日阅读 PV/UV（近 30 天）">
-            <div id="dailyPvUvChart" style="height: 300px"></div>
+            <div v-if="dailyReady" id="dailyPvUvChart" style="height: 300px"></div>
+            <el-empty v-else description="暂无 PV/UV 数据" :image-size="70" />
           </el-card>
         </el-col>
       </el-row>
@@ -64,6 +65,7 @@ const categoryChart = ref<any>(null)
 const tagChartRef = ref<any>(null)
 const categoryReady = ref(false)
 const tagReady = ref(false)
+const dailyReady = ref(false)
 let categoryData: any = null
 let tagData: any = null
 
@@ -85,8 +87,9 @@ const loadChartData = async () => {
     // 加载文章分类分布
     const categoryRes = await getArticleCategoryDistribution()
     if (categoryRes.code === 200) {
-      await renderCategoryChart(categoryRes.data || { labels: [], data: [] })
+      // 先置 ready 再渲染：容器在 v-if 内，否则 render 时取不到 DOM，图表永远是空白
       categoryReady.value = true
+      await renderCategoryChart(categoryRes.data || { labels: [], data: [] })
     } else {
       categoryReady.value = false
     }
@@ -94,8 +97,8 @@ const loadChartData = async () => {
     // 加载热门标签
     const tagsRes = await getHotTags()
     if (tagsRes.code === 200) {
-      await renderTagsChart(tagsRes.data || { labels: [], data: [] })
       tagReady.value = true
+      await renderTagsChart(tagsRes.data || { labels: [], data: [] })
     } else {
       tagReady.value = false
     }
@@ -104,10 +107,14 @@ const loadChartData = async () => {
     try {
       const dailyRes = await getDailyPvUv(30)
       if (dailyRes.code === 200) {
+        dailyReady.value = true
         await renderDailyChart(dailyRes.data || [])
+      } else {
+        dailyReady.value = false
       }
     } catch (error) {
       logger.warn('每日 PV/UV 加载失败:', error)
+      dailyReady.value = false
     }
   } catch (error) {
     logger.error('加载图表数据失败:', error)
