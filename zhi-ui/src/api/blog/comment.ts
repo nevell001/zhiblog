@@ -55,9 +55,12 @@ export function delComment(id: number): Promise<any> {
 }
 
 /**
- * 获取文章评论列表（前台用，支持分页）
+ * 获取文章评论列表（前台用：顶级评论分页，回复随楼层返回；sort 支持 newest/oldest）
  */
-export function getArticleComments(articleId: number, query?: PageParams): Promise<any> {
+export function getArticleComments(
+  articleId: number,
+  query?: PageParams & { sort?: 'newest' | 'oldest' }
+): Promise<any> {
   return request({
     url: '/blog/comment/article/' + articleId,
     method: 'get',

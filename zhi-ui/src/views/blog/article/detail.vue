@@ -142,7 +142,7 @@
                   <div class="lbl">获赞</div>
                 </div>
                 <div class="a-stat">
-                  <div class="num">{{ article.commentCount || totalComments || 0 }}</div>
+                  <div class="num">{{ articleCommentCount }}</div>
                   <div class="lbl">评论</div>
                 </div>
               </div>
@@ -182,7 +182,25 @@
         </main>
 
         <section v-if="isFeatureEnabled('comment_enabled')" class="comment-section">
-          <h3>💬 评论 ({{ totalComments }})</h3>
+          <div class="comment-head">
+            <h3>💬 评论 ({{ articleCommentCount }})</h3>
+            <div v-if="totalComments > 1" class="comment-sort">
+              <button
+                type="button"
+                :class="{ active: commentSort === 'newest' }"
+                @click="changeCommentSort('newest')"
+              >
+                最新
+              </button>
+              <button
+                type="button"
+                :class="{ active: commentSort === 'oldest' }"
+                @click="changeCommentSort('oldest')"
+              >
+                最早
+              </button>
+            </div>
+          </div>
 
           <div class="comment-input">
             <el-form
@@ -249,9 +267,15 @@
                         <span class="c-time">{{ formatDate(reply.createTime) }}</span>
                       </div>
                       <div class="c-text">{{ reply.content }}</div>
-                      <div v-if="isMyComment(reply)" class="c-actions">
-                        <span class="c-edit" @click="editMyComment(reply)">✏️ 编辑</span>
-                        <span class="c-delete" @click="removeMyComment(reply)">🗑️ 删除</span>
+                      <div class="c-actions">
+                        <span @click="handleLikeComment(reply)">
+                          {{ reply.liked ? '❤️' : '👍' }} {{ reply.likeCount || 0 }}
+                        </span>
+                        <span @click="handleReply(reply)">💬 回复</span>
+                        <template v-if="isMyComment(reply)">
+                          <span class="c-edit" @click="editMyComment(reply)">✏️ 编辑</span>
+                          <span class="c-delete" @click="removeMyComment(reply)">🗑️ 删除</span>
+                        </template>
                       </div>
                     </div>
                   </div>
@@ -259,6 +283,13 @@
               </div>
             </div>
           </div>
+
+          <BlogPager
+            :total="totalComments"
+            :page-size="COMMENT_PAGE_SIZE"
+            :page-num="commentPage"
+            @page-change="handleCommentPageChange"
+          />
         </section>
       </div>
 
@@ -276,6 +307,7 @@ import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
 import BlogLayout from '@/components/BlogLayout.vue'
 import ArticleTOC from '@/components/ArticleTOC.vue'
 import ShareButton from '@/components/ShareButton.vue'
+import BlogPager from '@/components/BlogPager.vue'
 import { DocumentCopy } from '@element-plus/icons-vue'
 import { getArticleDetail, getRelatedArticles } from '@/api/blog/article'
 import {
@@ -310,6 +342,9 @@ const nextArticle = ref(null)
 const relatedArticles = ref([])
 const commentList = ref([])
 const totalComments = ref(0)
+const commentPage = ref(1)
+const commentSort = ref<'newest' | 'oldest'>('newest')
+const COMMENT_PAGE_SIZE = 10
 const loading = ref(false)
 const likeLoading = ref(false)
 const commentSubmitting = ref(false)
@@ -356,6 +391,12 @@ const readingMinutes = computed(() => {
 const authorInitial = computed(() => {
   const name = article.value?.authorName || article.value?.author || '匿'
   return name.charAt(0)
+})
+
+// 评论总数（含回复的已发布数）：以文章详情/评论增删改返回的 commentCount 为准
+const articleCommentCount = computed(() => {
+  const count = Number(article.value?.commentCount)
+  return Number.isFinite(count) ? count : totalComments.value
 })
 
 // 处理目录就绪事件
@@ -486,17 +527,50 @@ const loadArticleDetail = async () => {
   }
 }
 
-// 获取评论列表
+// 登录用户：回显当前页评论（含楼层内回复）的点赞态
+const echoCommentLikedStatuses = async (comments: any[]) => {
+  if (!isLoggedIn.value || !Array.isArray(comments) || comments.length === 0) return
+  const ids: number[] = []
+  const collect = (list: any[]) => {
+    list.forEach(c => {
+      const id = Number(c?.id)
+      if (Number.isFinite(id) && id > 0) ids.push(id)
+      if (Array.isArray(c?.replies)) collect(c.replies)
+    })
+  }
+  collect(comments)
+  if (ids.length === 0) return
+
+  try {
+    const likeResponse = await getCommentLikedStatuses(ids)
+    const likedIds = Array.isArray(likeResponse?.data) ? likeResponse.data.map(Number) : []
+    const apply = (list: any[]) => {
+      list.forEach(c => {
+        c.liked = likedIds.includes(Number(c.id))
+        if (Array.isArray(c.replies)) apply(c.replies)
+      })
+    }
+    apply(comments)
+  } catch {
+    // 点赞态回显失败不影响评论展示
+  }
+}
+
+// 获取评论列表：顶级评论分页，回复随楼层返回；当前页越界（如删除后总页数减少）时回退到最后一页
 const loadComments = async () => {
   try {
     const articleId = Number(Array.isArray(route.params.id) ? route.params.id[0] : route.params.id)
-    const response = await getArticleComments(articleId, { pageNum: 1, pageSize: 100 })
+    const response = await getArticleComments(articleId, {
+      pageNum: commentPage.value,
+      pageSize: COMMENT_PAGE_SIZE,
+      sort: commentSort.value
+    })
 
     // 处理响应数据格式（TableDataInfo: { rows, total }）
     let comments = []
     if (response && response.rows) {
       comments = response.rows
-      totalComments.value = response.total || comments.length
+      totalComments.value = Number(response.total) || 0
     } else if (response && response.code === 200) {
       comments = response.data || []
       totalComments.value = comments.length
@@ -505,25 +579,46 @@ const loadComments = async () => {
       totalComments.value = comments.length
     }
 
-    commentList.value = comments
-
-    // 登录用户：回显评论点赞态
-    if (isLoggedIn.value && Array.isArray(comments) && comments.length > 0) {
-      try {
-        const ids = comments.map(c => Number(c.id)).filter(id => Number.isFinite(id) && id > 0)
-        const likeResponse = await getCommentLikedStatuses(ids)
-        const likedIds = Array.isArray(likeResponse?.data) ? likeResponse.data.map(Number) : []
-        comments.forEach((c: any) => {
-          c.liked = likedIds.includes(Number(c.id))
-        })
-      } catch {
-        // 点赞态回显失败不影响评论展示
+    if (comments.length === 0 && totalComments.value > 0 && commentPage.value > 1) {
+      const lastPage = Math.max(1, Math.ceil(totalComments.value / COMMENT_PAGE_SIZE))
+      if (lastPage !== commentPage.value) {
+        commentPage.value = lastPage
+        return loadComments()
       }
     }
+
+    commentList.value = comments
+    await echoCommentLikedStatuses(comments)
   } catch (error: any) {
     logger.error('获取评论列表失败:', error)
     commentList.value = []
     totalComments.value = 0
+  }
+}
+
+// 评论增删改后同步服务端返回的最新评论数（已按审核口径结算）
+const syncCommentCount = (response: any) => {
+  const count = Number(response?.data?.commentCount)
+  if (Number.isFinite(count) && article.value) {
+    article.value.commentCount = count
+  }
+}
+
+// 切换评论排序（最新/最早），回到第一页
+const changeCommentSort = async (sort: 'newest' | 'oldest') => {
+  if (commentSort.value === sort) return
+  commentSort.value = sort
+  commentPage.value = 1
+  await loadComments()
+}
+
+// 评论翻页
+const handleCommentPageChange = async (page: number) => {
+  commentPage.value = page
+  await loadComments()
+  const section = document.querySelector('.comment-section')
+  if (section) {
+    section.scrollIntoView({ behavior: 'smooth' })
   }
 }
 
@@ -661,17 +756,27 @@ const submitComment = async () => {
     }
 
     // 如果是回复评论，添加 parentId
-    if (replyTarget.value) {
+    const isReply = !!replyTarget.value
+    if (isReply) {
       commentData.parentId = replyTarget.value.id
     }
 
-    await apiSubmitComment(commentData)
+    const response = await apiSubmitComment(commentData)
+    syncCommentCount(response)
 
-    ElMessage.success(replyTarget.value ? '回复发表成功' : '评论发表成功')
+    // 开启审核时新评论不会立即出现在列表里，提示口径要和服务端一致
+    const action = isReply ? '回复' : '评论'
+    ElMessage.success(
+      isFeatureEnabled('comment_review') ? `${action}已提交，审核通过后展示` : `${action}发表成功`
+    )
     // 重置表单
     commentForm.content = ''
     commentForm.parentId = null
     replyTarget.value = null
+    // 新发表的顶级评论回到第一页（最新排序下立即可见）
+    if (!isReply && commentSort.value === 'newest') {
+      commentPage.value = 1
+    }
     await loadComments()
   } catch (error: any) {
     logger.error('提交评论失败:', error)
@@ -710,8 +815,12 @@ const editMyComment = async (comment: any) => {
       confirmButtonText: '保存',
       cancelButtonText: '取消'
     })
-    await updateMyComment(comment.id, { content: value.trim() })
-    ElMessage.success('评论已更新')
+    const response = await updateMyComment(comment.id, { content: value.trim() })
+    syncCommentCount(response)
+    // 编辑后若开启审核会回退为待审核并从列表暂时消失，提示口径要和服务端一致
+    ElMessage.success(
+      isFeatureEnabled('comment_review') ? '评论已更新，审核通过后展示' : '评论已更新'
+    )
     await loadComments()
   } catch (error: any) {
     if (error !== 'cancel') {
@@ -729,7 +838,8 @@ const removeMyComment = async (comment: any) => {
       confirmButtonText: '删除',
       cancelButtonText: '取消'
     })
-    await deleteMyComment(comment.id)
+    const response = await deleteMyComment(comment.id)
+    syncCommentCount(response)
     ElMessage.success('评论已删除')
     await loadComments()
   } catch (error: any) {
@@ -779,10 +889,9 @@ const loadBlogSettings = async () => {
   }
 }
 
-// 组件挂载时加载数据
+// 组件挂载时加载数据（评论在 loadArticleDetail 内随文章一起拉取）
 onMounted(() => {
   loadArticleDetail()
-  loadComments()
   loadBlogSettings()
   isLoggedIn.value = !!userStore.token
 })
@@ -801,9 +910,9 @@ watch(
       relatedArticles.value = []
       commentList.value = []
       totalComments.value = 0
-      // 重新加载文章详情
+      commentPage.value = 1
+      // 重新加载文章详情（内部会重新拉取评论）
       loadArticleDetail()
-      loadComments()
     }
   },
   { immediate: false }
@@ -1337,10 +1446,48 @@ html.dark .mo-article-page .toc :deep(.toc-title) {
   background: var(--mo-n50);
 }
 
-.mo-article-page .comment-section h3 {
+.mo-article-page .comment-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 18px;
+}
+
+.mo-article-page .comment-section h3 {
+  margin: 0;
   font-size: var(--mo-fs-lg);
   font-weight: 600;
+}
+
+.mo-article-page .comment-sort {
+  display: flex;
+  gap: var(--mo-sp-1);
+}
+
+.mo-article-page .comment-sort button {
+  padding: var(--mo-sp-1) var(--mo-sp-3);
+  border: 1px solid transparent;
+  border-radius: var(--mo-r-full);
+  background: transparent;
+  color: var(--mo-n500);
+  font-size: var(--mo-fs-xs);
+  cursor: pointer;
+}
+
+.mo-article-page .comment-sort button:hover {
+  color: var(--mo-p700);
+}
+
+.mo-article-page .comment-sort button.active {
+  background: var(--mo-p50);
+  color: var(--mo-p700);
+  font-weight: 500;
+}
+
+/* p700 在深色作用域不参与重映射（仍是浅色主题的深靛蓝），强调色回退到 p300 */
+html.dark .mo-article-page .comment-sort button:hover,
+html.dark .mo-article-page .comment-sort button.active {
+  color: var(--mo-p300);
 }
 
 .mo-article-page .comment-input {
@@ -1451,6 +1598,16 @@ html.dark .mo-article-page .toc :deep(.toc-title) {
 .mo-article-page .reply-item {
   display: flex;
   gap: var(--mo-sp-3);
+}
+
+.mo-article-page .reply-item + .reply-item {
+  margin-top: var(--mo-sp-3);
+  padding-top: var(--mo-sp-3);
+  border-top: 1px solid var(--mo-n100);
+}
+
+html.dark .mo-article-page .reply-item + .reply-item {
+  border-top-color: var(--mo-n700);
 }
 
 .mo-article-page .btn {
