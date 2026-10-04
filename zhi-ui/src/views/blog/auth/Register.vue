@@ -123,7 +123,12 @@
           <div class="form-options">
             <label class="remember">
               <input v-model="agreeToTerms" type="checkbox" />
-              同意用户协议和隐私政策
+              <span>
+                我已阅读并同意
+                <router-link to="/blog/agreement" target="_blank">《用户协议》</router-link>
+                和
+                <router-link to="/blog/privacy" target="_blank">《隐私政策》</router-link>
+              </span>
             </label>
           </div>
 
@@ -487,7 +492,7 @@ onUnmounted(() => {
 
 .remember {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   color: var(--mo-n600);
 }
@@ -495,7 +500,18 @@ onUnmounted(() => {
 .remember input {
   width: 14px;
   height: 14px;
+  flex: 0 0 auto;
   accent-color: var(--mo-p600);
+}
+
+.remember a {
+  color: var(--mo-p600);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.remember a:hover {
+  text-decoration: underline;
 }
 
 .auth-submit {
@@ -587,6 +603,12 @@ onUnmounted(() => {
 :global(html.dark.theme-mo-blog .auth-footer a),
 :global(html.dark .auth-footer a) {
   color: var(--mo-p300, #a5b4fc) !important;
+}
+
+/* 深色下 .remember 内的协议链接沿用浅色 p600 会太暗（色阶被重映射），与 auth-footer 链接同口径 */
+:global(html.dark.theme-mo-blog .remember a),
+:global(html.dark .remember a) {
+  color: var(--mo-p300, #a5b4fc);
 }
 
 /* 默认深色下标签用次要文字色；不写死 #78716c（深色底上只有 3.4:1）。 */

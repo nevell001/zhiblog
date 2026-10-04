@@ -20,6 +20,8 @@ interface BlogSettingsState {
   footer_enabled: boolean
   copyright_enabled: boolean
   about_content: string
+  user_agreement_content: string
+  privacy_policy_content: string
   author_title: string
   author_bio: string
   github_url: string
@@ -60,6 +62,8 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
 
       // 其他设置
       about_content: '',
+      user_agreement_content: '',
+      privacy_policy_content: '',
 
       // 博主信息
       author_title: '全栈开发工程师',

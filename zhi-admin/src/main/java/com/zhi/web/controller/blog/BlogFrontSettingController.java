@@ -47,6 +47,7 @@ public class BlogFrontSettingController extends BaseController {
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
         "about_content",
+        "user_agreement_content", "privacy_policy_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
         // SEO 相关键（前台动态 title/description/keywords 使用）
         "seo_title", "seo_description", "seo_canonical_url", "seo_robots", "seo_favicon",

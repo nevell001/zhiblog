@@ -421,6 +421,24 @@
           </el-form>
         </el-tab-pane>
 
+        <!-- 协议页面 -->
+        <el-tab-pane label="协议页面" name="legal">
+          <el-form :model="settingsMap" label-width="120px">
+            <el-alert
+              title="用户协议与隐私政策在注册页勾选处与前台全文页面（/blog/agreement、/blog/privacy）显示，支持富文本编辑"
+              type="info"
+              :closable="false"
+              class="tab-alert"
+            />
+            <el-form-item label="用户协议" prop="user_agreement_content">
+              <editor v-model="settingsMap.user_agreement_content" :min-height="300" />
+            </el-form-item>
+            <el-form-item label="隐私政策" prop="privacy_policy_content">
+              <editor v-model="settingsMap.privacy_policy_content" :min-height="300" />
+            </el-form-item>
+          </el-form>
+        </el-tab-pane>
+
         <!-- 邮件服务 -->
         <el-tab-pane label="邮件服务" name="mail">
           <el-form :model="mailForm" label-width="140px">
@@ -727,7 +745,10 @@ const defaultSettings: Record<string, any> = {
   weibo_url: '',
   personal_website: '',
   // 关于页面
-  about_content: ''
+  about_content: '',
+  // 协议页面
+  user_agreement_content: '',
+  privacy_policy_content: ''
 }
 
 // 本页管理的 blog_setting 键集合（与 sql/00_init_database.sql 的种子一一对应，
@@ -771,7 +792,9 @@ const managedKeys = [
   'github_url',
   'weibo_url',
   'personal_website',
-  'about_content'
+  'about_content',
+  'user_agreement_content',
+  'privacy_policy_content'
 ]
 const managedKeySet = new Set(managedKeys)
 
@@ -785,6 +808,7 @@ const tabTitle = computed(() => {
     features: '功能设置',
     author: '个人信息',
     other: '关于页面',
+    legal: '协议页面',
     mail: '邮件服务',
     seo: 'SEO优化'
   }

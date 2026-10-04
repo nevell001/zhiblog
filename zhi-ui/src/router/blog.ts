@@ -75,6 +75,18 @@ export const blogRoutes: RouteRecordRaw[] = [
     name: 'PublicBlogPage',
     meta: { title: '页面' }
   },
+  {
+    path: '/blog/agreement',
+    component: () => import('@/views/blog/legal/index.vue'),
+    name: 'PublicBlogUserAgreement',
+    meta: { title: '用户协议' }
+  },
+  {
+    path: '/blog/privacy',
+    component: () => import('@/views/blog/legal/index.vue'),
+    name: 'PublicBlogPrivacyPolicy',
+    meta: { title: '隐私政策' }
+  },
   // 博客用户认证路由
   {
     path: '/blog/auth/login',
