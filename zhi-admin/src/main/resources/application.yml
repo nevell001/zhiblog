@@ -48,6 +48,10 @@ user:
 
 # Spring配置
 spring:
+  # 加载仓库根目录的 .env（无扩展名文件按 properties 解析；./ 与 ../ 双兜底，
+  # 无论从仓库根还是 zhi-admin/ 目录启动都能读到，不再依赖 spring-dotenv 的工作目录行为）
+  config:
+    import: optional:file:./.env[.properties],optional:file:../.env[.properties]
   # 数据源配置
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

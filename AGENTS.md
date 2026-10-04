@@ -1,6 +1,6 @@
 # AGENTS.md
 
-ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.4.4.
+ZhiBlog — a blog system on the RuoYi-Vue 3.9.1 platform. Spring Boot 3.3.0 backend (Java 17, `jakarta.*` namespace, Spring Security 6) + Vue 3 + TypeScript 5.9 frontend. Requires MySQL 8.4 (not 5.x) and Redis 6.2+. Current version: v1.4.5.
 
 ## Commands
 
@@ -14,6 +14,8 @@ mvn test -Dtest=ClassName#method   # single method
 mvn test -pl zhi-system            # one module
 mvn checkstyle:check               # style gate (runs on validate; checkstyle.xml)
 ```
+
+`.env` 由 `application.yml` 的 `spring.config.import`（`optional:file:./.env[.properties]` + `../.env` 兜底）加载，从仓库根或 `zhi-admin/` 启动都能读到；`spring-dotenv` 依赖保留但不再是加载主路径。改 `.env` 后需重启后端生效。
 
 ### Frontend (zhi-ui)
 
