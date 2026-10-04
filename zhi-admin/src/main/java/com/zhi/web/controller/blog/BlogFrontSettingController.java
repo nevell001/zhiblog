@@ -45,8 +45,8 @@ public class BlogFrontSettingController extends BaseController {
         "blog_avatar", "blog_copyright", "blog_beian",
         "comment_enabled", "comment_review", "like_enabled", "view_count_enabled",
         "share_enabled", "search_enabled", "sidebar_enabled", "footer_enabled", "copyright_enabled",
+        "beian_enabled",
         "friend_link_enabled", "friend_link_apply_enabled", "guestbook_enabled",
-        "about_content",
         "user_agreement_content", "privacy_policy_content",
         "author_title", "author_bio", "github_url", "weibo_url", "wechat_qr", "author_location", "personal_website",
         // SEO 相关键（前台动态 title/description/keywords 使用）
@@ -217,6 +217,9 @@ public class BlogFrontSettingController extends BaseController {
             case "footer_enabled":
                 settings.put(configKey, "true");
                 break;
+            case "beian_enabled":
+                settings.put(configKey, "false");
+                break;
             case "copyright_enabled":
                 settings.put(configKey, "true");
                 break;
@@ -224,10 +227,10 @@ public class BlogFrontSettingController extends BaseController {
                 settings.put(configKey, "true");
                 break;
             case "friend_link_apply_enabled":
-                settings.put(configKey, "true");
+                settings.put(configKey, "false");
                 break;
             case "guestbook_enabled":
-                settings.put(configKey, "true");
+                settings.put(configKey, "false");
                 break;
             default:
                 settings.put(configKey, "");

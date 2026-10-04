@@ -84,20 +84,25 @@
 import { ref, computed, onMounted, type Component } from 'vue'
 import BlogLayout from '@/components/BlogLayout.vue'
 import { getBlogSettingsAnonymous } from '@/api/blog/setting'
+import { getPublishedPageBySlug } from '@/api/blog/page'
 import { getPublicStatisticsOverview } from '@/api/statistics'
 import { useBlogSettingsStore } from '@/stores/blogSettings'
 import { processAvatarUrl } from '@/api/blog/avatar'
 import { sanitizeArticleContent } from '@/utils/sanitize'
+import { renderMarkdown } from '@/utils/markdown'
 import { logger } from '@/utils/logger'
 import { Link as LinkIcon, Location, Message, Platform, Promotion } from '@element-plus/icons-vue'
 
 const blogSettingsStore = useBlogSettingsStore()
 const blogSettings = computed(() => blogSettingsStore.blogSettings)
 
+// 页面内容仅来自页面管理里 slug=about 的已发布页面；不存在时显示空态（导航入口亦随之隐藏）
+const customAboutContent = ref('')
+
 const aboutContentHtml = computed(() => {
-  const raw = blogSettings.value.about_content
+  const raw = customAboutContent.value
   if (!raw || typeof raw !== 'string' || !raw.trim()) return '暂无关于内容'
-  return sanitizeArticleContent(raw)
+  return sanitizeArticleContent(renderMarkdown(raw))
 })
 
 interface BlogStats {
@@ -204,6 +209,16 @@ const loadBlogSettings = async () => {
   }
 }
 
+const loadCustomAbout = async () => {
+  try {
+    const response = await getPublishedPageBySlug('about')
+    customAboutContent.value = response?.data?.content || ''
+  } catch {
+    // slug=about 的页面不存在或未发布：保持空，页面显示空态
+    customAboutContent.value = ''
+  }
+}
+
 const loadStats = async () => {
   try {
     const response = await getPublicStatisticsOverview()
@@ -236,6 +251,7 @@ const formatUrl = (url: string) => {
 
 onMounted(() => {
   loadBlogSettings()
+  loadCustomAbout()
   loadStats()
 })
 </script>

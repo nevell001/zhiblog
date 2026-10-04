@@ -162,7 +162,9 @@ describe('BlogSettings Store 测试', () => {
         sidebar_enabled: false,
         footer_enabled: false,
         copyright_enabled: false,
-        about_content: '关于内容',
+        beian_enabled: false,
+        friend_link_apply_enabled: false,
+        guestbook_enabled: false,
         author_title: '标题',
         author_bio: '简介',
         github_url: 'https://github.com',
@@ -233,7 +235,10 @@ describe('BlogSettings Store 测试', () => {
         'search_enabled',
         'sidebar_enabled',
         'footer_enabled',
-        'copyright_enabled'
+        'copyright_enabled',
+        'beian_enabled',
+        'friend_link_apply_enabled',
+        'guestbook_enabled'
       ]
 
       features.forEach(feature => {

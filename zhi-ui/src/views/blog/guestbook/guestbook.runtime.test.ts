@@ -60,7 +60,7 @@ function mountGuestbook() {
 describe('留言板页面（行为）', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    // 默认留言板开关按“未配置”处理（全站口径：未配置即开启）
+    // 默认不带开关数据（store 初始 guestbook_enabled=false：默认关闭口径，缺失即关闭）
     getBlogSettingsAnonymous.mockResolvedValue({ data: { comment_enabled: 'true' } })
     getCodeImg.mockResolvedValue({ img: '', uuid: 'uuid-1' })
     getMessageList.mockResolvedValue({
@@ -86,7 +86,8 @@ describe('留言板页面（行为）', () => {
     expect(wrapper.text()).toContain('留言板')
   })
 
-  it('挂载时拉取留言列表并把内容渲染出来', async () => {
+  it('开关开启时挂载拉取留言列表并把内容渲染出来', async () => {
+    getBlogSettingsAnonymous.mockResolvedValue({ data: { guestbook_enabled: 'true' } })
     const wrapper = mountGuestbook()
     await flushPromises()
 
@@ -96,6 +97,7 @@ describe('留言板页面（行为）', () => {
   })
 
   it('接口失败时不抛出未捕获异常（页面仍可用）', async () => {
+    getBlogSettingsAnonymous.mockResolvedValue({ data: { guestbook_enabled: 'true' } })
     getMessageList.mockRejectedValueOnce(new Error('500'))
     const wrapper = mountGuestbook()
 
@@ -125,11 +127,12 @@ describe('留言板页面（行为）', () => {
     expect(getMessageList).toHaveBeenCalled()
   })
 
-  it('开关缺失时按开启处理（默认开启口径）', async () => {
+  it('开关缺失时按关闭处理（默认关闭口径）', async () => {
     const wrapper = mountGuestbook()
     await flushPromises()
 
-    expect(wrapper.find('form').exists()).toBe(true)
-    expect(getMessageList).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('本站暂未开放留言板')
+    expect(wrapper.find('form').exists()).toBe(false)
+    expect(getMessageList).not.toHaveBeenCalled()
   })
 })

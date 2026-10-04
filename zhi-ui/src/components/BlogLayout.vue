@@ -223,6 +223,11 @@
           © {{ currentYear }}
           {{ blogSettings.blog_author || blogSettings.blog_name || '我的博客' }} · 保留所有权利
         </p>
+        <p v-if="isBeianEnabled && blogSettings.blog_beian" class="beian-info">
+          <a href="https://beian.miit.gov.cn/" target="_blank" rel="noopener noreferrer">
+            {{ blogSettings.blog_beian }}
+          </a>
+        </p>
         <p class="tech-info">Powered by ZhiBlog - 知博 & Element Plus</p>
       </div>
     </footer>
@@ -404,6 +409,7 @@ const isFriendLinkApplyEnabled = computed(() =>
 )
 const isFooterEnabled = computed(() => blogSettingsStore.isFeatureEnabled('footer_enabled'))
 const isCopyrightEnabled = computed(() => blogSettingsStore.isFeatureEnabled('copyright_enabled'))
+const isBeianEnabled = computed(() => blogSettingsStore.isFeatureEnabled('beian_enabled'))
 const isGuestbookEnabled = computed(() => blogSettingsStore.isFeatureEnabled('guestbook_enabled'))
 
 // 导航菜单：固定入口 + showInNav === '1' 的自定义页面
@@ -415,12 +421,13 @@ interface NavMenuItem {
 const customPages = ref<BlogPage[]>([])
 
 const menus = computed<NavMenuItem[]>(() => {
+  // 「关于」不设固定入口：它就是页面管理里 slug=about 的那一行（是否出现在导航由该行的
+  // 「导航显示」控制）。行被删/下架时导航与 /blog/about 一并空态，不存在第二数据源
   const items: NavMenuItem[] = [
     { name: '首页', path: '/blog' },
     { name: '分类', path: '/blog/category' },
     { name: '标签', path: '/blog/tag' },
-    { name: '归档', path: '/blog/archive' },
-    { name: '关于', path: '/blog/about' }
+    { name: '归档', path: '/blog/archive' }
   ]
   // 留言板是固定入口里唯一受开关控制的一项，关闭后同时隐藏导航与页面内容
   if (isGuestbookEnabled.value) {
@@ -794,6 +801,16 @@ function fetchPublishedPages() {
 .tech-info {
   margin-top: 6px;
   font-size: var(--mo-fs-xs);
+}
+
+/* 备案号链接：继承页脚文字色（备案规范要求链接到工信部 site，但不强调视觉） */
+.beian-info a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.beian-info a:hover {
+  text-decoration: underline;
 }
 
 /* 通知铃铛 */

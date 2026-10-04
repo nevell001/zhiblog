@@ -19,7 +19,9 @@ interface BlogSettingsState {
   sidebar_enabled: boolean
   footer_enabled: boolean
   copyright_enabled: boolean
-  about_content: string
+  beian_enabled: boolean
+  friend_link_apply_enabled: boolean
+  guestbook_enabled: boolean
   user_agreement_content: string
   privacy_policy_content: string
   author_title: string
@@ -59,9 +61,11 @@ export const useBlogSettingsStore = defineStore('blogSettings', {
       sidebar_enabled: true,
       footer_enabled: true,
       copyright_enabled: true,
+      beian_enabled: false,
+      friend_link_apply_enabled: false,
+      guestbook_enabled: false,
 
       // 其他设置
-      about_content: '',
       user_agreement_content: '',
       privacy_policy_content: '',
 

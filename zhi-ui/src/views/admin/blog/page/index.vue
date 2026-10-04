@@ -104,49 +104,51 @@
       @selection-change="handleSelectionChange"
     >
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="页面ID" align="center" prop="id" width="80" />
+      <el-table-column label="页面ID" align="center" prop="id" width="70" />
       <el-table-column
         label="标题"
         align="left"
         prop="title"
-        min-width="160"
+        min-width="110"
         :show-overflow-tooltip="true"
       />
       <el-table-column
         label="别名"
         align="center"
         prop="slug"
-        min-width="140"
+        min-width="100"
         :show-overflow-tooltip="true"
       />
       <el-table-column
         label="摘要"
         align="center"
         prop="summary"
-        min-width="200"
+        min-width="120"
         :show-overflow-tooltip="true"
       >
         <template #default="scope">
           <span>{{ scope.row.summary || '-' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" align="center" prop="status" width="100">
+      <el-table-column label="状态" align="center" prop="status" width="85">
         <template #default="scope">
           <el-tag :type="statusTagType(scope.row.status)" size="small">
             {{ statusText(scope.row.status) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="导航显示" align="center" prop="showInNav" width="100">
+      <el-table-column label="导航显示" align="center" prop="showInNav" width="85">
         <template #default="scope">
           <el-tag :type="String(scope.row.showInNav) === '1' ? 'success' : 'info'" size="small">
             {{ navText(scope.row.showInNav) }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="排序" align="center" prop="sort" width="80" />
-      <el-table-column label="浏览数" align="center" prop="viewCount" width="90" />
-      <el-table-column label="更新时间" align="center" prop="updateTime" width="170">
+      <el-table-column label="排序" align="center" prop="sort" width="70" />
+      <el-table-column label="浏览数" align="center" prop="viewCount" width="80" />
+      <!-- 更新时间与操作同为右侧固定列：整表列宽合计较大，窄屏出现横向溢出时
+           未固定的列会被 fixed 列压住导致“显示不全”，钉住可保证时间始终完整可见 -->
+      <el-table-column label="更新时间" align="center" prop="updateTime" width="180" fixed="right">
         <template #default="scope">
           <span>{{ parseTime(scope.row.updateTime || scope.row.createTime) }}</span>
         </template>
@@ -154,7 +156,7 @@
       <el-table-column
         label="操作"
         align="center"
-        width="200"
+        width="170"
         fixed="right"
         class-name="small-padding fixed-width"
       >

@@ -406,21 +406,6 @@
           </el-form>
         </el-tab-pane>
 
-        <!-- 关于页面 -->
-        <el-tab-pane label="关于页面" name="other">
-          <el-form ref="otherForm" :model="settingsMap" label-width="120px">
-            <el-alert
-              title="关于页面内容将在博客的关于页面显示，支持富文本编辑"
-              type="info"
-              :closable="false"
-              class="tab-alert"
-            />
-            <el-form-item label="关于页面内容" prop="about_content">
-              <editor v-model="settingsMap.about_content" :min-height="400" />
-            </el-form-item>
-          </el-form>
-        </el-tab-pane>
-
         <!-- 协议页面 -->
         <el-tab-pane label="协议页面" name="legal">
           <el-form :model="settingsMap" label-width="120px">
@@ -659,7 +644,12 @@ const featureGroups: { title: string; desc: string; icon: any; items: FeatureIte
     items: [
       { key: 'sidebar_enabled', label: '显示侧边栏', desc: '在博客首页显示侧边栏' },
       { key: 'footer_enabled', label: '显示底部', desc: '在博客页面底部显示页脚信息' },
-      { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' }
+      { key: 'copyright_enabled', label: '显示版权', desc: '在底部显示版权信息' },
+      {
+        key: 'beian_enabled',
+        label: '显示备案',
+        desc: '在底部显示 ICP 备案号（站点信息里的备案号非空才显示）'
+      }
     ]
   },
   {
@@ -724,15 +714,16 @@ const defaultSettings: Record<string, any> = {
   comment_enabled: true,
   comment_review: true,
   like_enabled: true,
-  guestbook_enabled: true,
+  guestbook_enabled: false,
   view_count_enabled: true,
   share_enabled: true,
   search_enabled: true,
   sidebar_enabled: true,
   footer_enabled: true,
   copyright_enabled: true,
+  beian_enabled: false,
   friend_link_enabled: true,
-  friend_link_apply_enabled: true,
+  friend_link_apply_enabled: false,
   email_notify_enabled: true,
   // 用户注册（真实值读自 sys_config，默认关闭与 SQL 种子一致）
   [REGISTER_KEY]: false,
@@ -744,8 +735,6 @@ const defaultSettings: Record<string, any> = {
   github_url: '',
   weibo_url: '',
   personal_website: '',
-  // 关于页面
-  about_content: '',
   // 协议页面
   user_agreement_content: '',
   privacy_policy_content: ''
@@ -782,6 +771,7 @@ const managedKeys = [
   'sidebar_enabled',
   'footer_enabled',
   'copyright_enabled',
+  'beian_enabled',
   'friend_link_enabled',
   'friend_link_apply_enabled',
   'email_notify_enabled',
@@ -792,7 +782,6 @@ const managedKeys = [
   'github_url',
   'weibo_url',
   'personal_website',
-  'about_content',
   'user_agreement_content',
   'privacy_policy_content'
 ]
@@ -807,7 +796,6 @@ const tabTitle = computed(() => {
     theme: '界面主题',
     features: '功能设置',
     author: '个人信息',
-    other: '关于页面',
     legal: '协议页面',
     mail: '邮件服务',
     seo: 'SEO优化'

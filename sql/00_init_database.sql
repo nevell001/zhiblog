@@ -903,13 +903,14 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 
 -- 功能开关设置
 ('footer_enabled', 'true', '是否显示底部', NOW(), NOW()),
+('beian_enabled', 'false', '是否显示页脚ICP备案信息（内容取 blog_beian，非空才显示）', NOW(), NOW()),
 ('copyright_enabled', 'true', '是否显示版权信息', NOW(), NOW()),
 ('comment_enabled', 'true', '是否开启评论功能', NOW(), NOW()),
 ('comment_review', 'true', '评论是否需要审核', NOW(), NOW()),
 ('friend_link_enabled', 'true', '前台是否展示友情链接', NOW(), NOW()),
-('friend_link_apply_enabled', 'true', '前台是否展示友链申请入口（关闭后申请页提示关闭且接口拒绝提交）', NOW(), NOW()),
+('friend_link_apply_enabled', 'false', '前台是否展示友链申请入口（关闭后申请页提示关闭且接口拒绝提交）', NOW(), NOW()),
 ('like_enabled', 'true', '是否开启点赞功能', NOW(), NOW()),
-('guestbook_enabled', 'true', '前台是否展示留言板（关闭后导航隐藏入口、页面提示关闭、留言接口拒绝提交）', NOW(), NOW()),
+('guestbook_enabled', 'false', '前台是否展示留言板（关闭后导航隐藏入口、页面提示关闭、留言接口拒绝提交）', NOW(), NOW()),
 ('view_count_enabled', 'true', '是否开启浏览统计', NOW(), NOW()),
 ('share_enabled', 'true', '是否开启分享功能', NOW(), NOW()),
 ('search_enabled', 'true', '是否开启搜索功能', NOW(), NOW()),
@@ -927,7 +928,6 @@ INSERT IGNORE INTO `blog_setting` (`config_key`, `config_value`, `description`, 
 
 -- 内容设置
 ('greeting_message', '欢迎来到我的博客！', '欢迎信息', NOW(), NOW()),
-('about_content', '<p>这是一个基于Spring Boot + Vue.js构建的现代化博客系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '关于页面内容', NOW(), NOW()),
 
 -- SEO优化设置
 ('seo_title', '我的博客 - 分享技术与生活', 'SEO标题', NOW(), NOW()),
@@ -2580,6 +2580,11 @@ CREATE TABLE IF NOT EXISTS blog_notification (
     KEY idx_recipient_read (recipient_id, is_read),
     KEY idx_create_time (create_time)
 ) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='站内信通知表';
+
+-- 「关于」内置页面（slug=about）：页面管理列表中直接管理，前台 /blog/about 仅渲染此页（无其他兜底来源）；
+-- 幂等：INSERT IGNORE 依赖 slug 唯一键，重跑不覆盖站长在页面管理里的修改；被逻辑删除的行也会阻止重新插入（删除即删除）
+INSERT IGNORE INTO `blog_page` (`title`, `slug`, `summary`, `content`, `status`, `show_in_nav`, `sort`, `create_by`, `create_time`, `update_time`)
+VALUES ('关于', 'about', '', '<p>这是一个基于Spring Boot + Vue.js构建的现代化博客系统。</p><p>主要功能包括：</p><ul><li>文章管理</li><li>分类标签</li><li>评论系统</li><li>搜索功能</li></ul>', '1', '0', 0, 'admin', NOW(), NOW());
 
 -- 联系信息
 SELECT '📞 技术支持：' AS support_title;
