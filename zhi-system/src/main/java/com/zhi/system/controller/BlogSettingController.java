@@ -84,7 +84,8 @@ public class BlogSettingController extends BaseController
         {
             value = (value == null || value.isEmpty()) ? "" : MailConfigService.PASSWORD_MASK;
         }
-        return success(value);
+        // 显式调用 AjaxResult.success(Object)：success(String) 重载会把值当作 msg 返回，前端读 data 拿到 undefined
+        return AjaxResult.success((Object) value);
     }
 
     /**
