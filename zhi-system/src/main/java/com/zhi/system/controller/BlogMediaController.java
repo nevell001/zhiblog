@@ -1,5 +1,6 @@
 package com.zhi.system.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.core.page.TableDataInfo;
+import com.zhi.common.exception.ServiceException;
 import com.zhi.system.domain.BlogUpload;
 import com.zhi.system.service.IBlogUploadService;
 
@@ -40,7 +42,8 @@ public class BlogMediaController extends BaseController
     }
 
     /**
-     * 删除上传记录（同时尝试删除物理文件）
+     * 删除上传记录（同时尝试删除物理文件）；
+     * 仍被文章/页面/设置等引用的文件会跳过并说明原因
      */
     @PreAuthorize("@ss.hasPermi('blog:media:remove')")
     @DeleteMapping("/{ids}")
@@ -51,9 +54,22 @@ public class BlogMediaController extends BaseController
             return error("参数不合法");
         }
         int total = 0;
+        List<String> blocked = new ArrayList<>();
         for (Long id : ids)
         {
-            total += blogUploadService.deleteBlogUploadById(id);
+            try
+            {
+                total += blogUploadService.deleteBlogUploadById(id);
+            }
+            catch (ServiceException e)
+            {
+                blocked.add(e.getMessage());
+            }
+        }
+        if (!blocked.isEmpty())
+        {
+            String prefix = total > 0 ? "已删除 " + total + " 个文件；" : "";
+            return warn(prefix + String.join("；", blocked));
         }
         return toAjax(total);
     }

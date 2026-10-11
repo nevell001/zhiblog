@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zhi.system.mapper.BlogUploadRefMapper">
+
+    <resultMap type="BlogUploadReference" id="BlogUploadReferenceResult">
+        <result property="refType"    column="ref_type"    />
+        <result property="refCount"    column="ref_count"    />
+    </resultMap>
+
+    <!--
+      引用来源与生产列一一对应：
+      - blog_article：封面或正文（HTML / Markdown 源码）中出现该路径
+      - blog_page：自定义页面正文
+      - blog_setting：站点设置值（如博主头像）
+      - blog_friend_link：友链 Logo
+      - sys_user：用户头像
+      用 like 匹配而不是等值，兼容正文里以绝对 URL（http://host/profile/...）引用的写法；
+      已删除（del_flag）的行不算引用。
+    -->
+    <select id="countFileReferences" parameterType="String" resultMap="BlogUploadReferenceResult">
+        select 'article' as ref_type, count(*) as ref_count
+          from blog_article
+         where del_flag = '0'
+           and (cover_url like concat('%', #{url}, '%')
+                or content like concat('%', #{url}, '%')
+                or content_md like concat('%', #{url}, '%'))
+        union all
+        select 'page' as ref_type, count(*) as ref_count
+          from blog_page
+         where del_flag = 0
+           and content like concat('%', #{url}, '%')
+        union all
+        select 'setting' as ref_type, count(*) as ref_count
+          from blog_setting
+         where config_value like concat('%', #{url}, '%')
+        union all
+        select 'friendLink' as ref_type, count(*) as ref_count
+          from blog_friend_link
+         where del_flag = 0
+           and logo like concat('%', #{url}, '%')
+        union all
+        select 'userAvatar' as ref_type, count(*) as ref_count
+          from sys_user
+         where del_flag = '0'
+           and avatar like concat('%', #{url}, '%')
+    </select>
+</mapper>

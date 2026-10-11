@@ -32,6 +32,7 @@ public interface IBlogUploadService
      *
      * @param id 记录ID
      * @return 结果
+     * @throws com.zhi.common.exception.ServiceException 文件仍被文章/页面/设置等引用时拒绝删除
      */
     public int deleteBlogUploadById(Long id);
 }

@@ -158,16 +158,20 @@ const resetQuery = () => {
 
 const handleDelete = async (row: MediaItem) => {
   try {
-    await ElMessageBox.confirm('删除后将同时尝试删除物理文件，是否确认？', '删除确认', {
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
-      type: 'warning'
-    })
+    await ElMessageBox.confirm(
+      '删除后将同时尝试删除物理文件；仍被文章、页面或设置引用的文件会被跳过，是否确认？',
+      '删除确认',
+      {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
     await delMedia(row.id)
     ElMessage.success('删除成功')
     getList()
   } catch {
-    // 用户取消
+    // 用户取消，或后端拒绝删除（原因由响应拦截器提示）
   }
 }
 
