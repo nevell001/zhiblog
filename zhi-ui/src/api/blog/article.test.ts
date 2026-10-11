@@ -73,23 +73,6 @@ describe('Blog Article API 测试', () => {
     })
   })
 
-  describe('updateArticleViewCount', () => {
-    it('应该导出 updateArticleViewCount 函数', () => {
-      expect(articleApi.updateArticleViewCount).toBeDefined()
-      expect(typeof articleApi.updateArticleViewCount).toBe('function')
-    })
-
-    it('应该调用更新浏览量接口', () => {
-      articleApi.updateArticleViewCount(123)
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/article/view/123',
-        method: 'post',
-        headers: { isToken: false }
-      })
-    })
-  })
-
   describe('getArticleArchive', () => {
     it('应该导出 getArticleArchive 函数', () => {
       expect(articleApi.getArticleArchive).toBeDefined()
@@ -156,24 +139,6 @@ describe('Blog Article API 测试', () => {
         url: '/blog/api/article/related/123',
         method: 'get',
         headers: { isToken: false }
-      })
-    })
-  })
-
-  describe('submitComment', () => {
-    it('应该导出 submitComment 函数', () => {
-      expect(articleApi.submitComment).toBeDefined()
-      expect(typeof articleApi.submitComment).toBe('function')
-    })
-
-    it('应该调用提交评论接口', () => {
-      const commentData = { articleId: 123, content: '测试评论' }
-      articleApi.submitComment(commentData)
-
-      expect(request).toHaveBeenCalledWith({
-        url: '/blog/api/comment',
-        method: 'post',
-        data: commentData
       })
     })
   })

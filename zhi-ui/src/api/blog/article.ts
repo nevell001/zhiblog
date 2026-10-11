@@ -5,9 +5,7 @@ import type {
   QueryResult,
   DataResult,
   ArticleDetailResponse,
-  ArticleArchive,
-  ViewCountResponse,
-  CommentSubmitResponse
+  ArticleArchive
 } from '@/types/api'
 
 /**
@@ -41,17 +39,6 @@ export function getArticleDetail(id: number): Promise<DataResult<ArticleDetailRe
   return request({
     url: '/blog/api/article/' + id,
     method: 'get',
-    headers: { isToken: false }
-  })
-}
-
-/**
- * 更新文章浏览量
- */
-export function updateArticleViewCount(id: number): Promise<ViewCountResponse> {
-  return request({
-    url: '/blog/api/article/view/' + id,
-    method: 'post',
     headers: { isToken: false }
   })
 }
@@ -106,16 +93,5 @@ export function getRelatedArticles(id: number): Promise<DataResult<Article[]>> {
     url: '/blog/api/article/related/' + id,
     method: 'get',
     headers: { isToken: false }
-  })
-}
-
-/**
- * 提交评论
- */
-export function submitComment(data: Record<string, unknown>): Promise<CommentSubmitResponse> {
-  return request({
-    url: '/blog/api/comment',
-    method: 'post',
-    data: data
   })
 }

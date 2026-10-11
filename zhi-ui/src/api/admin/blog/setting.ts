@@ -15,64 +15,12 @@ export function listSetting(
 }
 
 /**
- * 查询博客设置详细
- */
-export function getSetting(id: number): Promise<DataResult<BlogSetting>> {
-  return request({
-    url: '/system/setting/' + id,
-    method: 'get'
-  })
-}
-
-/**
  * 根据配置键查询配置值
  */
 export function getConfigByKey(configKey: string): Promise<any> {
   return request({
     url: '/system/setting/value/' + configKey,
     method: 'get'
-  })
-}
-
-/**
- * 新增博客设置
- */
-export function addSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
-  return request({
-    url: '/system/setting',
-    method: 'post',
-    data: data
-  })
-}
-
-/**
- * 修改博客设置
- */
-export function updateSetting(data: Partial<BlogSetting> | Record<string, any>): Promise<any> {
-  return request({
-    url: '/system/setting',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
- * 删除博客设置
- */
-export function delSetting(ids: number | number[]): Promise<any> {
-  return request({
-    url: '/system/setting/' + ids,
-    method: 'delete'
-  })
-}
-
-/**
- * 刷新缓存
- */
-export function refreshCache(): Promise<any> {
-  return request({
-    url: '/system/setting/refreshCache',
-    method: 'delete'
   })
 }
 

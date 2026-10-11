@@ -60,23 +60,6 @@ describe('Comment API 测试', () => {
     })
   })
 
-  describe('updateComment', () => {
-    it('应该导出 updateComment 函数', () => {
-      expect(commentApi.updateComment).toBeDefined()
-      expect(typeof commentApi.updateComment).toBe('function')
-    })
-
-    it('应该调用修改评论接口', () => {
-      const commentData = { commentId: 123, content: '更新的评论' }
-      commentApi.updateComment(commentData)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/comment',
-        method: 'put',
-        data: commentData
-      })
-    })
-  })
-
   describe('delComment', () => {
     it('应该导出 delComment 函数', () => {
       expect(commentApi.delComment).toBeDefined()

@@ -1,58 +1,5 @@
 import request from '@/utils/request'
-import type { Comment, PageParams, QueryResult } from '@/types'
-
-/**
- * 查询博客评论列表
- */
-export function listComment(query?: PageParams): Promise<QueryResult<Comment>> {
-  return request({
-    url: '/system/comment/list',
-    method: 'get',
-    params: query
-  })
-}
-
-/**
- * 查询博客评论详细
- */
-export function getComment(id: number): Promise<Comment> {
-  return request({
-    url: '/system/comment/' + id,
-    method: 'get'
-  })
-}
-
-/**
- * 新增博客评论
- */
-export function addComment(data: Comment): Promise<any> {
-  return request({
-    url: '/system/comment',
-    method: 'post',
-    data: data
-  })
-}
-
-/**
- * 修改博客评论
- */
-export function updateComment(data: Comment): Promise<any> {
-  return request({
-    url: '/system/comment',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
- * 删除博客评论
- */
-export function delComment(id: number): Promise<any> {
-  return request({
-    url: '/system/comment/' + id,
-    method: 'delete'
-  })
-}
+import type { Comment, PageParams } from '@/types'
 
 /**
  * 获取文章评论列表（前台用：顶级评论分页，回复随楼层返回；sort 支持 newest/oldest）
@@ -97,25 +44,5 @@ export function deleteMyComment(id: number): Promise<any> {
   return request({
     url: '/blog/comment/' + id,
     method: 'delete'
-  })
-}
-
-/**
- * 审核评论
- */
-export function auditComment(id: number): Promise<any> {
-  return request({
-    url: '/system/comment/audit/' + id,
-    method: 'put'
-  })
-}
-
-/**
- * 驳回评论
- */
-export function rejectComment(id: number): Promise<any> {
-  return request({
-    url: '/system/comment/reject/' + id,
-    method: 'put'
   })
 }

@@ -34,17 +34,6 @@ export function addComment(data: Comment): Promise<any> {
 }
 
 /**
- * 修改评论
- */
-export function updateComment(data: Comment): Promise<any> {
-  return request({
-    url: '/system/comment',
-    method: 'put',
-    data: data
-  })
-}
-
-/**
  * 删除评论
  */
 export function delComment(ids: number | number[]): Promise<any> {

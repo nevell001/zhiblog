@@ -28,21 +28,6 @@ describe('Blog Setting API 测试', () => {
     })
   })
 
-  describe('getSetting', () => {
-    it('应该导出 getSetting 函数', () => {
-      expect(settingApi.getSetting).toBeDefined()
-      expect(typeof settingApi.getSetting).toBe('function')
-    })
-
-    it('应该调用博客设置详情接口', () => {
-      settingApi.getSetting(123)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting/123',
-        method: 'get'
-      })
-    })
-  })
-
   describe('getConfigByKey', () => {
     it('应该导出 getConfigByKey 函数', () => {
       expect(settingApi.getConfigByKey).toBeDefined()
@@ -54,78 +39,6 @@ describe('Blog Setting API 测试', () => {
       expect(request).toHaveBeenCalledWith({
         url: '/system/setting/value/test.key',
         method: 'get'
-      })
-    })
-  })
-
-  describe('addSetting', () => {
-    it('应该导出 addSetting 函数', () => {
-      expect(settingApi.addSetting).toBeDefined()
-      expect(typeof settingApi.addSetting).toBe('function')
-    })
-
-    it('应该调用新增博客设置接口', () => {
-      const settingData = { settingKey: 'test', settingValue: '1' }
-      settingApi.addSetting(settingData)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting',
-        method: 'post',
-        data: settingData
-      })
-    })
-  })
-
-  describe('updateSetting', () => {
-    it('应该导出 updateSetting 函数', () => {
-      expect(settingApi.updateSetting).toBeDefined()
-      expect(typeof settingApi.updateSetting).toBe('function')
-    })
-
-    it('应该调用修改博客设置接口', () => {
-      const settingData = { settingId: 123, settingValue: 'updated' }
-      settingApi.updateSetting(settingData)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting',
-        method: 'put',
-        data: settingData
-      })
-    })
-  })
-
-  describe('delSetting', () => {
-    it('应该导出 delSetting 函数', () => {
-      expect(settingApi.delSetting).toBeDefined()
-      expect(typeof settingApi.delSetting).toBe('function')
-    })
-
-    it('应该调用删除博客设置接口', () => {
-      settingApi.delSetting(123)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting/123',
-        method: 'delete'
-      })
-    })
-
-    it('应该支持批量删除', () => {
-      settingApi.delSetting([1, 2, 3])
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting/1,2,3',
-        method: 'delete'
-      })
-    })
-  })
-
-  describe('refreshCache', () => {
-    it('应该导出 refreshCache 函数', () => {
-      expect(settingApi.refreshCache).toBeDefined()
-      expect(typeof settingApi.refreshCache).toBe('function')
-    })
-
-    it('应该调用刷新缓存接口', () => {
-      settingApi.refreshCache()
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/setting/refreshCache',
-        method: 'delete'
       })
     })
   })

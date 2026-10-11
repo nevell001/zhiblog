@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { getTagList, getTagDetail, getTagCloud, getArticlesByTag } from './tag'
+import { getTagDetail, getTagCloud, getArticlesByTag } from './tag'
 import type { Tag } from '@/types'
 import request from '@/utils/request'
 
@@ -10,40 +10,6 @@ const mockRequest = vi.mocked(request)
 describe('Tag API 测试', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-  })
-
-  describe('getTagList', () => {
-    it('应该导出 getTagList 函数', () => {
-      expect(getTagList).toBeDefined()
-      expect(typeof getTagList).toBe('function')
-    })
-
-    it('应该调用 GET /blog/tag/list 并设置 isToken: false', async () => {
-      mockRequest.mockResolvedValue({ rows: [], total: 0 })
-
-      const query = { pageNum: 1, pageSize: 10 }
-      await getTagList(query)
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/tag/list',
-        method: 'get',
-        params: query,
-        headers: { isToken: false }
-      })
-    })
-
-    it('应该在没有参数时仍然调用 API', async () => {
-      mockRequest.mockResolvedValue({ rows: [], total: 0 })
-
-      await getTagList()
-
-      expect(mockRequest).toHaveBeenCalledWith({
-        url: '/blog/api/tag/list',
-        method: 'get',
-        params: undefined,
-        headers: { isToken: false }
-      })
-    })
   })
 
   describe('getTagDetail', () => {
