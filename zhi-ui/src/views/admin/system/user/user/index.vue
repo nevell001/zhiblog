@@ -72,6 +72,17 @@
                   />
                 </el-select>
               </el-form-item>
+              <el-form-item label="用户类型" prop="userType">
+                <el-select
+                  v-model="queryParams.userType"
+                  placeholder="用户类型"
+                  clearable
+                  style="width: 240px"
+                >
+                  <el-option label="系统用户" value="00" />
+                  <el-option label="博客用户" value="01" />
+                </el-select>
+              </el-form-item>
               <el-form-item label="创建时间" style="width: 308px">
                 <el-date-picker
                   v-model="dateRange"
@@ -190,6 +201,19 @@
                 prop="dept.deptName"
                 :show-overflow-tooltip="true"
               />
+              <el-table-column
+                v-if="columns.userType.visible"
+                key="userType"
+                label="用户类型"
+                align="center"
+                width="100"
+              >
+                <template #default="scope">
+                  <el-tag :type="scope.row.userType === '01' ? 'info' : 'primary'" size="small">
+                    {{ scope.row.userType === '01' ? '博客用户' : '系统用户' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="columns.phonenumber.visible"
                 key="phonenumber"
@@ -510,6 +534,7 @@ const columns = ref({
   userName: { label: '用户名称', visible: true },
   nickName: { label: '用户昵称', visible: true },
   deptName: { label: '部门', visible: true },
+  userType: { label: '用户类型', visible: true },
   phonenumber: { label: '手机号码', visible: true },
   status: { label: '状态', visible: true },
   createTime: { label: '创建时间', visible: true }
@@ -523,6 +548,7 @@ const data = reactive<Record<string, any>>({
     userName: undefined,
     phonenumber: undefined,
     status: undefined,
+    userType: undefined,
     deptId: undefined
   },
   rules: {
