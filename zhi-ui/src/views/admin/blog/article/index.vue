@@ -665,6 +665,7 @@ import { parseTime } from '@/utils/zhi'
 import { sanitizeArticleContent } from '@/utils/sanitize'
 import { renderMarkdown } from '@/utils/markdown'
 import { ElMessage, ElMessageBox } from '@/plugins/element-plus-service'
+import { useDraftAutosave } from '@/composables/useDraftAutosave'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
@@ -744,6 +745,34 @@ watch(
     }
   }
 )
+
+// 编辑器草稿自动保存：编辑中的改动防抖写入 localStorage，
+// 重新打开同一目标时询问是否恢复（误关对话框/浏览器崩溃不丢稿）
+const currentDraftKey = ref<string | null>(null)
+const draftKeyFor = (id?: number | string | null) =>
+  id ? `zhiblog:article:draft:${id}` : 'zhiblog:article:draft:new'
+const draftAutosave = useDraftAutosave<Record<string, any>>({
+  storageKey: currentDraftKey,
+  form,
+  fields: [
+    'title',
+    'summary',
+    'content',
+    'contentMd',
+    'format',
+    'coverUrl',
+    'categoryId',
+    'authorName',
+    'status',
+    'publishTime',
+    'isTop',
+    'isRecommend',
+    'tagIds'
+  ],
+  active: computed(() => open.value),
+  // 保存失败也算有未保存内容：关闭/刷新前要落盘并提醒
+  dirty: computed(() => editorSaveState.value === 'dirty' || editorSaveState.value === 'error')
+})
 
 // 新增文章时，作者自动跟随当前登录用户（避免用户信息晚加载时留空）
 watch(
@@ -852,6 +881,8 @@ async function getTagList() {
 
 // 取消按钮
 function cancel() {
+  // 关闭前把最后一次改动立即落盘，误关后重新打开可恢复
+  draftAutosave.flush()
   reset()
   open.value = false
 }
@@ -945,16 +976,26 @@ function handleAdd() {
 }
 
 /** 打开对话框的辅助函数 */
-function openDialog() {
+async function openDialog() {
+  draftAutosave.beginSession()
   reset()
   // reset 函数已经增加了 editorKey，编辑器会重新渲染
   open.value = true
-  editorSaveState.value = 'idle'
   title.value = '添加博客文章'
+  currentDraftKey.value = draftKeyFor(null)
+  if (await draftAutosave.maybeRestore()) {
+    // 恢复了上次未保存的新文章草稿
+    editorSaveState.value = 'dirty'
+  } else {
+    // 等脏检查 watcher 消费掉本次空表单赋值，避免刚打开就显示「有未保存修改」
+    await nextTick()
+    editorSaveState.value = 'idle'
+  }
 }
 
 /** 修改按钮操作 */
 async function handleUpdate(row) {
+  draftAutosave.beginSession()
   reset()
   const id = row.id || ids.value
   try {
@@ -1004,9 +1045,17 @@ async function handleUpdate(row) {
     }
 
     open.value = true
-    editorSaveState.value = 'saved'
     editorViewMode.value = 'split'
     title.value = '修改博客文章'
+    currentDraftKey.value = draftKeyFor(id)
+    if (await draftAutosave.maybeRestore()) {
+      // 恢复的本地草稿尚未保存过
+      editorSaveState.value = 'dirty'
+    } else {
+      // 等脏检查 watcher 消费掉本次表单回填，再落回「已保存」
+      await nextTick()
+      editorSaveState.value = 'saved'
+    }
   } catch (error: any) {
     console.error('获取文章详情失败:', error)
     ElMessage.error('获取文章详情失败: ' + (error.message || '未知错误'))
@@ -1200,6 +1249,8 @@ const submitForm = async (targetStatus?: 0 | 1 | 2) => {
         }
 
         editorSaveState.value = 'saved'
+        // 内容已入库，本地草稿使命结束
+        draftAutosave.clear()
         // 重置表单，清空所有字段
         reset()
         open.value = false
