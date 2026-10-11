@@ -143,7 +143,7 @@ export interface Comment {
   articleId?: number
   userId?: number
   nickname?: string
-  status?: number
+  status?: string | number
   parentId?: number
 }
 

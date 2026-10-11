@@ -140,6 +140,15 @@
               @click="handleView(scope.row)"
             />
           </el-tooltip>
+          <el-tooltip content="回复" placement="top">
+            <el-button
+              v-hasPermi="['blog:comment:add']"
+              link
+              type="primary"
+              icon="ChatDotRound"
+              @click="handleReply(scope.row)"
+            />
+          </el-tooltip>
           <el-tooltip v-if="scope.row.status === '0'" content="审核通过" placement="top">
             <el-button
               v-hasPermi="['blog:comment:audit']"
@@ -209,6 +218,34 @@
         </div>
       </template>
     </el-dialog>
+
+    <!-- 回复评论对话框 -->
+    <el-dialog v-model="replyOpen" title="回复评论" width="600px" append-to-body>
+      <el-form ref="replyRef" :model="replyForm" :rules="replyRules" label-width="80px">
+        <el-form-item label="评论人">
+          <span>{{ replyForm.nickname || '匿名' }}</span>
+        </el-form-item>
+        <el-form-item label="评论内容">
+          <div class="reply-origin">{{ replyForm.content || '-' }}</div>
+        </el-form-item>
+        <el-form-item label="回复内容" prop="replyContent">
+          <el-input
+            v-model="replyForm.replyContent"
+            type="textarea"
+            :rows="5"
+            :maxlength="500"
+            show-word-limit
+            placeholder="请输入回复内容（不超过500字）"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="submitReply">确 定</el-button>
+          <el-button @click="replyOpen = false">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -216,13 +253,16 @@
 import {
   listComment,
   getComment,
+  addComment,
   delComment,
   auditComment,
   rejectComment
 } from '@/api/admin/blog/comment'
+import { useUserStore } from '@/stores/user'
 
 const { proxy } = getCurrentInstance()
 const { comment_status } = proxy.useDict('comment_status')
+const userStore = useUserStore()
 
 const commentList = ref([])
 const open = ref(false)
@@ -234,6 +274,22 @@ const ids = ref([])
 const single = ref(true)
 const multiple = ref(true)
 const total = ref(0)
+
+/** 回复弹窗状态 */
+const replyOpen = ref(false)
+const replyForm = ref<{
+  id?: number
+  articleId?: number
+  nickname?: string
+  content?: string
+  replyContent: string
+}>({ replyContent: '' })
+const replyRules = {
+  replyContent: [
+    { required: true, message: '回复内容不能为空', trigger: 'blur' },
+    { max: 500, message: '回复内容不能超过500个字符', trigger: 'blur' }
+  ]
+}
 
 const data = reactive<Record<string, any>>({
   queryParams: {
@@ -290,6 +346,43 @@ function handleView(row) {
       console.error('获取评论详情失败:', error)
       proxy.$modal.msgError('获取评论详情失败')
     })
+}
+
+/** 打开回复弹窗 */
+function handleReply(row) {
+  replyForm.value = {
+    id: row.id,
+    articleId: row.articleId,
+    nickname: row.authorName || row.nickname,
+    content: row.content,
+    replyContent: ''
+  }
+  replyOpen.value = true
+}
+
+/** 提交回复：以当前登录账号身份挂一条回复在原评论下，直接发布 */
+function submitReply() {
+  proxy.$refs['replyRef'].validate((valid: boolean) => {
+    if (!valid) return
+
+    addComment({
+      articleId: replyForm.value.articleId,
+      parentId: replyForm.value.id,
+      content: replyForm.value.replyContent,
+      status: '1',
+      userId: Number(userStore.userId) || undefined,
+      nickname: userStore.nickName || userStore.name || '管理员'
+    })
+      .then(() => {
+        proxy.$modal.msgSuccess('回复成功')
+        replyOpen.value = false
+        getList()
+      })
+      .catch((error: unknown) => {
+        const err = error as { msg?: string; message?: string } | undefined
+        proxy.$modal.msgError(err?.msg || err?.message || '回复失败')
+      })
+  })
 }
 
 /** 审核通过按钮操作 */
@@ -364,6 +457,21 @@ getList()
   padding: 4px 8px;
   border-radius: 4px;
   font-weight: 500;
+}
+
+/* 回复弹窗中的原评论内容 */
+.reply-origin {
+  width: 100%;
+  max-height: 120px;
+  padding: 8px 12px;
+  overflow-y: auto;
+  color: var(--el-text-color-regular, #606266);
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: break-word;
+  white-space: pre-wrap;
+  background-color: var(--el-bg-color-page, #f5f7fa);
+  border-radius: 4px;
 }
 
 /* 状态标签深度样式控制 */
