@@ -77,4 +77,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="deleteByArticleId" parameterType="Long">
         delete from blog_article_tag where article_id = #{articleId}
     </delete>
+
+    <delete id="deleteByArticleIds">
+        delete from blog_article_tag where article_id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
 </mapper>

@@ -19,6 +19,7 @@ import com.zhi.common.annotation.Log;
 import com.zhi.common.core.controller.BaseController;
 import com.zhi.common.core.domain.AjaxResult;
 import com.zhi.common.enums.BusinessType;
+import com.zhi.common.exception.ServiceException;
 import com.zhi.common.utils.StringUtils;
 import com.zhi.common.utils.ModernDateUtils;
 import com.zhi.system.domain.BlogArticle;
@@ -172,7 +173,7 @@ public class BlogArticleController extends BaseController
     }
 
     /**
-     * 删除文章
+     * 删除文章（移入回收站）
      */
     @PreAuthorize("@ss.hasPermi('blog:article:remove')")
     @Log(title = "文章管理", businessType = BusinessType.DELETE)
@@ -180,6 +181,49 @@ public class BlogArticleController extends BaseController
     public AjaxResult remove(@PathVariable("ids") Long[] ids)
     {
         return toAjax(blogArticleService.deleteBlogArticleByIds(ids));
+    }
+
+    /**
+     * 回收站：查询已删除文章列表
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:list')")
+    @GetMapping("/recycle/list")
+    public TableDataInfo recycleList(BlogArticle blogArticle)
+    {
+        blogArticle.setDelFlag(1L);
+        startPage();
+        List<BlogArticle> list = blogArticleService.selectBlogArticleList(blogArticle);
+        return getDataTable(list);
+    }
+
+    /**
+     * 回收站：恢复文章
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:edit')")
+    @Log(title = "文章管理", businessType = BusinessType.UPDATE)
+    @PutMapping("/recycle/restore/{ids}")
+    public AjaxResult restore(@PathVariable("ids") Long[] ids)
+    {
+        try
+        {
+            return toAjax(blogArticleService.restoreBlogArticleByIds(ids));
+        }
+        catch (ServiceException e)
+        {
+            // 标题冲突等业务拒绝：warn 返回 601，前端按警告提示而非“服务器错误”
+            return warn(e.getMessage());
+        }
+    }
+
+    /**
+     * 回收站：彻底删除文章（不可恢复）
+     */
+    @PreAuthorize("@ss.hasPermi('blog:article:remove')")
+    @Log(title = "文章管理", businessType = BusinessType.DELETE)
+    @DeleteMapping("/recycle/{ids}")
+    public AjaxResult purge(@PathVariable("ids") Long[] ids)
+    {
+        return toAjax(blogArticleService.deleteRecycleBinByIds(ids));
     }
 
     /**

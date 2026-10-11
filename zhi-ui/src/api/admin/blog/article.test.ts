@@ -100,20 +100,6 @@ describe('Article API 测试', () => {
     })
   })
 
-  describe('updateArticleViewCount', () => {
-    it('应该导出 updateArticleViewCount 函数', () => {
-      expect(articleApi.updateArticleViewCount).toBeDefined()
-      expect(typeof articleApi.updateArticleViewCount).toBe('function')
-    })
-
-    it('应该调用更新浏览量接口', () => {
-      articleApi.updateArticleViewCount(123)
-      expect(request).toHaveBeenCalledWith({
-        url: '/system/article/view/123',
-        method: 'put'
-      })
-    })
-  })
   describe('updateArticleTopStatus', () => {
     it('应该导出 updateArticleTopStatus 函数', () => {
       expect(articleApi.updateArticleTopStatus).toBeDefined()
@@ -142,6 +128,45 @@ describe('Article API 测试', () => {
         url: '/system/article/recommend',
         method: 'put',
         data: { ids: [1, 2], isRecommend: 1 }
+      })
+    })
+  })
+
+  describe('listRecycleArticle', () => {
+    it('应该调用回收站列表接口', () => {
+      articleApi.listRecycleArticle({ pageNum: 1, pageSize: 10 })
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/recycle/list',
+        method: 'get',
+        params: { pageNum: 1, pageSize: 10 }
+      })
+    })
+  })
+
+  describe('restoreArticle', () => {
+    it('应该支持单篇恢复', () => {
+      articleApi.restoreArticle(123)
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/recycle/restore/123',
+        method: 'put'
+      })
+    })
+
+    it('应该支持批量恢复', () => {
+      articleApi.restoreArticle([1, 2, 3])
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/recycle/restore/1,2,3',
+        method: 'put'
+      })
+    })
+  })
+
+  describe('purgeArticle', () => {
+    it('应该调用彻底删除接口', () => {
+      articleApi.purgeArticle([1, 2])
+      expect(request).toHaveBeenCalledWith({
+        url: '/system/article/recycle/1,2',
+        method: 'delete'
       })
     })
   })

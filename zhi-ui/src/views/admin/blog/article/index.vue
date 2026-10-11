@@ -97,6 +97,17 @@
           批量推荐
         </el-button>
       </el-col>
+      <el-col :span="1.5">
+        <el-button
+          v-hasPermi="['blog:article:list']"
+          type="info"
+          plain
+          icon="RefreshLeft"
+          @click="openRecycle"
+        >
+          回收站
+        </el-button>
+      </el-col>
       <right-toolbar v-model:show-search="showSearch" @query-table="getList" />
     </el-row>
 
@@ -530,6 +541,95 @@
         </div>
       </el-form>
     </el-dialog>
+
+    <!-- 回收站 -->
+    <el-dialog v-model="recycleOpen" title="回收站" width="min(960px, 96vw)" append-to-body>
+      <div class="recycle-toolbar">
+        <span class="recycle-tip">回收站中的文章保留 30 天，到期自动彻底删除</span>
+        <div>
+          <el-button
+            v-hasPermi="['blog:article:edit']"
+            type="success"
+            plain
+            icon="RefreshLeft"
+            :disabled="recycleMultiple"
+            @click="handleRestore()"
+          >
+            恢复
+          </el-button>
+          <el-button
+            v-hasPermi="['blog:article:remove']"
+            type="danger"
+            plain
+            icon="Delete"
+            :disabled="recycleMultiple"
+            @click="handlePurge()"
+          >
+            彻底删除
+          </el-button>
+        </div>
+      </div>
+      <el-table
+        v-loading="recycleLoading"
+        :data="recycleList"
+        border
+        stripe
+        @selection-change="handleRecycleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="文章ID" align="center" prop="id" width="80" />
+        <el-table-column
+          label="文章标题"
+          align="left"
+          prop="title"
+          min-width="200"
+          :show-overflow-tooltip="true"
+        />
+        <el-table-column label="分类" align="center" prop="categoryName" width="120">
+          <template #default="scope">
+            <span>{{ scope.row.categoryName || '-' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="删除时间" align="center" prop="updateTime" width="160">
+          <template #default="scope">
+            <span>{{ scope.row.updateTime || '-' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center" width="180" fixed="right">
+          <template #default="scope">
+            <el-button
+              v-hasPermi="['blog:article:edit']"
+              link
+              type="success"
+              icon="RefreshLeft"
+              size="small"
+              @click="handleRestore(scope.row)"
+            >
+              恢复
+            </el-button>
+            <el-button
+              v-hasPermi="['blog:article:remove']"
+              link
+              type="danger"
+              icon="Delete"
+              size="small"
+              @click="handlePurge(scope.row)"
+            >
+              彻底删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination
+        v-show="recycleTotal > 0"
+        v-model:page="recycleQuery.pageNum"
+        v-model:limit="recycleQuery.pageSize"
+        :total="recycleTotal"
+        layout="prev, pager, next, jumper, total"
+        @pagination="getRecycleList"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -552,7 +652,10 @@ import {
   addArticle,
   updateArticle,
   updateArticleTopStatus,
-  updateArticleRecommendStatus
+  updateArticleRecommendStatus,
+  listRecycleArticle,
+  restoreArticle,
+  purgeArticle
 } from '@/api/admin/blog/article'
 import { listCategory } from '@/api/admin/blog/category'
 import { listTag } from '@/api/admin/blog/tag'
@@ -573,6 +676,18 @@ const ids = ref([])
 const single = ref(true)
 const multiple = ref(true)
 const total = ref(0)
+
+// 回收站
+const recycleOpen = ref(false)
+const recycleLoading = ref(false)
+const recycleList = ref<any[]>([])
+const recycleTotal = ref(0)
+const recycleIds = ref<number[]>([])
+const recycleMultiple = ref(true)
+const recycleQuery = reactive({
+  pageNum: 1,
+  pageSize: 10
+})
 const title = ref('')
 const categoryOptions = ref([])
 const tagOptions = ref([])
@@ -1109,13 +1224,15 @@ const submitForm = async (targetStatus?: 0 | 1 | 2) => {
   })
 }
 
-/** 删除按钮操作 */
+/** 删除按钮操作（软删除，移入回收站） */
 async function handleDelete(row) {
   const articleIds = row.id || ids.value
 
   try {
     await ElMessageBox.confirm(
-      '是否确认删除博客文章编号为"' + articleIds + '"的数据项？',
+      '删除后文章将移入回收站，可在回收站中恢复。是否确认删除博客文章编号为"' +
+        articleIds +
+        '"的数据项？',
       '删除确认',
       {
         confirmButtonText: '确认',
@@ -1126,7 +1243,7 @@ async function handleDelete(row) {
 
     loading.value = true
     await delArticle(articleIds)
-    ElMessage.success('删除成功')
+    ElMessage.success('已移入回收站')
     await getList()
   } catch (error: any) {
     if (error !== 'cancel' && error !== 'close') {
@@ -1135,6 +1252,92 @@ async function handleDelete(row) {
     }
   } finally {
     loading.value = false
+  }
+}
+
+/** 打开回收站 */
+function openRecycle() {
+  recycleOpen.value = true
+  recycleQuery.pageNum = 1
+  getRecycleList()
+}
+
+/** 查询回收站文章列表 */
+async function getRecycleList() {
+  recycleLoading.value = true
+  try {
+    const response = await listRecycleArticle({ ...recycleQuery })
+    recycleList.value = response.rows || []
+    recycleTotal.value = response.total || 0
+  } catch (error: any) {
+    console.error('获取回收站列表失败:', error)
+    recycleList.value = []
+    recycleTotal.value = 0
+  } finally {
+    recycleLoading.value = false
+  }
+}
+
+// 回收站多选框选中数据
+function handleRecycleSelectionChange(selection) {
+  recycleIds.value = selection.map(item => item.id)
+  recycleMultiple.value = !selection.length
+}
+
+/** 恢复文章：单条或批量（不传 row 时使用勾选的行） */
+async function handleRestore(row?: any) {
+  const articleIds = row?.id ? row.id : recycleIds.value
+  const count = Array.isArray(articleIds) ? articleIds.length : 1
+  if (count === 0) return
+
+  try {
+    await ElMessageBox.confirm(
+      count > 1 ? `是否确认恢复选中的 ${count} 篇文章？` : '是否确认恢复该文章？',
+      '恢复确认',
+      {
+        confirmButtonText: '恢复',
+        cancelButtonText: '取消',
+        type: 'success'
+      }
+    )
+
+    await restoreArticle(articleIds)
+    ElMessage.success('恢复成功')
+    await getRecycleList()
+    await getList()
+  } catch (error: any) {
+    if (error !== 'cancel' && error !== 'close') {
+      // 失败原因（如标题被占用）由响应拦截器提示
+      console.error('恢复失败:', error)
+    }
+  }
+}
+
+/** 彻底删除文章：单条或批量（不传 row 时使用勾选的行） */
+async function handlePurge(row?: any) {
+  const articleIds = row?.id ? row.id : recycleIds.value
+  const count = Array.isArray(articleIds) ? articleIds.length : 1
+  if (count === 0) return
+
+  try {
+    await ElMessageBox.confirm(
+      `彻底删除后不可恢复，是否确认删除${count > 1 ? `选中的 ${count} 篇文章` : '该文章'}？`,
+      '彻底删除确认',
+      {
+        confirmButtonText: '彻底删除',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+    )
+
+    await purgeArticle(articleIds)
+    ElMessage.success('已彻底删除')
+    await getRecycleList()
+    await getList()
+  } catch (error: any) {
+    if (error !== 'cancel' && error !== 'close') {
+      console.error('彻底删除失败:', error)
+    }
   }
 }
 
@@ -2329,5 +2532,17 @@ html.dark .mo-editor-form :deep(.ql-selected) {
   font-size: 12px;
   line-height: 1.5;
   color: var(--mo-n500);
+}
+
+/* 回收站 */
+.recycle-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.recycle-toolbar .recycle-tip {
+  font-size: 13px;
+  color: var(--el-text-color-secondary);
 }
 </style>

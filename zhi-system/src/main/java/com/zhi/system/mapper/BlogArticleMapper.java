@@ -1,5 +1,6 @@
 package com.zhi.system.mapper;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.annotations.Param;
@@ -61,7 +62,7 @@ public interface BlogArticleMapper
     public int updateBlogArticle(BlogArticle blogArticle);
 
     /**
-     * 删除博客文章
+     * 删除博客文章（软删除，移入回收站）
      * 
      * @param id 博客文章主键
      * @return 结果
@@ -69,12 +70,44 @@ public interface BlogArticleMapper
     public int deleteBlogArticleById(Long id);
 
     /**
-     * 批量删除博客文章
+     * 批量删除博客文章（软删除，移入回收站）
      * 
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
     public int deleteBlogArticleByIds(Long[] ids);
+
+    /**
+     * 从回收站恢复文章（仅影响已删除行）
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    public int restoreBlogArticleByIds(Long[] ids);
+
+    /**
+     * 彻底删除回收站中的文章（物理删除，仅影响已删除行）
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    public int deleteBlogArticlePermanentlyByIds(Long[] ids);
+
+    /**
+     * 查询给定ID中位于回收站的文章ID（供彻底删除前清理标签关联）
+     *
+     * @param ids 文章ID集合
+     * @return 位于回收站的文章ID集合
+     */
+    public List<Long> selectRecycledArticleIdsByIds(Long[] ids);
+
+    /**
+     * 查询早于指定时间入回收站的文章ID（定时清理用）
+     *
+     * @param before 时间界限（入回收站时间早于此值的将被返回）
+     * @return 文章ID集合
+     */
+    public List<Long> selectRecycledArticleIdsBefore(@Param("before") Date before);
 
     /**
      * 根据标题查询博客文章

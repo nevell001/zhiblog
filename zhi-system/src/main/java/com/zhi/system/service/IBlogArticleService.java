@@ -68,7 +68,7 @@ public interface IBlogArticleService
     public int updateBlogArticle(BlogArticle blogArticle);
 
     /**
-     * 批量删除博客文章
+     * 批量删除博客文章（移入回收站，可从回收站恢复）
      * 
      * @param ids 需要删除的博客文章主键
      * @return 结果
@@ -76,12 +76,36 @@ public interface IBlogArticleService
     public int deleteBlogArticleByIds(Long[] ids);
 
     /**
-     * 删除博客文章信息
+     * 删除博客文章信息（移入回收站，可从回收站恢复）
      * 
      * @param id 博客文章主键
      * @return 结果
      */
     public int deleteBlogArticleById(Long id);
+
+    /**
+     * 从回收站恢复文章；回收站期间标题可能已被占用，冲突时拒绝恢复
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    public int restoreBlogArticleByIds(Long[] ids);
+
+    /**
+     * 从回收站彻底删除文章（物理删除，不可恢复）
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    public int deleteRecycleBinByIds(Long[] ids);
+
+    /**
+     * 清理回收站中超过保留期的文章（定时任务调用）
+     *
+     * @param retentionDays 保留天数，null 或小于 1 时使用默认值
+     * @return 彻底删除的文章数量
+     */
+    public int cleanRecycleBin(Integer retentionDays);
 
     /**
      * 增加文章浏览量（无去重，兼容旧调用）

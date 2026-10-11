@@ -58,7 +58,10 @@
             <if test="isTop != null "> and ba.is_top = #{isTop}</if>
             <if test="isRecommend != null "> and ba.is_recommend = #{isRecommend}</if>
             <if test="status != null "> and ba.status = #{status}</if>
-            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
+            <choose>
+                <when test="delFlag != null "> and ba.del_flag = #{delFlag}</when>
+                <otherwise> and ba.del_flag = 0</otherwise>
+            </choose>
             <if test="viewCount != null "> and ba.view_count = #{viewCount}</if>
             <if test="likeCount != null "> and ba.like_count = #{likeCount}</if>
             <if test="commentCount != null "> and ba.comment_count = #{commentCount}</if>
@@ -79,7 +82,10 @@
             <if test="status != null "> and ba.status = #{status}</if>
             <if test="categoryId != null "> and ba.category_id = #{categoryId}</if>
             <if test="authorId != null "> and ba.author_id = #{authorId}</if>
-            <if test="delFlag != null "> and ba.del_flag = #{delFlag}</if>
+            <choose>
+                <when test="delFlag != null "> and ba.del_flag = #{delFlag}</when>
+                <otherwise> and ba.del_flag = 0</otherwise>
+            </choose>
         </where>
         order by ba.create_time desc, ba.id desc
     </select>
@@ -232,16 +238,50 @@
         ORDER BY id ASC LIMIT 1
     </select>
 
-    <delete id="deleteBlogArticleById" parameterType="Long">
-        delete from blog_article where id = #{id}
-    </delete>
+    <!-- 删除 = 移入回收站（软删除）；保留标签关联，恢复后标签仍在 -->
+    <update id="deleteBlogArticleById" parameterType="Long">
+        update blog_article set del_flag = '1', update_time = now()
+        where id = #{id} and del_flag = '0'
+    </update>
 
-    <delete id="deleteBlogArticleByIds" parameterType="String">
-        delete from blog_article where id in 
+    <update id="deleteBlogArticleByIds">
+        update blog_article set del_flag = '1', update_time = now()
+        where del_flag = '0' and id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 回收站恢复：只影响已删除行 -->
+    <update id="restoreBlogArticleByIds">
+        update blog_article set del_flag = '0', update_time = now()
+        where del_flag = '1' and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 彻底删除：仅允许删除回收站中的行，守卫防止误删正常文章 -->
+    <delete id="deleteBlogArticlePermanentlyByIds">
+        delete from blog_article
+        where del_flag = '1' and id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <!-- 回收站选 ID：只取已删除行，供彻底删除前的标签关联清理使用 -->
+    <select id="selectRecycledArticleIdsByIds" resultType="Long">
+        select id from blog_article where del_flag = '1' and id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 定时清理：早于保留期入回收站的文章ID（update_time 在软删除时刷新为入站时间） -->
+    <select id="selectRecycledArticleIdsBefore" parameterType="java.util.Date" resultType="Long">
+        select id from blog_article where del_flag = '1' and update_time &lt; #{before}
+    </select>
 
     <select id="countByCategoryIds" resultType="int">
         select count(1) from blog_article where del_flag = 0 and category_id in

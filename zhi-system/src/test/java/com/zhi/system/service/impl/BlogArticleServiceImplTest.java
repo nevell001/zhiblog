@@ -5,7 +5,6 @@ import com.zhi.system.domain.BlogTag;
 import com.zhi.system.mapper.BlogArticleMapper;
 import com.zhi.system.mapper.BlogArticleTagMapper;
 import com.zhi.system.mapper.BlogTagMapper;
-import com.zhi.system.service.IBlogArticleTagService;
 import com.zhi.common.core.redis.RedisCache;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,6 +19,7 @@ import com.zhi.common.utils.SecurityUtils;
 import com.zhi.common.core.domain.model.LoginUser;
 import com.zhi.common.core.domain.entity.SysUser;
 import com.zhi.common.exception.DuplicateArticleTitleException;
+import com.zhi.common.exception.ServiceException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,9 +49,6 @@ class BlogArticleServiceImplTest {
 
     @Mock
     private BlogTagMapper blogTagMapper;
-
-    @Mock
-    private IBlogArticleTagService blogArticleTagService;
 
     @Mock
     private RedisCache redisCache;
@@ -409,7 +406,7 @@ class BlogArticleServiceImplTest {
     }
 
     /**
-     * 测试删除文章 - 成功
+     * 测试删除文章（软删除，移入回收站）- 成功
      */
     @Test
     void testDeleteBlogArticleById_Success() {
@@ -422,16 +419,17 @@ class BlogArticleServiceImplTest {
         // 验证结果
         assertEquals(1, result);
         verify(blogArticleMapper).deleteBlogArticleById(1L);
+        // 软删除保留标签关联，恢复后标签仍在
+        verify(blogArticleTagMapper, never()).deleteByArticleId(anyLong());
     }
 
     /**
-     * 测试批量删除文章 - 成功
+     * 测试批量删除文章（软删除，移入回收站）- 成功
      */
     @Test
     void testDeleteBlogArticleByIds_Success() {
         // 模拟数据
         when(blogArticleMapper.deleteBlogArticleByIds(any(Long[].class))).thenReturn(2);
-        when(blogArticleTagMapper.deleteByArticleId(anyLong())).thenReturn(1);
 
         // 执行测试
         int result = blogArticleService.deleteBlogArticleByIds(new Long[]{1L, 2L});
@@ -439,7 +437,115 @@ class BlogArticleServiceImplTest {
         // 验证结果
         assertEquals(2, result);
         verify(blogArticleMapper).deleteBlogArticleByIds(any(Long[].class));
-        verify(blogArticleTagMapper, atLeastOnce()).deleteByArticleId(anyLong());
+        verify(blogArticleTagMapper, never()).deleteByArticleId(anyLong());
+    }
+
+    /**
+     * 测试从回收站恢复文章 - 标题未被占用时恢复成功
+     */
+    @Test
+    void testRestoreBlogArticleByIds_Success() {
+        BlogArticle trashed = new BlogArticle();
+        trashed.setId(1L);
+        trashed.setTitle("待恢复文章");
+        trashed.setDelFlag(1L);
+        when(blogArticleMapper.selectBlogArticleById(1L)).thenReturn(trashed);
+        when(blogArticleMapper.selectBlogArticleByTitle("待恢复文章")).thenReturn(null);
+        when(blogArticleMapper.restoreBlogArticleByIds(any(Long[].class))).thenReturn(1);
+
+        int result = blogArticleService.restoreBlogArticleByIds(new Long[]{1L});
+
+        assertEquals(1, result);
+        verify(blogArticleMapper).restoreBlogArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试从回收站恢复文章 - 标题已被其他文章占用时拒绝恢复
+     */
+    @Test
+    void testRestoreBlogArticleByIds_TitleConflict() {
+        BlogArticle trashed = new BlogArticle();
+        trashed.setId(1L);
+        trashed.setTitle("已被占用标题");
+        trashed.setDelFlag(1L);
+        BlogArticle conflict = new BlogArticle();
+        conflict.setId(99L);
+        conflict.setTitle("已被占用标题");
+        when(blogArticleMapper.selectBlogArticleById(1L)).thenReturn(trashed);
+        when(blogArticleMapper.selectBlogArticleByTitle("已被占用标题")).thenReturn(conflict);
+
+        ServiceException exception = assertThrows(ServiceException.class,
+                () -> blogArticleService.restoreBlogArticleByIds(new Long[]{1L}));
+
+        assertTrue(exception.getMessage().contains("已被其他文章占用"), "应提示标题冲突");
+        verify(blogArticleMapper, never()).restoreBlogArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试彻底删除 - 只物理删除回收站中的行，正常文章被守卫挡住
+     */
+    @Test
+    void testDeleteRecycleBinByIds_OnlyPurgesRecycledRows() {
+        when(blogArticleMapper.selectRecycledArticleIdsByIds(any(Long[].class)))
+                .thenReturn(new ArrayList<>(List.of(1L)));
+        when(blogArticleMapper.deleteBlogArticlePermanentlyByIds(any(Long[].class))).thenReturn(1);
+
+        int result = blogArticleService.deleteRecycleBinByIds(new Long[]{1L, 2L});
+
+        assertEquals(1, result);
+        verify(blogArticleTagMapper).deleteByArticleIds(new Long[]{1L});
+        verify(blogArticleMapper).deleteBlogArticlePermanentlyByIds(new Long[]{1L});
+    }
+
+    /**
+     * 测试彻底删除 - 传入的ID都不在回收站时不做任何删除
+     */
+    @Test
+    void testDeleteRecycleBinByIds_NoRecycledRows() {
+        when(blogArticleMapper.selectRecycledArticleIdsByIds(any(Long[].class))).thenReturn(new ArrayList<>());
+
+        int result = blogArticleService.deleteRecycleBinByIds(new Long[]{1L});
+
+        assertEquals(0, result);
+        verify(blogArticleTagMapper, never()).deleteByArticleIds(any(Long[].class));
+        verify(blogArticleMapper, never()).deleteBlogArticlePermanentlyByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试定时清理 - 默认保留 30 天，按软删除时间截断并物理删除过期文章
+     */
+    @Test
+    void testCleanRecycleBin_DefaultRetention() {
+        when(blogArticleMapper.selectRecycledArticleIdsBefore(any(java.util.Date.class)))
+                .thenReturn(new ArrayList<>(List.of(5L)));
+        when(blogArticleMapper.deleteBlogArticlePermanentlyByIds(any(Long[].class))).thenReturn(1);
+
+        int result = blogArticleService.cleanRecycleBin(null);
+
+        assertEquals(1, result);
+        org.mockito.ArgumentCaptor<java.util.Date> captor =
+                org.mockito.ArgumentCaptor.forClass(java.util.Date.class);
+        verify(blogArticleMapper).selectRecycledArticleIdsBefore(captor.capture());
+        long cutoffMillis = captor.getValue().getTime();
+        long expected30DaysAgo = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000;
+        assertTrue(Math.abs(cutoffMillis - expected30DaysAgo) < 5 * 60 * 1000, "默认截断点应约为 30 天前");
+        verify(blogArticleTagMapper).deleteByArticleIds(new Long[]{5L});
+        verify(blogArticleMapper).deleteBlogArticlePermanentlyByIds(new Long[]{5L});
+    }
+
+    /**
+     * 测试定时清理 - 没有过期文章时直接返回 0，不触发删除
+     */
+    @Test
+    void testCleanRecycleBin_NothingExpired() {
+        when(blogArticleMapper.selectRecycledArticleIdsBefore(any(java.util.Date.class)))
+                .thenReturn(new ArrayList<>());
+
+        int result = blogArticleService.cleanRecycleBin(7);
+
+        assertEquals(0, result);
+        verify(blogArticleTagMapper, never()).deleteByArticleIds(any(Long[].class));
+        verify(blogArticleMapper, never()).deleteBlogArticlePermanentlyByIds(any(Long[].class));
     }
 
     /**

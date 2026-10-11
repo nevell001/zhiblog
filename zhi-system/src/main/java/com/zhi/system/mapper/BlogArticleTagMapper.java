@@ -90,4 +90,12 @@ public interface BlogArticleTagMapper
      * @return 影响行数
      */
     public int deleteByArticleId(Long articleId);
+
+    /**
+     * 批量删除多篇文章的标签关联（彻底删除/回收站清理时使用）
+     *
+     * @param articleIds 文章ID集合
+     * @return 影响行数
+     */
+    public int deleteByArticleIds(Long[] articleIds);
 }

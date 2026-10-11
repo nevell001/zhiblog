@@ -66,12 +66,33 @@ export function delArticle(ids: number | number[]): Promise<any> {
 }
 
 /**
- * 更新文章浏览量
+ * 查询回收站文章列表
  */
-export function updateArticleViewCount(id: number): Promise<any> {
+export function listRecycleArticle(query?: ArticleParams): Promise<QueryResult<Article>> {
   return request({
-    url: '/system/article/view/' + id,
+    url: '/system/article/recycle/list',
+    method: 'get',
+    params: query
+  })
+}
+
+/**
+ * 从回收站恢复文章
+ */
+export function restoreArticle(ids: number | number[]): Promise<any> {
+  return request({
+    url: '/system/article/recycle/restore/' + ids,
     method: 'put'
+  })
+}
+
+/**
+ * 彻底删除回收站文章（不可恢复）
+ */
+export function purgeArticle(ids: number | number[]): Promise<any> {
+  return request({
+    url: '/system/article/recycle/' + ids,
+    method: 'delete'
   })
 }
 

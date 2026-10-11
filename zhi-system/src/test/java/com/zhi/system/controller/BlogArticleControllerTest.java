@@ -152,7 +152,7 @@ class BlogArticleControllerTest {
     }
 
     /**
-     * 测试删除文章接口
+     * 测试删除文章接口（移入回收站）
      */
     @Test
     void testRemoveArticle() throws Exception {
@@ -166,6 +166,68 @@ class BlogArticleControllerTest {
                 .andExpect(jsonPath("$.code").value(200));
 
         verify(blogArticleService).deleteBlogArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试回收站列表接口 - 查询条件必须带上 delFlag=1
+     */
+    @Test
+    void testRecycleList() throws Exception {
+        when(blogArticleService.selectBlogArticleList(any(BlogArticle.class))).thenReturn(new ArrayList<>());
+
+        mockMvc.perform(get("/system/article/recycle/list")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        org.mockito.ArgumentCaptor<BlogArticle> captor = org.mockito.ArgumentCaptor.forClass(BlogArticle.class);
+        verify(blogArticleService).selectBlogArticleList(captor.capture());
+        assertThat(captor.getValue().getDelFlag()).isEqualTo(1L);
+    }
+
+    /**
+     * 测试回收站恢复接口 - 成功
+     */
+    @Test
+    void testRestoreFromRecycle() throws Exception {
+        when(blogArticleService.restoreBlogArticleByIds(any(Long[].class))).thenReturn(1);
+
+        mockMvc.perform(put("/system/article/recycle/restore/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogArticleService).restoreBlogArticleByIds(any(Long[].class));
+    }
+
+    /**
+     * 测试回收站恢复接口 - 标题被占用时按业务拒绝返回 601，而非服务器错误
+     */
+    @Test
+    void testRestoreFromRecycle_TitleConflict() throws Exception {
+        when(blogArticleService.restoreBlogArticleByIds(any(Long[].class)))
+                .thenThrow(new com.zhi.common.exception.ServiceException("文章标题「已被占用」已被其他文章占用，请先修改其标题再恢复"));
+
+        mockMvc.perform(put("/system/article/recycle/restore/1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(601))
+                .andExpect(jsonPath("$.msg").value(org.hamcrest.Matchers.containsString("已被其他文章占用")));
+    }
+
+    /**
+     * 测试回收站彻底删除接口
+     */
+    @Test
+    void testPurgeFromRecycle() throws Exception {
+        when(blogArticleService.deleteRecycleBinByIds(any(Long[].class))).thenReturn(2);
+
+        mockMvc.perform(delete("/system/article/recycle/1,2")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200));
+
+        verify(blogArticleService).deleteRecycleBinByIds(any(Long[].class));
     }
 
     /**

@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.sql.DataSource;
 import com.zhi.common.utils.DateUtils;
+import com.zhi.common.utils.ModernDateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import com.zhi.system.domain.BlogArticleTag;
 import com.zhi.system.domain.BlogTag;
 import com.zhi.system.service.IBlogArticleService;
 import com.zhi.common.exception.DuplicateArticleTitleException;
+import com.zhi.common.exception.ServiceException;
 
 /**
  * 博客文章Service业务层处理
@@ -33,6 +36,9 @@ import com.zhi.common.exception.DuplicateArticleTitleException;
 public class BlogArticleServiceImpl implements IBlogArticleService
 {
     private static final Logger logger = LoggerFactory.getLogger(BlogArticleServiceImpl.class);
+
+    /** 回收站保留天数：超过后由定时任务彻底删除 */
+    private static final int RECYCLE_BIN_RETENTION_DAYS = 30;
 
     @Autowired
     private BlogArticleMapper blogArticleMapper;
@@ -329,7 +335,7 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     }
 
     /**
-     * 批量删除博客文章
+     * 批量删除博客文章（软删除，移入回收站；保留标签关联以便恢复）
      * 
      * @param ids 需要删除的博客文章主键
      * @return 结果
@@ -339,26 +345,101 @@ public class BlogArticleServiceImpl implements IBlogArticleService
     @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int deleteBlogArticleByIds(Long[] ids)
     {
-        // 先删除标签关联
-        for (Long id : ids) {
-            blogArticleTagMapper.deleteByArticleId(id);
-        }
         return blogArticleMapper.deleteBlogArticleByIds(ids);
     }
 
     /**
-     * 删除博客文章信息
+     * 删除博客文章信息（软删除，移入回收站）
      * 
      * @param id 博客文章主键
      * @return 结果
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
     public int deleteBlogArticleById(Long id)
     {
-        // 先删除标签关联
-        blogArticleTagMapper.deleteByArticleId(id);
         return blogArticleMapper.deleteBlogArticleById(id);
+    }
+
+    /**
+     * 从回收站恢复文章
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
+    public int restoreBlogArticleByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0)
+        {
+            return 0;
+        }
+        for (Long id : ids)
+        {
+            BlogArticle article = blogArticleMapper.selectBlogArticleById(id);
+            if (article == null || !Long.valueOf(1L).equals(article.getDelFlag()))
+            {
+                continue;
+            }
+            // 标题查重只针对未删除文章；回收站期间该标题可能已被新文章占用，恢复会造成重复标题
+            BlogArticle conflict = blogArticleMapper.selectBlogArticleByTitle(article.getTitle());
+            if (conflict != null && !conflict.getId().equals(id))
+            {
+                throw new ServiceException("文章标题「" + article.getTitle() + "」已被其他文章占用，请先修改其标题再恢复");
+            }
+        }
+        return blogArticleMapper.restoreBlogArticleByIds(ids);
+    }
+
+    /**
+     * 从回收站彻底删除文章（物理删除，不可恢复）
+     *
+     * @param ids 文章ID集合
+     * @return 结果
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    @BlogCacheEvict(value = {"blog:article:*", "blog:article:list:*", "blog:hot:*"}, keyPattern = "blog:*")
+    public int deleteRecycleBinByIds(Long[] ids)
+    {
+        if (ids == null || ids.length == 0)
+        {
+            return 0;
+        }
+        // 只对确实位于回收站的ID做物理删除，正常文章不受影响
+        return purgeRecycledArticles(blogArticleMapper.selectRecycledArticleIdsByIds(ids));
+    }
+
+    /**
+     * 清理回收站中超过保留期的文章（定时任务调用）
+     *
+     * @param retentionDays 保留天数，null 或小于 1 时使用默认值
+     * @return 彻底删除的文章数量
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int cleanRecycleBin(Integer retentionDays)
+    {
+        int retention = retentionDays == null || retentionDays < 1 ? RECYCLE_BIN_RETENTION_DAYS : retentionDays;
+        Date before = ModernDateUtils.toDate(ModernDateUtils.getNowDateTime().minusDays(retention));
+        return purgeRecycledArticles(blogArticleMapper.selectRecycledArticleIdsBefore(before));
+    }
+
+    /**
+     * 物理删除回收站文章，并清理其标签关联
+     */
+    private int purgeRecycledArticles(List<Long> ids)
+    {
+        if (ids == null || ids.isEmpty())
+        {
+            return 0;
+        }
+        Long[] idArray = ids.toArray(new Long[0]);
+        blogArticleTagMapper.deleteByArticleIds(idArray);
+        return blogArticleMapper.deleteBlogArticlePermanentlyByIds(idArray);
     }
 
     @Override

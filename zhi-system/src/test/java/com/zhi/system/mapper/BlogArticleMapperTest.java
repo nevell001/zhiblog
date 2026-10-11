@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -104,11 +105,14 @@ class BlogArticleMapperTest {
             BlogArticle viewCountArticle = blogArticleMapper.selectBlogArticleById(testArticle.getId());
             assertEquals(oldViewCount + 1, viewCountArticle.getViewCount(), "浏览量增加失败");
 
-            // 测试删除
+            // 测试删除（软删除：移入回收站，行仍在，del_flag 置为 1）
             int deleteResult = blogArticleMapper.deleteBlogArticleById(testArticle.getId());
             assertEquals(1, deleteResult, "删除文章失败");
             BlogArticle deletedArticle = blogArticleMapper.selectBlogArticleById(testArticle.getId());
-            assertNull(deletedArticle, "删除文章后仍然能查询到");
+            assertNotNull(deletedArticle, "软删除后行应仍在（回收站）");
+            assertEquals(1L, deletedArticle.getDelFlag().longValue(), "软删除后 del_flag 应为 1");
+            assertEquals(0, blogArticleMapper.deleteBlogArticleById(testArticle.getId()),
+                    "重复删除已入回收站的文章应为 0 行");
         } catch (Exception e) {
             e.printStackTrace();
             fail("测试失败: " + e.getMessage());
@@ -137,13 +141,15 @@ class BlogArticleMapperTest {
             blogArticleMapper.insertBlogArticle(article1);
             blogArticleMapper.insertBlogArticle(article2);
             
-            // 批量删除
+            // 批量删除（软删除，移入回收站）
             int deleteResult = blogArticleMapper.deleteBlogArticleByIds(new Long[]{article1.getId(), article2.getId()});
             assertTrue(deleteResult >= 1, "批量删除文章失败");
             
-            // 验证删除结果
-            assertNull(blogArticleMapper.selectBlogArticleById(article1.getId()), "文章1未被删除");
-            assertNull(blogArticleMapper.selectBlogArticleById(article2.getId()), "文章2未被删除");
+            // 验证删除结果：行仍在，且都在回收站中
+            assertEquals(1L, blogArticleMapper.selectBlogArticleById(article1.getId()).getDelFlag().longValue(),
+                    "文章1应在回收站");
+            assertEquals(1L, blogArticleMapper.selectBlogArticleById(article2.getId()).getDelFlag().longValue(),
+                    "文章2应在回收站");
         } catch (Exception e) {
             e.printStackTrace();
             fail("批量删除测试失败: " + e.getMessage());
@@ -320,6 +326,76 @@ class BlogArticleMapperTest {
         assertEquals("置顶-旧", list.get(0).getTitle(), "置顶文章必须排最前，即使创建时间更早");
         assertEquals("普通-新", list.get(1).getTitle(), "非置顶文章按创建时间倒序");
         assertEquals("普通-中", list.get(2).getTitle());
+    }
+
+    /**
+     * 回收站生命周期：软删除进回收站（默认列表不可见）→ 恢复 → 正常文章不可彻底删除 → 再次软删后可彻底删除。
+     */
+    @Test
+    void recycleBinLifecycleSoftDeleteRestoreAndPermanentDelete() {
+        BlogArticle article = new BlogArticle();
+        article.setTitle("回收站生命周期文章");
+        article.setContent("内容");
+        article.setStatus(1L);
+        blogArticleMapper.insertBlogArticle(article);
+        Long id = article.getId();
+
+        // 软删除：进回收站
+        assertEquals(1, blogArticleMapper.deleteBlogArticleById(id));
+        assertEquals(1L, blogArticleMapper.selectBlogArticleById(id).getDelFlag().longValue());
+
+        // 默认列表不可见，回收站查询可见
+        assertTrue(blogArticleMapper.selectBlogArticleList(new BlogArticle()).isEmpty(),
+                "回收站文章不应出现在默认列表查询中");
+        BlogArticle recycleQuery = new BlogArticle();
+        recycleQuery.setDelFlag(1L);
+        List<BlogArticle> recycled = blogArticleMapper.selectBlogArticleList(recycleQuery);
+        assertEquals(List.of(id), recycled.stream().map(BlogArticle::getId).toList(),
+                "回收站查询应返回已删除文章");
+
+        // 恢复
+        assertEquals(1, blogArticleMapper.restoreBlogArticleByIds(new Long[]{id}));
+        assertEquals(0L, blogArticleMapper.selectBlogArticleById(id).getDelFlag().longValue(),
+                "恢复后 del_flag 应回到 0");
+
+        // 正常文章不能被彻底删除（守卫）
+        assertEquals(0, blogArticleMapper.deleteBlogArticlePermanentlyByIds(new Long[]{id}),
+                "彻底删除不能作用于未删除文章");
+        assertNotNull(blogArticleMapper.selectBlogArticleById(id));
+
+        // 再次软删后彻底删除
+        assertEquals(1, blogArticleMapper.deleteBlogArticleById(id));
+        assertEquals(1, blogArticleMapper.deleteBlogArticlePermanentlyByIds(new Long[]{id}));
+        assertNull(blogArticleMapper.selectBlogArticleById(id), "彻底删除后行应不存在");
+    }
+
+    /**
+     * 彻底删除前的 ID 筛选只认回收站行；定时清理按软删除时间（update_time）截断。
+     */
+    @Test
+    @Sql(scripts = "/schema.sql", statements = {
+        "DELETE FROM blog_article",
+        "INSERT INTO blog_article (title, status, del_flag, create_time, update_time) VALUES ('过期回收站', 1, '1', '2026-09-01 10:00:00', '2026-09-01 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time, update_time) VALUES ('新回收站', 1, '1', '2026-10-05 10:00:00', '2026-10-05 10:00:00')",
+        "INSERT INTO blog_article (title, status, del_flag, create_time, update_time) VALUES ('正常文章', 1, '0', '2026-09-01 10:00:00', '2026-09-01 10:00:00')"
+    })
+    void recycledIdQueriesMustIgnoreLiveRowsAndRespectCutoff() {
+        // 按时间截断：只返回超出保留期的回收站文章
+        List<Long> expired = blogArticleMapper.selectRecycledArticleIdsBefore(Timestamp.valueOf("2026-10-01 00:00:00"));
+        assertEquals(1, expired.size(), "只应返回超过保留期的回收站文章");
+        assertEquals("过期回收站", blogArticleMapper.selectBlogArticleById(expired.get(0)).getTitle());
+
+        // 按 ID 筛选：正常文章即使被显式传入也不在回收站集合里
+        BlogArticle recycleQuery = new BlogArticle();
+        recycleQuery.setDelFlag(1L);
+        Long newRecycledId = blogArticleMapper.selectBlogArticleList(recycleQuery).get(0).getId();
+        Long liveId = blogArticleMapper.selectBlogArticleList(new BlogArticle()).get(0).getId();
+
+        assertEquals(List.of(newRecycledId),
+                blogArticleMapper.selectRecycledArticleIdsByIds(new Long[]{liveId, newRecycledId}),
+                "正常文章不得进入彻底删除集合");
+        assertTrue(blogArticleMapper.selectRecycledArticleIdsByIds(new Long[]{liveId}).isEmpty(),
+                "只传正常文章时应返回空集合");
     }
 
     /**
