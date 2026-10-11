@@ -336,4 +336,34 @@ describe('文章详情页评论（行为）', () => {
     })
     expect(wrapper.find('.pagination-container').exists()).toBe(false)
   })
+
+  it('正文中的代码块在渲染后完成语法高亮，未注册语言保持原样', async () => {
+    getArticleDetail.mockResolvedValue({
+      code: 200,
+      data: {
+        article: {
+          id: 1,
+          title: '测试文章',
+          content:
+            '<pre><code class="language-javascript">const a = 1</code></pre>' +
+            '<pre><code class="language-rust">fn main() {}</code></pre>',
+          commentCount: 0,
+          likeCount: 0,
+          viewCount: 0,
+          createTime: '2026-01-01 10:00:00'
+        },
+        extraInfo: {}
+      }
+    })
+
+    const wrapper = await mountDetail()
+    await flushPromises()
+
+    const blocks = wrapper.findAll('.content-body pre code')
+    expect(blocks).toHaveLength(2)
+    expect(blocks[0].classes()).toContain('hljs')
+    expect(blocks[0].find('.hljs-keyword').text()).toBe('const')
+    expect(blocks[1].classes()).not.toContain('hljs')
+    expect(blocks[1].text()).toBe('fn main() {}')
+  })
 })

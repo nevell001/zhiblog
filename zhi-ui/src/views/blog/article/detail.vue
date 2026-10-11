@@ -76,7 +76,7 @@
             <div v-if="article.coverUrl" class="article-cover">
               <img :src="article.coverUrl" :alt="article.title" loading="lazy" />
             </div>
-            <div class="content-body" v-html="processedContent"></div>
+            <div ref="contentBodyRef" class="content-body" v-html="processedContent"></div>
 
             <div class="article-actions">
               <el-button
@@ -131,7 +131,13 @@
               <div class="a-bio">
                 {{ blogSettings.blog_desc || '记录技术、产品与生活里的认真思考。' }}
               </div>
-              <button class="btn btn-primary btn-sm" type="button">+ 关注</button>
+              <router-link
+                v-if="article.authorId"
+                class="btn btn-primary btn-sm"
+                :to="`/blog/author/${article.authorId}`"
+              >
+                作者主页
+              </router-link>
               <div class="a-stats">
                 <div class="a-stat">
                   <div class="num">{{ relatedArticles.length || 0 }}</div>
@@ -326,6 +332,7 @@ import {
 } from '@/api/blog/comment'
 import { getBlogSettings, getBlogSettingsAnonymous } from '@/api/blog/setting'
 import { sanitizeArticleContent } from '@/utils/sanitize'
+import { highlightCodeBlocks } from '@/utils/highlight'
 import { createRequestGuard } from '@/utils/requestGuard'
 import { applySeo, canonicalUrl } from '@/utils/seo'
 import { logger } from '@/utils/logger'
@@ -354,6 +361,8 @@ const isFeatureEnabled = (feature: string) => blogSettingsStore.isFeatureEnabled
 const tocItems = ref([])
 
 // 处理文章内容，为标题添加ID并消毒内容
+const contentBodyRef = ref<HTMLElement | null>(null)
+
 const processedContent = computed(() => {
   if (!article.value || !article.value.content) return ''
 
@@ -381,6 +390,13 @@ const processedContent = computed(() => {
   })
 
   return tempDiv.innerHTML
+})
+
+// v-html 更新完 DOM 后再对代码块做语法高亮（flush: 'post'）。
+// 同时看着容器 ref：正文在 loading 结束后才挂载，只盯 processedContent
+// 会在容器还不存在时白跑一次，挂载后的内容就再也没机会高亮
+watch([processedContent, contentBodyRef], () => highlightCodeBlocks(contentBodyRef.value), {
+  flush: 'post'
 })
 
 const readingMinutes = computed(() => {
@@ -1270,6 +1286,16 @@ html.dark .mo-article-page .toc :deep(.toc-title) {
   line-height: 1.7;
 }
 
+/* 高亮只上 token 色，块级外观由上面的 pre 表面提供：
+   去掉 github-dark 主题自带的背景/内边距，也清掉 :deep(code) 内联芯片样式
+   （浅底 + 内边距）漏进 pre>code 的影响，保证高亮前后观感一致 */
+.mo-article-page .content-body :deep(pre code) {
+  padding: 0;
+  overflow-x: visible;
+  background: transparent;
+  color: inherit;
+}
+
 .mo-article-page .content-body :deep(blockquote) {
   margin: 18px 0;
   padding: 14px 20px;
@@ -1620,6 +1646,7 @@ html.dark .mo-article-page .reply-item + .reply-item {
   border-radius: var(--mo-r-md);
   font-size: var(--mo-fs-sm);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .mo-article-page .btn-primary {
