@@ -64,6 +64,17 @@
       </el-col>
       <el-col :span="1.5">
         <el-button
+          v-hasPermi="['blog:article:export']"
+          type="warning"
+          plain
+          icon="Download"
+          @click="handleExport"
+        >
+          导出
+        </el-button>
+      </el-col>
+      <el-col :span="1.5">
+        <el-button
           v-hasPermi="['blog:article:edit']"
           type="warning"
           plain
@@ -784,6 +795,17 @@ function resetQuery() {
     status: null
   }
   getList()
+}
+
+/** 导出按钮操作 */
+function handleExport() {
+  proxy.download(
+    'system/article/export',
+    {
+      ...queryParams.value
+    },
+    `article_${new Date().getTime()}.xlsx`
+  )
 }
 
 // 多选框选中数据
