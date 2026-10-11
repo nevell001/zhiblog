@@ -13,22 +13,30 @@
             </div>
           </header>
 
-          <div v-if="articles.length > 0" class="author-list">
-            <article
-              v-for="article in articles"
-              :key="article.id"
-              class="author-article"
-              @click="goArticle(article.id)"
-            >
-              <h3 class="aa-title">{{ article.title }}</h3>
-              <p v-if="article.summary" class="aa-excerpt">{{ article.summary }}</p>
-              <div class="aa-meta">
-                <span>{{ formatDate(article.createTime) }}</span>
-                <span>👁 {{ article.viewCount || 0 }}</span>
-                <span>💬 {{ article.commentCount || 0 }}</span>
-              </div>
-            </article>
-          </div>
+          <template v-if="articles.length > 0">
+            <div class="author-list">
+              <article
+                v-for="article in articles"
+                :key="article.id"
+                class="author-article"
+                @click="goArticle(article.id)"
+              >
+                <h3 class="aa-title">{{ article.title }}</h3>
+                <p v-if="article.summary" class="aa-excerpt">{{ article.summary }}</p>
+                <div class="aa-meta">
+                  <span>{{ formatDate(article.createTime) }}</span>
+                  <span>👁 {{ article.viewCount || 0 }}</span>
+                  <span>💬 {{ article.commentCount || 0 }}</span>
+                </div>
+              </article>
+            </div>
+            <BlogPager
+              :total="total"
+              :page-size="pageSize"
+              :page-num="pageNum"
+              @page-change="handlePageChange"
+            />
+          </template>
           <el-empty v-else description="该作者还没有发布文章">
             <el-button type="primary" @click="$router.push('/blog')">返回首页</el-button>
           </el-empty>
@@ -42,6 +50,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BlogLayout from '@/components/BlogLayout.vue'
+import BlogPager from '@/components/BlogPager.vue'
 import { getArticleList } from '@/api/blog/article'
 import { ElMessage } from '@/plugins/element-plus-service'
 import { logger } from '@/utils/logger'
@@ -53,6 +62,8 @@ const router = useRouter()
 const articles = ref([])
 const authorName = ref('')
 const total = ref(0)
+const pageNum = ref(1)
+const pageSize = 10
 const loading = ref(false)
 
 const authorId = computed(() => {
@@ -68,7 +79,7 @@ const loadAuthorArticles = async () => {
   if (!id) return
   loading.value = true
   try {
-    const params = { pageNum: 1, pageSize: 50, status: 1, authorId: id }
+    const params = { pageNum: pageNum.value, pageSize, status: 1, authorId: id }
     const response = await getArticleList(params)
     const rows = (response && (response.rows || response.data)) || []
     articles.value = Array.isArray(rows) ? rows : []
@@ -87,12 +98,21 @@ const loadAuthorArticles = async () => {
   }
 }
 
+const handlePageChange = (page: number) => {
+  if (page === pageNum.value) return
+  pageNum.value = page
+  loadAuthorArticles()
+}
+
 const goArticle = (id: number) => {
   if (id) router.push(`/blog/article/${id}`)
 }
 
 onMounted(loadAuthorArticles)
-watch(authorId, loadAuthorArticles)
+watch(authorId, () => {
+  pageNum.value = 1
+  loadAuthorArticles()
+})
 </script>
 
 <style scoped>

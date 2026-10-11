@@ -1,5 +1,5 @@
 <template>
-  <BlogLayout ref="blogLayoutRef">
+  <BlogLayout>
     <div class="blog-home-v2 mo-home-page">
       <header class="home-hero">
         <h1>记录与分享</h1>
@@ -161,6 +161,13 @@
               </div>
             </div>
           </div>
+
+          <div class="sidebar-widget">
+            <div class="widget-title">联系我们</div>
+            <button class="contact-entry" type="button" @click="showContact = true">
+              与博主取得联系
+            </button>
+          </div>
         </aside>
       </main>
 
@@ -202,7 +209,6 @@ const pageSize = ref(5)
 const total = ref(0)
 const searchKeyword = ref('')
 const showContact = ref(false)
-const blogLayoutRef = ref<any>(null)
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
 const pageItems = computed<(number | '…')[]>(() =>
@@ -598,6 +604,26 @@ onMounted(async () => {
   font-size: 11px;
 }
 
+.mo-home-page .contact-entry {
+  width: 100%;
+  padding: var(--mo-sp-2) var(--mo-sp-3);
+  border: 1px solid var(--mo-n200);
+  border-radius: var(--mo-r-md);
+  background: #fff;
+  color: var(--mo-n600);
+  font-size: 13px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.mo-home-page .contact-entry:hover {
+  border-color: var(--mo-p600);
+  color: var(--mo-p600);
+}
+
 .mo-home-page .pagination {
   display: flex;
   align-items: center;
@@ -945,6 +971,17 @@ html.dark .contact-close {
 }
 
 html.dark .contact-close:hover {
+  color: var(--mo-p300);
+}
+
+html.dark .mo-home-page .contact-entry {
+  background: var(--mo-n800);
+  border-color: var(--mo-n700);
+  color: var(--mo-n400);
+}
+
+html.dark .mo-home-page .contact-entry:hover {
+  border-color: var(--mo-p600);
   color: var(--mo-p300);
 }
 
