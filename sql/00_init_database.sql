@@ -1492,12 +1492,7 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 (20011, '文章新增', 2001, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:add', '#', 'admin', NOW(), '', NULL, ''),
 (20012, '文章修改', 2001, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:edit', '#', 'admin', NOW(), '', NULL, ''),
 (20013, '文章删除', 2001, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:remove', '#', 'admin', NOW(), '', NULL, ''),
-(20014, '文章导出', 2001, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:export', '#', 'admin', NOW(), '', NULL, ''),
-(20015, '文章标签查询', 2001, 6, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:list', '#', 'admin', NOW(), '', NULL, ''),
-(20016, '文章标签详情', 2001, 7, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:query', '#', 'admin', NOW(), '', NULL, ''),
-(20017, '文章标签新增', 2001, 8, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:add', '#', 'admin', NOW(), '', NULL, ''),
-(20018, '文章标签修改', 2001, 9, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:edit', '#', 'admin', NOW(), '', NULL, ''),
-(20019, '文章标签删除', 2001, 10, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:articleTag:remove', '#', 'admin', NOW(), '', NULL, '');
+(20014, '文章导出', 2001, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'blog:article:export', '#', 'admin', NOW(), '', NULL, '');
 
 -- 分类管理按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
@@ -1543,7 +1538,6 @@ INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, com
 -- 为管理员角色分配所有博客管理按钮权限
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 20010), (1, 20011), (1, 20012), (1, 20013), (1, 20014),
-(1, 20015), (1, 20016), (1, 20017), (1, 20018), (1, 20019),
 (1, 20020), (1, 20021), (1, 20022), (1, 20023),
 (1, 20024),
 (1, 20030), (1, 20031), (1, 20032), (1, 20033), (1, 20034),
@@ -1559,8 +1553,6 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (2, 2000), (2, 2001),
 -- 文章管理按钮权限（查询、新增、修改、删除、导出）
 (2, 20010), (2, 20011), (2, 20012), (2, 20013), (2, 20014),
--- 文章标签关联按钮权限
-(2, 20015), (2, 20016), (2, 20017), (2, 20018), (2, 20019),
 -- 分类管理
 (2, 2002),
 -- 分类管理按钮权限（查询、新增、修改、删除、导出）
@@ -1841,8 +1833,6 @@ VALUES (6003, '文章统计', 5, 2, 'article', 'statistics/article/index', '', '
 
 -- 文章统计按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(6004, '文章统计查询', 6003, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:query', '#', 'admin', NOW(), '', NULL, ''),
-(6005, '文章统计导出', 6003, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:export', '#', 'admin', NOW(), '', NULL, ''),
 (6009, '文章趋势', 6003, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:trend', '#', 'admin', NOW(), '', NULL, ''),
 (6010, '分类分布', 6003, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:category-distribution', '#', 'admin', NOW(), '', NULL, ''),
 (6011, '热门标签', 6003, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:article:hot-tags', '#', 'admin', NOW(), '', NULL, '');
@@ -1853,8 +1843,6 @@ VALUES (6006, '用户统计', 5, 3, 'user', 'statistics/user/index', '', '', 1, 
 
 -- 用户统计按钮权限
 INSERT IGNORE INTO sys_menu (menu_id, menu_name, parent_id, order_num, path, component, `query`, route_name, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark) VALUES
-(6007, '用户统计查询', 6006, 1, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:query', '#', 'admin', NOW(), '', NULL, ''),
-(6008, '用户统计导出', 6006, 2, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:export', '#', 'admin', NOW(), '', NULL, ''),
 (6012, '用户活跃', 6006, 3, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:activity', '#', 'admin', NOW(), '', NULL, ''),
 (6013, '注册趋势', 6006, 4, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:register-trend', '#', 'admin', NOW(), '', NULL, ''),
 (6014, '角色分布', 6006, 5, '', '', '', '', 1, 0, 'F', '0', '0', 'statistics:user:role-distribution', '#', 'admin', NOW(), '', NULL, '');
@@ -1912,8 +1900,8 @@ INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 INSERT IGNORE INTO sys_role_menu (role_id, menu_id) VALUES
 (1, 5),
 (1, 6001), (1, 6002),
-(1, 6003), (1, 6004), (1, 6005), (1, 6009), (1, 6010), (1, 6011),
-(1, 6006), (1, 6007), (1, 6008), (1, 6012), (1, 6013), (1, 6014),
+(1, 6003), (1, 6009), (1, 6010), (1, 6011),
+(1, 6006), (1, 6012), (1, 6013), (1, 6014),
 (1, 6015), (1, 6016), (1, 6017), (1, 6018);
 
 -- ========== 创建性能优化索引（幂等，调用前面的存储过程） ==========

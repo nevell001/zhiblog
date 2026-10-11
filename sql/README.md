@@ -78,6 +78,53 @@ docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_fix_blog_use
 
 脚本首尾各有一段只读 `SELECT`，跑完对照第二段的「修复后类型」应全为 `01`。
 
+### `99_fix_about_page_v1.4.5.sql` （v1.4.5 一次性迁移）
+把旧「关于内容」设置搬进「页面管理」：v1.4.5 起关于页改由 `blog_page` 中 `slug='about'` 的页面行驱动
+（`/blog/about` 仅渲染该行、导航「关于」入口由该行「导航显示」开关控制），
+`blog_setting.about_content` 设置键全链路退役、不再被读写。
+
+- **谁需要跑**：v1.4.5 之前产生过 `about_content` 设置行（旧版 00 种子或后台设置页写入）、
+  且页面管理里还没有 `slug='about'` 页的存量实例。**新装不需要**（00 脚本自带演示版「关于」页种子，
+  且已不再写 `about_content`）。
+- **为什么不能靠重跑 00**：00 只 `INSERT IGNORE` 一条演示版「关于」页，站长自定义过的旧内容不会自动继承；
+  而升级后既不跑本脚本也不重跑 00 的话，关于页会空白、导航入口消失。
+- **安全性**：只做「插入缺失行」——仅当 `blog_page` 中不存在 `slug='about'`
+  （含逻辑删除，删除即删除，与 00 的 INSERT IGNORE 语义一致）且旧内容非空白时才插入，
+  不覆盖页面管理里的任何现有编辑；迁移行取 `show_in_nav='1'` 保持升级前导航入口的既有行为
+  （00 种子的演示行默认 `'0'`，那是新装的选择）；旧内容为空或缺失时不插入任何行；
+  可重复执行，第二次跑 0 行受影响。
+- **执行前请备份，脚本刻意不写 `CREATE DATABASE` / `USE`**，库名由命令行给出：
+
+```bash
+mysqldump --single-transaction zhiblog blog_setting blog_page > about.before.sql
+mysql -u root -p zhiblog < sql/99_fix_about_page_v1.4.5.sql
+# Docker
+docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_fix_about_page_v1.4.5.sql
+```
+
+脚本首尾各有一段只读 `SELECT`，跑完对照第二段的「内容长度」应与自检里旧内容的长度一致。
+
+### `99_cleanup_dead_menus_v1.4.5.sql` （v1.4.5 一次性清理）
+删 **已有安装** 里 9 条无实现的死菜单权限行（含各自 `sys_role_menu` 授权）：
+`blog:articleTag:*` × 5（v1.4.5 已删除对应 Controller/Service，前端从未使用）、
+`statistics:article:query|export` 与 `statistics:user:query|export` × 4
+（统计页实际用的是 `statistics:article:list/trend/...` 等，这 4 个从未实现）。
+
+- **谁需要跑**：v1.4.4 及更早版本初始化过数据库的实例。**新装不需要**（00 种子已删除这些行）。
+- **为什么不能靠重跑 00**：00 的 `INSERT IGNORE` 只跳过已有行、不删除存量数据，旧权限行会原地留着。
+- **安全性**：按 `perms` 字符串定位（不硬编码 menu_id），先删授权、再删菜单，不留悬挂引用；
+  可重复执行，第二次跑 0 行受影响。
+- **执行前请备份，脚本刻意不写 `CREATE DATABASE` / `USE`**，库名由命令行给出：
+
+```bash
+mysqldump --single-transaction zhiblog sys_menu sys_role_menu > menus.before.sql
+mysql -u root -p zhiblog < sql/99_cleanup_dead_menus_v1.4.5.sql
+# Docker
+docker exec -i mysql mysql -uroot -p"$DB_PASSWORD" zhiblog < sql/99_cleanup_dead_menus_v1.4.5.sql
+```
+
+脚本首尾各有一段只读 `SELECT`，跑完对照复核段的两个计数都应为 0。
+
 ## 使用方法
 
 ### 新部署（首次安装）
@@ -111,7 +158,9 @@ mysql -u root -p zhiblog < sql/00_init_database.sql
 但也因为「不会覆盖已有数据」，涉及既有数据行的修复要另外跑 `99_*.sql`：
 v1.4.2 的示例文章正文/分类/标签就是这种情况，见上面的
 `99_fix_sample_articles_v1.4.2.sql`；v1.4.3 的注册用户 `user_type` 同理，见
-`99_fix_blog_user_type_v1.4.3.sql`。
+`99_fix_blog_user_type_v1.4.3.sql`；v1.4.5 的「关于内容 → 页面管理」迁移同理，见
+`99_fix_about_page_v1.4.5.sql`；v1.4.5 的死菜单权限清理见
+`99_cleanup_dead_menus_v1.4.5.sql`。
 
 ### 在 Docker 中执行
 
